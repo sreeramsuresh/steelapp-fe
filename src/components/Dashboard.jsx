@@ -93,7 +93,8 @@ const StatsCard = styled(Card)(({ theme, variant = 'default' }) => {
     borderRadius: theme.spacing(2),
     boxShadow: theme.shadows[1],
     transition: 'all 0.3s ease-in-out',
-    height: '120px',
+    height: { xs: 'auto', sm: '120px' },
+    minHeight: { xs: '100px', sm: '120px' },
     display: 'flex',
     flexDirection: 'column',
     '&:hover': {
@@ -106,8 +107,8 @@ const StatsCard = styled(Card)(({ theme, variant = 'default' }) => {
 });
 
 const StatsIcon = styled(Box)(({ theme }) => ({
-  width: 44,
-  height: 44,
+  width: { xs: 36, sm: 44 },
+  height: { xs: 36, sm: 44 },
   borderRadius: theme.spacing(1.5),
   display: 'flex',
   alignItems: 'center',
@@ -115,6 +116,10 @@ const StatsIcon = styled(Box)(({ theme }) => ({
   marginLeft: 'auto',
   boxShadow: theme.shadows[2],
   transition: 'all 0.3s ease',
+  '& svg': {
+    width: { xs: 16, sm: 18 },
+    height: { xs: 16, sm: 18 },
+  }
 }));
 
 const ChangeIndicator = styled(Box, {
@@ -165,16 +170,26 @@ const ProductListItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: theme.spacing(2),
+  padding: theme.spacing(1.5, 2),
   borderBottom: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1),
   transition: 'all 0.2s ease',
+  flexDirection: 'row',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5, 1),
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.spacing(1),
+  },
   '&:last-child': {
     borderBottom: 'none',
   },
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
     transform: 'translateX(4px)',
+    [theme.breakpoints.down('sm')]: {
+      transform: 'none',
+    },
   },
 }));
 
@@ -296,10 +311,24 @@ const Dashboard = () => {
   return (
     <DashboardContainer>
       <SectionHeader>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 600, 
+            mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.125rem' }
+          }}
+        >
           📊 Dashboard
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography 
+          variant="body1" 
+          color="text.secondary"
+          sx={{
+            fontSize: { xs: '0.875rem', sm: '1rem' }
+          }}
+        >
           Welcome back! Here's what's happening with your business.
         </Typography>
       </SectionHeader>
@@ -308,13 +337,30 @@ const Dashboard = () => {
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard variant="default">
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2.5, '&:last-child': { pb: 2.5 } }}>
+            <CardContent sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              p: { xs: 1.5, sm: 2.5 }, 
+              '&:last-child': { pb: { xs: 1.5, sm: 2.5 } } 
+            }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 0.5, 
+                    fontWeight: 500, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: 0.5, 
+                    fontSize: { xs: '0.625rem', sm: '0.75rem' }
+                  }}>
                     Total Revenue
                   </Typography>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  <Typography variant="h6" component="div" sx={{ 
+                    fontWeight: 700, 
+                    lineHeight: 1.2,
+                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                  }}>
                     {formatCurrency(stats.totalRevenue)}
                   </Typography>
                 </Box>
@@ -332,13 +378,30 @@ const Dashboard = () => {
 
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard variant="success">
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2.5, '&:last-child': { pb: 2.5 } }}>
+            <CardContent sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              p: { xs: 1.5, sm: 2.5 }, 
+              '&:last-child': { pb: { xs: 1.5, sm: 2.5 } } 
+            }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 0.5, 
+                    fontWeight: 500, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: 0.5, 
+                    fontSize: { xs: '0.625rem', sm: '0.75rem' }
+                  }}>
                     Total Customers
                   </Typography>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  <Typography variant="h6" component="div" sx={{ 
+                    fontWeight: 700, 
+                    lineHeight: 1.2,
+                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                  }}>
                     {stats.totalCustomers}
                   </Typography>
                 </Box>
@@ -356,13 +419,30 @@ const Dashboard = () => {
 
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard variant="warning">
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2.5, '&:last-child': { pb: 2.5 } }}>
+            <CardContent sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              p: { xs: 1.5, sm: 2.5 }, 
+              '&:last-child': { pb: { xs: 1.5, sm: 2.5 } } 
+            }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 0.5, 
+                    fontWeight: 500, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: 0.5, 
+                    fontSize: { xs: '0.625rem', sm: '0.75rem' }
+                  }}>
                     Total Products
                   </Typography>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  <Typography variant="h6" component="div" sx={{ 
+                    fontWeight: 700, 
+                    lineHeight: 1.2,
+                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                  }}>
                     {stats.totalProducts}
                   </Typography>
                 </Box>
@@ -380,13 +460,30 @@ const Dashboard = () => {
 
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard variant="error">
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2.5, '&:last-child': { pb: 2.5 } }}>
+            <CardContent sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              p: { xs: 1.5, sm: 2.5 }, 
+              '&:last-child': { pb: { xs: 1.5, sm: 2.5 } } 
+            }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 0.5, 
+                    fontWeight: 500, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: 0.5, 
+                    fontSize: { xs: '0.625rem', sm: '0.75rem' }
+                  }}>
                     Total Invoices
                   </Typography>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  <Typography variant="h6" component="div" sx={{ 
+                    fontWeight: 700, 
+                    lineHeight: 1.2,
+                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                  }}>
                     {stats.totalInvoices}
                   </Typography>
                 </Box>
@@ -405,19 +502,47 @@ const Dashboard = () => {
 
       {/* Charts and Tables Row */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ height: '350px', borderRadius: 2, overflow: 'hidden', display: 'flex', flexDirection: 'column', border: `1px solid`, borderColor: 'divider' }}>
+        <Grid item xs={12} lg={8}>
+          <Card sx={{ 
+            height: { xs: 'auto', md: '350px' }, 
+            minHeight: { xs: '300px', md: '350px' },
+            borderRadius: 2, 
+            overflow: 'hidden', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            border: `1px solid`, 
+            borderColor: 'divider' 
+          }}>
             <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
                 <Box>
-                  <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      mb: 0.5,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
                     Revenue Analytics
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
+                  >
                     Track your revenue trends and performance
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 1,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  '& > *': { minWidth: { xs: '100%', sm: 'auto' } }
+                }}>
                   <Button
                     variant="outlined"
                     size="small"
@@ -454,30 +579,81 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '350px', borderRadius: 2, display: 'flex', flexDirection: 'column', border: `1px solid`, borderColor: 'divider' }}>
-            <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+        <Grid item xs={12} lg={4}>
+          <Card sx={{ 
+            height: { xs: 'auto', md: '350px' }, 
+            minHeight: { xs: '250px', md: '350px' },
+            borderRadius: 2, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            border: `1px solid`, 
+            borderColor: 'divider' 
+          }}>
+            <CardContent sx={{ 
+              p: { xs: 2, sm: 3 }, 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column' 
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 1, sm: 0 },
+                mb: 2.5 
+              }}>
                 <Box>
-                  <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      mb: 0.5,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
                     Top Products
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
+                  >
                     Best performing products
                   </Typography>
                 </Box>
-                <Button variant="outlined" size="small" sx={{ borderRadius: 2 }}>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  sx={{ 
+                    borderRadius: 2,
+                    minWidth: { xs: '100%', sm: 'auto' }
+                  }}
+                >
                   View All
                 </Button>
               </Box>
-              <Box sx={{ flex: 1, maxHeight: '260px', overflowY: 'auto', pr: 1 }}>
+              <Box sx={{ 
+                flex: 1, 
+                maxHeight: { xs: '180px', md: '260px' }, 
+                overflowY: 'auto', 
+                pr: { xs: 0, sm: 1 }
+              }}>
                 {topProducts.length > 0 ? topProducts.map((product, index) => (
                   <ProductListItem key={product.id}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 2,
+                      width: { xs: '100%', sm: 'auto' }
+                    }}>
                       <Avatar
                         sx={{
-                          width: 40,
-                          height: 40,
+                          width: { xs: 36, sm: 40 },
+                          height: { xs: 36, sm: 40 },
                           background: index % 4 === 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 
                                      index % 4 === 1 ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' :
                                      index % 4 === 2 ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' :
@@ -488,19 +664,35 @@ const Dashboard = () => {
                         <Package size={18} />
                       </Avatar>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        <Typography variant="body2" sx={{ 
+                          fontWeight: 600, 
+                          mb: 0.5,
+                          fontSize: { xs: '0.875rem', sm: '0.875rem' }
+                        }}>
                           {product.name}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{
+                          fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                        }}>
                           {product.category}
                         </Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ textAlign: 'right', ml: 2 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    <Box sx={{ 
+                      textAlign: { xs: 'left', sm: 'right' }, 
+                      ml: { xs: 0, sm: 2 },
+                      alignSelf: { xs: 'flex-start', sm: 'center' }
+                    }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: 600, 
+                        mb: 0.5,
+                        fontSize: { xs: '0.875rem', sm: '0.875rem' }
+                      }}>
                         {formatCurrency(product.revenue)}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" sx={{
+                        fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                      }}>
                         {product.sales} sales
                       </Typography>
                     </Box>
@@ -529,23 +721,45 @@ const Dashboard = () => {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
                 <Box>
-                  <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      mb: 0.5,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
                     Recent Invoices
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
+                  >
                     Latest invoice activity and status updates
                   </Typography>
                 </Box>
                 <Button
                   variant="contained"
                   startIcon={<FileText size={16} />}
-                  sx={{ borderRadius: 2 }}
+                  sx={{ 
+                    borderRadius: 2,
+                    minWidth: { xs: '100%', sm: 'auto' }
+                  }}
                 >
                   Create Invoice
                 </Button>
               </Box>
-              <TableContainer>
-                <Table>
+              <TableContainer sx={{ 
+                overflowX: 'auto', 
+                '& .MuiTable-root': { 
+                  minWidth: { xs: 650, sm: 'auto' }
+                }
+              }}>
+                <Table size="small">
                   <TableHead>
                     <TableRow>
                       <TableCell>Invoice No.</TableCell>
@@ -597,7 +811,12 @@ const Dashboard = () => {
                           />
                         </TableCell>
                         <TableCell>
-                          <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            gap: 1,
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            '& > *': { minWidth: { xs: '100%', sm: 'auto' } }
+                          }}>
                             <Button variant="outlined" size="small">
                               View
                             </Button>
