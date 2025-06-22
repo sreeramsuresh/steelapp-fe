@@ -17,7 +17,8 @@ import {
   CircularProgress, 
   Avatar, 
   LinearProgress,
-  Divider
+  Divider,
+  IconButton
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
@@ -30,9 +31,12 @@ import {
   Activity,
   Calendar,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { apiClient } from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Styled Components
 const DashboardContainer = styled(Box)(({ theme }) => ({
@@ -222,6 +226,7 @@ const Dashboard = () => {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     fetchDashboardData();
@@ -311,26 +316,44 @@ const Dashboard = () => {
   return (
     <DashboardContainer>
       <SectionHeader>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 1,
-            fontSize: { xs: '1.75rem', sm: '2.125rem' }
-          }}
-        >
-          📊 Dashboard
-        </Typography>
-        <Typography 
-          variant="body1" 
-          color="text.secondary"
-          sx={{
-            fontSize: { xs: '0.875rem', sm: '1rem' }
-          }}
-        >
-          Welcome back! Here's what's happening with your business.
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography 
+              variant="h4" 
+              component="h1" 
+              sx={{ 
+                fontWeight: 600, 
+                mb: 1,
+                fontSize: { xs: '1.75rem', sm: '2.125rem' }
+              }}
+            >
+              📊 Dashboard
+            </Typography>
+            <Typography 
+              variant="body1" 
+              color="text.secondary"
+              sx={{
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }}
+            >
+              Welcome back! Here's what's happening with your business.
+            </Typography>
+          </Box>
+          <IconButton 
+            onClick={toggleTheme}
+            sx={{ 
+              border: 1,
+              borderColor: 'divider',
+              '&:hover': { 
+                borderColor: 'primary.main',
+                backgroundColor: 'action.hover',
+              }
+            }}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </IconButton>
+        </Box>
       </SectionHeader>
 
       {/* Stats Cards */}

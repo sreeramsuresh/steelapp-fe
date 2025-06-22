@@ -21,7 +21,8 @@ import {
   MenuList
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
-import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle } from 'lucide-react';
+import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Styled Components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -156,6 +157,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleProfileClick = (event) => {
     setProfileAnchorEl(event.currentTarget);
@@ -252,6 +254,22 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
 
         {/* Right Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Theme Toggle */}
+          <IconButton 
+            color="inherit" 
+            onClick={toggleTheme}
+            sx={{ 
+              color: 'text.primary',
+              '&:hover': { 
+                backgroundColor: alpha('#667eea', 0.1),
+                color: 'primary.main',
+              }
+            }}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </IconButton>
+
           {/* Notifications */}
           <IconButton 
             color="inherit" 

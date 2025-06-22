@@ -128,7 +128,7 @@ const SearchBox = styled(Box)(({ theme }) => ({
 }));
 
 const CustomerCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.grey[600],
+  background: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1.5),
   padding: theme.spacing(3),
@@ -137,8 +137,8 @@ const CustomerCard = styled(Card)(({ theme }) => ({
   overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-4px)',
-    boxShadow: theme.shadows[3],
-    borderColor: theme.palette.grey[400],
+    boxShadow: theme.shadows[4],
+    borderColor: theme.palette.primary.main,
   },
 }));
 
@@ -191,10 +191,10 @@ const CustomerActions = styled(Box)(({ theme }) => ({
 const ActionButton = styled(IconButton)(({ theme }) => ({
   width: 32,
   height: 32,
-  background: theme.palette.grey[700],
+  background: theme.palette.background.default,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1),
-  color: theme.palette.text.disabled,
+  color: theme.palette.text.secondary,
   transition: 'all 0.3s ease',
   '&:hover': {
     background: theme.palette.primary.main,
@@ -257,14 +257,15 @@ const UtilizationText = styled(Typography)(({ theme }) => ({
 }));
 
 const AnalyticsCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.grey[600],
+  background: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1.5),
   padding: theme.spacing(3),
   transition: 'all 0.3s ease',
   '&:hover': {
     transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[2],
+    boxShadow: theme.shadows[4],
+    borderColor: theme.palette.primary.main,
   },
 }));
 
@@ -288,11 +289,15 @@ const AnalyticsSubtitle = styled(Typography)(({ theme }) => ({
 }));
 
 const ChartCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.grey[600],
+  background: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1.5),
   padding: theme.spacing(3),
   marginTop: theme.spacing(4),
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: theme.shadows[2],
+  },
 }));
 
 const UtilizationRow = styled(Box)(({ theme }) => ({
@@ -304,7 +309,7 @@ const UtilizationRow = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   transition: 'background 0.3s ease',
   '&:hover': {
-    background: theme.palette.grey[700],
+    background: theme.palette.action.hover,
   },
 }));
 
@@ -350,7 +355,7 @@ const DialogHeader = styled(DialogTitle)(({ theme }) => ({
   alignItems: 'center',
   padding: theme.spacing(3),
   borderBottom: `1px solid ${theme.palette.divider}`,
-  background: theme.palette.grey[600],
+  background: theme.palette.background.default,
 }));
 
 const FormGrid = styled(Box)(({ theme }) => ({
@@ -370,15 +375,15 @@ const ContactHistorySection = styled(Box)(({ theme }) => ({
 }));
 
 const HistoryItem = styled(Card)(({ theme }) => ({
-  background: theme.palette.grey[600],
+  background: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1.5),
   padding: theme.spacing(3),
   marginBottom: theme.spacing(2),
   transition: 'all 0.3s ease',
   '&:hover': {
-    background: theme.palette.grey[700],
-    borderColor: theme.palette.grey[400],
+    background: theme.palette.action.hover,
+    borderColor: theme.palette.primary.main,
   },
 }));
 

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, useLocation } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, CircularProgress, Typography } from '@mui/material';
-import muiTheme from './theme/muiTheme';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopNavbar from './components/TopNavbar';
 import AppRouter from './components/AppRouter';
@@ -78,6 +78,7 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
 // Helper component to get current page title
 const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
+  const { theme } = useTheme();
   
   const getPageTitle = () => {
     const path = location.pathname;
@@ -156,6 +157,30 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
   );
 };
 
+// Themed App wrapper that uses the theme context
+const ThemedApp = ({ isLoading, ...props }) => {
+  const { theme } = useTheme();
+
+  if (isLoading) {
+    return (
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        <LoadingContainer>
+          <CircularProgress size={32} />
+          <Typography color="text.primary">Loading Steel Invoice Pro...</Typography>
+        </LoadingContainer>
+      </MuiThemeProvider>
+    );
+  }
+
+  return (
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppContent {...props} />
+    </MuiThemeProvider>
+  );
+};
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
   const [user, setUser] = useState(null);
@@ -231,21 +256,16 @@ function App() {
 
   if (loading) {
     return (
-      <ThemeProvider theme={muiTheme}>
-        <CssBaseline />
-        <LoadingContainer>
-          <CircularProgress size={32} />
-          <Typography color="text.primary">Loading Steel Invoice Pro...</Typography>
-        </LoadingContainer>
+      <ThemeProvider>
+        <ThemedApp isLoading={true} />
       </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider theme={muiTheme}>
-      <CssBaseline />
+    <ThemeProvider>
       <Router>
-        <AppContent 
+        <ThemedApp 
           user={user}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
