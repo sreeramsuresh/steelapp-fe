@@ -73,7 +73,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
 
   const company = createCompany();
