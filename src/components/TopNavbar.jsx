@@ -21,7 +21,7 @@ import {
   MenuList
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
-import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon } from 'lucide-react';
+import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 // Styled Components
@@ -157,7 +157,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, themeMode, toggleTheme } = useTheme();
 
   const handleProfileClick = (event) => {
     setProfileAnchorEl(event.currentTarget);
@@ -265,9 +265,21 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                 color: 'primary.main',
               }
             }}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={
+              themeMode === 'system' 
+                ? `System Theme (${isDarkMode ? 'Dark' : 'Light'})` 
+                : themeMode === 'dark' 
+                ? 'Dark Mode' 
+                : 'Light Mode'
+            }
           >
-            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            {themeMode === 'system' ? (
+              <Monitor size={18} />
+            ) : themeMode === 'dark' ? (
+              <Moon size={18} />
+            ) : (
+              <Sun size={18} />
+            )}
           </IconButton>
 
           {/* Notifications */}

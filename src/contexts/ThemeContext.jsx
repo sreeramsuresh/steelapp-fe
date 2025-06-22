@@ -519,19 +519,64 @@ const lightTheme = createTheme({
   },
 });
 
+// Helper function to detect system theme preference
+const getSystemTheme = () => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false; // Default to light if unable to detect
+};
+
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [themeMode, setThemeMode] = useState(() => {
     const saved = localStorage.getItem('themeMode');
-    return saved ? saved === 'dark' : true; // Default to dark mode
+    return saved || 'system'; // Default to system mode
   });
 
+  const [systemIsDark, setSystemIsDark] = useState(getSystemTheme);
+
+  // Determine the actual theme based on mode
+  const isDarkMode = themeMode === 'system' ? systemIsDark : themeMode === 'dark';
   const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
+  // Cycle through theme modes: light -> dark -> system -> light...
   const toggleTheme = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem('themeMode', newMode ? 'dark' : 'light');
+    let newMode;
+    if (themeMode === 'light') {
+      newMode = 'dark';
+    } else if (themeMode === 'dark') {
+      newMode = 'system';
+    } else {
+      newMode = 'light';
+    }
+    setThemeMode(newMode);
+    localStorage.setItem('themeMode', newMode);
   };
+
+  // Set specific theme mode
+  const setTheme = (mode) => {
+    setThemeMode(mode);
+    localStorage.setItem('themeMode', mode);
+  };
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      const handleSystemThemeChange = (e) => {
+        setSystemIsDark(e.matches);
+      };
+      
+      // Add listener for system theme changes
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
+      
+      // Cleanup listener on unmount
+      return () => {
+        mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     // Update CSS custom properties for the current theme
@@ -564,7 +609,10 @@ export const ThemeProvider = ({ children }) => {
 
   const value = {
     isDarkMode,
+    themeMode,
+    systemIsDark,
     toggleTheme,
+    setTheme,
     theme: currentTheme,
   };
 

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
-  Typography, 
-  InputAdornment, 
+import React, { useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  InputAdornment,
   IconButton,
   Alert,
   CircularProgress,
@@ -15,29 +15,29 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { 
-  Lock, 
-  Mail, 
-  Visibility, 
-  VisibilityOff, 
-  Login as LoginIcon, 
-  PersonAdd 
-} from '@mui/icons-material';
-import { authService } from '../services/axiosAuthService';
+  InputLabel,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import {
+  Lock,
+  Mail,
+  Visibility,
+  VisibilityOff,
+  Login as LoginIcon,
+  PersonAdd,
+} from "@mui/icons-material";
+import { authService } from "../services/axiosAuthService";
 
 const LoginContainer = styled(Box)(({ theme }) => ({
-  minHeight: '100vh',
-  width: '100vw',
+  minHeight: "100vh",
+  width: "100vw",
   background: theme.palette.background.default,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   padding: 0,
   margin: 0,
-  position: 'fixed',
+  position: "fixed",
   top: 0,
   left: 0,
   right: 0,
@@ -49,90 +49,128 @@ const LoginCard = styled(Card)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(2),
   padding: theme.spacing(3),
-  width: '100%',
-  maxWidth: '420px',
-  minWidth: '320px',
+  width: "100%",
+  maxWidth: "420px",
+  minWidth: "320px",
   boxShadow: theme.shadows[4],
   margin: theme.spacing(2),
 }));
 
 const LoginHeader = styled(Box)(({ theme }) => ({
-  textAlign: 'center',
+  textAlign: "center",
   marginBottom: theme.spacing(3),
 }));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
   background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  backgroundClip: 'text',
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
   marginBottom: theme.spacing(1),
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
-  '& .MuiOutlinedInput-root': {
-    '& input': {
+  "& .MuiOutlinedInput-root": {
+    backgroundColor: theme.palette.background.paper,
+    "& input": {
       paddingLeft: theme.spacing(6),
-      color: `${theme.palette.text.primary} !important`,
-    },
-    '&.Mui-focused': {
-      '& .MuiInputAdornment-root svg': {
-        color: theme.palette.primary.main,
-        transform: 'scale(1.1)',
+      color: theme.palette.text.primary,
+      // Override browser autofill styling
+      "&:-webkit-autofill": {
+        WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset !important`,
+        WebkitTextFillColor: `${theme.palette.text.primary} !important`,
+        backgroundColor: `${theme.palette.background.paper} !important`,
+        caretColor: theme.palette.text.primary,
+        transition: "background-color 5000s ease-in-out 0s",
+      },
+      "&:-webkit-autofill:hover": {
+        WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset !important`,
+        WebkitTextFillColor: `${theme.palette.text.primary} !important`,
+      },
+      "&:-webkit-autofill:focus": {
+        WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset !important`,
+        WebkitTextFillColor: `${theme.palette.text.primary} !important`,
+      },
+      "&:-webkit-autofill:active": {
+        WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset !important`,
+        WebkitTextFillColor: `${theme.palette.text.primary} !important`,
       },
     },
+    "&.Mui-focused": {
+      backgroundColor: theme.palette.background.paper,
+      "& .MuiInputAdornment-root svg": {
+        color: theme.palette.primary.main,
+        transform: "scale(1.1)",
+      },
+    },
+    "& fieldset": {
+      borderColor: theme.palette.divider,
+    },
+    "&:hover fieldset": {
+      borderColor: theme.palette.text.secondary,
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: theme.palette.primary.main,
+    },
   },
-  '& .MuiInputAdornment-root': {
-    position: 'absolute',
+  "& .MuiInputAdornment-root": {
+    position: "absolute",
     left: theme.spacing(2),
-    '& svg': {
-      transition: 'all 0.3s ease',
+    "& svg": {
+      transition: "all 0.3s ease",
       color: theme.palette.text.disabled,
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: theme.palette.text.secondary,
+    "&.Mui-focused": {
+      color: theme.palette.primary.main,
     },
   },
 }));
 
 const AnimatedButton = styled(Button)(({ theme }) => ({
-  width: '100%',
+  width: "100%",
   padding: `${theme.spacing(1.5)} ${theme.spacing(2)}`,
-  fontSize: '1rem',
+  fontSize: "1rem",
   fontWeight: 600,
   borderRadius: theme.spacing(1),
   marginTop: theme.spacing(2),
-  position: 'relative',
-  overflow: 'hidden',
-  transition: 'all 0.3s ease',
-  '&::before': {
+  position: "relative",
+  overflow: "hidden",
+  transition: "all 0.3s ease",
+  "&::before": {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    left: '-100%',
-    width: '100%',
-    height: '100%',
-    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
-    transition: 'left 0.5s ease',
+    left: "-100%",
+    width: "100%",
+    height: "100%",
+    background:
+      "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)",
+    transition: "left 0.5s ease",
   },
-  '&:hover::before': {
-    left: '100%',
+  "&:hover::before": {
+    left: "100%",
   },
-  '&:hover': {
-    transform: 'translateY(-2px)',
+  "&:hover": {
+    transform: "translateY(-2px)",
     boxShadow: theme.shadows[3],
   },
-  '&:active': {
-    transform: 'translateY(0)',
+  "&:active": {
+    transform: "translateY(0)",
     boxShadow: theme.shadows[2],
   },
-  '&.loading': {
+  "&.loading": {
     opacity: 0.8,
-    transform: 'none',
-    '&:hover': {
-      transform: 'none',
+    transform: "none",
+    "&:hover": {
+      transform: "none",
       boxShadow: theme.shadows[1],
     },
-    '&::before': {
-      display: 'none',
+    "&::before": {
+      display: "none",
     },
   },
 }));
@@ -140,47 +178,47 @@ const AnimatedButton = styled(Button)(({ theme }) => ({
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   borderRadius: theme.spacing(1),
-  animation: 'errorSlideIn 0.3s ease-out',
-  backdropFilter: 'blur(10px)',
-  '@keyframes errorSlideIn': {
+  animation: "errorSlideIn 0.3s ease-out",
+  backdropFilter: "blur(10px)",
+  "@keyframes errorSlideIn": {
     from: {
       opacity: 0,
-      transform: 'translateY(-10px)',
+      transform: "translateY(-10px)",
     },
     to: {
       opacity: 1,
-      transform: 'translateY(0)',
+      transform: "translateY(0)",
     },
   },
 }));
 
 const LoginFooter = styled(Box)(({ theme }) => ({
-  textAlign: 'center',
+  textAlign: "center",
   marginTop: theme.spacing(3),
 }));
 
 const LinkButton = styled(Button)(({ theme }) => ({
-  background: 'none',
-  border: 'none',
+  background: "none",
+  border: "none",
   color: theme.palette.primary.main,
-  cursor: 'pointer',
-  textDecoration: 'underline',
-  fontSize: 'inherit',
+  cursor: "pointer",
+  textDecoration: "underline",
+  fontSize: "inherit",
   marginLeft: theme.spacing(0.5),
   padding: 0,
-  minWidth: 'auto',
-  '&:hover': {
+  minWidth: "auto",
+  "&:hover": {
     color: theme.palette.secondary.main,
-    textDecoration: 'underline',
-    background: 'none',
+    textDecoration: "underline",
+    background: "none",
   },
 }));
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-  '& .MuiTab-root': {
-    minWidth: '50%',
-    textTransform: 'none',
+  "& .MuiTab-root": {
+    minWidth: "50%",
+    textTransform: "none",
     fontWeight: 500,
   },
 }));
@@ -190,19 +228,19 @@ const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'user'
+    name: "",
+    email: "",
+    password: "",
+    role: "user",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const isLogin = activeTab === 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       let response;
@@ -216,7 +254,7 @@ const Login = ({ onLoginSuccess }) => {
         onLoginSuccess(response.user);
       }
     } catch (error) {
-      setError(error.message || 'Authentication failed');
+      setError(error.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -225,13 +263,13 @@ const Login = ({ onLoginSuccess }) => {
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    setError('');
+    setError("");
   };
 
   return (
@@ -242,7 +280,7 @@ const Login = ({ onLoginSuccess }) => {
             Steel Invoice Pro
           </StyledTypography>
           <Typography variant="body1" color="text.secondary">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
+            {isLogin ? "Sign in to your account" : "Create your account"}
           </Typography>
         </LoginHeader>
 
@@ -267,37 +305,12 @@ const Login = ({ onLoginSuccess }) => {
               onChange={handleInputChange}
               required
               variant="outlined"
-              className="login-input"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#1E2328 !important',
-                  '&.Mui-focused': {
-                    backgroundColor: '#1E2328 !important',
-                  },
-                  '& fieldset': {
-                    backgroundColor: 'transparent !important',
-                  },
-                  '&.Mui-focused fieldset': {
-                    backgroundColor: 'transparent !important',
-                  },
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: '#FFFFFF !important',
-                  WebkitTextFillColor: '#FFFFFF !important',
-                  opacity: '1 !important',
-                  backgroundColor: 'transparent !important',
-                }
-              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <PersonAdd />
                   </InputAdornment>
                 ),
-                style: { color: '#FFFFFF' },
-              }}
-              inputProps={{
-                style: { color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', opacity: 1 }
               }}
             />
           )}
@@ -311,37 +324,12 @@ const Login = ({ onLoginSuccess }) => {
             onChange={handleInputChange}
             required
             variant="outlined"
-            className="login-input"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#1E2328 !important',
-                '&.Mui-focused': {
-                  backgroundColor: '#1E2328 !important',
-                },
-                '& fieldset': {
-                  backgroundColor: 'transparent !important',
-                },
-                '&.Mui-focused fieldset': {
-                  backgroundColor: 'transparent !important',
-                },
-              },
-              '& .MuiOutlinedInput-input': {
-                color: '#FFFFFF !important',
-                WebkitTextFillColor: '#FFFFFF !important',
-                opacity: '1 !important',
-                backgroundColor: 'transparent !important',
-              }
-            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <Mail />
                 </InputAdornment>
               ),
-              style: { color: '#FFFFFF' },
-            }}
-            inputProps={{
-              style: { color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', opacity: 1 }
             }}
           />
 
@@ -349,32 +337,11 @@ const Login = ({ onLoginSuccess }) => {
             fullWidth
             label="Password"
             name="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={formData.password}
             onChange={handleInputChange}
             required
             variant="outlined"
-            className="login-input"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#1E2328 !important',
-                '&.Mui-focused': {
-                  backgroundColor: '#1E2328 !important',
-                },
-                '& fieldset': {
-                  backgroundColor: 'transparent !important',
-                },
-                '&.Mui-focused fieldset': {
-                  backgroundColor: 'transparent !important',
-                },
-              },
-              '& .MuiOutlinedInput-input': {
-                color: '#FFFFFF !important',
-                WebkitTextFillColor: '#FFFFFF !important',
-                opacity: '1 !important',
-                backgroundColor: 'transparent !important',
-              }
-            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -387,11 +354,11 @@ const Login = ({ onLoginSuccess }) => {
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
                     sx={{
-                      color: 'text.disabled',
-                      '&:hover': {
-                        color: 'text.primary',
-                        backgroundColor: 'rgba(255, 107, 53, 0.1)',
-                        transform: 'scale(1.1)',
+                      color: "text.disabled",
+                      "&:hover": {
+                        color: "text.primary",
+                        backgroundColor: "rgba(255, 107, 53, 0.1)",
+                        transform: "scale(1.1)",
                       },
                     }}
                   >
@@ -399,10 +366,6 @@ const Login = ({ onLoginSuccess }) => {
                   </IconButton>
                 </InputAdornment>
               ),
-              style: { color: '#FFFFFF' },
-            }}
-            inputProps={{
-              style: { color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', opacity: 1 }
             }}
           />
 
@@ -415,14 +378,14 @@ const Login = ({ onLoginSuccess }) => {
                 label="Role"
                 onChange={handleInputChange}
                 sx={{
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'divider',
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "divider",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'grey.400',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "grey.400",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "primary.main",
                   },
                 }}
               >
@@ -433,17 +396,13 @@ const Login = ({ onLoginSuccess }) => {
             </FormControl>
           )}
 
-          {error && (
-            <StyledAlert severity="error">
-              {error}
-            </StyledAlert>
-          )}
+          {error && <StyledAlert severity="error">{error}</StyledAlert>}
 
           <AnimatedButton
             type="submit"
             variant="contained"
             disabled={loading}
-            className={loading ? 'loading' : ''}
+            className={loading ? "loading" : ""}
             startIcon={
               loading ? (
                 <CircularProgress size={16} color="inherit" />
@@ -454,15 +413,15 @@ const Login = ({ onLoginSuccess }) => {
               )
             }
           >
-            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
+            {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
           </AnimatedButton>
         </Box>
 
         <LoginFooter>
           <Typography variant="body2" color="text.secondary">
-            {isLogin ? "Don't have an account?" : 'Already have an account?'}
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
             <LinkButton onClick={() => setActiveTab(isLogin ? 1 : 0)}>
-              {isLogin ? 'Sign up' : 'Sign in'}
+              {isLogin ? "Sign up" : "Sign in"}
             </LinkButton>
           </Typography>
         </LoginFooter>

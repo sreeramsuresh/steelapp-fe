@@ -33,7 +33,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Sun,
-  Moon
+  Moon,
+  Monitor
 } from 'lucide-react';
 import { apiClient } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
@@ -226,7 +227,7 @@ const Dashboard = () => {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, themeMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     fetchDashboardData();
@@ -349,9 +350,21 @@ const Dashboard = () => {
                 backgroundColor: 'action.hover',
               }
             }}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={
+              themeMode === 'system' 
+                ? `System Theme (${isDarkMode ? 'Dark' : 'Light'})` 
+                : themeMode === 'dark' 
+                ? 'Dark Mode' 
+                : 'Light Mode'
+            }
           >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            {themeMode === 'system' ? (
+              <Monitor size={20} />
+            ) : themeMode === 'dark' ? (
+              <Moon size={20} />
+            ) : (
+              <Sun size={20} />
+            )}
           </IconButton>
         </Box>
       </SectionHeader>
