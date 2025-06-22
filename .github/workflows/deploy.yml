@@ -1,13 +1,15 @@
-name: Build and Deploy
+name: Deploy React App to S3
 
 on:
   push:
     branches:
       - dev
-      - fix/cicd
+  pull_request:
+    branches:
+      - dev
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,61 +20,35 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.10.0"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install --force
+        run: npm ci
 
-      - name: Build application
-        run: CI=false npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          if-no-files-found: error
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
+      - name: Build React app
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          aws-region: us-east-1 # Change to your preferred region
+
+      - name: Create backup of current deployment
+        run: |
+          aws s3 sync s3://${{ vars.S3_BUCKET }}/dev/steelapp s3://${{ vars.S3_BUCKET }}/backup/dev/backup+$(date '+%Y-%m-%d')/steelapp --delete
+        continue-on-error: true
 
       - name: Deploy to S3
         run: |
-          # Backup existing files
-          aws s3 mv s3://${{ vars.S3_BUCKET }}/dev/steelapp s3://${{ vars.S3_BUCKET }}/backup/dev/backup+$(date '+%Y-%m-%d')/steelapp --recursive
+          aws s3 sync ./build s3://${{ vars.S3_BUCKET }}/dev/steelapp --delete
 
-          # Remove old files
-          aws s3 rm s3://${{ vars.S3_BUCKET }}/dev/steelapp --recursive
-
-          # Upload new files
-          aws s3 cp dist s3://${{ vars.S3_BUCKET }}/dev/steelapp --recursive
-
-  invalidate-cloudfront:
-    needs: deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-
-      - name: Invalidate CloudFront distribution
+      - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_DISTRIBUTION_ID_DEV }} --paths "/*"
+
+      - name: Deployment status
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🔗 Application URL: https://$(aws cloudfront get-distribution --id ${{ vars.AWS_DISTRIBUTION_ID_DEV }} --query 'Distribution.DomainName' --output text)"
