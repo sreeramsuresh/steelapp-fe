@@ -13,6 +13,8 @@ import PriceCalculator from './PriceCalculator';
 import SalesAnalytics from './SalesAnalytics';
 import CompanySettings from './CompanySettings';
 import RevenueTrends from './RevenueTrends';
+import StockMovement from './StockMovement';
+import InventoryList from './InventoryList';
 import Login from './Login';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -121,6 +123,18 @@ const AppRouter = ({
         <Route path="/settings" element={
           <ProtectedRoute user={user} requiredRole="admin">
             <CompanySettings />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/stock-movements" element={
+          <ProtectedRoute user={user}>
+            <StockMovement />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/inventory" element={
+          <ProtectedRoute user={user}>
+            <InventoryList />
           </ProtectedRoute>
         } />
         

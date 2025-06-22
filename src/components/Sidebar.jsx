@@ -22,7 +22,9 @@ import {
   Users, 
   Package,
   Calculator,
-  TrendingUp
+  TrendingUp,
+  Warehouse,
+  Move
 } from 'lucide-react';
 
 // Styled Components
@@ -183,6 +185,23 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/calculator',
           icon: Calculator,
           description: 'Steel price calculator'
+        }
+      ]
+    },
+    {
+      section: 'Inventory',
+      items: [
+        {
+          name: 'Stock Movements',
+          path: '/stock-movements',
+          icon: Move,
+          description: 'Track stock movements'
+        },
+        {
+          name: 'Inventory List',
+          path: '/inventory',
+          icon: Warehouse,
+          description: 'Manage inventory items'
         }
       ]
     },
