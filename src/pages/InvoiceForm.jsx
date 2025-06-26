@@ -38,6 +38,7 @@ import {
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 import InvoicePreview from '../components/InvoicePreview';
 import { invoiceService, companyService } from '../services';
+import { customerService } from '../services/customerService';
 import { useApiData, useApi } from '../hooks/useApi';
 
 // Styled Components
@@ -89,6 +90,9 @@ const InvoiceForm = ({ onSave }) => {
     id ? invoiceService.getInvoice(id) : null, [id], !!id
   );
   const { data: nextInvoiceData } = useApiData(() => invoiceService.getNextInvoiceNumber(), [], !id);
+  const { data: customersData, loading: loadingCustomers } = useApiData(
+    () => customerService.getCustomers({ status: 'active' }), []
+  );
 
   useEffect(() => {
     const subtotal = calculateSubtotal(invoice.items);
@@ -117,6 +121,30 @@ const InvoiceForm = ({ onSave }) => {
       setInvoice(existingInvoice);
     }
   }, [existingInvoice, id]);
+
+  const handleCustomerSelect = (customerId) => {
+    const customers = customersData?.customers || [];
+    const selectedCustomer = customers.find(c => c.id === customerId);
+    
+    if (selectedCustomer) {
+      setInvoice(prev => ({
+        ...prev,
+        customer: {
+          id: selectedCustomer.id,
+          name: selectedCustomer.name,
+          email: selectedCustomer.email || '',
+          phone: selectedCustomer.phone || '',
+          gstNumber: selectedCustomer.gst_number || '',
+          address: {
+            street: selectedCustomer.address?.street || '',
+            city: selectedCustomer.address?.city || '',
+            state: selectedCustomer.address?.state || '',
+            zipCode: selectedCustomer.address?.zipCode || ''
+          }
+        }
+      }));
+    }
+  };
 
   const handleCustomerChange = (field, value) => {
     if (field.includes('.')) {
@@ -327,84 +355,93 @@ const InvoiceForm = ({ onSave }) => {
               <CardContent>
                 <SectionHeader variant="h6">👤 Customer Details</SectionHeader>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Customer Name"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.name}
-                        onChange={(e) => handleCustomerChange('name', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="GST Number"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.gstNumber}
-                        onChange={(e) => handleCustomerChange('gstNumber', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Email"
-                        type="email"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.email}
-                        onChange={(e) => handleCustomerChange('email', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Phone"
-                        type="tel"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.phone}
-                        onChange={(e) => handleCustomerChange('phone', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                  <TextField
-                    label="Street Address"
-                    variant="outlined"
-                    fullWidth
-                    value={invoice.customer.address.street}
-                    onChange={(e) => handleCustomerChange('address.street', e.target.value)}
-                  />
-                  <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="City"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.city}
-                        onChange={(e) => handleCustomerChange('address.city', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="State"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.state}
-                        onChange={(e) => handleCustomerChange('address.state', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="ZIP Code"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.zipCode}
-                        onChange={(e) => handleCustomerChange('address.zipCode', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
+                  <FormControl fullWidth>
+                    <InputLabel>Select Customer</InputLabel>
+                    <Select
+                      value={invoice.customer.id || ''}
+                      label="Select Customer"
+                      onChange={(e) => handleCustomerSelect(e.target.value)}
+                      disabled={loadingCustomers}
+                    >
+                      <MenuItem value="">
+                        <em>Select a customer</em>
+                      </MenuItem>
+                      {(customersData?.customers || []).map((customer) => (
+                        <MenuItem key={customer.id} value={customer.id}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Typography variant="body1">{customer.name}</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {customer.company && `${customer.company} • `}{customer.email}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  
+                  {/* Display selected customer details */}
+                  {invoice.customer.name && (
+                    <Box sx={{ 
+                      p: 2, 
+                      bgcolor: 'background.default', 
+                      borderRadius: 1, 
+                      border: 1, 
+                      borderColor: 'divider' 
+                    }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                        Selected Customer Details:
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={12}>
+                          <Typography variant="body2">
+                            <strong>Name:</strong> {invoice.customer.name}
+                          </Typography>
+                        </Grid>
+                        {invoice.customer.email && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {invoice.customer.email}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {invoice.customer.phone && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Phone:</strong> {invoice.customer.phone}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {invoice.customer.gstNumber && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>GST Number:</strong> {invoice.customer.gstNumber}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {(invoice.customer.address.street || invoice.customer.address.city) && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Address:</strong> {[
+                                invoice.customer.address.street,
+                                invoice.customer.address.city,
+                                invoice.customer.address.state,
+                                invoice.customer.address.zipCode
+                              ].filter(Boolean).join(', ')}
+                            </Typography>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Box>
+                  )}
+                  
+                  {loadingCustomers && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={16} />
+                      <Typography variant="body2" color="text.secondary">
+                        Loading customers...
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </CardContent>
             </SectionCard>
