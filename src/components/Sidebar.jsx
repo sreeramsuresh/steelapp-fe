@@ -24,7 +24,8 @@ import {
   Calculator,
   TrendingUp,
   Warehouse,
-  Move
+  Move,
+  Truck
 } from 'lucide-react';
 
 // Styled Components
@@ -166,6 +167,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       ]
     },
     {
+      section: 'Delivery',
+      items: [
+        {
+          name: 'Delivery Notes',
+          path: '/delivery-notes',
+          icon: Truck,
+          description: 'Manage delivery notes'
+        }
+      ]
+    },
+    {
       section: 'Business',
       items: [
         {
@@ -185,23 +197,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/calculator',
           icon: Calculator,
           description: 'Steel price calculator'
-        }
-      ]
-    },
-    {
-      section: 'Inventory',
-      items: [
-        {
-          name: 'Stock Movements',
-          path: '/stock-movements',
-          icon: Move,
-          description: 'Track stock movements'
-        },
-        {
-          name: 'Inventory List',
-          path: '/inventory',
-          icon: Warehouse,
-          description: 'Manage inventory items'
         }
       ]
     },

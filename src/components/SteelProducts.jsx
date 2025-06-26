@@ -22,7 +22,9 @@ import {
   Weight,
   Calendar,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Move,
+  Warehouse
 } from 'lucide-react';
 import {
   Box,
@@ -63,6 +65,8 @@ import { styled } from '@mui/material/styles';
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
 import { useApiData, useApi } from '../hooks/useApi';
+import StockMovement from './StockMovement';
+import InventoryList from './InventoryList';
 
 // Styled Components
 const ProductsContainer = styled(Box)(({ theme }) => ({
@@ -512,7 +516,15 @@ const SteelProducts = () => {
     </Box>
   );
 
-  const renderInventory = () => (
+  const renderStockMovements = () => (
+    <StockMovement />
+  );
+
+  const renderInventoryManagement = () => (
+    <InventoryList />
+  );
+
+  const renderInventoryDashboard = () => (
     <div className="inventory-dashboard">
       <div className="inventory-stats">
         <div className="stat-card">
@@ -605,70 +617,80 @@ const SteelProducts = () => {
   );
 
   const renderPricing = () => (
-    <div className="pricing-dashboard">
-      <div className="pricing-header">
-        <h3>Price Management</h3>
-        <p>Manage product pricing and track price history</p>
-      </div>
+    <Box sx={{ p: 2 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Price Management
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Manage product pricing and track price history
+        </Typography>
+      </Box>
 
-      <div className="pricing-table">
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Cost Price</th>
-                <th>Selling Price</th>
-                <th>Margin</th>
-                <th>Last Updated</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(product => {
-                const margin = product.costPrice > 0 ? 
-                  ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 : 0;
-                return (
-                  <tr key={product.id}>
-                    <td>
-                      <div className="product-cell">
-                        <strong>{product.name}</strong>
-                        <span className="product-grade">{product.grade} - {product.size}</span>
-                      </div>
-                    </td>
-                    <td>{categories.find(c => c.value === product.category)?.label}</td>
-                    <td>₹{product.costPrice}</td>
-                    <td className="selling-price">₹{product.sellingPrice}</td>
-                    <td>
-                      <span className={`margin-badge ${margin < 10 ? 'low' : margin > 30 ? 'high' : 'normal'}`}>
-                        {Math.round(margin)}%
-                      </span>
-                    </td>
-                    <td>{format(new Date(product.lastUpdated), 'MMM dd, yyyy')}</td>
-                    <td>
-                      <div className="price-actions">
-                        <button
-                          className="btn-icon"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
-                            setShowPriceModal(true);
-                          }}
-                          title="Update Price"
-                        >
-                          <RefreshCw size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+      <TableContainer component={Paper} sx={{ mt: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Product</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Cost Price</TableCell>
+              <TableCell>Selling Price</TableCell>
+              <TableCell>Margin</TableCell>
+              <TableCell>Last Updated</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {products.map(product => {
+              const margin = product.costPrice > 0 ? 
+                ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 : 0;
+              return (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        {product.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {product.grade} - {product.size}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    {categories.find(c => c.value === product.category)?.label}
+                  </TableCell>
+                  <TableCell>₹{product.costPrice}</TableCell>
+                  <TableCell>₹{product.sellingPrice}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={`${Math.round(margin)}%`}
+                      color={margin < 10 ? 'error' : margin > 30 ? 'success' : 'warning'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {product.lastUpdated ? format(new Date(product.lastUpdated), 'MMM dd, yyyy') : 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
+                        setShowPriceModal(true);
+                      }}
+                      title="Update Price"
+                    >
+                      <RefreshCw size={16} />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 
   return (
@@ -698,9 +720,16 @@ const SteelProducts = () => {
               sx={{ textTransform: 'none', fontWeight: 500 }}
             />
             <Tab 
+              value="stock-movements" 
+              label="Stock Movements" 
+              icon={<Move size={20} />}
+              iconPosition="start"
+              sx={{ textTransform: 'none', fontWeight: 500 }}
+            />
+            <Tab 
               value="inventory" 
-              label="Inventory Tracking" 
-              icon={<Layers size={20} />}
+              label="Inventory Management" 
+              icon={<Warehouse size={20} />}
               iconPosition="start"
               sx={{ textTransform: 'none', fontWeight: 500 }}
             />
@@ -717,287 +746,347 @@ const SteelProducts = () => {
         {/* Tab Content */}
         <Box>
           {activeTab === 'catalog' && renderCatalog()}
-          {activeTab === 'inventory' && renderInventory()}
+          {activeTab === 'stock-movements' && renderStockMovements()}
+          {activeTab === 'inventory' && renderInventoryManagement()}
           {activeTab === 'pricing' && renderPricing()}
         </Box>
 
       {/* Add Product Modal */}
-      {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal large-modal">
-            <div className="modal-header">
-              <h2>Add New Product</h2>
-              <button className="btn-icon" onClick={() => setShowAddModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
+      <Dialog
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">Add New Product</Typography>
+            <IconButton onClick={() => setShowAddModal(false)} size="small">
+              <X size={20} />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Basic Information */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                Basic Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Product Name *"
                     value={newProduct.name}
                     onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                    fullWidth
                     placeholder="Enter product name"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Category</label>
-                  <select
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.value} value={cat.value}>{cat.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Grade</label>
-                  <input
-                    list="grades"
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={newProduct.category}
+                      label="Category"
+                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                    >
+                      {categories.map(cat => (
+                        <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Grade"
                     value={newProduct.grade}
                     onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
-                    placeholder="Enter grade"
+                    fullWidth
+                    placeholder="Enter grade (e.g., Fe415)"
                   />
-                  <datalist id="grades">
-                    {grades.map(grade => (
-                      <option key={grade} value={grade} />
-                    ))}
-                  </datalist>
-                </div>
-                <div className="form-group">
-                  <label>Size</label>
-                  <input
-                    type="text"
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Size"
                     value={newProduct.size}
                     onChange={(e) => setNewProduct({...newProduct, size: e.target.value})}
-                    placeholder="Enter size (e.g., 12mm, 50x50x6)"
+                    fullWidth
+                    placeholder="e.g., 12mm, 50x50x6"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Weight</label>
-                  <input
-                    type="text"
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Weight"
                     value={newProduct.weight}
                     onChange={(e) => setNewProduct({...newProduct, weight: e.target.value})}
+                    fullWidth
                     placeholder="Enter weight"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Unit</label>
-                  <select
-                    value={newProduct.unit}
-                    onChange={(e) => setNewProduct({...newProduct, unit: e.target.value})}
-                  >
-                    <option value="kg">kg</option>
-                    <option value="kg/m">kg/m</option>
-                    <option value="kg/sheet">kg/sheet</option>
-                    <option value="tonnes">tonnes</option>
-                    <option value="pieces">pieces</option>
-                  </select>
-                </div>
-                <div className="form-group full-width">
-                  <label>Description</label>
-                  <textarea
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Unit</InputLabel>
+                    <Select
+                      value={newProduct.unit}
+                      label="Unit"
+                      onChange={(e) => setNewProduct({...newProduct, unit: e.target.value})}
+                    >
+                      <MenuItem value="kg">kg</MenuItem>
+                      <MenuItem value="kg/m">kg/m</MenuItem>
+                      <MenuItem value="kg/sheet">kg/sheet</MenuItem>
+                      <MenuItem value="tonnes">tonnes</MenuItem>
+                      <MenuItem value="pieces">pieces</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Description"
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                    fullWidth
                     placeholder="Enter product description"
+                    multiline
                     rows={3}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Current Stock</label>
-                  <input
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Inventory Information */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                Inventory Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Current Stock"
                     type="number"
                     value={newProduct.currentStock}
                     onChange={(e) => setNewProduct({...newProduct, currentStock: Number(e.target.value)})}
+                    fullWidth
                     placeholder="Enter current stock"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Minimum Stock</label>
-                  <input
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Minimum Stock"
                     type="number"
                     value={newProduct.minStock}
                     onChange={(e) => setNewProduct({...newProduct, minStock: Number(e.target.value)})}
+                    fullWidth
                     placeholder="Enter minimum stock level"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Maximum Stock</label>
-                  <input
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Maximum Stock"
                     type="number"
                     value={newProduct.maxStock}
                     onChange={(e) => setNewProduct({...newProduct, maxStock: Number(e.target.value)})}
+                    fullWidth
                     placeholder="Enter maximum stock level"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Cost Price (₹)</label>
-                  <input
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Pricing Information */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                Pricing Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Cost Price"
                     type="number"
                     value={newProduct.costPrice}
                     onChange={(e) => setNewProduct({...newProduct, costPrice: Number(e.target.value)})}
+                    fullWidth
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                    }}
                     placeholder="Enter cost price"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Selling Price (₹)</label>
-                  <input
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Selling Price"
                     type="number"
                     value={newProduct.sellingPrice}
                     onChange={(e) => setNewProduct({...newProduct, sellingPrice: Number(e.target.value)})}
+                    fullWidth
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                    }}
                     placeholder="Enter selling price"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Supplier</label>
-                  <input
-                    type="text"
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Supplier & Location */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                Supplier & Location
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Supplier"
                     value={newProduct.supplier}
                     onChange={(e) => setNewProduct({...newProduct, supplier: e.target.value})}
+                    fullWidth
                     placeholder="Enter supplier name"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Storage Location</label>
-                  <input
-                    type="text"
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Storage Location"
                     value={newProduct.location}
                     onChange={(e) => setNewProduct({...newProduct, location: e.target.value})}
+                    fullWidth
                     placeholder="Enter storage location"
                   />
-                </div>
-              </div>
-              
-              <div className="specifications-section">
-                <h3>Product Specifications</h3>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Length</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.length}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, length: e.target.value}
-                      })}
-                      placeholder="Enter length"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Width</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.width}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, width: e.target.value}
-                      })}
-                      placeholder="Enter width"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Thickness</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.thickness}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, thickness: e.target.value}
-                      })}
-                      placeholder="Enter thickness"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Diameter</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.diameter}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, diameter: e.target.value}
-                      })}
-                      placeholder="Enter diameter"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Tensile Strength</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.tensileStrength}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, tensileStrength: e.target.value}
-                      })}
-                      placeholder="Enter tensile strength"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Yield Strength</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.yieldStrength}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, yieldStrength: e.target.value}
-                      })}
-                      placeholder="Enter yield strength"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Carbon Content</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.carbonContent}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, carbonContent: e.target.value}
-                      })}
-                      placeholder="Enter carbon content"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Coating</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.coating}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, coating: e.target.value}
-                      })}
-                      placeholder="Enter coating type"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Standard</label>
-                    <input
-                      type="text"
-                      value={newProduct.specifications.standard}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct,
-                        specifications: {...newProduct.specifications, standard: e.target.value}
-                      })}
-                      placeholder="Enter applicable standard"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowAddModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={handleAddProduct}>
-                <Save size={20} />
-                Add Product
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Product Specifications */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                Product Specifications
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Length"
+                    value={newProduct.specifications.length}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, length: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter length"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Width"
+                    value={newProduct.specifications.width}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, width: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter width"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Thickness"
+                    value={newProduct.specifications.thickness}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, thickness: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter thickness"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Diameter"
+                    value={newProduct.specifications.diameter}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, diameter: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter diameter"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Tensile Strength"
+                    value={newProduct.specifications.tensileStrength}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, tensileStrength: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter tensile strength"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Yield Strength"
+                    value={newProduct.specifications.yieldStrength}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, yieldStrength: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter yield strength"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Carbon Content"
+                    value={newProduct.specifications.carbonContent}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, carbonContent: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter carbon content"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Coating"
+                    value={newProduct.specifications.coating}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, coating: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter coating type"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Standard"
+                    value={newProduct.specifications.standard}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      specifications: {...newProduct.specifications, standard: e.target.value}
+                    })}
+                    fullWidth
+                    placeholder="Enter applicable standard"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setShowAddModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAddProduct}
+            startIcon={<Save size={16} />}
+            disabled={!newProduct.name}
+          >
+            Add Product
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit Product Modal */}
       {showEditModal && selectedProduct && (

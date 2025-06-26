@@ -91,3 +91,144 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+
+// Delivery Notes API methods
+export const deliveryNotesAPI = {
+  // Get all delivery notes with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/delivery-notes', params);
+  },
+
+  // Get delivery note by ID
+  getById: (id) => {
+    return apiClient.get(`/delivery-notes/${id}`);
+  },
+
+  // Create delivery note from invoice
+  create: (deliveryNoteData) => {
+    return apiClient.post('/delivery-notes', deliveryNoteData);
+  },
+
+  // Update delivery quantities (partial delivery)
+  updateDelivery: (deliveryNoteId, itemId, deliveryData) => {
+    return apiClient.patch(`/delivery-notes/${deliveryNoteId}/items/${itemId}/deliver`, deliveryData);
+  },
+
+  // Update delivery note status
+  updateStatus: (id, status) => {
+    return apiClient.patch(`/delivery-notes/${id}/status`, { status });
+  },
+
+  // Delete delivery note
+  delete: (id) => {
+    return apiClient.delete(`/delivery-notes/${id}`);
+  },
+
+  // Get next delivery note number
+  getNextNumber: () => {
+    return apiClient.get('/delivery-notes/number/next');
+  },
+
+  // Generate and download PDF
+  downloadPDF: async (id) => {
+    const url = `${apiClient.baseURL}/delivery-notes/${id}/pdf`;
+    const response = await fetch(url, {
+      headers: apiClient.defaultHeaders
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
+    
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    
+    // Get delivery note number for filename
+    const deliveryNote = await deliveryNotesAPI.getById(id);
+    const filename = `delivery-note-${deliveryNote.delivery_note_number}.pdf`;
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    window.URL.revokeObjectURL(downloadUrl);
+  }
+};
+
+// Enhanced Invoices API methods
+export const invoicesAPI = {
+  // Get all invoices with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/invoices', params);
+  },
+
+  // Get invoice by ID
+  getById: (id) => {
+    return apiClient.get(`/invoices/${id}`);
+  },
+
+  // Create invoice
+  create: (invoiceData) => {
+    return apiClient.post('/invoices', invoiceData);
+  },
+
+  // Update invoice
+  update: (id, invoiceData) => {
+    return apiClient.put(`/invoices/${id}`, invoiceData);
+  },
+
+  // Update invoice status
+  updateStatus: (id, status) => {
+    return apiClient.patch(`/invoices/${id}/status`, { status });
+  },
+
+  // Delete invoice
+  delete: (id) => {
+    return apiClient.delete(`/invoices/${id}`);
+  },
+
+  // Get next invoice number
+  getNextNumber: () => {
+    return apiClient.get('/invoices/number/next');
+  },
+
+  // Get analytics
+  getAnalytics: (params = {}) => {
+    return apiClient.get('/invoices/analytics', params);
+  },
+
+  // Generate and download PDF
+  downloadPDF: async (id) => {
+    const url = `${apiClient.baseURL}/invoices/${id}/pdf`;
+    const response = await fetch(url, {
+      headers: apiClient.defaultHeaders
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
+    
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    
+    // Get invoice number for filename
+    const invoice = await invoicesAPI.getById(id);
+    const filename = `invoice-${invoice.invoice_number}.pdf`;
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    window.URL.revokeObjectURL(downloadUrl);
+  }
+};

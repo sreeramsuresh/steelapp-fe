@@ -15,6 +15,9 @@ import CompanySettings from './CompanySettings';
 import RevenueTrends from './RevenueTrends';
 import StockMovement from './StockMovement';
 import InventoryList from './InventoryList';
+import DeliveryNoteList from '../pages/DeliveryNoteList';
+import DeliveryNoteForm from '../pages/DeliveryNoteForm';
+import DeliveryNoteDetails from '../pages/DeliveryNoteDetails';
 import Login from './Login';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -135,6 +138,30 @@ const AppRouter = ({
         <Route path="/inventory" element={
           <ProtectedRoute user={user}>
             <InventoryList />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/delivery-notes" element={
+          <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+            <DeliveryNoteList />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/delivery-notes/new" element={
+          <ProtectedRoute user={user} requiredPermission="delivery_notes.create">
+            <DeliveryNoteForm />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/delivery-notes/:id" element={
+          <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+            <DeliveryNoteDetails />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/delivery-notes/:id/edit" element={
+          <ProtectedRoute user={user} requiredPermission="delivery_notes.update">
+            <DeliveryNoteForm />
           </ProtectedRoute>
         } />
         

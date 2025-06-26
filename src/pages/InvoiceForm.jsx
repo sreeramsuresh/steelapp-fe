@@ -23,7 +23,14 @@ import {
   InputLabel,
   IconButton,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  InputAdornment,
+  Autocomplete,
+  Chip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { createInvoice, createCompany, createSteelItem, STEEL_UNITS } from '../types';
@@ -38,6 +45,8 @@ import {
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 import InvoicePreview from '../components/InvoicePreview';
 import { invoiceService, companyService } from '../services';
+import { customerService } from '../services/customerService';
+import { productService } from '../services/productService';
 import { useApiData, useApi } from '../hooks/useApi';
 
 // Styled Components
@@ -76,6 +85,36 @@ const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
   const [showPreview, setShowPreview] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [newProductData, setNewProductData] = useState({
+    name: '',
+    category: 'rebar',
+    grade: '',
+    size: '',
+    weight: '',
+    unit: 'kg',
+    description: '',
+    current_stock: 0,
+    min_stock: 10,
+    max_stock: 1000,
+    cost_price: 0,
+    selling_price: 0,
+    supplier: '',
+    location: '',
+    specifications: {
+      length: '',
+      width: '',
+      thickness: '',
+      diameter: '',
+      tensileStrength: '',
+      yieldStrength: '',
+      carbonContent: '',
+      coating: '',
+      standard: ''
+    }
+  });
+  const [selectedProductForRow, setSelectedProductForRow] = useState(-1);
+  const [searchInputs, setSearchInputs] = useState({});
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
     newInvoice.invoiceNumber = generateInvoiceNumber();
@@ -89,6 +128,13 @@ const InvoiceForm = ({ onSave }) => {
     id ? invoiceService.getInvoice(id) : null, [id], !!id
   );
   const { data: nextInvoiceData } = useApiData(() => invoiceService.getNextInvoiceNumber(), [], !id);
+  const { data: customersData, loading: loadingCustomers } = useApiData(
+    () => customerService.getCustomers({ status: 'active' }), []
+  );
+  const { data: productsData, loading: loadingProducts, refetch: refetchProducts } = useApiData(
+    () => productService.getProducts({}), []
+  );
+  const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
 
   useEffect(() => {
     const subtotal = calculateSubtotal(invoice.items);
@@ -118,6 +164,30 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [existingInvoice, id]);
 
+  const handleCustomerSelect = (customerId) => {
+    const customers = customersData?.customers || [];
+    const selectedCustomer = customers.find(c => c.id === customerId);
+    
+    if (selectedCustomer) {
+      setInvoice(prev => ({
+        ...prev,
+        customer: {
+          id: selectedCustomer.id,
+          name: selectedCustomer.name,
+          email: selectedCustomer.email || '',
+          phone: selectedCustomer.phone || '',
+          gstNumber: selectedCustomer.gst_number || '',
+          address: {
+            street: selectedCustomer.address?.street || '',
+            city: selectedCustomer.address?.city || '',
+            state: selectedCustomer.address?.state || '',
+            zipCode: selectedCustomer.address?.zipCode || ''
+          }
+        }
+      }));
+    }
+  };
+
   const handleCustomerChange = (field, value) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -142,6 +212,73 @@ const InvoiceForm = ({ onSave }) => {
     }
   };
 
+  const handleProductSelect = (index, product) => {
+    if (product && typeof product === 'object') {
+      setInvoice(prev => {
+        const newItems = [...prev.items];
+        newItems[index] = {
+          ...newItems[index],
+          productId: product.id,
+          name: product.name,
+          specification: product.specifications?.standard || product.grade || '',
+          hsnCode: getHSNCodeForProduct(product),
+          unit: product.unit,
+          rate: product.selling_price || 0,
+          amount: calculateItemAmount(newItems[index].quantity, product.selling_price || 0)
+        };
+        
+        return {
+          ...prev,
+          items: newItems
+        };
+      });
+      
+      // Clear search input for this row
+      setSearchInputs(prev => ({ ...prev, [index]: '' }));
+    }
+  };
+
+  const handleSearchInputChange = (index, value) => {
+    setSearchInputs(prev => ({ ...prev, [index]: value }));
+    
+    // Update the item name as user types
+    setInvoice(prev => {
+      const newItems = [...prev.items];
+      newItems[index] = {
+        ...newItems[index],
+        name: value,
+        productId: null // Clear product ID when typing custom name
+      };
+      return {
+        ...prev,
+        items: newItems
+      };
+    });
+  };
+
+  const isProductExisting = (index) => {
+    const searchValue = searchInputs[index] || '';
+    const products = productsData?.products || [];
+    return products.some(product => 
+      product.name.toLowerCase() === searchValue.toLowerCase()
+    );
+  };
+
+  const getHSNCodeForProduct = (product) => {
+    // Map product categories to common HSN codes for steel products
+    const hsnMap = {
+      'rebar': '7214',
+      'structural': '7216',
+      'sheet': '7209',
+      'pipe': '7306',
+      'angle': '7216',
+      'round': '7214',
+      'flat': '7214',
+      'wire': '7217'
+    };
+    return hsnMap[product.category] || '7214';
+  };
+
   const handleItemChange = (index, field, value) => {
     setInvoice(prev => {
       const newItems = [...prev.items];
@@ -160,6 +297,105 @@ const InvoiceForm = ({ onSave }) => {
       };
     });
   };
+
+  const handleAddNewProduct = async () => {
+    try {
+      const productData = {
+        name: newProductData.name,
+        category: newProductData.category,
+        grade: newProductData.grade,
+        size: newProductData.size,
+        weight: newProductData.weight,
+        unit: newProductData.unit,
+        description: newProductData.description,
+        current_stock: newProductData.current_stock,
+        min_stock: newProductData.min_stock,
+        max_stock: newProductData.max_stock,
+        cost_price: newProductData.cost_price,
+        selling_price: newProductData.selling_price,
+        supplier: newProductData.supplier,
+        location: newProductData.location,
+        specifications: newProductData.specifications
+      };
+      
+      const newProduct = await createProduct(productData);
+      
+      // Refresh products list
+      await refetchProducts();
+      
+      // Auto-select the new product for the current row
+      if (selectedProductForRow >= 0) {
+        handleProductSelect(selectedProductForRow, newProduct.id);
+      }
+      
+      // Reset form and close modal
+      setNewProductData({
+        name: '',
+        category: 'rebar',
+        grade: '',
+        size: '',
+        weight: '',
+        unit: 'kg',
+        description: '',
+        current_stock: 0,
+        min_stock: 10,
+        max_stock: 1000,
+        cost_price: 0,
+        selling_price: 0,
+        supplier: '',
+        location: '',
+        specifications: {
+          length: '',
+          width: '',
+          thickness: '',
+          diameter: '',
+          tensileStrength: '',
+          yieldStrength: '',
+          carbonContent: '',
+          coating: '',
+          standard: ''
+        }
+      });
+      setShowAddProductModal(false);
+      setSelectedProductForRow(-1);
+      
+      alert('Product added successfully!');
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('Failed to add product. Please try again.');
+    }
+  };
+
+  const openAddProductModal = (rowIndex, productName = '') => {
+    setSelectedProductForRow(rowIndex);
+    setNewProductData(prev => ({ ...prev, name: productName }));
+    setShowAddProductModal(true);
+  };
+
+  const getProductOptions = () => {
+    return (productsData?.products || []).map(product => ({
+      ...product,
+      label: product.name,
+      subtitle: `${product.category} • ${product.grade || 'N/A'} • ₹${product.selling_price || 0}/${product.unit}`
+    }));
+  };
+
+  const categories = [
+    { value: 'rebar', label: 'Rebar & Reinforcement' },
+    { value: 'structural', label: 'Structural Steel' },
+    { value: 'sheet', label: 'Steel Sheets' },
+    { value: 'pipe', label: 'Pipes & Tubes' },
+    { value: 'angle', label: 'Angles & Channels' },
+    { value: 'round', label: 'Round Bars' },
+    { value: 'flat', label: 'Flat Bars' },
+    { value: 'wire', label: 'Wire & Mesh' }
+  ];
+
+  const grades = [
+    'Fe415', 'Fe500', 'Fe550', 'Fe600',
+    'IS2062', 'ASTM A36', 'ASTM A572',
+    'SS304', 'SS316', 'MS', 'Galvanized'
+  ];
 
   const addItem = () => {
     setInvoice(prev => ({
@@ -313,6 +549,7 @@ const InvoiceForm = ({ onSave }) => {
                         value={invoice.dueDate}
                         onChange={(e) => setInvoice(prev => ({ ...prev, dueDate: e.target.value }))}
                         InputLabelProps={{ shrink: true }}
+                        helperText="Click to select or change due date"
                       />
                     </Grid>
                   </Grid>
@@ -327,84 +564,93 @@ const InvoiceForm = ({ onSave }) => {
               <CardContent>
                 <SectionHeader variant="h6">👤 Customer Details</SectionHeader>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Customer Name"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.name}
-                        onChange={(e) => handleCustomerChange('name', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="GST Number"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.gstNumber}
-                        onChange={(e) => handleCustomerChange('gstNumber', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Email"
-                        type="email"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.email}
-                        onChange={(e) => handleCustomerChange('email', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Phone"
-                        type="tel"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.phone}
-                        onChange={(e) => handleCustomerChange('phone', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                  <TextField
-                    label="Street Address"
-                    variant="outlined"
-                    fullWidth
-                    value={invoice.customer.address.street}
-                    onChange={(e) => handleCustomerChange('address.street', e.target.value)}
-                  />
-                  <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="City"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.city}
-                        onChange={(e) => handleCustomerChange('address.city', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="State"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.state}
-                        onChange={(e) => handleCustomerChange('address.state', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="ZIP Code"
-                        variant="outlined"
-                        fullWidth
-                        value={invoice.customer.address.zipCode}
-                        onChange={(e) => handleCustomerChange('address.zipCode', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
+                  <FormControl fullWidth>
+                    <InputLabel>Select Customer</InputLabel>
+                    <Select
+                      value={invoice.customer.id || ''}
+                      label="Select Customer"
+                      onChange={(e) => handleCustomerSelect(e.target.value)}
+                      disabled={loadingCustomers}
+                    >
+                      <MenuItem value="">
+                        <em>Select a customer</em>
+                      </MenuItem>
+                      {(customersData?.customers || []).map((customer) => (
+                        <MenuItem key={customer.id} value={customer.id}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Typography variant="body1">{customer.name}</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {customer.company && `${customer.company} • `}{customer.email}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  
+                  {/* Display selected customer details */}
+                  {invoice.customer.name && (
+                    <Box sx={{ 
+                      p: 2, 
+                      bgcolor: 'background.default', 
+                      borderRadius: 1, 
+                      border: 1, 
+                      borderColor: 'divider' 
+                    }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                        Selected Customer Details:
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={12}>
+                          <Typography variant="body2">
+                            <strong>Name:</strong> {invoice.customer.name}
+                          </Typography>
+                        </Grid>
+                        {invoice.customer.email && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {invoice.customer.email}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {invoice.customer.phone && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Phone:</strong> {invoice.customer.phone}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {invoice.customer.gstNumber && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>GST Number:</strong> {invoice.customer.gstNumber}
+                            </Typography>
+                          </Grid>
+                        )}
+                        {(invoice.customer.address.street || invoice.customer.address.city) && (
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Address:</strong> {[
+                                invoice.customer.address.street,
+                                invoice.customer.address.city,
+                                invoice.customer.address.state,
+                                invoice.customer.address.zipCode
+                              ].filter(Boolean).join(', ')}
+                            </Typography>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Box>
+                  )}
+                  
+                  {loadingCustomers && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={16} />
+                      <Typography variant="body2" color="text.secondary">
+                        Loading customers...
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </CardContent>
             </SectionCard>
@@ -430,8 +676,8 @@ const InvoiceForm = ({ onSave }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Specification</TableCell>
+                    <TableCell sx={{ minWidth: 200 }}>Product Selection</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Specification</TableCell>
                     <TableCell>HSN Code</TableCell>
                     <TableCell>Unit</TableCell>
                     <TableCell>Qty</TableCell>
@@ -444,12 +690,87 @@ const InvoiceForm = ({ onSave }) => {
                 <TableBody>
                   {invoice.items.map((item, index) => (
                     <TableRow key={item.id}>
-                      <TableCell>
-                        <TextField
+                      <TableCell sx={{ minWidth: 200 }}>
+                        <Autocomplete
                           size="small"
-                          value={item.name}
-                          onChange={(e) => handleItemChange(index, 'name', e.target.value)}
-                          placeholder="e.g., MS Round Bar"
+                          options={getProductOptions()}
+                          getOptionLabel={(option) => typeof option === 'string' ? option : option.name}
+                          value={item.productId ? getProductOptions().find(p => p.id === item.productId) : null}
+                          inputValue={searchInputs[index] || item.name || ''}
+                          onInputChange={(event, newInputValue) => {
+                            handleSearchInputChange(index, newInputValue);
+                          }}
+                          onChange={(event, newValue) => {
+                            if (newValue) {
+                              handleProductSelect(index, newValue);
+                            }
+                          }}
+                          filterOptions={(options, { inputValue }) => {
+                            const filtered = options.filter(option =>
+                              option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+                              option.category.toLowerCase().includes(inputValue.toLowerCase()) ||
+                              (option.grade && option.grade.toLowerCase().includes(inputValue.toLowerCase()))
+                            );
+                            return filtered;
+                          }}
+                          freeSolo
+                          disabled={loadingProducts}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Search or select product"
+                              placeholder="Type to search products..."
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    {(searchInputs[index] || item.name) && 
+                                     !item.productId && 
+                                     !isProductExisting(index) && (
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => openAddProductModal(index, searchInputs[index] || item.name)}
+                                        color="primary"
+                                        title="Add as new product"
+                                        sx={{ mr: 1 }}
+                                      >
+                                        <Plus size={16} />
+                                      </IconButton>
+                                    )}
+                                    {params.InputProps.endAdornment}
+                                  </Box>
+                                )
+                              }}
+                            />
+                          )}
+                          renderOption={(props, option) => (
+                            <Box component="li" {...props}>
+                              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                  {option.name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {option.subtitle}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )}
+                          noOptionsText={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                No products found
+                              </Typography>
+                              {(searchInputs[index] || item.name) && (
+                                <Button
+                                  size="small"
+                                  startIcon={<Plus size={16} />}
+                                  onClick={() => openAddProductModal(index, searchInputs[index] || item.name)}
+                                >
+                                  Add "{searchInputs[index] || item.name}"
+                                </Button>
+                              )}
+                            </Box>
+                          }
                         />
                       </TableCell>
                       <TableCell>
@@ -458,6 +779,8 @@ const InvoiceForm = ({ onSave }) => {
                           value={item.specification}
                           onChange={(e) => handleItemChange(index, 'specification', e.target.value)}
                           placeholder="e.g., 12mm dia"
+                          multiline
+                          maxRows={2}
                         />
                       </TableCell>
                       <TableCell>
@@ -590,6 +913,342 @@ const InvoiceForm = ({ onSave }) => {
             />
           </CardContent>
         </SectionCard>
+
+        {/* Add New Product Modal */}
+        <Dialog
+          open={showAddProductModal}
+          onClose={() => setShowAddProductModal(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            <Typography variant="h6">Add New Product</Typography>
+          </DialogTitle>
+          <DialogContent sx={{ pt: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {/* Basic Information */}
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                  Basic Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Product Name *"
+                      value={newProductData.name}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, name: e.target.value }))}
+                      fullWidth
+                      placeholder="Enter product name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Category</InputLabel>
+                      <Select
+                        value={newProductData.category}
+                        label="Category"
+                        onChange={(e) => setNewProductData(prev => ({ ...prev, category: e.target.value }))}
+                      >
+                        {categories.map(cat => (
+                          <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Autocomplete
+                      freeSolo
+                      options={grades}
+                      value={newProductData.grade}
+                      onInputChange={(event, newValue) => {
+                        setNewProductData(prev => ({ ...prev, grade: newValue || '' }));
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Grade" placeholder="Enter grade (e.g., Fe415)" />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Size"
+                      value={newProductData.size}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, size: e.target.value }))}
+                      fullWidth
+                      placeholder="e.g., 12mm, 50x50x6"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Weight"
+                      value={newProductData.weight}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, weight: e.target.value }))}
+                      fullWidth
+                      placeholder="Enter weight"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Unit</InputLabel>
+                      <Select
+                        value={newProductData.unit}
+                        label="Unit"
+                        onChange={(e) => setNewProductData(prev => ({ ...prev, unit: e.target.value }))}
+                      >
+                        <MenuItem value="kg">kg</MenuItem>
+                        <MenuItem value="kg/m">kg/m</MenuItem>
+                        <MenuItem value="kg/sheet">kg/sheet</MenuItem>
+                        <MenuItem value="tonnes">tonnes</MenuItem>
+                        <MenuItem value="pieces">pieces</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Description"
+                      value={newProductData.description}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, description: e.target.value }))}
+                      fullWidth
+                      placeholder="Enter product description"
+                      multiline
+                      rows={3}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Inventory Information */}
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                  Inventory Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      label="Current Stock"
+                      type="number"
+                      value={newProductData.current_stock}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, current_stock: Number(e.target.value) }))}
+                      fullWidth
+                      placeholder="Enter current stock"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      label="Minimum Stock"
+                      type="number"
+                      value={newProductData.min_stock}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, min_stock: Number(e.target.value) }))}
+                      fullWidth
+                      placeholder="Enter minimum stock level"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      label="Maximum Stock"
+                      type="number"
+                      value={newProductData.max_stock}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, max_stock: Number(e.target.value) }))}
+                      fullWidth
+                      placeholder="Enter maximum stock level"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Pricing Information */}
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                  Pricing Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Cost Price"
+                      type="number"
+                      value={newProductData.cost_price}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, cost_price: Number(e.target.value) }))}
+                      fullWidth
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      }}
+                      placeholder="Enter cost price"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Selling Price"
+                      type="number"
+                      value={newProductData.selling_price}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, selling_price: Number(e.target.value) }))}
+                      fullWidth
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      }}
+                      placeholder="Enter selling price"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Supplier & Location */}
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                  Supplier & Location
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Supplier"
+                      value={newProductData.supplier}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, supplier: e.target.value }))}
+                      fullWidth
+                      placeholder="Enter supplier name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Storage Location"
+                      value={newProductData.location}
+                      onChange={(e) => setNewProductData(prev => ({ ...prev, location: e.target.value }))}
+                      fullWidth
+                      placeholder="Enter storage location"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Product Specifications */}
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+                  Product Specifications
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Length"
+                      value={newProductData.specifications.length}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, length: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter length"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Width"
+                      value={newProductData.specifications.width}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, width: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter width"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Thickness"
+                      value={newProductData.specifications.thickness}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, thickness: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter thickness"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Diameter"
+                      value={newProductData.specifications.diameter}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, diameter: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter diameter"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Tensile Strength"
+                      value={newProductData.specifications.tensileStrength}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, tensileStrength: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter tensile strength"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Yield Strength"
+                      value={newProductData.specifications.yieldStrength}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, yieldStrength: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter yield strength"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Carbon Content"
+                      value={newProductData.specifications.carbonContent}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, carbonContent: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter carbon content"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Coating"
+                      value={newProductData.specifications.coating}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, coating: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter coating"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Standard"
+                      value={newProductData.specifications.standard}
+                      onChange={(e) => setNewProductData(prev => ({
+                        ...prev,
+                        specifications: { ...prev.specifications, standard: e.target.value }
+                      }))}
+                      fullWidth
+                      placeholder="Enter standard specification"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setShowAddProductModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleAddNewProduct}
+              disabled={creatingProduct || !newProductData.name}
+              startIcon={creatingProduct ? <CircularProgress size={16} /> : <Plus size={16} />}
+            >
+              {creatingProduct ? 'Adding...' : 'Add Product'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </InvoiceFormPaper>
     </InvoiceContainer>
   );
