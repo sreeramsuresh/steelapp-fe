@@ -17,6 +17,7 @@ export const createCustomer = () => ({
 
 export const createSteelItem = () => ({
   id: crypto.randomUUID(),
+  productId: null,
   name: '',
   specification: '',
   unit: 'kg',
