@@ -189,23 +189,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       ]
     },
     {
-      section: 'Inventory',
-      items: [
-        {
-          name: 'Stock Movements',
-          path: '/stock-movements',
-          icon: Move,
-          description: 'Track stock movements'
-        },
-        {
-          name: 'Inventory List',
-          path: '/inventory',
-          icon: Warehouse,
-          description: 'Manage inventory items'
-        }
-      ]
-    },
-    {
       section: 'Reports',
       items: [
         {
