@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Eye, Download, Trash2, Search, FileDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Edit, Eye, Download, Trash2, Search, FileDown, Truck } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Paper,
@@ -67,6 +67,7 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
 }));
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -200,6 +201,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
 
     alert(`Downloaded ${invoices.length} invoice PDFs`);
+  };
+
+  const handleCreateDeliveryNote = (invoice) => {
+    // Navigate to delivery note form with invoice pre-selected
+    navigate('/delivery-notes/new', { 
+      state: { 
+        selectedInvoiceId: invoice.id 
+      }
+    });
   };
 
   if (loading) {
@@ -494,6 +504,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           <Download size={16} />
                         )}
                       </IconButton>
+                      {invoice.status === 'paid' && (
+                        <IconButton
+                          size="small"
+                          title="Create Delivery Note"
+                          color="warning"
+                          onClick={() => handleCreateDeliveryNote(invoice)}
+                        >
+                          <Truck size={16} />
+                        </IconButton>
+                      )}
                       <IconButton
                         size="small"
                         title="Delete Invoice"

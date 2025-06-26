@@ -24,7 +24,8 @@ import {
   Calculator,
   TrendingUp,
   Warehouse,
-  Move
+  Move,
+  Truck
 } from 'lucide-react';
 
 // Styled Components
@@ -162,6 +163,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/drafts',
           icon: FileText,
           description: 'Manage draft invoices'
+        }
+      ]
+    },
+    {
+      section: 'Delivery',
+      items: [
+        {
+          name: 'Delivery Notes',
+          path: '/delivery-notes',
+          icon: Truck,
+          description: 'Manage delivery notes'
         }
       ]
     },
