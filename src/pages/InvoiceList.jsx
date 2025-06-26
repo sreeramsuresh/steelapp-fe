@@ -36,7 +36,10 @@ import { invoiceService } from "../services/invoiceService";
 
 // Styled Components
 const InvoiceListContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(0),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(2),
+  },
   background: theme.palette.background.default,
   minHeight: "calc(100vh - 64px)",
   overflow: "auto",
@@ -264,14 +267,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   return (
     <InvoiceListContainer>
-      <InvoiceListPaper sx={{ p: 3 }}>
+      <InvoiceListPaper sx={{ p: { xs: 0, sm: 3 }, mx: { xs: 0, sm: 0 }, borderRadius: { xs: 0, sm: 2 } }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            mb: 3,
+            mb: { xs: 1, sm: 3 },
+            px: { xs: 2, sm: 0 },
+            pt: { xs: 2, sm: 0 },
           }}
         >
           <Box>
