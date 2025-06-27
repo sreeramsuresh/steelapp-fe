@@ -40,6 +40,9 @@ import {
   createCompany,
   createSteelItem,
   STEEL_UNITS,
+  PAYMENT_MODES,
+  DELIVERY_TERMS,
+  DISCOUNT_TYPES,
 } from "../types";
 import {
   generateInvoiceNumber,
@@ -694,6 +697,18 @@ const InvoiceForm = ({ onSave }) => {
             multiline
             maxRows={2}
           />
+          
+          <TextField
+            size="small"
+            label="Description"
+            value={item.description || ''}
+            onChange={(e) =>
+              handleItemChange(index, "description", e.target.value)
+            }
+            placeholder="Additional description"
+            multiline
+            maxRows={2}
+          />
 
           <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
             <TextField
@@ -764,6 +779,35 @@ const InvoiceForm = ({ onSave }) => {
               }
               inputProps={{ min: 0, max: 100 }}
             />
+          </Box>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 1 }}>
+            <TextField
+              size="small"
+              label="Discount"
+              type="number"
+              value={item.discount || 0}
+              onChange={(e) =>
+                handleItemChange(index, "discount", parseFloat(e.target.value) || 0)
+              }
+              inputProps={{ min: 0, step: 0.01 }}
+            />
+            <FormControl size="small">
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={item.discountType || 'amount'}
+                label="Type"
+                onChange={(e) =>
+                  handleItemChange(index, "discountType", e.target.value)
+                }
+              >
+                {DISCOUNT_TYPES.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type === 'amount' ? '₹' : '%'}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
 
           <Box
@@ -955,6 +999,86 @@ const InvoiceForm = ({ onSave }) => {
                         />
                       </Grid>
                     </Grid>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Purchase Order Number"
+                          variant="outlined"
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                          value={invoice.purchaseOrderNumber || ''}
+                          onChange={(e) =>
+                            setInvoice((prev) => ({
+                              ...prev,
+                              purchaseOrderNumber: e.target.value,
+                            }))
+                          }
+                          placeholder="PO Number"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="PO Date"
+                          type="date"
+                          variant="outlined"
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                          value={invoice.purchaseOrderDate || ''}
+                          onChange={(e) =>
+                            setInvoice((prev) => ({
+                              ...prev,
+                              purchaseOrderDate: e.target.value,
+                            }))
+                          }
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Delivery Note"
+                          variant="outlined"
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                          value={invoice.deliveryNote || ''}
+                          onChange={(e) =>
+                            setInvoice((prev) => ({
+                              ...prev,
+                              deliveryNote: e.target.value,
+                            }))
+                          }
+                          placeholder="Delivery challan reference"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <FormControl
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                        >
+                          <InputLabel>Mode of Payment</InputLabel>
+                          <Select
+                            value={invoice.modeOfPayment || ''}
+                            label="Mode of Payment"
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                modeOfPayment: e.target.value,
+                              }))
+                            }
+                          >
+                            <MenuItem value="">
+                              <em>Select payment mode</em>
+                            </MenuItem>
+                            {PAYMENT_MODES.map((mode) => (
+                              <MenuItem key={mode} value={mode}>
+                                {mode}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    </Grid>
                   </Box>
                 </CardContent>
               </SectionCard>
@@ -1077,6 +1201,90 @@ const InvoiceForm = ({ onSave }) => {
             </Grid>
           </Grid>
 
+          {/* Transport & Delivery Details */}
+          <SectionCard sx={{ mb: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <SectionHeader variant="h6">🚚 Transport & Delivery Details</SectionHeader>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Despatched Through"
+                    variant="outlined"
+                    fullWidth
+                    size={isSmallScreen ? "small" : "medium"}
+                    value={invoice.despatchedThrough || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        despatchedThrough: e.target.value,
+                      }))
+                    }
+                    placeholder="Transport company/agent"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Destination"
+                    variant="outlined"
+                    fullWidth
+                    size={isSmallScreen ? "small" : "medium"}
+                    value={invoice.destination || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        destination: e.target.value,
+                      }))
+                    }
+                    placeholder="Delivery destination"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl
+                    fullWidth
+                    size={isSmallScreen ? "small" : "medium"}
+                  >
+                    <InputLabel>Terms of Delivery</InputLabel>
+                    <Select
+                      value={invoice.termsOfDelivery || ''}
+                      label="Terms of Delivery"
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          termsOfDelivery: e.target.value,
+                        }))
+                      }
+                    >
+                      <MenuItem value="">
+                        <em>Select delivery terms</em>
+                      </MenuItem>
+                      {DELIVERY_TERMS.map((term) => (
+                        <MenuItem key={term} value={term}>
+                          {term}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Other Reference"
+                    variant="outlined"
+                    fullWidth
+                    size={isSmallScreen ? "small" : "medium"}
+                    value={invoice.otherReference || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        otherReference: e.target.value,
+                      }))
+                    }
+                    placeholder="Additional reference"
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </SectionCard>
+
           {/* Items Section */}
           <SectionCard sx={{ mb: 3 }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -1124,10 +1332,14 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell sx={{ minWidth: 150 }}>
                         Specification
                       </TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>
+                        Description
+                      </TableCell>
                       <TableCell>HSN Code</TableCell>
                       <TableCell>Unit</TableCell>
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
+                      <TableCell>Discount</TableCell>
                       <TableCell>GST %</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Action</TableCell>
@@ -1291,6 +1503,22 @@ const InvoiceForm = ({ onSave }) => {
                         <TableCell>
                           <TextField
                             size="small"
+                            value={item.description || ''}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Description"
+                            multiline
+                            maxRows={2}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            size="small"
                             value={item.hsnCode}
                             onChange={(e) =>
                               handleItemChange(index, "hsnCode", e.target.value)
@@ -1345,6 +1573,33 @@ const InvoiceForm = ({ onSave }) => {
                             inputProps={{ min: 0, step: 0.01 }}
                             sx={{ width: 80 }}
                           />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <TextField
+                              size="small"
+                              type="number"
+                              value={item.discount || 0}
+                              onChange={(e) =>
+                                handleItemChange(index, "discount", parseFloat(e.target.value) || 0)
+                              }
+                              inputProps={{ min: 0, step: 0.01 }}
+                              sx={{ width: 70 }}
+                              placeholder="0"
+                            />
+                            <FormControl size="small" sx={{ minWidth: 60 }}>
+                              <Select
+                                value={item.discountType || 'amount'}
+                                onChange={(e) =>
+                                  handleItemChange(index, "discountType", e.target.value)
+                                }
+                                displayEmpty
+                              >
+                                <MenuItem value="amount">₹</MenuItem>
+                                <MenuItem value="percentage">%</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Box>
                         </TableCell>
                         <TableCell>
                           <TextField
@@ -1425,6 +1680,85 @@ const InvoiceForm = ({ onSave }) => {
                         {formatCurrency(invoice.subtotal)}
                       </Typography>
                     </Box>
+                    
+                    {/* Additional Charges Section */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                          <TextField
+                            size="small"
+                            label="Packing Charges"
+                            type="number"
+                            value={invoice.packingCharges || 0}
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                packingCharges: parseFloat(e.target.value) || 0,
+                              }))
+                            }
+                            inputProps={{ min: 0, step: 0.01 }}
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <TextField
+                            size="small"
+                            label="Freight Charges"
+                            type="number"
+                            value={invoice.freightCharges || 0}
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                freightCharges: parseFloat(e.target.value) || 0,
+                              }))
+                            }
+                            inputProps={{ min: 0, step: 0.01 }}
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <TextField
+                            size="small"
+                            label="Loading Charges"
+                            type="number"
+                            value={invoice.loadingCharges || 0}
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                loadingCharges: parseFloat(e.target.value) || 0,
+                              }))
+                            }
+                            inputProps={{ min: 0, step: 0.01 }}
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <TextField
+                            size="small"
+                            label="Other Charges"
+                            type="number"
+                            value={invoice.otherCharges || 0}
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                otherCharges: parseFloat(e.target.value) || 0,
+                              }))
+                            }
+                            inputProps={{ min: 0, step: 0.01 }}
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+
                     <Box
                       sx={{
                         display: "flex",
@@ -1437,7 +1771,9 @@ const InvoiceForm = ({ onSave }) => {
                         {formatCurrency(invoice.gstAmount)}
                       </Typography>
                     </Box>
+                    
                     <Divider />
+                    
                     <Box
                       sx={{
                         display: "flex",
@@ -1454,6 +1790,45 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         {formatCurrency(invoice.total)}
                       </Typography>
+                    </Box>
+                    
+                    {/* Advance and Balance */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <TextField
+                        size="small"
+                        label="Advance Received"
+                        type="number"
+                        value={invoice.advanceReceived || 0}
+                        onChange={(e) =>
+                          setInvoice((prev) => ({
+                            ...prev,
+                            advanceReceived: parseFloat(e.target.value) || 0,
+                          }))
+                        }
+                        inputProps={{ min: 0, step: 0.01 }}
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                        }}
+                      />
+                      {invoice.advanceReceived > 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            p: 1,
+                            bgcolor: "primary.50",
+                            borderRadius: 1,
+                          }}
+                        >
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            Balance Amount:
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
+                            {formatCurrency(Math.max(0, invoice.total - (invoice.advanceReceived || 0)))}
+                          </Typography>
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </CardContent>

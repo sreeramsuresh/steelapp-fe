@@ -3,8 +3,10 @@
 export const createCustomer = () => ({
   id: '',
   name: '',
+  company: '',
   email: '',
   phone: '',
+  alternatePhone: '',
   address: {
     street: '',
     city: '',
@@ -12,7 +14,12 @@ export const createCustomer = () => ({
     zipCode: '',
     country: 'India'
   },
-  gstNumber: ''
+  gstNumber: '',
+  panNumber: '',
+  cinNumber: '',
+  contactPerson: '',
+  website: '',
+  paymentTerms: 30
 });
 
 export const createSteelItem = () => ({
@@ -20,12 +27,22 @@ export const createSteelItem = () => ({
   productId: null,
   name: '',
   specification: '',
+  description: '',
   unit: 'kg',
   quantity: 1,
   rate: 0,
+  discount: 0,
+  discountType: 'amount',
+  taxableAmount: 0,
   amount: 0,
   hsnCode: '',
-  gstRate: 18
+  gstRate: 18,
+  cgst: 0,
+  sgst: 0,
+  igst: 0,
+  cess: 0,
+  netAmount: 0,
+  serialNumber: ''
 });
 
 export const createInvoice = () => ({
@@ -33,10 +50,33 @@ export const createInvoice = () => ({
   invoiceNumber: '',
   date: new Date().toISOString().split('T')[0],
   dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  purchaseOrderNumber: '',
+  purchaseOrderDate: '',
+  deliveryNote: '',
+  modeOfPayment: '',
+  otherReference: '',
+  despatchedThrough: '',
+  destination: '',
+  termsOfDelivery: '',
   customer: createCustomer(),
   items: [createSteelItem()],
   subtotal: 0,
   gstAmount: 0,
+  cgstAmount: 0,
+  sgstAmount: 0,
+  igstAmount: 0,
+  cessAmount: 0,
+  totalQuantity: 0,
+  totalWeight: 0,
+  packingCharges: 0,
+  freightCharges: 0,
+  insuranceCharges: 0,
+  loadingCharges: 0,
+  otherCharges: 0,
+  roundOff: 0,
+  advanceReceived: 0,
+  balanceAmount: 0,
+  totalInWords: '',
   total: 0,
   status: 'draft',
   notes: '',
@@ -59,6 +99,9 @@ export const createCompany = () => ({
 
 export const STEEL_UNITS = ['kg', 'ton', 'piece', 'meter', 'feet'];
 export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue'];
+export const PAYMENT_MODES = ['Cash', 'Cheque', 'NEFT', 'RTGS', 'UPI', 'Card', 'Bank Transfer'];
+export const DELIVERY_TERMS = ['FOB', 'CIF', 'CFR', 'EXW', 'DDP', 'DAP'];
+export const DISCOUNT_TYPES = ['amount', 'percentage'];
 
 export const createStockMovement = () => ({
   id: crypto.randomUUID(),
