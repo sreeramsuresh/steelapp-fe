@@ -29,7 +29,8 @@ import {
   CircularProgress,
   Tooltip,
   Avatar,
-  Badge
+  Badge,
+  Autocomplete
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -534,36 +535,48 @@ const InventoryList = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Grade</InputLabel>
-                <Select
-                  value={formData.grade}
-                  label="Grade"
-                  onChange={(e) => handleInputChange('grade', e.target.value)}
-                >
-                  {STEEL_GRADES.map((grade) => (
-                    <MenuItem key={grade} value={grade}>
-                      {grade}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                fullWidth
+                freeSolo
+                options={STEEL_GRADES}
+                value={formData.grade}
+                onChange={(event, newValue) => {
+                  handleInputChange('grade', newValue || '');
+                }}
+                onInputChange={(event, newInputValue) => {
+                  handleInputChange('grade', newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Grade"
+                    helperText="Select from list or type custom grade"
+                    placeholder="e.g., 304, 316L"
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Finish</InputLabel>
-                <Select
-                  value={formData.finish}
-                  label="Finish"
-                  onChange={(e) => handleInputChange('finish', e.target.value)}
-                >
-                  {FINISHES.map((finish) => (
-                    <MenuItem key={finish} value={finish}>
-                      {finish}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                fullWidth
+                freeSolo
+                options={FINISHES}
+                value={formData.finish}
+                onChange={(event, newValue) => {
+                  handleInputChange('finish', newValue || '');
+                }}
+                onInputChange={(event, newInputValue) => {
+                  handleInputChange('finish', newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Finish"
+                    helperText="Select from list or type custom finish"
+                    placeholder="e.g., Mirror, HL, 2B"
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField

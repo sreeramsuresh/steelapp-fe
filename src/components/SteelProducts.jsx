@@ -151,7 +151,7 @@ const SteelProducts = () => {
 
   const [newProduct, setNewProduct] = useState({
     name: '',
-    category: 'rebar',
+    category: 'sheet',
     grade: '',
     size: '',
     weight: '',
@@ -184,20 +184,22 @@ const SteelProducts = () => {
   });
 
   const categories = [
-    { value: 'rebar', label: 'Rebar & Reinforcement' },
-    { value: 'structural', label: 'Structural Steel' },
-    { value: 'sheet', label: 'Steel Sheets' },
-    { value: 'pipe', label: 'Pipes & Tubes' },
-    { value: 'angle', label: 'Angles & Channels' },
-    { value: 'round', label: 'Round Bars' },
-    { value: 'flat', label: 'Flat Bars' },
-    { value: 'wire', label: 'Wire & Mesh' }
+    { value: 'sheet', label: 'Sheet' },
+    { value: 'square_tube', label: 'Square Tube' },
+    { value: 'rectangular_tube', label: 'Rectangular Tube' },
+    { value: 'pol_pipe', label: 'Pol Pipe' },
+    { value: 'round_bar', label: 'Round Bar' },
+    { value: 'flat_bar', label: 'Flat Bar' },
+    { value: 'angle_bar', label: 'Angle Bar' },
+    { value: 'square_bar', label: 'Square Bar' },
+    { value: 'coil', label: 'Coil' }
   ];
 
   const grades = [
     'Fe415', 'Fe500', 'Fe550', 'Fe600',
     'IS2062', 'ASTM A36', 'ASTM A572',
-    'SS304', 'SS316', 'MS', 'Galvanized'
+    '201', '304', '316', '316L', '310', '321', '347',
+    'MS', 'Galvanized'
   ];
 
 
@@ -218,7 +220,7 @@ const SteelProducts = () => {
       await createProduct(newProduct);
       setNewProduct({
         name: '',
-        category: 'rebar',
+        category: 'sheet',
         grade: '',
         size: '',
         weight: '',
@@ -798,13 +800,18 @@ const SteelProducts = () => {
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Grade"
-                    value={newProduct.grade}
-                    onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
-                    fullWidth
-                    placeholder="Enter grade (e.g., Fe415)"
-                  />
+                  <FormControl fullWidth>
+                    <InputLabel>Grade</InputLabel>
+                    <Select
+                      value={newProduct.grade}
+                      label="Grade"
+                      onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
+                    >
+                      {grades.map(grade => (
+                        <MenuItem key={grade} value={grade}>{grade}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField

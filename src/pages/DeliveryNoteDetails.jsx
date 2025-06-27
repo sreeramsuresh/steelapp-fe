@@ -264,7 +264,7 @@ const DeliveryNoteDetails = () => {
                 <Typography variant="body2" color="text.secondary">Delivery Address</Typography>
                 <Typography variant="body1">
                   {deliveryNote.delivery_address?.street || deliveryNote.customer_details?.address?.street}<br />
-                  {deliveryNote.delivery_address?.city || deliveryNote.customer_details?.address?.city}, {deliveryNote.delivery_address?.state || deliveryNote.customer_details?.address?.state} {deliveryNote.delivery_address?.zipcode || deliveryNote.customer_details?.address?.zipcode}
+                  {deliveryNote.delivery_address?.city || deliveryNote.customer_details?.address?.city} {deliveryNote.delivery_address?.po_box || deliveryNote.customer_details?.address?.po_box}
                 </Typography>
               </Grid>
             </Grid>

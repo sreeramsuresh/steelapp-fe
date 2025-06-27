@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Eye, Download, Trash2, Search, FileDown, Truck } from "lucide-react";
+import { Edit, Eye, Download, Trash2, Search, FileDown, Truck, Link as LinkIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -27,6 +27,11 @@ import {
   Divider,
   Pagination,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
@@ -36,7 +41,10 @@ import { invoiceService } from "../services/invoiceService";
 
 // Styled Components
 const InvoiceListContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(0),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(2),
+  },
   background: theme.palette.background.default,
   minHeight: "calc(100vh - 64px)",
   overflow: "auto",
@@ -76,6 +84,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
+  const [poDialogOpen, setPoDialogOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [poFormData, setPoFormData] = useState({
+    purchaseOrderNumber: '',
+    purchaseOrderDate: '',
+    adjustmentNotes: ''
+  });
+  const [poLoading, setPOLoading] = useState(false);
 
   const company = createCompany();
 
@@ -212,6 +228,84 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     });
   };
 
+  // Purchase Order functions
+  const handleOpenPODialog = (invoice) => {
+    setSelectedInvoice(invoice);
+    setPoFormData({
+      purchaseOrderNumber: invoice.purchaseOrderNumber || '',
+      purchaseOrderDate: invoice.purchaseOrderDate || '',
+      adjustmentNotes: ''
+    });
+    setPoDialogOpen(true);
+  };
+
+  const handleClosePODialog = () => {
+    setPoDialogOpen(false);
+    setSelectedInvoice(null);
+    setPoFormData({
+      purchaseOrderNumber: '',
+      purchaseOrderDate: '',
+      adjustmentNotes: ''
+    });
+  };
+
+  const handlePOReconciliation = async () => {
+    if (!selectedInvoice) return;
+
+    try {
+      setPOLoading(true);
+      
+      const response = await fetch(`/api/invoices/${selectedInvoice.id}/reconcile-po`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          purchase_order_number: poFormData.purchaseOrderNumber,
+          purchase_order_date: poFormData.purchaseOrderDate,
+          adjustment_notes: poFormData.adjustmentNotes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reconcile invoice with purchase order');
+      }
+
+      // Refresh the invoice list
+      await fetchInvoices();
+      handleClosePODialog();
+      
+      alert('Invoice successfully reconciled with purchase order!');
+    } catch (error) {
+      console.error('Error reconciling PO:', error);
+      alert('Failed to reconcile purchase order');
+    } finally {
+      setPOLoading(false);
+    }
+  };
+
+  const getPOStatus = (invoice) => {
+    if (invoice.purchaseOrderNumber) {
+      return (
+        <Chip 
+          label="Linked" 
+          color="success" 
+          size="small" 
+          icon={<LinkIcon size={14} />}
+        />
+      );
+    } else {
+      return (
+        <Chip 
+          label="No PO" 
+          color="warning" 
+          size="small" 
+          variant="outlined"
+        />
+      );
+    }
+  };
+
   if (loading) {
     return (
       <InvoiceListContainer>
@@ -264,14 +358,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   return (
     <InvoiceListContainer>
-      <InvoiceListPaper sx={{ p: 3 }}>
+      <InvoiceListPaper sx={{ p: { xs: 0, sm: 3 }, mx: { xs: 0, sm: 0 }, borderRadius: { xs: 0, sm: 2 } }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            mb: 3,
+            mb: { xs: 1, sm: 3 },
+            px: { xs: 2, sm: 0 },
+            pt: { xs: 2, sm: 0 },
           }}
         >
           <Box>
@@ -430,6 +526,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 <TableCell>Due Date</TableCell>
                 <TableCell>Amount</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>PO Status</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -470,6 +567,21 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     </Typography>
                   </TableCell>
                   <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {getPOStatus(invoice)}
+                      {!invoice.purchaseOrderNumber && (
+                        <IconButton
+                          size="small"
+                          title="Link Purchase Order"
+                          color="primary"
+                          onClick={() => handleOpenPODialog(invoice)}
+                        >
+                          <LinkIcon size={14} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton
@@ -568,6 +680,80 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           </Box>
         )}
       </InvoiceListPaper>
+
+      {/* Purchase Order Reconciliation Dialog */}
+      <Dialog
+        open={poDialogOpen}
+        onClose={handleClosePODialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Link Purchase Order
+          {selectedInvoice && (
+            <Typography variant="body2" color="text.secondary">
+              Invoice: {selectedInvoice.invoiceNumber}
+            </Typography>
+          )}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Alert severity="info">
+              Link this invoice to a purchase order. This will update inventory tracking and provide better reconciliation.
+            </Alert>
+            
+            <TextField
+              label="Purchase Order Number"
+              value={poFormData.purchaseOrderNumber}
+              onChange={(e) => setPoFormData(prev => ({
+                ...prev,
+                purchaseOrderNumber: e.target.value
+              }))}
+              fullWidth
+              required
+              placeholder="PO-2024-001"
+            />
+            
+            <TextField
+              label="Purchase Order Date"
+              type="date"
+              value={poFormData.purchaseOrderDate}
+              onChange={(e) => setPoFormData(prev => ({
+                ...prev,
+                purchaseOrderDate: e.target.value
+              }))}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            
+            <TextField
+              label="Adjustment Notes"
+              value={poFormData.adjustmentNotes}
+              onChange={(e) => setPoFormData(prev => ({
+                ...prev,
+                adjustmentNotes: e.target.value
+              }))}
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="Optional notes about the reconciliation..."
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePODialog}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handlePOReconciliation}
+            variant="contained"
+            disabled={!poFormData.purchaseOrderNumber || poLoading}
+            startIcon={poLoading ? <CircularProgress size={16} /> : <LinkIcon size={16} />}
+          >
+            {poLoading ? 'Linking...' : 'Link Purchase Order'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </InvoiceListContainer>
   );
 };

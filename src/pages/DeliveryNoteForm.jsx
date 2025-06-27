@@ -58,8 +58,7 @@ const DeliveryNoteForm = () => {
     delivery_address: {
       street: '',
       city: '',
-      state: '',
-      zipcode: ''
+      po_box: ''
     },
     vehicle_number: '',
     driver_name: '',
@@ -109,8 +108,7 @@ const DeliveryNoteForm = () => {
         delivery_address: deliveryNote.delivery_address || {
           street: '',
           city: '',
-          state: '',
-          zipcode: ''
+          po_box: ''
         },
         vehicle_number: deliveryNote.vehicle_number || '',
         driver_name: deliveryNote.driver_name || '',
@@ -344,7 +342,7 @@ const DeliveryNoteForm = () => {
                   onChange={(e) => handleInputChange('delivery_address.street', e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="City"
@@ -352,20 +350,12 @@ const DeliveryNoteForm = () => {
                   onChange={(e) => handleInputChange('delivery_address.city', e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="State"
-                  value={formData.delivery_address.state}
-                  onChange={(e) => handleInputChange('delivery_address.state', e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Zip Code"
-                  value={formData.delivery_address.zipcode}
-                  onChange={(e) => handleInputChange('delivery_address.zipcode', e.target.value)}
+                  label="PO Box"
+                  value={formData.delivery_address.po_box}
+                  onChange={(e) => handleInputChange('delivery_address.po_box', e.target.value)}
                 />
               </Grid>
             </Grid>
