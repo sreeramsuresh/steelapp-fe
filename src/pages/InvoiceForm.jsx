@@ -61,12 +61,18 @@ import { useApiData, useApi } from "../hooks/useApi";
 
 // Styled Components
 const InvoiceContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1),
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
+  paddingLeft: 0,
+  paddingRight: 0,
   background: theme.palette.background.default,
   minHeight: "calc(100vh - 64px)",
   overflow: "auto",
   [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(2),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(0),
@@ -860,7 +866,7 @@ const InvoiceForm = ({ onSave }) => {
 
   return (
     <InvoiceContainer>
-      <Container maxWidth="lg" sx={{ p: 0 }}>
+      <Container maxWidth={false} sx={{ p: 0, width: "100%" }}>
         <InvoiceFormPaper>
           {/* Header */}
           <Box
