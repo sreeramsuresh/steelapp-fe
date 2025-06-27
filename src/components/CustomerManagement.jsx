@@ -461,7 +461,9 @@ const CustomerManagement = () => {
     credit_limit: 0,
     current_credit: 0,
     status: 'active',
-    gst_number: ''
+    gst_number: '',
+    trade_license_number: '',
+    trade_license_expiry: ''
   });
 
   const [newContact, setNewContact] = useState({
@@ -491,7 +493,9 @@ const CustomerManagement = () => {
         credit_limit: 0,
         current_credit: 0,
         status: 'active',
-        gst_number: ''
+        gst_number: '',
+        trade_license_number: '',
+        trade_license_expiry: ''
       });
       setShowAddModal(false);
       refetchCustomers();
@@ -939,6 +943,22 @@ const CustomerManagement = () => {
               fullWidth
             />
             <TextField
+              label="Trade License Number"
+              value={newCustomer.trade_license_number}
+              onChange={(e) => setNewCustomer({...newCustomer, trade_license_number: e.target.value})}
+              placeholder="Enter trade license number"
+              fullWidth
+            />
+            <TextField
+              label="Trade License Expiry"
+              type="date"
+              value={newCustomer.trade_license_expiry}
+              onChange={(e) => setNewCustomer({...newCustomer, trade_license_expiry: e.target.value})}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              helperText="Important: Set expiry date for compliance tracking"
+            />
+            <TextField
               label="Credit Limit (₹)"
               type="number"
               value={newCustomer.credit_limit}
@@ -1034,6 +1054,27 @@ const CustomerManagement = () => {
                   fullWidth
                 />
               </FullWidthFormControl>
+              <TextField
+                label="GST Number"
+                value={selectedCustomer.gst_number || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, gst_number: e.target.value})}
+                fullWidth
+              />
+              <TextField
+                label="Trade License Number"
+                value={selectedCustomer.trade_license_number || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, trade_license_number: e.target.value})}
+                fullWidth
+              />
+              <TextField
+                label="Trade License Expiry"
+                type="date"
+                value={selectedCustomer.trade_license_expiry || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, trade_license_expiry: e.target.value})}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                helperText="Important: Set expiry date for compliance tracking"
+              />
               <TextField
                 label="Credit Limit (₹)"
                 type="number"
