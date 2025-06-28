@@ -139,8 +139,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 <Typography variant="body1">
                   <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
                 </Typography>
-                <Typography variant="body1">
-                  <strong>Status:</strong>{" "}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Typography variant="body1" component="span">
+                    <strong>Status:</strong>
+                  </Typography>
                   <Chip
                     label={invoice.status.toUpperCase()}
                     color={
@@ -152,7 +154,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     }
                     size="small"
                   />
-                </Typography>
+                </Box>
                 {invoice.purchaseOrderNumber && (
                   <Typography variant="body1">
                     <strong>PO #:</strong> {invoice.purchaseOrderNumber}
@@ -532,7 +534,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           {(invoice.notes || invoice.terms) && (
             <Grid container spacing={2} sx={{ mb: 4 }}>
               {invoice.notes && (
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Card variant="outlined">
                     <CardContent>
                       <Typography
@@ -547,7 +549,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 </Grid>
               )}
               {invoice.terms && (
-                <Grid item xs={12} md={invoice.notes ? 6 : 12}>
+                <Grid size={{ xs: 12, md: invoice.notes ? 6 : 12 }}>
                   <Card variant="outlined">
                     <CardContent>
                       <Typography

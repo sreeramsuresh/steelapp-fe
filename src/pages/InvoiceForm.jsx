@@ -54,6 +54,7 @@ import {
   calculateTotalGST,
   calculateTotal,
   formatCurrency,
+  formatDateForInput,
 } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
@@ -1043,7 +1044,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.date}
+                          value={formatDateForInput(invoice.date)}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,
@@ -1060,7 +1061,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.dueDate}
+                          value={formatDateForInput(invoice.dueDate)}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,
@@ -1096,7 +1097,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.purchaseOrderDate || ""}
+                          value={formatDateForInput(invoice.purchaseOrderDate) || ""}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,

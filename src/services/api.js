@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
 class ApiClient {
   constructor() {
@@ -39,6 +39,11 @@ class ApiClient {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error(`API Error Response for ${endpoint}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          errorData: errorData
+        });
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -50,6 +55,12 @@ class ApiClient {
       return response;
     } catch (error) {
       console.error(`API Error for ${endpoint}:`, error);
+      
+      // Check if it's a connection error
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Unable to connect to server. Please make sure the backend server is running on http://localhost:5001');
+      }
+      
       throw error;
     }
   }
