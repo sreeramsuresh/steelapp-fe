@@ -30,7 +30,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Grid,
   Card,
   CardContent,
   Tabs,
@@ -464,9 +463,9 @@ const PriceCalculator = () => {
   };
 
   const renderCalculator = () => (
-    <Grid container spacing={3}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
       {/* Calculator Form */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <CalculationCard>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
@@ -508,9 +507,9 @@ const PriceCalculator = () => {
               <Ruler size={20} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>Dimensions</Typography>
             </Box>
-            <Grid container spacing={2}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               {productTypes[selectedProduct].dimensions.includes('diameter') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
@@ -519,10 +518,10 @@ const PriceCalculator = () => {
                     onChange={(e) => setDimensions({...dimensions, diameter: Number(e.target.value)})}
                     placeholder="Enter diameter"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('length') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
@@ -531,10 +530,10 @@ const PriceCalculator = () => {
                     onChange={(e) => setDimensions({...dimensions, length: Number(e.target.value)})}
                     placeholder="Enter length"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('width') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
@@ -543,10 +542,10 @@ const PriceCalculator = () => {
                     onChange={(e) => setDimensions({...dimensions, width: Number(e.target.value)})}
                     placeholder="Enter width"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('thickness') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
@@ -555,9 +554,9 @@ const PriceCalculator = () => {
                     onChange={(e) => setDimensions({...dimensions, thickness: Number(e.target.value)})}
                     placeholder="Enter thickness"
                   />
-                </Grid>
+                </Box>
               )}
-              <Grid item xs={12} sm={6}>
+              <Box>
                 <TextField
                   fullWidth
                   type="number"
@@ -567,14 +566,14 @@ const PriceCalculator = () => {
                   placeholder="Enter quantity"
                   inputProps={{ min: "1" }}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </CalculationCard>
-      </Grid>
+      </Box>
 
       {/* Results */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <ResultCard>
           <CardContent>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -584,8 +583,8 @@ const PriceCalculator = () => {
               </Typography>
             </Box>
 
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <Weight size={16} />
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Total Weight</Typography>
@@ -593,8 +592,8 @@ const PriceCalculator = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                   {calculateWeight.toFixed(2)} kg
                 </Typography>
-              </Grid>
-              <Grid item xs={6}>
+              </Box>
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <Package size={16} />
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Weight per Unit</Typography>
@@ -602,8 +601,8 @@ const PriceCalculator = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                   {dimensions.quantity > 0 ? (calculateWeight / dimensions.quantity).toFixed(2) : 0} kg
                 </Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
 
@@ -659,8 +658,8 @@ const PriceCalculator = () => {
             )}
           </CardContent>
         </ResultCard>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 
   const renderPricingRules = () => (
@@ -677,9 +676,9 @@ const PriceCalculator = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={2}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
         {customRules.map(rule => (
-          <Grid item xs={12} md={6} key={rule.id}>
+          <Box key={rule.id}>
             <RuleCard>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -733,9 +732,9 @@ const PriceCalculator = () => {
                 </Stack>
               </CardContent>
             </RuleCard>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -753,9 +752,9 @@ const PriceCalculator = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={2}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
         {bulkDiscounts.map(discount => (
-          <Grid item xs={12} sm={6} md={4} key={discount.id}>
+          <Box key={discount.id}>
             <RuleCard>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -806,9 +805,9 @@ const PriceCalculator = () => {
                 </Stack>
               </CardContent>
             </RuleCard>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -873,8 +872,8 @@ const PriceCalculator = () => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Rule Name"
@@ -882,8 +881,8 @@ const PriceCalculator = () => {
                 onChange={(e) => setNewRule({...newRule, name: e.target.value})}
                 placeholder="Enter rule name"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Condition</InputLabel>
                 <Select
@@ -897,8 +896,8 @@ const PriceCalculator = () => {
                   <MenuItem value="grade">Grade</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Operator</InputLabel>
                 <Select
@@ -911,8 +910,8 @@ const PriceCalculator = () => {
                   <MenuItem value="equals">Equals</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               {newRule.condition === 'grade' ? (
                 <FormControl fullWidth>
                   <InputLabel>Value</InputLabel>
@@ -941,8 +940,8 @@ const PriceCalculator = () => {
                   placeholder="Enter value"
                 />
               )}
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Adjustment Type</InputLabel>
                 <Select
@@ -954,8 +953,8 @@ const PriceCalculator = () => {
                   <MenuItem value="fixed">Fixed Amount</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 type="number"
@@ -964,8 +963,8 @@ const PriceCalculator = () => {
                 onChange={(e) => setNewRule({...newRule, adjustmentValue: Number(e.target.value)})}
                 placeholder={newRule.adjustmentType === 'percentage' ? 'Enter percentage' : 'Enter amount'}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowRulesModal(false)} color="inherit">

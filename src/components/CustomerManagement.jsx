@@ -618,18 +618,18 @@ const CustomerManagement = () => {
         </Button>
       </ProfilesControls>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
         {filteredCustomers.length === 0 ? (
-          <Grid item xs={12}>
+          <Box sx={{ gridColumn: '1 / -1' }}>
             <Box textAlign="center" py={4}>
               <Typography color="text.secondary">
                 {loadingCustomers ? 'Loading...' : customersError ? 'Error loading customers.' : 'No customers found. Try creating a new customer.'}
               </Typography>
             </Box>
-          </Grid>
+          </Box>
         ) : (
           filteredCustomers.map(customer => (
-            <Grid item xs={12} sm={6} lg={4} key={customer.id}>
+            <Box key={customer.id}>
               <CustomerCard>
                 <CustomerHeader>
                   <CustomerInfo>
@@ -712,17 +712,17 @@ const CustomerManagement = () => {
                   </UtilizationContainer>
                 </CreditInfo>
               </CustomerCard>
-            </Grid>
+            </Box>
           ))
         )}
-      </Grid>
+      </Box>
     </CustomerProfilesCard>
   );
 
   const renderAnalytics = () => (
     <CustomerProfilesCard>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <AnalyticsCard>
             <AnalyticsHeader>
               <People sx={{ color: 'primary.main' }} />
@@ -733,9 +733,9 @@ const CustomerManagement = () => {
               {analytics.activeCustomers} active customers
             </AnalyticsSubtitle>
           </AnalyticsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <AnalyticsCard>
             <AnalyticsHeader>
               <CreditCard sx={{ color: 'primary.main' }} />
@@ -746,9 +746,9 @@ const CustomerManagement = () => {
               Across all customers
             </AnalyticsSubtitle>
           </AnalyticsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <AnalyticsCard>
             <AnalyticsHeader>
               <AttachMoney sx={{ color: 'primary.main' }} />
@@ -759,9 +759,9 @@ const CustomerManagement = () => {
               {Math.round(analytics.avgCreditUtilization)}% average utilization
             </AnalyticsSubtitle>
           </AnalyticsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <AnalyticsCard>
             <AnalyticsHeader>
               <TrendingUp sx={{ color: 'primary.main' }} />
@@ -772,8 +772,8 @@ const CustomerManagement = () => {
               Ready to be utilized
             </AnalyticsSubtitle>
           </AnalyticsCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <ChartCard>
         <Typography variant="h6" sx={{ mb: 3 }}>Credit Utilization by Customer</Typography>

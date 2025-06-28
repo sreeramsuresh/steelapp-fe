@@ -30,7 +30,6 @@ import {
   Paper,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
   TextField,
@@ -675,8 +674,8 @@ const CompanySettings = () => {
                 Basic Information
               </Typography>
               
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Box>
                   <TextField
                     fullWidth
                     label="Company Name"
@@ -684,8 +683,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, name: e.target.value})}
                     placeholder="Enter company name"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Email"
@@ -701,8 +700,8 @@ const CompanySettings = () => {
                       ),
                     }}
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Phone"
@@ -718,8 +717,8 @@ const CompanySettings = () => {
                       ),
                     }}
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Website"
@@ -735,8 +734,8 @@ const CompanySettings = () => {
                       ),
                     }}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SettingsCard>
 
@@ -747,8 +746,8 @@ const CompanySettings = () => {
                 Address Information
               </Typography>
               
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     fullWidth
                     label="Street Address"
@@ -763,8 +762,8 @@ const CompanySettings = () => {
                       ),
                     }}
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="City"
@@ -772,8 +771,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, city: e.target.value})}
                     placeholder="Enter city"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="State"
@@ -781,8 +780,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, state: e.target.value})}
                     placeholder="Enter state"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="ZIP Code"
@@ -790,8 +789,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, zipCode: e.target.value})}
                     placeholder="Enter ZIP code"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Country</InputLabel>
                     <Select
@@ -806,8 +805,8 @@ const CompanySettings = () => {
                       <MenuItem value="Australia">Australia</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SettingsCard>
 
@@ -818,8 +817,8 @@ const CompanySettings = () => {
                 Tax Information
               </Typography>
               
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Box>
                   <TextField
                     fullWidth
                     label="GST Number"
@@ -827,8 +826,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, gstNumber: e.target.value})}
                     placeholder="Enter GST number"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="PAN Number"
@@ -836,8 +835,8 @@ const CompanySettings = () => {
                     onChange={(e) => setCompanyProfile({...companyProfile, panNumber: e.target.value})}
                     placeholder="Enter PAN number"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SettingsCard>
 
@@ -848,8 +847,8 @@ const CompanySettings = () => {
                 Bank Details
               </Typography>
               
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Box>
                   <TextField
                     fullWidth
                     label="Bank Name"
@@ -860,8 +859,8 @@ const CompanySettings = () => {
                     })}
                     placeholder="Enter bank name"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Account Number"
@@ -872,8 +871,8 @@ const CompanySettings = () => {
                     })}
                     placeholder="Enter account number"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="IFSC Code"
@@ -884,8 +883,8 @@ const CompanySettings = () => {
                     })}
                     placeholder="Enter IFSC code"
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Account Holder Name"
@@ -896,8 +895,8 @@ const CompanySettings = () => {
                     })}
                     placeholder="Enter account holder name"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SettingsCard>
         </Stack>
@@ -930,9 +929,9 @@ const CompanySettings = () => {
                 Template Style
               </Typography>
               
-              <Grid container spacing={3}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3 }}>
                 {templateStyles.map(style => (
-                  <Grid item xs={12} sm={6} md={3} key={style.id}>
+                  <Box key={style.id}>
                     <TemplateStyleCard
                       selected={invoiceSettings.templateStyle === style.id}
                       onClick={() => setInvoiceSettings({...invoiceSettings, templateStyle: style.id})}
@@ -979,9 +978,9 @@ const CompanySettings = () => {
                         </Stack>
                       </CardContent>
                     </TemplateStyleCard>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             </CardContent>
           </SettingsCard>
 
@@ -992,8 +991,8 @@ const CompanySettings = () => {
                 Customization
               </Typography>
               
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Box>
                   <Stack spacing={2}>
                     <Typography variant="body2">Primary Color</Typography>
                     <Stack direction="row" alignItems="center" spacing={2}>
@@ -1014,8 +1013,8 @@ const CompanySettings = () => {
                       </Typography>
                     </Stack>
                   </Stack>
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Due Days"
@@ -1024,8 +1023,8 @@ const CompanySettings = () => {
                     onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: Number(e.target.value)})}
                     placeholder="Default due days"
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Box>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     fullWidth
                     label="Invoice Number Format"
@@ -1034,8 +1033,8 @@ const CompanySettings = () => {
                     placeholder="e.g., INV-{YYYY}-{MM}-{###}"
                     helperText="Use {YYYY} for year, {MM} for month, {###} for number"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SettingsCard>
 
@@ -1188,8 +1187,8 @@ const CompanySettings = () => {
         </DialogTitle>
         
         <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 1 }}>
+            <Box>
               <TextField
                 fullWidth
                 label="Tax Name"
@@ -1197,8 +1196,8 @@ const CompanySettings = () => {
                 onChange={(e) => setNewTax({...newTax, name: e.target.value})}
                 placeholder="Enter tax name (e.g., GST, VAT)"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Tax Rate (%)"
@@ -1208,8 +1207,8 @@ const CompanySettings = () => {
                 placeholder="Enter tax rate"
                 inputProps={{ step: "0.01", min: "0", max: "100" }}
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Type</InputLabel>
                 <Select
@@ -1221,8 +1220,8 @@ const CompanySettings = () => {
                   <MenuItem value="fixed">Fixed Amount</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Description"
@@ -1230,8 +1229,8 @@ const CompanySettings = () => {
                 onChange={(e) => setNewTax({...newTax, description: e.target.value})}
                 placeholder="Enter tax description"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         
         <DialogActions>
@@ -1311,8 +1310,8 @@ const CompanySettings = () => {
                 <Divider sx={{ my: 2 }} />
 
                 {/* User Stats */}
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={6}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
+                  <Box>
                     <Box>
                       <Typography variant="caption" color="text.secondary">
                         Created
@@ -1321,8 +1320,8 @@ const CompanySettings = () => {
                         {user.createdAt}
                       </Typography>
                     </Box>
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Box>
+                  <Box>
                     <Box>
                       <Typography variant="caption" color="text.secondary">
                         Last Login
@@ -1331,8 +1330,8 @@ const CompanySettings = () => {
                         {user.lastLogin || 'Never'}
                       </Typography>
                     </Box>
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
 
                 {/* User Permissions */}
                 <Accordion>
@@ -1399,8 +1398,8 @@ const CompanySettings = () => {
         </DialogTitle>
         
         <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 1 }}>
+            <Box>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -1408,8 +1407,8 @@ const CompanySettings = () => {
                 onChange={(e) => setNewUser({...newUser, name: e.target.value})}
                 placeholder="Enter full name"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Email"
@@ -1418,8 +1417,8 @@ const CompanySettings = () => {
                 onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                 placeholder="Enter email address"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Role</InputLabel>
                 <Select
@@ -1435,8 +1434,8 @@ const CompanySettings = () => {
               <Typography variant="caption" color="text.secondary">
                 {userRoles.find(r => r.id === newUser.role)?.description}
               </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Password"
@@ -1457,8 +1456,8 @@ const CompanySettings = () => {
                   ),
                 }}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6" sx={{ mb: 3 }}>

@@ -25,7 +25,6 @@ import {
   Paper,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
   Tabs,
@@ -268,8 +267,8 @@ const SalesAnalytics = () => {
       </Box>
 
       {/* Metrics Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -294,9 +293,9 @@ const SalesAnalytics = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -321,9 +320,9 @@ const SalesAnalytics = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -348,9 +347,9 @@ const SalesAnalytics = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -375,12 +374,12 @@ const SalesAnalytics = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Charts Section */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -410,9 +409,9 @@ const SalesAnalytics = () => {
               </Box>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={4}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -444,8 +443,8 @@ const SalesAnalytics = () => {
               </Stack>
             </CardContent>
           </ChartCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -461,9 +460,9 @@ const SalesAnalytics = () => {
         />
       </Box>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
         {/* Customer Distribution */}
-        <Grid item xs={12} md={4}>
+        <Box>
           <MetricCard>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -509,10 +508,10 @@ const SalesAnalytics = () => {
               </Stack>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
         {/* Top Customers */}
-        <Grid item xs={12} md={8}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Top Customers by Revenue</Typography>
@@ -568,10 +567,10 @@ const SalesAnalytics = () => {
               </Stack>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
         {/* Insights */}
-        <Grid item xs={12}>
+        <Box sx={{ gridColumn: '1 / -1' }}>
           <MetricCard>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
@@ -591,8 +590,8 @@ const SalesAnalytics = () => {
               </Stack>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -615,9 +614,9 @@ const SalesAnalytics = () => {
       </Box>
 
       {/* Product Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
         {analytics.topProducts.map((product, index) => (
-          <Grid item xs={12} sm={6} md={4} key={product.product || index}>
+          <Box key={product.product || index}>
             <MetricCard>
               <CardContent>
                 {/* Product Header */}
@@ -680,13 +679,13 @@ const SalesAnalytics = () => {
                 </Box>
               </CardContent>
             </MetricCard>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Product Insights */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Best Performing Category</Typography>
@@ -708,9 +707,9 @@ const SalesAnalytics = () => {
               )}
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
         
-        <Grid item xs={12} md={4}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Most Popular Product</Typography>
@@ -722,9 +721,9 @@ const SalesAnalytics = () => {
               </Typography>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
         
-        <Grid item xs={12} md={4}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Revenue Leader</Typography>
@@ -736,8 +735,8 @@ const SalesAnalytics = () => {
               </Typography>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -765,8 +764,8 @@ const SalesAnalytics = () => {
       </Box>
 
       {/* Report Summary */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 4 }}>
+        <Box>
           <MetricCard>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -781,9 +780,9 @@ const SalesAnalytics = () => {
               </Typography>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
         
-        <Grid item xs={12} md={6}>
+        <Box>
           <MetricCard>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -806,12 +805,12 @@ const SalesAnalytics = () => {
               </Typography>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Detailed Tables */}
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -866,9 +865,9 @@ const SalesAnalytics = () => {
               </TableContainer>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -929,8 +928,8 @@ const SalesAnalytics = () => {
               </TableContainer>
             </CardContent>
           </ChartCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 

@@ -395,8 +395,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         </Box>
 
         {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
+          <Box>
             <StatsCard>
               <CardContent sx={{ py: 2 }}>
                 <Typography
@@ -411,8 +411,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </Typography>
               </CardContent>
             </StatsCard>
-          </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          </Box>
+          <Box>
             <StatsCard>
               <CardContent sx={{ py: 2 }}>
                 <Typography
@@ -427,8 +427,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </Typography>
               </CardContent>
             </StatsCard>
-          </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          </Box>
+          <Box>
             <StatsCard>
               <CardContent sx={{ py: 2 }}>
                 <Typography
@@ -443,8 +443,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </Typography>
               </CardContent>
             </StatsCard>
-          </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          </Box>
+          <Box>
             <StatsCard>
               <CardContent sx={{ py: 2 }}>
                 <Typography
@@ -459,8 +459,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </Typography>
               </CardContent>
             </StatsCard>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Filters Section */}
         <Box

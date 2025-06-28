@@ -508,8 +508,8 @@ const InventoryList = () => {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Description"
@@ -517,8 +517,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Auto-generated if empty"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Product Type</InputLabel>
                 <Select
@@ -533,8 +533,8 @@ const InventoryList = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <Autocomplete
                 fullWidth
                 freeSolo
@@ -555,8 +555,8 @@ const InventoryList = () => {
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <Autocomplete
                 fullWidth
                 freeSolo
@@ -577,8 +577,8 @@ const InventoryList = () => {
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Size"
@@ -586,8 +586,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('size', e.target.value)}
                 placeholder="e.g., 4x8"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Thickness"
@@ -595,8 +595,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('thickness', e.target.value)}
                 placeholder="e.g., 0.8, 1.2"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Quantity"
@@ -604,8 +604,8 @@ const InventoryList = () => {
                 value={formData.quantity}
                 onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Purchase Price"
@@ -616,8 +616,8 @@ const InventoryList = () => {
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Selling Price"
@@ -628,8 +628,8 @@ const InventoryList = () => {
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Landed Cost"
@@ -640,8 +640,8 @@ const InventoryList = () => {
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Location"
@@ -649,8 +649,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="e.g., Warehouse A, Section 1"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ 
           p: 3, 

@@ -363,11 +363,11 @@ const SteelProducts = () => {
       </Box>
 
       {/* Products Grid */}
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
         {filteredProducts.map(product => {
           const stockStatus = getStockStatus(product);
           return (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            <Box key={product.id}>
               <ProductCard>
                 <CardContent>
                   {/* Product Header */}
@@ -511,10 +511,10 @@ const SteelProducts = () => {
                   </Box>
                 </CardContent>
               </ProductCard>
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -775,8 +775,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Basic Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Product Name *"
                     value={newProduct.name}
@@ -784,8 +784,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter product name"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Category</InputLabel>
                     <Select
@@ -798,8 +798,8 @@ const SteelProducts = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Grade</InputLabel>
                     <Select
@@ -812,8 +812,8 @@ const SteelProducts = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Size"
                     value={newProduct.size}
@@ -821,8 +821,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="e.g., 12mm, 50x50x6"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Weight"
                     value={newProduct.weight}
@@ -830,8 +830,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter weight"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Unit</InputLabel>
                     <Select
@@ -846,8 +846,8 @@ const SteelProducts = () => {
                       <MenuItem value="pieces">pieces</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12}>
+                </Box>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     label="Description"
                     value={newProduct.description}
@@ -857,8 +857,8 @@ const SteelProducts = () => {
                     multiline
                     rows={3}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Inventory Information */}
@@ -866,8 +866,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Inventory Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Current Stock"
                     type="number"
@@ -876,8 +876,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter current stock"
                   />
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <TextField
                     label="Minimum Stock"
                     type="number"
@@ -886,8 +886,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter minimum stock level"
                   />
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <TextField
                     label="Maximum Stock"
                     type="number"
@@ -896,8 +896,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter maximum stock level"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Pricing Information */}
@@ -905,8 +905,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Pricing Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Cost Price"
                     type="number"
@@ -918,8 +918,8 @@ const SteelProducts = () => {
                     }}
                     placeholder="Enter cost price"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Selling Price"
                     type="number"
@@ -931,8 +931,8 @@ const SteelProducts = () => {
                     }}
                     placeholder="Enter selling price"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Supplier & Location */}
@@ -940,8 +940,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Supplier & Location
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Supplier"
                     value={newProduct.supplier}
@@ -949,8 +949,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter supplier name"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Storage Location"
                     value={newProduct.location}
@@ -958,8 +958,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter storage location"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Product Specifications */}
@@ -967,8 +967,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Product Specifications
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Length"
                     value={newProduct.specifications.length}
@@ -979,8 +979,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter length"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Width"
                     value={newProduct.specifications.width}
@@ -991,8 +991,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter width"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Thickness"
                     value={newProduct.specifications.thickness}
@@ -1003,8 +1003,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter thickness"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Diameter"
                     value={newProduct.specifications.diameter}
@@ -1015,8 +1015,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter diameter"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Tensile Strength"
                     value={newProduct.specifications.tensileStrength}
@@ -1027,8 +1027,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter tensile strength"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Yield Strength"
                     value={newProduct.specifications.yieldStrength}
@@ -1039,8 +1039,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter yield strength"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Carbon Content"
                     value={newProduct.specifications.carbonContent}
@@ -1051,8 +1051,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter carbon content"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Coating"
                     value={newProduct.specifications.coating}
@@ -1063,8 +1063,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter coating type"
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Box>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     label="Standard"
                     value={newProduct.specifications.standard}
@@ -1075,8 +1075,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter applicable standard"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
           </Box>
         </DialogContent>

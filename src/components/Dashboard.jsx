@@ -378,8 +378,8 @@ const Dashboard = () => {
       </SectionHeader>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
+        <Box>
           <StatsCard variant="default">
             <CardContent
               sx={{
@@ -439,9 +439,9 @@ const Dashboard = () => {
               </ChangeIndicator>
             </CardContent>
           </StatsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <StatsCard variant="success">
             <CardContent
               sx={{
@@ -501,9 +501,9 @@ const Dashboard = () => {
               </ChangeIndicator>
             </CardContent>
           </StatsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <StatsCard variant="warning">
             <CardContent
               sx={{
@@ -563,9 +563,9 @@ const Dashboard = () => {
               </ChangeIndicator>
             </CardContent>
           </StatsCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <StatsCard variant="error">
             <CardContent
               sx={{
@@ -625,12 +625,12 @@ const Dashboard = () => {
               </ChangeIndicator>
             </CardContent>
           </StatsCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Charts and Tables Row */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} lg={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3, mb: 3 }}>
+        <Box>
           <Card
             sx={{
               height: { xs: "auto", md: "350px" },
@@ -732,9 +732,9 @@ const Dashboard = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} lg={4}>
+        <Box>
           <Card
             sx={{
               height: { xs: "auto", md: "350px" },
@@ -901,12 +901,12 @@ const Dashboard = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Recent Activity Row */}
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Box sx={{ mb: 3 }}>
+        <Box>
           <Card
             sx={{
               borderRadius: 2,
@@ -1074,8 +1074,8 @@ const Dashboard = () => {
               </TableContainer>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </DashboardContainer>
   );
 };
