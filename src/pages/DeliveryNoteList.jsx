@@ -34,10 +34,13 @@ import {
   LocalShipping as TruckIcon
 } from '@mui/icons-material';
 import { deliveryNotesAPI } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const invoiceIdFromUrl = searchParams.get('invoice_id');
+  
   const [deliveryNotes, setDeliveryNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,6 +80,7 @@ const DeliveryNoteList = () => {
         search: search || undefined,
         status: statusFilter || undefined,
         start_date: dateFilter || undefined,
+        invoice_id: invoiceIdFromUrl || undefined,
       };
 
       const response = await deliveryNotesAPI.getAll(params);
@@ -146,6 +150,20 @@ const DeliveryNoteList = () => {
           Create Delivery Note
         </Button>
       </Box>
+
+      {/* Invoice Filter Indicator */}
+      {invoiceIdFromUrl && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
+          <Button 
+            size="small" 
+            onClick={() => navigate('/delivery-notes')}
+            sx={{ ml: 2 }}
+          >
+            View All Delivery Notes
+          </Button>
+        </Alert>
+      )}
 
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>

@@ -1095,6 +1095,41 @@ const InvoiceForm = ({ onSave }) => {
                     </Box>
                     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                       <Box>
+                        <FormControl
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                        >
+                          <InputLabel>Invoice Status</InputLabel>
+                          <Select
+                            value={invoice.status || 'draft'}
+                            label="Invoice Status"
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                status: e.target.value,
+                              }))
+                            }
+                          >
+                            <MenuItem value="draft">Draft</MenuItem>
+                            <MenuItem value="sent">Sent</MenuItem>
+                            <MenuItem value="paid">Paid (Auto-creates delivery note)</MenuItem>
+                            <MenuItem value="overdue">Overdue</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Box>
+                        {/* Status info */}
+                        {invoice.status === 'paid' && (
+                          <Alert severity="info" sx={{ mt: 0.5 }}>
+                            <Typography variant="caption">
+                              🚚 A delivery note will be automatically created when this invoice is saved as 'Paid'
+                            </Typography>
+                          </Alert>
+                        )}
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      <Box>
                         <TextField
                           label="Delivery Note"
                           variant="outlined"

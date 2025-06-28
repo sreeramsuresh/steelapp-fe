@@ -38,6 +38,7 @@ import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
+import { deliveryNotesAPI } from "../services/api";
 
 // Styled Components
 const InvoiceListContainer = styled(Box)(({ theme }) => ({
@@ -92,8 +93,30 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     adjustmentNotes: ''
   });
   const [poLoading, setPOLoading] = useState(false);
+  const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
 
   const company = createCompany();
+
+  // Fetch delivery note status for invoices
+  const fetchDeliveryNoteStatus = async (invoices) => {
+    const statusMap = {};
+    
+    for (const invoice of invoices) {
+      try {
+        const response = await deliveryNotesAPI.getAll({ invoice_id: invoice.id, limit: 1 });
+        const hasDeliveryNotes = response.delivery_notes && response.delivery_notes.length > 0;
+        statusMap[invoice.id] = {
+          hasNotes: hasDeliveryNotes,
+          count: response.delivery_notes ? response.delivery_notes.length : 0
+        };
+      } catch (error) {
+        console.error(`Error fetching delivery notes for invoice ${invoice.id}:`, error);
+        statusMap[invoice.id] = { hasNotes: false, count: 0 };
+      }
+    }
+    
+    setDeliveryNoteStatus(statusMap);
+  };
 
   // Fetch invoices with pagination
   const fetchInvoices = async (params = {}) => {
@@ -117,10 +140,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       if (response.invoices) {
         setInvoices(response.invoices);
         setPagination(response.pagination);
+        
+        // Fetch delivery note status for each invoice
+        fetchDeliveryNoteStatus(response.invoices);
       } else {
         // Fallback for non-paginated response
         setInvoices(response);
         setPagination(null);
+        
+        // Fetch delivery note status for each invoice
+        fetchDeliveryNoteStatus(response);
       }
     } catch (error) {
       console.error("Error fetching invoices:", error);
@@ -219,14 +248,32 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     alert(`Downloaded ${invoices.length} invoice PDFs`);
   };
 
-  const handleCreateDeliveryNote = (invoice) => {
-    // Navigate to delivery note form with invoice pre-selected
-    navigate('/delivery-notes/new', { 
-      state: { 
-        selectedInvoiceId: invoice.id 
+  const handleCreateDeliveryNote = async (invoice) => {
+    try {
+      // Create delivery note by calling the API to generate one for this invoice
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_BASE_URL}/invoices/${invoice.id}/generate-delivery-note`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create delivery note');
       }
-    });
+
+      alert('Delivery note created successfully!');
+      
+      // Refresh the delivery note status
+      fetchDeliveryNoteStatus([invoice]);
+    } catch (error) {
+      console.error('Error creating delivery note:', error);
+      alert(error.message || 'Failed to create delivery note');
+    }
   };
+
 
   // Purchase Order functions
   const handleOpenPODialog = (invoice) => {
@@ -619,9 +666,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       {invoice.status === 'paid' && (
                         <IconButton
                           size="small"
-                          title="Create Delivery Note"
-                          color="warning"
-                          onClick={() => handleCreateDeliveryNote(invoice)}
+                          title={
+                            deliveryNoteStatus[invoice.id]?.hasNotes 
+                              ? `View Delivery Notes (${deliveryNoteStatus[invoice.id]?.count})` 
+                              : "Create delivery note"
+                          }
+                          color={deliveryNoteStatus[invoice.id]?.hasNotes ? "warning" : "success"}
+                          onClick={() => 
+                            deliveryNoteStatus[invoice.id]?.hasNotes 
+                              ? navigate(`/delivery-notes?invoice_id=${invoice.id}`)
+                              : handleCreateDeliveryNote(invoice)
+                          }
                         >
                           <Truck size={16} />
                         </IconButton>
