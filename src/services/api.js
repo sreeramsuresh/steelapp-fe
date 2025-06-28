@@ -232,3 +232,60 @@ export const invoicesAPI = {
     window.URL.revokeObjectURL(downloadUrl);
   }
 };
+
+// Purchase Orders API methods
+export const purchaseOrdersAPI = {
+  // Get all purchase orders with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/purchase-orders', params);
+  },
+
+  // Get purchase order by ID
+  getById: (id) => {
+    return apiClient.get(`/purchase-orders/${id}`);
+  },
+
+  // Create purchase order
+  create: (poData) => {
+    return apiClient.post('/purchase-orders', poData);
+  },
+
+  // Update purchase order
+  update: (id, poData) => {
+    return apiClient.put(`/purchase-orders/${id}`, poData);
+  },
+
+  // Update purchase order status
+  updateStatus: (id, status) => {
+    return apiClient.patch(`/purchase-orders/${id}/status`, { status });
+  },
+
+  // Delete purchase order
+  delete: (id) => {
+    return apiClient.delete(`/purchase-orders/${id}`);
+  },
+
+  // Get next PO number
+  getNextNumber: () => {
+    return apiClient.get('/purchase-orders/number/next');
+  }
+};
+
+// Transit API methods
+export const transitAPI = {
+  // Get all items in transit
+  getAll: (params = {}) => {
+    // This combines data from invoices and purchase orders that are in transit
+    return apiClient.get('/transit', params);
+  },
+
+  // Get transit tracking for specific item
+  getTracking: (type, id) => {
+    return apiClient.get(`/transit/${type}/${id}`);
+  },
+
+  // Update transit status
+  updateStatus: (type, id, status) => {
+    return apiClient.patch(`/transit/${type}/${id}/status`, { status });
+  }
+};

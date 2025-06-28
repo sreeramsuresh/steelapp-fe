@@ -18,6 +18,9 @@ import InventoryList from "./InventoryList";
 import DeliveryNoteList from "../pages/DeliveryNoteList";
 import DeliveryNoteForm from "../pages/DeliveryNoteForm";
 import DeliveryNoteDetails from "../pages/DeliveryNoteDetails";
+import PurchaseOrderList from "../pages/PurchaseOrderList";
+import PurchaseOrderForm from "../pages/PurchaseOrderForm";
+import TransitList from "../pages/TransitList";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -224,6 +227,54 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               requiredPermission="delivery_notes.update"
             >
               <DeliveryNoteForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/purchase-orders"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredPermission="purchase_orders.read"
+            >
+              <PurchaseOrderList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/purchase-orders/new"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredPermission="purchase_orders.create"
+            >
+              <PurchaseOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/purchase-orders/:id/edit"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredPermission="purchase_orders.update"
+            >
+              <PurchaseOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/transit"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredPermission="transit.read"
+            >
+              <TransitList />
             </ProtectedRoute>
           }
         />

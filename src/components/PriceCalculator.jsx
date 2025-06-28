@@ -30,7 +30,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Grid,
   Card,
   CardContent,
   Tabs,
@@ -102,11 +101,11 @@ const PriceCalculator = () => {
   const [activeTab, setActiveTab] = useState('calculator');
   const [selectedProduct, setSelectedProduct] = useState('rebar');
   const [dimensions, setDimensions] = useState({
-    length: 12,
+    length: '',
     width: '',
     thickness: '',
-    diameter: 12,
-    quantity: 1
+    diameter: '',
+    quantity: ''
   });
   const [customRules, setCustomRules] = useState([]);
   const [bulkDiscounts, setBulkDiscounts] = useState([]);
@@ -116,15 +115,15 @@ const PriceCalculator = () => {
     name: '',
     condition: 'quantity',
     operator: 'greater_than',
-    value: 0,
+    value: '',
     adjustmentType: 'percentage',
-    adjustmentValue: 0,
+    adjustmentValue: '',
     active: true
   });
   const [newDiscount, setNewDiscount] = useState({
     name: '',
-    minQuantity: 0,
-    discountPercentage: 0,
+    minQuantity: '',
+    discountPercentage: '',
     active: true
   });
 
@@ -401,7 +400,9 @@ const PriceCalculator = () => {
   const handleAddRule = () => {
     const rule = {
       ...newRule,
-      id: Date.now().toString()
+      id: Date.now().toString(),
+      value: newRule.value === '' ? 0 : Number(newRule.value),
+      adjustmentValue: newRule.adjustmentValue === '' ? 0 : Number(newRule.adjustmentValue)
     };
     const updatedRules = [...customRules, rule];
     setCustomRules(updatedRules);
@@ -410,9 +411,9 @@ const PriceCalculator = () => {
       name: '',
       condition: 'quantity',
       operator: 'greater_than',
-      value: 0,
+      value: '',
       adjustmentType: 'percentage',
-      adjustmentValue: 0,
+      adjustmentValue: '',
       active: true
     });
     setShowRulesModal(false);
@@ -421,15 +422,17 @@ const PriceCalculator = () => {
   const handleAddDiscount = () => {
     const discount = {
       ...newDiscount,
-      id: Date.now().toString()
+      id: Date.now().toString(),
+      minQuantity: newDiscount.minQuantity === '' ? 0 : Number(newDiscount.minQuantity),
+      discountPercentage: newDiscount.discountPercentage === '' ? 0 : Number(newDiscount.discountPercentage)
     };
     const updatedDiscounts = [...bulkDiscounts, discount];
     setBulkDiscounts(updatedDiscounts);
     localStorage.setItem('steel-app-bulk-discounts', JSON.stringify(updatedDiscounts));
     setNewDiscount({
       name: '',
-      minQuantity: 0,
-      discountPercentage: 0,
+      minQuantity: '',
+      discountPercentage: '',
       active: true
     });
     setShowDiscountModal(false);
@@ -464,9 +467,9 @@ const PriceCalculator = () => {
   };
 
   const renderCalculator = () => (
-    <Grid container spacing={3}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
       {/* Calculator Form */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <CalculationCard>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
@@ -508,84 +511,84 @@ const PriceCalculator = () => {
               <Ruler size={20} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>Dimensions</Typography>
             </Box>
-            <Grid container spacing={2}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               {productTypes[selectedProduct].dimensions.includes('diameter') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
                     label="Diameter (mm)"
-                    value={dimensions.diameter}
-                    onChange={(e) => setDimensions({...dimensions, diameter: Number(e.target.value)})}
+                    value={dimensions.diameter || ''}
+                    onChange={(e) => setDimensions({...dimensions, diameter: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter diameter"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('length') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
                     label="Length (m)"
-                    value={dimensions.length}
-                    onChange={(e) => setDimensions({...dimensions, length: Number(e.target.value)})}
+                    value={dimensions.length || ''}
+                    onChange={(e) => setDimensions({...dimensions, length: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter length"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('width') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
                     label="Width (mm)"
-                    value={dimensions.width}
-                    onChange={(e) => setDimensions({...dimensions, width: Number(e.target.value)})}
+                    value={dimensions.width || ''}
+                    onChange={(e) => setDimensions({...dimensions, width: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter width"
                   />
-                </Grid>
+                </Box>
               )}
               {productTypes[selectedProduct].dimensions.includes('thickness') && (
-                <Grid item xs={12} sm={6}>
+                <Box>
                   <TextField
                     fullWidth
                     type="number"
                     label="Thickness (mm)"
-                    value={dimensions.thickness}
-                    onChange={(e) => setDimensions({...dimensions, thickness: Number(e.target.value)})}
+                    value={dimensions.thickness || ''}
+                    onChange={(e) => setDimensions({...dimensions, thickness: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter thickness"
                   />
-                </Grid>
+                </Box>
               )}
-              <Grid item xs={12} sm={6}>
+              <Box>
                 <TextField
                   fullWidth
                   type="number"
                   label="Quantity"
-                  value={dimensions.quantity}
-                  onChange={(e) => setDimensions({...dimensions, quantity: Number(e.target.value)})}
+                  value={dimensions.quantity || ''}
+                  onChange={(e) => setDimensions({...dimensions, quantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   placeholder="Enter quantity"
                   inputProps={{ min: "1" }}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </CalculationCard>
-      </Grid>
+      </Box>
 
       {/* Results */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <ResultCard>
           <CardContent>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Calculation Results</Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                Base Price: ₹{calculatePrice.basePrice}/kg
+                Base Price: د.إ{calculatePrice.basePrice}/kg
               </Typography>
             </Box>
 
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <Weight size={16} />
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Total Weight</Typography>
@@ -593,8 +596,8 @@ const PriceCalculator = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                   {calculateWeight.toFixed(2)} kg
                 </Typography>
-              </Grid>
-              <Grid item xs={6}>
+              </Box>
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <Package size={16} />
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Weight per Unit</Typography>
@@ -602,15 +605,15 @@ const PriceCalculator = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                   {dimensions.quantity > 0 ? (calculateWeight / dimensions.quantity).toFixed(2) : 0} kg
                 </Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
 
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Base Amount</Typography>
-                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>₹{calculatePrice.baseAmount.toFixed(2)}</Typography>
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>د.إ{calculatePrice.baseAmount.toFixed(2)}</Typography>
               </Box>
 
               {calculatePrice.adjustments.map((adjustment, index) => (
@@ -622,7 +625,7 @@ const PriceCalculator = () => {
                     </Typography>
                   </Typography>
                   <Typography variant="body2" sx={{ color: adjustment.amount < 0 ? '#4ade80' : '#fbbf24', fontWeight: 600 }}>
-                    {adjustment.amount >= 0 ? '+' : ''}₹{adjustment.amount.toFixed(2)}
+                    {adjustment.amount >= 0 ? '+' : ''}د.إ{adjustment.amount.toFixed(2)}
                   </Typography>
                 </Box>
               ))}
@@ -635,7 +638,7 @@ const PriceCalculator = () => {
                       (-{calculatePrice.appliedDiscount.discountPercentage}%)
                     </Typography>
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#4ade80', fontWeight: 600 }}>-₹{calculatePrice.bulkDiscount.toFixed(2)}</Typography>
+                  <Typography variant="body2" sx={{ color: '#4ade80', fontWeight: 600 }}>-د.إ{calculatePrice.bulkDiscount.toFixed(2)}</Typography>
                 </Box>
               )}
 
@@ -643,12 +646,12 @@ const PriceCalculator = () => {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>Total Amount</Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>₹{calculatePrice.total.toFixed(2)}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>د.إ{calculatePrice.total.toFixed(2)}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Final Price per kg</Typography>
-                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>₹{calculatePrice.pricePerKg.toFixed(2)}</Typography>
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>د.إ{calculatePrice.pricePerKg.toFixed(2)}</Typography>
               </Box>
             </Stack>
 
@@ -659,8 +662,8 @@ const PriceCalculator = () => {
             )}
           </CardContent>
         </ResultCard>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 
   const renderPricingRules = () => (
@@ -677,9 +680,9 @@ const PriceCalculator = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={2}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
         {customRules.map(rule => (
-          <Grid item xs={12} md={6} key={rule.id}>
+          <Box key={rule.id}>
             <RuleCard>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -726,16 +729,16 @@ const PriceCalculator = () => {
                     <Typography variant="body2" sx={{ ml: 1, fontWeight: 600, color: rule.adjustmentValue < 0 ? 'success.main' : 'warning.main' }}>
                       {rule.adjustmentType === 'percentage' 
                         ? `${rule.adjustmentValue > 0 ? '+' : ''}${rule.adjustmentValue}%`
-                        : `${rule.adjustmentValue > 0 ? '+' : ''}₹${rule.adjustmentValue}`
+                        : `${rule.adjustmentValue > 0 ? '+' : ''}د.إ${rule.adjustmentValue}`
                       }
                     </Typography>
                   </Box>
                 </Stack>
               </CardContent>
             </RuleCard>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -753,9 +756,9 @@ const PriceCalculator = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={2}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
         {bulkDiscounts.map(discount => (
-          <Grid item xs={12} sm={6} md={4} key={discount.id}>
+          <Box key={discount.id}>
             <RuleCard>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -806,9 +809,9 @@ const PriceCalculator = () => {
                 </Stack>
               </CardContent>
             </RuleCard>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -873,8 +876,8 @@ const PriceCalculator = () => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Rule Name"
@@ -882,8 +885,8 @@ const PriceCalculator = () => {
                 onChange={(e) => setNewRule({...newRule, name: e.target.value})}
                 placeholder="Enter rule name"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Condition</InputLabel>
                 <Select
@@ -893,12 +896,12 @@ const PriceCalculator = () => {
                 >
                   <MenuItem value="quantity">Quantity</MenuItem>
                   <MenuItem value="weight">Weight (kg)</MenuItem>
-                  <MenuItem value="total">Total Amount (₹)</MenuItem>
+                  <MenuItem value="total">Total Amount (د.إ)</MenuItem>
                   <MenuItem value="grade">Grade</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Operator</InputLabel>
                 <Select
@@ -911,8 +914,8 @@ const PriceCalculator = () => {
                   <MenuItem value="equals">Equals</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               {newRule.condition === 'grade' ? (
                 <FormControl fullWidth>
                   <InputLabel>Value</InputLabel>
@@ -936,13 +939,13 @@ const PriceCalculator = () => {
                   fullWidth
                   type="number"
                   label="Value"
-                  value={newRule.value}
-                  onChange={(e) => setNewRule({...newRule, value: Number(e.target.value)})}
+                  value={newRule.value || ''}
+                  onChange={(e) => setNewRule({...newRule, value: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   placeholder="Enter value"
                 />
               )}
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Adjustment Type</InputLabel>
                 <Select
@@ -954,18 +957,18 @@ const PriceCalculator = () => {
                   <MenuItem value="fixed">Fixed Amount</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 type="number"
-                label={`Adjustment Value ${newRule.adjustmentType === 'percentage' ? '(%)' : '(₹)'}`}
-                value={newRule.adjustmentValue}
-                onChange={(e) => setNewRule({...newRule, adjustmentValue: Number(e.target.value)})}
+                label={`Adjustment Value ${newRule.adjustmentType === 'percentage' ? '(%)' : '(د.إ)'}`}
+                value={newRule.adjustmentValue || ''}
+                onChange={(e) => setNewRule({...newRule, adjustmentValue: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                 placeholder={newRule.adjustmentType === 'percentage' ? 'Enter percentage' : 'Enter amount'}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowRulesModal(false)} color="inherit">
@@ -1000,16 +1003,16 @@ const PriceCalculator = () => {
               fullWidth
               type="number"
               label="Minimum Quantity (kg)"
-              value={newDiscount.minQuantity}
-              onChange={(e) => setNewDiscount({...newDiscount, minQuantity: Number(e.target.value)})}
+              value={newDiscount.minQuantity || ''}
+              onChange={(e) => setNewDiscount({...newDiscount, minQuantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
               placeholder="Enter minimum quantity"
             />
             <TextField
               fullWidth
               type="number"
               label="Discount Percentage (%)"
-              value={newDiscount.discountPercentage}
-              onChange={(e) => setNewDiscount({...newDiscount, discountPercentage: Number(e.target.value)})}
+              value={newDiscount.discountPercentage || ''}
+              onChange={(e) => setNewDiscount({...newDiscount, discountPercentage: e.target.value === '' ? '' : Number(e.target.value) || ''})}
               placeholder="Enter discount percentage"
               inputProps={{ max: 100, min: 0 }}
             />

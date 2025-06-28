@@ -25,7 +25,9 @@ import {
   TrendingUp,
   Warehouse,
   Move,
-  Truck
+  Truck,
+  ShoppingCart,
+  Navigation
 } from 'lucide-react';
 
 // Styled Components
@@ -174,6 +176,23 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/delivery-notes',
           icon: Truck,
           description: 'Manage delivery notes'
+        }
+      ]
+    },
+    {
+      section: 'Procurement',
+      items: [
+        {
+          name: 'Purchase Orders',
+          path: '/purchase-orders',
+          icon: ShoppingCart,
+          description: 'Manage purchase orders'
+        },
+        {
+          name: 'Transit',
+          path: '/transit',
+          icon: Navigation,
+          description: 'Track goods in transit'
         }
       ]
     },

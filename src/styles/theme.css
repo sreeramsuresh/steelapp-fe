@@ -16,15 +16,15 @@
   --text-light: #90A4AE;
   
   /* Accent Colors */
-  --accent-primary: #FF6B35;
-  --accent-secondary: #2E3B4E;
+  --accent-primary: #008B8B;
+  --accent-secondary: #263238;
   --accent-success: #388E3C;
   --accent-warning: #FFC107;
   --accent-danger: #D32F2F;
   --accent-info: #1976D2;
   
   /* Gradient Colors */
-  --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #E64A19 100%);
+  --gradient-primary: linear-gradient(135deg, #008B8B 0%, #00695C 100%);
   --gradient-success: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
   --gradient-warning: linear-gradient(135deg, #FFC107 0%, #F57C00 100%);
   --gradient-danger: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
@@ -80,7 +80,7 @@ select,
 .MuiFormControl-root select {
   color: #FFFFFF !important;
   -webkit-text-fill-color: #FFFFFF !important;
-  caret-color: #FF6B35 !important;
+  caret-color: #008B8B !important;
   background-color: transparent !important;
   text-shadow: none !important;
   opacity: 1 !important;
@@ -285,7 +285,7 @@ body {
 }
 
 .menu-item:hover {
-  background: rgba(255, 107, 53, 0.1);
+  background: rgba(0, 139, 139, 0.1);
   color: var(--text-primary);
   text-decoration: none;
 }
@@ -622,7 +622,7 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 139, 139, 0.15);
   background: var(--secondary-bg);
   transform: translateY(-1px);
 }

@@ -157,11 +157,11 @@ const SteelProducts = () => {
     weight: '',
     unit: 'kg',
     description: '',
-    currentStock: 0,
-    minStock: 10,
-    maxStock: 1000,
-    costPrice: 0,
-    sellingPrice: 0,
+    currentStock: '',
+    minStock: '',
+    maxStock: '',
+    costPrice: '',
+    sellingPrice: '',
     supplier: '',
     location: '',
     specifications: {
@@ -178,7 +178,7 @@ const SteelProducts = () => {
   });
 
   const [priceUpdate, setPriceUpdate] = useState({
-    newPrice: 0,
+    newPrice: '',
     reason: '',
     effectiveDate: new Date().toISOString().split('T')[0]
   });
@@ -217,7 +217,16 @@ const SteelProducts = () => {
 
   const handleAddProduct = async () => {
     try {
-      await createProduct(newProduct);
+      // Convert empty strings to appropriate default values
+      const productData = {
+        ...newProduct,
+        currentStock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),
+        minStock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),
+        maxStock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),
+        costPrice: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
+        sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice)
+      };
+      await createProduct(productData);
       setNewProduct({
         name: '',
         category: 'sheet',
@@ -226,11 +235,11 @@ const SteelProducts = () => {
         weight: '',
         unit: 'kg',
         description: '',
-        currentStock: 0,
-        minStock: 10,
-        maxStock: 1000,
-        costPrice: 0,
-        sellingPrice: 0,
+        currentStock: '',
+        minStock: '',
+        maxStock: '',
+        costPrice: '',
+        sellingPrice: '',
         supplier: '',
         location: '',
         specifications: {
@@ -248,7 +257,15 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
-      await updateProduct(selectedProduct.id, selectedProduct);
+      // Convert empty strings to appropriate default values
+      const productData = {
+        ...selectedProduct,
+        currentStock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),
+        minStock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),
+        maxStock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),
+        costPrice: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice)
+      };
+      await updateProduct(selectedProduct.id, productData);
       setShowEditModal(false);
       setSelectedProduct(null);
       refetchProducts();
@@ -275,7 +292,7 @@ const SteelProducts = () => {
         reason: priceUpdate.reason,
         effectiveDate: priceUpdate.effectiveDate
       });
-      setPriceUpdate({ newPrice: 0, reason: '', effectiveDate: new Date().toISOString().split('T')[0] });
+      setPriceUpdate({ newPrice: '', reason: '', effectiveDate: new Date().toISOString().split('T')[0] });
       setShowPriceModal(false);
       setSelectedProduct(null);
       refetchProducts();
@@ -363,11 +380,11 @@ const SteelProducts = () => {
       </Box>
 
       {/* Products Grid */}
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
         {filteredProducts.map(product => {
           const stockStatus = getStockStatus(product);
           return (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            <Box key={product.id}>
               <ProductCard>
                 <CardContent>
                   {/* Product Header */}
@@ -492,12 +509,12 @@ const SteelProducts = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="caption" color="text.secondary">Cost Price</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>₹{product.costPrice}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>د.إ{product.costPrice}</Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
                       <Typography variant="caption" color="text.secondary">Selling Price</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                        ₹{product.sellingPrice}
+                        د.إ{product.sellingPrice}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
@@ -511,10 +528,10 @@ const SteelProducts = () => {
                   </Box>
                 </CardContent>
               </ProductCard>
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
     </Box>
   );
 
@@ -550,7 +567,7 @@ const SteelProducts = () => {
             <DollarSign size={24} />
             <h3>Inventory Value</h3>
           </div>
-          <div className="stat-value">₹{stats.totalValue.toLocaleString()}</div>
+          <div className="stat-value">د.إ{stats.totalValue.toLocaleString()}</div>
           <div className="stat-subtitle">Total cost value</div>
         </div>
         <div className="stat-card">
@@ -606,7 +623,7 @@ const SteelProducts = () => {
                         {stockStatus.toUpperCase()}
                       </span>
                     </td>
-                    <td>₹{stockValue.toLocaleString()}</td>
+                    <td>د.إ{stockValue.toLocaleString()}</td>
                     <td>{format(new Date(product.lastUpdated), 'MMM dd, yyyy')}</td>
                   </tr>
                 );
@@ -661,8 +678,8 @@ const SteelProducts = () => {
                   <TableCell>
                     {categories.find(c => c.value === product.category)?.label}
                   </TableCell>
-                  <TableCell>₹{product.costPrice}</TableCell>
-                  <TableCell>₹{product.sellingPrice}</TableCell>
+                  <TableCell>د.إ{product.costPrice}</TableCell>
+                  <TableCell>د.إ{product.sellingPrice}</TableCell>
                   <TableCell>
                     <Chip
                       label={`${Math.round(margin)}%`}
@@ -775,8 +792,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Basic Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Product Name *"
                     value={newProduct.name}
@@ -784,8 +801,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter product name"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Category</InputLabel>
                     <Select
@@ -798,8 +815,8 @@ const SteelProducts = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Grade</InputLabel>
                     <Select
@@ -812,8 +829,8 @@ const SteelProducts = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Size"
                     value={newProduct.size}
@@ -821,8 +838,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="e.g., 12mm, 50x50x6"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Weight"
                     value={newProduct.weight}
@@ -830,8 +847,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter weight"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Unit</InputLabel>
                     <Select
@@ -846,8 +863,8 @@ const SteelProducts = () => {
                       <MenuItem value="pieces">pieces</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12}>
+                </Box>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     label="Description"
                     value={newProduct.description}
@@ -857,8 +874,8 @@ const SteelProducts = () => {
                     multiline
                     rows={3}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Inventory Information */}
@@ -866,38 +883,38 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Inventory Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Current Stock"
                     type="number"
-                    value={newProduct.currentStock}
-                    onChange={(e) => setNewProduct({...newProduct, currentStock: Number(e.target.value)})}
+                    value={newProduct.currentStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter current stock"
                   />
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <TextField
                     label="Minimum Stock"
                     type="number"
-                    value={newProduct.minStock}
-                    onChange={(e) => setNewProduct({...newProduct, minStock: Number(e.target.value)})}
+                    value={newProduct.minStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter minimum stock level"
                   />
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <TextField
                     label="Maximum Stock"
                     type="number"
-                    value={newProduct.maxStock}
-                    onChange={(e) => setNewProduct({...newProduct, maxStock: Number(e.target.value)})}
+                    value={newProduct.maxStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter maximum stock level"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Pricing Information */}
@@ -905,34 +922,34 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Pricing Information
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Cost Price"
                     type="number"
-                    value={newProduct.costPrice}
-                    onChange={(e) => setNewProduct({...newProduct, costPrice: Number(e.target.value)})}
+                    value={newProduct.costPrice || ''}
+                    onChange={(e) => setNewProduct({...newProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
                     }}
                     placeholder="Enter cost price"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Selling Price"
                     type="number"
-                    value={newProduct.sellingPrice}
-                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: Number(e.target.value)})}
+                    value={newProduct.sellingPrice || ''}
+                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
                     }}
                     placeholder="Enter selling price"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Supplier & Location */}
@@ -940,8 +957,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Supplier & Location
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Supplier"
                     value={newProduct.supplier}
@@ -949,8 +966,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter supplier name"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Storage Location"
                     value={newProduct.location}
@@ -958,8 +975,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter storage location"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
 
             {/* Product Specifications */}
@@ -967,8 +984,8 @@ const SteelProducts = () => {
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                 Product Specifications
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Length"
                     value={newProduct.specifications.length}
@@ -979,8 +996,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter length"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Width"
                     value={newProduct.specifications.width}
@@ -991,8 +1008,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter width"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Thickness"
                     value={newProduct.specifications.thickness}
@@ -1003,8 +1020,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter thickness"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Diameter"
                     value={newProduct.specifications.diameter}
@@ -1015,8 +1032,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter diameter"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Tensile Strength"
                     value={newProduct.specifications.tensileStrength}
@@ -1027,8 +1044,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter tensile strength"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Yield Strength"
                     value={newProduct.specifications.yieldStrength}
@@ -1039,8 +1056,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter yield strength"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Carbon Content"
                     value={newProduct.specifications.carbonContent}
@@ -1051,8 +1068,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter carbon content"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Coating"
                     value={newProduct.specifications.coating}
@@ -1063,8 +1080,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter coating type"
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Box>
+                <Box sx={{ gridColumn: '1 / -1' }}>
                   <TextField
                     label="Standard"
                     value={newProduct.specifications.standard}
@@ -1075,8 +1092,8 @@ const SteelProducts = () => {
                     fullWidth
                     placeholder="Enter applicable standard"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
           </Box>
         </DialogContent>
@@ -1146,32 +1163,32 @@ const SteelProducts = () => {
                   <label>Current Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.currentStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: Number(e.target.value)})}
+                    value={selectedProduct.currentStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
                   <label>Minimum Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.minStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: Number(e.target.value)})}
+                    value={selectedProduct.minStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
                   <label>Maximum Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.maxStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: Number(e.target.value)})}
+                    value={selectedProduct.maxStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Cost Price (₹)</label>
+                  <label>Cost Price (د.إ)</label>
                   <input
                     type="number"
-                    value={selectedProduct.costPrice}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: Number(e.target.value)})}
+                    value={selectedProduct.costPrice || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
@@ -1227,14 +1244,14 @@ const SteelProducts = () => {
               <div className="price-update-form">
                 <div className="current-price">
                   <span className="label">Current Price:</span>
-                  <span className="price">₹{selectedProduct.sellingPrice}</span>
+                  <span className="price">د.إ{selectedProduct.sellingPrice}</span>
                 </div>
                 <div className="form-group">
-                  <label>New Price (₹)</label>
+                  <label>New Price (د.إ)</label>
                   <input
                     type="number"
-                    value={priceUpdate.newPrice}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: Number(e.target.value)})}
+                    value={priceUpdate.newPrice || ''}
+                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter new price"
                   />
                 </div>
@@ -1262,7 +1279,7 @@ const SteelProducts = () => {
                       {selectedProduct.priceHistory.slice(0, 5).map((entry, index) => (
                         <div key={index} className="history-item">
                           <span className="history-date">{format(new Date(entry.date), 'MMM dd, yyyy')}</span>
-                          <span className="history-price">₹{entry.price}</span>
+                          <span className="history-price">د.إ{entry.price}</span>
                           <span className="history-reason">{entry.reason}</span>
                         </div>
                       ))}

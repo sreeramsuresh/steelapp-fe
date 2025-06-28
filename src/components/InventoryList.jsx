@@ -84,14 +84,14 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
   '& .MuiTableHead-root': {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[50],
   },
   '& .MuiTableCell-head': {
     fontWeight: 600,
     fontSize: '0.875rem',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: theme.palette.text.secondary,
+    color: theme.palette.mode === 'light' ? theme.palette.text.primary : theme.palette.text.secondary,
   },
   '& .MuiTableRow-hover:hover': {
     backgroundColor: theme.palette.action.hover,
@@ -153,7 +153,16 @@ const InventoryList = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState(createInventoryItem());
+  const [formData, setFormData] = useState(() => {
+    const item = createInventoryItem();
+    return {
+      ...item,
+      quantity: '',
+      pricePurchased: '',
+      sellingPrice: '',
+      landedCost: ''
+    };
+  });
 
   useEffect(() => {
     fetchInventory();
@@ -178,7 +187,14 @@ const InventoryList = () => {
       setFormData(item);
     } else {
       setEditingItem(null);
-      setFormData(createInventoryItem());
+      const item = createInventoryItem();
+      setFormData({
+        ...item,
+        quantity: '',
+        pricePurchased: '',
+        sellingPrice: '',
+        landedCost: ''
+      });
     }
     setOpenDialog(true);
   };
@@ -192,10 +208,18 @@ const InventoryList = () => {
 
   const handleSubmit = async () => {
     try {
+      const itemData = {
+        ...formData,
+        quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
+        pricePurchased: formData.pricePurchased === '' ? 0 : Number(formData.pricePurchased),
+        sellingPrice: formData.sellingPrice === '' ? 0 : Number(formData.sellingPrice),
+        landedCost: formData.landedCost === '' ? 0 : Number(formData.landedCost)
+      };
+
       if (editingItem) {
-        await inventoryService.updateItem(editingItem.id, formData);
+        await inventoryService.updateItem(editingItem.id, itemData);
       } else {
-        await inventoryService.createItem(formData);
+        await inventoryService.createItem(itemData);
       }
       await fetchInventory();
       handleCloseDialog();
@@ -231,9 +255,9 @@ const InventoryList = () => {
   );
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'AED',
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -508,8 +532,8 @@ const InventoryList = () => {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Description"
@@ -517,8 +541,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Auto-generated if empty"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth>
                 <InputLabel>Product Type</InputLabel>
                 <Select
@@ -533,8 +557,8 @@ const InventoryList = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <Autocomplete
                 fullWidth
                 freeSolo
@@ -555,8 +579,8 @@ const InventoryList = () => {
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <Autocomplete
                 fullWidth
                 freeSolo
@@ -577,8 +601,8 @@ const InventoryList = () => {
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Size"
@@ -586,8 +610,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('size', e.target.value)}
                 placeholder="e.g., 4x8"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Thickness"
@@ -595,53 +619,53 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('thickness', e.target.value)}
                 placeholder="e.g., 0.8, 1.2"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Quantity"
                 type="number"
-                value={formData.quantity}
-                onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
+                value={formData.quantity || ''}
+                onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseInt(e.target.value) || '')}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Purchase Price"
                 type="number"
-                value={formData.pricePurchased}
-                onChange={(e) => handleInputChange('pricePurchased', parseFloat(e.target.value) || 0)}
+                value={formData.pricePurchased || ''}
+                onChange={(e) => handleInputChange('pricePurchased', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Selling Price"
                 type="number"
-                value={formData.sellingPrice}
-                onChange={(e) => handleInputChange('sellingPrice', parseFloat(e.target.value) || 0)}
+                value={formData.sellingPrice || ''}
+                onChange={(e) => handleInputChange('sellingPrice', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="Landed Cost"
                 type="number"
-                value={formData.landedCost}
-                onChange={(e) => handleInputChange('landedCost', parseFloat(e.target.value) || 0)}
+                value={formData.landedCost || ''}
+                onChange={(e) => handleInputChange('landedCost', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="Location"
@@ -649,8 +673,8 @@ const InventoryList = () => {
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="e.g., Warehouse A, Section 1"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ 
           p: 3, 

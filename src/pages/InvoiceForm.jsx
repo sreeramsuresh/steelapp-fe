@@ -167,11 +167,11 @@ const InvoiceForm = ({ onSave }) => {
     weight: "",
     unit: "kg",
     description: "",
-    current_stock: 0,
-    min_stock: 10,
-    max_stock: 1000,
-    cost_price: 0,
-    selling_price: 0,
+    current_stock: '',
+    min_stock: '',
+    max_stock: '',
+    cost_price: '',
+    selling_price: '',
     supplier: "",
     location: "",
     specifications: {
@@ -428,14 +428,14 @@ const InvoiceForm = ({ onSave }) => {
         category: newProductData.category,
         grade: newProductData.grade,
         size: newProductData.size,
-        weight: newProductData.weight,
+        weight: newProductData.weight === '' ? 0 : Number(newProductData.weight),
         unit: newProductData.unit,
         description: newProductData.description,
-        current_stock: newProductData.current_stock,
-        min_stock: newProductData.min_stock,
-        max_stock: newProductData.max_stock,
-        cost_price: newProductData.cost_price,
-        selling_price: newProductData.selling_price,
+        current_stock: newProductData.current_stock === '' ? 0 : Number(newProductData.current_stock),
+        min_stock: newProductData.min_stock === '' ? 10 : Number(newProductData.min_stock),
+        max_stock: newProductData.max_stock === '' ? 100 : Number(newProductData.max_stock),
+        cost_price: newProductData.cost_price === '' ? 0 : Number(newProductData.cost_price),
+        selling_price: newProductData.selling_price === '' ? 0 : Number(newProductData.selling_price),
         supplier: newProductData.supplier,
         location: newProductData.location,
         specifications: newProductData.specifications,
@@ -460,11 +460,11 @@ const InvoiceForm = ({ onSave }) => {
         weight: "",
         unit: "kg",
         description: "",
-        current_stock: 0,
-        min_stock: 10,
-        max_stock: 1000,
-        cost_price: 0,
-        selling_price: 0,
+        current_stock: '',
+        min_stock: '',
+        max_stock: '',
+        cost_price: '',
+        selling_price: '',
         supplier: "",
         location: "",
         specifications: {
@@ -499,7 +499,7 @@ const InvoiceForm = ({ onSave }) => {
     return (productsData?.products || []).map((product) => ({
       ...product,
       label: product.name,
-      subtitle: `${product.category} • ${product.grade || "N/A"} • ₹${
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
         product.selling_price || 0
       }/${product.unit}`,
     }));
@@ -546,14 +546,31 @@ const InvoiceForm = ({ onSave }) => {
 
   const handleSave = async () => {
     try {
+      // Convert empty string values to numbers before saving
+      const processedInvoice = {
+        ...invoice,
+        packingCharges: invoice.packingCharges === '' ? 0 : Number(invoice.packingCharges),
+        freightCharges: invoice.freightCharges === '' ? 0 : Number(invoice.freightCharges),
+        loadingCharges: invoice.loadingCharges === '' ? 0 : Number(invoice.loadingCharges),
+        otherCharges: invoice.otherCharges === '' ? 0 : Number(invoice.otherCharges),
+        advanceReceived: invoice.advanceReceived === '' ? 0 : Number(invoice.advanceReceived),
+        items: invoice.items.map(item => ({
+          ...item,
+          quantity: item.quantity === '' ? 0 : Number(item.quantity),
+          rate: item.rate === '' ? 0 : Number(item.rate),
+          discount: item.discount === '' ? 0 : Number(item.discount),
+          gstRate: item.gstRate === '' ? 0 : Number(item.gstRate)
+        }))
+      };
+
       if (id) {
         // Update existing invoice
-        const updatedInvoice = await updateInvoice(invoice.id, invoice);
+        const updatedInvoice = await updateInvoice(invoice.id, processedInvoice);
         if (onSave) onSave(updatedInvoice);
         alert("Invoice updated successfully!");
       } else {
         // Create new invoice
-        const newInvoice = await saveInvoice(invoice);
+        const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
         alert("Invoice saved successfully!");
       }
@@ -678,24 +695,27 @@ const InvoiceForm = ({ onSave }) => {
                 }}
               />
             )}
-            renderOption={(props, option) => (
-              <Box component="li" {...props}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {option.name}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {option.subtitle}
-                  </Typography>
+            renderOption={(props, option) => {
+              const { key, ...optionProps } = props;
+              return (
+                <Box component="li" key={key} {...optionProps}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {option.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {option.subtitle}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            )}
+              );
+            }}
             noOptionsText={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1 }}>
                 <Typography variant="body2" color="text.secondary">
@@ -778,12 +798,12 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Qty"
               type="number"
-              value={item.quantity}
+              value={item.quantity || ''}
               onChange={(e) =>
                 handleItemChange(
                   index,
                   "quantity",
-                  parseFloat(e.target.value) || 0
+                  e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                 )
               }
               inputProps={{ min: 0, step: 0.01 }}
@@ -792,9 +812,9 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Rate"
               type="number"
-              value={item.rate}
+              value={item.rate || ''}
               onChange={(e) =>
-                handleItemChange(index, "rate", parseFloat(e.target.value) || 0)
+                handleItemChange(index, "rate", e.target.value === '' ? '' : parseFloat(e.target.value) || '')
               }
               inputProps={{ min: 0, step: 0.01 }}
             />
@@ -840,7 +860,7 @@ const InvoiceForm = ({ onSave }) => {
               >
                 {DISCOUNT_TYPES.map((type) => (
                   <MenuItem key={type} value={type}>
-                    {type === "amount" ? "₹" : "%"}
+                    {type === "amount" ? "د.إ" : "%"}
                   </MenuItem>
                 ))}
               </Select>
@@ -978,9 +998,9 @@ const InvoiceForm = ({ onSave }) => {
           </Box>
 
           {/* Form Grid */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mb: 3 }}>
             {/* Invoice Details */}
-            <Grid item xs={12} md={6}>
+            <Box>
               <SectionCard>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   <SectionHeader variant="h6">📄 Invoice Details</SectionHeader>
@@ -1000,8 +1020,8 @@ const InvoiceForm = ({ onSave }) => {
                         }))
                       }
                     />
-                    <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      <Box>
                         <TextField
                           label="Date"
                           type="date"
@@ -1017,8 +1037,8 @@ const InvoiceForm = ({ onSave }) => {
                           }
                           InputLabelProps={{ shrink: true }}
                         />
-                      </Grid>
-                      <Grid item xs={6}>
+                      </Box>
+                      <Box>
                         <TextField
                           label="Due Date"
                           type="date"
@@ -1034,10 +1054,10 @@ const InvoiceForm = ({ onSave }) => {
                           }
                           InputLabelProps={{ shrink: true }}
                         />
-                      </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      <Box>
                         <TextField
                           label="Purchase Order Number"
                           variant="outlined"
@@ -1053,8 +1073,8 @@ const InvoiceForm = ({ onSave }) => {
                           placeholder="PO Number (Optional)"
                           helperText="Can be added later if not available now"
                         />
-                      </Grid>
-                      <Grid item xs={6}>
+                      </Box>
+                      <Box>
                         <TextField
                           label="PO Date"
                           type="date"
@@ -1071,10 +1091,45 @@ const InvoiceForm = ({ onSave }) => {
                           InputLabelProps={{ shrink: true }}
                           helperText="Optional - link to PO later if needed"
                         />
-                      </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      <Box>
+                        <FormControl
+                          fullWidth
+                          size={isSmallScreen ? "small" : "medium"}
+                        >
+                          <InputLabel>Invoice Status</InputLabel>
+                          <Select
+                            value={invoice.status || 'draft'}
+                            label="Invoice Status"
+                            onChange={(e) =>
+                              setInvoice((prev) => ({
+                                ...prev,
+                                status: e.target.value,
+                              }))
+                            }
+                          >
+                            <MenuItem value="draft">Draft</MenuItem>
+                            <MenuItem value="sent">Sent</MenuItem>
+                            <MenuItem value="paid">Paid (Auto-creates delivery note)</MenuItem>
+                            <MenuItem value="overdue">Overdue</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Box>
+                        {/* Status info */}
+                        {invoice.status === 'paid' && (
+                          <Alert severity="info" sx={{ mt: 0.5 }}>
+                            <Typography variant="caption">
+                              🚚 A delivery note will be automatically created when this invoice is saved as 'Paid'
+                            </Typography>
+                          </Alert>
+                        )}
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      <Box>
                         <TextField
                           label="Delivery Note"
                           variant="outlined"
@@ -1089,8 +1144,8 @@ const InvoiceForm = ({ onSave }) => {
                           }
                           placeholder="Delivery challan reference"
                         />
-                      </Grid>
-                      <Grid item xs={6}>
+                      </Box>
+                      <Box>
                         <FormControl
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
@@ -1116,15 +1171,15 @@ const InvoiceForm = ({ onSave }) => {
                             ))}
                           </Select>
                         </FormControl>
-                      </Grid>
-                    </Grid>
+                      </Box>
+                    </Box>
                   </Box>
                 </CardContent>
               </SectionCard>
-            </Grid>
+            </Box>
 
             {/* Customer Details */}
-            <Grid item xs={12} md={6}>
+            <Box>
               <SectionCard>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   <SectionHeader variant="h6">
@@ -1259,8 +1314,8 @@ const InvoiceForm = ({ onSave }) => {
                   </Box>
                 </CardContent>
               </SectionCard>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           {/* Transport & Delivery Details */}
           <SectionCard sx={{ mb: 3 }}>
@@ -1268,8 +1323,8 @@ const InvoiceForm = ({ onSave }) => {
               <SectionHeader variant="h6">
                 🚚 Transport & Delivery Details
               </SectionHeader>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Box>
                   <TextField
                     label="Despatched Through"
                     variant="outlined"
@@ -1284,8 +1339,8 @@ const InvoiceForm = ({ onSave }) => {
                     }
                     placeholder="Transport company/agent"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Destination"
                     variant="outlined"
@@ -1300,8 +1355,8 @@ const InvoiceForm = ({ onSave }) => {
                     }
                     placeholder="Delivery destination"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <FormControl
                     fullWidth
                     size={isSmallScreen ? "small" : "medium"}
@@ -1327,8 +1382,8 @@ const InvoiceForm = ({ onSave }) => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Box>
+                <Box>
                   <TextField
                     label="Other Reference"
                     variant="outlined"
@@ -1343,8 +1398,8 @@ const InvoiceForm = ({ onSave }) => {
                     }
                     placeholder="Additional reference"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </SectionCard>
 
@@ -1488,30 +1543,33 @@ const InvoiceForm = ({ onSave }) => {
                                 }}
                               />
                             )}
-                            renderOption={(props, option) => (
-                              <Box component="li" {...props}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                  }}
-                                >
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ fontWeight: 500 }}
+                            renderOption={(props, option) => {
+                              const { key, ...optionProps } = props;
+                              return (
+                                <Box component="li" key={key} {...optionProps}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
                                   >
-                                    {option.name}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                  >
-                                    {option.subtitle}
-                                  </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontWeight: 500 }}
+                                    >
+                                      {option.name}
+                                    </Typography>
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {option.subtitle}
+                                    </Typography>
+                                  </Box>
                                 </Box>
-                              </Box>
-                            )}
+                              );
+                            }}
                             noOptionsText={
                               <Box
                                 sx={{
@@ -1607,12 +1665,12 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.quantity}
+                            value={item.quantity || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "quantity",
-                                parseFloat(e.target.value) || 0
+                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1623,12 +1681,12 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.rate}
+                            value={item.rate || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "rate",
-                                parseFloat(e.target.value) || 0
+                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1670,7 +1728,7 @@ const InvoiceForm = ({ onSave }) => {
                                 }
                                 displayEmpty
                               >
-                                <MenuItem value="amount">₹</MenuItem>
+                                <MenuItem value="amount">د.إ</MenuItem>
                                 <MenuItem value="percentage">%</MenuItem>
                               </Select>
                             </FormControl>
@@ -1716,8 +1774,8 @@ const InvoiceForm = ({ onSave }) => {
           </SectionCard>
 
           {/* Summary and Notes */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+            <Box>
               <SectionCard>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   <SectionHeader variant="h6">📝 Notes</SectionHeader>
@@ -1735,8 +1793,8 @@ const InvoiceForm = ({ onSave }) => {
                   />
                 </CardContent>
               </SectionCard>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <SectionCard>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   <SectionHeader variant="h6">💰 Invoice Summary</SectionHeader>
@@ -1760,96 +1818,96 @@ const InvoiceForm = ({ onSave }) => {
                     <Box
                       sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                     >
-                      <Grid container spacing={1}>
-                        <Grid item xs={6}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                        <Box>
                           <TextField
                             size="small"
                             label="Packing Charges"
                             type="number"
-                            value={invoice.packingCharges || 0}
+                            value={invoice.packingCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                packingCharges: parseFloat(e.target.value) || 0,
+                                packingCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
                           />
-                        </Grid>
-                        <Grid item xs={6}>
+                        </Box>
+                        <Box>
                           <TextField
                             size="small"
                             label="Freight Charges"
                             type="number"
-                            value={invoice.freightCharges || 0}
+                            value={invoice.freightCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                freightCharges: parseFloat(e.target.value) || 0,
+                                freightCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
                           />
-                        </Grid>
-                        <Grid item xs={6}>
+                        </Box>
+                        <Box>
                           <TextField
                             size="small"
                             label="Loading Charges"
                             type="number"
-                            value={invoice.loadingCharges || 0}
+                            value={invoice.loadingCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                loadingCharges: parseFloat(e.target.value) || 0,
+                                loadingCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
                           />
-                        </Grid>
-                        <Grid item xs={6}>
+                        </Box>
+                        <Box>
                           <TextField
                             size="small"
                             label="Other Charges"
                             type="number"
-                            value={invoice.otherCharges || 0}
+                            value={invoice.otherCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                otherCharges: parseFloat(e.target.value) || 0,
+                                otherCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
                           />
-                        </Grid>
-                      </Grid>
+                        </Box>
+                      </Box>
                     </Box>
 
                     <Box
@@ -1893,17 +1951,17 @@ const InvoiceForm = ({ onSave }) => {
                         size="small"
                         label="Advance Received"
                         type="number"
-                        value={invoice.advanceReceived || 0}
+                        value={invoice.advanceReceived || ''}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
-                            advanceReceived: parseFloat(e.target.value) || 0,
+                            advanceReceived: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                           }))
                         }
                         inputProps={{ min: 0, step: 0.01 }}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                       />
@@ -1938,8 +1996,8 @@ const InvoiceForm = ({ onSave }) => {
                   </Box>
                 </CardContent>
               </SectionCard>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           {/* Terms & Conditions */}
           <SectionCard sx={{ mt: 3 }}>
@@ -1982,8 +2040,8 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Basic Information
                   </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                    <Box>
                       <TextField
                         label="Product Name *"
                         value={newProductData.name}
@@ -1997,8 +2055,8 @@ const InvoiceForm = ({ onSave }) => {
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter product name"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <FormControl
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
@@ -2021,8 +2079,8 @@ const InvoiceForm = ({ onSave }) => {
                           ))}
                         </Select>
                       </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <Autocomplete
                         freeSolo
                         options={grades}
@@ -2042,8 +2100,8 @@ const InvoiceForm = ({ onSave }) => {
                           />
                         )}
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Size"
                         value={newProductData.size}
@@ -2057,8 +2115,8 @@ const InvoiceForm = ({ onSave }) => {
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="e.g., 12mm, 50x50x6"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Weight"
                         value={newProductData.weight}
@@ -2072,8 +2130,8 @@ const InvoiceForm = ({ onSave }) => {
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter weight"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <FormControl
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
@@ -2096,8 +2154,8 @@ const InvoiceForm = ({ onSave }) => {
                           <MenuItem value="pieces">pieces</MenuItem>
                         </Select>
                       </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Description"
                         value={newProductData.description}
@@ -2113,8 +2171,8 @@ const InvoiceForm = ({ onSave }) => {
                         multiline
                         rows={3}
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
 
                 {/* Inventory Information */}
@@ -2126,56 +2184,56 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Inventory Information
                   </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                    <Box>
                       <TextField
                         label="Current Stock"
                         type="number"
-                        value={newProductData.current_stock}
+                        value={newProductData.current_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            current_stock: Number(e.target.value),
+                            current_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter current stock"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Minimum Stock"
                         type="number"
-                        value={newProductData.min_stock}
+                        value={newProductData.min_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            min_stock: Number(e.target.value),
+                            min_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter minimum stock level"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Maximum Stock"
                         type="number"
-                        value={newProductData.max_stock}
+                        value={newProductData.max_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            max_stock: Number(e.target.value),
+                            max_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter maximum stock level"
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
 
                 {/* Pricing Information */}
@@ -2187,50 +2245,50 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Pricing Information
                   </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                    <Box>
                       <TextField
                         label="Cost Price"
                         type="number"
-                        value={newProductData.cost_price}
+                        value={newProductData.cost_price || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            cost_price: Number(e.target.value),
+                            cost_price: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                         placeholder="Enter cost price"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Selling Price"
                         type="number"
-                        value={newProductData.selling_price}
+                        value={newProductData.selling_price || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            selling_price: Number(e.target.value),
+                            selling_price: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                         placeholder="Enter selling price"
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
 
                 {/* Supplier & Location */}
@@ -2242,8 +2300,8 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Supplier & Location
                   </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                    <Box>
                       <TextField
                         label="Supplier"
                         value={newProductData.supplier}
@@ -2257,8 +2315,8 @@ const InvoiceForm = ({ onSave }) => {
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter supplier name"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    </Box>
+                    <Box>
                       <TextField
                         label="Storage Location"
                         value={newProductData.location}
@@ -2272,8 +2330,8 @@ const InvoiceForm = ({ onSave }) => {
                         size={isSmallScreen ? "small" : "medium"}
                         placeholder="Enter storage location"
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             </DialogContent>

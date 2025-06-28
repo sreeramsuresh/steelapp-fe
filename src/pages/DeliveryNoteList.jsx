@@ -34,10 +34,13 @@ import {
   LocalShipping as TruckIcon
 } from '@mui/icons-material';
 import { deliveryNotesAPI } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const invoiceIdFromUrl = searchParams.get('invoice_id');
+  
   const [deliveryNotes, setDeliveryNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,6 +80,7 @@ const DeliveryNoteList = () => {
         search: search || undefined,
         status: statusFilter || undefined,
         start_date: dateFilter || undefined,
+        invoice_id: invoiceIdFromUrl || undefined,
       };
 
       const response = await deliveryNotesAPI.getAll(params);
@@ -123,7 +127,7 @@ const DeliveryNoteList = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
+    return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -146,6 +150,20 @@ const DeliveryNoteList = () => {
           Create Delivery Note
         </Button>
       </Box>
+
+      {/* Invoice Filter Indicator */}
+      {invoiceIdFromUrl && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
+          <Button 
+            size="small" 
+            onClick={() => navigate('/delivery-notes')}
+            sx={{ ml: 2 }}
+          >
+            View All Delivery Notes
+          </Button>
+        </Alert>
+      )}
 
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -203,14 +221,14 @@ const DeliveryNoteList = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                <TableCell sx={{ fontWeight: 'bold' }}>Delivery Note #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Invoice #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Delivery Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Vehicle</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.100' : 'grey.50' }}>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Note #</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Invoice #</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Customer</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Date</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Vehicle</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -82,14 +82,14 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
   '& .MuiTableHead-root': {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[50],
   },
   '& .MuiTableCell-head': {
     fontWeight: 600,
     fontSize: '0.875rem',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: theme.palette.text.secondary,
+    color: theme.palette.mode === 'light' ? theme.palette.text.primary : theme.palette.text.secondary,
   },
   '& .MuiTableRow-hover:hover': {
     backgroundColor: theme.palette.action.hover,
@@ -183,10 +183,16 @@ const StockMovement = () => {
 
   const handleSubmit = async () => {
     try {
+      const movementData = {
+        ...formData,
+        quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
+        currentStock: formData.currentStock === '' ? 0 : Number(formData.currentStock)
+      };
+
       if (editingMovement) {
-        await stockMovementService.updateMovement(editingMovement.id, formData);
+        await stockMovementService.updateMovement(editingMovement.id, movementData);
       } else {
-        await stockMovementService.createMovement(formData);
+        await stockMovementService.createMovement(movementData);
       }
       await fetchMovements();
       handleCloseDialog();
@@ -222,7 +228,7 @@ const StockMovement = () => {
   );
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN');
+    return new Date(dateString).toLocaleDateString('en-AE');
   };
 
   if (loading) {
@@ -472,8 +478,8 @@ const StockMovement = () => {
             {editingMovement ? 'Edit Stock Movement' : 'Add Stock Movement'}
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Grid container spacing={3} sx={{ mt: 0.5 }}>
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -482,10 +488,11 @@ const StockMovement = () => {
                 value={formData.date}
                 onChange={(e) => handleInputChange('date', e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 1 }}>
                 <InputLabel>Movement Type</InputLabel>
                 <Select
                   value={formData.movement}
@@ -501,7 +508,7 @@ const StockMovement = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 1 }}>
                 <InputLabel>Product Type</InputLabel>
                 <Select
                   value={formData.productType}
@@ -517,7 +524,7 @@ const StockMovement = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 1 }}>
                 <InputLabel>Grade</InputLabel>
                 <Select
                   value={formData.grade}
@@ -538,6 +545,7 @@ const StockMovement = () => {
                 label="Thickness"
                 value={formData.thickness}
                 onChange={(e) => handleInputChange('thickness', e.target.value)}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -546,10 +554,11 @@ const StockMovement = () => {
                 label="Size"
                 value={formData.size}
                 onChange={(e) => handleInputChange('size', e.target.value)}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 1 }}>
                 <InputLabel>Finish</InputLabel>
                 <Select
                   value={formData.finish}
@@ -570,6 +579,7 @@ const StockMovement = () => {
                 label="Invoice No"
                 value={formData.invoiceNo}
                 onChange={(e) => handleInputChange('invoiceNo', e.target.value)}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -577,8 +587,9 @@ const StockMovement = () => {
                 fullWidth
                 label="Quantity"
                 type="number"
-                value={formData.quantity}
-                onChange={(e) => handleInputChange('quantity', parseFloat(e.target.value) || 0)}
+                value={formData.quantity || ''}
+                onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -586,8 +597,9 @@ const StockMovement = () => {
                 fullWidth
                 label="Current Stock"
                 type="number"
-                value={formData.currentStock}
-                onChange={(e) => handleInputChange('currentStock', parseFloat(e.target.value) || 0)}
+                value={formData.currentStock || ''}
+                onChange={(e) => handleInputChange('currentStock', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                sx={{ mb: 1 }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -596,6 +608,7 @@ const StockMovement = () => {
                 label="Seller"
                 value={formData.seller}
                 onChange={(e) => handleInputChange('seller', e.target.value)}
+                sx={{ mb: 1 }}
               />
             </Grid>
           </Grid>

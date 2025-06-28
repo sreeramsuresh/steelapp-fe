@@ -16,14 +16,14 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF6B35',
-      light: '#FF8A65',
-      dark: '#E64A19',
+      main: '#008B8B',
+      light: '#4DB6AC',
+      dark: '#00695C',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#2E3B4E',
-      light: '#455A73',
+      main: '#263238',
+      light: '#37474F',
       dark: '#1C2632',
       contrastText: '#ffffff',
     },
@@ -156,16 +156,32 @@ const darkTheme = createTheme({
   },
   spacing: 8,
   shadows: [
-    'none',
-    '0 1px 2px rgba(0, 0, 0, 0.3)',
-    '0 4px 6px rgba(0, 0, 0, 0.4)',
-    '0 10px 15px rgba(0, 0, 0, 0.5)',
-    '0 20px 25px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px rgba(0, 0, 0, 0.7)',
-    '0 25px 50px rgba(0, 0, 0, 0.8)',
-    '0 25px 50px rgba(0, 0, 0, 0.9)',
-    '0 25px 50px rgba(0, 0, 0, 1)',
-    ...Array(15).fill('0 25px 50px rgba(0, 0, 0, 1)')
+    'none',                               // 0
+    '0 1px 2px rgba(0, 0, 0, 0.3)',      // 1
+    '0 4px 6px rgba(0, 0, 0, 0.4)',      // 2
+    '0 6px 10px rgba(0, 0, 0, 0.4)',     // 3
+    '0 8px 12px rgba(0, 0, 0, 0.4)',     // 4
+    '0 10px 15px rgba(0, 0, 0, 0.5)',    // 5
+    '0 12px 18px rgba(0, 0, 0, 0.5)',    // 6
+    '0 14px 20px rgba(0, 0, 0, 0.5)',    // 7
+    '0 16px 22px rgba(0, 0, 0, 0.6)',    // 8
+    '0 18px 24px rgba(0, 0, 0, 0.6)',    // 9
+    '0 20px 25px rgba(0, 0, 0, 0.6)',    // 10
+    '0 22px 28px rgba(0, 0, 0, 0.6)',    // 11
+    '0 24px 30px rgba(0, 0, 0, 0.7)',    // 12
+    '0 26px 32px rgba(0, 0, 0, 0.7)',    // 13
+    '0 28px 34px rgba(0, 0, 0, 0.7)',    // 14
+    '0 30px 36px rgba(0, 0, 0, 0.7)',    // 15
+    '0 32px 38px rgba(0, 0, 0, 0.8)',    // 16
+    '0 34px 40px rgba(0, 0, 0, 0.8)',    // 17
+    '0 36px 42px rgba(0, 0, 0, 0.8)',    // 18
+    '0 38px 44px rgba(0, 0, 0, 0.8)',    // 19
+    '0 40px 46px rgba(0, 0, 0, 0.9)',    // 20
+    '0 42px 48px rgba(0, 0, 0, 0.9)',    // 21
+    '0 44px 50px rgba(0, 0, 0, 0.9)',    // 22
+    '0 46px 52px rgba(0, 0, 0, 0.9)',    // 23
+    '0 48px 54px rgba(0, 0, 0, 1)',      // 24
+    '0 50px 56px rgba(0, 0, 0, 1)',      // 25
   ],
   components: {
     MuiCssBaseline: {
@@ -182,7 +198,7 @@ const darkTheme = createTheme({
         'input, input[type="text"], input[type="email"], input[type="password"], .MuiInputBase-input, .MuiOutlinedInput-input': {
           color: '#FFFFFF !important',
           WebkitTextFillColor: '#FFFFFF !important',
-          caretColor: '#FF6B35 !important',
+          caretColor: '#008B8B !important',
         },
         html: {
           height: '100vh',
@@ -220,11 +236,11 @@ const darkTheme = createTheme({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #FF6B35 0%, #E64A19 100%)',
+          background: 'linear-gradient(135deg, #008B8B 0%, #00695C 100%)',
           color: '#ffffff',
           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #FF8A65 0%, #FF6B35 100%)',
+            background: 'linear-gradient(135deg, #4DB6AC 0%, #008B8B 100%)',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.4)',
             transform: 'translateY(-1px)',
           },
@@ -270,15 +286,15 @@ const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#FF6B35',
-      light: '#FF8A65',
-      dark: '#E64A19',
+      main: '#008B8B',
+      light: '#4DB6AC',
+      dark: '#00695C',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#1976D2',
-      light: '#42A5F5',
-      dark: '#0D47A1',
+      main: '#263238',
+      light: '#37474F',
+      dark: '#1C2632',
       contrastText: '#ffffff',
     },
     error: {
@@ -410,16 +426,32 @@ const lightTheme = createTheme({
   },
   spacing: 8,
   shadows: [
-    'none',
-    '0 1px 3px rgba(0, 0, 0, 0.12)',
-    '0 2px 4px rgba(0, 0, 0, 0.14)',
-    '0 4px 6px rgba(0, 0, 0, 0.16)',
-    '0 6px 8px rgba(0, 0, 0, 0.18)',
-    '0 8px 10px rgba(0, 0, 0, 0.20)',
-    '0 10px 12px rgba(0, 0, 0, 0.22)',
-    '0 12px 14px rgba(0, 0, 0, 0.24)',
-    '0 14px 16px rgba(0, 0, 0, 0.26)',
-    ...Array(15).fill('0 16px 20px rgba(0, 0, 0, 0.28)')
+    'none',                               // 0
+    '0 1px 3px rgba(0, 0, 0, 0.12)',     // 1
+    '0 2px 4px rgba(0, 0, 0, 0.14)',     // 2
+    '0 4px 6px rgba(0, 0, 0, 0.16)',     // 3
+    '0 6px 8px rgba(0, 0, 0, 0.18)',     // 4
+    '0 8px 10px rgba(0, 0, 0, 0.20)',    // 5
+    '0 10px 12px rgba(0, 0, 0, 0.22)',   // 6
+    '0 12px 14px rgba(0, 0, 0, 0.24)',   // 7
+    '0 14px 16px rgba(0, 0, 0, 0.26)',   // 8
+    '0 16px 18px rgba(0, 0, 0, 0.28)',   // 9
+    '0 18px 20px rgba(0, 0, 0, 0.30)',   // 10
+    '0 20px 22px rgba(0, 0, 0, 0.32)',   // 11
+    '0 22px 24px rgba(0, 0, 0, 0.34)',   // 12
+    '0 24px 26px rgba(0, 0, 0, 0.36)',   // 13
+    '0 26px 28px rgba(0, 0, 0, 0.38)',   // 14
+    '0 28px 30px rgba(0, 0, 0, 0.40)',   // 15
+    '0 30px 32px rgba(0, 0, 0, 0.42)',   // 16
+    '0 32px 34px rgba(0, 0, 0, 0.44)',   // 17
+    '0 34px 36px rgba(0, 0, 0, 0.46)',   // 18
+    '0 36px 38px rgba(0, 0, 0, 0.48)',   // 19
+    '0 38px 40px rgba(0, 0, 0, 0.50)',   // 20
+    '0 40px 42px rgba(0, 0, 0, 0.52)',   // 21
+    '0 42px 44px rgba(0, 0, 0, 0.54)',   // 22
+    '0 44px 46px rgba(0, 0, 0, 0.56)',   // 23
+    '0 46px 48px rgba(0, 0, 0, 0.58)',   // 24
+    '0 48px 50px rgba(0, 0, 0, 0.60)',   // 25
   ],
   components: {
     MuiCssBaseline: {
@@ -436,7 +468,7 @@ const lightTheme = createTheme({
         'input, input[type="text"], input[type="email"], input[type="password"], .MuiInputBase-input, .MuiOutlinedInput-input': {
           color: '#212121 !important',
           WebkitTextFillColor: '#212121 !important',
-          caretColor: '#FF6B35 !important',
+          caretColor: '#008B8B !important',
         },
         html: {
           height: '100vh',
@@ -474,11 +506,11 @@ const lightTheme = createTheme({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #FF6B35 0%, #E64A19 100%)',
+          background: 'linear-gradient(135deg, #008B8B 0%, #00695C 100%)',
           color: '#ffffff',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.14)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #FF8A65 0%, #FF6B35 100%)',
+            background: 'linear-gradient(135deg, #4DB6AC 0%, #008B8B 100%)',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.18)',
             transform: 'translateY(-1px)',
           },

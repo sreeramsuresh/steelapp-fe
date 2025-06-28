@@ -26,7 +26,6 @@ import {
   Paper,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
   Tabs,
@@ -305,9 +304,9 @@ const RevenueTrends = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
@@ -392,8 +391,8 @@ const RevenueTrends = () => {
       </Box>
 
       {/* Key Metrics */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -418,9 +417,9 @@ const RevenueTrends = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -445,9 +444,9 @@ const RevenueTrends = () => {
               </Box>
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -469,9 +468,9 @@ const RevenueTrends = () => {
               />
             </CardContent>
           </MetricCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <MetricCard>
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -489,8 +488,8 @@ const RevenueTrends = () => {
               />
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Revenue Chart */}
       <ChartCard>
@@ -518,7 +517,7 @@ const RevenueTrends = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', pr: 2, py: 2 }}>
               {[1000000, 800000, 600000, 400000, 200000, 0].map(value => (
                 <Typography key={value} variant="caption" color="text.secondary">
-                  {value === 0 ? '0' : `₹${(value / 100000).toFixed(0)}L`}
+                  {value === 0 ? '0' : `د.إ${(value / 100000).toFixed(0)}L`}
                 </Typography>
               ))}
             </Box>
@@ -539,7 +538,7 @@ const RevenueTrends = () => {
                       />
                     </Box>
                     <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center' }}>
-                      {formatCurrency(item.revenue).replace('₹', '₹')}
+                      {formatCurrency(item.revenue).replace('د.إ', 'د.إ')}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
                       {item.month?.substring(0, 3)}
@@ -602,8 +601,8 @@ const RevenueTrends = () => {
       </Box>
 
       {/* Forecast Summary */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <KPICard variant="primary">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -618,9 +617,9 @@ const RevenueTrends = () => {
               </Typography>
             </CardContent>
           </KPICard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={4}>
+        <Box>
           <KPICard variant="secondary">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -628,16 +627,16 @@ const RevenueTrends = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Next Month Forecast</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                {forecastData.length > 0 ? formatCurrency(forecastData[0].revenue) : '₹0'}
+                {forecastData.length > 0 ? formatCurrency(forecastData[0].revenue) : 'د.إ0'}
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                 {forecastData.length > 0 ? `${Math.round(forecastData[0].confidence?.high ? 85 : 80)}% confidence` : 'No data'}
               </Typography>
             </CardContent>
           </KPICard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={4}>
+        <Box>
           <KPICard variant="warning">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -652,12 +651,12 @@ const RevenueTrends = () => {
               </Typography>
             </CardContent>
           </KPICard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Forecast Details */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -729,9 +728,9 @@ const RevenueTrends = () => {
               </TableContainer>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} lg={4}>
+        <Box>
           <MetricCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Forecast Insights</Typography>
@@ -751,8 +750,8 @@ const RevenueTrends = () => {
               </Stack>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -769,13 +768,13 @@ const RevenueTrends = () => {
       </Box>
 
       {/* Seasonal Overview */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
         {['Spring', 'Summer', 'Autumn', 'Winter'].map((season, index) => {
           const avgRevenue = (800000 + Math.random() * 400000); // Mock data
           const seasonColors = { spring: '#10b981', summer: '#f59e0b', autumn: '#ea580c', winter: '#3b82f6' };
           
           return (
-            <Grid item xs={12} sm={6} md={3} key={season}>
+            <Box key={season}>
               <SeasonalCard season={season.toLowerCase()}>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -805,14 +804,14 @@ const RevenueTrends = () => {
                   </Stack>
                 </CardContent>
               </SeasonalCard>
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
 
       {/* Seasonal Charts and Insights */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Monthly Revenue Patterns</Typography>
@@ -846,12 +845,12 @@ const RevenueTrends = () => {
               </Box>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} lg={4}>
+        <Box>
           <Stack spacing={3}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2 }}>
+              <Box>
                 <MetricCard>
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Peak Season</Typography>
@@ -863,8 +862,8 @@ const RevenueTrends = () => {
                     </Typography>
                   </CardContent>
                 </MetricCard>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box>
                 <MetricCard>
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Low Season</Typography>
@@ -876,8 +875,8 @@ const RevenueTrends = () => {
                     </Typography>
                   </CardContent>
                 </MetricCard>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
             
             <MetricCard>
               <CardContent>
@@ -915,8 +914,8 @@ const RevenueTrends = () => {
               </CardContent>
             </MetricCard>
           </Stack>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -933,8 +932,8 @@ const RevenueTrends = () => {
       </Box>
 
       {/* KPI Dashboard */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <KPICard variant="primary">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -957,9 +956,9 @@ const RevenueTrends = () => {
               />
             </CardContent>
           </KPICard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <KPICard variant="secondary">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -982,9 +981,9 @@ const RevenueTrends = () => {
               />
             </CardContent>
           </KPICard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <KPICard variant="success">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -1000,9 +999,9 @@ const RevenueTrends = () => {
               </Typography>
             </CardContent>
           </KPICard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box>
           <KPICard variant="warning">
             <CardContent sx={{ textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
@@ -1017,12 +1016,12 @@ const RevenueTrends = () => {
               </Typography>
             </CardContent>
           </KPICard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Detailed Metrics */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
+        <Box>
           <ChartCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -1091,9 +1090,9 @@ const RevenueTrends = () => {
               </TableContainer>
             </CardContent>
           </ChartCard>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} lg={4}>
+        <Box>
           <MetricCard>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Growth Analysis Summary</Typography>
@@ -1120,8 +1119,8 @@ const RevenueTrends = () => {
               </Stack>
             </CardContent>
           </MetricCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 

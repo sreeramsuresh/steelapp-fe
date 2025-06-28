@@ -141,8 +141,8 @@ export const createStockMovement = () => ({
   size: '',
   finish: '',
   invoiceNo: '',
-  quantity: 0,
-  currentStock: 0,
+  quantity: '',
+  currentStock: '',
   seller: ''
 });
 
