@@ -870,7 +870,7 @@ const CustomerManagement = () => {
         fullWidth
       >
         <DialogHeader>
-          <Typography variant="h6">Add New Customer</Typography>
+          Add New Customer
           <IconButton onClick={() => setShowAddModal(false)}>
             <Close />
           </IconButton>
@@ -1008,7 +1008,7 @@ const CustomerManagement = () => {
         fullWidth
       >
         <DialogHeader>
-          <Typography variant="h6">Edit Customer</Typography>
+          Edit Customer
           <IconButton onClick={() => setShowEditModal(false)}>
             <Close />
           </IconButton>
@@ -1125,9 +1125,7 @@ const CustomerManagement = () => {
         className="large-modal"
       >
         <DialogHeader>
-          <Typography variant="h6">
-            Contact History - {contactHistoryCustomer?.name}
-          </Typography>
+          Contact History - {contactHistoryCustomer?.name}
           <IconButton onClick={() => setShowContactHistory(false)}>
             <Close />
           </IconButton>

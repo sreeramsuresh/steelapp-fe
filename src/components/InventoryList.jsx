@@ -601,7 +601,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Quantity"
                 type="number"
-                value={formData.quantity}
+                value={formData.quantity || ''}
                 onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
               />
             </Box>
@@ -610,7 +610,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Purchase Price"
                 type="number"
-                value={formData.pricePurchased}
+                value={formData.pricePurchased || ''}
                 onChange={(e) => handleInputChange('pricePurchased', parseFloat(e.target.value) || 0)}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
@@ -622,7 +622,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Selling Price"
                 type="number"
-                value={formData.sellingPrice}
+                value={formData.sellingPrice || ''}
                 onChange={(e) => handleInputChange('sellingPrice', parseFloat(e.target.value) || 0)}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
@@ -634,7 +634,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Landed Cost"
                 type="number"
-                value={formData.landedCost}
+                value={formData.landedCost || ''}
                 onChange={(e) => handleInputChange('landedCost', parseFloat(e.target.value) || 0)}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,

@@ -871,8 +871,8 @@ const SteelProducts = () => {
                   <TextField
                     label="Current Stock"
                     type="number"
-                    value={newProduct.currentStock}
-                    onChange={(e) => setNewProduct({...newProduct, currentStock: Number(e.target.value)})}
+                    value={newProduct.currentStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, currentStock: Number(e.target.value) || 0})}
                     fullWidth
                     placeholder="Enter current stock"
                   />
@@ -881,8 +881,8 @@ const SteelProducts = () => {
                   <TextField
                     label="Minimum Stock"
                     type="number"
-                    value={newProduct.minStock}
-                    onChange={(e) => setNewProduct({...newProduct, minStock: Number(e.target.value)})}
+                    value={newProduct.minStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, minStock: Number(e.target.value) || 10})}
                     fullWidth
                     placeholder="Enter minimum stock level"
                   />
@@ -891,8 +891,8 @@ const SteelProducts = () => {
                   <TextField
                     label="Maximum Stock"
                     type="number"
-                    value={newProduct.maxStock}
-                    onChange={(e) => setNewProduct({...newProduct, maxStock: Number(e.target.value)})}
+                    value={newProduct.maxStock || ''}
+                    onChange={(e) => setNewProduct({...newProduct, maxStock: Number(e.target.value) || 1000})}
                     fullWidth
                     placeholder="Enter maximum stock level"
                   />
@@ -910,8 +910,8 @@ const SteelProducts = () => {
                   <TextField
                     label="Cost Price"
                     type="number"
-                    value={newProduct.costPrice}
-                    onChange={(e) => setNewProduct({...newProduct, costPrice: Number(e.target.value)})}
+                    value={newProduct.costPrice || ''}
+                    onChange={(e) => setNewProduct({...newProduct, costPrice: Number(e.target.value) || 0})}
                     fullWidth
                     InputProps={{
                       startAdornment: <InputAdornment position="start">₹</InputAdornment>
@@ -923,8 +923,8 @@ const SteelProducts = () => {
                   <TextField
                     label="Selling Price"
                     type="number"
-                    value={newProduct.sellingPrice}
-                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: Number(e.target.value)})}
+                    value={newProduct.sellingPrice || ''}
+                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: Number(e.target.value) || 0})}
                     fullWidth
                     InputProps={{
                       startAdornment: <InputAdornment position="start">₹</InputAdornment>
@@ -1146,32 +1146,32 @@ const SteelProducts = () => {
                   <label>Current Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.currentStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: Number(e.target.value)})}
+                    value={selectedProduct.currentStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: Number(e.target.value) || 0})}
                   />
                 </div>
                 <div className="form-group">
                   <label>Minimum Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.minStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: Number(e.target.value)})}
+                    value={selectedProduct.minStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: Number(e.target.value) || 0})}
                   />
                 </div>
                 <div className="form-group">
                   <label>Maximum Stock</label>
                   <input
                     type="number"
-                    value={selectedProduct.maxStock}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: Number(e.target.value)})}
+                    value={selectedProduct.maxStock || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: Number(e.target.value) || 0})}
                   />
                 </div>
                 <div className="form-group">
                   <label>Cost Price (₹)</label>
                   <input
                     type="number"
-                    value={selectedProduct.costPrice}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: Number(e.target.value)})}
+                    value={selectedProduct.costPrice || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: Number(e.target.value) || 0})}
                   />
                 </div>
                 <div className="form-group">
@@ -1233,8 +1233,8 @@ const SteelProducts = () => {
                   <label>New Price (₹)</label>
                   <input
                     type="number"
-                    value={priceUpdate.newPrice}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: Number(e.target.value)})}
+                    value={priceUpdate.newPrice || ''}
+                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: Number(e.target.value) || 0})}
                     placeholder="Enter new price"
                   />
                 </div>

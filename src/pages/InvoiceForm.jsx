@@ -1772,7 +1772,7 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Packing Charges"
                             type="number"
-                            value={invoice.packingCharges || 0}
+                            value={invoice.packingCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1794,7 +1794,7 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Freight Charges"
                             type="number"
-                            value={invoice.freightCharges || 0}
+                            value={invoice.freightCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1816,7 +1816,7 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Loading Charges"
                             type="number"
-                            value={invoice.loadingCharges || 0}
+                            value={invoice.loadingCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1838,7 +1838,7 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Other Charges"
                             type="number"
-                            value={invoice.otherCharges || 0}
+                            value={invoice.otherCharges || ''}
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1899,7 +1899,7 @@ const InvoiceForm = ({ onSave }) => {
                         size="small"
                         label="Advance Received"
                         type="number"
-                        value={invoice.advanceReceived || 0}
+                        value={invoice.advanceReceived || ''}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
@@ -2137,7 +2137,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Current Stock"
                         type="number"
-                        value={newProductData.current_stock}
+                        value={newProductData.current_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
@@ -2153,7 +2153,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Minimum Stock"
                         type="number"
-                        value={newProductData.min_stock}
+                        value={newProductData.min_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
@@ -2169,7 +2169,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Maximum Stock"
                         type="number"
-                        value={newProductData.max_stock}
+                        value={newProductData.max_stock || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
@@ -2198,7 +2198,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Cost Price"
                         type="number"
-                        value={newProductData.cost_price}
+                        value={newProductData.cost_price || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
@@ -2219,7 +2219,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Selling Price"
                         type="number"
-                        value={newProductData.selling_price}
+                        value={newProductData.selling_price || ''}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,

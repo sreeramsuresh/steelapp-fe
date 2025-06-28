@@ -396,7 +396,7 @@ const DeliveryNoteForm = () => {
                           <TextField
                             type="number"
                             size="small"
-                            value={item.delivered_quantity}
+                            value={item.delivered_quantity || ''}
                             onChange={(e) => handleItemQuantityChange(index, 'delivered_quantity', e.target.value)}
                             inputProps={{ 
                               min: 0, 
