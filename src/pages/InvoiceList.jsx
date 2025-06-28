@@ -587,6 +587,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     >
                       {invoice.invoiceNumber}
                     </Typography>
+                    {invoice.recreated_from && (
+                      <Typography variant="caption" color="warning.main" sx={{ display: 'block' }}>
+                        🔄 Recreated from {invoice.recreated_from}
+                      </Typography>
+                    )}
+                    {invoice.status === 'cancelled' && (
+                      <Typography variant="caption" color="error.main" sx={{ display: 'block' }}>
+                        ❌ Cancelled & Recreated
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Box>

@@ -55,7 +55,11 @@ const transformInvoiceFromServer = (serverData) => {
       amount: item.amount || 0
     })) || [],
     createdAt: serverData.created_at,
-    updatedAt: serverData.updated_at
+    updatedAt: serverData.updated_at,
+    // Audit trail fields for cancel and recreate
+    recreated_from: serverData.recreated_from,
+    original_id: serverData.original_id,
+    new_invoice_id: serverData.new_invoice_id
   };
 };
 
