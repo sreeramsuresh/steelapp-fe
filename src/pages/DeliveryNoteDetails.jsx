@@ -128,7 +128,7 @@ const DeliveryNoteDetails = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
+    return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

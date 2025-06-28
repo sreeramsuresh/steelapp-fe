@@ -157,11 +157,11 @@ const SteelProducts = () => {
     weight: '',
     unit: 'kg',
     description: '',
-    currentStock: 0,
-    minStock: 10,
-    maxStock: 1000,
-    costPrice: 0,
-    sellingPrice: 0,
+    currentStock: '',
+    minStock: '',
+    maxStock: '',
+    costPrice: '',
+    sellingPrice: '',
     supplier: '',
     location: '',
     specifications: {
@@ -178,7 +178,7 @@ const SteelProducts = () => {
   });
 
   const [priceUpdate, setPriceUpdate] = useState({
-    newPrice: 0,
+    newPrice: '',
     reason: '',
     effectiveDate: new Date().toISOString().split('T')[0]
   });
@@ -217,7 +217,16 @@ const SteelProducts = () => {
 
   const handleAddProduct = async () => {
     try {
-      await createProduct(newProduct);
+      // Convert empty strings to appropriate default values
+      const productData = {
+        ...newProduct,
+        currentStock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),
+        minStock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),
+        maxStock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),
+        costPrice: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
+        sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice)
+      };
+      await createProduct(productData);
       setNewProduct({
         name: '',
         category: 'sheet',
@@ -226,11 +235,11 @@ const SteelProducts = () => {
         weight: '',
         unit: 'kg',
         description: '',
-        currentStock: 0,
-        minStock: 10,
-        maxStock: 1000,
-        costPrice: 0,
-        sellingPrice: 0,
+        currentStock: '',
+        minStock: '',
+        maxStock: '',
+        costPrice: '',
+        sellingPrice: '',
         supplier: '',
         location: '',
         specifications: {
@@ -248,7 +257,15 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
-      await updateProduct(selectedProduct.id, selectedProduct);
+      // Convert empty strings to appropriate default values
+      const productData = {
+        ...selectedProduct,
+        currentStock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),
+        minStock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),
+        maxStock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),
+        costPrice: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice)
+      };
+      await updateProduct(selectedProduct.id, productData);
       setShowEditModal(false);
       setSelectedProduct(null);
       refetchProducts();
@@ -275,7 +292,7 @@ const SteelProducts = () => {
         reason: priceUpdate.reason,
         effectiveDate: priceUpdate.effectiveDate
       });
-      setPriceUpdate({ newPrice: 0, reason: '', effectiveDate: new Date().toISOString().split('T')[0] });
+      setPriceUpdate({ newPrice: '', reason: '', effectiveDate: new Date().toISOString().split('T')[0] });
       setShowPriceModal(false);
       setSelectedProduct(null);
       refetchProducts();
@@ -492,12 +509,12 @@ const SteelProducts = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="caption" color="text.secondary">Cost Price</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>₹{product.costPrice}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>د.إ{product.costPrice}</Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
                       <Typography variant="caption" color="text.secondary">Selling Price</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                        ₹{product.sellingPrice}
+                        د.إ{product.sellingPrice}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
@@ -550,7 +567,7 @@ const SteelProducts = () => {
             <DollarSign size={24} />
             <h3>Inventory Value</h3>
           </div>
-          <div className="stat-value">₹{stats.totalValue.toLocaleString()}</div>
+          <div className="stat-value">د.إ{stats.totalValue.toLocaleString()}</div>
           <div className="stat-subtitle">Total cost value</div>
         </div>
         <div className="stat-card">
@@ -606,7 +623,7 @@ const SteelProducts = () => {
                         {stockStatus.toUpperCase()}
                       </span>
                     </td>
-                    <td>₹{stockValue.toLocaleString()}</td>
+                    <td>د.إ{stockValue.toLocaleString()}</td>
                     <td>{format(new Date(product.lastUpdated), 'MMM dd, yyyy')}</td>
                   </tr>
                 );
@@ -661,8 +678,8 @@ const SteelProducts = () => {
                   <TableCell>
                     {categories.find(c => c.value === product.category)?.label}
                   </TableCell>
-                  <TableCell>₹{product.costPrice}</TableCell>
-                  <TableCell>₹{product.sellingPrice}</TableCell>
+                  <TableCell>د.إ{product.costPrice}</TableCell>
+                  <TableCell>د.إ{product.sellingPrice}</TableCell>
                   <TableCell>
                     <Chip
                       label={`${Math.round(margin)}%`}
@@ -872,7 +889,7 @@ const SteelProducts = () => {
                     label="Current Stock"
                     type="number"
                     value={newProduct.currentStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, currentStock: Number(e.target.value) || 0})}
+                    onChange={(e) => setNewProduct({...newProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter current stock"
                   />
@@ -882,7 +899,7 @@ const SteelProducts = () => {
                     label="Minimum Stock"
                     type="number"
                     value={newProduct.minStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, minStock: Number(e.target.value) || 10})}
+                    onChange={(e) => setNewProduct({...newProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter minimum stock level"
                   />
@@ -892,7 +909,7 @@ const SteelProducts = () => {
                     label="Maximum Stock"
                     type="number"
                     value={newProduct.maxStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, maxStock: Number(e.target.value) || 1000})}
+                    onChange={(e) => setNewProduct({...newProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     placeholder="Enter maximum stock level"
                   />
@@ -911,10 +928,10 @@ const SteelProducts = () => {
                     label="Cost Price"
                     type="number"
                     value={newProduct.costPrice || ''}
-                    onChange={(e) => setNewProduct({...newProduct, costPrice: Number(e.target.value) || 0})}
+                    onChange={(e) => setNewProduct({...newProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
                     }}
                     placeholder="Enter cost price"
                   />
@@ -924,10 +941,10 @@ const SteelProducts = () => {
                     label="Selling Price"
                     type="number"
                     value={newProduct.sellingPrice || ''}
-                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: Number(e.target.value) || 0})}
+                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     fullWidth
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
                     }}
                     placeholder="Enter selling price"
                   />
@@ -1147,7 +1164,7 @@ const SteelProducts = () => {
                   <input
                     type="number"
                     value={selectedProduct.currentStock || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: Number(e.target.value) || 0})}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
@@ -1155,7 +1172,7 @@ const SteelProducts = () => {
                   <input
                     type="number"
                     value={selectedProduct.minStock || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: Number(e.target.value) || 0})}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
@@ -1163,15 +1180,15 @@ const SteelProducts = () => {
                   <input
                     type="number"
                     value={selectedProduct.maxStock || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: Number(e.target.value) || 0})}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Cost Price (₹)</label>
+                  <label>Cost Price (د.إ)</label>
                   <input
                     type="number"
                     value={selectedProduct.costPrice || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: Number(e.target.value) || 0})}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
                 </div>
                 <div className="form-group">
@@ -1227,14 +1244,14 @@ const SteelProducts = () => {
               <div className="price-update-form">
                 <div className="current-price">
                   <span className="label">Current Price:</span>
-                  <span className="price">₹{selectedProduct.sellingPrice}</span>
+                  <span className="price">د.إ{selectedProduct.sellingPrice}</span>
                 </div>
                 <div className="form-group">
-                  <label>New Price (₹)</label>
+                  <label>New Price (د.إ)</label>
                   <input
                     type="number"
                     value={priceUpdate.newPrice || ''}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: Number(e.target.value) || 0})}
+                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter new price"
                   />
                 </div>
@@ -1262,7 +1279,7 @@ const SteelProducts = () => {
                       {selectedProduct.priceHistory.slice(0, 5).map((entry, index) => (
                         <div key={index} className="history-item">
                           <span className="history-date">{format(new Date(entry.date), 'MMM dd, yyyy')}</span>
-                          <span className="history-price">₹{entry.price}</span>
+                          <span className="history-price">د.إ{entry.price}</span>
                           <span className="history-reason">{entry.reason}</span>
                         </div>
                       ))}

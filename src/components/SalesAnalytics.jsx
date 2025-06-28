@@ -214,9 +214,9 @@ const SalesAnalytics = () => {
 
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
@@ -398,7 +398,7 @@ const SalesAnalytics = () => {
                         />
                       </Box>
                       <Typography variant="caption" className="bar-value" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        {formatCurrency(month.revenue || 0).replace('₹', '₹')}
+                        {formatCurrency(month.revenue || 0).replace('د.إ', 'د.إ')}
                       </Typography>
                       <Typography variant="caption" className="bar-label" color="text.secondary">
                         {month.month || ''}
@@ -472,7 +472,7 @@ const SalesAnalytics = () => {
               <Stack spacing={2}>
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">High Value (₹5L+)</Typography>
+                    <Typography variant="body2">High Value (د.إ5L+)</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {analytics.topCustomers.filter(c => c.revenue >= 500000).length}
                     </Typography>
@@ -484,7 +484,7 @@ const SalesAnalytics = () => {
                 <Divider />
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">Medium Value (₹1L-5L)</Typography>
+                    <Typography variant="body2">Medium Value (د.إ1L-5L)</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {analytics.topCustomers.filter(c => c.revenue >= 100000 && c.revenue < 500000).length}
                     </Typography>
@@ -496,7 +496,7 @@ const SalesAnalytics = () => {
                 <Divider />
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">Regular (₹1L)</Typography>
+                    <Typography variant="body2">Regular (د.إ1L)</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {analytics.topCustomers.filter(c => c.revenue < 100000).length}
                     </Typography>

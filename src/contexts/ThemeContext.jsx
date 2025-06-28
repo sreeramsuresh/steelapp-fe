@@ -16,14 +16,14 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF6B35',
-      light: '#FF8A65',
-      dark: '#E64A19',
+      main: '#008B8B',
+      light: '#4DB6AC',
+      dark: '#00695C',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#2E3B4E',
-      light: '#455A73',
+      main: '#263238',
+      light: '#37474F',
       dark: '#1C2632',
       contrastText: '#ffffff',
     },
@@ -198,7 +198,7 @@ const darkTheme = createTheme({
         'input, input[type="text"], input[type="email"], input[type="password"], .MuiInputBase-input, .MuiOutlinedInput-input': {
           color: '#FFFFFF !important',
           WebkitTextFillColor: '#FFFFFF !important',
-          caretColor: '#FF6B35 !important',
+          caretColor: '#008B8B !important',
         },
         html: {
           height: '100vh',
@@ -236,11 +236,11 @@ const darkTheme = createTheme({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #FF6B35 0%, #E64A19 100%)',
+          background: 'linear-gradient(135deg, #008B8B 0%, #00695C 100%)',
           color: '#ffffff',
           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #FF8A65 0%, #FF6B35 100%)',
+            background: 'linear-gradient(135deg, #4DB6AC 0%, #008B8B 100%)',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.4)',
             transform: 'translateY(-1px)',
           },
@@ -286,15 +286,15 @@ const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#FF6B35',
-      light: '#FF8A65',
-      dark: '#E64A19',
+      main: '#008B8B',
+      light: '#4DB6AC',
+      dark: '#00695C',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#1976D2',
-      light: '#42A5F5',
-      dark: '#0D47A1',
+      main: '#263238',
+      light: '#37474F',
+      dark: '#1C2632',
       contrastText: '#ffffff',
     },
     error: {
@@ -468,7 +468,7 @@ const lightTheme = createTheme({
         'input, input[type="text"], input[type="email"], input[type="password"], .MuiInputBase-input, .MuiOutlinedInput-input': {
           color: '#212121 !important',
           WebkitTextFillColor: '#212121 !important',
-          caretColor: '#FF6B35 !important',
+          caretColor: '#008B8B !important',
         },
         html: {
           height: '100vh',
@@ -506,11 +506,11 @@ const lightTheme = createTheme({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #FF6B35 0%, #E64A19 100%)',
+          background: 'linear-gradient(135deg, #008B8B 0%, #00695C 100%)',
           color: '#ffffff',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.14)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #FF8A65 0%, #FF6B35 100%)',
+            background: 'linear-gradient(135deg, #4DB6AC 0%, #008B8B 100%)',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.18)',
             transform: 'translateY(-1px)',
           },

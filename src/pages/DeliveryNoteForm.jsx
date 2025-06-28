@@ -511,10 +511,10 @@ const DeliveryNoteForm = () => {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {new Date(invoice.invoice_date).toLocaleDateString('en-IN')}
+                      {new Date(invoice.invoice_date).toLocaleDateString('en-AE')}
                     </TableCell>
                     <TableCell>
-                      ₹{invoice.total?.toLocaleString('en-IN')}
+                      د.إ{invoice.total?.toLocaleString('en-AE')}
                     </TableCell>
                     <TableCell>
                       <Button

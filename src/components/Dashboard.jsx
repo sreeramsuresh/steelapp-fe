@@ -290,15 +290,15 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
+    return new Intl.NumberFormat("en-AE", {
       style: "currency",
-      currency: "INR",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-IN", {
+    return new Date(dateString).toLocaleDateString("en-AE", {
       day: "numeric",
       month: "short",
       year: "numeric",

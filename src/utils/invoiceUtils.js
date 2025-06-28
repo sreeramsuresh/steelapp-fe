@@ -27,14 +27,14 @@ export const generateInvoiceNumber = () => {
 };
 
 export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-IN', {
+  return new Intl.NumberFormat('en-AE', {
     style: 'currency',
-    currency: 'INR',
+    currency: 'AED',
   }).format(amount);
 };
 
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-IN', {
+  return new Date(date).toLocaleDateString('en-AE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

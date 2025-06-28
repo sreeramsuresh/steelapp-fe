@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatCurrency } from '../utils/invoiceUtils';
 import {
   Box,
   Card,
@@ -477,7 +478,12 @@ const CustomerManagement = () => {
 
   const handleAddCustomer = async () => {
     try {
-      await createCustomer(newCustomer);
+      const customerData = {
+        ...newCustomer,
+        credit_limit: newCustomer.credit_limit === '' ? 0 : Number(newCustomer.credit_limit),
+        current_credit: newCustomer.current_credit === '' ? 0 : Number(newCustomer.current_credit)
+      };
+      await createCustomer(customerData);
       setNewCustomer({
         name: '',
         email: '',
@@ -490,8 +496,8 @@ const CustomerManagement = () => {
           country: 'India'
         },
         company: '',
-        credit_limit: 0,
-        current_credit: 0,
+        credit_limit: '',
+        current_credit: '',
         status: 'active',
         gst_number: '',
         trade_license_number: '',
@@ -506,7 +512,12 @@ const CustomerManagement = () => {
 
   const handleEditCustomer = async () => {
     try {
-      await updateCustomer(selectedCustomer.id, selectedCustomer);
+      const customerData = {
+        ...selectedCustomer,
+        credit_limit: selectedCustomer.credit_limit === '' ? 0 : Number(selectedCustomer.credit_limit),
+        current_credit: selectedCustomer.current_credit === '' ? 0 : Number(selectedCustomer.current_credit)
+      };
+      await updateCustomer(selectedCustomer.id, customerData);
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
@@ -560,8 +571,8 @@ const CustomerManagement = () => {
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter(c => c.status === 'active').length;
-    const totalCreditLimit = customers.reduce((sum, c) => sum + (c.credit_limit || 0), 0);
-    const totalCreditUsed = customers.reduce((sum, c) => sum + (c.current_credit || 0), 0);
+    const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.credit_limit) || 0), 0);
+    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.current_credit) || 0), 0);
     const avgCreditUtilization = totalCreditLimit > 0 ? (totalCreditUsed / totalCreditLimit) * 100 : 0;
     
     return {
@@ -690,11 +701,11 @@ const CustomerManagement = () => {
                 <CreditInfo>
                   <CreditItem>
                     <CreditLabel>Credit Limit</CreditLabel>
-                    <CreditValue>₹{(customer.credit_limit || 0).toLocaleString()}</CreditValue>
+                    <CreditValue>{formatCurrency(Number(customer.credit_limit) || 0)}</CreditValue>
                   </CreditItem>
                   <CreditItem>
                     <CreditLabel>Used</CreditLabel>
-                    <CreditValue>₹{(customer.current_credit || 0).toLocaleString()}</CreditValue>
+                    <CreditValue>{formatCurrency(Number(customer.current_credit) || 0)}</CreditValue>
                   </CreditItem>
                   <UtilizationContainer>
                     <LinearProgress
@@ -741,7 +752,7 @@ const CustomerManagement = () => {
               <CreditCard sx={{ color: 'primary.main' }} />
               <Typography variant="h6">Total Credit Limit</Typography>
             </AnalyticsHeader>
-            <AnalyticsValue>₹{analytics.totalCreditLimit.toLocaleString()}</AnalyticsValue>
+            <AnalyticsValue>{formatCurrency(analytics.totalCreditLimit)}</AnalyticsValue>
             <AnalyticsSubtitle>
               Across all customers
             </AnalyticsSubtitle>
@@ -754,7 +765,7 @@ const CustomerManagement = () => {
               <AttachMoney sx={{ color: 'primary.main' }} />
               <Typography variant="h6">Credit Utilized</Typography>
             </AnalyticsHeader>
-            <AnalyticsValue>₹{analytics.totalCreditUsed.toLocaleString()}</AnalyticsValue>
+            <AnalyticsValue>{formatCurrency(analytics.totalCreditUsed)}</AnalyticsValue>
             <AnalyticsSubtitle>
               {Math.round(analytics.avgCreditUtilization)}% average utilization
             </AnalyticsSubtitle>
@@ -767,7 +778,7 @@ const CustomerManagement = () => {
               <TrendingUp sx={{ color: 'primary.main' }} />
               <Typography variant="h6">Available Credit</Typography>
             </AnalyticsHeader>
-            <AnalyticsValue>₹{analytics.availableCredit.toLocaleString()}</AnalyticsValue>
+            <AnalyticsValue>{formatCurrency(analytics.availableCredit)}</AnalyticsValue>
             <AnalyticsSubtitle>
               Ready to be utilized
             </AnalyticsSubtitle>
@@ -959,18 +970,18 @@ const CustomerManagement = () => {
               helperText="Important: Set expiry date for compliance tracking"
             />
             <TextField
-              label="Credit Limit (₹)"
+              label="Credit Limit (د.إ)"
               type="number"
-              value={newCustomer.credit_limit}
-              onChange={(e) => setNewCustomer({...newCustomer, credit_limit: Number(e.target.value)})}
+              value={newCustomer.credit_limit || ''}
+              onChange={(e) => setNewCustomer({...newCustomer, credit_limit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
               placeholder="Enter credit limit"
               fullWidth
             />
             <TextField
-              label="Current Credit Used (₹)"
+              label="Current Credit Used (د.إ)"
               type="number"
-              value={newCustomer.current_credit}
-              onChange={(e) => setNewCustomer({...newCustomer, current_credit: Number(e.target.value)})}
+              value={newCustomer.current_credit || ''}
+              onChange={(e) => setNewCustomer({...newCustomer, current_credit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
               placeholder="Enter current credit used"
               fullWidth
             />
@@ -1076,17 +1087,17 @@ const CustomerManagement = () => {
                 helperText="Important: Set expiry date for compliance tracking"
               />
               <TextField
-                label="Credit Limit (₹)"
+                label="Credit Limit (د.إ)"
                 type="number"
-                value={selectedCustomer.credit_limit}
-                onChange={(e) => setSelectedCustomer({...selectedCustomer, credit_limit: Number(e.target.value)})}
+                value={selectedCustomer.credit_limit || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, credit_limit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                 fullWidth
               />
               <TextField
-                label="Current Credit Used (₹)"
+                label="Current Credit Used (د.إ)"
                 type="number"
-                value={selectedCustomer.current_credit}
-                onChange={(e) => setSelectedCustomer({...selectedCustomer, current_credit: Number(e.target.value)})}
+                value={selectedCustomer.current_credit || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, current_credit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                 fullWidth
               />
               <FormControl fullWidth>

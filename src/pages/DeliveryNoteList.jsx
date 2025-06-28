@@ -123,7 +123,7 @@ const DeliveryNoteList = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
+    return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -203,14 +203,14 @@ const DeliveryNoteList = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                <TableCell sx={{ fontWeight: 'bold' }}>Delivery Note #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Invoice #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Delivery Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Vehicle</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.100' : 'grey.50' }}>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Note #</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Invoice #</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Customer</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Date</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Vehicle</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

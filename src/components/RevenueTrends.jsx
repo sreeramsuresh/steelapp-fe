@@ -304,9 +304,9 @@ const RevenueTrends = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
@@ -517,7 +517,7 @@ const RevenueTrends = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', pr: 2, py: 2 }}>
               {[1000000, 800000, 600000, 400000, 200000, 0].map(value => (
                 <Typography key={value} variant="caption" color="text.secondary">
-                  {value === 0 ? '0' : `₹${(value / 100000).toFixed(0)}L`}
+                  {value === 0 ? '0' : `د.إ${(value / 100000).toFixed(0)}L`}
                 </Typography>
               ))}
             </Box>
@@ -538,7 +538,7 @@ const RevenueTrends = () => {
                       />
                     </Box>
                     <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center' }}>
-                      {formatCurrency(item.revenue).replace('₹', '₹')}
+                      {formatCurrency(item.revenue).replace('د.إ', 'د.إ')}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
                       {item.month?.substring(0, 3)}
@@ -627,7 +627,7 @@ const RevenueTrends = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Next Month Forecast</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                {forecastData.length > 0 ? formatCurrency(forecastData[0].revenue) : '₹0'}
+                {forecastData.length > 0 ? formatCurrency(forecastData[0].revenue) : 'د.إ0'}
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                 {forecastData.length > 0 ? `${Math.round(forecastData[0].confidence?.high ? 85 : 80)}% confidence` : 'No data'}

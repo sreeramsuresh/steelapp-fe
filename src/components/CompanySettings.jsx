@@ -222,7 +222,7 @@ const CompanySettings = () => {
     footer: '',
     terms: '',
     invoiceNumberFormat: 'INV-{YYYY}-{MM}-{###}',
-    dueDays: 30
+    dueDays: ''
   });
 
   const [taxSettings, setTaxSettings] = useState([]);
@@ -245,7 +245,7 @@ const CompanySettings = () => {
 
   const [newTax, setNewTax] = useState({
     name: '',
-    rate: 0,
+    rate: '',
     type: 'percentage',
     description: '',
     active: true
@@ -361,7 +361,7 @@ const CompanySettings = () => {
         show_logo: invoiceSettings.showLogo,
         show_bank_details: invoiceSettings.showBankDetails,
         invoice_number_format: invoiceSettings.invoiceNumberFormat,
-        default_due_days: invoiceSettings.dueDays,
+        default_due_days: invoiceSettings.dueDays === '' ? 30 : Number(invoiceSettings.dueDays),
         footer_text: invoiceSettings.footer,
         terms_and_conditions: invoiceSettings.terms,
         is_default: true
@@ -484,14 +484,15 @@ const CompanySettings = () => {
   const handleAddTax = () => {
     const tax = {
       ...newTax,
-      id: Date.now().toString()
+      id: Date.now().toString(),
+      rate: newTax.rate === '' ? 0 : Number(newTax.rate)
     };
     const updatedTaxes = [...taxSettings, tax];
     setTaxSettings(updatedTaxes);
     saveTaxSettings();
     setNewTax({
       name: '',
-      rate: 0,
+      rate: '',
       type: 'percentage',
       description: '',
       active: true
@@ -1019,8 +1020,8 @@ const CompanySettings = () => {
                     fullWidth
                     label="Due Days"
                     type="number"
-                    value={invoiceSettings.dueDays}
-                    onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: Number(e.target.value)})}
+                    value={invoiceSettings.dueDays || ''}
+                    onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Default due days"
                   />
                 </Box>
@@ -1202,8 +1203,8 @@ const CompanySettings = () => {
                 fullWidth
                 label="Tax Rate (%)"
                 type="number"
-                value={newTax.rate}
-                onChange={(e) => setNewTax({...newTax, rate: Number(e.target.value)})}
+                value={newTax.rate || ''}
+                onChange={(e) => setNewTax({...newTax, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                 placeholder="Enter tax rate"
                 inputProps={{ step: "0.01", min: "0", max: "100" }}
               />

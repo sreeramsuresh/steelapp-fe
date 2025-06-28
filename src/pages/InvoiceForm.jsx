@@ -167,11 +167,11 @@ const InvoiceForm = ({ onSave }) => {
     weight: "",
     unit: "kg",
     description: "",
-    current_stock: 0,
-    min_stock: 10,
-    max_stock: 1000,
-    cost_price: 0,
-    selling_price: 0,
+    current_stock: '',
+    min_stock: '',
+    max_stock: '',
+    cost_price: '',
+    selling_price: '',
     supplier: "",
     location: "",
     specifications: {
@@ -428,14 +428,14 @@ const InvoiceForm = ({ onSave }) => {
         category: newProductData.category,
         grade: newProductData.grade,
         size: newProductData.size,
-        weight: newProductData.weight,
+        weight: newProductData.weight === '' ? 0 : Number(newProductData.weight),
         unit: newProductData.unit,
         description: newProductData.description,
-        current_stock: newProductData.current_stock,
-        min_stock: newProductData.min_stock,
-        max_stock: newProductData.max_stock,
-        cost_price: newProductData.cost_price,
-        selling_price: newProductData.selling_price,
+        current_stock: newProductData.current_stock === '' ? 0 : Number(newProductData.current_stock),
+        min_stock: newProductData.min_stock === '' ? 10 : Number(newProductData.min_stock),
+        max_stock: newProductData.max_stock === '' ? 100 : Number(newProductData.max_stock),
+        cost_price: newProductData.cost_price === '' ? 0 : Number(newProductData.cost_price),
+        selling_price: newProductData.selling_price === '' ? 0 : Number(newProductData.selling_price),
         supplier: newProductData.supplier,
         location: newProductData.location,
         specifications: newProductData.specifications,
@@ -460,11 +460,11 @@ const InvoiceForm = ({ onSave }) => {
         weight: "",
         unit: "kg",
         description: "",
-        current_stock: 0,
-        min_stock: 10,
-        max_stock: 1000,
-        cost_price: 0,
-        selling_price: 0,
+        current_stock: '',
+        min_stock: '',
+        max_stock: '',
+        cost_price: '',
+        selling_price: '',
         supplier: "",
         location: "",
         specifications: {
@@ -499,7 +499,7 @@ const InvoiceForm = ({ onSave }) => {
     return (productsData?.products || []).map((product) => ({
       ...product,
       label: product.name,
-      subtitle: `${product.category} • ${product.grade || "N/A"} • ₹${
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
         product.selling_price || 0
       }/${product.unit}`,
     }));
@@ -546,14 +546,31 @@ const InvoiceForm = ({ onSave }) => {
 
   const handleSave = async () => {
     try {
+      // Convert empty string values to numbers before saving
+      const processedInvoice = {
+        ...invoice,
+        packingCharges: invoice.packingCharges === '' ? 0 : Number(invoice.packingCharges),
+        freightCharges: invoice.freightCharges === '' ? 0 : Number(invoice.freightCharges),
+        loadingCharges: invoice.loadingCharges === '' ? 0 : Number(invoice.loadingCharges),
+        otherCharges: invoice.otherCharges === '' ? 0 : Number(invoice.otherCharges),
+        advanceReceived: invoice.advanceReceived === '' ? 0 : Number(invoice.advanceReceived),
+        items: invoice.items.map(item => ({
+          ...item,
+          quantity: item.quantity === '' ? 0 : Number(item.quantity),
+          rate: item.rate === '' ? 0 : Number(item.rate),
+          discount: item.discount === '' ? 0 : Number(item.discount),
+          gstRate: item.gstRate === '' ? 0 : Number(item.gstRate)
+        }))
+      };
+
       if (id) {
         // Update existing invoice
-        const updatedInvoice = await updateInvoice(invoice.id, invoice);
+        const updatedInvoice = await updateInvoice(invoice.id, processedInvoice);
         if (onSave) onSave(updatedInvoice);
         alert("Invoice updated successfully!");
       } else {
         // Create new invoice
-        const newInvoice = await saveInvoice(invoice);
+        const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
         alert("Invoice saved successfully!");
       }
@@ -781,12 +798,12 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Qty"
               type="number"
-              value={item.quantity}
+              value={item.quantity || ''}
               onChange={(e) =>
                 handleItemChange(
                   index,
                   "quantity",
-                  parseFloat(e.target.value) || 0
+                  e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                 )
               }
               inputProps={{ min: 0, step: 0.01 }}
@@ -795,9 +812,9 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Rate"
               type="number"
-              value={item.rate}
+              value={item.rate || ''}
               onChange={(e) =>
-                handleItemChange(index, "rate", parseFloat(e.target.value) || 0)
+                handleItemChange(index, "rate", e.target.value === '' ? '' : parseFloat(e.target.value) || '')
               }
               inputProps={{ min: 0, step: 0.01 }}
             />
@@ -843,7 +860,7 @@ const InvoiceForm = ({ onSave }) => {
               >
                 {DISCOUNT_TYPES.map((type) => (
                   <MenuItem key={type} value={type}>
-                    {type === "amount" ? "₹" : "%"}
+                    {type === "amount" ? "د.إ" : "%"}
                   </MenuItem>
                 ))}
               </Select>
@@ -1613,12 +1630,12 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.quantity}
+                            value={item.quantity || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "quantity",
-                                parseFloat(e.target.value) || 0
+                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1629,12 +1646,12 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.rate}
+                            value={item.rate || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "rate",
-                                parseFloat(e.target.value) || 0
+                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1676,7 +1693,7 @@ const InvoiceForm = ({ onSave }) => {
                                 }
                                 displayEmpty
                               >
-                                <MenuItem value="amount">₹</MenuItem>
+                                <MenuItem value="amount">د.إ</MenuItem>
                                 <MenuItem value="percentage">%</MenuItem>
                               </Select>
                             </FormControl>
@@ -1776,14 +1793,14 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                packingCharges: parseFloat(e.target.value) || 0,
+                                packingCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
@@ -1798,14 +1815,14 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                freightCharges: parseFloat(e.target.value) || 0,
+                                freightCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
@@ -1820,14 +1837,14 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                loadingCharges: parseFloat(e.target.value) || 0,
+                                loadingCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
@@ -1842,14 +1859,14 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
-                                otherCharges: parseFloat(e.target.value) || 0,
+                                otherCharges: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                               }))
                             }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  ₹
+                                  د.إ
                                 </InputAdornment>
                               ),
                             }}
@@ -1903,13 +1920,13 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
-                            advanceReceived: parseFloat(e.target.value) || 0,
+                            advanceReceived: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                           }))
                         }
                         inputProps={{ min: 0, step: 0.01 }}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                       />
@@ -2141,7 +2158,7 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            current_stock: Number(e.target.value),
+                            current_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
@@ -2157,7 +2174,7 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            min_stock: Number(e.target.value),
+                            min_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
@@ -2173,7 +2190,7 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            max_stock: Number(e.target.value),
+                            max_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
@@ -2202,14 +2219,14 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            cost_price: Number(e.target.value),
+                            cost_price: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                         placeholder="Enter cost price"
@@ -2223,14 +2240,14 @@ const InvoiceForm = ({ onSave }) => {
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            selling_price: Number(e.target.value),
+                            selling_price: e.target.value === '' ? '' : Number(e.target.value) || '',
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">₹</InputAdornment>
+                            <InputAdornment position="start">د.إ</InputAdornment>
                           ),
                         }}
                         placeholder="Enter selling price"

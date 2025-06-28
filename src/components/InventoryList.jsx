@@ -84,14 +84,14 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
   '& .MuiTableHead-root': {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[50],
   },
   '& .MuiTableCell-head': {
     fontWeight: 600,
     fontSize: '0.875rem',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: theme.palette.text.secondary,
+    color: theme.palette.mode === 'light' ? theme.palette.text.primary : theme.palette.text.secondary,
   },
   '& .MuiTableRow-hover:hover': {
     backgroundColor: theme.palette.action.hover,
@@ -153,7 +153,16 @@ const InventoryList = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState(createInventoryItem());
+  const [formData, setFormData] = useState(() => {
+    const item = createInventoryItem();
+    return {
+      ...item,
+      quantity: '',
+      pricePurchased: '',
+      sellingPrice: '',
+      landedCost: ''
+    };
+  });
 
   useEffect(() => {
     fetchInventory();
@@ -178,7 +187,14 @@ const InventoryList = () => {
       setFormData(item);
     } else {
       setEditingItem(null);
-      setFormData(createInventoryItem());
+      const item = createInventoryItem();
+      setFormData({
+        ...item,
+        quantity: '',
+        pricePurchased: '',
+        sellingPrice: '',
+        landedCost: ''
+      });
     }
     setOpenDialog(true);
   };
@@ -192,10 +208,18 @@ const InventoryList = () => {
 
   const handleSubmit = async () => {
     try {
+      const itemData = {
+        ...formData,
+        quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
+        pricePurchased: formData.pricePurchased === '' ? 0 : Number(formData.pricePurchased),
+        sellingPrice: formData.sellingPrice === '' ? 0 : Number(formData.sellingPrice),
+        landedCost: formData.landedCost === '' ? 0 : Number(formData.landedCost)
+      };
+
       if (editingItem) {
-        await inventoryService.updateItem(editingItem.id, formData);
+        await inventoryService.updateItem(editingItem.id, itemData);
       } else {
-        await inventoryService.createItem(formData);
+        await inventoryService.createItem(itemData);
       }
       await fetchInventory();
       handleCloseDialog();
@@ -231,9 +255,9 @@ const InventoryList = () => {
   );
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'AED',
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -602,7 +626,7 @@ const InventoryList = () => {
                 label="Quantity"
                 type="number"
                 value={formData.quantity || ''}
-                onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseInt(e.target.value) || '')}
               />
             </Box>
             <Box>
@@ -611,9 +635,9 @@ const InventoryList = () => {
                 label="Purchase Price"
                 type="number"
                 value={formData.pricePurchased || ''}
-                onChange={(e) => handleInputChange('pricePurchased', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('pricePurchased', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
             </Box>
@@ -623,9 +647,9 @@ const InventoryList = () => {
                 label="Selling Price"
                 type="number"
                 value={formData.sellingPrice || ''}
-                onChange={(e) => handleInputChange('sellingPrice', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('sellingPrice', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
             </Box>
@@ -635,9 +659,9 @@ const InventoryList = () => {
                 label="Landed Cost"
                 type="number"
                 value={formData.landedCost || ''}
-                onChange={(e) => handleInputChange('landedCost', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('landedCost', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
                 }}
               />
             </Box>
