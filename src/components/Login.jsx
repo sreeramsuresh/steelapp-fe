@@ -10,12 +10,6 @@ import {
   IconButton,
   Alert,
   CircularProgress,
-  Tab,
-  Tabs,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
@@ -24,7 +18,6 @@ import {
   Visibility,
   VisibilityOff,
   Login as LoginIcon,
-  PersonAdd,
 } from "@mui/icons-material";
 import { authService } from "../services/axiosAuthService";
 
@@ -114,7 +107,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.primary.main,
     },
   },
-  "& .MuiInputAdornment-root": {
+  "& .MuiInputAdornment-positionStart": {
     position: "absolute",
     left: theme.spacing(2),
     "& svg": {
@@ -192,50 +185,16 @@ const StyledAlert = styled(Alert)(({ theme }) => ({
   },
 }));
 
-const LoginFooter = styled(Box)(({ theme }) => ({
-  textAlign: "center",
-  marginTop: theme.spacing(3),
-}));
 
-const LinkButton = styled(Button)(({ theme }) => ({
-  background: "none",
-  border: "none",
-  color: theme.palette.primary.main,
-  cursor: "pointer",
-  textDecoration: "underline",
-  fontSize: "inherit",
-  marginLeft: theme.spacing(0.5),
-  padding: 0,
-  minWidth: "auto",
-  "&:hover": {
-    color: theme.palette.secondary.main,
-    textDecoration: "underline",
-    background: "none",
-  },
-}));
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  "& .MuiTab-root": {
-    minWidth: "50%",
-    textTransform: "none",
-    fontWeight: 500,
-  },
-}));
 
 const Login = ({ onLoginSuccess }) => {
-  const [activeTab, setActiveTab] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    role: "user",
   });
   const [error, setError] = useState("");
-
-  const isLogin = activeTab === 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -243,12 +202,7 @@ const Login = ({ onLoginSuccess }) => {
     setError("");
 
     try {
-      let response;
-      if (isLogin) {
-        response = await authService.login(formData.email, formData.password);
-      } else {
-        response = await authService.register(formData);
-      }
+      const response = await authService.login(formData.email, formData.password);
 
       if (onLoginSuccess) {
         onLoginSuccess(response.user);
@@ -267,10 +221,6 @@ const Login = ({ onLoginSuccess }) => {
     });
   };
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    setError("");
-  };
 
   return (
     <LoginContainer>
@@ -280,40 +230,11 @@ const Login = ({ onLoginSuccess }) => {
             Steel Invoice Pro
           </StyledTypography>
           <Typography variant="body1" color="text.secondary">
-            {isLogin ? "Sign in to your account" : "Create your account"}
+            Sign in to your account
           </Typography>
         </LoginHeader>
 
-        <StyledTabs
-          value={activeTab}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          textColor="primary"
-          indicatorColor="primary"
-        >
-          <Tab label="Sign In" />
-          <Tab label="Sign Up" />
-        </StyledTabs>
-
         <Box component="form" onSubmit={handleSubmit}>
-          {!isLogin && (
-            <StyledTextField
-              fullWidth
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonAdd />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
 
           <StyledTextField
             fullWidth
@@ -353,6 +274,7 @@ const Login = ({ onLoginSuccess }) => {
                   <IconButton
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
+                    size="small"
                     sx={{
                       color: "text.disabled",
                       "&:hover": {
@@ -369,32 +291,6 @@ const Login = ({ onLoginSuccess }) => {
             }}
           />
 
-          {!isLogin && (
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Role</InputLabel>
-              <Select
-                name="role"
-                value={formData.role}
-                label="Role"
-                onChange={handleInputChange}
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "divider",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "grey.400",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "primary.main",
-                  },
-                }}
-              >
-                <MenuItem value="user">User</MenuItem>
-                <MenuItem value="manager">Manager</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-          )}
 
           {error && <StyledAlert severity="error">{error}</StyledAlert>}
 
@@ -406,25 +302,15 @@ const Login = ({ onLoginSuccess }) => {
             startIcon={
               loading ? (
                 <CircularProgress size={16} color="inherit" />
-              ) : isLogin ? (
-                <LoginIcon />
               ) : (
-                <PersonAdd />
+                <LoginIcon />
               )
             }
           >
-            {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
+            {loading ? "Please wait..." : "Sign In"}
           </AnimatedButton>
         </Box>
 
-        <LoginFooter>
-          <Typography variant="body2" color="text.secondary">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <LinkButton onClick={() => setActiveTab(isLogin ? 1 : 0)}>
-              {isLogin ? "Sign up" : "Sign in"}
-            </LinkButton>
-          </Typography>
-        </LoginFooter>
       </LoginCard>
     </LoginContainer>
   );

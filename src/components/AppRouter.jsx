@@ -102,14 +102,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        <Route
-          path="/drafts"
-          element={
-            <ProtectedRoute user={user} requiredPermission="invoices.read">
-              <InvoiceList defaultStatusFilter="draft" />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/customers"

@@ -54,6 +54,7 @@ import {
   calculateTotalGST,
   calculateTotal,
   formatCurrency,
+  formatDateForInput,
 } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
@@ -564,15 +565,16 @@ const InvoiceForm = ({ onSave }) => {
       };
 
       if (id) {
-        // Update existing invoice
+        // Update existing invoice using cancel and recreate approach
         const updatedInvoice = await updateInvoice(invoice.id, processedInvoice);
         if (onSave) onSave(updatedInvoice);
-        alert("Invoice updated successfully!");
+        
+        alert(`✅ Invoice updated successfully!\n\n🔄 Process completed:\n• Original invoice cancelled\n• Inventory movements reversed\n• New invoice created with updated data\n• New inventory movements applied${processedInvoice.status === 'paid' ? '\n• Delivery note auto-generated' : ''}`);
       } else {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
-        alert("Invoice saved successfully!");
+        alert(`✅ Invoice created successfully!${processedInvoice.status === 'paid' ? '\n🚚 Delivery note auto-generated' : ''}`);
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
@@ -997,6 +999,20 @@ const InvoiceForm = ({ onSave }) => {
             </HeaderActions>
           </Box>
 
+          {/* Edit Invoice Warning */}
+          {id && (
+            <Alert severity="warning" sx={{ mb: 3 }}>
+              <AlertTitle>Invoice Editing Policy</AlertTitle>
+              <Typography variant="body2">
+                🔄 To maintain audit trails and inventory accuracy, editing will:
+                <br />• Cancel the original invoice and reverse its inventory impact
+                <br />• Create a new invoice with your updated data
+                <br />• Apply new inventory movements
+                <br />• Cancel any existing delivery notes (new ones will be created if status = 'paid')
+              </Typography>
+            </Alert>
+          )}
+
           {/* Form Grid */}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mb: 3 }}>
             {/* Invoice Details */}
@@ -1028,7 +1044,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.date}
+                          value={formatDateForInput(invoice.date)}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,
@@ -1045,7 +1061,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.dueDate}
+                          value={formatDateForInput(invoice.dueDate)}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,
@@ -1081,7 +1097,7 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.purchaseOrderDate || ""}
+                          value={formatDateForInput(invoice.purchaseOrderDate) || ""}
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,

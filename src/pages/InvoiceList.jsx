@@ -97,23 +97,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const company = createCompany();
 
-  // Fetch delivery note status for invoices
-  const fetchDeliveryNoteStatus = async (invoices) => {
+  // Process delivery note status from invoice data
+  const processDeliveryNoteStatus = (invoices) => {
     const statusMap = {};
     
-    for (const invoice of invoices) {
-      try {
-        const response = await deliveryNotesAPI.getAll({ invoice_id: invoice.id, limit: 1 });
-        const hasDeliveryNotes = response.delivery_notes && response.delivery_notes.length > 0;
+    invoices.forEach(invoice => {
+      if (invoice.delivery_status) {
         statusMap[invoice.id] = {
-          hasNotes: hasDeliveryNotes,
-          count: response.delivery_notes ? response.delivery_notes.length : 0
+          hasNotes: invoice.delivery_status.hasNotes,
+          count: invoice.delivery_status.count
         };
-      } catch (error) {
-        console.error(`Error fetching delivery notes for invoice ${invoice.id}:`, error);
+      } else {
         statusMap[invoice.id] = { hasNotes: false, count: 0 };
       }
-    }
+    });
     
     setDeliveryNoteStatus(statusMap);
   };
@@ -141,15 +138,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         setInvoices(response.invoices);
         setPagination(response.pagination);
         
-        // Fetch delivery note status for each invoice
-        fetchDeliveryNoteStatus(response.invoices);
+        // Process delivery note status from invoice data
+        processDeliveryNoteStatus(response.invoices);
       } else {
         // Fallback for non-paginated response
         setInvoices(response);
         setPagination(null);
         
-        // Fetch delivery note status for each invoice
-        fetchDeliveryNoteStatus(response);
+        // Process delivery note status from invoice data
+        processDeliveryNoteStatus(response);
       }
     } catch (error) {
       console.error("Error fetching invoices:", error);
@@ -266,8 +263,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       alert('Delivery note created successfully!');
       
-      // Refresh the delivery note status
-      fetchDeliveryNoteStatus([invoice]);
+      // Refresh the invoices to get updated delivery note status
+      fetchInvoices();
     } catch (error) {
       console.error('Error creating delivery note:', error);
       alert(error.message || 'Failed to create delivery note');
@@ -587,6 +584,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     >
                       {invoice.invoiceNumber}
                     </Typography>
+                    {invoice.recreated_from && (
+                      <Typography variant="caption" color="warning.main" sx={{ display: 'block' }}>
+                        🔄 Recreated from {invoice.recreated_from}
+                      </Typography>
+                    )}
+                    {invoice.status === 'cancelled' && (
+                      <Typography variant="caption" color="error.main" sx={{ display: 'block' }}>
+                        ❌ Cancelled & Recreated
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Box>

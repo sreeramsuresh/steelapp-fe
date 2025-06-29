@@ -40,3 +40,14 @@ export const formatDate = (date) => {
     day: 'numeric',
   });
 };
+
+export const formatDateForInput = (date) => {
+  if (!date) return '';
+  if (typeof date === 'string' && date.includes('T')) {
+    return date.split('T')[0];
+  }
+  if (date instanceof Date) {
+    return date.toISOString().split('T')[0];
+  }
+  return date;
+};

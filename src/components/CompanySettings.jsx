@@ -343,7 +343,30 @@ const CompanySettings = () => {
 
   const saveCompanyProfile = async () => {
     try {
-      await updateCompany(companyProfile);
+      // Validate required fields
+      if (!companyProfile.name || companyProfile.name.trim() === '') {
+        alert('Company name is required');
+        return;
+      }
+
+      const companyData = {
+        name: companyProfile.name.trim(),
+        address: {
+          street: companyProfile.address || '',
+          city: companyProfile.city || '',
+          emirate: companyProfile.state || '',
+          poBox: companyProfile.zipCode || '',
+          country: companyProfile.country || 'UAE'
+        },
+        phone: companyProfile.phone || '',
+        email: companyProfile.email || '',
+        vat_number: companyProfile.gstNumber || '',
+        logo_url: companyProfile.logo_url || null
+      };
+      
+      console.log('Sending company data:', companyData);
+      
+      await updateCompany(companyData);
       alert('Company profile saved successfully!');
       refetchCompany();
     } catch (error) {
@@ -415,7 +438,21 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
       
       // Save to database
-      await updateCompany({ ...companyProfile, logo_url: newLogoUrl });
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          emirate: companyProfile.state,
+          poBox: companyProfile.zipCode,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.gstNumber,
+        logo_url: newLogoUrl
+      };
+      await updateCompany(companyData);
       
       alert('Logo uploaded successfully!');
       refetchCompany();
@@ -444,7 +481,21 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, logo_url: null }));
       
       // Save to database
-      await updateCompany({ ...companyProfile, logo_url: null });
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          emirate: companyProfile.state,
+          poBox: companyProfile.zipCode,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.gstNumber,
+        logo_url: null
+      };
+      await updateCompany(companyData);
       
       alert('Logo deleted successfully!');
       refetchCompany();

@@ -81,6 +81,7 @@ const PurchaseOrderForm = () => {
     poDate: new Date().toISOString().split('T')[0],
     expectedDeliveryDate: '',
     status: 'draft',
+    stockStatus: 'retain', // Default to 'retain'
     items: [
       {
         name: '',
@@ -233,7 +234,7 @@ const PurchaseOrderForm = () => {
 
           <Grid container spacing={3}>
             {/* PO Details */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SectionCard>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -276,13 +277,24 @@ const PurchaseOrderForm = () => {
                         <MenuItem value="received">Received</MenuItem>
                       </Select>
                     </FormControl>
+                    <FormControl fullWidth>
+                      <InputLabel>Stock Status</InputLabel>
+                      <Select
+                        value={purchaseOrder.stockStatus}
+                        onChange={(e) => handleInputChange('stockStatus', e.target.value)}
+                        label="Stock Status"
+                      >
+                        <MenuItem value="retain">Retain (Add to Stock)</MenuItem>
+                        <MenuItem value="transit">Transit (Do not add to Stock)</MenuItem>
+                      </Select>
+                    </FormControl>
                   </Box>
                 </CardContent>
               </SectionCard>
             </Grid>
 
             {/* Supplier Details */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SectionCard>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -323,7 +335,7 @@ const PurchaseOrderForm = () => {
             </Grid>
 
             {/* Items */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <SectionCard>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -460,7 +472,7 @@ const PurchaseOrderForm = () => {
             </Grid>
 
             {/* Notes and Terms */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SectionCard>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -478,7 +490,7 @@ const PurchaseOrderForm = () => {
               </SectionCard>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SectionCard>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>

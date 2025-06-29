@@ -159,12 +159,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ListIcon,
           description: 'View all invoices',
           badge: invoiceCount
-        },
-        {
-          name: 'Draft Invoices',
-          path: '/drafts',
-          icon: FileText,
-          description: 'Manage draft invoices'
         }
       ]
     },
