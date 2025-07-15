@@ -454,8 +454,6 @@ const CustomerManagement = () => {
     address: {
       street: '',
       city: '',
-      state: '',
-      zipCode: '',
       country: 'India'
     },
     company: '',
@@ -463,6 +461,7 @@ const CustomerManagement = () => {
     current_credit: 0,
     status: 'active',
     vat_number: '',
+    trn_number: '',
     trade_license_number: '',
     trade_license_expiry: ''
   });
@@ -491,8 +490,6 @@ const CustomerManagement = () => {
         address: {
           street: '',
           city: '',
-          state: '',
-          zipCode: '',
           country: 'India'
         },
         company: '',
@@ -500,6 +497,7 @@ const CustomerManagement = () => {
         current_credit: '',
         status: 'active',
         vat_number: '',
+        trn_number: '',
         trade_license_number: '',
         trade_license_expiry: ''
       });
@@ -691,7 +689,7 @@ const CustomerManagement = () => {
                     <LocationOn fontSize="small" />
                     <Typography variant="body2">
                       {typeof customer.address === 'object' 
-                        ? `${customer.address.street}, ${customer.address.city}, ${customer.address.state}` 
+                        ? `${customer.address.street}, ${customer.address.city}` 
                         : customer.address
                       }
                     </Typography>
@@ -933,17 +931,10 @@ const CustomerManagement = () => {
               fullWidth
             />
             <TextField
-              label="State"
-              value={newCustomer.address.state}
-              onChange={(e) => setNewCustomer({...newCustomer, address: {...newCustomer.address, state: e.target.value}})}
-              placeholder="Enter state"
-              fullWidth
-            />
-            <TextField
-              label="ZIP Code"
-              value={newCustomer.address.zipCode}
-              onChange={(e) => setNewCustomer({...newCustomer, address: {...newCustomer.address, zipCode: e.target.value}})}
-              placeholder="Enter ZIP code"
+              label="TRN Number"
+              value={newCustomer.trn_number}
+              onChange={(e) => setNewCustomer({...newCustomer, trn_number: e.target.value})}
+              placeholder="Enter TRN number"
               fullWidth
             />
             <TextField
@@ -1069,6 +1060,13 @@ const CustomerManagement = () => {
                 label="VAT Number"
                 value={selectedCustomer.vat_number || ''}
                 onChange={(e) => setSelectedCustomer({...selectedCustomer, vat_number: e.target.value})}
+                fullWidth
+              />
+              <TextField
+                label="TRN Number"
+                value={selectedCustomer.trn_number || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, trn_number: e.target.value})}
+                placeholder="Enter TRN number"
                 fullWidth
               />
               <TextField

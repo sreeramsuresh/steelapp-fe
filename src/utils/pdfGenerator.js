@@ -63,7 +63,7 @@ const createInvoiceElement = (invoice, company) => {
         <h1 style="margin: 0 0 10px 0; color: #1e293b; font-size: 24px; font-weight: 700;">${company.name}</h1>
         <div style="margin-bottom: 10px;">
           <p style="margin: 2px 0;">${company.address.street}</p>
-          <p style="margin: 2px 0;">${company.address.city}, ${company.address.state} ${company.address.zipCode}</p>
+          <p style="margin: 2px 0;">${company.address.city}</p>
           <p style="margin: 2px 0;">${company.address.country}</p>
         </div>
         <div>
@@ -89,7 +89,7 @@ const createInvoiceElement = (invoice, company) => {
       <div>
         <p style="margin: 2px 0; font-weight: 600;">${invoice.customer.name}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
-        <p style="margin: 2px 0;">${invoice.customer.address.city}, ${invoice.customer.address.state} ${invoice.customer.address.zipCode}</p>
+        <p style="margin: 2px 0;">${invoice.customer.address.city}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.country}</p>
         ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">VAT: ${invoice.customer.gstNumber}</p>` : ''}
         <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
@@ -103,7 +103,6 @@ const createInvoiceElement = (invoice, company) => {
           <tr style="background: #f8fafc;">
             <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Item Description</th>
             <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Specification</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">HSN Code</th>
             <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Unit</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Qty</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Rate</th>
@@ -122,7 +121,6 @@ const createInvoiceElement = (invoice, company) => {
               <tr>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.name}</td>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.specification}</td>
-                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.hsnCode}</td>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.unit}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${item.quantity}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate)}</td>

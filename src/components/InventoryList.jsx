@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -30,9 +30,9 @@ import {
   Tooltip,
   Avatar,
   Badge,
-  Autocomplete
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+  Autocomplete,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   Plus as Add,
   Edit,
@@ -44,21 +44,26 @@ import {
   Warehouse,
   DollarSign,
   Filter,
-  AlertTriangle
-} from 'lucide-react';
-import { inventoryService } from '../services/inventoryService';
-import { createInventoryItem, PRODUCT_TYPES, STEEL_GRADES, FINISHES } from '../types';
+  AlertTriangle,
+} from "lucide-react";
+import { inventoryService } from "../services/inventoryService";
+import {
+  createInventoryItem,
+  PRODUCT_TYPES,
+  STEEL_GRADES,
+  FINISHES,
+} from "../types";
 
 const InventoryContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  width: '100%',
-  overflow: 'auto',
-  [theme.breakpoints.down('md')]: {
+  minHeight: "calc(100vh - 64px)",
+  width: "100%",
+  overflow: "auto",
+  [theme.breakpoints.down("md")]: {
     padding: theme.spacing(2),
   },
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1.5),
   },
 }));
@@ -74,8 +79,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(2),
   boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
+  transition: "all 0.3s ease-in-out",
+  "&:hover": {
     boxShadow: theme.shadows[4],
   },
 }));
@@ -83,43 +88,50 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
-  '& .MuiTableHead-root': {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[50],
+  "& .MuiTableHead-root": {
+    backgroundColor:
+      theme.palette.mode === "light"
+        ? theme.palette.grey[100]
+        : theme.palette.grey[50],
   },
-  '& .MuiTableCell-head': {
+  "& .MuiTableCell-head": {
     fontWeight: 600,
-    fontSize: '0.875rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: theme.palette.mode === 'light' ? theme.palette.text.primary : theme.palette.text.secondary,
+    fontSize: "0.875rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+    color:
+      theme.palette.mode === "light"
+        ? theme.palette.text.primary
+        : theme.palette.text.secondary,
   },
-  '& .MuiTableRow-hover:hover': {
+  "& .MuiTableRow-hover:hover": {
     backgroundColor: theme.palette.action.hover,
   },
 }));
 
 const StockChip = styled(Chip)(({ theme, stock }) => ({
   fontWeight: 600,
-  fontSize: '0.75rem',
-  minWidth: '60px',
+  fontSize: "0.75rem",
+  minWidth: "60px",
   ...(stock <= 5 && {
     backgroundColor: theme.palette.error.light,
     color: theme.palette.error.dark,
-    '& .MuiChip-icon': {
+    "& .MuiChip-icon": {
       color: theme.palette.error.dark,
     },
   }),
-  ...(stock > 5 && stock <= 10 && {
-    backgroundColor: theme.palette.warning.light,
-    color: theme.palette.warning.dark,
-    '& .MuiChip-icon': {
+  ...(stock > 5 &&
+    stock <= 10 && {
+      backgroundColor: theme.palette.warning.light,
       color: theme.palette.warning.dark,
-    },
-  }),
+      "& .MuiChip-icon": {
+        color: theme.palette.warning.dark,
+      },
+    }),
   ...(stock > 10 && {
     backgroundColor: theme.palette.success.light,
     color: theme.palette.success.dark,
-    '& .MuiChip-icon': {
+    "& .MuiChip-icon": {
       color: theme.palette.success.dark,
     },
   }),
@@ -129,20 +141,20 @@ const SearchCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(3),
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(2),
-  boxShadow: 'none',
+  boxShadow: "none",
 }));
 
 const EmptyState = styled(Box)(({ theme }) => ({
   padding: theme.spacing(6),
-  textAlign: 'center',
+  textAlign: "center",
   color: theme.palette.text.secondary,
 }));
 
 const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '400px',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "400px",
   gap: theme.spacing(2),
 }));
 
@@ -151,16 +163,16 @@ const InventoryList = () => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
       ...item,
-      quantity: '',
-      pricePurchased: '',
-      sellingPrice: '',
-      landedCost: ''
+      quantity: "",
+      pricePurchased: "",
+      sellingPrice: "",
+      landedCost: "",
     };
   });
 
@@ -174,8 +186,8 @@ const InventoryList = () => {
       const response = await inventoryService.getAllItems();
       setInventory(response.data || []);
     } catch (error) {
-      console.error('Error fetching inventory:', error);
-      setError('Failed to load inventory');
+      console.error("Error fetching inventory:", error);
+      setError("Failed to load inventory");
     } finally {
       setLoading(false);
     }
@@ -190,10 +202,10 @@ const InventoryList = () => {
       const item = createInventoryItem();
       setFormData({
         ...item,
-        quantity: '',
-        pricePurchased: '',
-        sellingPrice: '',
-        landedCost: ''
+        quantity: "",
+        pricePurchased: "",
+        sellingPrice: "",
+        landedCost: "",
       });
     }
     setOpenDialog(true);
@@ -203,17 +215,20 @@ const InventoryList = () => {
     setOpenDialog(false);
     setEditingItem(null);
     setFormData(createInventoryItem());
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async () => {
     try {
       const itemData = {
         ...formData,
-        quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
-        pricePurchased: formData.pricePurchased === '' ? 0 : Number(formData.pricePurchased),
-        sellingPrice: formData.sellingPrice === '' ? 0 : Number(formData.sellingPrice),
-        landedCost: formData.landedCost === '' ? 0 : Number(formData.landedCost)
+        quantity: formData.quantity === "" ? 0 : Number(formData.quantity),
+        pricePurchased:
+          formData.pricePurchased === "" ? 0 : Number(formData.pricePurchased),
+        sellingPrice:
+          formData.sellingPrice === "" ? 0 : Number(formData.sellingPrice),
+        landedCost:
+          formData.landedCost === "" ? 0 : Number(formData.landedCost),
       };
 
       if (editingItem) {
@@ -224,41 +239,43 @@ const InventoryList = () => {
       await fetchInventory();
       handleCloseDialog();
     } catch (error) {
-      console.error('Error saving inventory item:', error);
-      setError('Failed to save inventory item');
+      console.error("Error saving inventory item:", error);
+      setError("Failed to save inventory item");
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this inventory item?')) {
+    if (
+      window.confirm("Are you sure you want to delete this inventory item?")
+    ) {
       try {
         await inventoryService.deleteItem(id);
         await fetchInventory();
       } catch (error) {
-        console.error('Error deleting inventory item:', error);
-        setError('Failed to delete inventory item');
+        console.error("Error deleting inventory item:", error);
+        setError("Failed to delete inventory item");
       }
     }
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const filteredInventory = inventory.filter(item =>
-    Object.values(item).some(value =>
+  const filteredInventory = inventory.filter((item) =>
+    Object.values(item).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
-      minimumFractionDigits: 0
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -269,7 +286,7 @@ const InventoryList = () => {
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
     if (item.thickness) parts.push(`${item.thickness}MM`);
-    return parts.join(' ');
+    return parts.join(" ");
   };
 
   if (loading) {
@@ -295,14 +312,14 @@ const InventoryList = () => {
       </SectionHeader>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
           {error}
         </Alert>
       )}
 
       <SearchCard>
         <CardContent sx={{ py: 2 }}>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <TextField
               placeholder="Search inventory..."
               value={searchTerm}
@@ -319,7 +336,7 @@ const InventoryList = () => {
             <Button
               variant="outlined"
               startIcon={<Filter size={16} />}
-              sx={{ minWidth: 'auto', px: 2 }}
+              sx={{ minWidth: "auto", px: 2 }}
             >
               Filter
             </Button>
@@ -327,10 +344,10 @@ const InventoryList = () => {
               variant="contained"
               startIcon={<Add size={16} />}
               onClick={() => handleOpenDialog()}
-              sx={{ 
+              sx={{
                 borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600
+                textTransform: "none",
+                fontWeight: 600,
               }}
             >
               Add Item
@@ -362,7 +379,10 @@ const InventoryList = () => {
               {filteredInventory.map((item) => (
                 <TableRow key={item.id} hover>
                   <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       {item.description || generateDescription(item)}
                     </Typography>
                     {item.location && (
@@ -371,7 +391,7 @@ const InventoryList = () => {
                         size="small"
                         icon={<Warehouse size={12} />}
                         variant="outlined"
-                        sx={{ fontSize: '0.7rem', height: 20 }}
+                        sx={{ fontSize: "0.7rem", height: 20 }}
                       />
                     )}
                   </TableCell>
@@ -381,74 +401,88 @@ const InventoryList = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Chip 
-                      label={item.grade} 
-                      size="small" 
+                    <Chip
+                      label={item.grade}
+                      size="small"
                       variant="outlined"
-                      sx={{ fontWeight: 500, fontSize: '0.75rem' }}
+                      sx={{ fontWeight: 500, fontSize: "0.75rem" }}
                     />
                   </TableCell>
                   <TableCell>
                     {item.finish && (
-                      <Chip 
-                        label={item.finish} 
-                        size="small" 
+                      <Chip
+                        label={item.finish}
+                        size="small"
                         color="secondary"
                         variant="outlined"
-                        sx={{ fontSize: '0.75rem' }}
+                        sx={{ fontSize: "0.75rem" }}
                       />
                     )}
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
-                      {item.size}
-                    </Typography>
+                    <Typography variant="body2">{item.size}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
-                      {item.thickness}
-                    </Typography>
+                    <Typography variant="body2">{item.thickness}</Typography>
                   </TableCell>
                   <TableCell>
                     <StockChip
                       label={item.quantity}
                       stock={item.quantity}
                       icon={
-                        item.quantity <= 5 ? <AlertTriangle size={14} /> :
-                        item.quantity <= 10 ? <Package size={14} /> :
-                        <TrendingUp size={14} />
+                        item.quantity <= 5 ? (
+                          <AlertTriangle size={14} />
+                        ) : item.quantity <= 10 ? (
+                          <Package size={14} />
+                        ) : (
+                          <TrendingUp size={14} />
+                        )
                       }
                       variant="filled"
                     />
                     {item.quantity <= 5 && (
-                      <Typography variant="caption" color="error" sx={{ display: 'block', mt: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ display: "block", mt: 0.5 }}
+                      >
                         Low Stock
                       </Typography>
                     )}
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {item.pricePurchased ? formatCurrency(item.pricePurchased) : '-'}
+                      {item.pricePurchased
+                        ? formatCurrency(item.pricePurchased)
+                        : "-"}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                      {item.sellingPrice ? formatCurrency(item.sellingPrice) : '-'}
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: "success.main" }}
+                    >
+                      {item.sellingPrice
+                        ? formatCurrency(item.sellingPrice)
+                        : "-"}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" color="text.secondary">
-                      {item.landedCost ? formatCurrency(item.landedCost) : '-'}
+                      {item.landedCost ? formatCurrency(item.landedCost) : "-"}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <Box sx={{ display: "flex", gap: 0.5 }}>
                       <IconButton
                         size="small"
                         onClick={() => handleOpenDialog(item)}
-                        sx={{ 
+                        sx={{
                           borderRadius: 1,
-                          '&:hover': { backgroundColor: 'primary.light', color: 'primary.contrastText' }
+                          "&:hover": {
+                            backgroundColor: "primary.light",
+                            color: "primary.contrastText",
+                          },
                         }}
                       >
                         <Edit size={16} />
@@ -457,9 +491,12 @@ const InventoryList = () => {
                         size="small"
                         color="error"
                         onClick={() => handleDelete(item.id)}
-                        sx={{ 
+                        sx={{
                           borderRadius: 1,
-                          '&:hover': { backgroundColor: 'error.light', color: 'error.contrastText' }
+                          "&:hover": {
+                            backgroundColor: "error.light",
+                            color: "error.contrastText",
+                          },
                         }}
                       >
                         <Delete size={16} />
@@ -476,19 +513,29 @@ const InventoryList = () => {
                         sx={{
                           width: 64,
                           height: 64,
-                          backgroundColor: 'grey.100',
-                          color: 'grey.400',
-                          mx: 'auto',
-                          mb: 2
+                          backgroundColor: "grey.100",
+                          color: "grey.400",
+                          mx: "auto",
+                          mb: 2,
                         }}
                       >
                         <Package size={32} />
                       </Avatar>
-                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{ fontWeight: 600 }}
+                      >
                         No inventory items found
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                        {searchTerm ? 'Try adjusting your search term' : 'Add your first inventory item to get started'}
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 3 }}
+                      >
+                        {searchTerm
+                          ? "Try adjusting your search term"
+                          : "Add your first inventory item to get started"}
                       </Typography>
                       {!searchTerm && (
                         <Button
@@ -516,29 +563,40 @@ const InventoryList = () => {
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { 
+          sx: {
             borderRadius: 3,
-            boxShadow: 8
-          }
+            boxShadow: 8,
+          },
         }}
       >
-        <DialogTitle sx={{ 
-          pb: 1,
-          borderBottom: '1px solid',
-          borderColor: 'divider'
-        }}>
+        <DialogTitle
+          sx={{
+            pb: 1,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {editingItem ? 'Edit Inventory Item' : 'Add Inventory Item'}
+            {editingItem ? "Edit Inventory Item" : "Add Inventory Item"}
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
-            <Box sx={{ gridColumn: '1 / -1' }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+              mt: 1,
+            }}
+          >
+            <Box sx={{ gridColumn: "1 / -1" }}>
               <TextField
                 fullWidth
                 label="Description"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 placeholder="Auto-generated if empty"
               />
             </Box>
@@ -548,7 +606,9 @@ const InventoryList = () => {
                 <Select
                   value={formData.productType}
                   label="Product Type"
-                  onChange={(e) => handleInputChange('productType', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("productType", e.target.value)
+                  }
                 >
                   {PRODUCT_TYPES.map((type) => (
                     <MenuItem key={type} value={type}>
@@ -565,10 +625,10 @@ const InventoryList = () => {
                 options={STEEL_GRADES}
                 value={formData.grade}
                 onChange={(event, newValue) => {
-                  handleInputChange('grade', newValue || '');
+                  handleInputChange("grade", newValue || "");
                 }}
                 onInputChange={(event, newInputValue) => {
-                  handleInputChange('grade', newInputValue);
+                  handleInputChange("grade", newInputValue);
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -587,10 +647,10 @@ const InventoryList = () => {
                 options={FINISHES}
                 value={formData.finish}
                 onChange={(event, newValue) => {
-                  handleInputChange('finish', newValue || '');
+                  handleInputChange("finish", newValue || "");
                 }}
                 onInputChange={(event, newInputValue) => {
-                  handleInputChange('finish', newInputValue);
+                  handleInputChange("finish", newInputValue);
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -607,7 +667,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Size"
                 value={formData.size}
-                onChange={(e) => handleInputChange('size', e.target.value)}
+                onChange={(e) => handleInputChange("size", e.target.value)}
                 placeholder="e.g., 4x8"
               />
             </Box>
@@ -616,7 +676,7 @@ const InventoryList = () => {
                 fullWidth
                 label="Thickness"
                 value={formData.thickness}
-                onChange={(e) => handleInputChange('thickness', e.target.value)}
+                onChange={(e) => handleInputChange("thickness", e.target.value)}
                 placeholder="e.g., 0.8, 1.2"
               />
             </Box>
@@ -625,8 +685,13 @@ const InventoryList = () => {
                 fullWidth
                 label="Quantity"
                 type="number"
-                value={formData.quantity || ''}
-                onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+                value={formData.quantity || ""}
+                onChange={(e) =>
+                  handleInputChange(
+                    "quantity",
+                    e.target.value === "" ? "" : parseInt(e.target.value) || ""
+                  )
+                }
               />
             </Box>
             <Box>
@@ -634,10 +699,19 @@ const InventoryList = () => {
                 fullWidth
                 label="Purchase Price"
                 type="number"
-                value={formData.pricePurchased || ''}
-                onChange={(e) => handleInputChange('pricePurchased', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                value={formData.pricePurchased || ""}
+                onChange={(e) =>
+                  handleInputChange(
+                    "pricePurchased",
+                    e.target.value === ""
+                      ? ""
+                      : parseFloat(e.target.value) || ""
+                  )
+                }
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">د.إ</InputAdornment>
+                  ),
                 }}
               />
             </Box>
@@ -646,10 +720,19 @@ const InventoryList = () => {
                 fullWidth
                 label="Selling Price"
                 type="number"
-                value={formData.sellingPrice || ''}
-                onChange={(e) => handleInputChange('sellingPrice', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                value={formData.sellingPrice || ""}
+                onChange={(e) =>
+                  handleInputChange(
+                    "sellingPrice",
+                    e.target.value === ""
+                      ? ""
+                      : parseFloat(e.target.value) || ""
+                  )
+                }
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">د.إ</InputAdornment>
+                  ),
                 }}
               />
             </Box>
@@ -658,53 +741,64 @@ const InventoryList = () => {
                 fullWidth
                 label="Landed Cost"
                 type="number"
-                value={formData.landedCost || ''}
-                onChange={(e) => handleInputChange('landedCost', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                value={formData.landedCost || ""}
+                onChange={(e) =>
+                  handleInputChange(
+                    "landedCost",
+                    e.target.value === ""
+                      ? ""
+                      : parseFloat(e.target.value) || ""
+                  )
+                }
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">د.إ</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">د.إ</InputAdornment>
+                  ),
                 }}
               />
             </Box>
-            <Box sx={{ gridColumn: '1 / -1' }}>
+            <Box sx={{ gridColumn: "1 / -1" }}>
               <TextField
                 fullWidth
                 label="Location"
                 value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
+                onChange={(e) => handleInputChange("location", e.target.value)}
                 placeholder="e.g., Warehouse A, Section 1"
               />
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ 
-          p: 3, 
-          pt: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          gap: 1
-        }}>
-          <Button 
+        <DialogActions
+          sx={{
+            p: 3,
+            pt: 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            gap: 1,
+          }}
+        >
+          <Button
             onClick={handleCloseDialog}
             variant="outlined"
-            sx={{ 
+            sx={{
               borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500
+              textTransform: "none",
+              fontWeight: 500,
             }}
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             variant="contained"
-            sx={{ 
+            sx={{
               borderRadius: 2,
-              textTransform: 'none',
+              textTransform: "none",
               fontWeight: 600,
-              px: 3
+              px: 3,
             }}
           >
-            {editingItem ? 'Update Item' : 'Add Item'}
+            {editingItem ? "Update Item" : "Add Item"}
           </Button>
         </DialogActions>
       </Dialog>

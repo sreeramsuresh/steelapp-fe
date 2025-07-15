@@ -182,14 +182,13 @@ const CompanySettings = () => {
     name: '',
     address: '',
     city: '',
-    state: '',
-    zipCode: '',
     country: 'India',
     phone: '',
     email: '',
     website: '',
     gstNumber: '',
     panNumber: '',
+    trnNumber: '',
     logo: null,
     bankDetails: {
       bankName: '',
@@ -290,11 +289,11 @@ const CompanySettings = () => {
     if (savedTaxSettings) {
       setTaxSettings(JSON.parse(savedTaxSettings));
     } else {
-      // Default tax settings
+      // Default tax settings for UAE
       const defaultTaxes = [
-        { id: '1', name: 'CVAT', rate: 9, type: 'percentage', description: 'Central Goods and Services Tax', active: true },
-        { id: '2', name: 'SVAT', rate: 9, type: 'percentage', description: 'State Goods and Services Tax', active: true },
-        { id: '3', name: 'IVAT', rate: 18, type: 'percentage', description: 'Integrated Goods and Services Tax', active: true }
+        { id: '1', name: 'VAT', rate: 5, type: 'percentage', description: 'UAE Value Added Tax', active: true },
+        { id: '2', name: 'Zero VAT', rate: 0, type: 'percentage', description: 'Zero-rated VAT for eligible items', active: false },
+        { id: '3', name: 'Exempt VAT', rate: 0, type: 'percentage', description: 'VAT-exempt items', active: false }
       ];
       setTaxSettings(defaultTaxes);
     }
@@ -354,13 +353,12 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address || '',
           city: companyProfile.city || '',
-          emirate: companyProfile.state || '',
-          poBox: companyProfile.zipCode || '',
           country: companyProfile.country || 'UAE'
         },
         phone: companyProfile.phone || '',
         email: companyProfile.email || '',
         vat_number: companyProfile.gstNumber || '',
+        trn_number: companyProfile.trnNumber || '',
         logo_url: companyProfile.logo_url || null
       };
       
@@ -443,8 +441,6 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          emirate: companyProfile.state,
-          poBox: companyProfile.zipCode,
           country: companyProfile.country
         },
         phone: companyProfile.phone,
@@ -486,8 +482,6 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          emirate: companyProfile.state,
-          poBox: companyProfile.zipCode,
           country: companyProfile.country
         },
         phone: companyProfile.phone,
@@ -827,19 +821,10 @@ const CompanySettings = () => {
                 <Box>
                   <TextField
                     fullWidth
-                    label="State"
-                    value={companyProfile.state || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, state: e.target.value})}
-                    placeholder="Enter state"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="ZIP Code"
-                    value={companyProfile.zipCode || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, zipCode: e.target.value})}
-                    placeholder="Enter ZIP code"
+                    label="TRN Number"
+                    value={companyProfile.trnNumber || ''}
+                    onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: e.target.value})}
+                    placeholder="Enter TRN number"
                   />
                 </Box>
                 <Box>

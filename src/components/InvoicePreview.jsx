@@ -267,7 +267,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     </TableCell>
                   )}
                   <TableCell>
-                    <strong>HSN Code</strong>
                   </TableCell>
                   <TableCell>
                     <strong>Unit</strong>
@@ -309,7 +308,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       {invoice.items.some((item) => item.description) && (
                         <TableCell>{item.description || "-"}</TableCell>
                       )}
-                      <TableCell>{item.hsnCode}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">

@@ -166,7 +166,6 @@ const DeliveryNoteForm = () => {
           invoice_item_id: item.id,
           name: item.name,
           specification: item.specification,
-          hsn_code: item.hsn_code,
           unit: item.unit,
           ordered_quantity: item.quantity,
           delivered_quantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity

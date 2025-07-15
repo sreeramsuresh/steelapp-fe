@@ -339,7 +339,7 @@ const InvoiceForm = ({ onSave }) => {
           name: product.name,
           specification:
             product.specifications?.standard || product.grade || "",
-          hsnCode: getHSNCodeForProduct(product),
+          grade: product.grade || "",
           unit: product.unit,
           rate: product.selling_price || 0,
           amount: calculateItemAmount(
@@ -385,20 +385,6 @@ const InvoiceForm = ({ onSave }) => {
     );
   };
 
-  const getHSNCodeForProduct = (product) => {
-    // Map product categories to common HSN codes for steel products
-    const hsnMap = {
-      rebar: "7214",
-      structural: "7216",
-      sheet: "7209",
-      pipe: "7306",
-      angle: "7216",
-      round: "7214",
-      flat: "7214",
-      wire: "7217",
-    };
-    return hsnMap[product.category] || "7214";
-  };
 
   const handleItemChange = (index, field, value) => {
     setInvoice((prev) => {
@@ -755,6 +741,16 @@ const InvoiceForm = ({ onSave }) => {
 
           <TextField
             size="small"
+            label="Grade"
+            value={item.grade || ""}
+            onChange={(e) =>
+              handleItemChange(index, "grade", e.target.value)
+            }
+            placeholder="e.g., Fe415, Fe500"
+          />
+
+          <TextField
+            size="small"
             label="Description"
             value={item.description || ""}
             onChange={(e) =>
@@ -765,16 +761,7 @@ const InvoiceForm = ({ onSave }) => {
             maxRows={2}
           />
 
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
-            <TextField
-              size="small"
-              label="HSN Code"
-              value={item.hsnCode}
-              onChange={(e) =>
-                handleItemChange(index, "hsnCode", e.target.value)
-              }
-              placeholder="HSN"
-            />
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr", gap: 1 }}>
             <FormControl size="small">
               <InputLabel>Unit</InputLabel>
               <Select
@@ -1166,10 +1153,10 @@ const InvoiceForm = ({ onSave }) => {
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
                         >
-                          <InputLabel>Mode of Payment</InputLabel>
+                          <InputLabel>Payment Terms</InputLabel>
                           <Select
                             value={invoice.modeOfPayment || ""}
-                            label="Mode of Payment"
+                            label="Payment Terms"
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1178,7 +1165,7 @@ const InvoiceForm = ({ onSave }) => {
                             }
                           >
                             <MenuItem value="">
-                              <em>Select payment mode</em>
+                              <em>Select payment terms</em>
                             </MenuItem>
                             {PAYMENT_MODES.map((mode) => (
                               <MenuItem key={mode} value={mode}>
@@ -1466,8 +1453,8 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell sx={{ minWidth: 150 }}>
                         Specification
                       </TableCell>
+                      <TableCell sx={{ minWidth: 100 }}>Grade</TableCell>
                       <TableCell sx={{ minWidth: 120 }}>Description</TableCell>
-                      <TableCell>HSN Code</TableCell>
                       <TableCell>Unit</TableCell>
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
@@ -1638,6 +1625,20 @@ const InvoiceForm = ({ onSave }) => {
                         <TableCell>
                           <TextField
                             size="small"
+                            value={item.grade || ""}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "grade",
+                                e.target.value
+                              )
+                            }
+                            placeholder="e.g., Fe415, Fe500"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            size="small"
                             value={item.description || ""}
                             onChange={(e) =>
                               handleItemChange(
@@ -1649,16 +1650,6 @@ const InvoiceForm = ({ onSave }) => {
                             placeholder="Description"
                             multiline
                             maxRows={2}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={item.hsnCode}
-                            onChange={(e) =>
-                              handleItemChange(index, "hsnCode", e.target.value)
-                            }
-                            placeholder="HSN Code"
                           />
                         </TableCell>
                         <TableCell>

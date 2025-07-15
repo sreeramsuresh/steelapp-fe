@@ -25,7 +25,7 @@ import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
 
 const ContentWrapper = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 3),
+  padding: theme.spacing(2, 1),
   maxWidth: "100%",
   minHeight: "calc(100vh - 64px)",
   backgroundColor: theme.palette.background.default,
@@ -101,7 +101,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             </ProtectedRoute>
           }
         />
-
 
         <Route
           path="/customers"
@@ -262,10 +261,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/transit"
           element={
-            <ProtectedRoute
-              user={user}
-              requiredPermission="transit.read"
-            >
+            <ProtectedRoute user={user} requiredPermission="transit.read">
               <TransitList />
             </ProtectedRoute>
           }

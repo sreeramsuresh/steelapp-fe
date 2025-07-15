@@ -373,7 +373,6 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                 <tr>
                   <th>Item Name</th>
                   <th>Specification</th>
-                  <th>HSN Code</th>
                   <th>Unit</th>
                   <th>Qty</th>
                   <th>Rate</th>
@@ -403,16 +402,6 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                         onChange={(e) => handleItemChange(index, 'specification', e.target.value)}
                         placeholder="e.g., 12mm dia"
                         style={{ minWidth: '120px' }}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={item.hsnCode}
-                        onChange={(e) => handleItemChange(index, 'hsnCode', e.target.value)}
-                        placeholder="HSN Code"
-                        style={{ width: '100px' }}
                       />
                     </td>
                     <td>
