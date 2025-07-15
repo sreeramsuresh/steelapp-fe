@@ -950,7 +950,7 @@ const CustomerManagement = () => {
               label="VAT Number"
               value={newCustomer.vat_number}
               onChange={(e) => setNewCustomer({...newCustomer, vat_number: e.target.value})}
-              placeholder="Enter GST number"
+              placeholder="Enter VAT number"
               fullWidth
             />
             <TextField

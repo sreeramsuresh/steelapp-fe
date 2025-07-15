@@ -93,7 +93,7 @@ const PurchaseOrderForm = () => {
       }
     ],
     subtotal: 0,
-    gstAmount: 0,
+    vatAmount: 0,
     total: 0,
     notes: '',
     terms: ''
@@ -131,13 +131,13 @@ const PurchaseOrderForm = () => {
 
       // Recalculate totals
       const subtotal = calculateSubtotal(updatedItems);
-      const gstAmount = subtotal * 0.18; // 18% GST
-      const total = subtotal + gstAmount;
+      const vatAmount = subtotal * 0.18; // 18% VAT
+      const total = subtotal + vatAmount;
 
       return {
         ...newPO,
         subtotal,
-        gstAmount,
+        vatAmount,
         total
       };
     });
@@ -171,13 +171,13 @@ const PurchaseOrderForm = () => {
 
         // Recalculate totals
         const subtotal = calculateSubtotal(updatedItems);
-        const gstAmount = subtotal * 0.18; // 18% GST
-        const total = subtotal + gstAmount;
+        const vatAmount = subtotal * 0.18; // 18% VAT
+        const total = subtotal + vatAmount;
 
         return {
           ...newPO,
           subtotal,
-          gstAmount,
+          vatAmount,
           total
         };
       });
@@ -451,9 +451,9 @@ const PurchaseOrderForm = () => {
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography>GST (18%):</Typography>
+                        <Typography>VAT (18%):</Typography>
                         <Typography sx={{ fontWeight: 600 }}>
-                          {formatCurrency(purchaseOrder.gstAmount)}
+                          {formatCurrency(purchaseOrder.vatAmount)}
                         </Typography>
                       </Box>
                       <Divider sx={{ my: 1 }} />

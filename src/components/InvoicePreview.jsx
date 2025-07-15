@@ -24,7 +24,7 @@ import {
 import {
   formatCurrency,
   formatDate,
-  calculateGST,
+  calculateVAT,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
@@ -299,8 +299,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </TableHead>
               <TableBody>
                 {invoice.items.map((item, index) => {
-                  const gstAmount = calculateGST(item.amount, item.gstRate);
-                  const totalWithGST = item.amount + gstAmount;
+                  const vatAmount = calculateVAT(item.amount, item.vatRate);
+                  const totalWithVAT = item.amount + vatAmount;
 
                   return (
                     <TableRow key={index}>
@@ -327,12 +327,12 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       <TableCell align="right">
                         {formatCurrency(item.amount)}
                       </TableCell>
-                      <TableCell align="right">{item.gstRate}%</TableCell>
+                      <TableCell align="right">{item.vatRate}%</TableCell>
                       <TableCell align="right">
-                        {formatCurrency(gstAmount)}
+                        {formatCurrency(vatAmount)}
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{formatCurrency(totalWithGST)}</strong>
+                        <strong>{formatCurrency(totalWithVAT)}</strong>
                       </TableCell>
                     </TableRow>
                   );
@@ -438,7 +438,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 >
                   <Typography variant="body1">VAT Amount:</Typography>
                   <Typography variant="body1">
-                    {formatCurrency(invoice.gstAmount)}
+                    {formatCurrency(invoice.vatAmount)}
                   </Typography>
                 </Box>
 

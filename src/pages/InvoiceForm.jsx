@@ -51,7 +51,7 @@ import {
   generateInvoiceNumber,
   calculateItemAmount,
   calculateSubtotal,
-  calculateTotalGST,
+  calculateTotalVAT,
   calculateTotal,
   formatCurrency,
   formatDateForInput,
@@ -233,13 +233,13 @@ const InvoiceForm = ({ onSave }) => {
 
   useEffect(() => {
     const subtotal = calculateSubtotal(invoice.items);
-    const gstAmount = calculateTotalGST(invoice.items);
-    const total = calculateTotal(subtotal, gstAmount);
+    const vatAmount = calculateTotalVAT(invoice.items);
+    const total = calculateTotal(subtotal, vatAmount);
 
     setInvoice((prev) => ({
       ...prev,
       subtotal,
-      gstAmount,
+      vatAmount,
       total,
     }));
   }, [invoice.items]);
@@ -560,7 +560,7 @@ const InvoiceForm = ({ onSave }) => {
           quantity: item.quantity === '' ? 0 : Number(item.quantity),
           rate: item.rate === '' ? 0 : Number(item.rate),
           discount: item.discount === '' ? 0 : Number(item.discount),
-          gstRate: item.gstRate === '' ? 0 : Number(item.gstRate)
+          vatRate: item.vatRate === '' ? 0 : Number(item.vatRate)
         }))
       };
 
@@ -824,11 +824,11 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="VAT %"
               type="number"
-              value={item.gstRate}
+              value={item.vatRate}
               onChange={(e) =>
                 handleItemChange(
                   index,
-                  "gstRate",
+                  "vatRate",
                   parseFloat(e.target.value) || 0
                 )
               }
@@ -1754,11 +1754,11 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.gstRate}
+                            value={item.vatRate}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "gstRate",
+                                "vatRate",
                                 parseFloat(e.target.value) || 0
                               )
                             }
@@ -1935,7 +1935,7 @@ const InvoiceForm = ({ onSave }) => {
                     >
                       <Typography variant="body1">VAT Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {formatCurrency(invoice.gstAmount)}
+                        {formatCurrency(invoice.vatAmount)}
                       </Typography>
                     </Box>
 

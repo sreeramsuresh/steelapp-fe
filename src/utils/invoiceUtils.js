@@ -2,20 +2,20 @@ export const calculateItemAmount = (quantity, rate) => {
   return quantity * rate;
 };
 
-export const calculateGST = (amount, gstRate) => {
-  return (amount * gstRate) / 100;
+export const calculateVAT = (amount, vatRate) => {
+  return (amount * vatRate) / 100;
 };
 
 export const calculateSubtotal = (items) => {
   return items.reduce((sum, item) => sum + item.amount, 0);
 };
 
-export const calculateTotalGST = (items) => {
-  return items.reduce((sum, item) => sum + calculateGST(item.amount, item.gstRate), 0);
+export const calculateTotalVAT = (items) => {
+  return items.reduce((sum, item) => sum + calculateVAT(item.amount, item.vatRate), 0);
 };
 
-export const calculateTotal = (subtotal, gstAmount) => {
-  return subtotal + gstAmount;
+export const calculateTotal = (subtotal, vatAmount) => {
+  return subtotal + vatAmount;
 };
 
 export const generateInvoiceNumber = () => {
