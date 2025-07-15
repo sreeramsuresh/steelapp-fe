@@ -5,7 +5,7 @@ import {
   generateInvoiceNumber, 
   calculateItemAmount, 
   calculateSubtotal, 
-  calculateTotalGST, 
+  calculateTotalVAT, 
   calculateTotal,
   formatCurrency 
 } from '../utils/invoiceUtils';
@@ -34,13 +34,13 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
 
   useEffect(() => {
     const subtotal = calculateSubtotal(invoice.items);
-    const gstAmount = calculateTotalGST(invoice.items);
-    const total = calculateTotal(subtotal, gstAmount);
+    const vatAmount = calculateTotalVAT(invoice.items);
+    const total = calculateTotal(subtotal, vatAmount);
     
     setInvoice(prev => ({
       ...prev,
       subtotal,
-      gstAmount,
+      vatAmount,
       total
     }));
   }, [invoice.items]);
@@ -274,7 +274,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   </div>
                   <div className="col-6">
                     <div className="form-group">
-                      <label className="form-label">GST Number</label>
+                      <label className="form-label">VAT Number</label>
                       <input
                         type="text"
                         className="form-input"
@@ -377,7 +377,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <th>Unit</th>
                   <th>Qty</th>
                   <th>Rate</th>
-                  <th>GST %</th>
+                  <th>VAT %</th>
                   <th>Amount</th>
                   <th>Action</th>
                 </tr>
@@ -453,8 +453,8 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                       <input
                         type="number"
                         className="form-input"
-                        value={item.gstRate}
-                        onChange={(e) => handleItemChange(index, 'gstRate', parseFloat(e.target.value) || 0)}
+                        value={item.vatRate}
+                        onChange={(e) => handleItemChange(index, 'vatRate', parseFloat(e.target.value) || 0)}
                         min="0"
                         max="100"
                         style={{ width: '70px' }}
@@ -527,8 +527,8 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.subtotal)}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>GST Amount:</span>
-                  <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.gstAmount)}</span>
+                  <span>VAT Amount:</span>
+                  <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.vatAmount)}</span>
                 </div>
                 <hr style={{ border: '1px solid var(--border-primary)', margin: 'var(--spacing-md) 0' }} />
                 <div className="d-flex justify-content-between">

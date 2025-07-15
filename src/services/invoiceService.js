@@ -8,7 +8,7 @@ const transformInvoiceForServer = (invoiceData) => {
     invoice_date: invoiceData.date,
     due_date: invoiceData.dueDate,
     subtotal: invoiceData.subtotal,
-    gst_amount: invoiceData.gstAmount,
+    vat_amount: invoiceData.vatAmount,
     total: invoiceData.total,
     status: invoiceData.status || 'draft',
     notes: invoiceData.notes,
@@ -21,7 +21,7 @@ const transformInvoiceForServer = (invoiceData) => {
       unit: item.unit,
       quantity: item.quantity,
       rate: item.rate,
-      gst_rate: item.gstRate,
+      vat_rate: item.vatRate,
       amount: item.amount
     })) || []
   };
@@ -37,7 +37,7 @@ const transformInvoiceFromServer = (serverData) => {
       ? JSON.parse(serverData.customer_details) 
       : serverData.customer_details || {},
     subtotal: serverData.subtotal || 0,
-    gstAmount: serverData.gst_amount || 0,
+    vatAmount: serverData.vat_amount || 0,
     total: serverData.total || 0,
     status: serverData.status || 'draft',
     notes: serverData.notes || '',
@@ -51,7 +51,7 @@ const transformInvoiceFromServer = (serverData) => {
       unit: item.unit || '',
       quantity: item.quantity || 0,
       rate: item.rate || 0,
-      gstRate: item.gst_rate || 0,
+      vatRate: item.vat_rate || 0,
       amount: item.amount || 0
     })) || [],
     createdAt: serverData.created_at,

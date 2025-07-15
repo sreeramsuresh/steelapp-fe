@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, calculateGST } from './invoiceUtils';
+import { formatCurrency, formatDate, calculateVAT } from './invoiceUtils';
 
 export const generateInvoicePDF = async (invoice, company) => {
   try {
@@ -69,7 +69,7 @@ const createInvoiceElement = (invoice, company) => {
         <div>
           <p style="margin: 2px 0;">Phone: ${company.phone}</p>
           <p style="margin: 2px 0;">Email: ${company.email}</p>
-          <p style="margin: 2px 0;">GST: ${company.gstNumber}</p>
+          <p style="margin: 2px 0;">VAT: ${company.gstNumber}</p>
         </div>
       </div>
       
@@ -91,7 +91,7 @@ const createInvoiceElement = (invoice, company) => {
         <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.city}, ${invoice.customer.address.state} ${invoice.customer.address.zipCode}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.country}</p>
-        ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">GST: ${invoice.customer.gstNumber}</p>` : ''}
+        ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">VAT: ${invoice.customer.gstNumber}</p>` : ''}
         <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
         <p style="margin: 2px 0;">Email: ${invoice.customer.email}</p>
       </div>
@@ -108,15 +108,15 @@ const createInvoiceElement = (invoice, company) => {
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Qty</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Rate</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">GST %</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">GST Amount</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">VAT %</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">VAT Amount</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Total</th>
           </tr>
         </thead>
         <tbody>
           ${invoice.items.map(item => {
-            const gstAmount = calculateGST(item.amount, item.gstRate);
-            const totalWithGST = item.amount + gstAmount;
+            const vatAmount = calculateVAT(item.amount, item.vatRate);
+            const totalWithVAT = item.amount + vatAmount;
             
             return `
               <tr>
@@ -127,9 +127,9 @@ const createInvoiceElement = (invoice, company) => {
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${item.quantity}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.amount)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${item.gstRate}%</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(gstAmount)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(totalWithGST)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${item.vatRate}%</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(vatAmount)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(totalWithVAT)}</td>
               </tr>
             `;
           }).join('')}
@@ -144,8 +144,8 @@ const createInvoiceElement = (invoice, company) => {
           <span>${formatCurrency(invoice.subtotal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>GST Amount:</span>
-          <span>${formatCurrency(invoice.gstAmount)}</span>
+          <span>VAT Amount:</span>
+          <span>${formatCurrency(invoice.vatAmount)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
           <span><strong>Total Amount:</strong></span>

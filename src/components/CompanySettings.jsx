@@ -292,9 +292,9 @@ const CompanySettings = () => {
     } else {
       // Default tax settings
       const defaultTaxes = [
-        { id: '1', name: 'CGST', rate: 9, type: 'percentage', description: 'Central Goods and Services Tax', active: true },
-        { id: '2', name: 'SGST', rate: 9, type: 'percentage', description: 'State Goods and Services Tax', active: true },
-        { id: '3', name: 'IGST', rate: 18, type: 'percentage', description: 'Integrated Goods and Services Tax', active: true }
+        { id: '1', name: 'CVAT', rate: 9, type: 'percentage', description: 'Central Goods and Services Tax', active: true },
+        { id: '2', name: 'SVAT', rate: 9, type: 'percentage', description: 'State Goods and Services Tax', active: true },
+        { id: '3', name: 'IVAT', rate: 18, type: 'percentage', description: 'Integrated Goods and Services Tax', active: true }
       ];
       setTaxSettings(defaultTaxes);
     }
@@ -873,10 +873,10 @@ const CompanySettings = () => {
                 <Box>
                   <TextField
                     fullWidth
-                    label="GST Number"
+                    label="VAT Number"
                     value={companyProfile.gstNumber || ''}
                     onChange={(e) => setCompanyProfile({...companyProfile, gstNumber: e.target.value})}
-                    placeholder="Enter GST number"
+                    placeholder="Enter VAT number"
                   />
                 </Box>
                 <Box>
@@ -1246,7 +1246,7 @@ const CompanySettings = () => {
                 label="Tax Name"
                 value={newTax.name}
                 onChange={(e) => setNewTax({...newTax, name: e.target.value})}
-                placeholder="Enter tax name (e.g., GST, VAT)"
+                placeholder="Enter tax name (e.g., VAT, VAT)"
               />
             </Box>
             <Box>

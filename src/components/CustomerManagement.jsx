@@ -462,7 +462,7 @@ const CustomerManagement = () => {
     credit_limit: 0,
     current_credit: 0,
     status: 'active',
-    gst_number: '',
+    vat_number: '',
     trade_license_number: '',
     trade_license_expiry: ''
   });
@@ -499,7 +499,7 @@ const CustomerManagement = () => {
         credit_limit: '',
         current_credit: '',
         status: 'active',
-        gst_number: '',
+        vat_number: '',
         trade_license_number: '',
         trade_license_expiry: ''
       });
@@ -947,10 +947,10 @@ const CustomerManagement = () => {
               fullWidth
             />
             <TextField
-              label="GST Number"
-              value={newCustomer.gst_number}
-              onChange={(e) => setNewCustomer({...newCustomer, gst_number: e.target.value})}
-              placeholder="Enter GST number"
+              label="VAT Number"
+              value={newCustomer.vat_number}
+              onChange={(e) => setNewCustomer({...newCustomer, vat_number: e.target.value})}
+              placeholder="Enter VAT number"
               fullWidth
             />
             <TextField
@@ -1066,9 +1066,9 @@ const CustomerManagement = () => {
                 />
               </FullWidthFormControl>
               <TextField
-                label="GST Number"
-                value={selectedCustomer.gst_number || ''}
-                onChange={(e) => setSelectedCustomer({...selectedCustomer, gst_number: e.target.value})}
+                label="VAT Number"
+                value={selectedCustomer.vat_number || ''}
+                onChange={(e) => setSelectedCustomer({...selectedCustomer, vat_number: e.target.value})}
                 fullWidth
               />
               <TextField
