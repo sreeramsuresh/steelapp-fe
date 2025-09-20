@@ -90,9 +90,22 @@ axiosApi.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    const isAuthRequest = (url) => typeof url === 'string' && (
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/forgot-password') ||
+      url.includes('/auth/reset-password') ||
+      url.includes('/auth/refresh')
+    );
     
     // If the error is 401 and we haven't already tried to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're already on the login page or this is an auth endpoint,
+      // do not attempt refresh or force a redirect. Let the caller handle it.
+      if (currentPath === '/login' || isAuthRequest(originalRequest?.url)) {
+        return Promise.reject(error);
+      }
       originalRequest._retry = true;
       
       const refreshToken = tokenUtils.getRefreshToken();
@@ -121,17 +134,22 @@ axiosApi.interceptors.response.use(
           
           // Refresh failed, redirect to login
           tokenUtils.removeTokens();
-          window.location.href = '/login';
+          if (currentPath !== '/login') {
+            window.location.href = '/login';
+          }
           return Promise.reject(refreshError);
         }
       } else {
         // No valid refresh token, redirect to login
         tokenUtils.removeTokens();
-        window.location.href = '/login';
+        if (currentPath !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
     }
     
+    // For other error statuses, just propagate the error
     return Promise.reject(error);
   }
 );

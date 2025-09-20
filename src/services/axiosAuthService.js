@@ -48,7 +48,14 @@ class AuthService {
       return response;
     } catch (error) {
       console.error('Login failed:', error);
-      throw new Error(error.response?.data?.message || 'Login failed');
+      const data = error.response?.data;
+      const status = error.response?.status;
+      // Prefer explicit backend error messages
+      const details = Array.isArray(data?.errors)
+        ? data.errors.map((e) => e.msg).join(', ')
+        : (data?.error || data?.message);
+      const msg = details || (status === 400 ? 'Invalid input. Check email and password.' : 'Login failed');
+      throw new Error(msg);
     }
   }
 
