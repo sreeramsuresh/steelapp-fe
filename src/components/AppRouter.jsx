@@ -22,23 +22,30 @@ import PurchaseOrderList from "../pages/PurchaseOrderList";
 import PurchaseOrderForm from "../pages/PurchaseOrderForm";
 import TransitList from "../pages/TransitList";
 import Login from "./Login";
+import MarketingHome from "../marketing/MarketingHome";
+import MarketingProducts from "../marketing/MarketingProducts";
+import MarketingAbout from "../marketing/MarketingAbout";
+import MarketingContact from "../marketing/MarketingContact";
 import ProtectedRoute from "./ProtectedRoute";
 
-const ContentWrapper = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 1),
+const ContentWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'noPadding',
+})(({ theme, noPadding }) => ({
+  padding: noPadding ? 0 : theme.spacing(2, 1),
   maxWidth: "100%",
-  minHeight: "calc(100vh - 64px)",
+  minHeight: noPadding ? 'auto' : "calc(100vh - 64px)",
   backgroundColor: theme.palette.background.default,
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0),
+    padding: noPadding ? 0 : theme.spacing(0),
   },
 }));
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
 
-  // If user is not logged in and not on login page, redirect to login
-  if (!user && location.pathname !== "/login") {
+  // Allow public marketing pages and login without auth
+  const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
+  if (!user && location.pathname !== "/login" && !isMarketing) {
     return <Navigate to="/login" replace />;
   }
 
@@ -48,23 +55,20 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   }
 
   return (
-    <ContentWrapper>
+    <ContentWrapper noPadding={isMarketing}>
       <Routes>
-        {/* Public Routes */}
+        {/* Public Routes: Marketing + Login */}
+        <Route path="/" element={<Navigate to="/marketing" replace />} />
+        <Route path="/marketing" element={<MarketingHome />} />
+        <Route path="/marketing/products" element={<MarketingProducts />} />
+        <Route path="/marketing/about" element={<MarketingAbout />} />
+        <Route path="/marketing/contact" element={<MarketingContact />} />
         <Route
           path="/login"
           element={<Login onLoginSuccess={onLoginSuccess} />}
         />
 
         {/* Protected Routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute user={user}>
-              <Navigate to="/dashboard" replace />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/dashboard"
@@ -267,14 +271,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        {/* Catch all route - redirect to dashboard if logged in, login if not */}
+        {/* Catch all route - redirect to dashboard if logged in, marketing if not */}
         <Route
           path="*"
           element={
             user ? (
               <Navigate to="/dashboard" replace />
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/marketing" replace />
             )
           }
         />

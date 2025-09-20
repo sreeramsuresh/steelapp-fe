@@ -118,8 +118,36 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
     setSidebarOpen(!sidebarOpen);
   };
 
-  // If on login page, show only the router content
-  if (location.pathname === '/login') {
+  // If on login or public marketing pages (including root), show only the router content
+  const isPublicMarketing = location.pathname === '/' || location.pathname.startsWith('/marketing');
+
+  // Toggle global scrolling depending on public vs. app pages
+  useEffect(() => {
+    const htmlEl = document.documentElement;
+    const bodyEl = document.body;
+    if (isPublicMarketing || location.pathname === '/login') {
+      // Allow normal page scroll for public pages
+      htmlEl.style.overflow = 'auto';
+      htmlEl.style.height = 'auto';
+      bodyEl.style.overflow = 'auto';
+      bodyEl.style.height = 'auto';
+    } else {
+      // Preserve app behavior: single scroll container inside app layout
+      htmlEl.style.overflow = 'hidden';
+      htmlEl.style.height = '100vh';
+      bodyEl.style.overflow = 'hidden';
+      bodyEl.style.height = '100vh';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      htmlEl.style.overflow = '';
+      htmlEl.style.height = '';
+      bodyEl.style.overflow = '';
+      bodyEl.style.height = '';
+    };
+  }, [isPublicMarketing, location.pathname]);
+  if (location.pathname === '/login' || isPublicMarketing) {
     return (
       <AppRouter
         user={user}
