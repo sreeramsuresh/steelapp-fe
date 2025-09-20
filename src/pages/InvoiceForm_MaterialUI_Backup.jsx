@@ -102,8 +102,6 @@ const SectionCard = styled(Card)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1),
   boxShadow: theme.shadows[0],
-  // Allow poppers/menus to render outside the card
-  overflow: 'visible',
   [theme.breakpoints.up("sm")]: {
     borderRadius: theme.spacing(2),
     boxShadow: theme.shadows[1],
@@ -132,8 +130,6 @@ const MobileTableContainer = styled(Box)(({ theme }) => ({
 
 const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
   display: "none",
-  // Allow dropdowns (e.g., Autocomplete poppers) to overflow the table area
-  overflow: "visible",
   [theme.breakpoints.up("md")]: {
     display: "block",
   },
@@ -142,7 +138,6 @@ const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
 const MobileItemCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
-  overflow: 'visible',
 }));
 
 const HeaderActions = styled(Box)(({ theme }) => ({
@@ -503,16 +498,6 @@ const InvoiceForm = ({ onSave }) => {
     }));
   }, [productsData]);
 
-  const getFilteredOptions = useCallback((options, inputValue) => {
-    const query = (inputValue || '').toLowerCase();
-    if (!query) return options;
-    return options.filter((option) =>
-      option.name.toLowerCase().includes(query) ||
-      (option.category && option.category.toLowerCase().includes(query)) ||
-      (option.grade && option.grade.toLowerCase().includes(query))
-    );
-  }, []);
-
   // Simplified filtering to reduce computation
   const getFilteredOptions = useCallback((options, inputValue) => {
     if (!inputValue) return options.slice(0, 20);
@@ -672,10 +657,6 @@ const InvoiceForm = ({ onSave }) => {
             filterOptions={(options, { inputValue }) => getFilteredOptions(options, inputValue)}
             freeSolo
             disabled={loadingProducts}
-            openOnFocus
-            disablePortal
-            slotProps={{ popper: { sx: { zIndex: 6000 }, placement: 'top-start' } }}
-            ListboxProps={{ sx: { maxHeight: 320 } }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -1501,7 +1482,7 @@ const InvoiceForm = ({ onSave }) => {
                   <TableBody>
                     {deferredItems.slice(0, 20).map((item, index) => (
                       <TableRow key={item.id}>
-                        <TableCell sx={{ minWidth: 200, overflow: 'visible' }}>
+                        <TableCell sx={{ minWidth: 200 }}>
                           <Autocomplete
                             size="small"
                             options={productOptions}
@@ -1527,10 +1508,6 @@ const InvoiceForm = ({ onSave }) => {
                             filterOptions={(options, { inputValue }) => getFilteredOptions(options, inputValue)}
                             freeSolo
                             disabled={loadingProducts}
-                            openOnFocus
-                            disablePortal
-                            slotProps={{ popper: { sx: { zIndex: 6000 }, placement: 'top-start' } }}
-                            ListboxProps={{ sx: { maxHeight: 320 } }}
                             renderInput={(params) => (
                               <TextField
                                 {...params}

@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 
 // Components
 import Dashboard from "./Dashboard";
-import InvoiceForm from "../pages/InvoiceForm";
+import InvoiceForm from "../pages/InvoiceFormTailwind";
 import InvoiceList from "../pages/InvoiceList";
 import CustomerManagement from "./CustomerManagement";
 import SteelProducts from "./SteelProducts";
