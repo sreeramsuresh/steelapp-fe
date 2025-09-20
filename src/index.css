@@ -80,3 +80,11 @@ button:focus-visible {
   color: #ffffff !important;
   background-color: #1d4ed8 !important; /* primary-700 */
 }
+
+/* Ensure marketing header logo color is always visible */
+.marketing-logo {
+  color: #2563eb !important; /* primary-600 */
+}
+.marketing-logo:hover {
+  color: #1d4ed8 !important; /* primary-700 */
+}

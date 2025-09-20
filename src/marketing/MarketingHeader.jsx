@@ -22,7 +22,7 @@ const MarketingHeader = () => {
           <div className="flex-shrink-0">
             <Link to="/marketing" className="flex items-center">
               <div className="h-8 w-auto">
-                <span className="text-2xl font-bold text-primary-500 font-montserrat">
+                <span className="text-2xl font-bold font-montserrat marketing-logo">
                   ULTIMATE STEELS
                 </span>
               </div>

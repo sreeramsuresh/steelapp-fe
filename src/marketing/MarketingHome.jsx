@@ -308,55 +308,59 @@ const Home = () => {
                 construction, manufacturing, oil & gas, and industrial projects.
               </p>
 
-              {/* Statistics Grid */}
-              <div className="grid grid-cols-2 gap-6 pt-8">
-                {[
-                  {
-                    number: "15+",
-                    label: "Years Experience",
-                    color: "from-blue-500 to-blue-600",
-                    icon: "📅",
-                  },
-                  {
-                    number: "500+",
-                    label: "Projects Completed",
-                    color: "from-green-500 to-green-600",
-                    icon: "✅",
-                  },
-                  {
-                    number: "50+",
-                    label: "Happy Clients",
-                    color: "from-purple-500 to-purple-600",
-                    icon: "😊",
-                  },
-                  {
-                    number: "99%",
-                    label: "Success Rate",
-                    color: "from-orange-500 to-orange-600",
-                    icon: "🎯",
-                  },
-                ].map((stat, index) => (
-                  <div
-                    key={index}
-                    className="group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div
-                        className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
-                      >
-                        {stat.number}
-                      </div>
-                      <div className="text-2xl group-hover:scale-125 transition-transform duration-300">
-                        {stat.icon}
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-600 font-medium">
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {/* Statistics moved to standalone section below */}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Stats */}
+      <section id="section-stats" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              {
+                number: "15+",
+                label: "Years Experience",
+                color: "from-blue-500 to-blue-600",
+                icon: "📅",
+              },
+              {
+                number: "500+",
+                label: "Projects Completed",
+                color: "from-green-500 to-green-600",
+                icon: "✅",
+              },
+              {
+                number: "50+",
+                label: "Happy Clients",
+                color: "from-purple-500 to-purple-600",
+                icon: "😊",
+              },
+              {
+                number: "99%",
+                label: "Success Rate",
+                color: "from-orange-500 to-orange-600",
+                icon: "🎯",
+              },
+            ].map((stat, index) => (
+              <div
+                key={index}
+                className="group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                  >
+                    {stat.number}
+                  </div>
+                  <div className="text-2xl group-hover:scale-125 transition-transform duration-300">
+                    {stat.icon}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
