@@ -1,4 +1,6 @@
 import { formatCurrency, formatDate, calculateTRN } from './invoiceUtils';
+import logoCompany from '../assets/logocompany.png';
+import sealImage from '../assets/Seal.png';
 
 export const generateInvoicePDF = async (invoice, company) => {
   try {
@@ -7,7 +9,9 @@ export const generateInvoicePDF = async (invoice, company) => {
     // Create a temporary DOM element for the invoice
     const invoiceElement = createInvoiceElement(invoice, company);
     document.body.appendChild(invoiceElement);
-    
+    // Ensure images inside the element are loaded before rendering
+    await waitForImages(invoiceElement);
+
     // Import html2canvas dynamically
     const html2canvas = (await import('html2canvas')).default;
     
@@ -60,8 +64,11 @@ const createInvoiceElement = (invoice, company) => {
   element.innerHTML = `
     <div style="display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0;">
       <div style="flex: 1;">
-        <h1 style="margin: 0 0 10px 0; color: #1e293b; font-size: 24px; font-weight: 700;">${company.name}</h1>
+        <div style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
+          <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 48px; width: auto; object-fit: contain;" />
+        </div>
         <div style="margin-bottom: 10px;">
+          <p style="margin: 2px 0; font-weight: 700; font-size: 14px; color: #0f172a;">Ultimate Steels Building Materials Trading</p>
           <p style="margin: 2px 0;">${company.address.street}</p>
           <p style="margin: 2px 0;">${company.address.city}</p>
           <p style="margin: 2px 0;">${company.address.country}</p>
@@ -84,6 +91,10 @@ const createInvoiceElement = (invoice, company) => {
       </div>
     </div>
 
+    <div style="width: 100%; background: #009999; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 10px 0;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px;">TAX INVOICE</h2>
+    </div>
+
     <div style="margin-bottom: 30px;">
       <h3 style="margin: 0 0 10px 0; color: #1e293b;">Bill To:</h3>
       <div>
@@ -100,16 +111,16 @@ const createInvoiceElement = (invoice, company) => {
     <div style="margin-bottom: 30px;">
       <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
-          <tr style="background: #f8fafc;">
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Item Description</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Specification</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600;">Unit</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Qty</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Rate</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">TRN %</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">TRN Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Total</th>
+          <tr style="background: #009999; color: #ffffff;">
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Item Description</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Specification</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Unit</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Qty</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Rate</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Amount</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">TRN %</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">TRN Amount</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -161,22 +172,46 @@ const createInvoiceElement = (invoice, company) => {
           </div>
         ` : ''}
         ${invoice.terms ? `
-          <div style="margin-bottom: 15px;">
-            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms & Conditions:</h4>
-            <p style="margin: 0; color: #64748b;">${invoice.terms}</p>
+          <div style=\"margin-bottom: 15px;\">
+            <h4 style=\"margin: 0 0 5px 0; color: #1e293b;\">Terms & Conditions:</h4>
+            <p style=\"margin: 0 0 6px 0; color: #64748b;\">${invoice.terms}</p>
+            <p style=\"margin: 0 0 4px 0; color: #64748b;\">Kindly check the product before unloading</p>
+            <p style=\"margin: 0; color: #64748b;\">If any complaint arises, contact us immediatel</p>
           </div>
         ` : ''}
       </div>
     ` : ''}
 
     <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
-      <div style="text-align: center; min-width: 200px;">
-        <p style="margin: 0;">Authorized Signatory</p>
-        <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
-        <p style="margin: 0; font-weight: 600;">${company.name}</p>
+      <div style="display: flex; align-items: flex-end; gap: 20px;">
+        <img src="${sealImage}" alt="Company Seal" crossorigin="anonymous" style="height: 180px; width: auto; object-fit: contain; opacity: 0.95;" />
+        <div style="text-align: center; min-width: 200px;">
+          <p style="margin: 0;">Authorized Signatory</p>
+          <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
+          <p style="margin: 0; font-weight: 600;">ULTIMATE STEELS</p>
+        </div>
       </div>
     </div>
   `;
   
   return element;
+};
+
+// Wait for all images within a container to load (or error) before rendering
+const waitForImages = (container) => {
+  const images = Array.from(container.querySelectorAll('img'));
+  if (images.length === 0) return Promise.resolve();
+
+  return Promise.all(
+    images.map((img) => {
+      return new Promise((resolve) => {
+        // If already complete, resolve immediately
+        if (img.complete && img.naturalWidth !== 0) return resolve();
+        // Set crossOrigin for safety
+        try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch (_) {}
+        img.addEventListener('load', () => resolve(), { once: true });
+        img.addEventListener('error', () => resolve(), { once: true });
+      });
+    })
+  );
 };

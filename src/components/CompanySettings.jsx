@@ -1579,7 +1579,30 @@ const CompanySettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${\n                    isActive\n                      ? 'border-teal-500 text-teal-600'\n                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`\n                  }`}\n                >\n                  <Icon size={20} />\n                  {tab.label}\n                </button>\n              );\n            })}\n          </div>\n        </div>\n      </div>\n\n      {/* Tab Content */}\n      <div className=\"mt-6\">\n        {activeTab === 'profile' && renderProfile()}\n        {activeTab === 'templates' && renderInvoiceTemplates()}\n        {activeTab === 'tax' && renderTaxSettings()}\n        {activeTab === 'users' && renderUserManagement()}\n      </div>\n    </div>\n  );
+                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${
+                    isActive
+                      ? 'border-teal-500 text-teal-600'
+                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                  }`}
+                >
+                  <Icon size={20} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'profile' && renderProfile()}
+        {activeTab === 'templates' && renderInvoiceTemplates()}
+        {activeTab === 'tax' && renderTaxSettings()}
+        {activeTab === 'users' && renderUserManagement()}
+      </div>
+    </div>
+  );
 };
 
 export default CompanySettings;

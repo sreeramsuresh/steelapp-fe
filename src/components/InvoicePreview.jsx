@@ -1,4 +1,6 @@
 import React from "react";
+import logoCompany from "../assets/logocompany.png";
+import seal from "../assets/Seal.png";
 import { X, Download } from "lucide-react";
 import {
   Box,
@@ -35,6 +37,20 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
 
       const element = document.getElementById("invoice-preview");
       if (!element) return;
+
+      // Ensure any images (like logo) are loaded before rendering
+      const waitForImages = async (container) => {
+        const imgs = Array.from(container.querySelectorAll('img'));
+        if (imgs.length === 0) return;
+        await Promise.all(
+          imgs.map((img) => new Promise((resolve) => {
+            if (img.complete && img.naturalWidth !== 0) return resolve();
+            try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch (_) {}
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+          }))
+        );
+      };
 
       // Store original styles
       const originalStyles = element.style.cssText;
@@ -76,6 +92,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           el.style.color = '#1976d2 !important';
         }
       });
+
+      await waitForImages(element);
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -149,8 +167,27 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           {/* Invoice Header */}
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-                {company.name}
+              {/* Company Logo (fallbacks to name if logo fails) */}
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', minHeight: 48 }}>
+                <img
+                  src={company?.logo_url || logoCompany}
+                  alt={company?.name || 'Company Logo'}
+                  crossOrigin="anonymous"
+                  style={{ maxHeight: 48, width: 'auto', objectFit: 'contain' }}
+                  onError={(e) => {
+                    // If custom URL fails, fallback to text
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                {/* If logo hidden due to error, show name */}
+                <noscript>
+                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    {company?.name}
+                  </Typography>
+                </noscript>
+              </Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: 'text.primary' }}>
+                Ultimate Steels Building Materials Trading
               </Typography>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2">
@@ -215,6 +252,13 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 )}
               </Box>
             </Box>
+          </Box>
+
+          {/* Full-width Heading Bar */}
+          <Box sx={{ width: '100%', bgcolor: '#009999', color: '#fff', display: 'flex', justifyContent: 'center', mb: 3, py: 1.5 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: 0.5, color: '#fff' }}>
+              TAX INVOICE
+            </Typography>
           </Box>
 
           {/* Bill To Section */}
@@ -301,8 +345,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           {/* Invoice Table */}
           <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
             <Table>
-              <TableHead>
-                <TableRow sx={{ bgcolor: "action.hover" }}>
+              <TableHead sx={{ '& .MuiTableCell-root': { color: '#ffffff' } }}>
+                <TableRow sx={{ bgcolor: '#009999' }}>
                   <TableCell>
                     <strong>Item Description</strong>
                   </TableCell>
@@ -606,7 +650,15 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       >
                         Terms & Conditions:
                       </Typography>
-                      <Typography variant="body2">{invoice.terms}</Typography>
+                      <Typography variant="body2" sx={{ mb: 1 }}>
+                        {invoice.terms}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Kindly check the product before unloading
+                      </Typography>
+                      <Typography variant="body2">
+                        If any complaint arises, contact us immediatel
+                      </Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -614,23 +666,31 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
             </Grid>
           )}
 
-          {/* Signature Section */}
+          {/* Signature Section with Seal on Left */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 6 }}>
-            <Box sx={{ textAlign: "center", minWidth: 200 }}>
-              <Typography variant="body2" sx={{ mb: 4 }}>
-                Authorized Signatory
-              </Typography>
-              <Box
-                sx={{
-                  borderBottom: "1px solid black",
-                  mb: 1,
-                  height: "50px",
-                  width: "200px",
-                }}
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+              <img
+                src={seal}
+                alt="Company Seal"
+                crossOrigin="anonymous"
+                style={{ height: 180, width: 'auto', objectFit: 'contain', opacity: 0.95 }}
               />
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                {company.name}
-              </Typography>
+              <Box sx={{ textAlign: "center", minWidth: 200 }}>
+                <Typography variant="body2" sx={{ mb: 4 }}>
+                  Authorized Signatory
+                </Typography>
+                <Box
+                  sx={{
+                    borderBottom: "1px solid black",
+                    mb: 1,
+                    height: "50px",
+                    width: "200px",
+                  }}
+                />
+                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                  ULTIMATE STEELS
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Box>
