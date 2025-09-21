@@ -23,143 +23,116 @@ import {
   Copy,
   CheckCircle,
   AlertCircle,
-  Camera
+  Camera,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Tabs,
-  Tab,
-  Checkbox,
-  FormControlLabel,
-  Avatar,
-  IconButton,
-  Chip,
-  Switch,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Stack,
-  InputAdornment,
-  Alert,
-  CircularProgress,
-  Badge,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { styled } from '@mui/material/styles';
 import { companyService } from '../services/companyService';
 import { templateService } from '../services/templateService';
 import { useApiData, useApi } from '../hooks/useApi';
+import { useTheme } from '../contexts/ThemeContext';
 
-// Styled Components
-const SettingsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  overflow: 'auto',
-}));
+// Custom Tailwind Components
+const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  
+  const getVariantClasses = () => {
+    if (variant === 'primary') {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else { // outline
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    }
+  };
+  
+  const sizes = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
+  };
 
-const SettingsPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: 'hidden',
-}));
+  return (
+    <button
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
+      {children}
+    </button>
+  );
+};
 
-const SettingsCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
+const Input = ({ label, error, className = '', type = 'text', startIcon, endIcon, ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        {startIcon && (
+          <div className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {startIcon}
+          </div>
+        )}
+        <input
+          type={type}
+          className={`w-full ${startIcon ? 'pl-10' : 'pl-3'} ${endIcon ? 'pr-10' : 'pr-3'} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+          } ${error ? 'border-red-500' : ''} ${className}`}
+          {...props}
+        />
+        {endIcon && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            {endIcon}
+          </div>
+        )}
+      </div>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  );
+};
 
-const LogoContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 120,
-  height: 120,
-  border: `2px dashed ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  position: 'relative',
-  overflow: 'hidden',
-  cursor: 'pointer',
-  '&:hover': {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-
-const TemplateStyleCard = styled(Card)(({ theme, selected }) => ({
-  background: theme.palette.background.paper,
-  border: selected 
-    ? `2px solid ${theme.palette.primary.main}` 
-    : `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: selected ? theme.shadows[4] : theme.shadows[1],
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const UserCard = styled(Card)(({ theme, status }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  opacity: status === 'inactive' ? 0.6 : 1,
-  marginBottom: theme.spacing(2),
-}));
-
-const TaxCard = styled(Card)(({ theme, active }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  opacity: active ? 1 : 0.6,
-  marginBottom: theme.spacing(2),
-}));
-
-const PermissionGrid = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-  gap: theme.spacing(2),
-}));
+const Select = ({ label, options, value, onChange, placeholder = "Select...", className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <select
+        value={value}
+        onChange={onChange}
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-600 text-white' 
+            : 'bg-white border-gray-300 text-gray-900'
+        } ${className}`}
+      >
+        <option value="">{placeholder}</option>
+        {options?.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 const CompanySettings = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
   
   const { data: companyData, loading: loadingCompany, refetch: refetchCompany } = useApiData(
@@ -1131,146 +1104,157 @@ const CompanySettings = () => {
   );
 
   const renderTaxSettings = () => (
-    <SettingsPaper>
-      <Box sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Typography variant="h5" component="h3" sx={{ fontWeight: 600 }}>
+    <div className={`rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Tax Settings
-          </Typography>
+          </h3>
           <Button
-            variant="contained"
-            startIcon={<Plus size={16} />}
             onClick={() => setShowAddTaxModal(true)}
+            startIcon={<Plus size={16} />}
           >
             Add Tax
           </Button>
-        </Stack>
+        </div>
 
-        <Stack spacing={2}>
+        <div className="space-y-4">
           {taxSettings.map(tax => (
-            <TaxCard key={tax.id} active={tax.active}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Box sx={{ flex: 1 }}>
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        {tax.name}
-                      </Typography>
-                      <Chip
-                        label={`${tax.rate}%`}
-                        color="primary"
-                        size="small"
-                        variant="outlined"
-                      />
-                      <Chip
-                        label={tax.type}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary">
-                      {tax.description}
-                    </Typography>
-                  </Box>
-                  
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Switch
+            <div 
+              key={tax.id} 
+              className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
+              } ${tax.active ? 'opacity-100' : 'opacity-60'}`}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {tax.name}
+                    </h4>
+                    <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                      isDarkMode 
+                        ? 'text-teal-400 border-teal-600 bg-teal-900/20' 
+                        : 'text-teal-600 border-teal-300 bg-teal-50'
+                    }`}>
+                      {tax.rate}%
+                    </span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                      isDarkMode 
+                        ? 'text-gray-400 border-gray-600 bg-gray-800' 
+                        : 'text-gray-600 border-gray-300 bg-gray-50'
+                    }`}>
+                      {tax.type}
+                    </span>
+                  </div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {tax.description}
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-3 ml-4">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
                       checked={tax.active}
                       onChange={() => toggleTaxActive(tax.id)}
-                      size="small"
+                      className="sr-only peer"
                     />
-                    <Typography variant="body2" color={tax.active ? 'success.main' : 'text.disabled'}>
-                      {tax.active ? 'Active' : 'Inactive'}
-                    </Typography>
-                    <IconButton
-                      color="error"
-                      onClick={() => deleteTax(tax.id)}
-                      size="small"
-                    >
-                      <Trash2 size={16} />
-                    </IconButton>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </TaxCard>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
+                  </label>
+                  <span className={`text-sm font-medium ${
+                    tax.active 
+                      ? 'text-green-500' 
+                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  }`}>
+                    {tax.active ? 'Active' : 'Inactive'}
+                  </span>
+                  <button
+                    onClick={() => deleteTax(tax.id)}
+                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </Stack>
-      </Box>
+        </div>
+      </div>
 
-      
-      {/* Add Tax Dialog */}
-      <Dialog
-        open={showAddTaxModal}
-        onClose={() => setShowAddTaxModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Add Tax Setting</Typography>
-            <IconButton onClick={() => setShowAddTaxModal(false)}>
-              <X size={20} />
-            </IconButton>
-          </Stack>
-        </DialogTitle>
-        
-        <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 1 }}>
-            <Box>
-              <TextField
-                fullWidth
-                label="Tax Name"
-                value={newTax.name}
-                onChange={(e) => setNewTax({...newTax, name: e.target.value})}
-                placeholder="Enter tax name (e.g., TRN)"
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Tax Rate (%)"
-                type="number"
-                value={newTax.rate || ''}
-                onChange={(e) => setNewTax({...newTax, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                placeholder="Enter tax rate"
-                inputProps={{ step: "0.01", min: "0", max: "100" }}
-              />
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Type</InputLabel>
+      {/* Add Tax Modal */}
+      {showAddTaxModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Add Tax Setting
+                </h3>
+                <button
+                  onClick={() => setShowAddTaxModal(false)}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Tax Name"
+                  value={newTax.name}
+                  onChange={(e) => setNewTax({...newTax, name: e.target.value})}
+                  placeholder="Enter tax name (e.g., TRN)"
+                />
+                <Input
+                  label="Tax Rate (%)"
+                  type="number"
+                  value={newTax.rate || ''}
+                  onChange={(e) => setNewTax({...newTax, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter tax rate"
+                />
                 <Select
+                  label="Type"
                   value={newTax.type}
                   onChange={(e) => setNewTax({...newTax, type: e.target.value})}
-                  label="Type"
-                >
-                  <MenuItem value="percentage">Percentage</MenuItem>
-                  <MenuItem value="fixed">Fixed Amount</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ gridColumn: '1 / -1' }}>
-              <TextField
-                fullWidth
-                label="Description"
-                value={newTax.description}
-                onChange={(e) => setNewTax({...newTax, description: e.target.value})}
-                placeholder="Enter tax description"
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        
-        <DialogActions>
-          <Button onClick={() => setShowAddTaxModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleAddTax} startIcon={<Save size={20} />}>
-            Add Tax
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </SettingsPaper>
+                  options={[
+                    { value: 'percentage', label: 'Percentage' },
+                    { value: 'fixed', label: 'Fixed Amount' }
+                  ]}
+                />
+                <div className="md:col-span-2">
+                  <Input
+                    label="Description"
+                    value={newTax.description}
+                    onChange={(e) => setNewTax({...newTax, description: e.target.value})}
+                    placeholder="Enter tax description"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddTaxModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddTax}
+                startIcon={<Save size={20} />}
+              >
+                Add Tax
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 
   const renderUserManagement = () => (
@@ -1560,63 +1544,42 @@ const CompanySettings = () => {
     </SettingsPaper>
   );
 
-  return (
-    <SettingsContainer>
-      <SettingsPaper sx={{ mb: 3 }}>
-        <Box sx={{ p: 3 }}>
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-            <Settings size={28} />
-            <Box>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-                Company Settings
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Manage your company profile, invoice templates, taxes, and users
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-        
-        <Tabs
-          value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Tab
-            value="profile"
-            icon={<Building size={20} />}
-            label="Company Profile"
-            iconPosition="start"
-          />
-          <Tab
-            value="templates"
-            icon={<FileText size={20} />}
-            label="Invoice Templates"
-            iconPosition="start"
-          />
-          <Tab
-            value="tax"
-            icon={<Calculator size={20} />}
-            label="Tax Settings"
-            iconPosition="start"
-          />
-          <Tab
-            value="users"
-            icon={<Users size={20} />}
-            label="User Management"
-            iconPosition="start"
-          />
-        </Tabs>
-      </SettingsPaper>
+  const tabs = [
+    { id: 'profile', label: 'Company Profile', icon: Building },
+    { id: 'templates', label: 'Invoice Templates', icon: FileText },
+    { id: 'tax', label: 'Tax Settings', icon: Calculator },
+    { id: 'users', label: 'User Management', icon: Users },
+  ];
 
-      <Box sx={{ mt: 3 }}>
-        {activeTab === 'profile' && renderProfile()}
-        {activeTab === 'templates' && renderInvoiceTemplates()}
-        {activeTab === 'tax' && renderTaxSettings()}
-        {activeTab === 'users' && renderUserManagement()}
-      </Box>
-    </SettingsContainer>
-  );
+  return (
+    <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      {/* Header Section */}
+      <div className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Settings size={28} className={isDarkMode ? 'text-gray-300' : 'text-gray-700'} />
+            <div>
+              <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Company Settings
+              </h1>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Manage your company profile, invoice templates, taxes, and users
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Tabs */}
+        <div className={`border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+          <div className="flex overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${\n                    isActive\n                      ? 'border-teal-500 text-teal-600'\n                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`\n                  }`}\n                >\n                  <Icon size={20} />\n                  {tab.label}\n                </button>\n              );\n            })}\n          </div>\n        </div>\n      </div>\n\n      {/* Tab Content */}\n      <div className=\"mt-6\">\n        {activeTab === 'profile' && renderProfile()}\n        {activeTab === 'templates' && renderInvoiceTemplates()}\n        {activeTab === 'tax' && renderTaxSettings()}\n        {activeTab === 'users' && renderUserManagement()}\n      </div>\n    </div>\n  );
 };
 
 export default CompanySettings;

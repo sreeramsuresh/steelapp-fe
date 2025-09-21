@@ -1,18 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Box, 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Typography, 
-  Badge
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { 
   Home,
   FileText, 
   Plus, 
@@ -29,108 +17,12 @@ import {
   ShoppingCart,
   Navigation
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
-// Styled Components
-const StyledDrawer = styled(Drawer)(({ theme }) => ({
-  '& .MuiDrawer-paper': {
-    width: 260,
-    background: theme.palette.background.paper,
-    border: 'none',
-    overflow: 'hidden',
-    height: '100vh',
-    [theme.breakpoints.up('xl')]: {
-      width: 280,
-    },
-  },
-}));
-
-const SidebarHeader = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 2),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  background: theme.palette.background.paper,
-  height: '64px',
-  display: 'flex',
-  alignItems: 'center',
-  boxSizing: 'border-box',
-  [theme.breakpoints.down('sm')]: {
-    height: '56px',
-  },
-  [theme.breakpoints.between('sm', 'md')]: {
-    height: '60px',
-  },
-}));
-
-const LogoContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(2),
-  textDecoration: 'none',
-  color: theme.palette.text.primary,
-  '&:hover': {
-    textDecoration: 'none',
-    color: theme.palette.text.primary,
-  },
-}));
-
-const LogoIcon = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 40,
-  height: 40,
-  borderRadius: theme.spacing(1),
-  background: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-}));
-
-const SectionTitle = styled(Typography)(({ theme }) => ({
-  padding: theme.spacing(2, 2, 1, 2),
-  fontSize: '0.75rem',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  color: theme.palette.text.secondary,
-}));
-
-const StyledListItemButton = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'active',
-})(({ theme, active }) => ({
-  margin: theme.spacing(0.5, 1),
-  borderRadius: theme.spacing(1),
-  padding: theme.spacing(1, 2),
-  minHeight: 48,
-  color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
-  background: active ? theme.palette.primary.main : 'transparent',
-  '&:hover': {
-    background: active 
-      ? theme.palette.primary.dark
-      : theme.palette.action.hover,
-  },
-  '& .MuiListItemIcon-root': {
-    minWidth: 'auto',
-    marginRight: theme.spacing(2),
-    color: 'inherit',
-  },
-  '& .MuiListItemText-primary': {
-    fontSize: '0.875rem',
-    fontWeight: active ? 600 : 500,
-  },
-}));
-
-
-const CustomBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    background: theme.palette.info.main,
-    color: theme.palette.info.contrastText,
-    fontSize: '0.65rem',
-    minWidth: '18px',
-    height: '18px',
-    fontWeight: 600,
-  },
-}));
 
 const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
   const location = useLocation();
+  const { isDarkMode } = useTheme();
   
   const navigationItems = [
     {
@@ -250,98 +142,98 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
   };
 
   return (
-    <StyledDrawer
-      variant="permanent"
-      open={isOpen}
-      sx={{
-        width: isOpen ? { xs: 260, xl: 280 } : 0,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: { xs: 260, xl: 280 },
-          boxSizing: 'border-box',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          height: '100vh',
-          zIndex: 1000,
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s ease',
-        },
-        '@media (max-width: 768px)': {
-          '& .MuiDrawer-paper': {
-            transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          },
-        },
-      }}
+    <div
+      className={`fixed left-0 top-0 h-screen z-[1000] transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } w-[260px] xl:w-[280px] flex-shrink-0 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} border-r ${
+        isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+      } overflow-hidden`}
     >
       {/* Sidebar Header */}
-      <SidebarHeader>
-        <LogoContainer component={Link} to="/">
-          <LogoIcon>
+      <div className={`h-16 sm:h-14 md:h-15 px-4 flex items-center border-b ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <Link 
+          to="/" 
+          className={`flex items-center gap-3 no-underline ${
+            isDarkMode ? 'text-white hover:text-white' : 'text-gray-900 hover:text-gray-900'
+          }`}
+        >
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
             <FileText size={20} />
-          </LogoIcon>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.1rem', lineHeight: 1.2 }}>
+          </div>
+          <div>
+            <div className="font-bold text-lg leading-tight">
               Steel Invoice Pro
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.75rem' }}>
+            </div>
+            <div className={`text-xs opacity-70 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               Business Management
-            </Typography>
-          </Box>
-        </LogoContainer>
-      </SidebarHeader>
+            </div>
+          </div>
+        </Link>
+      </div>
 
       {/* Navigation */}
-      <Box sx={{ flex: 1, overflowY: 'auto', py: 1 }}>
+      <div className="flex-1 overflow-y-auto py-2">
         {navigationItems.map((section, sectionIndex) => (
-          <Box key={sectionIndex}>
+          <div key={sectionIndex}>
             {section.section !== 'Dashboard' && (
-              <SectionTitle variant="overline">
+              <div className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
                 {section.section}
-              </SectionTitle>
+              </div>
             )}
-            <List disablePadding>
+            <div className="space-y-1">
               {section.items.map((item, itemIndex) => {
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.path);
                 
                 return (
-                  <ListItem key={itemIndex} disablePadding>
-                    <StyledListItemButton
-                      component={Link}
+                  <div key={itemIndex} className="px-2">
+                    <Link
                       to={item.path}
-                      active={isActive}
                       onClick={() => window.innerWidth <= 768 && onToggle()}
                       title={item.description}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
+                        isActive
+                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-md'
+                          : isDarkMode
+                          ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      }`}
                     >
-                      <ListItemIcon>
-                        <Icon size={20} />
-                      </ListItemIcon>
-                      <ListItemText 
-                        primary={item.name}
-                        sx={{ 
-                          '& .MuiListItemText-primary': {
-                            fontSize: '0.875rem',
-                            fontWeight: isActive ? 600 : 500,
-                          }
-                        }}
-                      />
+                      <div className="flex-shrink-0">
+                        <Icon size={20} className={`transition-transform duration-200 ${
+                          isActive ? '' : 'group-hover:scale-110'
+                        }`} />
+                      </div>
+                      <span className={`text-sm flex-1 ${
+                        isActive ? 'font-semibold' : 'font-medium'
+                      }`}>
+                        {item.name}
+                      </span>
                       {item.badge && (
-                        <CustomBadge 
-                          badgeContent={item.badge} 
-                          sx={{ marginLeft: 'auto' }}
-                        />
+                        <div className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-semibold ${
+                          isDarkMode 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-blue-500 text-white'
+                        }`}>
+                          {item.badge}
+                        </div>
                       )}
-                    </StyledListItemButton>
-                  </ListItem>
+                    </Link>
+                  </div>
                 );
               })}
-            </List>
-          </Box>
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
-    </StyledDrawer>
+    </div>
   );
 };
 
