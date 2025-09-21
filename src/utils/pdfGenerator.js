@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, calculateTRN } from './invoiceUtils';
+import { formatCurrency, formatDate, calculateTRN, calculateSubtotal, calculateTotalTRN, calculateTotal } from './invoiceUtils';
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 
@@ -61,32 +61,42 @@ const createInvoiceElement = (invoice, company) => {
     left: -9999px;
   `;
   
+  const subtotalVal = calculateSubtotal(invoice.items || []);
+  const trnAmountVal = calculateTotalTRN(invoice.items || []);
+  const packing = parseFloat(invoice.packingCharges) || 0;
+  const freight = parseFloat(invoice.freightCharges) || 0;
+  const loading = parseFloat(invoice.loadingCharges) || 0;
+  const other = parseFloat(invoice.otherCharges) || 0;
+  const additionalChargesVal = packing + freight + loading + other;
+  const totalVal = calculateTotal(subtotalVal + additionalChargesVal, trnAmountVal);
+
   element.innerHTML = `
     <div style="display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0;">
       <div style="flex: 1;">
         <div style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
           <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 48px; width: auto; object-fit: contain;" />
         </div>
+        <div style="margin-top: 8px; line-height: 1.3;">
+          <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ULTIMATE STEEL AND</p>
+          <p style="margin: 0; font-size: 11px; color: #334155;">BUILDING MATERIALS TRADING</p>
+          <p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: 019101641144</p>
+          <p style="margin: 0; font-size: 11px; color: #334155;">IBAN: AE490330000019101641144</p>
+        </div>
+      </div>
+      
+      <div style="text-align: left;">
+        <div style="margin-bottom: 6px;">
+          <p style="margin: 2px 0;">Ultimate Steels Building Materials Trading</p>
+        </div>
         <div style="margin-bottom: 10px;">
-          <p style="margin: 2px 0; font-weight: 700; font-size: 14px; color: #0f172a;">Ultimate Steels Building Materials Trading</p>
           <p style="margin: 2px 0;">${company.address.street}</p>
-          <p style="margin: 2px 0;">${company.address.city}</p>
+          <p style="margin: 2px 0;">${company.address.city}${company.address.emirate ? ', ' + company.address.emirate : ''} ${company.address.poBox || ''}</p>
           <p style="margin: 2px 0;">${company.address.country}</p>
         </div>
         <div>
           <p style="margin: 2px 0;">Phone: ${company.phone}</p>
           <p style="margin: 2px 0;">Email: ${company.email}</p>
-          <p style="margin: 2px 0;">TRN: ${company.gstNumber}</p>
-        </div>
-      </div>
-      
-      <div style="text-align: right;">
-        <h2 style="margin: 0 0 10px 0; color: #2563eb; font-size: 32px; font-weight: 700;">INVOICE</h2>
-        <div>
-          <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-          <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
-          <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
-          <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600;">${invoice.status}</span></p>
+          <p style="margin: 2px 0;">TRN: ${company.gstNumber || company.vatNumber || ''}</p>
         </div>
       </div>
     </div>
@@ -95,8 +105,9 @@ const createInvoiceElement = (invoice, company) => {
       <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px;">TAX INVOICE</h2>
     </div>
 
-    <div style="margin-bottom: 30px;">
-      <h3 style="margin: 0 0 10px 0; color: #1e293b;">Bill To:</h3>
+    <div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 30px; align-items: flex-start;">
+      <div style="flex: 0 0 40%; min-width: 0;">
+        <h3 style="margin: 0 0 10px 0; color: #1e293b;">Bill To:</h3>
       <div>
         <p style="margin: 2px 0; font-weight: 600;">${invoice.customer.name}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
@@ -105,6 +116,16 @@ const createInvoiceElement = (invoice, company) => {
         ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">TRN: ${invoice.customer.gstNumber}</p>` : ''}
         <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
         <p style="margin: 2px 0;">Email: ${invoice.customer.email}</p>
+      </div>
+      </div>
+      <div style="flex: 0 0 40%; min-width: 0; text-align: left;">
+        <h3 style="margin: 0 0 10px 0; color: #0f172a;">INVOICE</h3>
+        <div>
+          <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+          <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
+          <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
+          <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600;">${invoice.status}</span></p>
+        </div>
       </div>
     </div>
 
@@ -150,15 +171,15 @@ const createInvoiceElement = (invoice, company) => {
       <div style="min-width: 300px;">
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>Subtotal:</span>
-          <span>${formatCurrency(invoice.subtotal)}</span>
+          <span>${formatCurrency(subtotalVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>TRN Amount:</span>
-          <span>${formatCurrency(invoice.vatAmount)}</span>
+          <span>${formatCurrency(trnAmountVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
           <span><strong>Total Amount:</strong></span>
-          <span><strong>${formatCurrency(invoice.total)}</strong></span>
+          <span><strong>${formatCurrency(totalVal)}</strong></span>
         </div>
       </div>
     </div>
@@ -189,6 +210,15 @@ const createInvoiceElement = (invoice, company) => {
           <p style="margin: 0;">Authorized Signatory</p>
           <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
           <p style="margin: 0; font-weight: 600;">ULTIMATE STEELS</p>
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <h3 style="margin: 0 0 10px 0; color: #0f172a;">INVOICE</h3>
+        <div>
+          <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+          <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
+          <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
+          <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600;">${invoice.status}</span></p>
         </div>
       </div>
     </div>
