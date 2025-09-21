@@ -938,13 +938,6 @@ const CustomerManagement = () => {
               fullWidth
             />
             <TextField
-              label="VAT Number"
-              value={newCustomer.vat_number}
-              onChange={(e) => setNewCustomer({...newCustomer, vat_number: e.target.value})}
-              placeholder="Enter VAT number"
-              fullWidth
-            />
-            <TextField
               label="Trade License Number"
               value={newCustomer.trade_license_number}
               onChange={(e) => setNewCustomer({...newCustomer, trade_license_number: e.target.value})}
@@ -1056,12 +1049,6 @@ const CustomerManagement = () => {
                   fullWidth
                 />
               </FullWidthFormControl>
-              <TextField
-                label="VAT Number"
-                value={selectedCustomer.vat_number || ''}
-                onChange={(e) => setSelectedCustomer({...selectedCustomer, vat_number: e.target.value})}
-                fullWidth
-              />
               <TextField
                 label="TRN Number"
                 value={selectedCustomer.trn_number || ''}

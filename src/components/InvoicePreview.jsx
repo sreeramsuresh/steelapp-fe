@@ -24,7 +24,7 @@ import {
 import {
   formatCurrency,
   formatDate,
-  calculateVAT,
+  calculateTRN,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
@@ -36,10 +36,58 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
       const element = document.getElementById("invoice-preview");
       if (!element) return;
 
+      // Store original styles
+      const originalStyles = element.style.cssText;
+      
+      // Apply light mode styles temporarily for PDF generation
+      element.style.cssText = `
+        ${originalStyles}
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      `;
+      
+      // Apply light mode styles to all child elements
+      const allElements = element.querySelectorAll('*');
+      const originalElementStyles = [];
+      
+      allElements.forEach((el, index) => {
+        originalElementStyles[index] = el.style.cssText;
+        
+        // Force light mode colors
+        el.style.cssText = `
+          ${el.style.cssText}
+          color: #000000 !important;
+          background-color: transparent !important;
+          border-color: #e0e0e0 !important;
+        `;
+        
+        // Special handling for specific elements
+        if (el.classList.contains('MuiTableHead-root') || el.closest('.MuiTableHead-root')) {
+          el.style.backgroundColor = '#f5f5f5 !important';
+        }
+        
+        if (el.classList.contains('MuiCard-root') || el.classList.contains('MuiPaper-root')) {
+          el.style.backgroundColor = '#ffffff !important';
+          el.style.borderColor = '#e0e0e0 !important';
+        }
+        
+        if (el.classList.contains('MuiChip-root')) {
+          el.style.backgroundColor = '#e3f2fd !important';
+          el.style.color = '#1976d2 !important';
+        }
+      });
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
+        backgroundColor: '#ffffff',
+      });
+
+      // Restore original styles
+      element.style.cssText = originalStyles;
+      allElements.forEach((el, index) => {
+        el.style.cssText = originalElementStyles[index];
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -120,7 +168,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 <Typography variant="body2">Phone: {company.phone}</Typography>
                 <Typography variant="body2">Email: {company.email}</Typography>
                 <Typography variant="body2">
-                  VAT: {company.vatNumber}
+                  TRN: {company.vatNumber}
                 </Typography>
               </Box>
             </Box>
@@ -191,7 +239,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </Typography>
               {invoice.customer.vatNumber && (
                 <Typography variant="body2">
-                  VAT: {invoice.customer.vatNumber}
+                  TRN: {invoice.customer.vatNumber}
                 </Typography>
               )}
               <Typography variant="body2">
@@ -254,7 +302,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ bgcolor: "grey.100" }}>
+                <TableRow sx={{ bgcolor: "action.hover" }}>
                   <TableCell>
                     <strong>Item Description</strong>
                   </TableCell>
@@ -267,6 +315,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     </TableCell>
                   )}
                   <TableCell>
+                    <strong>Grade</strong>
                   </TableCell>
                   <TableCell>
                     <strong>Unit</strong>
@@ -286,10 +335,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     <strong>Amount</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>VAT %</strong>
+                    <strong>TRN %</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>VAT Amount</strong>
+                    <strong>TRN Amount</strong>
                   </TableCell>
                   <TableCell align="right">
                     <strong>Total</strong>
@@ -298,8 +347,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </TableHead>
               <TableBody>
                 {invoice.items.map((item, index) => {
-                  const vatAmount = calculateVAT(item.amount, item.vatRate);
-                  const totalWithVAT = item.amount + vatAmount;
+                  const vatAmount = calculateTRN(item.amount, item.vatRate);
+                  const totalWithTRN = item.amount + vatAmount;
 
                   return (
                     <TableRow key={index}>
@@ -308,6 +357,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       {invoice.items.some((item) => item.description) && (
                         <TableCell>{item.description || "-"}</TableCell>
                       )}
+                      <TableCell>{item.grade || "-"}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">
@@ -330,7 +380,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         {formatCurrency(vatAmount)}
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{formatCurrency(totalWithVAT)}</strong>
+                        <strong>{formatCurrency(totalWithTRN)}</strong>
                       </TableCell>
                     </TableRow>
                   );
@@ -434,7 +484,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     mb: 1,
                   }}
                 >
-                  <Typography variant="body1">VAT Amount:</Typography>
+                  <Typography variant="body1">TRN Amount:</Typography>
                   <Typography variant="body1">
                     {formatCurrency(invoice.vatAmount)}
                   </Typography>
@@ -495,7 +545,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         display: "flex",
                         justifyContent: "space-between",
                         p: 1,
-                        bgcolor: "grey.100",
+                        bgcolor: "action.hover",
                         borderRadius: 1,
                       }}
                     >
@@ -517,7 +567,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 {/* Total in Words */}
                 {invoice.totalInWords && (
                   <Box
-                    sx={{ mt: 2, p: 1, bgcolor: "grey.50", borderRadius: 1 }}
+                    sx={{ mt: 2, p: 1, bgcolor: "action.selected", borderRadius: 1 }}
                   >
                     <Typography variant="body2" sx={{ fontStyle: "italic" }}>
                       <strong>Amount in Words:</strong> {invoice.totalInWords}

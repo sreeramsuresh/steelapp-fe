@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   Info,
 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   createInvoice,
   createCompany,
@@ -31,7 +32,7 @@ import {
   generateInvoiceNumber,
   calculateItemAmount,
   calculateSubtotal,
-  calculateTotalVAT,
+  calculateTotalTRN,
   calculateTotal,
   formatCurrency,
   formatDateForInput,
@@ -53,16 +54,21 @@ const Button = ({
   className = "",
   ...props
 }) => {
+  const { isDarkMode } = useTheme();
+  
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800";
-  const variants = {
-    primary:
-      "bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md",
-    secondary:
-      "bg-gray-700 text-white hover:bg-gray-600 focus:ring-gray-500 disabled:bg-gray-800",
-    outline:
-      "border border-gray-600 bg-gray-800 text-white hover:bg-gray-700 focus:ring-teal-500 disabled:bg-gray-800",
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+  
+  const getVariantClasses = () => {
+    if (variant === "primary") {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else if (variant === "secondary") {
+      return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${isDarkMode ? 'gray-500' : 'gray-400'} disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else { // outline
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    }
   };
+  
   const sizes = {
     sm: "px-3 py-1.5 text-sm",
     md: "px-4 py-2 text-sm",
@@ -71,7 +77,7 @@ const Button = ({
 
   return (
     <button
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
         disabled ? "cursor-not-allowed" : ""
       } ${className}`}
       disabled={disabled}
@@ -83,74 +89,113 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", ...props }) => (
-  <div className="space-y-1">
-    {label && (
-      <label className="block text-sm font-medium text-gray-400">{label}</label>
-    )}
-    <input
-      className={`w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-500 ${
-        error ? "border-red-500" : ""
-      } ${className}`}
-      {...props}
-    />
-    {error && <p className="text-sm text-red-400">{error}</p>}
-  </div>
-);
-
-const Select = ({ label, children, error, className = "", ...props }) => (
-  <div className="space-y-1">
-    {label && (
-      <label className="block text-sm font-medium text-gray-400">{label}</label>
-    )}
-    <div className="relative">
-      <select
-        className={`w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-500 appearance-none ${
-          error ? "border-red-500" : ""
-        } ${className}`}
+const Input = ({ label, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <input
+        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+          isDarkMode 
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500' 
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? "border-red-500" : ""} ${className}`}
         {...props}
-      >
-        {children}
-      </select>
-      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+      />
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
     </div>
-    {error && <p className="text-sm text-red-400">{error}</p>}
-  </div>
-);
+  );
+};
 
-const Textarea = ({ label, error, className = "", ...props }) => (
-  <div className="space-y-1">
-    {label && (
-      <label className="block text-sm font-medium text-gray-400">{label}</label>
-    )}
-    <textarea
-      className={`w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-500 ${
-        error ? "border-red-500" : ""
+const Select = ({ label, children, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <div className="relative">
+        <select
+          className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
+            isDarkMode 
+              ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500' 
+              : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
+          } ${error ? "border-red-500" : ""} ${className}`}
+          {...props}
+        >
+          {children}
+        </select>
+        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+      </div>
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+    </div>
+  );
+};
+
+const Textarea = ({ label, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <textarea
+        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+          isDarkMode 
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500' 
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? "border-red-500" : ""} ${className}`}
+        {...props}
+      />
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+    </div>
+  );
+};
+
+const Card = ({ children, className = "" }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div
+      className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-gray-800 border border-gray-600' 
+          : 'bg-white border border-gray-200'
       } ${className}`}
-      {...props}
-    />
-    {error && <p className="text-sm text-red-400">{error}</p>}
-  </div>
-);
-
-const Card = ({ children, className = "" }) => (
-  <div
-    className={`bg-gray-800 border border-gray-600 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
-  >
-    {children}
-  </div>
-);
+    >
+      {children}
+    </div>
+  );
+};
 
 const Alert = ({ variant = "info", children, onClose, className = "" }) => {
-  const variants = {
-    info: "bg-blue-900/20 border-blue-500/30 text-blue-300",
-    warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-300",
-    error: "bg-red-900/20 border-red-500/30 text-red-300",
-    success: "bg-green-900/20 border-green-500/30 text-green-300",
+  const { isDarkMode } = useTheme();
+  
+  const getVariantClasses = () => {
+    const darkVariants = {
+      info: "bg-blue-900/20 border-blue-500/30 text-blue-300",
+      warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-300",
+      error: "bg-red-900/20 border-red-500/30 text-red-300",
+      success: "bg-green-900/20 border-green-500/30 text-green-300",
+    };
+    
+    const lightVariants = {
+      info: "bg-blue-50 border-blue-200 text-blue-800",
+      warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+      error: "bg-red-50 border-red-200 text-red-800",
+      success: "bg-green-50 border-green-200 text-green-800",
+    };
+    
+    return isDarkMode ? darkVariants[variant] : lightVariants[variant];
   };
 
   return (
-    <div className={`border rounded-lg p-4 ${variants[variant]} ${className}`}>
+    <div className={`border rounded-lg p-4 ${getVariantClasses()} ${className}`}>
       <div className="flex items-start">
         <div className="flex-shrink-0">
           {variant === "warning" && <AlertTriangle className="h-5 w-5" />}
@@ -160,7 +205,7 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
         {onClose && (
           <button
             onClick={onClose}
-            className="ml-3 flex-shrink-0 text-gray-400 hover:text-white"
+            className={`ml-3 flex-shrink-0 ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <X className="h-4 w-4" />
           </button>
@@ -183,8 +228,11 @@ const Autocomplete = ({
   noOptionsText = "No options",
   className = "",
 }) => {
+  const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (inputValue) {
@@ -208,35 +256,68 @@ const Autocomplete = ({
     setIsOpen(false);
   };
 
+  const updateDropdownPosition = () => {
+    if (dropdownRef.current && inputRef.current && isOpen) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const dropdown = dropdownRef.current;
+      
+      dropdown.style.position = 'fixed';
+      dropdown.style.top = `${inputRect.bottom + 4}px`;
+      dropdown.style.left = `${inputRect.left}px`;
+      dropdown.style.width = `${inputRect.width}px`;
+      dropdown.style.zIndex = '9999';
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+      const handleScroll = () => updateDropdownPosition();
+      const handleResize = () => updateDropdownPosition();
+      
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [isOpen]);
+
   return (
     <div className="relative">
-      <Input
-        label={label}
-        value={inputValue || ""}
-        onChange={handleInputChange}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 150)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={className}
-      />
+      <div ref={inputRef}>
+        <Input
+          label={label}
+          value={inputValue || ""}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={className}
+        />
+      </div>
 
       {isOpen && (
         <div
-          className="fixed z-[9999] bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto"
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: "4px",
-          }}
+          ref={dropdownRef}
+          className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600' 
+              : 'bg-white border-gray-200'
+          }`}
         >
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option, index) => (
               <div
                 key={option.id || index}
-                className="px-3 py-2 hover:bg-gray-700 cursor-pointer text-white border-b border-gray-700 last:border-b-0"
+                className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
+                  isDarkMode 
+                    ? 'hover:bg-gray-700 text-white border-gray-700' 
+                    : 'hover:bg-gray-50 text-gray-900 border-gray-100'
+                }`}
                 onMouseDown={() => handleOptionSelect(option)}
               >
                 {renderOption ? (
@@ -245,7 +326,7 @@ const Autocomplete = ({
                   <div>
                     <div className="font-medium">{option.name}</div>
                     {option.subtitle && (
-                      <div className="text-sm text-gray-400">
+                      <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {option.subtitle}
                       </div>
                     )}
@@ -254,7 +335,7 @@ const Autocomplete = ({
               </div>
             ))
           ) : (
-            <div className="px-3 py-2 text-gray-400 text-sm">
+            <div className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               {noOptionsText}
             </div>
           )}
@@ -265,6 +346,8 @@ const Autocomplete = ({
 };
 
 const Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
+  const { isDarkMode } = useTheme();
+  
   if (!isOpen) return null;
 
   const sizes = {
@@ -278,17 +361,21 @@ const Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity" onClick={onClose}>
-          <div className="absolute inset-0 bg-gray-900 opacity-75"></div>
+          <div className={`absolute inset-0 ${isDarkMode ? 'bg-gray-900' : 'bg-black'} opacity-75`}></div>
         </div>
 
         <div
-          className={`inline-block align-bottom bg-gray-800 border border-gray-600 rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${sizes[size]} sm:w-full sm:p-6`}
+          className={`inline-block align-bottom border rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${sizes[size]} sm:w-full sm:p-6 ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600' 
+              : 'bg-white border-gray-200'
+          }`}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-white">{title}</h3>
+            <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white"
+              className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'}
             >
               <X className="h-5 w-5" />
             </button>
@@ -301,6 +388,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
 };
 
 const LoadingSpinner = ({ size = "md" }) => {
+  const { isDarkMode } = useTheme();
   const sizes = {
     sm: "h-4 w-4",
     md: "h-6 w-6",
@@ -309,13 +397,16 @@ const LoadingSpinner = ({ size = "md" }) => {
 
   return (
     <div
-      className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizes[size]}`}
+      className={`animate-spin rounded-full border-2 border-t-blue-600 ${sizes[size]} ${
+        isDarkMode ? 'border-gray-300' : 'border-gray-200'
+      }`}
     ></div>
   );
 };
 
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
+  const { isDarkMode } = useTheme();
 
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
@@ -403,7 +494,7 @@ const InvoiceForm = ({ onSave }) => {
     [invoice.items]
   );
   const computedVatAmount = useMemo(
-    () => calculateTotalVAT(invoice.items),
+    () => calculateTotalTRN(invoice.items),
     [invoice.items]
   );
 
@@ -709,22 +800,22 @@ const InvoiceForm = ({ onSave }) => {
 
   if (loadingInvoice) {
     return (
-      <div className="h-full bg-gray-900 flex items-center justify-center">
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="flex items-center space-x-3">
           <LoadingSpinner size="lg" />
-          <span className="text-gray-300">Loading invoice...</span>
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Loading invoice...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full bg-gray-900 p-4 overflow-auto">
+    <div className={`h-full p-4 overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-none">
         <Card className="p-4 sm:p-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-600">
-            <h1 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-0">
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+            <h1 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-0 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {id ? "Edit Invoice" : "Create Invoice"}
             </h1>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -796,7 +887,7 @@ const InvoiceForm = ({ onSave }) => {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Invoice Details */}
             <Card className="p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 📄 Invoice Details
               </h2>
               <div className="space-y-4">
@@ -907,7 +998,7 @@ const InvoiceForm = ({ onSave }) => {
 
             {/* Customer Details */}
             <Card className="p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 👤 Customer Details
               </h2>
               <div className="space-y-4">
@@ -927,11 +1018,11 @@ const InvoiceForm = ({ onSave }) => {
 
                 {/* Display selected customer details */}
                 {invoice.customer.name && (
-                  <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <h4 className="font-medium text-white mb-2">
+                  <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-100 border-gray-200'}`}>
+                    <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       Selected Customer:
                     </h4>
-                    <div className="space-y-1 text-sm text-gray-300">
+                    <div className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <p>
                         <span className="font-medium">Name:</span>{" "}
                         {invoice.customer.name}
@@ -950,7 +1041,7 @@ const InvoiceForm = ({ onSave }) => {
                       )}
                       {invoice.customer.vatNumber && (
                         <p>
-                          <span className="font-medium">VAT:</span>{" "}
+                          <span className="font-medium">TRN:</span>{" "}
                           {invoice.customer.vatNumber}
                         </p>
                       )}
@@ -1002,7 +1093,7 @@ const InvoiceForm = ({ onSave }) => {
                 {loadingCustomers && (
                   <div className="flex items-center space-x-2">
                     <LoadingSpinner size="sm" />
-                    <span className="text-sm text-gray-400">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       Loading customers...
                     </span>
                   </div>
@@ -1013,7 +1104,7 @@ const InvoiceForm = ({ onSave }) => {
 
           {/* Transport & Delivery Details */}
           <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+            <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               🚚 Transport & Delivery Details
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1073,7 +1164,7 @@ const InvoiceForm = ({ onSave }) => {
           {/* Items Section */}
           <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
-              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-0 flex items-center">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-0 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 🏗️ Steel Items
               </h2>
               <Button onClick={addItem} className="w-full sm:w-auto">
@@ -1084,39 +1175,39 @@ const InvoiceForm = ({ onSave }) => {
 
             {/* Items Table - Desktop */}
             <div className="hidden xl:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-600">
-                <thead className="bg-gray-700">
+              <table className={`min-w-full divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}`}>
+                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Product
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Specification
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Grade
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Unit
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Qty
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Rate
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      VAT %
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      TRN %
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Amount
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Action
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-600">
+                <tbody className={`divide-y ${isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'}`}>
                   {deferredItems.slice(0, 20).map((item, index) => (
                     <tr key={item.id}>
                       <td className="px-3 py-4 whitespace-nowrap">
@@ -1245,7 +1336,7 @@ const InvoiceForm = ({ onSave }) => {
                         />
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap">
-                        <span className="font-medium text-white">
+                        <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           {formatCurrency(item.amount)}
                         </span>
                       </td>
@@ -1253,7 +1344,7 @@ const InvoiceForm = ({ onSave }) => {
                         <button
                           onClick={() => removeItem(index)}
                           disabled={invoice.items.length === 1}
-                          className="text-red-400 hover:text-red-300 disabled:text-gray-600"
+                          className={`hover:text-red-300 ${isDarkMode ? 'text-red-400 disabled:text-gray-600' : 'text-red-500 disabled:text-gray-400'}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -1269,13 +1360,13 @@ const InvoiceForm = ({ onSave }) => {
               {deferredItems.slice(0, 10).map((item, index) => (
                 <Card key={item.id} className="p-4">
                   <div className="flex justify-between items-start mb-4">
-                    <h4 className="font-medium text-white">
+                    <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       Item #{index + 1}
                     </h4>
                     <button
                       onClick={() => removeItem(index)}
                       disabled={invoice.items.length === 1}
-                      className="text-red-400 hover:text-red-300 disabled:text-gray-600"
+                      className={`hover:text-red-300 ${isDarkMode ? 'text-red-400 disabled:text-gray-600' : 'text-red-500 disabled:text-gray-400'}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -1379,7 +1470,7 @@ const InvoiceForm = ({ onSave }) => {
                         step="0.01"
                       />
                       <Input
-                        label="VAT %"
+                        label="TRN %"
                         type="number"
                         value={item.vatRate}
                         onChange={(e) =>
@@ -1394,8 +1485,8 @@ const InvoiceForm = ({ onSave }) => {
                       />
                     </div>
 
-                    <div className="flex justify-end p-3 bg-gray-700 rounded-md">
-                      <span className="font-medium text-white">
+                    <div className={`flex justify-end p-3 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         Amount: {formatCurrency(item.amount)}
                       </span>
                     </div>
@@ -1403,7 +1494,7 @@ const InvoiceForm = ({ onSave }) => {
                 </Card>
               ))}
               {deferredItems.length > 10 && (
-                <div className="text-center py-4 text-gray-400 text-sm">
+                <div className={`text-center py-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Showing first 10 items. Add more items as needed.
                 </div>
               )}
@@ -1413,7 +1504,7 @@ const InvoiceForm = ({ onSave }) => {
           {/* Summary and Notes */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
             <Card className="p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 📝 Notes
               </h2>
               <Textarea
@@ -1427,11 +1518,11 @@ const InvoiceForm = ({ onSave }) => {
             </Card>
 
             <Card className="p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 💰 Invoice Summary
               </h2>
               <div className="space-y-4">
-                <div className="flex justify-between items-center text-white">
+                <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <span>Subtotal:</span>
                   <span className="font-medium">
                     {formatCurrency(computedSubtotal)}
@@ -1488,16 +1579,16 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center text-white">
-                  <span>VAT Amount:</span>
+                <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <span>TRN Amount:</span>
                   <span className="font-medium">
                     {formatCurrency(computedVatAmount)}
                   </span>
                 </div>
 
-                <div className="border-t border-gray-600 pt-4">
+                <div className={`border-t pt-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-white">Total:</span>
+                    <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total:</span>
                     <span className="text-lg font-bold text-teal-400">
                       {formatCurrency(computedTotal)}
                     </span>
@@ -1518,8 +1609,8 @@ const InvoiceForm = ({ onSave }) => {
                     placeholder="0.00"
                   />
                   {invoice.advanceReceived > 0 && (
-                    <div className="flex justify-between items-center p-3 bg-teal-900/20 rounded-md border border-teal-500/30">
-                      <span className="font-medium text-white">
+                    <div className={`flex justify-between items-center p-3 rounded-md border ${isDarkMode ? 'bg-teal-900/20 border-teal-500/30' : 'bg-teal-50 border-teal-200'}`}>
+                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         Balance Amount:
                       </span>
                       <span className="font-medium text-teal-400">
@@ -1539,7 +1630,7 @@ const InvoiceForm = ({ onSave }) => {
 
           {/* Terms & Conditions */}
           <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
-            <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+            <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               📋 Terms & Conditions
             </h2>
             <Textarea

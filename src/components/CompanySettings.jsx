@@ -291,9 +291,9 @@ const CompanySettings = () => {
     } else {
       // Default tax settings for UAE
       const defaultTaxes = [
-        { id: '1', name: 'VAT', rate: 5, type: 'percentage', description: 'UAE Value Added Tax', active: true },
-        { id: '2', name: 'Zero VAT', rate: 0, type: 'percentage', description: 'Zero-rated VAT for eligible items', active: false },
-        { id: '3', name: 'Exempt VAT', rate: 0, type: 'percentage', description: 'VAT-exempt items', active: false }
+        { id: '1', name: 'TRN', rate: 5, type: 'percentage', description: 'UAE Tax Registration Number', active: true },
+        { id: '2', name: 'Zero TRN', rate: 0, type: 'percentage', description: 'Zero-rated TRN for eligible items', active: false },
+        { id: '3', name: 'Exempt TRN', rate: 0, type: 'percentage', description: 'TRN-exempt items', active: false }
       ];
       setTaxSettings(defaultTaxes);
     }
@@ -858,15 +858,6 @@ const CompanySettings = () => {
                 <Box>
                   <TextField
                     fullWidth
-                    label="VAT Number"
-                    value={companyProfile.gstNumber || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, gstNumber: e.target.value})}
-                    placeholder="Enter VAT number"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
                     label="PAN Number"
                     value={companyProfile.panNumber || ''}
                     onChange={(e) => setCompanyProfile({...companyProfile, panNumber: e.target.value})}
@@ -1231,7 +1222,7 @@ const CompanySettings = () => {
                 label="Tax Name"
                 value={newTax.name}
                 onChange={(e) => setNewTax({...newTax, name: e.target.value})}
-                placeholder="Enter tax name (e.g., VAT, VAT)"
+                placeholder="Enter tax name (e.g., TRN)"
               />
             </Box>
             <Box>

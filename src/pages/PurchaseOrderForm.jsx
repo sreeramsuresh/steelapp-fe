@@ -140,7 +140,7 @@ const PurchaseOrderForm = () => {
 
       // Recalculate totals
       const subtotal = calculateSubtotal(updatedItems);
-      const vatAmount = subtotal * 0.05; // 5% VAT
+      const vatAmount = subtotal * 0.05; // 5% TRN
       const total = subtotal + vatAmount;
 
       return {
@@ -180,7 +180,7 @@ const PurchaseOrderForm = () => {
 
         // Recalculate totals
         const subtotal = calculateSubtotal(updatedItems);
-        const vatAmount = subtotal * 0.05; // 5% VAT
+        const vatAmount = subtotal * 0.05; // 5% TRN
         const total = subtotal + vatAmount;
 
         return {
@@ -551,7 +551,7 @@ const PurchaseOrderForm = () => {
                           mb: 1,
                         }}
                       >
-                        <Typography>VAT (5%):</Typography>
+                        <Typography>TRN (5%):</Typography>
                         <Typography sx={{ fontWeight: 600 }}>
                           {formatCurrency(purchaseOrder.vatAmount)}
                         </Typography>

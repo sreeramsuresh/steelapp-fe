@@ -2,16 +2,26 @@ export const calculateItemAmount = (quantity, rate) => {
   return quantity * rate;
 };
 
+export const calculateTRN = (amount, trnRate) => {
+  return (amount * trnRate) / 100;
+};
+
+// Keep for backward compatibility
 export const calculateVAT = (amount, vatRate) => {
-  return (amount * vatRate) / 100;
+  return calculateTRN(amount, vatRate);
 };
 
 export const calculateSubtotal = (items) => {
   return items.reduce((sum, item) => sum + item.amount, 0);
 };
 
+export const calculateTotalTRN = (items) => {
+  return items.reduce((sum, item) => sum + calculateTRN(item.amount, item.vatRate), 0);
+};
+
+// Keep for backward compatibility
 export const calculateTotalVAT = (items) => {
-  return items.reduce((sum, item) => sum + calculateVAT(item.amount, item.vatRate), 0);
+  return calculateTotalTRN(items);
 };
 
 export const calculateTotal = (subtotal, vatAmount) => {

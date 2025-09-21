@@ -51,7 +51,7 @@ import {
   generateInvoiceNumber,
   calculateItemAmount,
   calculateSubtotal,
-  calculateTotalVAT,
+  calculateTotalTRN,
   calculateTotal,
   formatCurrency,
   formatDateForInput,
@@ -239,7 +239,7 @@ const InvoiceForm = ({ onSave }) => {
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(() => calculateSubtotal(invoice.items), [invoice.items]);
-  const computedVatAmount = useMemo(() => calculateTotalVAT(invoice.items), [invoice.items]);
+  const computedVatAmount = useMemo(() => calculateTotalTRN(invoice.items), [invoice.items]);
   
   // Parse charges only when calculating final total to avoid blocking on every keystroke
   const computedTotal = useMemo(() => {
@@ -817,7 +817,7 @@ const InvoiceForm = ({ onSave }) => {
             />
             <TextField
               size="small"
-              label="VAT %"
+              label="TRN %"
               type="number"
               value={item.vatRate}
               onChange={(e) =>
@@ -1270,7 +1270,7 @@ const InvoiceForm = ({ onSave }) => {
                         )}
                         {invoice.customer.vatNumber && (
                           <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            <strong>VAT:</strong> {invoice.customer.vatNumber}
+                            <strong>TRN:</strong> {invoice.customer.vatNumber}
                           </Typography>
                         )}
                         {(invoice.customer.address.street ||
@@ -1474,7 +1474,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
                       <TableCell>Discount</TableCell>
-                      <TableCell>VAT %</TableCell>
+                      <TableCell>TRN %</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -1904,7 +1904,7 @@ const InvoiceForm = ({ onSave }) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="body1">VAT Amount:</Typography>
+                      <Typography variant="body1">TRN Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {formatCurrency(computedVatAmount)}
                       </Typography>

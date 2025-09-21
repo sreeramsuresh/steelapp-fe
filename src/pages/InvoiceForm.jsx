@@ -1,4 +1,12 @@
-import React, { useState, useEffect, useMemo, useDeferredValue, useCallback, memo, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useDeferredValue,
+  useCallback,
+  memo,
+  useRef,
+} from "react";
 import { useParams } from "react-router-dom";
 import { Plus, Trash2, Save, Eye, Download } from "lucide-react";
 import {
@@ -51,7 +59,7 @@ import {
   generateInvoiceNumber,
   calculateItemAmount,
   calculateSubtotal,
-  calculateTotalVAT,
+  calculateTotalTRN,
   calculateTotal,
   formatCurrency,
   formatDateForInput,
@@ -103,7 +111,7 @@ const SectionCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   boxShadow: theme.shadows[0],
   // Allow poppers/menus to render outside the card
-  overflow: 'visible',
+  overflow: "visible",
   [theme.breakpoints.up("sm")]: {
     borderRadius: theme.spacing(2),
     boxShadow: theme.shadows[1],
@@ -142,7 +150,7 @@ const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
 const MobileItemCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   border: `1px solid ${theme.palette.divider}`,
-  overflow: 'visible',
+  overflow: "visible",
 }));
 
 const HeaderActions = styled(Box)(({ theme }) => ({
@@ -176,11 +184,11 @@ const InvoiceForm = ({ onSave }) => {
     weight: "",
     unit: "kg",
     description: "",
-    current_stock: '',
-    min_stock: '',
-    max_stock: '',
-    cost_price: '',
-    selling_price: '',
+    current_stock: "",
+    min_stock: "",
+    max_stock: "",
+    cost_price: "",
+    selling_price: "",
     supplier: "",
     location: "",
     specifications: {
@@ -243,18 +251,35 @@ const InvoiceForm = ({ onSave }) => {
   );
 
   // Heavily optimized calculations with minimal dependencies
-  const computedSubtotal = useMemo(() => calculateSubtotal(invoice.items), [invoice.items]);
-  const computedVatAmount = useMemo(() => calculateTotalVAT(invoice.items), [invoice.items]);
-  
+  const computedSubtotal = useMemo(
+    () => calculateSubtotal(invoice.items),
+    [invoice.items]
+  );
+  const computedVatAmount = useMemo(
+    () => calculateTotalTRN(invoice.items),
+    [invoice.items]
+  );
+
   // Parse charges only when calculating final total to avoid blocking on every keystroke
   const computedTotal = useMemo(() => {
     const packingCharges = parseFloat(invoice.packingCharges) || 0;
     const freightCharges = parseFloat(invoice.freightCharges) || 0;
     const loadingCharges = parseFloat(invoice.loadingCharges) || 0;
     const otherCharges = parseFloat(invoice.otherCharges) || 0;
-    const additionalCharges = packingCharges + freightCharges + loadingCharges + otherCharges;
-    return calculateTotal(computedSubtotal + additionalCharges, computedVatAmount);
-  }, [computedSubtotal, computedVatAmount, invoice.packingCharges, invoice.freightCharges, invoice.loadingCharges, invoice.otherCharges]);
+    const additionalCharges =
+      packingCharges + freightCharges + loadingCharges + otherCharges;
+    return calculateTotal(
+      computedSubtotal + additionalCharges,
+      computedVatAmount
+    );
+  }, [
+    computedSubtotal,
+    computedVatAmount,
+    invoice.packingCharges,
+    invoice.freightCharges,
+    invoice.loadingCharges,
+    invoice.otherCharges,
+  ]);
 
   useEffect(() => {
     if (nextInvoiceData && nextInvoiceData.nextNumber && !id) {
@@ -273,49 +298,58 @@ const InvoiceForm = ({ onSave }) => {
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
-      const response = await fetch(`/api/customers/${customerId}/trade-license-status`);
+      const response = await fetch(
+        `/api/customers/${customerId}/trade-license-status`
+      );
       if (response.ok) {
         const licenseStatus = await response.json();
         setTradeLicenseStatus(licenseStatus);
-        
+
         // Show alert for expired or expiring licenses
-        if (licenseStatus.hasLicense && (licenseStatus.status === 'expired' || licenseStatus.status === 'expiring_soon')) {
+        if (
+          licenseStatus.hasLicense &&
+          (licenseStatus.status === "expired" ||
+            licenseStatus.status === "expiring_soon")
+        ) {
           setShowTradeLicenseAlert(true);
         } else {
           setShowTradeLicenseAlert(false);
         }
       }
     } catch (error) {
-      console.error('Error checking trade license status:', error);
+      console.error("Error checking trade license status:", error);
     }
   };
 
-  const handleCustomerSelect = useCallback((customerId) => {
-    const customers = customersData?.customers || [];
-    const selectedCustomer = customers.find((c) => c.id === customerId);
+  const handleCustomerSelect = useCallback(
+    (customerId) => {
+      const customers = customersData?.customers || [];
+      const selectedCustomer = customers.find((c) => c.id === customerId);
 
-    if (selectedCustomer) {
-      setInvoice((prev) => ({
-        ...prev,
-        customer: {
-          id: selectedCustomer.id,
-          name: selectedCustomer.name,
-          email: selectedCustomer.email || "",
-          phone: selectedCustomer.phone || "",
-          vatNumber: selectedCustomer.vat_number || "",
-          address: {
-            street: selectedCustomer.address?.street || "",
-            city: selectedCustomer.address?.city || "",
-            emirate: selectedCustomer.address?.emirate || "",
-            poBox: selectedCustomer.address?.poBox || "",
+      if (selectedCustomer) {
+        setInvoice((prev) => ({
+          ...prev,
+          customer: {
+            id: selectedCustomer.id,
+            name: selectedCustomer.name,
+            email: selectedCustomer.email || "",
+            phone: selectedCustomer.phone || "",
+            vatNumber: selectedCustomer.vat_number || "",
+            address: {
+              street: selectedCustomer.address?.street || "",
+              city: selectedCustomer.address?.city || "",
+              emirate: selectedCustomer.address?.emirate || "",
+              poBox: selectedCustomer.address?.poBox || "",
+            },
           },
-        },
-      }));
-      
-      // Check trade license status
-      checkTradeLicenseStatus(customerId);
-    }
-  }, [customersData]);
+        }));
+
+        // Check trade license status
+        checkTradeLicenseStatus(customerId);
+      }
+    },
+    [customersData]
+  );
 
   const handleCustomerChange = useCallback((field, value) => {
     if (field.includes(".")) {
@@ -389,14 +423,16 @@ const InvoiceForm = ({ onSave }) => {
     });
   }, []);
 
-  const isProductExisting = useCallback((index) => {
-    const searchValue = searchInputs[index] || "";
-    const products = productsData?.products || [];
-    return products.some(
-      (product) => product.name.toLowerCase() === searchValue.toLowerCase()
-    );
-  }, [productsData, searchInputs]);
-
+  const isProductExisting = useCallback(
+    (index) => {
+      const searchValue = searchInputs[index] || "";
+      const products = productsData?.products || [];
+      return products.some(
+        (product) => product.name.toLowerCase() === searchValue.toLowerCase()
+      );
+    },
+    [productsData, searchInputs]
+  );
 
   const handleItemChange = useCallback((index, field, value) => {
     setInvoice((prev) => {
@@ -427,14 +463,30 @@ const InvoiceForm = ({ onSave }) => {
         category: newProductData.category,
         grade: newProductData.grade,
         size: newProductData.size,
-        weight: newProductData.weight === '' ? 0 : Number(newProductData.weight),
+        weight:
+          newProductData.weight === "" ? 0 : Number(newProductData.weight),
         unit: newProductData.unit,
         description: newProductData.description,
-        current_stock: newProductData.current_stock === '' ? 0 : Number(newProductData.current_stock),
-        min_stock: newProductData.min_stock === '' ? 10 : Number(newProductData.min_stock),
-        max_stock: newProductData.max_stock === '' ? 100 : Number(newProductData.max_stock),
-        cost_price: newProductData.cost_price === '' ? 0 : Number(newProductData.cost_price),
-        selling_price: newProductData.selling_price === '' ? 0 : Number(newProductData.selling_price),
+        current_stock:
+          newProductData.current_stock === ""
+            ? 0
+            : Number(newProductData.current_stock),
+        min_stock:
+          newProductData.min_stock === ""
+            ? 10
+            : Number(newProductData.min_stock),
+        max_stock:
+          newProductData.max_stock === ""
+            ? 100
+            : Number(newProductData.max_stock),
+        cost_price:
+          newProductData.cost_price === ""
+            ? 0
+            : Number(newProductData.cost_price),
+        selling_price:
+          newProductData.selling_price === ""
+            ? 0
+            : Number(newProductData.selling_price),
         supplier: newProductData.supplier,
         location: newProductData.location,
         specifications: newProductData.specifications,
@@ -459,11 +511,11 @@ const InvoiceForm = ({ onSave }) => {
         weight: "",
         unit: "kg",
         description: "",
-        current_stock: '',
-        min_stock: '',
-        max_stock: '',
-        cost_price: '',
-        selling_price: '',
+        current_stock: "",
+        min_stock: "",
+        max_stock: "",
+        cost_price: "",
+        selling_price: "",
         supplier: "",
         location: "",
         specifications: {
@@ -499,26 +551,20 @@ const InvoiceForm = ({ onSave }) => {
     return list.map((product) => ({
       ...product,
       label: product.name,
-      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${product.selling_price || 0}/${product.unit}`,
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
+        product.selling_price || 0
+      }/${product.unit}`,
     }));
   }, [productsData]);
-
-  const getFilteredOptions = useCallback((options, inputValue) => {
-    const query = (inputValue || '').toLowerCase();
-    if (!query) return options;
-    return options.filter((option) =>
-      option.name.toLowerCase().includes(query) ||
-      (option.category && option.category.toLowerCase().includes(query)) ||
-      (option.grade && option.grade.toLowerCase().includes(query))
-    );
-  }, []);
 
   // Simplified filtering to reduce computation
   const getFilteredOptions = useCallback((options, inputValue) => {
     if (!inputValue) return options.slice(0, 20);
-    return options.filter(option => 
-      option.name.toLowerCase().includes(inputValue.toLowerCase())
-    ).slice(0, 20);
+    return options
+      .filter((option) =>
+        option.name.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .slice(0, 20);
   }, []);
 
   const categories = [
@@ -574,31 +620,51 @@ const InvoiceForm = ({ onSave }) => {
       // Convert empty string values to numbers before saving
       const processedInvoice = {
         ...invoice,
-        packingCharges: invoice.packingCharges === '' ? 0 : Number(invoice.packingCharges),
-        freightCharges: invoice.freightCharges === '' ? 0 : Number(invoice.freightCharges),
-        loadingCharges: invoice.loadingCharges === '' ? 0 : Number(invoice.loadingCharges),
-        otherCharges: invoice.otherCharges === '' ? 0 : Number(invoice.otherCharges),
-        advanceReceived: invoice.advanceReceived === '' ? 0 : Number(invoice.advanceReceived),
-        items: invoice.items.map(item => ({
+        packingCharges:
+          invoice.packingCharges === "" ? 0 : Number(invoice.packingCharges),
+        freightCharges:
+          invoice.freightCharges === "" ? 0 : Number(invoice.freightCharges),
+        loadingCharges:
+          invoice.loadingCharges === "" ? 0 : Number(invoice.loadingCharges),
+        otherCharges:
+          invoice.otherCharges === "" ? 0 : Number(invoice.otherCharges),
+        advanceReceived:
+          invoice.advanceReceived === "" ? 0 : Number(invoice.advanceReceived),
+        items: invoice.items.map((item) => ({
           ...item,
-          quantity: item.quantity === '' ? 0 : Number(item.quantity),
-          rate: item.rate === '' ? 0 : Number(item.rate),
-          discount: item.discount === '' ? 0 : Number(item.discount),
-          vatRate: item.vatRate === '' ? 0 : Number(item.vatRate)
-        }))
+          quantity: item.quantity === "" ? 0 : Number(item.quantity),
+          rate: item.rate === "" ? 0 : Number(item.rate),
+          discount: item.discount === "" ? 0 : Number(item.discount),
+          vatRate: item.vatRate === "" ? 0 : Number(item.vatRate),
+        })),
       };
 
       if (id) {
         // Update existing invoice using cancel and recreate approach
-        const updatedInvoice = await updateInvoice(invoice.id, processedInvoice);
+        const updatedInvoice = await updateInvoice(
+          invoice.id,
+          processedInvoice
+        );
         if (onSave) onSave(updatedInvoice);
-        
-        alert(`✅ Invoice updated successfully!\n\n🔄 Process completed:\n• Original invoice cancelled\n• Inventory movements reversed\n• New invoice created with updated data\n• New inventory movements applied${processedInvoice.status === 'paid' ? '\n• Delivery note auto-generated' : ''}`);
+
+        alert(
+          `✅ Invoice updated successfully!\n\n🔄 Process completed:\n• Original invoice cancelled\n• Inventory movements reversed\n• New invoice created with updated data\n• New inventory movements applied${
+            processedInvoice.status === "paid"
+              ? "\n• Delivery note auto-generated"
+              : ""
+          }`
+        );
       } else {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
-        alert(`✅ Invoice created successfully!${processedInvoice.status === 'paid' ? '\n🚚 Delivery note auto-generated' : ''}`);
+        alert(
+          `✅ Invoice created successfully!${
+            processedInvoice.status === "paid"
+              ? "\n🚚 Delivery note auto-generated"
+              : ""
+          }`
+        );
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
@@ -669,12 +735,16 @@ const InvoiceForm = ({ onSave }) => {
                 handleProductSelect(index, newValue);
               }
             }}
-            filterOptions={(options, { inputValue }) => getFilteredOptions(options, inputValue)}
+            filterOptions={(options, { inputValue }) =>
+              getFilteredOptions(options, inputValue)
+            }
             freeSolo
             disabled={loadingProducts}
             openOnFocus
             disablePortal
-            slotProps={{ popper: { sx: { zIndex: 6000 }, placement: 'top-start' } }}
+            slotProps={{
+              popper: { sx: { zIndex: 6000 }, placement: "top-start" },
+            }}
             ListboxProps={{ sx: { maxHeight: 320 } }}
             renderInput={(params) => (
               <TextField
@@ -770,9 +840,7 @@ const InvoiceForm = ({ onSave }) => {
             size="small"
             label="Grade"
             value={item.grade || ""}
-            onChange={(e) =>
-              handleItemChange(index, "grade", e.target.value)
-            }
+            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
             placeholder="e.g., Fe415, Fe500"
           />
 
@@ -814,12 +882,12 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Qty"
               type="number"
-              value={item.quantity || ''}
+              value={item.quantity || ""}
               onChange={(e) =>
                 handleItemChange(
                   index,
                   "quantity",
-                  e.target.value === '' ? '' : parseFloat(e.target.value) || ''
+                  e.target.value === "" ? "" : parseFloat(e.target.value) || ""
                 )
               }
               inputProps={{ min: 0, step: 0.01 }}
@@ -828,15 +896,19 @@ const InvoiceForm = ({ onSave }) => {
               size="small"
               label="Rate"
               type="number"
-              value={item.rate || ''}
+              value={item.rate || ""}
               onChange={(e) =>
-                handleItemChange(index, "rate", e.target.value === '' ? '' : parseFloat(e.target.value) || '')
+                handleItemChange(
+                  index,
+                  "rate",
+                  e.target.value === "" ? "" : parseFloat(e.target.value) || ""
+                )
               }
               inputProps={{ min: 0, step: 0.01 }}
             />
             <TextField
               size="small"
-              label="VAT %"
+              label="TRN %"
               type="number"
               value={item.vatRate}
               onChange={(e) =>
@@ -1018,17 +1090,27 @@ const InvoiceForm = ({ onSave }) => {
             <Alert severity="warning" sx={{ mb: 3 }}>
               <AlertTitle>Invoice Editing Policy</AlertTitle>
               <Typography variant="body2">
-                🔄 To maintain audit trails and inventory accuracy, editing will:
-                <br />• Cancel the original invoice and reverse its inventory impact
+                🔄 To maintain audit trails and inventory accuracy, editing
+                will:
+                <br />• Cancel the original invoice and reverse its inventory
+                impact
                 <br />• Create a new invoice with your updated data
                 <br />• Apply new inventory movements
-                <br />• Cancel any existing delivery notes (new ones will be created if status = 'paid')
+                <br />• Cancel any existing delivery notes (new ones will be
+                created if status = 'paid')
               </Typography>
             </Alert>
           )}
 
           {/* Form Grid */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mb: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gap: 2,
+              mb: 3,
+            }}
+          >
             {/* Invoice Details */}
             <Box>
               <SectionCard>
@@ -1050,7 +1132,13 @@ const InvoiceForm = ({ onSave }) => {
                         }))
                       }
                     />
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                      }}
+                    >
                       <Box>
                         <TextField
                           label="Date"
@@ -1086,7 +1174,13 @@ const InvoiceForm = ({ onSave }) => {
                         />
                       </Box>
                     </Box>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                      }}
+                    >
                       <Box>
                         <TextField
                           label="Purchase Order Number"
@@ -1111,7 +1205,9 @@ const InvoiceForm = ({ onSave }) => {
                           variant="outlined"
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
-                          value={formatDateForInput(invoice.purchaseOrderDate) || ""}
+                          value={
+                            formatDateForInput(invoice.purchaseOrderDate) || ""
+                          }
                           onChange={(e) =>
                             setInvoice((prev) => ({
                               ...prev,
@@ -1123,7 +1219,13 @@ const InvoiceForm = ({ onSave }) => {
                         />
                       </Box>
                     </Box>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                      }}
+                    >
                       <Box>
                         <FormControl
                           fullWidth
@@ -1131,7 +1233,7 @@ const InvoiceForm = ({ onSave }) => {
                         >
                           <InputLabel>Invoice Status</InputLabel>
                           <Select
-                            value={invoice.status || 'draft'}
+                            value={invoice.status || "draft"}
                             label="Invoice Status"
                             onChange={(e) =>
                               setInvoice((prev) => ({
@@ -1142,23 +1244,32 @@ const InvoiceForm = ({ onSave }) => {
                           >
                             <MenuItem value="draft">Draft</MenuItem>
                             <MenuItem value="sent">Sent</MenuItem>
-                            <MenuItem value="paid">Paid (Auto-creates delivery note)</MenuItem>
+                            <MenuItem value="paid">
+                              Paid (Auto-creates delivery note)
+                            </MenuItem>
                             <MenuItem value="overdue">Overdue</MenuItem>
                           </Select>
                         </FormControl>
                       </Box>
                       <Box>
                         {/* Status info */}
-                        {invoice.status === 'paid' && (
+                        {invoice.status === "paid" && (
                           <Alert severity="info" sx={{ mt: 0.5 }}>
                             <Typography variant="caption">
-                              🚚 A delivery note will be automatically created when this invoice is saved as 'Paid'
+                              🚚 A delivery note will be automatically created
+                              when this invoice is saved as 'Paid'
                             </Typography>
                           </Alert>
                         )}
                       </Box>
                     </Box>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                      }}
+                    >
                       <Box>
                         <TextField
                           label="Delivery Note"
@@ -1289,7 +1400,7 @@ const InvoiceForm = ({ onSave }) => {
                         )}
                         {invoice.customer.vatNumber && (
                           <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            <strong>VAT:</strong> {invoice.customer.vatNumber}
+                            <strong>TRN:</strong> {invoice.customer.vatNumber}
                           </Typography>
                         )}
                         {(invoice.customer.address.street ||
@@ -1311,8 +1422,8 @@ const InvoiceForm = ({ onSave }) => {
 
                     {/* Trade License Status Alert */}
                     <Collapse in={showTradeLicenseAlert}>
-                      <Alert 
-                        severity={tradeLicenseStatus?.severity || 'warning'}
+                      <Alert
+                        severity={tradeLicenseStatus?.severity || "warning"}
                         sx={{ mt: 2 }}
                         onClose={() => setShowTradeLicenseAlert(false)}
                       >
@@ -1320,12 +1431,16 @@ const InvoiceForm = ({ onSave }) => {
                         {tradeLicenseStatus?.message}
                         {tradeLicenseStatus?.licenseNumber && (
                           <Typography variant="body2" sx={{ mt: 1 }}>
-                            <strong>License Number:</strong> {tradeLicenseStatus.licenseNumber}
+                            <strong>License Number:</strong>{" "}
+                            {tradeLicenseStatus.licenseNumber}
                           </Typography>
                         )}
                         {tradeLicenseStatus?.expiryDate && (
                           <Typography variant="body2">
-                            <strong>Expiry Date:</strong> {new Date(tradeLicenseStatus.expiryDate).toLocaleDateString()}
+                            <strong>Expiry Date:</strong>{" "}
+                            {new Date(
+                              tradeLicenseStatus.expiryDate
+                            ).toLocaleDateString()}
                           </Typography>
                         )}
                       </Alert>
@@ -1333,7 +1448,12 @@ const InvoiceForm = ({ onSave }) => {
 
                     {loadingCustomers && (
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mt: 2,
+                        }}
                       >
                         <CircularProgress size={16} />
                         <Typography variant="body2" color="text.secondary">
@@ -1353,7 +1473,13 @@ const InvoiceForm = ({ onSave }) => {
               <SectionHeader variant="h6">
                 🚚 Transport & Delivery Details
               </SectionHeader>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2,
+                }}
+              >
                 <Box>
                   <TextField
                     label="Despatched Through"
@@ -1468,7 +1594,7 @@ const InvoiceForm = ({ onSave }) => {
                   <MobileItemCard key={item.id} item={item} index={index} />
                 ))}
                 {deferredItems.length > 10 && (
-                  <Box sx={{ p: 2, textAlign: 'center' }}>
+                  <Box sx={{ p: 2, textAlign: "center" }}>
                     <Typography variant="body2" color="text.secondary">
                       Showing first 10 items. Add more items as needed.
                     </Typography>
@@ -1493,7 +1619,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
                       <TableCell>Discount</TableCell>
-                      <TableCell>VAT %</TableCell>
+                      <TableCell>TRN %</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -1501,7 +1627,7 @@ const InvoiceForm = ({ onSave }) => {
                   <TableBody>
                     {deferredItems.slice(0, 20).map((item, index) => (
                       <TableRow key={item.id}>
-                        <TableCell sx={{ minWidth: 200, overflow: 'visible' }}>
+                        <TableCell sx={{ minWidth: 200, overflow: "visible" }}>
                           <Autocomplete
                             size="small"
                             options={productOptions}
@@ -1524,12 +1650,19 @@ const InvoiceForm = ({ onSave }) => {
                                 handleProductSelect(index, newValue);
                               }
                             }}
-                            filterOptions={(options, { inputValue }) => getFilteredOptions(options, inputValue)}
+                            filterOptions={(options, { inputValue }) =>
+                              getFilteredOptions(options, inputValue)
+                            }
                             freeSolo
                             disabled={loadingProducts}
                             openOnFocus
                             disablePortal
-                            slotProps={{ popper: { sx: { zIndex: 6000 }, placement: 'top-start' } }}
+                            slotProps={{
+                              popper: {
+                                sx: { zIndex: 6000 },
+                                placement: "top-start",
+                              },
+                            }}
                             ListboxProps={{ sx: { maxHeight: 320 } }}
                             renderInput={(params) => (
                               <TextField
@@ -1650,11 +1783,7 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             value={item.grade || ""}
                             onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "grade",
-                                e.target.value
-                              )
+                              handleItemChange(index, "grade", e.target.value)
                             }
                             placeholder="e.g., Fe415, Fe500"
                           />
@@ -1695,12 +1824,14 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.quantity || ''}
+                            value={item.quantity || ""}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "quantity",
-                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
+                                e.target.value === ""
+                                  ? ""
+                                  : parseFloat(e.target.value) || ""
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1711,12 +1842,14 @@ const InvoiceForm = ({ onSave }) => {
                           <TextField
                             size="small"
                             type="number"
-                            value={item.rate || ''}
+                            value={item.rate || ""}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
                                 "rate",
-                                e.target.value === '' ? '' : parseFloat(e.target.value) || ''
+                                e.target.value === ""
+                                  ? ""
+                                  : parseFloat(e.target.value) || ""
                               )
                             }
                             inputProps={{ min: 0, step: 0.01 }}
@@ -1804,7 +1937,13 @@ const InvoiceForm = ({ onSave }) => {
           </SectionCard>
 
           {/* Summary and Notes */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gap: 2,
+            }}
+          >
             <Box>
               <SectionCard>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -1848,14 +1987,25 @@ const InvoiceForm = ({ onSave }) => {
                     <Box
                       sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                     >
-                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 1,
+                        }}
+                      >
                         <Box>
                           <TextField
                             size="small"
                             label="Packing Charges"
                             type="number"
-                            value={invoice.packingCharges || ''}
-                            onChange={(e) => handleChargeChange('packingCharges', e.target.value)}
+                            value={invoice.packingCharges || ""}
+                            onChange={(e) =>
+                              handleChargeChange(
+                                "packingCharges",
+                                e.target.value
+                              )
+                            }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
@@ -1871,8 +2021,13 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Freight Charges"
                             type="number"
-                            value={invoice.freightCharges || ''}
-                            onChange={(e) => handleChargeChange('freightCharges', e.target.value)}
+                            value={invoice.freightCharges || ""}
+                            onChange={(e) =>
+                              handleChargeChange(
+                                "freightCharges",
+                                e.target.value
+                              )
+                            }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
@@ -1888,8 +2043,13 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Loading Charges"
                             type="number"
-                            value={invoice.loadingCharges || ''}
-                            onChange={(e) => handleChargeChange('loadingCharges', e.target.value)}
+                            value={invoice.loadingCharges || ""}
+                            onChange={(e) =>
+                              handleChargeChange(
+                                "loadingCharges",
+                                e.target.value
+                              )
+                            }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
@@ -1905,8 +2065,10 @@ const InvoiceForm = ({ onSave }) => {
                             size="small"
                             label="Other Charges"
                             type="number"
-                            value={invoice.otherCharges || ''}
-                            onChange={(e) => handleChargeChange('otherCharges', e.target.value)}
+                            value={invoice.otherCharges || ""}
+                            onChange={(e) =>
+                              handleChargeChange("otherCharges", e.target.value)
+                            }
                             inputProps={{ min: 0, step: 0.01 }}
                             InputProps={{
                               startAdornment: (
@@ -1927,7 +2089,7 @@ const InvoiceForm = ({ onSave }) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="body1">VAT Amount:</Typography>
+                      <Typography variant="body1">TRN Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {formatCurrency(computedVatAmount)}
                       </Typography>
@@ -1961,12 +2123,16 @@ const InvoiceForm = ({ onSave }) => {
                         size="small"
                         label="Advance Received"
                         type="number"
-                        value={invoice.advanceReceived || ''}
-                        onChange={(e) => handleChargeChange('advanceReceived', e.target.value)}
+                        value={invoice.advanceReceived || ""}
+                        onChange={(e) =>
+                          handleChargeChange("advanceReceived", e.target.value)
+                        }
                         inputProps={{ min: 0, step: 0.01 }}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">د.إ</InputAdornment>
+                            <InputAdornment position="start">
+                              د.إ
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -2045,7 +2211,13 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Basic Information
                   </Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 2,
+                    }}
+                  >
                     <Box>
                       <TextField
                         label="Product Name *"
@@ -2189,16 +2361,25 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Inventory Information
                   </Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+                      gap: 2,
+                    }}
+                  >
                     <Box>
                       <TextField
                         label="Current Stock"
                         type="number"
-                        value={newProductData.current_stock || ''}
+                        value={newProductData.current_stock || ""}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            current_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
+                            current_stock:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value) || "",
                           }))
                         }
                         fullWidth
@@ -2210,11 +2391,14 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Minimum Stock"
                         type="number"
-                        value={newProductData.min_stock || ''}
+                        value={newProductData.min_stock || ""}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            min_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
+                            min_stock:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value) || "",
                           }))
                         }
                         fullWidth
@@ -2226,11 +2410,14 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Maximum Stock"
                         type="number"
-                        value={newProductData.max_stock || ''}
+                        value={newProductData.max_stock || ""}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            max_stock: e.target.value === '' ? '' : Number(e.target.value) || '',
+                            max_stock:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value) || "",
                           }))
                         }
                         fullWidth
@@ -2250,23 +2437,34 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Pricing Information
                   </Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 2,
+                    }}
+                  >
                     <Box>
                       <TextField
                         label="Cost Price"
                         type="number"
-                        value={newProductData.cost_price || ''}
+                        value={newProductData.cost_price || ""}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            cost_price: e.target.value === '' ? '' : Number(e.target.value) || '',
+                            cost_price:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value) || "",
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">د.إ</InputAdornment>
+                            <InputAdornment position="start">
+                              د.إ
+                            </InputAdornment>
                           ),
                         }}
                         placeholder="Enter cost price"
@@ -2276,18 +2474,23 @@ const InvoiceForm = ({ onSave }) => {
                       <TextField
                         label="Selling Price"
                         type="number"
-                        value={newProductData.selling_price || ''}
+                        value={newProductData.selling_price || ""}
                         onChange={(e) =>
                           setNewProductData((prev) => ({
                             ...prev,
-                            selling_price: e.target.value === '' ? '' : Number(e.target.value) || '',
+                            selling_price:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value) || "",
                           }))
                         }
                         fullWidth
                         size={isSmallScreen ? "small" : "medium"}
                         InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">د.إ</InputAdornment>
+                            <InputAdornment position="start">
+                              د.إ
+                            </InputAdornment>
                           ),
                         }}
                         placeholder="Enter selling price"
@@ -2305,7 +2508,13 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     Supplier & Location
                   </Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 2,
+                    }}
+                  >
                     <Box>
                       <TextField
                         label="Supplier"

@@ -267,6 +267,8 @@ class AuthService {
         } catch (error) {
           console.error('Automatic token refresh failed:', error);
           this.clearSession();
+          // Reload to ensure clean state after session clear
+          window.location.href = '/login';
         }
       }, refreshTime);
     }

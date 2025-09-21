@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, calculateVAT } from './invoiceUtils';
+import { formatCurrency, formatDate, calculateTRN } from './invoiceUtils';
 
 export const generateInvoicePDF = async (invoice, company) => {
   try {
@@ -69,7 +69,7 @@ const createInvoiceElement = (invoice, company) => {
         <div>
           <p style="margin: 2px 0;">Phone: ${company.phone}</p>
           <p style="margin: 2px 0;">Email: ${company.email}</p>
-          <p style="margin: 2px 0;">VAT: ${company.gstNumber}</p>
+          <p style="margin: 2px 0;">TRN: ${company.gstNumber}</p>
         </div>
       </div>
       
@@ -91,7 +91,7 @@ const createInvoiceElement = (invoice, company) => {
         <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.city}</p>
         <p style="margin: 2px 0;">${invoice.customer.address.country}</p>
-        ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">VAT: ${invoice.customer.gstNumber}</p>` : ''}
+        ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">TRN: ${invoice.customer.gstNumber}</p>` : ''}
         <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
         <p style="margin: 2px 0;">Email: ${invoice.customer.email}</p>
       </div>
@@ -107,15 +107,15 @@ const createInvoiceElement = (invoice, company) => {
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Qty</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Rate</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">VAT %</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">VAT Amount</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">TRN %</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">TRN Amount</th>
             <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">Total</th>
           </tr>
         </thead>
         <tbody>
           ${invoice.items.map(item => {
-            const vatAmount = calculateVAT(item.amount, item.vatRate);
-            const totalWithVAT = item.amount + vatAmount;
+            const vatAmount = calculateTRN(item.amount, item.vatRate);
+            const totalWithTRN = item.amount + vatAmount;
             
             return `
               <tr>
@@ -127,7 +127,7 @@ const createInvoiceElement = (invoice, company) => {
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.amount)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${item.vatRate}%</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(vatAmount)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(totalWithVAT)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(totalWithTRN)}</td>
               </tr>
             `;
           }).join('')}
@@ -142,7 +142,7 @@ const createInvoiceElement = (invoice, company) => {
           <span>${formatCurrency(invoice.subtotal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>VAT Amount:</span>
+          <span>TRN Amount:</span>
           <span>${formatCurrency(invoice.vatAmount)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
