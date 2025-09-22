@@ -69,11 +69,40 @@ export const tokenUtils = {
 
 // Request interceptor - Add auth token to requests
 axiosApi.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const token = tokenUtils.getToken();
     
-    if (token && !tokenUtils.isTokenExpired(token)) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      if (tokenUtils.isTokenExpired(token)) {
+        console.log('[Request Interceptor] Token expired, attempting refresh');
+        // Token is expired, try to refresh it before making the request
+        const refreshToken = tokenUtils.getRefreshToken();
+        if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
+          try {
+            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+              refreshToken
+            });
+            const { token: newToken, refreshToken: newRefreshToken } = response.data;
+            tokenUtils.setToken(newToken);
+            if (newRefreshToken) {
+              tokenUtils.setRefreshToken(newRefreshToken);
+            }
+            config.headers.Authorization = `Bearer ${newToken}`;
+            console.log('[Request Interceptor] Token refreshed successfully');
+          } catch (error) {
+            console.error('[Request Interceptor] Token refresh failed:', error);
+            // Remove invalid tokens
+            tokenUtils.removeTokens();
+            return Promise.reject(error);
+          }
+        } else {
+          console.log('[Request Interceptor] No valid refresh token');
+          tokenUtils.removeTokens();
+          return Promise.reject(new Error('No valid tokens available'));
+        }
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     
     return config;
@@ -82,6 +111,22 @@ axiosApi.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// Global flag to prevent multiple simultaneous refresh attempts
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
 
 // Response interceptor - Handle token refresh and errors
 axiosApi.interceptors.response.use(
@@ -104,14 +149,31 @@ axiosApi.interceptors.response.use(
       // If we're already on the login page or this is an auth endpoint,
       // do not attempt refresh or force a redirect. Let the caller handle it.
       if (currentPath === '/login' || isAuthRequest(originalRequest?.url)) {
+        console.log('[Interceptor] Skipping refresh for auth request or login page');
         return Promise.reject(error);
       }
+      
+      if (isRefreshing) {
+        // If we're already refreshing, queue this request
+        console.log('[Interceptor] Token refresh in progress, queueing request');
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return axiosApi(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
       
       const refreshToken = tokenUtils.getRefreshToken();
       
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
+          console.log('[Interceptor] Attempting token refresh');
           // Try to refresh the token
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken
@@ -125,12 +187,16 @@ axiosApi.interceptors.response.use(
             tokenUtils.setRefreshToken(newRefreshToken);
           }
           
+          console.log('[Interceptor] Token refresh successful');
+          processQueue(null, newToken);
+          
           // Retry the original request with new token
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return axiosApi(originalRequest);
           
         } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
+          console.error('[Interceptor] Token refresh failed:', refreshError);
+          processQueue(refreshError, null);
           
           // Refresh failed, redirect to login
           tokenUtils.removeTokens();
@@ -138,8 +204,14 @@ axiosApi.interceptors.response.use(
             window.location.href = '/login';
           }
           return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
         }
       } else {
+        console.log('[Interceptor] No valid refresh token');
+        isRefreshing = false;
+        processQueue(error, null);
+        
         // No valid refresh token, redirect to login
         tokenUtils.removeTokens();
         if (currentPath !== '/login') {

@@ -10,9 +10,6 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Sun,
-  Moon,
-  Monitor,
 } from "lucide-react";
 import { apiClient } from "../services/api";
 import { useTheme } from "../contexts/ThemeContext";
@@ -84,7 +81,7 @@ const ChangeIndicator = ({ positive, children }) => {
 };
 
 const Dashboard = () => {
-  const { isDarkMode, themeMode, toggleTheme } = useTheme();
+  const { isDarkMode } = useTheme();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalCustomers: 0,
@@ -193,38 +190,13 @@ const Dashboard = () => {
     <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       {/* Header Section */}
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              📊 Dashboard
-            </h1>
-            <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Welcome back! Here's what's happening with your business.
-            </p>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className={`p-2 border rounded-lg transition-colors hover:border-teal-500 ${
-              isDarkMode 
-                ? 'border-gray-600 hover:bg-gray-700' 
-                : 'border-gray-300 hover:bg-gray-50'
-            }`}
-            title={
-              themeMode === "system"
-                ? `System Theme (${isDarkMode ? "Dark" : "Light"})`
-                : themeMode === "dark"
-                ? "Dark Mode"
-                : "Light Mode"
-            }
-          >
-            {themeMode === "system" ? (
-              <Monitor size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-            ) : themeMode === "dark" ? (
-              <Moon size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-            ) : (
-              <Sun size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-            )}
-          </button>
+        <div>
+          <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            📊 Dashboard
+          </h1>
+          <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Welcome back! Here's what's happening with your business.
+          </p>
         </div>
       </div>
 

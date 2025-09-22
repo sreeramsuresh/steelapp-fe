@@ -9,19 +9,29 @@ export const generateInvoicePDF = async (invoice, company) => {
     // Create a temporary DOM element for the invoice
     const invoiceElement = createInvoiceElement(invoice, company);
     document.body.appendChild(invoiceElement);
-    // Ensure images inside the element are loaded before rendering
-    await waitForImages(invoiceElement);
-
+    
+    // Log element for debugging
+    console.log('Invoice element created:', invoiceElement);
+    console.log('Element HTML:', invoiceElement.innerHTML.substring(0, 500));
+    
+    // Wait a bit for any dynamic content to load
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     // Import html2canvas dynamically
     const html2canvas = (await import('html2canvas')).default;
     
-    // Generate canvas from the element
+    // Generate canvas from the element with optimized options for backgrounds
     const canvas = await html2canvas(invoiceElement, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      logging: false,
+      foreignObjectRendering: false,
+      removeContainer: true
     });
+    
+    console.log('Canvas generated:', canvas.width, 'x', canvas.height);
     
     // Remove the temporary element
     document.body.removeChild(invoiceElement);
@@ -32,6 +42,8 @@ export const generateInvoicePDF = async (invoice, company) => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     
+    console.log('PDF dimensions:', pdfWidth, 'x', pdfHeight);
+    
     // Add image to PDF
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     
@@ -41,6 +53,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     return true;
   } catch (error) {
     console.error('Error generating PDF:', error);
+    console.error('Error stack:', error.stack);
     throw new Error('Failed to generate PDF. Please try again.');
   }
 };
@@ -101,22 +114,22 @@ const createInvoiceElement = (invoice, company) => {
       </div>
     </div>
 
-    <div style="width: 100%; background: #009999; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 10px 0;">
-      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px;">TAX INVOICE</h2>
+    <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 15px 0;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff;">TAX INVOICE</h2>
     </div>
 
     <div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 30px; align-items: flex-start;">
       <div style="flex: 0 0 40%; min-width: 0;">
         <h3 style="margin: 0 0 10px 0; color: #1e293b;">Bill To:</h3>
-      <div>
-        <p style="margin: 2px 0; font-weight: 600;">${invoice.customer.name}</p>
-        <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
-        <p style="margin: 2px 0;">${invoice.customer.address.city}</p>
-        <p style="margin: 2px 0;">${invoice.customer.address.country}</p>
-        ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">TRN: ${invoice.customer.gstNumber}</p>` : ''}
-        <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
-        <p style="margin: 2px 0;">Email: ${invoice.customer.email}</p>
-      </div>
+        <div>
+          <p style="margin: 2px 0; font-weight: 600;">${invoice.customer.name}</p>
+          <p style="margin: 2px 0;">${invoice.customer.address.street}</p>
+          <p style="margin: 2px 0;">${invoice.customer.address.city}</p>
+          <p style="margin: 2px 0;">${invoice.customer.address.country}</p>
+          ${invoice.customer.gstNumber ? `<p style="margin: 2px 0;">TRN: ${invoice.customer.gstNumber}</p>` : ''}
+          <p style="margin: 2px 0;">Phone: ${invoice.customer.phone}</p>
+          <p style="margin: 2px 0;">Email: ${invoice.customer.email}</p>
+        </div>
       </div>
       <div style="flex: 0 0 40%; min-width: 0; text-align: left;">
         <h3 style="margin: 0 0 10px 0; color: #0f172a;">INVOICE</h3>
@@ -124,7 +137,7 @@ const createInvoiceElement = (invoice, company) => {
           <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
           <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
           <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
-          <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600;">${invoice.status}</span></p>
+          <p style="margin: 4px 0; line-height: 1.5;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #eff6ff; border: 1px solid #2563eb; border-radius: 4px; white-space: nowrap;">${invoice.status}</span></p>
         </div>
       </div>
     </div>
@@ -132,16 +145,16 @@ const createInvoiceElement = (invoice, company) => {
     <div style="margin-bottom: 30px;">
       <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
-          <tr style="background: #009999; color: #ffffff;">
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Item Description</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Specification</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Unit</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Qty</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Rate</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">TRN %</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">TRN Amount</th>
-            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600; color: #ffffff;">Total</th>
+          <tr style="background-color: #009999; color: #ffffff;">
+            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Item Description</th>
+            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Specification</th>
+            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Unit</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Qty</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Rate</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Amount</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">TRN %</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">TRN Amount</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -193,11 +206,11 @@ const createInvoiceElement = (invoice, company) => {
           </div>
         ` : ''}
         ${invoice.terms ? `
-          <div style=\"margin-bottom: 15px;\">
-            <h4 style=\"margin: 0 0 5px 0; color: #1e293b;\">Terms & Conditions:</h4>
-            <p style=\"margin: 0 0 6px 0; color: #64748b;\">${invoice.terms}</p>
-            <p style=\"margin: 0 0 4px 0; color: #64748b;\">Kindly check the product before unloading</p>
-            <p style=\"margin: 0; color: #64748b;\">If any complaint arises, contact us immediatel</p>
+          <div style="margin-bottom: 15px;">
+            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms & Conditions:</h4>
+            <p style="margin: 0 0 6px 0; color: #64748b;">${invoice.terms}</p>
+            <p style="margin: 0 0 4px 0; color: #64748b;">Kindly check the product before unloading</p>
+            <p style="margin: 0; color: #64748b;">If any complaint arises, contact us immediately</p>
           </div>
         ` : ''}
       </div>
@@ -210,15 +223,6 @@ const createInvoiceElement = (invoice, company) => {
           <p style="margin: 0;">Authorized Signatory</p>
           <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
           <p style="margin: 0; font-weight: 600;">ULTIMATE STEELS</p>
-        </div>
-      </div>
-      <div style="text-align: right;">
-        <h3 style="margin: 0 0 10px 0; color: #0f172a;">INVOICE</h3>
-        <div>
-          <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-          <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
-          <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
-          <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600;">${invoice.status}</span></p>
         </div>
       </div>
     </div>
