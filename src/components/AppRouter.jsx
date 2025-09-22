@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 
 // Components
 import Dashboard from "./Dashboard";
-import InvoiceForm from "../pages/InvoiceForm";
+import InvoiceForm from "../pages/InvoiceFormTailwind";
 import InvoiceList from "../pages/InvoiceList";
 import CustomerManagement from "./CustomerManagement";
 import SteelProducts from "./SteelProducts";
@@ -45,12 +45,19 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
   // Allow public marketing pages and login without auth
   const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
-  if (!user && location.pathname !== "/login" && !isMarketing) {
-    return <Navigate to="/login" replace />;
+  const isLoginPage = location.pathname === "/login";
+  
+  // Check if we need to redirect to login
+  const needsAuth = !user && !isLoginPage && !isMarketing;
+  
+  // If user is logged in and on login page, redirect to dashboard
+  const needsDashboardRedirect = user && isLoginPage;
+
+  if (needsAuth) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If user is logged in and on login page, redirect to dashboard
-  if (user && location.pathname === "/login") {
+  if (needsDashboardRedirect) {
     return <Navigate to="/dashboard" replace />;
   }
 

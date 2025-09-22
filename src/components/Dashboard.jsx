@@ -1,27 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  CircularProgress,
-  Avatar,
-  LinearProgress,
-  Divider,
-  IconButton,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import {
   BarChart3,
   TrendingUp,
   Users,
@@ -32,187 +10,78 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Sun,
-  Moon,
-  Monitor,
 } from "lucide-react";
 import { apiClient } from "../services/api";
 import { useTheme } from "../contexts/ThemeContext";
 
-// Styled Components
-const DashboardContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  width: "100%",
-  overflow: "auto",
-  [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(2),
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5),
-  },
-}));
+// Custom components for consistent theming
+const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  
+  const getVariantClasses = () => {
+    if (variant === 'primary') {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else { // outline
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    }
+  };
+  
+  const sizes = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
+  };
 
-const StatsCard = styled(Card)(({ theme, variant = "default" }) => {
-  const getVariantStyles = () => {
+  return (
+    <button
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
+      {children}
+    </button>
+  );
+};
+
+const StatsCard = ({ variant = 'default', children, className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  const getBorderColor = () => {
     switch (variant) {
-      case "success":
-        return {
-          borderLeft: `4px solid ${theme.palette.success.main}`,
-          "& .stats-icon": {
-            background: `linear-gradient(135deg, ${theme.palette.success.main}, ${theme.palette.success.dark})`,
-            color: theme.palette.success.contrastText,
-          },
-        };
-      case "warning":
-        return {
-          borderLeft: `4px solid ${theme.palette.warning.main}`,
-          "& .stats-icon": {
-            background: `linear-gradient(135deg, ${theme.palette.warning.main}, ${theme.palette.warning.dark})`,
-            color: theme.palette.warning.contrastText,
-          },
-        };
-      case "error":
-        return {
-          borderLeft: `4px solid ${theme.palette.error.main}`,
-          "& .stats-icon": {
-            background: `linear-gradient(135deg, ${theme.palette.error.main}, ${theme.palette.error.dark})`,
-            color: theme.palette.error.contrastText,
-          },
-        };
-      default:
-        return {
-          borderLeft: `4px solid ${theme.palette.primary.main}`,
-          "& .stats-icon": {
-            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            color: theme.palette.primary.contrastText,
-          },
-        };
+      case 'success': return 'border-l-green-500';
+      case 'warning': return 'border-l-yellow-500';
+      case 'error': return 'border-l-red-500';
+      default: return 'border-l-teal-500';
     }
   };
 
-  return {
-    background: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[1],
-    transition: "all 0.3s ease-in-out",
-    height: { xs: "auto", sm: "120px" },
-    minHeight: { xs: "100px", sm: "120px" },
-    display: "flex",
-    flexDirection: "column",
-    "&:hover": {
-      transform: "translateY(-2px)",
-      boxShadow: theme.shadows[4],
-      borderColor: theme.palette.primary.main,
-    },
-    ...getVariantStyles(),
-  };
-});
+  return (
+    <div className={`rounded-xl border-l-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-teal-500 min-h-28 flex flex-col ${
+      isDarkMode 
+        ? 'bg-[#1E2328] border-[#37474F]' 
+        : 'bg-white border-[#E0E0E0]'
+    } ${getBorderColor()} ${className}`}>
+      {children}
+    </div>
+  );
+};
 
-const StatsIcon = styled(Box)(({ theme }) => ({
-  width: { xs: 36, sm: 44 },
-  height: { xs: 36, sm: 44 },
-  borderRadius: theme.spacing(1.5),
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  marginLeft: "auto",
-  boxShadow: theme.shadows[2],
-  transition: "all 0.3s ease",
-  "& svg": {
-    width: { xs: 16, sm: 18 },
-    height: { xs: 16, sm: 18 },
-  },
-}));
-
-const ChangeIndicator = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "positive",
-})(({ theme, positive }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(0.5),
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  color: positive ? theme.palette.success.main : theme.palette.error.main,
-  marginTop: theme.spacing(0.5),
-}));
-
-const SectionHeader = styled(Box)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  padding: theme.spacing(0, 0, 2, 0),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
-const ChartPlaceholder = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(4),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  background: `linear-gradient(135deg, ${theme.palette.background.default}, ${theme.palette.background.paper})`,
-  borderRadius: theme.spacing(2),
-  border: `2px dashed ${theme.palette.divider}`,
-  minHeight: "250px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: `linear-gradient(45deg, transparent 49%, ${theme.palette.divider} 50%, transparent 51%)`,
-    opacity: 0.1,
-    borderRadius: theme.spacing(2),
-  },
-}));
-
-const ProductListItem = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: theme.spacing(1.5, 2),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  transition: "all 0.2s ease",
-  flexDirection: "row",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5, 1),
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: theme.spacing(1),
-  },
-  "&:last-child": {
-    borderBottom: "none",
-  },
-  "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-    transform: "translateX(4px)",
-    [theme.breakpoints.down("sm")]: {
-      transform: "none",
-    },
-  },
-}));
-
-const EmptyState = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(4),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
-
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "400px",
-  gap: theme.spacing(2),
-}));
+const ChangeIndicator = ({ positive, children }) => {
+  return (
+    <div className={`flex items-center gap-1 text-sm font-medium mt-1 ${
+      positive ? 'text-green-500' : 'text-red-500'
+    }`}>
+      {children}
+    </div>
+  );
+};
 
 const Dashboard = () => {
+  const { isDarkMode } = useTheme();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalCustomers: 0,
@@ -227,7 +96,6 @@ const Dashboard = () => {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isDarkMode, themeMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     fetchDashboardData();
@@ -307,776 +175,435 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <DashboardContainer>
-        <LoadingContainer>
-          <CircularProgress size={32} />
-          <Typography color="text.secondary">Loading dashboard...</Typography>
-        </LoadingContainer>
-      </DashboardContainer>
+      <div className={`p-6 md:p-8 min-h-screen w-full ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="flex items-center justify-center min-h-96 gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Loading dashboard...
+          </span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <DashboardContainer>
-      <SectionHeader>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              component="h1"
-              sx={{
-                fontWeight: 600,
-                mb: 1,
-                fontSize: { xs: "1.75rem", sm: "2.125rem" },
-              }}
-            >
-              📊 Dashboard
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-              }}
-            >
-              Welcome back! Here's what's happening with your business.
-            </Typography>
-          </Box>
-          <IconButton
-            onClick={toggleTheme}
-            sx={{
-              border: 1,
-              borderColor: "divider",
-              "&:hover": {
-                borderColor: "primary.main",
-                backgroundColor: "action.hover",
-              },
-            }}
-            title={
-              themeMode === "system"
-                ? `System Theme (${isDarkMode ? "Dark" : "Light"})`
-                : themeMode === "dark"
-                ? "Dark Mode"
-                : "Light Mode"
-            }
-          >
-            {themeMode === "system" ? (
-              <Monitor size={20} />
-            ) : themeMode === "dark" ? (
-              <Moon size={20} />
-            ) : (
-              <Sun size={20} />
-            )}
-          </IconButton>
-        </Box>
-      </SectionHeader>
+    <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      {/* Header Section */}
+      <div className={`mb-6 pb-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+        <div>
+          <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            📊 Dashboard
+          </h1>
+          <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Welcome back! Here's what's happening with your business.
+          </p>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
-        <Box>
-          <StatsCard variant="default">
-            <CardContent
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                p: { xs: 1.5, sm: 2.5 },
-                "&:last-child": { pb: { xs: 1.5, sm: 2.5 } },
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 0.5,
-                      fontWeight: 500,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.5,
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  >
-                    Total Revenue
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
-                    {formatCurrency(stats.totalRevenue)}
-                  </Typography>
-                </Box>
-                <StatsIcon className="stats-icon">
-                  <DollarSign size={18} />
-                </StatsIcon>
-              </Box>
-              <ChangeIndicator positive={stats.revenueChange >= 0}>
-                {stats.revenueChange >= 0 ? (
-                  <ArrowUpRight size={14} />
-                ) : (
-                  <ArrowDownRight size={14} />
-                )}
-                {Math.abs(stats.revenueChange)}% from last month
-              </ChangeIndicator>
-            </CardContent>
-          </StatsCard>
-        </Box>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        {/* Total Revenue Card */}
+        <StatsCard variant="default">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Total Revenue
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {formatCurrency(stats.totalRevenue)}
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg ml-auto">
+                <DollarSign size={18} className="text-white" />
+              </div>
+            </div>
+            <ChangeIndicator positive={stats.revenueChange >= 0}>
+              {stats.revenueChange >= 0 ? (
+                <ArrowUpRight size={14} />
+              ) : (
+                <ArrowDownRight size={14} />
+              )}
+              {Math.abs(stats.revenueChange)}% from last month
+            </ChangeIndicator>
+          </div>
+        </StatsCard>
 
-        <Box>
-          <StatsCard variant="success">
-            <CardContent
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                p: { xs: 1.5, sm: 2.5 },
-                "&:last-child": { pb: { xs: 1.5, sm: 2.5 } },
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 0.5,
-                      fontWeight: 500,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.5,
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  >
-                    Total Customers
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
-                    {stats.totalCustomers}
-                  </Typography>
-                </Box>
-                <StatsIcon className="stats-icon">
-                  <Users size={18} />
-                </StatsIcon>
-              </Box>
-              <ChangeIndicator positive={stats.customersChange >= 0}>
-                {stats.customersChange >= 0 ? (
-                  <ArrowUpRight size={14} />
-                ) : (
-                  <ArrowDownRight size={14} />
-                )}
-                {Math.abs(stats.customersChange)}% from last month
-              </ChangeIndicator>
-            </CardContent>
-          </StatsCard>
-        </Box>
+        {/* Total Customers Card */}
+        <StatsCard variant="success">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Total Customers
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {stats.totalCustomers}
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg ml-auto">
+                <Users size={18} className="text-white" />
+              </div>
+            </div>
+            <ChangeIndicator positive={stats.customersChange >= 0}>
+              {stats.customersChange >= 0 ? (
+                <ArrowUpRight size={14} />
+              ) : (
+                <ArrowDownRight size={14} />
+              )}
+              {Math.abs(stats.customersChange)}% from last month
+            </ChangeIndicator>
+          </div>
+        </StatsCard>
 
-        <Box>
-          <StatsCard variant="warning">
-            <CardContent
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                p: { xs: 1.5, sm: 2.5 },
-                "&:last-child": { pb: { xs: 1.5, sm: 2.5 } },
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 0.5,
-                      fontWeight: 500,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.5,
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  >
-                    Total Products
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
-                    {stats.totalProducts}
-                  </Typography>
-                </Box>
-                <StatsIcon className="stats-icon">
-                  <Package size={18} />
-                </StatsIcon>
-              </Box>
-              <ChangeIndicator positive={stats.productsChange >= 0}>
-                {stats.productsChange >= 0 ? (
-                  <ArrowUpRight size={14} />
-                ) : (
-                  <ArrowDownRight size={14} />
-                )}
-                {Math.abs(stats.productsChange)}% from last month
-              </ChangeIndicator>
-            </CardContent>
-          </StatsCard>
-        </Box>
+        {/* Total Products Card */}
+        <StatsCard variant="warning">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Total Products
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {stats.totalProducts}
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg ml-auto">
+                <Package size={18} className="text-white" />
+              </div>
+            </div>
+            <ChangeIndicator positive={stats.productsChange >= 0}>
+              {stats.productsChange >= 0 ? (
+                <ArrowUpRight size={14} />
+              ) : (
+                <ArrowDownRight size={14} />
+              )}
+              {Math.abs(stats.productsChange)}% from last month
+            </ChangeIndicator>
+          </div>
+        </StatsCard>
 
-        <Box>
-          <StatsCard variant="error">
-            <CardContent
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                p: { xs: 1.5, sm: 2.5 },
-                "&:last-child": { pb: { xs: 1.5, sm: 2.5 } },
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 0.5,
-                      fontWeight: 500,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.5,
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  >
-                    Total Invoices
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
-                    {stats.totalInvoices}
-                  </Typography>
-                </Box>
-                <StatsIcon className="stats-icon">
-                  <FileText size={18} />
-                </StatsIcon>
-              </Box>
-              <ChangeIndicator positive={stats.invoicesChange >= 0}>
-                {stats.invoicesChange >= 0 ? (
-                  <ArrowUpRight size={14} />
-                ) : (
-                  <ArrowDownRight size={14} />
-                )}
-                {Math.abs(stats.invoicesChange)}% from last month
-              </ChangeIndicator>
-            </CardContent>
-          </StatsCard>
-        </Box>
-      </Box>
+        {/* Total Invoices Card */}
+        <StatsCard variant="error">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Total Invoices
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {stats.totalInvoices}
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg ml-auto">
+                <FileText size={18} className="text-white" />
+              </div>
+            </div>
+            <ChangeIndicator positive={stats.invoicesChange >= 0}>
+              {stats.invoicesChange >= 0 ? (
+                <ArrowUpRight size={14} />
+              ) : (
+                <ArrowDownRight size={14} />
+              )}
+              {Math.abs(stats.invoicesChange)}% from last month
+            </ChangeIndicator>
+          </div>
+        </StatsCard>
+      </div>
 
       {/* Charts and Tables Row */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3, mb: 3 }}>
-        <Box>
-          <Card
-            sx={{
-              height: { xs: "auto", md: "350px" },
-              minHeight: { xs: "300px", md: "350px" },
-              borderRadius: 2,
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              border: `1px solid`,
-              borderColor: "divider",
-            }}
-          >
-            <CardContent
-              sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2.5,
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 0.5,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Revenue Analytics Chart */}
+        <div className="lg:col-span-2">
+          <div className={`h-auto md:h-96 min-h-80 rounded-xl border overflow-hidden flex flex-col ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="p-6 flex-1 flex flex-col">
+              <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4">
+                <div>
+                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
                     Revenue Analytics
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    }}
-                  >
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     Track your revenue trends and performance
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 1,
-                    flexDirection: { xs: "column", sm: "row" },
-                    "& > *": { minWidth: { xs: "100%", sm: "auto" } },
-                  }}
-                >
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
                   <Button
-                    variant="outlined"
-                    size="small"
+                    variant="outline"
+                    size="sm"
                     startIcon={<Calendar size={16} />}
-                    sx={{ borderRadius: 2 }}
+                    className="w-full sm:w-auto"
                   >
                     Last 30 Days
                   </Button>
                   <Button
-                    variant="contained"
-                    size="small"
+                    variant="primary"
+                    size="sm"
                     startIcon={<BarChart3 size={16} />}
-                    sx={{ borderRadius: 2 }}
+                    className="w-full sm:w-auto"
                   >
                     View Report
                   </Button>
-                </Box>
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <ChartPlaceholder>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className={`p-8 text-center rounded-xl border-2 border-dashed min-h-60 flex flex-col items-center justify-center relative ${
+                  isDarkMode 
+                    ? 'border-[#37474F] bg-gradient-to-br from-[#121418] to-[#1E2328] text-gray-400' 
+                    : 'border-gray-300 bg-gradient-to-br from-gray-50 to-white text-gray-500'
+                }`}>
                   <Activity
                     size={48}
-                    style={{ marginBottom: "16px", opacity: 0.6 }}
+                    className="mb-4 opacity-60"
                   />
-                  <Typography
-                    variant="h6"
-                    sx={{ mb: 0.5, fontWeight: 600, fontSize: "1rem" }}
-                  >
-                    Chart Coming Soon
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mb: 0.5, fontSize: "0.875rem" }}
-                  >
-                    Revenue chart will be implemented with Chart.js
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontSize: "0.8125rem" }}
-                  >
-                    Showing revenue trends, monthly comparisons, and growth
-                    patterns
-                  </Typography>
-                </ChartPlaceholder>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+                  <h4 className="text-lg font-semibold mb-1">Chart Coming Soon</h4>
+                  <p className="text-sm mb-1">Revenue chart will be implemented with Chart.js</p>
+                  <p className="text-xs opacity-75">
+                    Showing revenue trends, monthly comparisons, and growth patterns
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <Card
-            sx={{
-              height: { xs: "auto", md: "350px" },
-              minHeight: { xs: "250px", md: "350px" },
-              borderRadius: 2,
-              display: "flex",
-              flexDirection: "column",
-              border: `1px solid`,
-              borderColor: "divider",
-            }}
-          >
-            <CardContent
-              sx={{
-                p: { xs: 2, sm: 3 },
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: { xs: "flex-start", sm: "center" },
-                  flexDirection: { xs: "column", sm: "row" },
-                  gap: { xs: 1, sm: 0 },
-                  mb: 2.5,
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 0.5,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
+        {/* Top Products */}
+        <div className="lg:col-span-1">
+          <div className={`h-auto md:h-96 min-h-64 rounded-xl border flex flex-col ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="p-4 sm:p-6 h-full flex flex-col">
+              <div className="flex justify-between items-start flex-col sm:flex-row gap-2 mb-6">
+                <div>
+                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
                     Top Products
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    }}
-                  >
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     Best performing products
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
                 <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    borderRadius: 2,
-                    minWidth: { xs: "100%", sm: "auto" },
-                  }}
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto"
                 >
                   View All
                 </Button>
-              </Box>
-              <Box
-                sx={{
-                  flex: 1,
-                  maxHeight: { xs: "180px", md: "260px" },
-                  overflowY: "auto",
-                  pr: { xs: 0, sm: 1 },
-                }}
-              >
+              </div>
+              <div className="flex-1 max-h-48 md:max-h-64 overflow-y-auto pr-0 sm:pr-2">
                 {topProducts.length > 0 ? (
-                  topProducts.map((product, index) => (
-                    <ProductListItem key={product.id}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          width: { xs: "100%", sm: "auto" },
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: { xs: 36, sm: 40 },
-                            height: { xs: 36, sm: 40 },
-                            background:
-                              index % 4 === 0
-                                ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                                : index % 4 === 1
-                                ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                                : index % 4 === 2
-                                ? "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
-                                : "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                            boxShadow: 2,
-                          }}
-                        >
-                          <Package size={18} />
-                        </Avatar>
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontWeight: 600,
-                              mb: 0.5,
-                              fontSize: { xs: "0.875rem", sm: "0.875rem" },
-                            }}
-                          >
-                            {product.name}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{
-                              fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                            }}
-                          >
-                            {product.category}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box
-                        sx={{
-                          textAlign: { xs: "left", sm: "right" },
-                          ml: { xs: 0, sm: 2 },
-                          alignSelf: { xs: "flex-start", sm: "center" },
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 600,
-                            mb: 0.5,
-                            fontSize: { xs: "0.875rem", sm: "0.875rem" },
-                          }}
-                        >
-                          {formatCurrency(product.revenue)}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{
-                            fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                          }}
-                        >
-                          {product.sales} sales
-                        </Typography>
-                      </Box>
-                    </ProductListItem>
-                  ))
+                  topProducts.map((product, index) => {
+                    const getGradient = (index) => {
+                      const gradients = [
+                        'from-indigo-500 to-purple-600',
+                        'from-emerald-500 to-green-600', 
+                        'from-amber-500 to-orange-600',
+                        'from-red-500 to-red-600'
+                      ];
+                      return gradients[index % 4];
+                    };
+
+                    return (
+                      <div key={product.id} className={`flex items-center justify-between p-3 border-b rounded-lg transition-all duration-200 hover:translate-x-1 ${
+                        isDarkMode ? 'border-[#37474F] hover:bg-[#2E3B4E]' : 'border-gray-200 hover:bg-gray-50'
+                      } last:border-b-0 flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0`}>
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${getGradient(index)} flex items-center justify-center shadow-lg`}>
+                            <Package size={18} className="text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold mb-1 ${
+                              isDarkMode ? 'text-white' : 'text-gray-900'
+                            }`}>
+                              {product.name}
+                            </p>
+                            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {product.category}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-left sm:text-right ml-0 sm:ml-3 self-start sm:self-center">
+                          <p className={`text-sm font-semibold mb-1 ${
+                            isDarkMode ? 'text-white' : 'text-gray-900'
+                          }`}>
+                            {formatCurrency(product.revenue)}
+                          </p>
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {product.sales} sales
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <EmptyState>
+                  <div className="p-8 text-center">
                     <Package
                       size={48}
-                      style={{ marginBottom: "16px", opacity: 0.5 }}
+                      className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     />
-                    <Typography variant="body1" sx={{ mb: 1, fontWeight: 600 }}>
+                    <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       No products found
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    </h4>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       Add products to see them here
-                    </Typography>
-                  </EmptyState>
+                    </p>
+                  </div>
                 )}
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Recent Activity Row */}
-      <Box sx={{ mb: 3 }}>
-        <Box>
-          <Card
-            sx={{
-              borderRadius: 2,
-              border: `1px solid`,
-              borderColor: "divider",
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2.5,
-                }}
+      {/* Recent Invoices */}
+      <div className="mb-6">
+        <div className={`rounded-xl border ${
+          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+        }`}>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Recent Invoices
+                </h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Latest invoice activity and status updates
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                startIcon={<FileText size={16} />}
+                className="w-full sm:w-auto"
               >
-                <Box>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 0.5,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
-                    Recent Invoices
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    }}
-                  >
-                    Latest invoice activity and status updates
-                  </Typography>
-                </Box>
-                <Button
-                  variant="contained"
-                  startIcon={<FileText size={16} />}
-                  sx={{
-                    borderRadius: 2,
-                    minWidth: { xs: "100%", sm: "auto" },
-                  }}
-                >
-                  Create Invoice
-                </Button>
-              </Box>
-              <TableContainer
-                sx={{
-                  overflowX: "auto",
-                  "& .MuiTable-root": {
-                    minWidth: { xs: 650, sm: "auto" },
-                  },
-                }}
-              >
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Invoice No.</TableCell>
-                      <TableCell>Customer</TableCell>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recentInvoices.length > 0 ? (
-                      recentInvoices.map((invoice) => (
-                        <TableRow key={invoice.id} hover>
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 500 }}
-                            >
-                              {invoice.invoice_number}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Box>
-                              <Typography variant="body2">
-                                {invoice.customer_details?.name ||
-                                  "Unknown Customer"}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                {invoice.customer_details?.email}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" color="text.secondary">
-                              {formatDate(invoice.invoice_date)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {formatCurrency(invoice.total)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={invoice.status}
-                              size="small"
-                              color={
-                                invoice.status === "paid"
-                                  ? "success"
-                                  : invoice.status === "pending"
-                                  ? "warning"
-                                  : invoice.status === "overdue"
-                                  ? "error"
-                                  : "default"
-                              }
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                gap: 1,
-                                flexDirection: { xs: "column", sm: "row" },
-                                "& > *": {
-                                  minWidth: { xs: "100%", sm: "auto" },
-                                },
-                              }}
-                            >
-                              <Button variant="outlined" size="small">
-                                View
-                              </Button>
-                              <Button variant="contained" size="small">
-                                Edit
-                              </Button>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6}>
-                          <EmptyState>
-                            <FileText
-                              size={32}
-                              style={{ marginBottom: "16px", opacity: 0.5 }}
-                            />
-                            <Typography variant="body1" sx={{ mb: 2 }}>
-                              No invoices found
-                            </Typography>
-                            <Button variant="contained">
-                              Create Your First Invoice
+                Create Invoice
+              </Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[650px]">
+                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                  <tr>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Invoice No.</th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Customer</th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Date</th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Amount</th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Status</th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
+                  {recentInvoices.length > 0 ? (
+                    recentInvoices.map((invoice) => (
+                      <tr key={invoice.id} className={`transition-colors ${isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'}`}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {invoice.invoice_number}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {invoice.customer_details?.name || "Unknown Customer"}
+                            </div>
+                            <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {invoice.customer_details?.email}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatDate(invoice.invoice_date)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(invoice.total)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
+                            invoice.status === "paid"
+                              ? 'bg-green-100 text-green-800 border-green-200'
+                              : invoice.status === "pending"
+                              ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              : invoice.status === "overdue"
+                              ? 'bg-red-100 text-red-800 border-red-200'
+                              : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
+                          }`}>
+                            {invoice.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex gap-2 flex-col sm:flex-row">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                              View
                             </Button>
-                          </EmptyState>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
-    </DashboardContainer>
+                            <Button variant="primary" size="sm" className="w-full sm:w-auto">
+                              Edit
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6}>
+                        <div className="p-8 text-center">
+                          <FileText
+                            size={32}
+                            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          />
+                          <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            No invoices found
+                          </h4>
+                          <Button variant="primary">
+                            Create Your First Invoice
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

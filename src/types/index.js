@@ -14,7 +14,7 @@ export const createCustomer = () => ({
     poBox: '',
     country: 'UAE'
   },
-  vatNumber: '',
+  vatNumber: '', // TRN Number
   panNumber: '',
   cinNumber: '',
   tradeLicenseNumber: '',
@@ -38,7 +38,7 @@ export const createSteelItem = () => ({
   discountType: 'amount',
   taxableAmount: 0,
   amount: 0,
-  vatRate: 5,
+  vatRate: 5, // TRN Rate
   cvat: 0,
   svat: 0,
   ivat: 0,
@@ -63,7 +63,7 @@ export const createInvoice = () => ({
   customer: createCustomer(),
   items: [createSteelItem()],
   subtotal: 0,
-  vatAmount: 0,
+  vatAmount: 0, // TRN Amount
   cvatAmount: 0,
   svatAmount: 0,
   ivatAmount: 0,
@@ -96,7 +96,7 @@ export const createCompany = () => ({
   },
   phone: '+971 50 123 4567',
   email: 'info@steeltrading.com',
-  vatNumber: '100000000000003'
+  vatNumber: '100000000000003' // TRN Number
 });
 
 export const STEEL_UNITS = ['kg', 'ton', 'piece', 'meter', 'feet'];

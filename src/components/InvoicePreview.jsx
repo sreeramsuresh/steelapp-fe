@@ -1,4 +1,6 @@
 import React from "react";
+import logoCompany from "../assets/logocompany.png";
+import seal from "../assets/Seal.png";
 import { X, Download } from "lucide-react";
 import {
   Box,
@@ -24,10 +26,22 @@ import {
 import {
   formatCurrency,
   formatDate,
-  calculateVAT,
+  calculateTRN,
+  calculateSubtotal,
+  calculateTotalTRN,
+  calculateTotal,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
+  // Compute summary values locally to ensure correctness in preview/PDF
+  const computedSubtotal = calculateSubtotal(invoice.items || []);
+  const computedVatAmount = calculateTotalTRN(invoice.items || []);
+  const packing = parseFloat(invoice.packingCharges) || 0;
+  const freight = parseFloat(invoice.freightCharges) || 0;
+  const loading = parseFloat(invoice.loadingCharges) || 0;
+  const other = parseFloat(invoice.otherCharges) || 0;
+  const additionalCharges = packing + freight + loading + other;
+  const computedTotal = calculateTotal(computedSubtotal + additionalCharges, computedVatAmount);
   const handleDownloadPDF = async () => {
     try {
       const { jsPDF } = await import("jspdf");
@@ -36,10 +50,74 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
       const element = document.getElementById("invoice-preview");
       if (!element) return;
 
+      // Ensure any images (like logo) are loaded before rendering
+      const waitForImages = async (container) => {
+        const imgs = Array.from(container.querySelectorAll('img'));
+        if (imgs.length === 0) return;
+        await Promise.all(
+          imgs.map((img) => new Promise((resolve) => {
+            if (img.complete && img.naturalWidth !== 0) return resolve();
+            try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch (_) {}
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+          }))
+        );
+      };
+
+      // Store original styles
+      const originalStyles = element.style.cssText;
+      
+      // Apply light mode styles temporarily for PDF generation
+      element.style.cssText = `
+        ${originalStyles}
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      `;
+      
+      // Apply light mode styles to all child elements
+      const allElements = element.querySelectorAll('*');
+      const originalElementStyles = [];
+      
+      allElements.forEach((el, index) => {
+        originalElementStyles[index] = el.style.cssText;
+        
+        // Force light mode colors
+        el.style.cssText = `
+          ${el.style.cssText}
+          color: #000000 !important;
+          background-color: transparent !important;
+          border-color: #e0e0e0 !important;
+        `;
+        
+        // Special handling for specific elements
+        if (el.classList.contains('MuiTableHead-root') || el.closest('.MuiTableHead-root')) {
+          el.style.backgroundColor = '#f5f5f5 !important';
+        }
+        
+        if (el.classList.contains('MuiCard-root') || el.classList.contains('MuiPaper-root')) {
+          el.style.backgroundColor = '#ffffff !important';
+          el.style.borderColor = '#e0e0e0 !important';
+        }
+        
+        if (el.classList.contains('MuiChip-root')) {
+          el.style.backgroundColor = '#e3f2fd !important';
+          el.style.color = '#1976d2 !important';
+        }
+      });
+
+      await waitForImages(element);
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
+        backgroundColor: '#ffffff',
+      });
+
+      // Restore original styles
+      element.style.cssText = originalStyles;
+      allElements.forEach((el, index) => {
+        el.style.cssText = originalElementStyles[index];
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -101,106 +179,135 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           {/* Invoice Header */}
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-                {company.name}
-              </Typography>
+              {/* Company Logo (fallbacks to name if logo fails) */}
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', minHeight: 48 }}>
+                <img
+                  src={company?.logo_url || logoCompany}
+                  alt={company?.name || 'Company Logo'}
+                  crossOrigin="anonymous"
+                  style={{ maxHeight: 48, width: 'auto', objectFit: 'contain' }}
+                  onError={(e) => {
+                    // If custom URL fails, fallback to text
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                {/* If logo hidden due to error, show name */}
+                <noscript>
+                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    {company?.name}
+                  </Typography>
+                </noscript>
+              </Box>
+              {/* Removed company name here; it's part of address at right */}
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
+                  <strong>BANK NAME:</strong> ULTIMATE STEEL AND
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
+                  BUILDING MATERIALS TRADING
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, lineHeight: 1.3 }}>
+                  Account No: 019101641144
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
+                  IBAN: AE490330000019101641144
+                </Typography>
+              </Box>
+              {/* Address moved to right column */}
+            </Box>
+
+            {/* Right column: Company name (as part of address) and contacts */}
+            <Box sx={{ textAlign: "left" }}>
               <Box sx={{ mb: 2 }}>
+                <Typography variant="body2">Ultimate Steels Building Materials Trading</Typography>
+                <Typography variant="body2">{company.address?.street}</Typography>
                 <Typography variant="body2">
-                  {company.address?.street}
+                  {company.address?.city}
+                  {company.address?.emirate ? `, ${company.address.emirate}` : ''}
+                  {company.address?.poBox ? ` ${company.address.poBox}` : ''}
                 </Typography>
-                <Typography variant="body2">
-                  {company.address?.city}, {company.address?.emirate}{" "}
-                  {company.address?.poBox}
-                </Typography>
-                <Typography variant="body2">
-                  {company.address?.country}
-                </Typography>
+                <Typography variant="body2">{company.address?.country}</Typography>
               </Box>
               <Box>
                 <Typography variant="body2">Phone: {company.phone}</Typography>
                 <Typography variant="body2">Email: {company.email}</Typography>
-                <Typography variant="body2">
-                  VAT: {company.vatNumber}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ textAlign: "right" }}>
-              <Typography variant="h3" sx={{ fontWeight: "bold", mb: 2 }}>
-                INVOICE
-              </Typography>
-              <Box>
-                <Typography variant="body1">
-                  <strong>Invoice #:</strong> {invoice.invoiceNumber}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Date:</strong> {formatDate(invoice.date)}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Typography variant="body1" component="span">
-                    <strong>Status:</strong>
-                  </Typography>
-                  <Chip
-                    label={invoice.status.toUpperCase()}
-                    color={
-                      invoice.status === "paid"
-                        ? "success"
-                        : invoice.status === "draft"
-                        ? "default"
-                        : "warning"
-                    }
-                    size="small"
-                  />
-                </Box>
-                {invoice.purchaseOrderNumber && (
-                  <Typography variant="body1">
-                    <strong>PO #:</strong> {invoice.purchaseOrderNumber}
-                  </Typography>
-                )}
-                {invoice.deliveryNote && (
-                  <Typography variant="body1">
-                    <strong>Delivery Note:</strong> {invoice.deliveryNote}
-                  </Typography>
-                )}
+                <Typography variant="body2">TRN: {company.vatNumber}</Typography>
               </Box>
             </Box>
           </Box>
 
-          {/* Bill To Section */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-              Bill To:
+          {/* Full-width Heading Bar */}
+          <Box sx={{ width: '100%', bgcolor: '#009999', color: '#fff', display: 'flex', justifyContent: 'center', mb: 3, py: 1.5 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: 0.5, color: '#fff' }}>
+              TAX INVOICE
             </Typography>
-            <Card variant="outlined" sx={{ p: 2 }}>
-              <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+          </Box>
+
+          {/* Bill To + Invoice Summary Row (space-between), no boxes, narrower width */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: 4 }}>
+            {/* Bill To (outside box) */}
+            <Box sx={{ flex: '0 0 40%', minWidth: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5 }}>
+                Bill To:
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                 {invoice.customer.name}
               </Typography>
+              <Typography variant="body2">{invoice.customer.address?.street}</Typography>
               <Typography variant="body2">
-                {invoice.customer.address?.street}
-              </Typography>
-              <Typography variant="body2">
-                {invoice.customer.address?.city},{" "}
-                {invoice.customer.address?.emirate}{" "}
+                {invoice.customer.address?.city}{' '}
+                {invoice.customer.address?.emirate}{' '}
                 {invoice.customer.address?.poBox}
               </Typography>
-              <Typography variant="body2">
-                {invoice.customer.address?.country}
-              </Typography>
+              <Typography variant="body2">{invoice.customer.address?.country}</Typography>
               {invoice.customer.vatNumber && (
-                <Typography variant="body2">
-                  VAT: {invoice.customer.vatNumber}
+                <Typography variant="body2">TRN: {invoice.customer.vatNumber}</Typography>
+              )}
+              <Typography variant="body2">Phone: {invoice.customer.phone}</Typography>
+              <Typography variant="body2">Email: {invoice.customer.email}</Typography>
+            </Box>
+
+            {/* Invoice summary (outside box), styled like Bill To */}
+            <Box sx={{ flex: '0 0 40%', minWidth: 0, textAlign: 'left' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5 }}>
+                INVOICE
+              </Typography>
+              <Typography variant="body1">
+                <strong>Invoice #:</strong> {invoice.invoiceNumber}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Date:</strong> {formatDate(invoice.date)}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-start', mt: 1 }}>
+                <Typography variant="body1" component="span">
+                  <strong>Status:</strong>
+                </Typography>
+                <Chip
+                  label={invoice.status.toUpperCase()}
+                  color={
+                    invoice.status === 'paid'
+                      ? 'success'
+                      : invoice.status === 'draft'
+                      ? 'default'
+                      : 'warning'
+                  }
+                  size="small"
+                />
+              </Box>
+              {invoice.purchaseOrderNumber && (
+                <Typography variant="body1">
+                  <strong>PO #:</strong> {invoice.purchaseOrderNumber}
                 </Typography>
               )}
-              <Typography variant="body2">
-                Phone: {invoice.customer.phone}
-              </Typography>
-              <Typography variant="body2">
-                Email: {invoice.customer.email}
-              </Typography>
-            </Card>
+              {invoice.deliveryNote && (
+                <Typography variant="body1">
+                  <strong>Delivery Note:</strong> {invoice.deliveryNote}
+                </Typography>
+              )}
+            </Box>
           </Box>
 
           {/* Transport Details */}
@@ -253,8 +360,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           {/* Invoice Table */}
           <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
             <Table>
-              <TableHead>
-                <TableRow sx={{ bgcolor: "grey.100" }}>
+              <TableHead sx={{ '& .MuiTableCell-root': { color: '#ffffff' } }}>
+                <TableRow sx={{ bgcolor: '#009999' }}>
                   <TableCell>
                     <strong>Item Description</strong>
                   </TableCell>
@@ -267,6 +374,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     </TableCell>
                   )}
                   <TableCell>
+                    <strong>Grade</strong>
                   </TableCell>
                   <TableCell>
                     <strong>Unit</strong>
@@ -286,10 +394,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     <strong>Amount</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>VAT %</strong>
+                    <strong>TRN %</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>VAT Amount</strong>
+                    <strong>TRN Amount</strong>
                   </TableCell>
                   <TableCell align="right">
                     <strong>Total</strong>
@@ -298,8 +406,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </TableHead>
               <TableBody>
                 {invoice.items.map((item, index) => {
-                  const vatAmount = calculateVAT(item.amount, item.vatRate);
-                  const totalWithVAT = item.amount + vatAmount;
+                  const vatAmount = calculateTRN(item.amount, item.vatRate);
+                  const totalWithTRN = item.amount + vatAmount;
 
                   return (
                     <TableRow key={index}>
@@ -308,6 +416,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       {invoice.items.some((item) => item.description) && (
                         <TableCell>{item.description || "-"}</TableCell>
                       )}
+                      <TableCell>{item.grade || "-"}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">
@@ -330,7 +439,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         {formatCurrency(vatAmount)}
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{formatCurrency(totalWithVAT)}</strong>
+                        <strong>{formatCurrency(totalWithTRN)}</strong>
                       </TableCell>
                     </TableRow>
                   );
@@ -351,9 +460,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   }}
                 >
                   <Typography variant="body1">Subtotal:</Typography>
-                  <Typography variant="body1">
-                    {formatCurrency(invoice.subtotal)}
-                  </Typography>
+                  <Typography variant="body1">{formatCurrency(computedSubtotal)}</Typography>
                 </Box>
 
                 {/* Additional Charges */}
@@ -434,10 +541,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     mb: 1,
                   }}
                 >
-                  <Typography variant="body1">VAT Amount:</Typography>
-                  <Typography variant="body1">
-                    {formatCurrency(invoice.vatAmount)}
-                  </Typography>
+                  <Typography variant="body1">TRN Amount:</Typography>
+                  <Typography variant="body1">{formatCurrency(computedVatAmount)}</Typography>
                 </Box>
 
                 {invoice.roundOff && invoice.roundOff !== 0 && (
@@ -471,7 +576,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     variant="h6"
                     sx={{ fontWeight: "bold", color: "primary.main" }}
                   >
-                    {formatCurrency(invoice.total)}
+                    {formatCurrency(computedTotal)}
                   </Typography>
                 </Box>
 
@@ -495,7 +600,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         display: "flex",
                         justifyContent: "space-between",
                         p: 1,
-                        bgcolor: "grey.100",
+                        bgcolor: "action.hover",
                         borderRadius: 1,
                       }}
                     >
@@ -506,9 +611,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         variant="body1"
                         sx={{ fontWeight: "bold", color: "error.main" }}
                       >
-                        {formatCurrency(
-                          Math.max(0, invoice.total - invoice.advanceReceived)
-                        )}
+                        {formatCurrency(Math.max(0, computedTotal - (invoice.advanceReceived || 0)))}
                       </Typography>
                     </Box>
                   </>
@@ -517,7 +620,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 {/* Total in Words */}
                 {invoice.totalInWords && (
                   <Box
-                    sx={{ mt: 2, p: 1, bgcolor: "grey.50", borderRadius: 1 }}
+                    sx={{ mt: 2, p: 1, bgcolor: "action.selected", borderRadius: 1 }}
                   >
                     <Typography variant="body2" sx={{ fontStyle: "italic" }}>
                       <strong>Amount in Words:</strong> {invoice.totalInWords}
@@ -556,7 +659,15 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       >
                         Terms & Conditions:
                       </Typography>
-                      <Typography variant="body2">{invoice.terms}</Typography>
+                      <Typography variant="body2" sx={{ mb: 1 }}>
+                        {invoice.terms}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Kindly check the product before unloading
+                      </Typography>
+                      <Typography variant="body2">
+                        If any complaint arises, contact us immediatel
+                      </Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -564,23 +675,31 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
             </Grid>
           )}
 
-          {/* Signature Section */}
+          {/* Signature Section with Seal on Left */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 6 }}>
-            <Box sx={{ textAlign: "center", minWidth: 200 }}>
-              <Typography variant="body2" sx={{ mb: 4 }}>
-                Authorized Signatory
-              </Typography>
-              <Box
-                sx={{
-                  borderBottom: "1px solid black",
-                  mb: 1,
-                  height: "50px",
-                  width: "200px",
-                }}
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+              <img
+                src={seal}
+                alt="Company Seal"
+                crossOrigin="anonymous"
+                style={{ height: 180, width: 'auto', objectFit: 'contain', opacity: 0.95 }}
               />
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                {company.name}
-              </Typography>
+              <Box sx={{ textAlign: "center", minWidth: 200 }}>
+                <Typography variant="body2" sx={{ mb: 4 }}>
+                  Authorized Signatory
+                </Typography>
+                <Box
+                  sx={{
+                    borderBottom: "1px solid black",
+                    mb: 1,
+                    height: "50px",
+                    width: "200px",
+                  }}
+                />
+                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                  ULTIMATE STEELS
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Box>

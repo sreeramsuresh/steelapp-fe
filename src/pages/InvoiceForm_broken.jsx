@@ -5,7 +5,7 @@ import {
   generateInvoiceNumber, 
   calculateItemAmount, 
   calculateSubtotal, 
-  calculateTotalVAT, 
+  calculateTotalTRN, 
   calculateTotal,
   formatCurrency 
 } from '../utils/invoiceUtils';
@@ -34,7 +34,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
 
   useEffect(() => {
     const subtotal = calculateSubtotal(invoice.items);
-    const vatAmount = calculateTotalVAT(invoice.items);
+    const vatAmount = calculateTotalTRN(invoice.items);
     const total = calculateTotal(subtotal, vatAmount);
     
     setInvoice(prev => ({
@@ -274,7 +274,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   </div>
                   <div className="col-6">
                     <div className="form-group">
-                      <label className="form-label">VAT Number</label>
+                      <label className="form-label">TRN Number</label>
                       <input
                         type="text"
                         className="form-input"
@@ -376,7 +376,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <th>Unit</th>
                   <th>Qty</th>
                   <th>Rate</th>
-                  <th>VAT %</th>
+                  <th>TRN %</th>
                   <th>Amount</th>
                   <th>Action</th>
                 </tr>
@@ -516,7 +516,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.subtotal)}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>VAT Amount:</span>
+                  <span>TRN Amount:</span>
                   <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.vatAmount)}</span>
                 </div>
                 <hr style={{ border: '1px solid var(--border-primary)', margin: 'var(--spacing-md) 0' }} />

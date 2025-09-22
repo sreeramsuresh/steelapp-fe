@@ -24,105 +24,151 @@ import {
   Eye,
   RefreshCw,
   Move,
-  Warehouse
+  Warehouse,
+  ChevronDown
 } from 'lucide-react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  IconButton,
-  InputAdornment,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Grid,
-  Card,
-  CardContent,
-  CircularProgress,
-  Divider,
-  Tabs,
-  Tab,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  LinearProgress,
-  Avatar,
-  Stack,
-  Alert
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
 import { useApiData, useApi } from '../hooks/useApi';
+import { useTheme } from '../contexts/ThemeContext';
 import StockMovement from './StockMovement';
 import InventoryList from './InventoryList';
 
-// Styled Components
-const ProductsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  overflow: 'auto',
-}));
+// Custom components for consistent theming
+const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  
+  const getVariantClasses = () => {
+    if (variant === 'primary') {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else if (variant === 'secondary') {
+      return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${isDarkMode ? 'gray-500' : 'gray-400'} disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else { // outline
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    }
+  };
+  
+  const sizes = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
+  };
 
-const ProductsPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: 'hidden',
-}));
+  return (
+    <button
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
 
-const StatsCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  textAlign: 'center',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
+const Input = ({ label, error, className = '', type = 'text', ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <input
+        type={type}
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+        } ${error ? 'border-red-500' : ''} ${className}`}
+        {...props}
+      />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  );
+};
 
-const ProductCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-    borderColor: theme.palette.primary.main,
-  },
-}));
+const Select = ({ label, options, value, onChange, placeholder = "Select...", className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        <select
+          value={value}
+          onChange={onChange}
+          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600 text-white' 
+              : 'bg-white border-gray-300 text-gray-900'
+          } ${className}`}
+        >
+          {placeholder && <option value="">{placeholder}</option>}
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+      </div>
+    </div>
+  );
+};
 
-const StockProgressBar = styled(LinearProgress)(({ theme, stockstatus }) => ({
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: theme.palette.grey[300],
-  '& .MuiLinearProgress-bar': {
-    backgroundColor: 
-      stockstatus === 'low' ? theme.palette.error.main :
-      stockstatus === 'high' ? theme.palette.success.main :
-      theme.palette.info.main,
-  },
-}));
+const Textarea = ({ label, error, className = '', ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <textarea
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+        } ${error ? 'border-red-500' : ''} ${className}`}
+        {...props}
+      />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  );
+};
+
+const StockProgressBar = ({ value, stockStatus }) => {
+  const getColor = () => {
+    switch (stockStatus) {
+      case 'low': return 'bg-red-500';
+      case 'high': return 'bg-green-500';
+      default: return 'bg-blue-500';
+    }
+  };
+
+  return (
+    <div className="w-full bg-gray-200 rounded-full h-2">
+      <div 
+        className={`h-2 rounded-full transition-all duration-300 ${getColor()}`}
+        style={{ width: `${Math.min(value, 100)}%` }}
+      />
+    </div>
+  );
+};
 
 const SteelProducts = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('catalog');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -327,212 +373,212 @@ const SteelProducts = () => {
   const stats = calculateInventoryStats();
 
   const renderCatalog = () => (
-    <Box>
+    <div>
       {/* Controls */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-        <TextField
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search size={20} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ flexGrow: 1, minWidth: 300 }}
+      <div className="flex flex-wrap gap-4 mb-6 items-center">
+        <div className="relative flex-1 min-w-80">
+          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-full pl-10 pr-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              isDarkMode 
+                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+          />
+        </div>
+        <Select
+          label="Category"
+          options={[{ value: 'all', label: 'All Categories' }, ...categories]}
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="min-w-40"
         />
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            label="Category"
-          >
-            <MenuItem value="all">All Categories</MenuItem>
-            {categories.map(cat => (
-              <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel>Stock</InputLabel>
-          <Select
-            value={stockFilter}
-            onChange={(e) => setStockFilter(e.target.value)}
-            label="Stock"
-          >
-            <MenuItem value="all">All Stock</MenuItem>
-            <MenuItem value="low">Low Stock</MenuItem>
-            <MenuItem value="normal">Normal</MenuItem>
-            <MenuItem value="high">High Stock</MenuItem>
-          </Select>
-        </FormControl>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={20} />}
-          onClick={() => setShowAddModal(true)}
-          sx={{ borderRadius: 2 }}
-        >
+        <Select
+          label="Stock"
+          options={[
+            { value: 'all', label: 'All Stock' },
+            { value: 'low', label: 'Low Stock' },
+            { value: 'normal', label: 'Normal' },
+            { value: 'high', label: 'High Stock' }
+          ]}
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value)}
+          className="min-w-32"
+        />
+        <Button onClick={() => setShowAddModal(true)}>
+          <Plus size={20} />
           Add Product
         </Button>
-      </Box>
+      </div>
 
       {/* Products Grid */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProducts.map(product => {
           const stockStatus = getStockStatus(product);
           return (
-            <Box key={product.id}>
-              <ProductCard>
-                <CardContent>
-                  {/* Product Header */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        {product.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        {categories.find(c => c.value === product.category)?.label}
-                      </Typography>
-                      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                        <Chip label={product.grade} size="small" color="primary" variant="outlined" />
-                        <Chip label={product.size} size="small" variant="outlined" />
-                      </Stack>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setShowSpecModal(true);
-                        }}
-                        title="View Specifications"
-                      >
-                        <Eye size={16} />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
-                          setShowPriceModal(true);
-                        }}
-                        title="Update Price"
-                        color="info"
-                      >
-                        <Tag size={16} />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setShowEditModal(true);
-                        }}
-                        title="Edit Product"
-                        color="primary"
-                      >
-                        <Edit size={16} />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteProduct(product.id)}
-                        title="Delete Product"
-                        color="error"
-                      >
-                        <Trash2 size={16} />
-                      </IconButton>
-                    </Box>
-                  </Box>
+            <div key={product.id} className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+              isDarkMode 
+                ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500' 
+                : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+            }`}>
+              <div className="p-6">
+                {/* Product Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {product.name}
+                    </h3>
+                    <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {categories.find(c => c.value === product.category)?.label}
+                    </p>
+                    <div className="flex gap-2 mb-3">
+                      <span className="px-2 py-1 text-xs bg-teal-100 text-teal-800 rounded-md border border-teal-200">
+                        {product.grade}
+                      </span>
+                      <span className={`px-2 py-1 text-xs rounded-md border ${
+                        isDarkMode 
+                          ? 'bg-gray-700 text-gray-300 border-gray-600' 
+                          : 'bg-gray-100 text-gray-700 border-gray-300'
+                      }`}>
+                        {product.size}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setShowSpecModal(true);
+                      }}
+                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
+                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      }`}
+                      title="View Specifications"
+                    >
+                      <Eye size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
+                        setShowPriceModal(true);
+                      }}
+                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
+                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      }`}
+                      title="Update Price"
+                    >
+                      <Tag size={16} className="text-blue-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setShowEditModal(true);
+                      }}
+                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
+                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      }`}
+                      title="Edit Product"
+                    >
+                      <Edit size={16} className="text-teal-500" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
+                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      }`}
+                      title="Delete Product"
+                    >
+                      <Trash2 size={16} className="text-red-500" />
+                    </button>
+                  </div>
+                </div>
 
-                  {/* Description */}
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {product.description}
-                  </Typography>
+                {/* Description */}
+                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {product.description}
+                </p>
 
-                  {/* Product Stats */}
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">Weight:</Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                        {product.weight} {product.unit}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">Supplier:</Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                        {product.supplier}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="caption" color="text.secondary">Location:</Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                        {product.location}
-                      </Typography>
-                    </Box>
-                  </Box>
+                {/* Product Stats */}
+                <div className="mb-4 space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Weight:</span>
+                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {product.weight} {product.unit}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Supplier:</span>
+                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {product.supplier}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Location:</span>
+                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {product.location}
+                    </span>
+                  </div>
+                </div>
 
-                  {/* Stock Info */}
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="caption" color="text.secondary">Stock Level</Typography>
-                      <Chip 
-                        icon={
-                          stockStatus === 'low' ? <AlertTriangle size={14} /> :
-                          stockStatus === 'high' ? <Package size={14} /> :
-                          <CheckCircle size={14} />
-                        }
-                        label={stockStatus.toUpperCase()}
-                        size="small"
-                        color={
-                          stockStatus === 'low' ? 'error' :
-                          stockStatus === 'high' ? 'success' : 'info'
-                        }
-                        variant="outlined"
-                      />
-                    </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      {product.currentStock}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                      Min: {product.minStock} | Max: {product.maxStock}
-                    </Typography>
-                    <StockProgressBar 
-                      variant="determinate" 
-                      value={Math.min((product.currentStock / product.maxStock) * 100, 100)}
-                      stockstatus={stockStatus}
-                    />
-                  </Box>
+                {/* Stock Info */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock Level</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
+                      stockStatus === 'low' 
+                        ? 'bg-red-50 text-red-700 border-red-200' 
+                        : stockStatus === 'high' 
+                        ? 'bg-green-50 text-green-700 border-green-200' 
+                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                    }`}>
+                      {stockStatus === 'low' ? <AlertTriangle size={12} /> :
+                       stockStatus === 'high' ? <Package size={12} /> :
+                       <CheckCircle size={12} />}
+                      {stockStatus.toUpperCase()}
+                    </span>
+                  </div>
+                  <h4 className={`text-xl font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {product.currentStock}
+                  </h4>
+                  <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Min: {product.minStock} | Max: {product.maxStock}
+                  </p>
+                  <StockProgressBar 
+                    value={Math.min((product.currentStock / product.maxStock) * 100, 100)}
+                    stockStatus={stockStatus}
+                  />
+                </div>
 
-                  {/* Price Info */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">Cost Price</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>د.إ{product.costPrice}</Typography>
-                    </Box>
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant="caption" color="text.secondary">Selling Price</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                        د.إ{product.sellingPrice}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant="caption" color="text.secondary">Margin</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {product.costPrice > 0 ? 
-                          Math.round(((product.sellingPrice - product.costPrice) / product.costPrice) * 100) 
-                          : 0}%
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </ProductCard>
-            </Box>
+                {/* Price Info */}
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cost Price</p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.costPrice}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selling Price</p>
+                    <p className="text-sm font-semibold text-green-600">د.إ{product.sellingPrice}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Margin</p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {product.costPrice > 0 ? 
+                        Math.round(((product.sellingPrice - product.costPrice) / product.costPrice) * 100) 
+                        : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           );
         })}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 
   const renderStockMovements = () => (
@@ -636,780 +682,825 @@ const SteelProducts = () => {
   );
 
   const renderPricing = () => (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" gutterBottom>
+    <div className="p-4">
+      <div className="mb-6">
+        <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           Price Management
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        </h2>
+        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
           Manage product pricing and track price history
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Cost Price</TableCell>
-              <TableCell>Selling Price</TableCell>
-              <TableCell>Margin</TableCell>
-              <TableCell>Last Updated</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map(product => {
-              const margin = product.costPrice > 0 ? 
-                ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 : 0;
-              return (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {product.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {product.grade} - {product.size}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    {categories.find(c => c.value === product.category)?.label}
-                  </TableCell>
-                  <TableCell>د.إ{product.costPrice}</TableCell>
-                  <TableCell>د.إ{product.sellingPrice}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={`${Math.round(margin)}%`}
-                      color={margin < 10 ? 'error' : margin > 30 ? 'success' : 'warning'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {product.lastUpdated ? format(new Date(product.lastUpdated), 'MMM dd, yyyy') : 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
-                        setShowPriceModal(true);
-                      }}
-                      title="Update Price"
-                    >
-                      <RefreshCw size={16} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+      <div className={`rounded-xl border overflow-hidden ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+              <tr>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Product</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Category</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Cost Price</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Selling Price</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Margin</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Last Updated</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
+              {products.map(product => {
+                const margin = product.costPrice > 0 ? 
+                  ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 : 0;
+                return (
+                  <tr key={product.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {product.name}
+                        </div>
+                        <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {product.grade} - {product.size}
+                        </div>
+                      </div>
+                    </td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {categories.find(c => c.value === product.category)?.label}
+                    </td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      د.إ{product.costPrice}
+                    </td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      د.إ{product.sellingPrice}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        margin < 10 
+                          ? 'bg-red-100 text-red-800' 
+                          : margin > 30 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {Math.round(margin)}%
+                      </span>
+                    </td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {product.lastUpdated ? format(new Date(product.lastUpdated), 'MMM dd, yyyy') : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
+                          setShowPriceModal(true);
+                        }}
+                        className={`p-1 rounded hover:bg-opacity-20 transition-colors ${
+                          isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                        }`}
+                        title="Update Price"
+                      >
+                        <RefreshCw size={16} className="text-teal-500" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    <ProductsContainer>
-      <ProductsPaper sx={{ p: 3 }}>
+    <div className={`p-4 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      <div className={`rounded-xl border p-6 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
         {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Package size={28} />
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Package size={28} className="text-teal-600" />
+            <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               🏗️ Steel Products
-            </Typography>
-          </Box>
-          <Typography variant="body1" color="text.secondary">
+            </h1>
+          </div>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
             Manage your steel product catalog, inventory, and pricing
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
         {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-            <Tab 
-              value="catalog" 
-              label="Product Catalog" 
-              icon={<Package size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="stock-movements" 
-              label="Stock Movements" 
-              icon={<Move size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="inventory" 
-              label="Inventory Management" 
-              icon={<Warehouse size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="pricing" 
-              label="Price Management" 
-              icon={<DollarSign size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-          </Tabs>
-        </Box>
+        <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('catalog')}
+              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'catalog'
+                  ? 'border-teal-500 text-teal-600'
+                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+              }`}
+            >
+              <Package size={20} />
+              Product Catalog
+            </button>
+            <button
+              onClick={() => setActiveTab('stock-movements')}
+              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'stock-movements'
+                  ? 'border-teal-500 text-teal-600'
+                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+              }`}
+            >
+              <Move size={20} />
+              Stock Movements
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'inventory'
+                  ? 'border-teal-500 text-teal-600'
+                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+              }`}
+            >
+              <Warehouse size={20} />
+              Inventory Management
+            </button>
+            <button
+              onClick={() => setActiveTab('pricing')}
+              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'pricing'
+                  ? 'border-teal-500 text-teal-600'
+                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+              }`}
+            >
+              <DollarSign size={20} />
+              Price Management
+            </button>
+          </nav>
+        </div>
 
         {/* Tab Content */}
-        <Box>
+        <div>
           {activeTab === 'catalog' && renderCatalog()}
           {activeTab === 'stock-movements' && renderStockMovements()}
           {activeTab === 'inventory' && renderInventoryManagement()}
           {activeTab === 'pricing' && renderPricing()}
-        </Box>
+        </div>
 
-      {/* Add Product Modal */}
-      <Dialog
-        open={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">Add New Product</Typography>
-            <IconButton onClick={() => setShowAddModal(false)} size="small">
-              <X size={20} />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Basic Information */}
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
-                Basic Information
-              </Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                <Box>
-                  <TextField
-                    label="Product Name *"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                    fullWidth
-                    placeholder="Enter product name"
-                  />
-                </Box>
-                <Box>
-                  <FormControl fullWidth>
-                    <InputLabel>Category</InputLabel>
+        {/* Add Product Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-6 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Add New Product
+                </h2>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
+                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Basic Information */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input
+                      label="Product Name *"
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                      placeholder="Enter product name"
+                    />
                     <Select
-                      value={newProduct.category}
                       label="Category"
+                      options={categories}
+                      value={newProduct.category}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                    >
-                      {categories.map(cat => (
-                        <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box>
-                  <FormControl fullWidth>
-                    <InputLabel>Grade</InputLabel>
+                    />
                     <Select
-                      value={newProduct.grade}
                       label="Grade"
+                      options={grades.map(grade => ({ value: grade, label: grade }))}
+                      value={newProduct.grade}
                       onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
-                    >
-                      {grades.map(grade => (
-                        <MenuItem key={grade} value={grade}>{grade}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box>
-                  <TextField
-                    label="Size"
-                    value={newProduct.size}
-                    onChange={(e) => setNewProduct({...newProduct, size: e.target.value})}
-                    fullWidth
-                    placeholder="e.g., 12mm, 50x50x6"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Weight"
-                    value={newProduct.weight}
-                    onChange={(e) => setNewProduct({...newProduct, weight: e.target.value})}
-                    fullWidth
-                    placeholder="Enter weight"
-                  />
-                </Box>
-                <Box>
-                  <FormControl fullWidth>
-                    <InputLabel>Unit</InputLabel>
+                    />
+                    <Input
+                      label="Size"
+                      value={newProduct.size}
+                      onChange={(e) => setNewProduct({...newProduct, size: e.target.value})}
+                      placeholder="e.g., 12mm, 50x50x6"
+                    />
+                    <Input
+                      label="Weight"
+                      value={newProduct.weight}
+                      onChange={(e) => setNewProduct({...newProduct, weight: e.target.value})}
+                      placeholder="Enter weight"
+                    />
                     <Select
-                      value={newProduct.unit}
                       label="Unit"
+                      options={[
+                        { value: 'kg', label: 'kg' },
+                        { value: 'kg/m', label: 'kg/m' },
+                        { value: 'kg/sheet', label: 'kg/sheet' },
+                        { value: 'tonnes', label: 'tonnes' },
+                        { value: 'pieces', label: 'pieces' }
+                      ]}
+                      value={newProduct.unit}
                       onChange={(e) => setNewProduct({...newProduct, unit: e.target.value})}
-                    >
-                      <MenuItem value="kg">kg</MenuItem>
-                      <MenuItem value="kg/m">kg/m</MenuItem>
-                      <MenuItem value="kg/sheet">kg/sheet</MenuItem>
-                      <MenuItem value="tonnes">tonnes</MenuItem>
-                      <MenuItem value="pieces">pieces</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box sx={{ gridColumn: '1 / -1' }}>
-                  <TextField
-                    label="Description"
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                    fullWidth
-                    placeholder="Enter product description"
-                    multiline
-                    rows={3}
-                  />
-                </Box>
-              </Box>
-            </Box>
+                    />
+                    <div className="sm:col-span-2">
+                      <Textarea
+                        label="Description"
+                        value={newProduct.description}
+                        onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                        placeholder="Enter product description"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
 
-            {/* Inventory Information */}
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
-                Inventory Information
-              </Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
-                <Box>
-                  <TextField
-                    label="Current Stock"
-                    type="number"
-                    value={newProduct.currentStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    fullWidth
-                    placeholder="Enter current stock"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Minimum Stock"
-                    type="number"
-                    value={newProduct.minStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    fullWidth
-                    placeholder="Enter minimum stock level"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Maximum Stock"
-                    type="number"
-                    value={newProduct.maxStock || ''}
-                    onChange={(e) => setNewProduct({...newProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    fullWidth
-                    placeholder="Enter maximum stock level"
-                  />
-                </Box>
-              </Box>
-            </Box>
+                {/* Inventory Information */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Inventory Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Input
+                      label="Current Stock"
+                      type="number"
+                      value={newProduct.currentStock || ''}
+                      onChange={(e) => setNewProduct({...newProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      placeholder="Enter current stock"
+                    />
+                    <Input
+                      label="Minimum Stock"
+                      type="number"
+                      value={newProduct.minStock || ''}
+                      onChange={(e) => setNewProduct({...newProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      placeholder="Enter minimum stock level"
+                    />
+                    <Input
+                      label="Maximum Stock"
+                      type="number"
+                      value={newProduct.maxStock || ''}
+                      onChange={(e) => setNewProduct({...newProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      placeholder="Enter maximum stock level"
+                    />
+                  </div>
+                </div>
 
-            {/* Pricing Information */}
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
-                Pricing Information
-              </Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                <Box>
-                  <TextField
-                    label="Cost Price"
-                    type="number"
-                    value={newProduct.costPrice || ''}
-                    onChange={(e) => setNewProduct({...newProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    fullWidth
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
-                    }}
-                    placeholder="Enter cost price"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Selling Price"
-                    type="number"
-                    value={newProduct.sellingPrice || ''}
-                    onChange={(e) => setNewProduct({...newProduct, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    fullWidth
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start">د.إ</InputAdornment>
-                    }}
-                    placeholder="Enter selling price"
-                  />
-                </Box>
-              </Box>
-            </Box>
+                {/* Pricing Information */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Pricing Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Input
+                        label="Cost Price"
+                        type="number"
+                        value={newProduct.costPrice || ''}
+                        onChange={(e) => setNewProduct({...newProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                        placeholder="Enter cost price"
+                        className="pl-12"
+                      />
+                      <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        label="Selling Price"
+                        type="number"
+                        value={newProduct.sellingPrice || ''}
+                        onChange={(e) => setNewProduct({...newProduct, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                        placeholder="Enter selling price"
+                        className="pl-12"
+                      />
+                      <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Supplier & Location */}
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
-                Supplier & Location
-              </Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                <Box>
-                  <TextField
-                    label="Supplier"
-                    value={newProduct.supplier}
-                    onChange={(e) => setNewProduct({...newProduct, supplier: e.target.value})}
-                    fullWidth
-                    placeholder="Enter supplier name"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Storage Location"
-                    value={newProduct.location}
-                    onChange={(e) => setNewProduct({...newProduct, location: e.target.value})}
-                    fullWidth
-                    placeholder="Enter storage location"
-                  />
-                </Box>
-              </Box>
-            </Box>
+                {/* Supplier & Location */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Supplier & Location</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input
+                      label="Supplier"
+                      value={newProduct.supplier}
+                      onChange={(e) => setNewProduct({...newProduct, supplier: e.target.value})}
+                      placeholder="Enter supplier name"
+                    />
+                    <Input
+                      label="Storage Location"
+                      value={newProduct.location}
+                      onChange={(e) => setNewProduct({...newProduct, location: e.target.value})}
+                      placeholder="Enter storage location"
+                    />
+                  </div>
+                </div>
 
-            {/* Product Specifications */}
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
-                Product Specifications
-              </Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                <Box>
-                  <TextField
-                    label="Length"
-                    value={newProduct.specifications.length}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, length: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter length"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Width"
-                    value={newProduct.specifications.width}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, width: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter width"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Thickness"
-                    value={newProduct.specifications.thickness}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, thickness: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter thickness"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Diameter"
-                    value={newProduct.specifications.diameter}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, diameter: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter diameter"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Tensile Strength"
-                    value={newProduct.specifications.tensileStrength}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, tensileStrength: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter tensile strength"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Yield Strength"
-                    value={newProduct.specifications.yieldStrength}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, yieldStrength: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter yield strength"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Carbon Content"
-                    value={newProduct.specifications.carbonContent}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, carbonContent: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter carbon content"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Coating"
-                    value={newProduct.specifications.coating}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, coating: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter coating type"
-                  />
-                </Box>
-                <Box sx={{ gridColumn: '1 / -1' }}>
-                  <TextField
-                    label="Standard"
-                    value={newProduct.specifications.standard}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      specifications: {...newProduct.specifications, standard: e.target.value}
-                    })}
-                    fullWidth
-                    placeholder="Enter applicable standard"
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setShowAddModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAddProduct}
-            startIcon={<Save size={16} />}
-            disabled={!newProduct.name}
-          >
-            Add Product
-          </Button>
-        </DialogActions>
-      </Dialog>
+                {/* Product Specifications */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Product Specifications</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input
+                      label="Length"
+                      value={newProduct.specifications.length}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, length: e.target.value}
+                      })}
+                      placeholder="Enter length"
+                    />
+                    <Input
+                      label="Width"
+                      value={newProduct.specifications.width}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, width: e.target.value}
+                      })}
+                      placeholder="Enter width"
+                    />
+                    <Input
+                      label="Thickness"
+                      value={newProduct.specifications.thickness}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, thickness: e.target.value}
+                      })}
+                      placeholder="Enter thickness"
+                    />
+                    <Input
+                      label="Diameter"
+                      value={newProduct.specifications.diameter}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, diameter: e.target.value}
+                      })}
+                      placeholder="Enter diameter"
+                    />
+                    <Input
+                      label="Tensile Strength"
+                      value={newProduct.specifications.tensileStrength}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, tensileStrength: e.target.value}
+                      })}
+                      placeholder="Enter tensile strength"
+                    />
+                    <Input
+                      label="Yield Strength"
+                      value={newProduct.specifications.yieldStrength}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, yieldStrength: e.target.value}
+                      })}
+                      placeholder="Enter yield strength"
+                    />
+                    <Input
+                      label="Carbon Content"
+                      value={newProduct.specifications.carbonContent}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, carbonContent: e.target.value}
+                      })}
+                      placeholder="Enter carbon content"
+                    />
+                    <Input
+                      label="Coating"
+                      value={newProduct.specifications.coating}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        specifications: {...newProduct.specifications, coating: e.target.value}
+                      })}
+                      placeholder="Enter coating type"
+                    />
+                    <div className="sm:col-span-2">
+                      <Input
+                        label="Standard"
+                        value={newProduct.specifications.standard}
+                        onChange={(e) => setNewProduct({
+                          ...newProduct,
+                          specifications: {...newProduct.specifications, standard: e.target.value}
+                        })}
+                        placeholder="Enter applicable standard"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Edit Product Modal */}
-      {showEditModal && selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal large-modal">
-            <div className="modal-header">
-              <h2>Edit Product</h2>
-              <button className="btn-icon" onClick={() => setShowEditModal(false)}>
-                <X size={20} />
-              </button>
+              {/* Modal Footer */}
+              <div className={`flex justify-end gap-3 p-6 border-t ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddProduct}
+                  disabled={!newProduct.name}
+                >
+                  <Save size={16} />
+                  Add Product
+                </Button>
+              </div>
             </div>
-            <div className="modal-content">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
+          </div>
+        )}
+
+        {/* Edit Product Modal */}
+        {showEditModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-6 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Edit Product
+                </h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
+                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Product Name"
                     value={selectedProduct.name}
                     onChange={(e) => setSelectedProduct({...selectedProduct, name: e.target.value})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Category</label>
-                  <select
+                  <Select
+                    label="Category"
+                    options={categories}
                     value={selectedProduct.category}
                     onChange={(e) => setSelectedProduct({...selectedProduct, category: e.target.value})}
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.value} value={cat.value}>{cat.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Grade</label>
-                  <input
-                    type="text"
+                  />
+                  <Input
+                    label="Grade"
                     value={selectedProduct.grade}
                     onChange={(e) => setSelectedProduct({...selectedProduct, grade: e.target.value})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Size</label>
-                  <input
-                    type="text"
+                  <Input
+                    label="Size"
                     value={selectedProduct.size}
                     onChange={(e) => setSelectedProduct({...selectedProduct, size: e.target.value})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Current Stock</label>
-                  <input
+                  <Input
+                    label="Current Stock"
                     type="number"
                     value={selectedProduct.currentStock || ''}
                     onChange={(e) => setSelectedProduct({...selectedProduct, currentStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Minimum Stock</label>
-                  <input
+                  <Input
+                    label="Minimum Stock"
                     type="number"
                     value={selectedProduct.minStock || ''}
                     onChange={(e) => setSelectedProduct({...selectedProduct, minStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Maximum Stock</label>
-                  <input
+                  <Input
+                    label="Maximum Stock"
                     type="number"
                     value={selectedProduct.maxStock || ''}
                     onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Cost Price (د.إ)</label>
-                  <input
-                    type="number"
-                    value={selectedProduct.costPrice || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Supplier</label>
-                  <input
-                    type="text"
+                  <div className="relative">
+                    <Input
+                      label="Cost Price"
+                      type="number"
+                      value={selectedProduct.costPrice || ''}
+                      onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      className="pl-12"
+                    />
+                    <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                  </div>
+                  <Input
+                    label="Supplier"
                     value={selectedProduct.supplier}
                     onChange={(e) => setSelectedProduct({...selectedProduct, supplier: e.target.value})}
                   />
-                </div>
-                <div className="form-group">
-                  <label>Storage Location</label>
-                  <input
-                    type="text"
+                  <Input
+                    label="Storage Location"
                     value={selectedProduct.location}
                     onChange={(e) => setSelectedProduct({...selectedProduct, location: e.target.value})}
                   />
-                </div>
-                <div className="form-group full-width">
-                  <label>Description</label>
-                  <textarea
-                    value={selectedProduct.description}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, description: e.target.value})}
-                    rows={3}
-                  />
+                  <div className="sm:col-span-2">
+                    <Textarea
+                      label="Description"
+                      value={selectedProduct.description}
+                      onChange={(e) => setSelectedProduct({...selectedProduct, description: e.target.value})}
+                      rows={3}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowEditModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={handleEditProduct}>
-                <Save size={20} />
-                Save Changes
-              </button>
+
+              {/* Modal Footer */}
+              <div className={`flex justify-end gap-3 p-6 border-t ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditProduct}>
+                  <Save size={16} />
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Price Update Modal */}
-      {showPriceModal && selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Update Price - {selectedProduct.name}</h2>
-              <button className="btn-icon" onClick={() => setShowPriceModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="price-update-form">
-                <div className="current-price">
-                  <span className="label">Current Price:</span>
-                  <span className="price">د.إ{selectedProduct.sellingPrice}</span>
+        {/* Price Update Modal */}
+        {showPriceModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-md w-full ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-6 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Update Price - {selectedProduct.name}
+                </h2>
+                <button
+                  onClick={() => setShowPriceModal(false)}
+                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
+                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className={`flex justify-between items-center p-4 rounded-lg mb-4 ${
+                  isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'
+                }`}>
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Current Price:</span>
+                  <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    د.إ{selectedProduct.sellingPrice}
+                  </span>
                 </div>
-                <div className="form-group">
-                  <label>New Price (د.إ)</label>
-                  <input
-                    type="number"
-                    value={priceUpdate.newPrice || ''}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Enter new price"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Reason for Update</label>
-                  <input
-                    type="text"
+
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Input
+                      label="New Price"
+                      type="number"
+                      value={priceUpdate.newPrice || ''}
+                      onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      placeholder="Enter new price"
+                      className="pl-12"
+                    />
+                    <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                  </div>
+                  <Input
+                    label="Reason for Update"
                     value={priceUpdate.reason}
                     onChange={(e) => setPriceUpdate({...priceUpdate, reason: e.target.value})}
                     placeholder="Enter reason for price change"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Effective Date</label>
-                  <input
+                  <Input
+                    label="Effective Date"
                     type="date"
                     value={priceUpdate.effectiveDate}
                     onChange={(e) => setPriceUpdate({...priceUpdate, effectiveDate: e.target.value})}
                   />
-                </div>
-                {selectedProduct.priceHistory && selectedProduct.priceHistory.length > 0 && (
-                  <div className="price-history">
-                    <h4>Price History</h4>
-                    <div className="history-list">
-                      {selectedProduct.priceHistory.slice(0, 5).map((entry, index) => (
-                        <div key={index} className="history-item">
-                          <span className="history-date">{format(new Date(entry.date), 'MMM dd, yyyy')}</span>
-                          <span className="history-price">د.إ{entry.price}</span>
-                          <span className="history-reason">{entry.reason}</span>
-                        </div>
-                      ))}
+                  
+                  {selectedProduct.priceHistory && selectedProduct.priceHistory.length > 0 && (
+                    <div>
+                      <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Price History
+                      </h4>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {selectedProduct.priceHistory.slice(0, 5).map((entry, index) => (
+                          <div key={index} className={`p-3 rounded-lg ${
+                            isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'
+                          }`}>
+                            <div className="flex justify-between items-center">
+                              <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {format(new Date(entry.date), 'MMM dd, yyyy')}
+                              </span>
+                              <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                د.إ{entry.price}
+                              </span>
+                            </div>
+                            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {entry.reason}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowPriceModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={handlePriceUpdate}>
-                <Save size={20} />
-                Update Price
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Specifications Modal */}
-      {showSpecModal && selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Product Specifications - {selectedProduct.name}</h2>
-              <button className="btn-icon" onClick={() => setShowSpecModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="specifications-view">
-                <div className="spec-section">
-                  <h3>Basic Information</h3>
-                  <div className="spec-grid">
-                    <div className="spec-item">
-                      <span className="spec-label">Product Name:</span>
-                      <span className="spec-value">{selectedProduct.name}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Category:</span>
-                      <span className="spec-value">{categories.find(c => c.value === selectedProduct.category)?.label}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Grade:</span>
-                      <span className="spec-value">{selectedProduct.grade}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Size:</span>
-                      <span className="spec-value">{selectedProduct.size}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Weight:</span>
-                      <span className="spec-value">{selectedProduct.weight} {selectedProduct.unit}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="spec-section">
-                  <h3>Technical Specifications</h3>
-                  <div className="spec-grid">
-                    {selectedProduct.specifications.length && (
-                      <div className="spec-item">
-                        <span className="spec-label">Length:</span>
-                        <span className="spec-value">{selectedProduct.specifications.length}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.width && (
-                      <div className="spec-item">
-                        <span className="spec-label">Width:</span>
-                        <span className="spec-value">{selectedProduct.specifications.width}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.thickness && (
-                      <div className="spec-item">
-                        <span className="spec-label">Thickness:</span>
-                        <span className="spec-value">{selectedProduct.specifications.thickness}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.diameter && (
-                      <div className="spec-item">
-                        <span className="spec-label">Diameter:</span>
-                        <span className="spec-value">{selectedProduct.specifications.diameter}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.tensileStrength && (
-                      <div className="spec-item">
-                        <span className="spec-label">Tensile Strength:</span>
-                        <span className="spec-value">{selectedProduct.specifications.tensileStrength}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.yieldStrength && (
-                      <div className="spec-item">
-                        <span className="spec-label">Yield Strength:</span>
-                        <span className="spec-value">{selectedProduct.specifications.yieldStrength}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.carbonContent && (
-                      <div className="spec-item">
-                        <span className="spec-label">Carbon Content:</span>
-                        <span className="spec-value">{selectedProduct.specifications.carbonContent}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.coating && (
-                      <div className="spec-item">
-                        <span className="spec-label">Coating:</span>
-                        <span className="spec-value">{selectedProduct.specifications.coating}</span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications.standard && (
-                      <div className="spec-item">
-                        <span className="spec-label">Standard:</span>
-                        <span className="spec-value">{selectedProduct.specifications.standard}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="spec-section">
-                  <h3>Description</h3>
-                  <p>{selectedProduct.description}</p>
-                </div>
+              {/* Modal Footer */}
+              <div className={`flex justify-end gap-3 p-6 border-t ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <Button variant="secondary" onClick={() => setShowPriceModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handlePriceUpdate}>
+                  <Save size={16} />
+                  Update Price
+                </Button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-      </ProductsPaper>
-    </ProductsContainer>
+        )}
+
+        {/* Specifications Modal */}
+        {showSpecModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-6 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Product Specifications - {selectedProduct.name}
+                </h2>
+                <button
+                  onClick={() => setShowSpecModal(false)}
+                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
+                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Basic Information */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex justify-between py-2">
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Product Name:</span>
+                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.name}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Category:</span>
+                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {categories.find(c => c.value === selectedProduct.category)?.label}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Grade:</span>
+                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.grade}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size:</span>
+                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.size}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Weight:</span>
+                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.weight} {selectedProduct.unit}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Technical Specifications */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Technical Specifications</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {selectedProduct.specifications?.length && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.length}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.width && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Width:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.width}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.thickness && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Thickness:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.thickness}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.diameter && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Diameter:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.diameter}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.tensileStrength && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Tensile Strength:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.tensileStrength}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.yieldStrength && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Yield Strength:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.yieldStrength}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.carbonContent && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Carbon Content:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.carbonContent}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.coating && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Coating:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.coating}
+                        </span>
+                      </div>
+                    )}
+                    {selectedProduct.specifications?.standard && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Standard:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.specifications.standard}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Description</h3>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {selectedProduct.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

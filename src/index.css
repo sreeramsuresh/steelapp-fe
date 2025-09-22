@@ -88,3 +88,8 @@ button:focus-visible {
 .marketing-logo:hover {
   color: #1d4ed8 !important; /* primary-700 */
 }
+
+/* Ensure MUI Autocomplete dropdown sits above app chrome */
+.MuiAutocomplete-popper {
+  z-index: 6000 !important;
+}
