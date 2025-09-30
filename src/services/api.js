@@ -279,6 +279,36 @@ export const purchaseOrdersAPI = {
   // Get next PO number
   getNextNumber: () => {
     return apiClient.get('/purchase-orders/number/next');
+  },
+
+  // Generate and download PDF
+  downloadPDF: async (id) => {
+    const url = `${apiClient.baseURL}/purchase-orders/${id}/pdf`;
+    const response = await fetch(url, {
+      headers: apiClient.defaultHeaders
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
+    
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    
+    // Get purchase order number for filename
+    const purchaseOrder = await purchaseOrdersAPI.getById(id);
+    const filename = `purchase-order-${purchaseOrder.po_number}.pdf`;
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    window.URL.revokeObjectURL(downloadUrl);
   }
 };
 

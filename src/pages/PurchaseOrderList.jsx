@@ -26,9 +26,12 @@ import {
   CircularProgress,
   Pagination,
   Stack,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
+import { purchaseOrdersAPI } from "../services/api";
 
 const PurchaseOrderListContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(0),
@@ -70,6 +73,10 @@ const PurchaseOrderList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const getStatusBadge = (status = "draft") => {
     const statusConfig = {
@@ -93,11 +100,52 @@ const PurchaseOrderList = () => {
     );
   };
 
-  // Mock data for now - will be replaced with API calls
+  // Fetch purchase orders
+  const fetchPurchaseOrders = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page,
+        limit: 10,
+        search: searchTerm,
+        status: statusFilter !== 'all' ? statusFilter : undefined
+      };
+      
+      const response = await purchaseOrdersAPI.getAll(params);
+      setPurchaseOrders(response.data || []);
+      setTotalPages(Math.ceil((response.total || 0) / 10));
+    } catch (err) {
+      setError('Failed to fetch purchase orders');
+      setPurchaseOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setLoading(false);
-    setPurchaseOrders([]);
-  }, []);
+    fetchPurchaseOrders();
+  }, [page, searchTerm, statusFilter]);
+
+  const handleDownloadPDF = async (id) => {
+    try {
+      await purchaseOrdersAPI.downloadPDF(id);
+      setSuccess('PDF downloaded successfully');
+    } catch (err) {
+      setError('Failed to download PDF');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this purchase order?')) {
+      try {
+        await purchaseOrdersAPI.delete(id);
+        setSuccess('Purchase order deleted successfully');
+        fetchPurchaseOrders();
+      } catch (err) {
+        setError('Failed to delete purchase order');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -225,7 +273,111 @@ const PurchaseOrderList = () => {
             </Select>
           </FormControl>
         </Box>
+
+        {/* Purchase Orders Table */}
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>PO Number</TableCell>
+                <TableCell>Supplier</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Items</TableCell>
+                <TableCell>Total</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {purchaseOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    No purchase orders found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                purchaseOrders.map((po) => (
+                  <TableRow key={po.id} hover>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight={600}>
+                        {po.po_number}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{po.supplier_name}</TableCell>
+                    <TableCell>{formatDate(po.po_date)}</TableCell>
+                    <TableCell>{po.items?.length || 0} items</TableCell>
+                    <TableCell>
+                      {formatCurrency(
+                        po.items?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0
+                      )}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(po.status)}</TableCell>
+                    <TableCell align="right">
+                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => navigate(`/purchase-orders/${po.id}`)}
+                          title="View"
+                        >
+                          <Eye size={18} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => navigate(`/purchase-orders/${po.id}/edit`)}
+                          title="Edit"
+                        >
+                          <Edit size={18} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDownloadPDF(po.id)}
+                          title="Download PDF"
+                          color="primary"
+                        >
+                          <Download size={18} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDelete(po.id)}
+                          title="Delete"
+                          color="error"
+                        >
+                          <Trash2 size={18} />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
+        )}
       </PurchaseOrderListPaper>
+
+      {/* Snackbar for notifications */}
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={!!success} autoHideDuration={6000} onClose={() => setSuccess('')}>
+        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
     </PurchaseOrderListContainer>
   );
 };
