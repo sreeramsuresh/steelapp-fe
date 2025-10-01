@@ -189,6 +189,14 @@ const SteelProducts = () => {
   const { execute: updateProductPrice } = useApi(productService.updateProductPrice);
   
   const products = productsData?.products || [];
+  
+  // Debug products data structure
+  console.log('🏗️ Products data structure:', {
+    productsData,
+    productsArray: products,
+    productsLength: products.length,
+    sampleProduct: products[0]
+  });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSpecModal, setShowSpecModal] = useState(false);
@@ -303,20 +311,59 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
-      // Convert empty strings to appropriate default values
+      console.log('🔄 Starting product edit...', selectedProduct);
+      
+      // Convert empty strings to appropriate default values and map field names to backend format
       const productData = {
-        ...selectedProduct,
-        currentStock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),
-        minStock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),
-        maxStock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),
-        costPrice: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice)
+        name: selectedProduct.name,
+        category: selectedProduct.category,
+        grade: selectedProduct.grade,
+        size: selectedProduct.size,
+        weight: selectedProduct.weight,
+        unit: selectedProduct.unit,
+        description: selectedProduct.description,
+        current_stock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),
+        min_stock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),
+        max_stock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),
+        cost_price: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice),
+        selling_price: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),
+        supplier: selectedProduct.supplier,
+        location: selectedProduct.location,
+        specifications: selectedProduct.specifications
       };
-      await updateProduct(selectedProduct.id, productData);
+      
+      console.log('📤 Sending product data:', productData);
+      console.log('🔗 API URL would be: PUT /api/products/' + selectedProduct.id);
+      
+      const result = await updateProduct(selectedProduct.id, productData);
+      console.log('✅ Product updated successfully:', result);
+      
+      console.log('🔄 Starting products refetch...');
+      console.log('📊 Current products data before refetch:', productsData);
+      
+      const freshData = await refetchProducts();
+      console.log('📨 Fresh data from refetch:', freshData);
+      
+      // Check if the updated product is in the fresh data
+      const updatedProductInFreshData = freshData?.products?.find(p => p.id === selectedProduct.id);
+      console.log('🔎 Updated product in fresh data:', updatedProductInFreshData);
+      
+      // Small delay to ensure state has updated
+      setTimeout(() => {
+        console.log('📊 Products data after state update:', productsData);
+        console.log('🔍 Current products array after state update:', products);
+        
+        // Find the specific product to see if it updated
+        const updatedProductInState = products.find(p => p.id === selectedProduct.id);
+        console.log('🎯 Updated product in state:', updatedProductInState);
+      }, 100);
+      
+      alert('Product updated successfully!');
       setShowEditModal(false);
       setSelectedProduct(null);
-      refetchProducts();
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error('❌ Error updating product:', error);
+      alert(`Failed to update product: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -348,8 +395,8 @@ const SteelProducts = () => {
   };
 
   const getStockStatus = (product) => {
-    if (product.currentStock <= product.minStock) return 'low';
-    if (product.currentStock >= product.maxStock * 0.8) return 'high';
+    if (product.current_stock <= product.min_stock) return 'low';
+    if (product.current_stock >= product.max_stock * 0.8) return 'high';
     return 'normal';
   };
 
@@ -459,12 +506,12 @@ const SteelProducts = () => {
                       }`}
                       title="View Specifications"
                     >
-                      <Eye size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                      <Eye size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
                     </button>
                     <button
                       onClick={() => {
                         setSelectedProduct(product);
-                        setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
+                        setPriceUpdate({ ...priceUpdate, newPrice: product.selling_price });
                         setShowPriceModal(true);
                       }}
                       className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
@@ -472,19 +519,40 @@ const SteelProducts = () => {
                       }`}
                       title="Update Price"
                     >
-                      <Tag size={16} className="text-blue-500" />
+                      <Tag size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
                     </button>
                     <button
                       onClick={() => {
-                        setSelectedProduct(product);
+                        console.log('✏️ Edit button clicked for product:', product);
+                        console.log('🔍 Product fields available:', Object.keys(product));
+                        console.log('💰 Cost price field values:', {
+                          costPrice: product.costPrice,
+                          cost_price: product.cost_price,
+                          selling_price: product.selling_price,
+                          sellingPrice: product.sellingPrice
+                        });
+                        
+                        // Convert snake_case to camelCase for form
+                        const formattedProduct = {
+                          ...product,
+                          currentStock: product.current_stock,
+                          minStock: product.min_stock,
+                          maxStock: product.max_stock,
+                          costPrice: product.cost_price,
+                          sellingPrice: product.selling_price
+                        };
+                        
+                        console.log('🔄 Formatted product for form:', formattedProduct);
+                        setSelectedProduct(formattedProduct);
                         setShowEditModal(true);
+                        console.log('📝 Edit modal should now be visible');
                       }}
                       className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
                         isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
                       }`}
                       title="Edit Product"
                     >
-                      <Edit size={16} className="text-teal-500" />
+                      <Edit size={16} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
@@ -493,7 +561,7 @@ const SteelProducts = () => {
                       }`}
                       title="Delete Product"
                     >
-                      <Trash2 size={16} className="text-red-500" />
+                      <Trash2 size={16} className={isDarkMode ? 'text-red-400' : 'text-red-600'} />
                     </button>
                   </div>
                 </div>
@@ -543,13 +611,13 @@ const SteelProducts = () => {
                     </span>
                   </div>
                   <h4 className={`text-xl font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {product.currentStock}
+                    {product.current_stock}
                   </h4>
                   <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Min: {product.minStock} | Max: {product.maxStock}
+                    Min: {product.min_stock} | Max: {product.max_stock}
                   </p>
                   <StockProgressBar 
-                    value={Math.min((product.currentStock / product.maxStock) * 100, 100)}
+                    value={Math.min((product.current_stock / product.max_stock) * 100, 100)}
                     stockStatus={stockStatus}
                   />
                 </div>
@@ -558,17 +626,17 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cost Price</p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.costPrice}</p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.cost_price || '0.00'}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selling Price</p>
-                    <p className="text-sm font-semibold text-green-600">د.إ{product.sellingPrice}</p>
+                    <p className="text-sm font-semibold text-green-600">د.إ{product.selling_price || '0.00'}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Margin</p>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.costPrice > 0 ? 
-                        Math.round(((product.sellingPrice - product.costPrice) / product.costPrice) * 100) 
+                      {product.cost_price > 0 ? 
+                        Math.round(((product.selling_price - product.cost_price) / product.cost_price) * 100) 
                         : 0}%
                     </p>
                   </div>
@@ -773,7 +841,7 @@ const SteelProducts = () => {
                         }`}
                         title="Update Price"
                       >
-                        <RefreshCw size={16} className="text-teal-500" />
+                        <RefreshCw size={16} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
                       </button>
                     </td>
                   </tr>
@@ -1201,7 +1269,25 @@ const SteelProducts = () => {
                       label="Cost Price"
                       type="number"
                       value={selectedProduct.costPrice || ''}
-                      onChange={(e) => setSelectedProduct({...selectedProduct, costPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      onChange={(e) => {
+                        const newValue = e.target.value === '' ? '' : Number(e.target.value) || '';
+                        console.log('💰 Cost Price changed from', selectedProduct.costPrice, 'to', newValue);
+                        setSelectedProduct({...selectedProduct, costPrice: newValue});
+                      }}
+                      className="pl-12"
+                    />
+                    <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      label="Selling Price"
+                      type="number"
+                      value={selectedProduct.sellingPrice || ''}
+                      onChange={(e) => {
+                        const newValue = e.target.value === '' ? '' : Number(e.target.value) || '';
+                        console.log('💵 Selling Price changed from', selectedProduct.sellingPrice, 'to', newValue);
+                        setSelectedProduct({...selectedProduct, sellingPrice: newValue});
+                      }}
                       className="pl-12"
                     />
                     <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
@@ -1234,9 +1320,12 @@ const SteelProducts = () => {
                 <Button variant="secondary" onClick={() => setShowEditModal(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleEditProduct}>
-                  <Save size={16} />
-                  Save Changes
+                <Button 
+                  onClick={handleEditProduct}
+                  disabled={updatingProduct}
+                >
+                  {updatingProduct ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
+                  {updatingProduct ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </div>

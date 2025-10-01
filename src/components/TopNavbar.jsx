@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Monitor } from 'lucide-react';
+import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 
@@ -126,17 +126,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               backgroundColor: 'transparent'
             }}
             className="p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
-            title={
-              themeMode === 'system' 
-                ? `System Theme (${isDarkMode ? 'Dark' : 'Light'})` 
-                : themeMode === 'dark' 
-                ? 'Dark Mode' 
-                : 'Light Mode'
-            }
+            title={themeMode === 'dark' ? 'Dark Mode' : 'Light Mode'}
           >
-            {themeMode === 'system' ? (
-              <Monitor size={18} />
-            ) : themeMode === 'dark' ? (
+            {themeMode === 'dark' ? (
               <Moon size={18} />
             ) : (
               <Sun size={18} />
