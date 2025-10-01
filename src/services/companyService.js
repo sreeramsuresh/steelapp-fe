@@ -28,5 +28,9 @@ export const companyService = {
 
   async deleteLogo(filename) {
     return apiClient.delete(`/company/logo/${filename}`);
+  },
+
+  async cleanupLogos() {
+    return apiClient.post('/company/cleanup-logos');
   }
 };

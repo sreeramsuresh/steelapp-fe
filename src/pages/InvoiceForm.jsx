@@ -1291,10 +1291,10 @@ const InvoiceForm = ({ onSave }) => {
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
                         >
-                          <InputLabel>Payment Terms</InputLabel>
+                          <InputLabel>Payment Mode</InputLabel>
                           <Select
                             value={invoice.modeOfPayment || ""}
-                            label="Payment Terms"
+                            label="Payment Mode"
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1303,7 +1303,7 @@ const InvoiceForm = ({ onSave }) => {
                             }
                           >
                             <MenuItem value="">
-                              <em>Select payment terms</em>
+                              <em>Select payment mode</em>
                             </MenuItem>
                             {PAYMENT_MODES.map((mode) => (
                               <MenuItem key={mode} value={mode}>

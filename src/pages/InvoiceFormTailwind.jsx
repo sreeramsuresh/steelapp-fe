@@ -968,7 +968,7 @@ const InvoiceForm = ({ onSave }) => {
                     <option value="overdue">Overdue</option>
                   </Select>
                   <Select
-                    label="Payment Terms"
+                    label="Payment Mode"
                     value={invoice.modeOfPayment || ""}
                     onChange={(e) =>
                       setInvoice((prev) => ({
@@ -977,7 +977,7 @@ const InvoiceForm = ({ onSave }) => {
                       }))
                     }
                   >
-                    <option value="">Select payment terms</option>
+                    <option value="">Select payment mode</option>
                     {PAYMENT_MODES.map((mode) => (
                       <option key={mode} value={mode}>
                         {mode}

@@ -1,9 +1,13 @@
 export const calculateItemAmount = (quantity, rate) => {
-  return quantity * rate;
+  const qty = parseFloat(quantity) || 0;
+  const rt = parseFloat(rate) || 0;
+  return qty * rt;
 };
 
 export const calculateTRN = (amount, trnRate) => {
-  return (amount * trnRate) / 100;
+  const amt = parseFloat(amount) || 0;
+  const rate = parseFloat(trnRate) || 0;
+  return (amt * rate) / 100;
 };
 
 // Keep for backward compatibility
@@ -12,11 +16,18 @@ export const calculateVAT = (amount, vatRate) => {
 };
 
 export const calculateSubtotal = (items) => {
-  return items.reduce((sum, item) => sum + item.amount, 0);
+  return items.reduce((sum, item) => {
+    const amount = parseFloat(item.amount) || 0;
+    return sum + amount;
+  }, 0);
 };
 
 export const calculateTotalTRN = (items) => {
-  return items.reduce((sum, item) => sum + calculateTRN(item.amount, item.vatRate), 0);
+  return items.reduce((sum, item) => {
+    const amount = parseFloat(item.amount) || 0;
+    const rate = parseFloat(item.vatRate) || 0;
+    return sum + calculateTRN(amount, rate);
+  }, 0);
 };
 
 // Keep for backward compatibility
@@ -25,7 +36,9 @@ export const calculateTotalVAT = (items) => {
 };
 
 export const calculateTotal = (subtotal, vatAmount) => {
-  return subtotal + vatAmount;
+  const sub = parseFloat(subtotal) || 0;
+  const vat = parseFloat(vatAmount) || 0;
+  return sub + vat;
 };
 
 export const generateInvoiceNumber = () => {
@@ -37,10 +50,14 @@ export const generateInvoiceNumber = () => {
 };
 
 export const formatCurrency = (amount) => {
+  // Handle NaN, null, undefined, or non-numeric values
+  const numericAmount = parseFloat(amount);
+  const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+  
   return new Intl.NumberFormat('en-AE', {
     style: 'currency',
     currency: 'AED',
-  }).format(amount);
+  }).format(safeAmount);
 };
 
 export const formatDate = (date) => {

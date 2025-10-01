@@ -42,9 +42,11 @@ class ApiClient {
         console.error(`API Error Response for ${endpoint}:`, {
           status: response.status,
           statusText: response.statusText,
-          errorData: errorData
+          errorData: errorData,
+          requestBody: config.body
         });
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        console.error('🚨 Full error details:', errorData);
+        throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const contentType = response.headers.get('content-type');

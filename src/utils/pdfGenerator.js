@@ -90,10 +90,16 @@ const createInvoiceElement = (invoice, company) => {
           <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 48px; width: auto; object-fit: contain;" />
         </div>
         <div style="margin-top: 8px; line-height: 1.3;">
-          <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ULTIMATE STEEL AND</p>
-          <p style="margin: 0; font-size: 11px; color: #334155;">BUILDING MATERIALS TRADING</p>
-          <p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: 019101641144</p>
-          <p style="margin: 0; font-size: 11px; color: #334155;">IBAN: AE490330000019101641144</p>
+          ${company.bankDetails && (company.bankDetails.bankName || company.bankDetails.accountNumber) ? `
+            <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ${company.bankDetails.bankName || 'Not specified'}</p>
+            ${company.bankDetails.accountNumber ? `<p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: ${company.bankDetails.accountNumber}</p>` : ''}
+            ${company.bankDetails.iban ? `<p style="margin: 0; font-size: 11px; color: #334155;">IBAN: ${company.bankDetails.iban}</p>` : ''}
+          ` : `
+            <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ULTIMATE STEEL AND</p>
+            <p style="margin: 0; font-size: 11px; color: #334155;">BUILDING MATERIALS TRADING</p>
+            <p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: 019101641144</p>
+            <p style="margin: 0; font-size: 11px; color: #334155;">IBAN: AE490330000019101641144</p>
+          `}
         </div>
       </div>
       

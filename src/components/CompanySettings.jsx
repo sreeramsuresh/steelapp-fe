@@ -33,10 +33,10 @@ import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 
 // Custom Tailwind Components
-const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
+const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
   const { isDarkMode } = useTheme();
   
-  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer';
   
   const getVariantClasses = () => {
     if (variant === 'primary') {
@@ -52,16 +52,17 @@ const Button = ({ children, variant = 'primary', size = 'md', disabled = false, 
     lg: 'px-6 py-3 text-base',
   };
 
+  const Component = as;
+  const componentProps = as === 'button' ? { disabled, onClick, ...props } : { ...props };
+
   return (
-    <button
+    <Component
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
+      {...componentProps}
     >
       {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
       {children}
-    </button>
+    </Component>
   );
 };
 
@@ -351,8 +352,7 @@ const CompanySettings = () => {
     bankDetails: {
       bankName: '',
       accountNumber: '',
-      ifscCode: '',
-      accountHolderName: ''
+      iban: ''
     }
   });
 
@@ -364,8 +364,7 @@ const CompanySettings = () => {
         bankDetails: companyData.bankDetails || {
           bankName: '',
           accountNumber: '',
-          ifscCode: '',
-          accountHolderName: ''
+          iban: ''
         }
       });
     }
@@ -517,7 +516,12 @@ const CompanySettings = () => {
         email: companyProfile.email || '',
         vat_number: companyProfile.gstNumber || '',
         trn_number: companyProfile.trnNumber || '',
-        logo_url: companyProfile.logo_url || null
+        logo_url: companyProfile.logo_url || null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       
       console.log('Sending company data:', companyData);
@@ -570,8 +574,14 @@ const CompanySettings = () => {
   };
 
   const handleLogoUpload = async (event) => {
+    console.log('handleLogoUpload called', event);
     const file = event.target.files[0];
-    if (!file) return;
+    console.log('Selected file:', file);
+    
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -587,7 +597,9 @@ const CompanySettings = () => {
     }
 
     try {
+      console.log('Uploading file:', file.name);
       const response = await uploadLogo(file);
+      console.log('Upload response:', response);
       
       // Update company profile with new logo URL
       const newLogoUrl = `http://localhost:5000${response.logoUrl}`;
@@ -604,7 +616,12 @@ const CompanySettings = () => {
         phone: companyProfile.phone,
         email: companyProfile.email,
         vat_number: companyProfile.gstNumber,
-        logo_url: newLogoUrl
+        logo_url: newLogoUrl,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       await updateCompany(companyData);
       
@@ -645,7 +662,12 @@ const CompanySettings = () => {
         phone: companyProfile.phone,
         email: companyProfile.email,
         vat_number: companyProfile.gstNumber,
-        logo_url: null
+        logo_url: null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       await updateCompany(companyData);
       
@@ -846,11 +868,11 @@ const CompanySettings = () => {
                     onChange={handleLogoUpload}
                     className="hidden"
                   />
-                  <label htmlFor="logo-upload">
+                  <label htmlFor="logo-upload" className="cursor-pointer">
                     <Button
                       as="span"
                       variant="outline"
-                      startIcon={uploadingLogo ? <CircularProgress size={16} /> : <Upload size={16} />}
+                      startIcon={uploadingLogo ? <Upload size={16} className="animate-spin" /> : <Upload size={16} />}
                       disabled={uploadingLogo}
                     >
                       {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
@@ -996,22 +1018,13 @@ const CompanySettings = () => {
                   placeholder="Enter account number"
                 />
                 <TextField
-                  label="IFSC Code"
-                  value={companyProfile.bankDetails?.ifscCode || ''}
+                  label="IBAN"
+                  value={companyProfile.bankDetails?.iban || ''}
                   onChange={(e) => setCompanyProfile({
                     ...companyProfile,
-                    bankDetails: {...(companyProfile.bankDetails || {}), ifscCode: e.target.value}
+                    bankDetails: {...(companyProfile.bankDetails || {}), iban: e.target.value}
                   })}
-                  placeholder="Enter IFSC code"
-                />
-                <TextField
-                  label="Account Holder Name"
-                  value={companyProfile.bankDetails?.accountHolderName || ''}
-                  onChange={(e) => setCompanyProfile({
-                    ...companyProfile,
-                    bankDetails: {...(companyProfile.bankDetails || {}), accountHolderName: e.target.value}
-                  })}
-                  placeholder="Enter account holder name"
+                  placeholder="Enter IBAN"
                 />
               </div>
             </div>
@@ -1039,55 +1052,6 @@ const CompanySettings = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Template Styles */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Template Style
-              </h4>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {templateStyles.map(style => (
-                  <div
-                    key={style.id}
-                    onClick={() => setInvoiceSettings({...invoiceSettings, templateStyle: style.id})}
-                    className={`rounded-lg border-2 p-4 cursor-pointer transition-all duration-200 ${
-                      invoiceSettings.templateStyle === style.id
-                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
-                        : isDarkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className={`h-32 rounded border p-2 mb-3 ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
-                      <div
-                        className="h-5 rounded-sm mb-2"
-                        style={{ backgroundColor: invoiceSettings.primaryColor }}
-                      />
-                      <div className="space-y-1">
-                        <div className={`h-1 rounded-sm ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
-                        <div className={`h-1 rounded-sm w-3/4 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
-                        <div className={`h-1 rounded-sm ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {style.name}
-                        </p>
-                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {style.description}
-                        </p>
-                      </div>
-                      {invoiceSettings.templateStyle === style.id && (
-                        <CheckCircle size={20} className="text-teal-500" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </SettingsCard>
-
           {/* Customization Options */}
           <SettingsCard>
             <div className="p-6">
