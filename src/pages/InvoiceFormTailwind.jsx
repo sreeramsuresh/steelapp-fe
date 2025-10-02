@@ -43,6 +43,7 @@ import { invoiceService, companyService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { useApiData, useApi } from "../hooks/useApi";
+import { notificationService } from "../services/notificationService";
 
 // Custom Tailwind Components
 const Button = ({
@@ -536,10 +537,10 @@ const InvoiceForm = ({ onSave }) => {
   ]);
 
   useEffect(() => {
-    if (nextInvoiceData && nextInvoiceData.nextNumber && !id) {
+    if (nextInvoiceData && nextInvoiceData.next_invoice_number && !id) {
       setInvoice((prev) => ({
         ...prev,
-        invoiceNumber: withStatusPrefix(nextInvoiceData.nextNumber, prev.status || 'draft'),
+        invoiceNumber: withStatusPrefix(nextInvoiceData.next_invoice_number, prev.status || 'draft'),
       }));
     }
   }, [nextInvoiceData, id]);
@@ -762,34 +763,34 @@ const InvoiceForm = ({ onSave }) => {
         );
         if (onSave) onSave(updatedInvoice);
 
-        alert(
-          `✅ Invoice updated successfully!\n\n🔄 Process completed:\n• Original invoice cancelled\n• Inventory movements reversed\n• New invoice created with updated data\n• New inventory movements applied${
+        notificationService.success(
+          `Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data${
             processedInvoice.status === "paid"
-              ? "\n• Delivery note auto-generated"
+              ? ", and delivery note auto-generated"
               : ""
-          }`
+          }.`
         );
       } else {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
-        alert(
-          `✅ Invoice created successfully!${
+        notificationService.success(
+          `Invoice created successfully!${
             processedInvoice.status === "paid"
-              ? "\n🚚 Delivery note auto-generated"
+              ? " Delivery note auto-generated."
               : ""
           }`
         );
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
-      alert("Failed to save invoice. Please try again.");
+      notificationService.error("Failed to save invoice. Please try again.");
     }
   };
 
   const handleDownloadPDF = async () => {
     if (!company) {
-      alert("Company data is still loading. Please wait...");
+      notificationService.warning("Company data is still loading. Please wait...");
       return;
     }
 
@@ -797,8 +798,9 @@ const InvoiceForm = ({ onSave }) => {
 
     try {
       await generateInvoicePDF(invoice, company);
+      notificationService.success("PDF generated successfully!");
     } catch (error) {
-      alert(error.message);
+      notificationService.error(`PDF generation failed: ${error.message}`);
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -830,7 +832,9 @@ const InvoiceForm = ({ onSave }) => {
       <div className="max-w-none">
         <Card className="p-4 sm:p-6">
           {/* Header */}
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+          <div className={`sticky top-0 z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
+            isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+          }`}>
             <h1 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-0 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {id ? "Edit Invoice" : "Create Invoice"}
             </h1>
@@ -839,7 +843,7 @@ const InvoiceForm = ({ onSave }) => {
                 variant="outline"
                 onClick={() => {
                   if (!company) {
-                    alert("Company data is still loading. Please wait...");
+                    notificationService.warning("Company data is still loading. Please wait...");
                     return;
                   }
                   setShowPreview(true);
@@ -880,6 +884,7 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </div>
 
+          <div className="pt-8">
           {/* Edit Invoice Warning */}
           {id && (
             <Alert variant="warning" className="mb-6">
@@ -1633,6 +1638,7 @@ const InvoiceForm = ({ onSave }) => {
               rows="3"
             />
           </Card>
+          </div>
         </Card>
       </div>
     </div>

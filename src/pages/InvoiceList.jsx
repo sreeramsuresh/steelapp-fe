@@ -7,11 +7,17 @@ import { generateInvoicePDF } from "../utils/pdfGenerator";
 import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI } from "../services/api";
+import { notificationService } from "../services/notificationService";
 
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  
+  // Set theme for notification service
+  React.useEffect(() => {
+    notificationService.setTheme(isDarkMode);
+  }, [isDarkMode]);
   const [invoices, setInvoices] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -178,8 +184,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     try {
       await generateInvoicePDF(invoice, company);
+      notificationService.success('PDF downloaded successfully!');
     } catch (error) {
-      alert(error.message);
+      notificationService.error(error.message || 'Failed to download PDF');
     } finally {
       setDownloadingIds((prev) => {
         const newSet = new Set(prev);
@@ -207,7 +214,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     }
 
-    alert(`Downloaded ${invoices.length} invoice PDFs`);
+    notificationService.success(`Downloaded ${invoices.length} invoice PDFs successfully!`);
   };
 
   const handleCreateDeliveryNote = async (invoice) => {
@@ -226,13 +233,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         throw new Error(errorData.error || 'Failed to create delivery note');
       }
 
-      alert('Delivery note created successfully!');
+      notificationService.createSuccess('Delivery note');
       
       // Refresh the invoices to get updated delivery note status
       fetchInvoices();
     } catch (error) {
       console.error('Error creating delivery note:', error);
-      alert(error.message || 'Failed to create delivery note');
+      notificationService.createError('Delivery note', error);
     }
   };
 
@@ -284,10 +291,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       await fetchInvoices();
       handleClosePODialog();
       
-      alert('Invoice successfully reconciled with purchase order!');
+      notificationService.success('Invoice successfully reconciled with purchase order!');
     } catch (error) {
       console.error('Error reconciling PO:', error);
-      alert('Failed to reconcile purchase order');
+      notificationService.error('Failed to reconcile purchase order');
     } finally {
       setPOLoading(false);
     }

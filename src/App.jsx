@@ -4,6 +4,8 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopNavbar from './components/TopNavbar';
 import AppRouter from './components/AppRouter';
+import NotificationProvider from './components/NotificationProvider';
+import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
 import { authService } from './services/axiosAuthService';
 
 // Initialize auth service on app load
@@ -230,14 +232,18 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <ThemedApp 
-          user={user}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          handleLogout={handleLogout}
-          handleSaveInvoice={handleSaveInvoice}
-          onLoginSuccess={handleLoginSuccess}
-        />
+        <NotificationCenterProvider>
+          <NotificationProvider>
+            <ThemedApp 
+              user={user}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+              handleLogout={handleLogout}
+              handleSaveInvoice={handleSaveInvoice}
+              onLoginSuccess={handleLoginSuccess}
+            />
+          </NotificationProvider>
+        </NotificationCenterProvider>
       </Router>
     </ThemeProvider>
   );

@@ -49,6 +49,14 @@ export const generateInvoiceNumber = () => {
   return `INV-${year}${month}-${random}`;
 };
 
+export const generatePONumber = () => {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `PO-${year}${month}-${random}`;
+};
+
 export const formatCurrency = (amount) => {
   // Handle NaN, null, undefined, or non-numeric values
   const numericAmount = parseFloat(amount);

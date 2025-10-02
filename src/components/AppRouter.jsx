@@ -20,7 +20,6 @@ import DeliveryNoteForm from "../pages/DeliveryNoteForm";
 import DeliveryNoteDetails from "../pages/DeliveryNoteDetails";
 import PurchaseOrderList from "../pages/PurchaseOrderList";
 import PurchaseOrderForm from "../pages/PurchaseOrderForm";
-import TransitList from "../pages/TransitList";
 import Login from "./Login";
 import MarketingHome from "../marketing/MarketingHome";
 import MarketingProducts from "../marketing/MarketingProducts";
@@ -272,14 +271,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        <Route
-          path="/transit"
-          element={
-            <ProtectedRoute user={user} requiredPermission="transit.read">
-              <TransitList />
-            </ProtectedRoute>
-          }
-        />
+        
 
         <Route
           path="/account-statements"

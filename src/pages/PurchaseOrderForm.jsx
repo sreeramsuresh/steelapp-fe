@@ -7,17 +7,20 @@ import {
   calculateItemAmount,
   calculateSubtotal,
   calculateTotal,
+  generatePONumber,
 } from "../utils/invoiceUtils";
 import { purchaseOrdersAPI } from "../services/api";
 import { stockMovementService } from "../services/stockMovementService";
 import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
+import { useApiData } from "../hooks/useApi";
+import { notificationService } from "../services/notificationService";
 
 const PurchaseOrderForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [purchaseOrder, setPurchaseOrder] = useState({
-    poNumber: "",
+    poNumber: generatePONumber(), // Fallback PO number generation
     supplierName: "",
     supplierEmail: "",
     supplierPhone: "",
@@ -51,6 +54,23 @@ const PurchaseOrderForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Get next PO number from server (only for new purchase orders)
+  const { data: nextPOData } = useApiData(
+    () => purchaseOrdersAPI.getNextNumber(),
+    [],
+    !id  // Only fetch when creating new PO (not editing)
+  );
+
+  // Update PO number when server data is available
+  useEffect(() => {
+    if (nextPOData && nextPOData.next_po_number && !id) {
+      setPurchaseOrder((prev) => ({
+        ...prev,
+        poNumber: nextPOData.next_po_number,
+      }));
+    }
+  }, [nextPOData, id]);
 
   const handleInputChange = (field, value) => {
     setPurchaseOrder((prev) => ({
@@ -148,13 +168,73 @@ const PurchaseOrderForm = () => {
     try {
       const poData = { ...purchaseOrder, status };
       
+      // Basic validation
+      if (!poData.supplierName) {
+        notificationService.warning('Supplier name is required');
+        setLoading(false);
+        return;
+      }
+      
+      if (!poData.items || poData.items.length === 0) {
+        notificationService.warning('At least one item is required');
+        setLoading(false);
+        return;
+      }
+      
+      // Validate that at least one item has required fields
+      const validItems = poData.items.filter(item => 
+        (item.productType || item.name) && item.quantity > 0
+      );
+      
+      if (validItems.length === 0) {
+        notificationService.warning('At least one item must have a product type and quantity greater than 0');
+        setLoading(false);
+        return;
+      }
+      
+      // Transform data to match backend expectations (snake_case)
+      const transformedData = {
+        po_number: poData.poNumber,
+        supplier_name: poData.supplierName,
+        supplier_email: poData.supplierEmail || null,
+        supplier_phone: poData.supplierPhone || null,
+        supplier_address: poData.supplierAddress || null,
+        po_date: poData.poDate,
+        expected_delivery_date: poData.expectedDeliveryDate || null,
+        status: poData.status,
+        transit_status: poData.transitStatus,
+        stock_status: poData.stockStatus,
+        notes: poData.notes || null,
+        terms: poData.terms || null,
+        subtotal: parseFloat(poData.subtotal) || 0,
+        vat_amount: parseFloat(poData.vatAmount) || 0,
+        total: parseFloat(poData.total) || 0,
+        // Transform items array
+        items: poData.items.map(item => ({
+          product_type: item.productType || item.name || '',
+          name: item.name || item.productType || '',
+          grade: item.grade || null,
+          thickness: item.thickness || null,
+          size: item.size || null,
+          finish: item.finish || null,
+          specification: item.specification || null,
+          unit: item.unit,
+          quantity: parseFloat(item.quantity) || 0,
+          rate: parseFloat(item.rate) || 0,
+          amount: parseFloat(item.amount) || 0
+        }))
+      };
+      
+      // Log the full data structure for debugging
+      console.log('Submitting PO data:', JSON.stringify(transformedData, null, 2));
+      
       let savedPO;
       if (id) {
         // Update existing purchase order
-        savedPO = await purchaseOrdersAPI.update(id, poData);
+        savedPO = await purchaseOrdersAPI.update(id, transformedData);
       } else {
         // Create new purchase order
-        savedPO = await purchaseOrdersAPI.create(poData);
+        savedPO = await purchaseOrdersAPI.create(transformedData);
       }
       
       // If transit status is completed, add items to stock
@@ -181,10 +261,43 @@ const PurchaseOrderForm = () => {
         }
       }
       
+      // Show success notification
+      const action = id ? 'updated' : 'created';
+      notificationService.success(`Purchase order ${action} successfully!`);
+      
       navigate("/purchase-orders");
     } catch (error) {
       console.error("Error saving purchase order:", error);
-      setErrors({ submit: error.message || "Failed to save purchase order" });
+      const action = id ? 'update' : 'create';
+      
+      // Extract more detailed error message
+      let errorMessage = 'Unknown error';
+      const errorData = error.response?.data;
+      
+      // Check for validation errors array
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Join all error messages
+        errorMessage = errorData.errors.map(err => 
+          typeof err === 'string' ? err : err.message || err.msg || JSON.stringify(err)
+        ).join(', ');
+        
+        // Show each error as a separate notification
+        errorData.errors.forEach(err => {
+          const msg = typeof err === 'string' ? err : err.message || err.msg || JSON.stringify(err);
+          notificationService.error(msg);
+        });
+      } else if (errorData?.message) {
+        errorMessage = errorData.message;
+      } else if (errorData?.error) {
+        errorMessage = errorData.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('Detailed error:', errorData);
+      console.log('Error messages:', errorData?.errors);
+      
+      setErrors({ submit: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -197,7 +310,9 @@ const PurchaseOrderForm = () => {
           isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
         }`}>
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className={`sticky top-0 z-10 flex justify-between items-center mb-6 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate("/purchase-orders")}
@@ -236,7 +351,7 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
             {/* PO Details */}
             <div className={`p-6 rounded-xl border ${
               isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'

@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { purchaseOrdersAPI } from "../services/api";
+import { notificationService } from "../services/notificationService";
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate();
@@ -74,6 +75,31 @@ const PurchaseOrderList = () => {
     );
   };
 
+  const getTransitStatusBadge = (transitStatus = "in_transit") => {
+    const transitConfig = {
+      in_transit: { 
+        className: isDarkMode 
+          ? "bg-yellow-900/30 text-yellow-300 border-yellow-600" 
+          : "bg-yellow-100 text-yellow-800 border-yellow-300", 
+        label: "IN TRANSIT" 
+      },
+      completed: { 
+        className: isDarkMode 
+          ? "bg-green-900/30 text-green-300 border-green-600" 
+          : "bg-green-100 text-green-800 border-green-300", 
+        label: "COMPLETED" 
+      },
+    };
+
+    const config = transitConfig[transitStatus] || transitConfig.in_transit;
+
+    return (
+      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+        {config.label}
+      </span>
+    );
+  };
+
   // Fetch purchase orders
   const fetchPurchaseOrders = async () => {
     setLoading(true);
@@ -86,10 +112,33 @@ const PurchaseOrderList = () => {
       };
       
       const response = await purchaseOrdersAPI.getAll(params);
-      setPurchaseOrders(response.data || []);
-      setTotalPages(Math.ceil((response.total || 0) / 10));
+      console.log('PO List API Response:', response);
+      
+      // Handle different response formats
+      let orders = [];
+      let total = 0;
+      
+      if (Array.isArray(response)) {
+        // Direct array response
+        orders = response;
+        total = response.length;
+      } else if (response.data && Array.isArray(response.data)) {
+        // Paginated response with data array
+        orders = response.data;
+        total = response.total || response.data.length;
+      } else if (response.purchase_orders && Array.isArray(response.purchase_orders)) {
+        // Response with purchase_orders array
+        orders = response.purchase_orders;
+        total = response.total || response.purchase_orders.length;
+      }
+      
+      setPurchaseOrders(orders);
+      setTotalPages(Math.ceil(total / 10));
     } catch (err) {
-      setError('Failed to fetch purchase orders');
+      console.error('Error fetching purchase orders:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch purchase orders';
+      setError(errorMessage);
+      notificationService.error(errorMessage);
       setPurchaseOrders([]);
     } finally {
       setLoading(false);
@@ -247,6 +296,9 @@ const PurchaseOrderList = () => {
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Status
                 </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Transit Status
+                </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Actions
                 </th>
@@ -255,7 +307,7 @@ const PurchaseOrderList = () => {
             <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {purchaseOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <td colSpan={8} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No purchase orders found
                   </td>
                 </tr>
@@ -283,6 +335,9 @@ const PurchaseOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(po.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getTransitStatusBadge(po.transit_status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">

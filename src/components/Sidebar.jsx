@@ -15,7 +15,6 @@ import {
   Move,
   Truck,
   ShoppingCart,
-  Navigation,
   Quote
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -86,12 +85,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ShoppingCart,
           description: 'Manage purchase orders'
         },
-        {
-          name: 'Transit',
-          path: '/transit',
-          icon: Navigation,
-          description: 'Track goods in transit'
-        }
+        
       ]
     },
     {

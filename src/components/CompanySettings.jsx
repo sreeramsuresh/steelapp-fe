@@ -31,6 +31,7 @@ import { companyService } from '../services/companyService';
 import { templateService } from '../services/templateService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -409,6 +410,11 @@ const CompanySettings = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  // Set up theme integration for notifications
+  useEffect(() => {
+    notificationService.setTheme(isDarkMode);
+  }, [isDarkMode]);
+
   const templateStyles = [
     { id: 'modern', name: 'Modern', description: 'Clean and professional design' },
     { id: 'classic', name: 'Classic', description: 'Traditional business format' },
@@ -501,7 +507,7 @@ const CompanySettings = () => {
     try {
       // Validate required fields
       if (!companyProfile.name || companyProfile.name.trim() === '') {
-        alert('Company name is required');
+        notificationService.warning('Company name is required');
         return;
       }
 
@@ -527,11 +533,11 @@ const CompanySettings = () => {
       console.log('Sending company data:', companyData);
       
       await updateCompany(companyData);
-      alert('Company profile saved successfully!');
+      notificationService.success('Company profile saved successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error saving company profile:', error);
-      alert('Failed to save company profile. Please try again.');
+      notificationService.error('Failed to save company profile. Please try again.');
     }
   };
 
@@ -557,11 +563,11 @@ const CompanySettings = () => {
         await createTemplate(templateData);
       }
 
-      alert('Invoice settings saved successfully!');
+      notificationService.success('Invoice settings saved successfully!');
       refetchTemplates();
     } catch (error) {
       console.error('Error saving invoice settings:', error);
-      alert('Failed to save invoice settings. Please try again.');
+      notificationService.error('Failed to save invoice settings. Please try again.');
     }
   };
 
@@ -586,13 +592,13 @@ const CompanySettings = () => {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      notificationService.warning('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
       return;
     }
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      notificationService.warning('File size must be less than 5MB');
       return;
     }
 
@@ -625,11 +631,11 @@ const CompanySettings = () => {
       };
       await updateCompany(companyData);
       
-      alert('Logo uploaded successfully!');
+      notificationService.success('Logo uploaded successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error uploading logo:', error);
-      alert('Failed to upload logo. Please try again.');
+      notificationService.error('Failed to upload logo. Please try again.');
     }
   };
 
@@ -671,11 +677,11 @@ const CompanySettings = () => {
       };
       await updateCompany(companyData);
       
-      alert('Logo deleted successfully!');
+      notificationService.success('Logo deleted successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error deleting logo:', error);
-      alert('Failed to delete logo. Please try again.');
+      notificationService.error('Failed to delete logo. Please try again.');
     }
   };
 
@@ -738,6 +744,7 @@ const CompanySettings = () => {
       const updatedTaxes = taxSettings.filter(tax => tax.id !== taxId);
       setTaxSettings(updatedTaxes);
       saveTaxSettings();
+      notificationService.success('Tax setting deleted successfully!');
     }
   };
 
@@ -757,6 +764,7 @@ const CompanySettings = () => {
       const updatedUsers = users.filter(user => user.id !== userId);
       setUsers(updatedUsers);
       saveUsers();
+      notificationService.success('User deleted successfully!');
     }
   };
 

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon } from 'lucide-react';
+import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Check } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNotifications } from '../contexts/NotificationCenterContext';
 
 
 const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" }) => {
@@ -10,6 +11,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
   const { isDarkMode, themeMode, toggleTheme } = useTheme();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,14 +55,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
     console.log('🚨 onLogout called successfully');
   };
 
-  // Mock notifications (you can replace with real data)
-  const notifications = [
-    { id: 1, title: "New invoice created", message: "Invoice #INV-001 has been generated", time: "2 min ago", unread: true },
-    { id: 2, title: "Payment received", message: "Payment for Invoice #INV-002 received", time: "1 hour ago", unread: true },
-    { id: 3, title: "System update", message: "Application updated to version 2.1.0", time: "2 hours ago", unread: false },
-  ];
-
-  const unreadCount = notifications.filter(n => n.unread).length;
+  // Notifications are provided by context now
 
   return (
     <header 
@@ -215,28 +210,32 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                       {unreadCount} new
                     </span>
                   </div>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={markAllAsRead}
+                      className={`mt-2 inline-flex items-center gap-1 text-xs ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                    >
+                      <Check size={14} /> Mark all as read
+                    </button>
+                  )}
                 </div>
                 
                 <div className="max-h-96 overflow-y-auto">
-                  {notifications.map((notification) => (
-                    <div 
-                      key={notification.id} 
+                  {notifications.map((n) => (
+                    <div
+                      key={n.id}
                       className={`relative p-4 border-b cursor-pointer transition-colors duration-200 ${
                         isDarkMode ? 'border-[#37474F] hover:bg-gray-700/50' : 'border-gray-200 hover:bg-gray-50'
-                      } ${notification.unread ? (isDarkMode ? 'bg-teal-900/10' : 'bg-teal-50/50') : ''} last:border-b-0`}
+                      } ${n.unread ? (isDarkMode ? 'bg-teal-900/10' : 'bg-teal-50/50') : ''} last:border-b-0`}
+                      onClick={() => {
+                        markAsRead(n.id);
+                        if (n.link) window.location.href = n.link;
+                      }}
                     >
-                      <h4 className={`text-sm font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {notification.title}
-                      </h4>
-                      <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {notification.message}
-                      </p>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                        {notification.time}
-                      </p>
-                      {notification.unread && (
-                        <div className="absolute top-4 right-4 w-2 h-2 bg-teal-500 rounded-full"></div>
-                      )}
+                      <h4 className={`text-sm font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{n.title}</h4>
+                      <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{n.message}</p>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{n.time}</p>
+                      {n.unread && <div className="absolute top-4 right-4 w-2 h-2 bg-teal-500 rounded-full"></div>}
                     </div>
                   ))}
                 </div>

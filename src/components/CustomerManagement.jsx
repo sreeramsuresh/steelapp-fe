@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
 import { 
   FaUsers, 
   FaPlus, 
@@ -28,6 +29,11 @@ import {
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
+  
+  // Set notification service theme
+  useEffect(() => {
+    notificationService.setTheme(isDarkMode);
+  }, [isDarkMode]);
   const [activeTab, setActiveTab] = useState('profiles');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -112,8 +118,9 @@ const CustomerManagement = () => {
       });
       setShowAddModal(false);
       refetchCustomers();
+      notificationService.createSuccess('Customer');
     } catch (error) {
-      alert('Failed to create customer: ' + error.message);
+      notificationService.createError('Customer', error);
     }
   };
 
@@ -128,8 +135,9 @@ const CustomerManagement = () => {
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
+      notificationService.updateSuccess('Customer');
     } catch (error) {
-      alert('Failed to update customer: ' + error.message);
+      notificationService.updateError('Customer', error);
     }
   };
 
@@ -138,8 +146,9 @@ const CustomerManagement = () => {
       try {
         await deleteCustomer(customerId);
         refetchCustomers();
+        notificationService.deleteSuccess('Customer');
       } catch (error) {
-        alert('Failed to delete customer: ' + error.message);
+        notificationService.deleteError('Customer', error);
       }
     }
   };
@@ -170,8 +179,9 @@ const CustomerManagement = () => {
       });
       
       refetchCustomers();
+      notificationService.success('Contact entry added successfully!');
     } catch (error) {
-      alert('Failed to add contact entry: ' + error.message);
+      notificationService.error('Failed to add contact entry: ' + (error.message || 'Unknown error'));
     }
   };
 
