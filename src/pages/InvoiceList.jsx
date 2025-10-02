@@ -124,6 +124,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           : "bg-gray-100 text-gray-800 border-gray-300", 
         label: "DRAFT" 
       },
+      proforma: { 
+        className: isDarkMode 
+          ? "bg-blue-900/30 text-blue-300 border-blue-600" 
+          : "bg-blue-100 text-blue-800 border-blue-300", 
+        label: "PROFORMA" 
+      },
       sent: { 
         className: isDarkMode 
           ? "bg-blue-900/30 text-blue-300 border-blue-600" 

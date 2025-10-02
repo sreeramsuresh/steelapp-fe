@@ -213,8 +213,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
                         isActive
                           ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-md'
                           : isDarkMode
-                          ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                          ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
+                          : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
                       }`}
                     >
                       <div className="flex-shrink-0">

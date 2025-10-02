@@ -370,181 +370,227 @@ const StockMovement = () => {
       </div>
 
       {/* Add/Edit Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: { 
-            borderRadius: 3,
-            boxShadow: 8
-          }
-        }}
-      >
-        <DialogTitle sx={{ 
-          pb: 1,
-          borderBottom: '1px solid',
-          borderColor: 'divider'
-        }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {editingMovement ? 'Edit Stock Movement' : 'Add Stock Movement'}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3, pb: 2 }}>
-          <Grid container spacing={3} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                InputLabelProps={{ shrink: true }}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth sx={{ mb: 1 }}>
-                <InputLabel>Movement Type</InputLabel>
-                <Select
-                  value={formData.movement}
-                  label="Movement Type"
-                  onChange={(e) => handleInputChange('movement', e.target.value)}
-                >
-                  {MOVEMENT_TYPES.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth sx={{ mb: 1 }}>
-                <InputLabel>Product Type</InputLabel>
-                <Select
-                  value={formData.productType}
-                  label="Product Type"
-                  onChange={(e) => handleInputChange('productType', e.target.value)}
-                >
-                  {PRODUCT_TYPES.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth sx={{ mb: 1 }}>
-                <InputLabel>Grade</InputLabel>
-                <Select
-                  value={formData.grade}
-                  label="Grade"
-                  onChange={(e) => handleInputChange('grade', e.target.value)}
-                >
-                  {STEEL_GRADES.map((grade) => (
-                    <MenuItem key={grade} value={grade}>
-                      {grade}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Thickness"
-                value={formData.thickness}
-                onChange={(e) => handleInputChange('thickness', e.target.value)}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Size"
-                value={formData.size}
-                onChange={(e) => handleInputChange('size', e.target.value)}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth sx={{ mb: 1 }}>
-                <InputLabel>Finish</InputLabel>
-                <Select
-                  value={formData.finish}
-                  label="Finish"
-                  onChange={(e) => handleInputChange('finish', e.target.value)}
-                >
-                  {FINISHES.map((finish) => (
-                    <MenuItem key={finish} value={finish}>
-                      {finish}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Invoice No"
-                value={formData.invoiceNo}
-                onChange={(e) => handleInputChange('invoiceNo', e.target.value)}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Quantity"
-                type="number"
-                value={formData.quantity || ''}
-                onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Current Stock"
-                type="number"
-                value={formData.currentStock || ''}
-                onChange={(e) => handleInputChange('currentStock', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Seller"
-                value={formData.seller}
-                onChange={(e) => handleInputChange('seller', e.target.value)}
-                sx={{ mb: 1 }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-            <div className={`p-6 border-t flex gap-3 justify-end ${
-              isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+      {openDialog && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleCloseDialog} />
+            <div className={`relative max-w-2xl w-full rounded-2xl shadow-xl ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
             }`}>
-              <button
-                onClick={handleCloseDialog}
-                className={`px-4 py-2 border rounded-lg transition-colors font-medium ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
-                }`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
-              >
-                {editingMovement ? 'Update Movement' : 'Add Movement'}
-              </button>
+              <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {editingMovement ? 'Edit Stock Movement' : 'Add Stock Movement'}
+                </h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => handleInputChange('date', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Movement Type
+                    </label>
+                    <select
+                      value={formData.movement}
+                      onChange={(e) => handleInputChange('movement', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {MOVEMENT_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Product Type
+                    </label>
+                    <select
+                      value={formData.productType}
+                      onChange={(e) => handleInputChange('productType', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {PRODUCT_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Grade
+                    </label>
+                    <select
+                      value={formData.grade}
+                      onChange={(e) => handleInputChange('grade', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {STEEL_GRADES.map((grade) => (
+                        <option key={grade} value={grade}>
+                          {grade}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Thickness
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.thickness}
+                      onChange={(e) => handleInputChange('thickness', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Size
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.size}
+                      onChange={(e) => handleInputChange('size', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Finish
+                    </label>
+                    <select
+                      value={formData.finish}
+                      onChange={(e) => handleInputChange('finish', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {FINISHES.map((finish) => (
+                        <option key={finish} value={finish}>
+                          {finish}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Invoice No
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.invoiceNo}
+                      onChange={(e) => handleInputChange('invoiceNo', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.quantity || ''}
+                      onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Current Stock
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.currentStock || ''}
+                      onChange={(e) => handleInputChange('currentStock', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Seller
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.seller}
+                      onChange={(e) => handleInputChange('seller', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode 
+                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={`p-6 border-t flex gap-3 justify-end ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <button
+                  onClick={handleCloseDialog}
+                  className={`px-4 py-2 border rounded-lg transition-colors font-medium ${
+                    isDarkMode 
+                      ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                      : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
+                >
+                  {editingMovement ? 'Update Movement' : 'Add Movement'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -104,9 +104,9 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
         invoiceCount={0}
       />
       
-      <div className={`${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} h-screen absolute top-0 right-0 transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
-        sidebarOpen ? 'left-[260px] xl:left-[280px]' : 'left-0'
-      } md:relative md:left-0`}>
+      <div className={`${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
+        sidebarOpen ? 'md:ml-[260px] xl:ml-[280px]' : 'md:ml-0'
+      }`}>
         <TopNavbar 
           user={user}
           onLogout={handleLogout}

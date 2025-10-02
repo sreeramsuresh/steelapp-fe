@@ -22,13 +22,6 @@ const DeliveryNoteDetails = () => {
     quantity: ''
   });
 
-  const statusColors = {
-    pending: 'warning',
-    partial: 'info',
-    completed: 'success',
-    cancelled: 'error'
-  };
-
   const statusLabels = {
     pending: 'Pending',
     partial: 'Partial Delivery',
@@ -143,16 +136,11 @@ const DeliveryNoteDetails = () => {
 
   const statusColors = {
     pending: isDarkMode ? 'bg-yellow-900/30 text-yellow-300 border-yellow-600' : 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    partial: isDarkMode ? 'bg-orange-900/30 text-orange-300 border-orange-600' : 'bg-orange-100 text-orange-800 border-orange-300',
+    completed: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
     in_transit: isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-600' : 'bg-blue-100 text-blue-800 border-blue-300',
     delivered: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
     cancelled: isDarkMode ? 'bg-red-900/30 text-red-300 border-red-600' : 'bg-red-100 text-red-800 border-red-300'
-  };
-
-  const statusLabels = {
-    pending: 'Pending',
-    in_transit: 'In Transit',
-    delivered: 'Delivered', 
-    cancelled: 'Cancelled'
   };
 
   return (

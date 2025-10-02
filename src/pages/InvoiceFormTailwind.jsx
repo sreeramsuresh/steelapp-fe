@@ -120,7 +120,7 @@ const Select = ({ label, children, error, className = "", ...props }) => {
       )}
       <div className="relative">
         <select
-          className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
+          className={`w-full pl-3 pr-9 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
             isDarkMode 
               ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500' 
               : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
@@ -129,7 +129,7 @@ const Select = ({ label, children, error, className = "", ...props }) => {
         >
           {children}
         </select>
-        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+        <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
       </div>
       {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
     </div>
@@ -445,11 +445,27 @@ const InvoiceForm = ({ onSave }) => {
   const [searchInputs, setSearchInputs] = useState({});
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
+  
+  // Helper to enforce invoice number prefix by status
+  const withStatusPrefix = (num, status) => {
+    const desired = status === 'draft' ? 'DFT' : status === 'proforma' ? 'PFM' : 'INV';
+    if (!num || typeof num !== 'string') return `${desired}-${generateInvoiceNumber().split('-').slice(1).join('-')}`;
+    const dashIdx = num.indexOf('-');
+    if (dashIdx === -1) {
+      // No dash, prepend desired prefix
+      // Avoid duplicate desired prefix
+      const cleaned = num.replace(/^(INV|DFT|PFM)/, '').replace(/^-/, '');
+      return `${desired}-${cleaned || generateInvoiceNumber().split('-').slice(1).join('-')}`;
+    }
+    return `${desired}${num.slice(dashIdx)}`;
+  };
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
-    newInvoice.invoiceNumber = generateInvoiceNumber();
+    newInvoice.invoiceNumber = withStatusPrefix(generateInvoiceNumber(), newInvoice.status || 'draft');
     return newInvoice;
   });
+
+  // No extra payment terms fields; Due Date remains directly editable
 
   // Remove deferred value which might be causing delays
   const deferredItems = invoice.items;
@@ -523,7 +539,7 @@ const InvoiceForm = ({ onSave }) => {
     if (nextInvoiceData && nextInvoiceData.nextNumber && !id) {
       setInvoice((prev) => ({
         ...prev,
-        invoiceNumber: nextInvoiceData.nextNumber,
+        invoiceNumber: withStatusPrefix(nextInvoiceData.nextNumber, prev.status || 'draft'),
       }));
     }
   }, [nextInvoiceData, id]);
@@ -597,8 +613,6 @@ const InvoiceForm = ({ onSave }) => {
           ...newItems[index],
           productId: product.id,
           name: product.name,
-          specification:
-            product.specifications?.standard || product.grade || "",
           grade: product.grade || "",
           unit: product.unit,
           rate: product.selling_price || 0,
@@ -618,6 +632,8 @@ const InvoiceForm = ({ onSave }) => {
       setSearchInputs((prev) => ({ ...prev, [index]: "" }));
     }
   }, []);
+
+  // No automatic coupling; due date is independently editable by the user
 
   const handleSearchInputChange = useCallback((index, value) => {
     setSearchInputs((prev) => ({ ...prev, [index]: value }));
@@ -925,6 +941,7 @@ const InvoiceForm = ({ onSave }) => {
                     }
                   />
                 </div>
+                
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Purchase Order Number"
@@ -957,14 +974,13 @@ const InvoiceForm = ({ onSave }) => {
                       setInvoice((prev) => ({
                         ...prev,
                         status: e.target.value,
+                        invoiceNumber: withStatusPrefix(prev.invoiceNumber, e.target.value),
                       }))
                     }
                   >
                     <option value="draft">Draft</option>
-                    <option value="sent">Sent</option>
-                    <option value="paid">
-                      Paid (Auto-creates delivery note)
-                    </option>
+                    <option value="proforma">Proforma</option>
+                    <option value="paid">Paid (Auto-creates delivery note)</option>
                     <option value="overdue">Overdue</option>
                   </Select>
                   <Select
@@ -1182,9 +1198,6 @@ const InvoiceForm = ({ onSave }) => {
                       Product
                     </th>
                     <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
-                      Specification
-                    </th>
-                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Grade
                     </th>
                     <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
@@ -1243,20 +1256,6 @@ const InvoiceForm = ({ onSave }) => {
                             noOptionsText="No products found"
                           />
                         </div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <Input
-                          value={item.specification}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "specification",
-                              e.target.value
-                            )
-                          }
-                          placeholder="e.g., 12mm dia"
-                          className="w-32"
-                        />
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap">
                         <Input
@@ -1403,14 +1402,6 @@ const InvoiceForm = ({ onSave }) => {
                       noOptionsText="No products found"
                     />
 
-                    <Input
-                      label="Specification"
-                      value={item.specification}
-                      onChange={(e) =>
-                        handleItemChange(index, "specification", e.target.value)
-                      }
-                      placeholder="e.g., 12mm dia"
-                    />
 
                     <div className="grid grid-cols-2 gap-4">
                       <Input

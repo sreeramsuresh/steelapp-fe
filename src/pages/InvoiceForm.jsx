@@ -383,8 +383,6 @@ const InvoiceForm = ({ onSave }) => {
           ...newItems[index],
           productId: product.id,
           name: product.name,
-          specification:
-            product.specifications?.standard || product.grade || "",
           grade: product.grade || "",
           unit: product.unit,
           rate: product.selling_price || 0,
@@ -824,17 +822,6 @@ const InvoiceForm = ({ onSave }) => {
             }
           />
 
-          <TextField
-            size="small"
-            label="Specification"
-            value={item.specification}
-            onChange={(e) =>
-              handleItemChange(index, "specification", e.target.value)
-            }
-            placeholder="e.g., 12mm dia"
-            multiline
-            maxRows={2}
-          />
 
           <TextField
             size="small"
@@ -1243,7 +1230,7 @@ const InvoiceForm = ({ onSave }) => {
                             }
                           >
                             <MenuItem value="draft">Draft</MenuItem>
-                            <MenuItem value="sent">Sent</MenuItem>
+                            <MenuItem value="proforma">Proforma</MenuItem>
                             <MenuItem value="paid">
                               Paid (Auto-creates delivery note)
                             </MenuItem>
@@ -1610,9 +1597,6 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell sx={{ minWidth: 200 }}>
                         Product Selection
                       </TableCell>
-                      <TableCell sx={{ minWidth: 150 }}>
-                        Specification
-                      </TableCell>
                       <TableCell sx={{ minWidth: 100 }}>Grade</TableCell>
                       <TableCell sx={{ minWidth: 120 }}>Description</TableCell>
                       <TableCell>Unit</TableCell>
@@ -1760,22 +1744,6 @@ const InvoiceForm = ({ onSave }) => {
                                 )}
                               </Box>
                             }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={item.specification}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "specification",
-                                e.target.value
-                              )
-                            }
-                            placeholder="e.g., 12mm dia"
-                            multiline
-                            maxRows={2}
                           />
                         </TableCell>
                         <TableCell>

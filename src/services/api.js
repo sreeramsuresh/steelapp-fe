@@ -329,6 +329,82 @@ export const transitAPI = {
   }
 };
 
+// Customers API methods
+export const customersAPI = {
+  // Get all customers with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/customers', params);
+  },
+
+  // Get customer by ID
+  getById: (id) => {
+    return apiClient.get(`/customers/${id}`);
+  },
+
+  // Create customer
+  create: (customerData) => {
+    return apiClient.post('/customers', customerData);
+  },
+
+  // Update customer
+  update: (id, customerData) => {
+    return apiClient.put(`/customers/${id}`, customerData);
+  },
+
+  // Delete customer
+  delete: (id) => {
+    return apiClient.delete(`/customers/${id}`);
+  },
+
+  // Search customers
+  search: (query) => {
+    return apiClient.get('/customers/search', { query });
+  }
+};
+
+// Products API methods
+export const productsAPI = {
+  // Get all products with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/products', params);
+  },
+
+  // Get product by ID
+  getById: (id) => {
+    return apiClient.get(`/products/${id}`);
+  },
+
+  // Create product
+  create: (productData) => {
+    return apiClient.post('/products', productData);
+  },
+
+  // Update product
+  update: (id, productData) => {
+    return apiClient.put(`/products/${id}`, productData);
+  },
+
+  // Delete product
+  delete: (id) => {
+    return apiClient.delete(`/products/${id}`);
+  },
+
+  // Search products
+  search: (query) => {
+    return apiClient.get('/products/search', { query });
+  },
+
+  // Get product categories
+  getCategories: () => {
+    return apiClient.get('/products/categories');
+  },
+
+  // Get products by category
+  getByCategory: (category) => {
+    return apiClient.get(`/products/category/${category}`);
+  }
+};
+
 // Quotations API methods
 export const quotationsAPI = {
   // Get all quotations with pagination and filters
