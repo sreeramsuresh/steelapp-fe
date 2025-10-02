@@ -1604,9 +1604,9 @@ const CompanySettings = () => {
           </div>
         </div>
         
-        {/* Tabs */}
-        <div className={`border-t ${isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-200 bg-white'}`}>
-          <div className={`flex overflow-x-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        {/* Tabs - Pill style for clarity, wraps on small screens */}
+        <div className={`${isDarkMode ? 'bg-gray-800 border-y border-[#37474F]' : 'bg-white border-y border-gray-200'}`}>
+          <div className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1614,19 +1614,18 @@ const CompanySettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-                    color: isActive 
-                      ? (isDarkMode ? '#34d399' : '#059669')
-                      : (isDarkMode ? '#9ca3af' : '#6b7280')
-                  }}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${
-                    isActive
-                      ? 'border-teal-500'
-                      : 'border-transparent hover:opacity-75'
+                  aria-selected={isActive}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 ${
+                    isDarkMode
+                      ? (isActive
+                          ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                          : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white')
+                      : (isActive
+                          ? 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                          : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                   }`}
                 >
-                  <Icon size={20} />
+                  <Icon size={18} />
                   {tab.label}
                 </button>
               );

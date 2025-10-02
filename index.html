@@ -4,19 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/fevIcon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Suppress the CDN warning in development
-      if (typeof window !== 'undefined' && window.console) {
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-          if (args[0] && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
-            return;
-          }
-          originalWarn.apply(console, args);
-        };
-      }
-    </script>
+    
     <title>Steel Invoice Pro</title>
   </head>
   <body>

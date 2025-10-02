@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
@@ -75,6 +76,13 @@ const CustomerManagement = () => {
   });
 
   const filteredCustomers = customers;
+
+  // Sync search from URL param
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const q = searchParams.get('search') || '';
+    setSearchTerm(q);
+  }, [searchParams]);
 
   const handleAddCustomer = async () => {
     try {
@@ -281,7 +289,7 @@ const CustomerManagement = () => {
                 <div className="flex gap-1 ml-2">
                   <button
                     onClick={() => openContactHistory(customer)}
-                    className={`p-2 rounded-lg transition-all hover:bg-[#008B8B] hover:text-white ${textMuted}`}
+                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'}`}
                     title="Contact History"
                   >
                     <FaHistory className="w-4 h-4" />
@@ -291,14 +299,14 @@ const CustomerManagement = () => {
                       setSelectedCustomer(customer);
                       setShowEditModal(true);
                     }}
-                    className={`p-2 rounded-lg transition-all hover:bg-[#008B8B] hover:text-white ${textMuted}`}
+                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'}`}
                     title="Edit Customer"
                   >
                     <FaEdit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteCustomer(customer.id)}
-                    className={`p-2 rounded-lg transition-all hover:bg-red-500 hover:text-white ${textMuted}`}
+                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'}`}
                     title="Delete Customer"
                   >
                     <FaTrash className="w-4 h-4" />
@@ -446,30 +454,40 @@ const CustomerManagement = () => {
           <p className={textSecondary}>Manage customer profiles, contact history, and credit limits</p>
         </div>
 
-        {/* Tabs */}
-        <div className={`flex space-x-1 mb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
-          <button
-            onClick={() => setActiveTab('profiles')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
-              activeTab === 'profiles'
-                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
-                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
-            }`}
-          >
-            <FaUsers size={20} />
-            Customer Profiles
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
-              activeTab === 'analytics'
-                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
-                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
-            }`}
-          >
-            <FaChartBar size={20} />
-            Analytics
-          </button>
+        {/* Tabs - Pill style */}
+        <div className={`mb-6 ${isDarkMode ? 'bg-transparent' : 'bg-transparent'}`}>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTab('profiles')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'profiles'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <FaUsers size={18} />
+              Customer Profiles
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'analytics'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <FaChartBar size={18} />
+              Analytics
+            </button>
+          </div>
         </div>
 
         {/* Loading State */}
@@ -692,9 +710,9 @@ const CustomerManagement = () => {
             <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
               <button
                 onClick={() => setShowAddModal(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode 
-                    ? 'text-[#B0BEC5] hover:bg-[#37474F]' 
+                    ? 'text-[#B0BEC5] hover:text-gray-300' 
                     : 'text-[#757575] hover:bg-gray-100'
                 }`}
               >
@@ -875,9 +893,9 @@ const CustomerManagement = () => {
             <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
               <button
                 onClick={() => setShowEditModal(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode 
-                    ? 'text-[#B0BEC5] hover:bg-[#37474F]' 
+                    ? 'text-[#B0BEC5] hover:text-gray-300' 
                     : 'text-[#757575] hover:bg-gray-100'
                 }`}
               >

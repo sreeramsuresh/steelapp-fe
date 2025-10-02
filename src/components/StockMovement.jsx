@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
+import { purchaseOrdersAPI } from '../services/api';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
 
 
@@ -36,8 +37,43 @@ const StockMovement = () => {
   const fetchMovements = async () => {
     try {
       setLoading(true);
+      
+      // Fetch regular stock movements
       const response = await stockMovementService.getAllMovements();
-      setMovements(response.data || []);
+      const stockMovements = response.data || [];
+      
+      // Fetch purchase orders that are in transit
+      const poResponse = await purchaseOrdersAPI.getAll({ transitStatus: 'in_transit' });
+      const inTransitPOs = poResponse.data || [];
+      
+      // Convert in-transit POs to negative stock movements
+      const inTransitMovements = [];
+      for (const po of inTransitPOs) {
+        if (po.items && Array.isArray(po.items)) {
+          for (const item of po.items) {
+            if (item.name && item.quantity > 0) {
+              inTransitMovements.push({
+                id: `transit_${po.id}_${item.id || Math.random()}`,
+                date: po.expectedDeliveryDate || po.poDate,
+                movement: "TRANSIT",
+                productType: item.name,
+                grade: item.specification || "",
+                thickness: "",
+                size: "",
+                finish: "",
+                invoiceNo: `PO-${po.poNumber}`,
+                quantity: -item.quantity, // Negative value for in-transit
+                currentStock: 0,
+                seller: po.supplierName,
+                isTransit: true // Flag to identify transit items
+              });
+            }
+          }
+        }
+      }
+      
+      // Combine both movements
+      setMovements([...stockMovements, ...inTransitMovements]);
     } catch (error) {
       console.error('Error fetching stock movements:', error);
       setError('Failed to load stock movements');
@@ -259,9 +295,13 @@ const StockMovement = () => {
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full min-w-16 ${
                       movement.movement === 'IN'
                         ? (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
+                        : movement.movement === 'TRANSIT'
+                        ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
                         : (isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800')
                     }`}>
-                      {movement.movement === 'IN' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                      {movement.movement === 'IN' ? <TrendingUp size={14} /> : 
+                       movement.movement === 'TRANSIT' ? <Package size={14} /> : 
+                       <TrendingDown size={14} />}
                       {movement.movement}
                     </span>
                   </td>
@@ -302,7 +342,11 @@ const StockMovement = () => {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <span className={`text-sm font-semibold ${
+                      movement.quantity < 0 
+                        ? (isDarkMode ? 'text-yellow-400' : 'text-yellow-600')
+                        : (isDarkMode ? 'text-white' : 'text-gray-900')
+                    }`}>
                       {movement.quantity}
                     </span>
                   </td>
@@ -315,24 +359,30 @@ const StockMovement = () => {
                     {movement.seller}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleOpenDialog(movement)}
-                        className={`p-2 rounded transition-colors ${
-                          isDarkMode ? 'hover:bg-teal-900/30 text-teal-400' : 'hover:bg-teal-100 text-teal-600'
-                        }`}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(movement.id)}
-                        className={`p-2 rounded transition-colors ${
-                          isDarkMode ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-100 text-red-600'
-                        }`}
-                      >
-                        <Delete size={16} />
-                      </button>
-                    </div>
+                    {movement.isTransit ? (
+                      <span className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        In Transit
+                      </span>
+                    ) : (
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleOpenDialog(movement)}
+                          className={`p-2 rounded transition-colors ${
+                            isDarkMode ? 'hover:bg-teal-900/30 text-teal-400' : 'hover:bg-teal-100 text-teal-600'
+                          }`}
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(movement.id)}
+                          className={`p-2 rounded transition-colors ${
+                            isDarkMode ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-100 text-red-600'
+                          }`}
+                        >
+                          <Delete size={16} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

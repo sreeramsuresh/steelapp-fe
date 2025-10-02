@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Eye, Download, Trash2, Search, FileDown, Truck, Link as LinkIcon, Plus, X, CheckCircle, AlertCircle, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
@@ -29,6 +29,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   });
   const [poLoading, setPOLoading] = useState(false);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
+  const [searchParams] = useSearchParams();
 
   const company = createCompany();
 
@@ -106,6 +107,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm, statusFilter]);
+
+  // Initialize search from URL param and keep in sync
+  useEffect(() => {
+    const q = searchParams.get('search') || '';
+    setSearchTerm(q);
+    setCurrentPage(1);
+  }, [searchParams]);
 
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
@@ -366,10 +374,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           {invoices.length > 0 && (
             <button
               onClick={handleBulkDownload}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-transparent ${
                 isDarkMode 
-                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  ? 'text-white hover:text-gray-300' 
+                  : 'hover:bg-gray-100 text-gray-800'
               }`}
             >
               <FileDown size={18} />
@@ -572,8 +580,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       {getPOStatus(invoice)}
                       {!invoice.purchaseOrderNumber && (
                         <button
-                          className={`p-1 rounded transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
+                          className={`p-1 rounded transition-colors bg-transparent ${
+                            isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
                           }`}
                           title="Link Purchase Order"
                           onClick={() => handleOpenPODialog(invoice)}
@@ -588,15 +596,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       <Link
                         to={`/edit/${invoice.id}`}
                         className={`p-2 rounded transition-colors ${
-                          isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                          isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
                         }`}
                         title="Edit Invoice"
                       >
                         <Edit size={16} />
                       </Link>
                       <button
-                        className={`p-2 rounded transition-colors ${
-                          isDarkMode ? 'hover:bg-gray-700 text-cyan-400' : 'hover:bg-gray-100 text-cyan-600'
+                        className={`p-2 rounded transition-colors bg-transparent ${
+                          isDarkMode ? 'text-cyan-400 hover:text-cyan-300' : 'hover:bg-gray-100 text-cyan-600'
                         }`}
                         title="View Invoice"
                         onClick={() => {
@@ -606,10 +614,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         <Eye size={16} />
                       </button>
                       <button
-                        className={`p-2 rounded transition-colors ${
+                        className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                           downloadingIds.has(invoice.id)
                             ? 'opacity-50 cursor-not-allowed'
-                            : isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                            : isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
                         }`}
                         title="Download PDF"
                         onClick={() => handleDownloadPDF(invoice)}
@@ -623,10 +631,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       </button>
                       {invoice.status === 'paid' && (
                         <button
-                          className={`p-2 rounded transition-colors ${
+                          className={`p-2 rounded transition-colors bg-transparent ${
                             deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? isDarkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-yellow-600'
-                              : isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                              ? isDarkMode ? 'text-yellow-400 hover:text-yellow-300' : 'hover:bg-gray-100 text-yellow-600'
+                              : isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
                           }`}
                           title={
                             deliveryNoteStatus[invoice.id]?.hasNotes 
@@ -643,8 +651,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         </button>
                       )}
                       <button
-                        className={`p-2 rounded transition-colors ${
-                          isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                        className={`p-2 rounded transition-colors bg-transparent ${
+                          isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
                         }`}
                         title="Delete Invoice"
                         onClick={() => {
@@ -674,10 +682,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <button
                 onClick={(e) => handlePageChange(e, pagination.current_page - 1)}
                 disabled={pagination.current_page === 1}
-                className={`p-2 rounded transition-colors ${
+                className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   pagination.current_page === 1 
                     ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
-                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                    : (isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:bg-gray-100')
                 }`}
               >
                 <ChevronLeft size={20} />
@@ -688,10 +696,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <button
                 onClick={(e) => handlePageChange(e, pagination.current_page + 1)}
                 disabled={pagination.current_page === pagination.total_pages}
-                className={`p-2 rounded transition-colors ${
+                className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   pagination.current_page === pagination.total_pages 
                     ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
-                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                    : (isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:bg-gray-100')
                 }`}
               >
                 <ChevronRight size={20} />
@@ -793,10 +801,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             }`}>
               <button
                 onClick={handleClosePODialog}
-                className={`px-4 py-2 border rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                    ? 'text-white hover:text-gray-300' 
+                    : 'hover:bg-gray-100 text-gray-800'
                 }`}
               >
                 Cancel

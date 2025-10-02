@@ -348,8 +348,8 @@ const DeliveryNoteList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
                         <button
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
                           }`}
                           onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
                           title="View Details"
@@ -357,8 +357,8 @@ const DeliveryNoteList = () => {
                           <ViewIcon size={16} />
                         </button>
                         <button
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
                           }`}
                           onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
                           title="Edit"
@@ -366,8 +366,8 @@ const DeliveryNoteList = () => {
                           <EditIcon size={16} />
                         </button>
                         <button
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
                           }`}
                           onClick={() => handleDownloadPDF(deliveryNote.id)}
                           title="Download PDF"
@@ -375,8 +375,8 @@ const DeliveryNoteList = () => {
                           <DownloadIcon size={16} />
                         </button>
                         <button
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
                           }`}
                           onClick={() => setDeleteDialog({
                             open: true,
@@ -425,10 +425,10 @@ const DeliveryNoteList = () => {
               <button
                 onClick={(e) => handlePageChange(e, page - 1)}
                 disabled={page === 0}
-                className={`p-2 rounded transition-colors ${
+                className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page === 0 
                     ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
-                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                    : (isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:bg-gray-100')
                 }`}
               >
                 <ChevronLeft size={20} />
@@ -439,10 +439,10 @@ const DeliveryNoteList = () => {
               <button
                 onClick={(e) => handlePageChange(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
-                className={`p-2 rounded transition-colors ${
+                className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page >= Math.ceil(totalCount / rowsPerPage) - 1 
                     ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
-                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                    : (isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:bg-gray-100')
                 }`}
               >
                 <ChevronRight size={20} />
@@ -476,10 +476,10 @@ const DeliveryNoteList = () => {
             }`}>
               <button
                 onClick={() => setDeleteDialog({ open: false, id: null, number: '' })}
-                className={`px-4 py-2 border rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                    ? 'text-white hover:text-gray-300' 
+                    : 'hover:bg-gray-100 text-gray-800'
                 }`}
               >
                 Cancel

@@ -11,6 +11,7 @@ import SteelProducts from "./SteelProducts";
 import PriceCalculator from "./PriceCalculator";
 import SalesAnalytics from "./SalesAnalytics";
 import CompanySettings from "./CompanySettings";
+import SearchResults from "./SearchResults";
 import RevenueTrends from "./RevenueTrends";
 import StockMovement from "./StockMovement";
 import InventoryList from "./InventoryList";
@@ -69,6 +70,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         {/* Protected Routes */}
+
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute user={user}>
+              <SearchResults />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"

@@ -464,12 +464,12 @@ const SteelProducts = () => {
                         setSelectedProduct(product);
                         setShowSpecModal(true);
                       }}
-                      className={`p-1.5 rounded transition-colors ${
-                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      className={`p-1.5 rounded transition-colors bg-transparent ${
+                        isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
                       }`}
                       title="View Specifications"
                     >
-                      <Eye size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <Eye size={16} />
                     </button>
                     <button
                       onClick={() => {
@@ -497,21 +497,21 @@ const SteelProducts = () => {
                         setShowEditModal(true);
                         console.log('📝 Edit modal should now be visible');
                       }}
-                      className={`p-1.5 rounded transition-colors ${
-                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      className={`p-1.5 rounded transition-colors bg-transparent ${
+                        isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
                       }`}
                       title="Edit Product"
                     >
-                      <Edit size={16} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+                      <Edit size={16} />
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
-                      className={`p-1.5 rounded transition-colors ${
-                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      className={`p-1.5 rounded transition-colors bg-transparent ${
+                        isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
                       }`}
                       title="Delete Product"
                     >
-                      <Trash2 size={16} className={isDarkMode ? 'text-red-400' : 'text-red-600'} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -621,30 +621,40 @@ const SteelProducts = () => {
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className={`flex space-x-1 mb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
-          <button
-            onClick={() => setActiveTab('catalog')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
-              activeTab === 'catalog'
-                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
-                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
-            }`}
-          >
-            <Package size={20} />
-            Product Catalog
-          </button>
-          <button
-            onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
-              activeTab === 'inventory'
-                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
-                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
-            }`}
-          >
-            <Warehouse size={20} />
-            Inventory Management
-          </button>
+        {/* Tabs - Pill style */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTab('catalog')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'catalog'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <Package size={18} />
+              Product Catalog
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'inventory'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <Warehouse size={18} />
+              Inventory Management
+            </button>
+          </div>
         </div>
 
         {/* Tab Content */}
@@ -668,11 +678,11 @@ const SteelProducts = () => {
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  className={`p-2 rounded transition-colors bg-transparent ${
+                    isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
-                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                  <X size={20} />
                 </button>
               </div>
 
@@ -937,11 +947,11 @@ const SteelProducts = () => {
                 </h2>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  className={`p-2 rounded transition-colors bg-transparent ${
+                    isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
-                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                  <X size={20} />
                 </button>
               </div>
 
@@ -1040,9 +1050,14 @@ const SteelProducts = () => {
               <div className={`flex justify-end gap-3 p-6 border-t ${
                 isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
               }`}>
-                <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
+                    isDarkMode ? 'text-white hover:text-gray-300' : 'hover:bg-gray-100 text-gray-800'
+                  }`}
+                >
                   Cancel
-                </Button>
+                </button>
                 <Button 
                   onClick={handleEditProduct}
                   disabled={updatingProduct}

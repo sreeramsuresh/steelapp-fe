@@ -150,8 +150,8 @@ const DeliveryNoteDetails = () => {
         <div className="flex items-center">
           <button
             onClick={() => navigate('/delivery-notes')}
-            className={`p-2 rounded-lg mr-4 transition-colors ${
-              isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+            className={`p-2 rounded mr-4 transition-colors bg-transparent ${
+              isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
             <ArrowLeft size={20} />
@@ -556,10 +556,10 @@ const DeliveryNoteDetails = () => {
             <div className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <button
                 onClick={() => setPartialDialog({ open: false, item: null, quantity: '' })}
-                className={`px-4 py-2 border rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                    ? 'text-white hover:text-gray-300' 
+                    : 'hover:bg-gray-100 text-gray-800'
                 }`}
               >
                 Cancel

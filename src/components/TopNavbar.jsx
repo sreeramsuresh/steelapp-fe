@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -9,6 +10,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
   const { isDarkMode, themeMode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Debug logging
   console.log('TopNavbar isDarkMode:', isDarkMode);
@@ -115,8 +119,40 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                 color: isDarkMode ? '#ffffff' : '#111827',
                 backgroundColor: 'transparent'
               }}
-              className="w-full pl-10 pr-4 py-3 border-none outline-none transition-all duration-300 placeholder-gray-400 sm:w-80 focus:w-96 lg:w-96 focus:lg:w-[28rem] xl:w-[30rem] focus:xl:w-[35rem]"
+              className="w-full pl-10 pr-20 py-3 border-none outline-none transition-all duration-300 placeholder-gray-400 sm:w-80 focus:w-96 lg:w-96 focus:lg:w-[28rem] xl:w-[30rem] focus:xl:w-[35rem]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const q = searchQuery.trim();
+                  if (!q) return;
+                  if (location.pathname.startsWith('/customers')) {
+                    navigate(`/customers?search=${encodeURIComponent(q)}`);
+                  } else {
+                    navigate(`/search?q=${encodeURIComponent(q)}`);
+                  }
+                }
+              }}
             />
+            <button
+              title="Search"
+              onClick={() => {
+                const q = searchQuery.trim();
+                if (!q) return;
+                if (location.pathname.startsWith('/customers')) {
+                  navigate(`/customers?search=${encodeURIComponent(q)}`);
+                } else {
+                  navigate(`/search?q=${encodeURIComponent(q)}`);
+                }
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+              style={{
+                color: isDarkMode ? '#d1d5db' : '#065f46',
+                backgroundColor: isDarkMode ? '#4b5563' : '#d1fae5'
+              }}
+            >
+              Go
+            </button>
           </div>
         </div>
 
@@ -287,7 +323,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                   <button 
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
-                      isDarkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      isDarkMode 
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white' 
+                        : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     <User size={18} />
@@ -297,7 +335,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                   <button 
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
-                      isDarkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      isDarkMode 
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white' 
+                        : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     <Settings size={18} />
@@ -307,7 +347,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                   <button 
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
-                      isDarkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      isDarkMode 
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white' 
+                        : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     <HelpCircle size={18} />
@@ -318,7 +360,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                   
                   <button 
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 bg-white hover:bg-red-50 dark:bg-transparent dark:hover:bg-red-900/20 transition-colors duration-200"
                   >
                     <LogOut size={18} />
                     <span className="text-sm font-medium">Sign Out</span>

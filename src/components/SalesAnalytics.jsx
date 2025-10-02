@@ -889,59 +889,67 @@ const SalesAnalytics = () => {
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-            <div className="flex space-x-8">
+          {/* Tabs - Pill style */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'overview'
-                    ? 'border-teal-500 text-teal-600'
-                    : `border-transparent ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
-                      }`
+                    ? (isDarkMode
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    : (isDarkMode
+                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
-                <BarChart3 size={20} />
+                <BarChart3 size={18} />
                 Revenue Overview
               </button>
               <button
                 onClick={() => setActiveTab('customers')}
-                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'customers'
-                    ? 'border-teal-500 text-teal-600'
-                    : `border-transparent ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
-                      }`
+                    ? (isDarkMode
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    : (isDarkMode
+                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
-                <Users size={20} />
+                <Users size={18} />
                 Customer Analysis
               </button>
               <button
                 onClick={() => setActiveTab('products')}
-                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'products'
-                    ? 'border-teal-500 text-teal-600'
-                    : `border-transparent ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
-                      }`
+                    ? (isDarkMode
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    : (isDarkMode
+                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
-                <Package size={20} />
+                <Package size={18} />
                 Product Performance
               </button>
               <button
                 onClick={() => setActiveTab('reports')}
-                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'reports'
-                    ? 'border-teal-500 text-teal-600'
-                    : `border-transparent ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
-                      }`
+                    ? (isDarkMode
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    : (isDarkMode
+                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
-                <Calendar size={20} />
+                <Calendar size={18} />
                 Reports
               </button>
             </div>

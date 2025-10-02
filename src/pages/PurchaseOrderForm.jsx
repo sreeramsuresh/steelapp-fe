@@ -8,6 +8,9 @@ import {
   calculateSubtotal,
   calculateTotal,
 } from "../utils/invoiceUtils";
+import { purchaseOrdersAPI } from "../services/api";
+import { stockMovementService } from "../services/stockMovementService";
+import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 
 const PurchaseOrderForm = () => {
   const { id } = useParams();
@@ -22,11 +25,17 @@ const PurchaseOrderForm = () => {
     poDate: new Date().toISOString().split("T")[0],
     expectedDeliveryDate: "",
     status: "draft",
+    transitStatus: "in_transit", // New field for transit status
     stockStatus: "retain", // Default to 'retain'
     items: [
       {
-        name: "",
-        specification: "",
+        productType: "",
+        name: "", // This will be same as productType for consistency
+        grade: "",
+        thickness: "",
+        size: "",
+        finish: "",
+        specification: "", // Keep for backward compatibility
         unit: "MT",
         quantity: 0,
         rate: 0,
@@ -94,7 +103,12 @@ const PurchaseOrderForm = () => {
       items: [
         ...prev.items,
         {
+          productType: "",
           name: "",
+          grade: "",
+          thickness: "",
+          size: "",
+          finish: "",
           specification: "",
           unit: "MT",
           quantity: 0,
@@ -132,11 +146,45 @@ const PurchaseOrderForm = () => {
   const handleSubmit = async (status = "draft") => {
     setLoading(true);
     try {
-      // TODO: Implement API call to save purchase order
-      console.log("Saving purchase order:", { ...purchaseOrder, status });
+      const poData = { ...purchaseOrder, status };
+      
+      let savedPO;
+      if (id) {
+        // Update existing purchase order
+        savedPO = await purchaseOrdersAPI.update(id, poData);
+      } else {
+        // Create new purchase order
+        savedPO = await purchaseOrdersAPI.create(poData);
+      }
+      
+      // If transit status is completed, add items to stock
+      if (poData.transitStatus === "completed") {
+        for (const item of poData.items) {
+          if ((item.productType || item.name) && item.quantity > 0) {
+            const stockMovement = {
+              date: new Date().toISOString().split("T")[0],
+              movement: "IN", // Stock IN movement
+              productType: item.productType || item.name,
+              grade: item.grade || item.specification || "",
+              thickness: item.thickness || "",
+              size: item.size || "",
+              finish: item.finish || "",
+              invoiceNo: poData.poNumber,
+              quantity: item.quantity,
+              currentStock: item.quantity, // Will be updated by backend
+              seller: poData.supplierName,
+              notes: `Added from PO #${poData.poNumber} - Transit Completed`
+            };
+            
+            await stockMovementService.createMovement(stockMovement);
+          }
+        }
+      }
+      
       navigate("/purchase-orders");
     } catch (error) {
       console.error("Error saving purchase order:", error);
+      setErrors({ submit: error.message || "Failed to save purchase order" });
     } finally {
       setLoading(false);
     }
@@ -269,6 +317,28 @@ const PurchaseOrderForm = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Transit Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={purchaseOrder.transitStatus}
+                      onChange={(e) => handleInputChange("transitStatus", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="in_transit">In Transit</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Stock Status
                   </label>
                   <div className="relative">
@@ -391,16 +461,25 @@ const PurchaseOrderForm = () => {
                 <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
                   <tr>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Product Name
+                      Product Type
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Specification
+                      Grade
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Thickness
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Size
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Finish
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Unit
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Quantity
+                      Qty
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Rate
@@ -417,11 +496,60 @@ const PurchaseOrderForm = () => {
                   {purchaseOrder.items.map((item, index) => (
                     <tr key={index}>
                       <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.productType}
+                            onChange={(e) => {
+                              handleItemChange(index, "productType", e.target.value);
+                              handleItemChange(index, "name", e.target.value); // Keep name in sync
+                            }}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Product</option>
+                            {PRODUCT_TYPES.map((type) => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.grade}
+                            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Grade</option>
+                            {STEEL_GRADES.map((grade) => (
+                              <option key={grade} value={grade}>
+                                {grade}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
                         <input
                           type="text"
-                          value={item.name}
-                          onChange={(e) => handleItemChange(index, "name", e.target.value)}
-                          placeholder="Product name"
+                          value={item.thickness}
+                          onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+                          placeholder="e.g., 12mm"
                           className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                             isDarkMode 
                               ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
@@ -432,15 +560,38 @@ const PurchaseOrderForm = () => {
                       <td className="px-4 py-3">
                         <input
                           type="text"
-                          value={item.specification}
-                          onChange={(e) => handleItemChange(index, "specification", e.target.value)}
-                          placeholder="Specification"
+                          value={item.size}
+                          onChange={(e) => handleItemChange(index, "size", e.target.value)}
+                          placeholder="e.g., 4x8"
                           className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                             isDarkMode 
                               ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
                               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                           }`}
                         />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.finish}
+                            onChange={(e) => handleItemChange(index, "finish", e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Finish</option>
+                            {FINISHES.map((finish) => (
+                              <option key={finish} value={finish}>
+                                {finish}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="relative">

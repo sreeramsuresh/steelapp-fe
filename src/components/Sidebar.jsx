@@ -211,7 +211,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
                       title={item.description}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
                         isActive
-                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-md'
+                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
                           : isDarkMode
                           ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
                           : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
