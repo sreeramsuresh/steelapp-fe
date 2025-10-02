@@ -1,84 +1,19 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, useLocation } from 'react-router-dom';
-import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import { CssBaseline, Box, CircularProgress, Typography } from '@mui/material';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopNavbar from './components/TopNavbar';
 import AppRouter from './components/AppRouter';
 import { authService } from './services/axiosAuthService';
-import { styled } from '@mui/material/styles';
 
 // Initialize auth service on app load
 authService.initialize();
 
-// Styled Components
-const AppContainer = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  minHeight: '100vh',
-  maxHeight: '100vh',
-  background: theme.palette.background.default,
-  overflow: 'hidden',
-  width: '100vw',
-}));
-
-const SidebarOverlay = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  display: 'none',
-  [theme.breakpoints.down('md')]: {
-    display: open ? 'block' : 'none',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 999,
-  },
-}));
-
-const MainContent = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'sidebarOpen',
-})(({ theme, sidebarOpen }) => ({
-  background: theme.palette.background.default,
-  height: '100vh',
-  position: 'absolute',
-  top: 0,
-  left: sidebarOpen ? '260px' : '0',
-  right: 0,
-  transition: 'left 0.3s ease',
-  zIndex: 1,
-  overflow: 'auto',
-  display: 'flex',
-  flexDirection: 'column',
-  [theme.breakpoints.up('xl')]: {
-    left: sidebarOpen ? '280px' : '0',
-  },
-  [theme.breakpoints.down('md')]: {
-    left: 0,
-    position: 'relative',
-  },
-}));
-
-const ContentWrapper = styled(Box)(({ theme }) => ({
-  padding: 0,
-  width: '100%',
-}));
-
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
-  background: theme.palette.background.default,
-  gap: theme.spacing(2),
-}));
 
 // Helper component to get current page title
 const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
-  const { theme } = useTheme();
+  const { isDarkMode } = useTheme();
   
   const getPageTitle = () => {
     const path = location.pathname;
@@ -159,15 +94,19 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
 
   // For authenticated routes, show full layout
   return (
-    <AppContainer>
-      <SidebarOverlay open={sidebarOpen} onClick={toggleSidebar} />
+    <div className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      {/* Sidebar Overlay for mobile */}
+      <div className={`md:hidden ${sidebarOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-[999]`} onClick={toggleSidebar} />
+      
       <Sidebar 
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
         invoiceCount={0}
       />
       
-      <MainContent sidebarOpen={sidebarOpen}>
+      <div className={`${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} h-screen absolute top-0 right-0 transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
+        sidebarOpen ? 'left-[260px] xl:left-[280px]' : 'left-0'
+      } md:relative md:left-0`}>
         <TopNavbar 
           user={user}
           onLogout={handleLogout}
@@ -180,34 +119,26 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
           handleSaveInvoice={handleSaveInvoice}
           onLoginSuccess={onLoginSuccess}
         />
-      </MainContent>
-    </AppContainer>
+      </div>
+    </div>
   );
 };
 
 // Themed App wrapper that uses the theme context
 const ThemedApp = ({ isLoading, ...props }) => {
-  const { theme } = useTheme();
+  const { isDarkMode } = useTheme();
 
   if (isLoading) {
     return (
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        <LoadingContainer>
-          <CircularProgress size={32} />
-          <Typography color="text.primary">Loading Steel Invoice Pro...</Typography>
-        </LoadingContainer>
-      </MuiThemeProvider>
+      <div className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Loading Steel Invoice Pro...</span>
+      </div>
     );
   }
 
-  return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppContent {...props} />
-    </MuiThemeProvider>
-  );
-};
+  return <AppContent {...props} />;
+}
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
@@ -272,12 +203,18 @@ function App() {
   };
 
   const handleLogout = async () => {
+    console.log('🚨 App.jsx handleLogout called!');
+    console.log('🚨 Current user:', user);
     try {
+      console.log('🚨 Calling authService.logout()...');
       await authService.logout();
+      console.log('🚨 authService.logout() completed successfully');
     } catch (error) {
-      console.warn('Logout failed:', error);
+      console.warn('🚨 Logout failed:', error);
     } finally {
+      console.log('🚨 Setting user to null...');
       setUser(null);
+      console.log('🚨 User set to null, logout complete');
     }
   };
 

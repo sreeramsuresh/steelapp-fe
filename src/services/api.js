@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+import { apiService } from './axiosApi';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 class ApiClient {
   constructor() {
@@ -10,96 +12,55 @@ class ApiClient {
 
   setAuthHeader(token) {
     this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    // Also set on axios-based service so interceptors use it
+    apiService.setAuthToken(token);
   }
 
   removeAuthHeader() {
     delete this.defaultHeaders['Authorization'];
+    apiService.removeAuthToken();
   }
 
+  // Deprecated fetch-based request kept for backward compatibility if needed
+  // New code should use the axios-based methods below which benefit from interceptors
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    const config = {
-      headers: {
-        ...this.defaultHeaders,
-        ...options.headers,
-      },
-      ...options,
-    };
-
-    // Handle FormData (for file uploads)
-    if (config.body instanceof FormData) {
-      // Remove Content-Type header for FormData, let browser set it with boundary
-      delete config.headers['Content-Type'];
-    } else if (config.body && typeof config.body !== 'string') {
-      config.body = JSON.stringify(config.body);
-    }
-
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error(`API Error Response for ${endpoint}:`, {
-          status: response.status,
-          statusText: response.statusText,
-          errorData: errorData,
-          requestBody: config.body
-        });
-        console.error('🚨 Full error details:', errorData);
-        throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        return await response.json();
-      }
-      
-      return response;
-    } catch (error) {
-      console.error(`API Error for ${endpoint}:`, error);
-      
-      // Check if it's a connection error
-      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-        throw new Error('Unable to connect to server. Please make sure the backend server is running on http://localhost:5001');
-      }
-      
-      throw error;
+    // Delegate to axios-based apiService
+    const method = (options.method || 'GET').toUpperCase();
+    const data = options.body instanceof FormData ? options.body : (typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+    switch (method) {
+      case 'GET':
+        return apiService.get(endpoint);
+      case 'POST':
+        return apiService.post(endpoint, data);
+      case 'PUT':
+        return apiService.put(endpoint, data);
+      case 'PATCH':
+        return apiService.patch(endpoint, data);
+      case 'DELETE':
+        return apiService.delete(endpoint);
+      default:
+        return apiService.request({ method, url: endpoint, data });
     }
   }
 
   async get(endpoint, params = {}) {
-    // Filter out undefined values to prevent them from being sent as "undefined" strings
-    const filteredParams = Object.fromEntries(
-      Object.entries(params).filter(([key, value]) => value !== undefined && value !== null && value !== '')
-    );
-    const queryString = new URLSearchParams(filteredParams).toString();
-    const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    return this.request(url, { method: 'GET' });
+    return apiService.get(endpoint, params);
   }
 
   async post(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: data,
-    });
+    return apiService.post(endpoint, data);
   }
 
   async put(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: data,
-    });
+    return apiService.put(endpoint, data);
   }
 
   async patch(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'PATCH',
-      body: data,
-    });
+    return apiService.patch(endpoint, data);
   }
 
   async delete(endpoint) {
-    return this.request(endpoint, { method: 'DELETE' });
+    return apiService.delete(endpoint);
   }
 }
 
@@ -144,16 +105,12 @@ export const deliveryNotesAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const url = `${apiClient.baseURL}/delivery-notes/${id}/pdf`;
-    const response = await fetch(url, {
-      headers: apiClient.defaultHeaders
+    // Use axios-based service to leverage interceptors and auth headers
+    const blob = await apiService.request({
+      method: 'GET',
+      url: `/delivery-notes/${id}/pdf`,
+      responseType: 'blob'
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
-    }
-    
-    const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
     
     // Get delivery note number for filename
@@ -217,16 +174,11 @@ export const invoicesAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const url = `${apiClient.baseURL}/invoices/${id}/pdf`;
-    const response = await fetch(url, {
-      headers: apiClient.defaultHeaders
+    const blob = await apiService.request({
+      method: 'GET',
+      url: `/invoices/${id}/pdf`,
+      responseType: 'blob'
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
-    }
-    
-    const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
     
     // Get invoice number for filename
@@ -285,8 +237,8 @@ export const purchaseOrdersAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const url = `${apiClient.baseURL}/purchase-orders/${id}/pdf`;
-    const response = await fetch(url, {
+    const apiUrl = `${apiClient.baseURL}/purchase-orders/${id}/pdf`;
+    const response = await fetch(apiUrl, {
       headers: apiClient.defaultHeaders
     });
     
@@ -295,22 +247,66 @@ export const purchaseOrdersAPI = {
     }
     
     const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = blobUrl;
+    a.download = `PurchaseOrder-${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
+  }
+};
+
+// Account Statements API methods
+export const accountStatementsAPI = {
+  // Get all account statements with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/account-statements', params);
+  },
+
+  // Get account statement by ID
+  getById: (id) => {
+    return apiClient.get(`/account-statements/${id}`);
+  },
+
+  // Create account statement
+  create: (data) => {
+    return apiClient.post('/account-statements', data);
+  },
+
+  // Update account statement
+  update: (id, data) => {
+    return apiClient.put(`/account-statements/${id}`, data);
+  },
+
+  // Delete account statement
+  delete: (id) => {
+    return apiClient.delete(`/account-statements/${id}`);
+  },
+
+  // Generate and download PDF
+  downloadPDF: async (id) => {
+    const apiUrl = `${apiClient.baseURL}/account-statements/${id}/pdf`;
+    const response = await fetch(apiUrl, {
+      headers: apiClient.defaultHeaders
+    });
     
-    // Get purchase order number for filename
-    const purchaseOrder = await purchaseOrdersAPI.getById(id);
-    const filename = `purchase-order-${purchaseOrder.po_number}.pdf`;
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
     
-    // Create download link
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    window.URL.revokeObjectURL(downloadUrl);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = blobUrl;
+    a.download = `AccountStatement-${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
   }
 };
 
@@ -330,5 +326,71 @@ export const transitAPI = {
   // Update transit status
   updateStatus: (type, id, status) => {
     return apiClient.patch(`/transit/${type}/${id}/status`, { status });
+  }
+};
+
+// Quotations API methods
+export const quotationsAPI = {
+  // Get all quotations with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/quotations', params);
+  },
+
+  // Get quotation by ID
+  getById: (id) => {
+    return apiClient.get(`/quotations/${id}`);
+  },
+
+  // Create quotation
+  create: (data) => {
+    return apiClient.post('/quotations', data);
+  },
+
+  // Update quotation
+  update: (id, data) => {
+    return apiClient.put(`/quotations/${id}`, data);
+  },
+
+  // Delete quotation
+  delete: (id) => {
+    return apiClient.delete(`/quotations/${id}`);
+  },
+
+  // Update quotation status
+  updateStatus: (id, status) => {
+    return apiClient.patch(`/quotations/${id}/status`, { status });
+  },
+
+  // Convert quotation to invoice
+  convertToInvoice: (id) => {
+    return apiClient.post(`/quotations/${id}/convert-to-invoice`);
+  },
+
+  // Get next quotation number
+  getNextNumber: () => {
+    return apiClient.get('/quotations/number/next');
+  },
+
+  // Generate and download PDF
+  downloadPDF: async (id) => {
+    const apiUrl = `${apiClient.baseURL}/quotations/${id}/pdf`;
+    const response = await fetch(apiUrl, {
+      headers: apiClient.defaultHeaders
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
+    
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = blobUrl;
+    a.download = `Quotation-${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
   }
 };

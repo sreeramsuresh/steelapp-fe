@@ -19,147 +19,17 @@ import {
   Sun,
   Snowflake,
   Leaf,
-  Flower2
+  Flower2,
+  ChevronDown
 } from 'lucide-react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Tabs,
-  Tab,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Switch,
-  FormControlLabel,
-  Chip,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Alert,
-  Stack,
-  Divider,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Badge
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { useTheme } from '../contexts/ThemeContext';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { analyticsService } from '../services/analyticsService';
 import { useApiData } from '../hooks/useApi';
 
-// Styled Components
-const TrendsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  overflow: 'auto',
-}));
-
-const TrendsPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: 'hidden',
-}));
-
-const MetricCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const ChartCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[2],
-  height: '100%',
-}));
-
-const TrendBar = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: theme.spacing(1),
-  minHeight: 200,
-  position: 'relative',
-  '& .bar-fill': {
-    borderRadius: '4px 4px 0 0',
-    transition: 'height 0.3s ease',
-    minHeight: 4,
-    width: 20,
-  },
-  '& .bar-historical': {
-    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-  },
-  '& .bar-forecast': {
-    background: `linear-gradient(135deg, ${theme.palette.warning.main}, ${theme.palette.error.main})`,
-    opacity: 0.7,
-  },
-}));
-
-const SeasonalCard = styled(Card)(({ theme, season }) => {
-  const seasonColors = {
-    spring: '#10b981',
-    summer: '#f59e0b', 
-    autumn: '#ea580c',
-    winter: '#3b82f6'
-  };
-  
-  return {
-    background: theme.palette.background.paper,
-    border: `2px solid ${seasonColors[season] || theme.palette.divider}`,
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[2],
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: theme.shadows[6],
-    },
-  };
-});
-
-const KPICard = styled(Card)(({ theme, variant }) => {
-  const gradients = {
-    primary: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-    secondary: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
-    success: `linear-gradient(135deg, ${theme.palette.success.main}, ${theme.palette.success.dark})`,
-    warning: `linear-gradient(135deg, ${theme.palette.warning.main}, ${theme.palette.warning.dark})`,
-  };
-  
-  return {
-    background: gradients[variant] || gradients.primary,
-    color: theme.palette.primary.contrastText,
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[3],
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: theme.shadows[8],
-    },
-  };
-});
 
 const RevenueTrends = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('trends');
   const [timeRange, setTimeRange] = useState('12months');
   const [viewType, setViewType] = useState('monthly');
@@ -319,919 +189,557 @@ const RevenueTrends = () => {
   };
 
   const getGrowthIcon = (growth) => {
-    if (growth > 0) return <ArrowUp size={16} className="growth-positive" />;
-    if (growth < 0) return <ArrowDown size={16} className="growth-negative" />;
-    return <Minus size={16} className="growth-neutral" />;
+    if (growth > 0) return <ArrowUp size={16} className="text-green-600" />;
+    if (growth < 0) return <ArrowDown size={16} className="text-red-600" />;
+    return <Minus size={16} className="text-gray-400" />;
   };
 
   const getSeasonIcon = (season) => {
     switch (season) {
-      case 'Spring': return <Flower2 size={20} className="season-spring" />;
-      case 'Summer': return <Sun size={20} className="season-summer" />;
-      case 'Autumn': return <Leaf size={20} className="season-autumn" />;
-      case 'Winter': return <Snowflake size={20} className="season-winter" />;
+      case 'Spring': return <Flower2 size={20} className="text-green-500" />;
+      case 'Summer': return <Sun size={20} className="text-yellow-500" />;
+      case 'Autumn': return <Leaf size={20} className="text-orange-500" />;
+      case 'Winter': return <Snowflake size={20} className="text-blue-500" />;
       default: return <Calendar size={20} />;
     }
   };
 
   const renderTrends = () => (
-    <Box>
+    <div>
       {/* Trends Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel>Time Range</InputLabel>
-            <Select
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <div className="flex gap-4 items-center flex-wrap">
+          <div className="relative">
+            <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              label="Time Range"
+              className={`min-w-[150px] px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
-              <MenuItem value="6months">Last 6 Months</MenuItem>
-              <MenuItem value="12months">Last 12 Months</MenuItem>
-              <MenuItem value="24months">Last 24 Months</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel>View Type</InputLabel>
-            <Select
+              <option value="6months">Last 6 Months</option>
+              <option value="12months">Last 12 Months</option>
+              <option value="24months">Last 24 Months</option>
+            </select>
+          </div>
+          <div className="relative">
+            <select
               value={viewType}
               onChange={(e) => setViewType(e.target.value)}
-              label="View Type"
+              className={`min-w-[140px] px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
-              <MenuItem value="monthly">Monthly View</MenuItem>
-              <MenuItem value="quarterly">Quarterly View</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showPredictions}
-                onChange={(e) => setShowPredictions(e.target.checked)}
-              />
-            }
-            label="Show Predictions"
-          />
-        </Box>
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshCw size={16} />}
-            sx={{ borderRadius: 2 }}
+              <option value="monthly">Monthly View</option>
+              <option value="quarterly">Quarterly View</option>
+            </select>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showPredictions}
+              onChange={(e) => setShowPredictions(e.target.checked)}
+              className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+            />
+            <span className={`text-sm font-medium ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Show Predictions
+            </span>
+          </label>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={refetchTrends}
+            className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+              isDarkMode 
+                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+            }`}
           >
+            <RefreshCw size={16} />
             Refresh
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Download size={16} />}
-            sx={{ borderRadius: 2 }}
+          </button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
+            <Download size={16} />
             Export
-          </Button>
-        </Stack>
-      </Box>
+          </button>
+        </div>
+      </div>
 
       {/* Key Metrics */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <TrendingUp size={24} color="#10b981" />
-                <Typography variant="body2" color="text.secondary">Monthly Growth</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatGrowth(analytics.monthlyGrowth || 0)}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                {getGrowthIcon(analytics.monthlyGrowth || 0)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.monthlyGrowth > 0 ? 'success.main' : 
-                           analytics.monthlyGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
-                  vs last month
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <TrendingUp size={24} className="text-green-500" />
+            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Growth Rate</span>
+          </div>
+          <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatGrowth(analytics.growthRate || 0)}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            {getGrowthIcon(analytics.growthRate || 0)}
+            <span className={`text-sm font-medium ${
+              analytics.growthRate > 0 ? 'text-green-600' : 
+              analytics.growthRate < 0 ? 'text-red-600' : 
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              overall trend
+            </span>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <BarChart3 size={24} color="#3b82f6" />
-                <Typography variant="body2" color="text.secondary">Yearly Growth</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatGrowth(analytics.yearlyGrowth || 0)}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                {getGrowthIcon(analytics.yearlyGrowth || 0)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.yearlyGrowth > 0 ? 'success.main' : 
-                           analytics.yearlyGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
-                  vs last year
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
+        <div className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <BarChart3 size={24} className="text-blue-500" />
+            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Revenue</span>
+          </div>
+          <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatCurrency(analytics.totalRevenue || 0)}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {revenueData.length} months
+            </span>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Activity size={24} color="#8b5cf6" />
-                <Typography variant="body2" color="text.secondary">Growth Trend</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatGrowth(analytics.growthTrend || 0)}
-              </Typography>
-              <Chip
-                label={analytics.growthTrend > 2 ? 'Strong Growth' : 
-                       analytics.growthTrend > 0 ? 'Moderate Growth' : 
-                       analytics.growthTrend > -2 ? 'Stable' : 'Declining'}
-                color={analytics.growthTrend > 2 ? 'success' : 
-                       analytics.growthTrend > 0 ? 'info' : 
-                       analytics.growthTrend > -2 ? 'warning' : 'error'}
-                variant="outlined"
-                size="small"
-              />
-            </CardContent>
-          </MetricCard>
-        </Box>
+        <div className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Target size={24} className="text-purple-500" />
+            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Avg Monthly</span>
+          </div>
+          <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatCurrency(analytics.avgMonthlyRevenue || 0)}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              average revenue
+            </span>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Target size={24} color="#f59e0b" />
-                <Typography variant="body2" color="text.secondary">Forecast Accuracy</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {Math.round(analytics.forecastAccuracy || 85)}%
-              </Typography>
-              <Chip
-                label={analytics.forecastAccuracy > 85 ? 'High Confidence' : 'Moderate Confidence'}
-                color={analytics.forecastAccuracy > 85 ? 'success' : 'warning'}
-                variant="outlined"
-                size="small"
-              />
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
+        <div className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Activity size={24} className="text-amber-500" />
+            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Invoices</span>
+          </div>
+          <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {analytics.totalInvoices || 0}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              invoices created
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Revenue Chart */}
-      <ChartCard>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      {revenueData.length > 0 && (
+        <div className={`border rounded-xl p-6 mb-6 ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Revenue Trend Analysis
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 16, height: 16, borderRadius: 1, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }} />
-                <Typography variant="body2">Historical Data</Typography>
-              </Box>
+            </h3>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Historical Data</span>
+              </div>
               {showPredictions && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 16, height: 16, borderRadius: 1, background: 'linear-gradient(135deg, #f59e0b, #ef4444)', opacity: 0.7 }} />
-                  <Typography variant="body2">Forecast</Typography>
-                </Box>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-gradient-to-r from-amber-500 to-red-500 opacity-70"></div>
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Forecast</span>
+                </div>
               )}
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', height: 300 }}>
-            {/* Y-Axis */}
-            <Box sx={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', pr: 2, py: 2 }}>
-              {[1000000, 800000, 600000, 400000, 200000, 0].map(value => (
-                <Typography key={value} variant="caption" color="text.secondary">
-                  {value === 0 ? '0' : `د.إ${(value / 100000).toFixed(0)}L`}
-                </Typography>
-              ))}
-            </Box>
-            
-            {/* Chart Content */}
-            <Box sx={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'space-around', gap: 1, py: 2 }}>
-              {/* Historical data */}
-              {revenueData.slice(-12).map((item, index) => (
-                <TrendBar key={index}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'end', height: 200, mb: 1 }}>
-                      <Box 
-                        className="bar-fill bar-historical"
-                        sx={{ 
-                          height: `${(item.revenue / 1000000) * 180}px`,
-                          backgroundColor: item.growthRate > 0 ? '#22c55e' : item.growthRate < 0 ? '#ef4444' : '#64748b'
-                        }}
-                      />
-                    </Box>
-                    <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center' }}>
-                      {formatCurrency(item.revenue).replace('د.إ', 'د.إ')}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
-                      {item.month?.substring(0, 3)}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {getGrowthIcon(item.growthRate || 0)}
-                      <Typography 
-                        variant="caption" 
-                        sx={{ 
-                          color: item.growthRate > 0 ? 'success.main' : 
-                                 item.growthRate < 0 ? 'error.main' : 'text.secondary'
-                        }}
-                      >
-                        {formatGrowth(item.growthRate || 0)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TrendBar>
-              ))}
-
-              {/* Forecast data */}
-              {showPredictions && forecastData.slice(0, 6).map((item, index) => (
-                <TrendBar key={`forecast-${index}`}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'end', height: 200, mb: 1 }}>
-                      <Box 
-                        className="bar-fill bar-forecast"
-                        sx={{ height: `${(item.revenue / 1000000) * 180}px` }}
-                      />
-                    </Box>
-                    <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center', opacity: 0.8 }}>
-                      {formatCurrency(item.revenue)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
-                      {item.month?.substring(0, 3)}
-                    </Typography>
-                    <Typography variant="caption" color="warning.main">
-                      {Math.round(item.confidence?.high ? 85 : 80)}%
-                    </Typography>
-                  </Box>
-                </TrendBar>
-              ))}
-            </Box>
-          </Box>
-        </CardContent>
-      </ChartCard>
-    </Box>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {revenueData.slice(-6).map((item, index) => (
+              <div key={index} className={`flex items-center justify-between p-4 rounded-lg border ${
+                isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div>
+                  <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {item.month}
+                  </span>
+                  <span className={`ml-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {item.invoiceCount} invoices
+                  </span>
+                </div>
+                <div className="text-right">
+                  <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {formatCurrency(item.revenue)}
+                  </div>
+                  <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {formatCurrency(item.avgOrderValue)} avg
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 
   const renderForecasting = () => (
-    <Box>
-      {/* Forecasting Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Revenue Forecasting & Predictions</Typography>
-        <Chip 
-          label="Next 6 Months Outlook"
-          color="primary"
-          variant="outlined"
-        />
-      </Box>
-
-      {/* Forecast Summary */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
-        <Box>
-          <KPICard variant="primary">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Zap size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Predicted Growth</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                {formatGrowth(analytics.growthTrend || 0)}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                Based on 6-month trend analysis
-              </Typography>
-            </CardContent>
-          </KPICard>
-        </Box>
-
-        <Box>
-          <KPICard variant="secondary">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Target size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Next Month Forecast</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                {forecastData.length > 0 ? formatCurrency(forecastData[0].revenue) : 'د.إ0'}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                {forecastData.length > 0 ? `${Math.round(forecastData[0].confidence?.high ? 85 : 80)}% confidence` : 'No data'}
-              </Typography>
-            </CardContent>
-          </KPICard>
-        </Box>
-
-        <Box>
-          <KPICard variant="warning">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Activity size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Volatility Index</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                {(analytics.volatility || 15).toFixed(1)}%
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                {(analytics.volatility || 15) > 10 ? 'High' : (analytics.volatility || 15) > 5 ? 'Moderate' : 'Low'} volatility
-              </Typography>
-            </CardContent>
-          </KPICard>
-        </Box>
-      </Box>
-
-      {/* Forecast Details */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                6-Month Revenue Forecast
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Month</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Predicted Revenue</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Confidence Range</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Confidence Level</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Expected Growth</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {forecastData.map((item, index) => {
-                      const previousRevenue = index === 0 ? 
-                        (revenueData.length > 0 ? revenueData[revenueData.length - 1].revenue : item.revenue) :
-                        forecastData[index - 1].revenue;
-                      const expectedGrowth = ((item.revenue - previousRevenue) / previousRevenue) * 100;
-
-                      return (
-                        <TableRow key={index} hover>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {item.month}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {formatCurrency(item.revenue)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {formatCurrency(item.confidence?.low || item.revenue * 0.8)} - {formatCurrency(item.confidence?.high || item.revenue * 1.2)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <LinearProgress 
-                                variant="determinate" 
-                                value={Math.round(item.confidence?.high ? 85 : 80)}
-                                sx={{ flex: 1, height: 8, borderRadius: 4 }}
-                              />
-                              <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                                {Math.round(item.confidence?.high ? 85 : 80)}%
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              {getGrowthIcon(expectedGrowth)}
-                              <Chip 
-                                label={formatGrowth(expectedGrowth)}
-                                color={expectedGrowth > 0 ? 'success' : expectedGrowth < 0 ? 'error' : 'default'}
-                                variant="outlined"
-                                size="small"
-                              />
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </ChartCard>
-        </Box>
-
-        <Box>
-          <MetricCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Forecast Insights</Typography>
-              <Stack spacing={2}>
-                <Alert severity="success" icon={<CheckCircle size={16} />}>
-                  Seasonal patterns show strong Q2 performance expected
-                </Alert>
-                <Alert severity="warning" icon={<AlertCircle size={16} />}>
-                  December typically shows 20% revenue decline due to holidays
-                </Alert>
-                <Alert severity="success" icon={<CheckCircle size={16} />}>
-                  Current growth trend suggests 12% annual increase
-                </Alert>
-                <Alert severity="info" icon={<AlertCircle size={16} />}>
-                  Market volatility may affect Q3 predictions by ±15%
-                </Alert>
-              </Stack>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
-    </Box>
+    <div>
+      <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+        Revenue Forecasting (Next 6 Months)
+      </h3>
+      <p className={`mb-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        AI-powered predictions based on historical data, seasonal trends, and growth patterns
+      </p>
+      
+      {/* Show forecast data if available */}
+      {forecastData && forecastData.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {forecastData.map((forecast, index) => (
+            <div key={index} className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
+              isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+            }`}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {forecast.month}
+                </h4>
+                <Target size={20} className="text-teal-600" />
+              </div>
+              <div className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                {formatCurrency(forecast.revenue)}
+              </div>
+              <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Range: {formatCurrency(forecast.confidence?.low || 0)} - {formatCurrency(forecast.confidence?.high || 0)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <Zap size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+          <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Forecasting Dashboard
+          </h4>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+            Need more historical data for accurate forecasting
+          </p>
+        </div>
+      )}
+    </div>
   );
 
-  const renderSeasonalAnalysis = () => (
-    <Box>
-      {/* Seasonal Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Seasonal Analysis & Patterns</Typography>
-        <Chip 
-          label="Based on 24 months of historical data"
-          color="primary"
-          variant="outlined"
-        />
-      </Box>
+  const renderSeasonalAnalysis = () => {
+    // Group revenue data by season
+    const seasonalData = revenueData.reduce((acc, item) => {
+      const season = getSeason(item.period.getMonth());
+      if (!acc[season]) acc[season] = { revenue: 0, count: 0 };
+      acc[season].revenue += item.revenue;
+      acc[season].count += 1;
+      return acc;
+    }, {});
 
-      {/* Seasonal Overview */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-        {['Spring', 'Summer', 'Autumn', 'Winter'].map((season, index) => {
-          const avgRevenue = (800000 + Math.random() * 400000); // Mock data
-          const seasonColors = { spring: '#10b981', summer: '#f59e0b', autumn: '#ea580c', winter: '#3b82f6' };
-          
-          return (
-            <Box key={season}>
-              <SeasonalCard season={season.toLowerCase()}>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                    {getSeasonIcon(season)}
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>{season}</Typography>
-                  </Box>
-                  <Stack spacing={2}>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">Avg Revenue</Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        {formatCurrency(avgRevenue)}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">Total Months</Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>3</Typography>
-                    </Box>
-                    <Chip
-                      label={avgRevenue > 900000 ? 'Excellent' : 
-                             avgRevenue > 750000 ? 'Good' : 
-                             avgRevenue > 600000 ? 'Average' : 'Below Average'}
-                      color={avgRevenue > 900000 ? 'success' : 
-                             avgRevenue > 750000 ? 'info' : 
-                             avgRevenue > 600000 ? 'warning' : 'error'}
-                      size="small"
-                    />
-                  </Stack>
-                </CardContent>
-              </SeasonalCard>
-            </Box>
-          );
-        })}
-      </Box>
+    const seasons = Object.keys(seasonalData).map(season => ({
+      name: season,
+      revenue: seasonalData[season].revenue,
+      avgRevenue: seasonalData[season].revenue / seasonalData[season].count,
+      months: seasonalData[season].count
+    }));
 
-      {/* Seasonal Charts and Insights */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Monthly Revenue Patterns</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'end', justifyContent: 'space-around', height: 250, px: 2 }}>
-                {revenueData.slice(-12).map((item, index) => {
-                  const season = getSeason(new Date(item.period || new Date()).getMonth());
-                  const seasonColors = { Spring: '#10b981', Summer: '#f59e0b', Autumn: '#ea580c', Winter: '#3b82f6' };
-                  
-                  return (
-                    <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'end', height: 180, mb: 1 }}>
-                        <Box 
-                          sx={{ 
-                            height: `${(item.revenue / Math.max(...revenueData.slice(-12).map(d => d.revenue))) * 160}px`,
-                            width: 20,
-                            backgroundColor: seasonColors[season] || '#64748b',
-                            borderRadius: '4px 4px 0 0'
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        {(item.revenue / 100000).toFixed(0)}L
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
-                        {item.month?.substring(0, 3)}
-                      </Typography>
-                      {getSeasonIcon(season)}
-                    </Box>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </ChartCard>
-        </Box>
+    return (
+      <div>
+        <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Seasonal Revenue Analysis
+        </h3>
+        <p className={`mb-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Understand how seasons and months affect your business performance
+        </p>
+        
+        {seasons.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {seasons.map((season, index) => (
+              <div key={index} className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
+                isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+              }`}>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  {getSeasonIcon(season.name)}
+                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {season.name}
+                  </h4>
+                </div>
+                <div className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {formatCurrency(season.revenue)}
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Avg: {formatCurrency(season.avgRevenue)}
+                </div>
+                <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {season.months} months
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <Calendar size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+            <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Seasonal Analysis
+            </h4>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Need more data across different seasons
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
-        <Box>
-          <Stack spacing={3}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2 }}>
-              <Box>
-                <MetricCard>
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Peak Season</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: 'success.main' }}>
-                      Spring (Mar-May)
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Best: April
-                    </Typography>
-                  </CardContent>
-                </MetricCard>
-              </Box>
-              <Box>
-                <MetricCard>
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Low Season</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: 'info.main' }}>
-                      Winter (Dec-Feb)
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Lowest: December
-                    </Typography>
-                  </CardContent>
-                </MetricCard>
-              </Box>
-            </Box>
-            
-            <MetricCard>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Recommendations</Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemIcon><CheckCircle size={16} color="#10b981" /></ListItemIcon>
-                    <ListItemText 
-                      primary="Increase inventory before March construction season"
-                      primaryTypographyProps={{ variant: 'body2' }}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><CheckCircle size={16} color="#10b981" /></ListItemIcon>
-                    <ListItemText 
-                      primary="Focus marketing efforts during April-May peak period"
-                      primaryTypographyProps={{ variant: 'body2' }}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><AlertCircle size={16} color="#f59e0b" /></ListItemIcon>
-                    <ListItemText 
-                      primary="Plan for 20% revenue drop during December holidays"
-                      primaryTypographyProps={{ variant: 'body2' }}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><CheckCircle size={16} color="#10b981" /></ListItemIcon>
-                    <ListItemText 
-                      primary="Use winter months for equipment maintenance and training"
-                      primaryTypographyProps={{ variant: 'body2' }}
-                    />
-                  </ListItem>
-                </List>
-              </CardContent>
-            </MetricCard>
-          </Stack>
-        </Box>
-      </Box>
-    </Box>
-  );
+  const renderGrowthMetrics = () => {
+    const growthMetrics = [
+      {
+        title: 'Total Revenue',
+        value: formatCurrency(analytics.totalRevenue),
+        icon: <TrendingUp size={24} className="text-green-500" />,
+        description: `Generated from ${analytics.totalInvoices} invoices`
+      },
+      {
+        title: 'Average Order Value',
+        value: formatCurrency(analytics.avgOrderValue),
+        icon: <BarChart3 size={24} className="text-blue-500" />,
+        description: 'Per invoice average'
+      },
+      {
+        title: 'Growth Rate',
+        value: formatGrowth(analytics.growthRate),
+        icon: getGrowthIcon(analytics.growthRate),
+        description: 'Overall period growth'
+      },
+      {
+        title: 'Monthly Average',
+        value: formatCurrency(analytics.avgMonthlyRevenue),
+        icon: <Calendar size={24} className="text-purple-500" />,
+        description: 'Average revenue per month'
+      }
+    ];
 
-  const renderGrowthMetrics = () => (
-    <Box>
-      {/* Metrics Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Growth Metrics & KPIs</Typography>
-        <Chip 
-          label="Performance indicators and growth analysis"
-          color="primary"
-          variant="outlined"
-        />
-      </Box>
-
-      {/* KPI Dashboard */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-        <Box>
-          <KPICard variant="primary">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <TrendingUp size={24} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Revenue Growth Rate</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: 'white' }}>
-                {formatGrowth(analytics.yearlyGrowth || 12)}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mb: 1 }}>Target: +15%</Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={Math.min(((analytics.yearlyGrowth || 12) / 15) * 100, 100)}
-                sx={{ 
-                  height: 8, 
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  '& .MuiLinearProgress-bar': { backgroundColor: 'white' }
-                }}
-              />
-            </CardContent>
-          </KPICard>
-        </Box>
-
-        <Box>
-          <KPICard variant="secondary">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <BarChart3 size={24} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Monthly Momentum</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: 'white' }}>
-                {formatGrowth(analytics.monthlyGrowth || 8)}
-              </Typography>
-              <Chip
-                label={analytics.monthlyGrowth > 5 ? 'Excellent' : 
-                       analytics.monthlyGrowth > 0 ? 'Good' : 
-                       analytics.monthlyGrowth > -5 ? 'Stable' : 'Declining'}
-                sx={{ 
-                  backgroundColor: 'rgba(255,255,255,0.2)', 
-                  color: 'white',
-                  fontWeight: 600
-                }}
-                size="small"
-              />
-            </CardContent>
-          </KPICard>
-        </Box>
-
-        <Box>
-          <KPICard variant="success">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Activity size={24} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Growth Consistency</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: 'white' }}>
-                {(100 - (analytics.volatility || 15) * 2).toFixed(0)}%
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                {(analytics.volatility || 15) < 5 ? 'Very Consistent' : 
-                 (analytics.volatility || 15) < 10 ? 'Moderately Consistent' : 'Highly Variable'}
-              </Typography>
-            </CardContent>
-          </KPICard>
-        </Box>
-
-        <Box>
-          <KPICard variant="warning">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <Target size={24} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Forecast Reliability</Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: 'white' }}>
-                {Math.round(analytics.forecastAccuracy || 85)}%
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                Based on trend analysis accuracy
-              </Typography>
-            </CardContent>
-          </KPICard>
-        </Box>
-      </Box>
-
-      {/* Detailed Metrics */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                Detailed Growth Analysis
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Period</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Revenue</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Growth Rate</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Orders</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Avg Order Value</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Performance</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {revenueData.slice(-6).map((item, index) => (
-                      <TableRow key={index} hover>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {item.month}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {formatCurrency(item.revenue)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            {getGrowthIcon(item.growthRate || 0)}
-                            <Chip 
-                              label={formatGrowth(item.growthRate || 0)}
-                              color={item.growthRate > 0 ? 'success' : item.growthRate < 0 ? 'error' : 'default'}
-                              variant="outlined"
-                              size="small"
-                            />
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">{item.invoiceCount || 0}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {formatCurrency(item.avgOrderValue || 0)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={item.revenue > 900000 ? 'Excellent' : 
-                                   item.revenue > 750000 ? 'Good' : 
-                                   item.revenue > 600000 ? 'Average' : 'Below Target'}
-                            color={item.revenue > 900000 ? 'success' : 
-                                   item.revenue > 750000 ? 'info' : 
-                                   item.revenue > 600000 ? 'warning' : 'error'}
-                            variant="outlined"
-                            size="small"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </ChartCard>
-        </Box>
-
-        <Box>
-          <MetricCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Growth Analysis Summary</Typography>
-              <Stack spacing={3}>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Compound Annual Growth Rate (CAGR)</Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 600 }}>12.5%</Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Revenue Acceleration</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>Accelerating</Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Market Position</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'success.main' }}>Strong Performer</Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Risk Level</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'warning.main' }}>Moderate Risk</Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
-    </Box>
-  );
+    return (
+      <div>
+        <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Growth Performance Metrics
+        </h3>
+        <p className={`mb-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Detailed analysis of growth patterns, velocity, and performance indicators
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {growthMetrics.map((metric, index) => (
+            <div key={index} className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
+              isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+            }`}>
+              <div className="flex items-center gap-4 mb-4">
+                {metric.icon}
+                <div>
+                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {metric.title}
+                  </h4>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {metric.description}
+                  </p>
+                </div>
+              </div>
+              <div className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                {metric.value}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Revenue trend over time */}
+        {revenueData.length > 0 && (
+          <div className={`border rounded-xl p-6 ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Monthly Revenue Breakdown
+            </h4>
+            <div className="space-y-3">
+              {revenueData.slice(-6).map((item, index) => (
+                <div key={index} className={`flex items-center justify-between p-3 rounded-lg border ${
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
+                }`}>
+                  <div>
+                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {item.month}
+                    </span>
+                    <span className={`ml-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {item.invoiceCount} invoices
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {formatCurrency(item.revenue)}
+                    </div>
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {formatCurrency(item.avgOrderValue)} avg
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   if (loadingTrends) {
     return (
-      <TrendsContainer>
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: 400 
-        }}>
-          <CircularProgress size={48} sx={{ mb: 2 }} />
-          <Typography variant="h6">Loading revenue trends...</Typography>
-        </Box>
-      </TrendsContainer>
+      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+      }`}>
+        <div className="flex flex-col items-center justify-center min-h-96">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mb-4"></div>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Loading revenue trends...
+          </h3>
+        </div>
+      </div>
     );
   }
 
   if (!salesTrendsData || salesTrendsData.length === 0) {
     return (
-      <TrendsContainer>
-        <Paper sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: 400,
-          p: 4,
-          textAlign: 'center'
-        }}>
-          <AlertCircle size={48} color="#9ca3af" />
-          <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
+      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+      }`}>
+        <div className={`flex flex-col items-center justify-center min-h-96 p-8 text-center rounded-xl border ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <AlertCircle size={48} className="text-gray-400 mb-4" />
+          <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             No Revenue Data Available
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          </h2>
+          <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             No sales data found for the selected period. Create some invoices to see revenue trends.
-          </Typography>
-          <Button 
-            variant="contained" 
-            startIcon={<RefreshCw size={20} />}
+          </p>
+          <button 
             onClick={refetchTrends}
-            sx={{ borderRadius: 2 }}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
+            <RefreshCw size={20} />
             Refresh Data
-          </Button>
-        </Paper>
-      </TrendsContainer>
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <TrendsContainer>
-      <TrendsPaper sx={{ p: 3 }}>
-        {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <TrendingUp size={28} />
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-              📈 Revenue Trends
-            </Typography>
-          </Box>
-          <Typography variant="body1" color="text.secondary">
-            Advanced revenue analysis, forecasting, and growth insights based on real data
-          </Typography>
-        </Box>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+      isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+    }`}>
+      <div className={`border rounded-xl overflow-hidden shadow-lg ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-2">
+              <TrendingUp size={28} className="text-teal-600" />
+              <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📈 Revenue Trends
+              </h1>
+            </div>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Advanced revenue analysis, forecasting, and growth insights based on real data
+            </p>
+          </div>
 
-        {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-            <Tab 
-              value="trends" 
-              label="Trend Analysis" 
-              icon={<LineChart size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="forecasting" 
-              label="Forecasting" 
-              icon={<Target size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="seasonal" 
-              label="Seasonal Analysis" 
-              icon={<Calendar size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="metrics" 
-              label="Growth Metrics" 
-              icon={<Activity size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-          </Tabs>
-        </Box>
+          {/* Tabs */}
+          <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('trends')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'trends'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <LineChart size={20} />
+                Trend Analysis
+              </button>
+              <button
+                onClick={() => setActiveTab('forecasting')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'forecasting'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Target size={20} />
+                Forecasting
+              </button>
+              <button
+                onClick={() => setActiveTab('seasonal')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'seasonal'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Calendar size={20} />
+                Seasonal Analysis
+              </button>
+              <button
+                onClick={() => setActiveTab('metrics')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'metrics'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Activity size={20} />
+                Growth Metrics
+              </button>
+            </div>
+          </div>
 
-        {/* Tab Content */}
-        <Box>
-          {activeTab === 'trends' && renderTrends()}
-          {activeTab === 'forecasting' && renderForecasting()}
-          {activeTab === 'seasonal' && renderSeasonalAnalysis()}
-          {activeTab === 'metrics' && renderGrowthMetrics()}
-        </Box>
-      </TrendsPaper>
-    </TrendsContainer>
+          {/* Tab Content */}
+          <div>
+            {activeTab === 'trends' && renderTrends()}
+            {activeTab === 'forecasting' && renderForecasting()}
+            {activeTab === 'seasonal' && renderSeasonalAnalysis()}
+            {activeTab === 'metrics' && renderGrowthMetrics()}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

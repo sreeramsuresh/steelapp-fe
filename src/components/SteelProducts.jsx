@@ -6,24 +6,12 @@ import {
   Edit, 
   Trash2, 
   Tag,
-  TrendingUp,
-  TrendingDown,
   AlertTriangle,
   CheckCircle,
-  DollarSign,
-  Layers,
-  Info,
   Save,
   X,
-  Filter,
-  BarChart3,
-  Package2,
-  Ruler,
-  Weight,
-  Calendar,
   Eye,
   RefreshCw,
-  Move,
   Warehouse,
   ChevronDown
 } from 'lucide-react';
@@ -31,7 +19,6 @@ import { format } from 'date-fns';
 import { productService } from '../services/productService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
-import StockMovement from './StockMovement';
 import InventoryList from './InventoryList';
 
 // Custom components for consistent theming
@@ -42,7 +29,9 @@ const Button = ({ children, variant = 'primary', size = 'md', disabled = false, 
   
   const getVariantClasses = () => {
     if (variant === 'primary') {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+      return isDarkMode 
+        ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
+        : `bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-400 hover:to-blue-500 hover:-translate-y-0.5 focus:ring-blue-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
     } else if (variant === 'secondary') {
       return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${isDarkMode ? 'gray-500' : 'gray-400'} disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     } else { // outline
@@ -149,6 +138,8 @@ const Textarea = ({ label, error, className = '', ...props }) => {
 };
 
 const StockProgressBar = ({ value, stockStatus }) => {
+  const { isDarkMode } = useTheme();
+  
   const getColor = () => {
     switch (stockStatus) {
       case 'low': return 'bg-red-500';
@@ -158,7 +149,7 @@ const StockProgressBar = ({ value, stockStatus }) => {
   };
 
   return (
-    <div className="w-full bg-gray-200 rounded-full h-2">
+    <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
       <div 
         className={`h-2 rounded-full transition-all duration-300 ${getColor()}`}
         style={{ width: `${Math.min(value, 100)}%` }}
@@ -186,7 +177,6 @@ const SteelProducts = () => {
   const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
   const { execute: updateProduct, loading: updatingProduct } = useApi(productService.updateProduct);
   const { execute: deleteProduct } = useApi(productService.deleteProduct);
-  const { execute: updateProductPrice } = useApi(productService.updateProductPrice);
   
   const products = productsData?.products || [];
   
@@ -200,7 +190,6 @@ const SteelProducts = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSpecModal, setShowSpecModal] = useState(false);
-  const [showPriceModal, setShowPriceModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [newProduct, setNewProduct] = useState({
@@ -231,11 +220,6 @@ const SteelProducts = () => {
     }
   });
 
-  const [priceUpdate, setPriceUpdate] = useState({
-    newPrice: '',
-    reason: '',
-    effectiveDate: new Date().toISOString().split('T')[0]
-  });
 
   const categories = [
     { value: 'sheet', label: 'Sheet' },
@@ -378,21 +362,6 @@ const SteelProducts = () => {
     }
   };
 
-  const handlePriceUpdate = async () => {
-    try {
-      await updateProductPrice(selectedProduct.id, {
-        newPrice: priceUpdate.newPrice,
-        reason: priceUpdate.reason,
-        effectiveDate: priceUpdate.effectiveDate
-      });
-      setPriceUpdate({ newPrice: '', reason: '', effectiveDate: new Date().toISOString().split('T')[0] });
-      setShowPriceModal(false);
-      setSelectedProduct(null);
-      refetchProducts();
-    } catch (error) {
-      console.error('Error updating price:', error);
-    }
-  };
 
   const getStockStatus = (product) => {
     if (product.current_stock <= product.min_stock) return 'low';
@@ -408,16 +377,6 @@ const SteelProducts = () => {
     }
   };
 
-  const calculateInventoryStats = () => {
-    const totalProducts = products.length;
-    const lowStockProducts = products.filter(p => getStockStatus(p) === 'low').length;
-    const totalValue = products.reduce((sum, p) => sum + (p.currentStock * p.costPrice), 0);
-    const totalStock = products.reduce((sum, p) => sum + p.currentStock, 0);
-    
-    return { totalProducts, lowStockProducts, totalValue, totalStock };
-  };
-
-  const stats = calculateInventoryStats();
 
   const renderCatalog = () => (
     <div>
@@ -483,7 +442,11 @@ const SteelProducts = () => {
                       {categories.find(c => c.value === product.category)?.label}
                     </p>
                     <div className="flex gap-2 mb-3">
-                      <span className="px-2 py-1 text-xs bg-teal-100 text-teal-800 rounded-md border border-teal-200">
+                      <span className={`px-2 py-1 text-xs rounded-md border ${
+                        isDarkMode 
+                          ? 'bg-teal-900/30 text-teal-300 border-teal-700' 
+                          : 'bg-teal-100 text-teal-800 border-teal-200'
+                      }`}>
                         {product.grade}
                       </span>
                       <span className={`px-2 py-1 text-xs rounded-md border ${
@@ -501,25 +464,12 @@ const SteelProducts = () => {
                         setSelectedProduct(product);
                         setShowSpecModal(true);
                       }}
-                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
-                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      className={`p-1.5 rounded transition-colors ${
+                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                       }`}
                       title="View Specifications"
                     >
                       <Eye size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setPriceUpdate({ ...priceUpdate, newPrice: product.selling_price });
-                        setShowPriceModal(true);
-                      }}
-                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
-                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
-                      }`}
-                      title="Update Price"
-                    >
-                      <Tag size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
                     </button>
                     <button
                       onClick={() => {
@@ -547,8 +497,8 @@ const SteelProducts = () => {
                         setShowEditModal(true);
                         console.log('📝 Edit modal should now be visible');
                       }}
-                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
-                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      className={`p-1.5 rounded transition-colors ${
+                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                       }`}
                       title="Edit Product"
                     >
@@ -556,8 +506,8 @@ const SteelProducts = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
-                      className={`p-1.5 rounded hover:bg-opacity-20 transition-colors ${
-                        isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                      className={`p-1.5 rounded transition-colors ${
+                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                       }`}
                       title="Delete Product"
                     >
@@ -599,10 +549,10 @@ const SteelProducts = () => {
                     <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock Level</span>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
                       stockStatus === 'low' 
-                        ? 'bg-red-50 text-red-700 border-red-200' 
+                        ? (isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200')
                         : stockStatus === 'high' 
-                        ? 'bg-green-50 text-green-700 border-green-200' 
-                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                        ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
+                        : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
                     }`}>
                       {stockStatus === 'low' ? <AlertTriangle size={12} /> :
                        stockStatus === 'high' ? <Package size={12} /> :
@@ -649,209 +599,8 @@ const SteelProducts = () => {
     </div>
   );
 
-  const renderStockMovements = () => (
-    <StockMovement />
-  );
-
   const renderInventoryManagement = () => (
     <InventoryList />
-  );
-
-  const renderInventoryDashboard = () => (
-    <div className="inventory-dashboard">
-      <div className="inventory-stats">
-        <div className="stat-card">
-          <div className="stat-header">
-            <Package2 size={24} />
-            <h3>Total Products</h3>
-          </div>
-          <div className="stat-value">{stats.totalProducts}</div>
-          <div className="stat-subtitle">In catalog</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-header">
-            <AlertTriangle size={24} />
-            <h3>Low Stock Items</h3>
-          </div>
-          <div className="stat-value">{stats.lowStockProducts}</div>
-          <div className="stat-subtitle">Need reorder</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-header">
-            <DollarSign size={24} />
-            <h3>Inventory Value</h3>
-          </div>
-          <div className="stat-value">د.إ{stats.totalValue.toLocaleString()}</div>
-          <div className="stat-subtitle">Total cost value</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-header">
-            <Layers size={24} />
-            <h3>Total Stock</h3>
-          </div>
-          <div className="stat-value">{stats.totalStock}</div>
-          <div className="stat-subtitle">Units in stock</div>
-        </div>
-      </div>
-
-      <div className="inventory-table">
-        <h3>Stock Levels Overview</h3>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Current Stock</th>
-                <th>Min Stock</th>
-                <th>Max Stock</th>
-                <th>Status</th>
-                <th>Value</th>
-                <th>Last Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(product => {
-                const stockStatus = getStockStatus(product);
-                const stockValue = product.currentStock * product.costPrice;
-                return (
-                  <tr key={product.id}>
-                    <td>
-                      <div className="product-cell">
-                        <strong>{product.name}</strong>
-                        <span className="product-grade">{product.grade} - {product.size}</span>
-                      </div>
-                    </td>
-                    <td>{categories.find(c => c.value === product.category)?.label}</td>
-                    <td className="stock-cell">
-                      <span className="stock-number">{product.currentStock}</span>
-                      <span className="stock-unit">{product.unit}</span>
-                    </td>
-                    <td>{product.minStock}</td>
-                    <td>{product.maxStock}</td>
-                    <td>
-                      <span className={`status-badge status-${stockStatus}`}>
-                        {stockStatus === 'low' && <AlertTriangle size={14} />}
-                        {stockStatus === 'normal' && <CheckCircle size={14} />}
-                        {stockStatus === 'high' && <Package size={14} />}
-                        {stockStatus.toUpperCase()}
-                      </span>
-                    </td>
-                    <td>د.إ{stockValue.toLocaleString()}</td>
-                    <td>{format(new Date(product.lastUpdated), 'MMM dd, yyyy')}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderPricing = () => (
-    <div className="p-4">
-      <div className="mb-6">
-        <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          Price Management
-        </h2>
-        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-          Manage product pricing and track price history
-        </p>
-      </div>
-
-      <div className={`rounded-xl border overflow-hidden ${
-        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
-      }`}>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
-              <tr>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Product</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Category</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Cost Price</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Selling Price</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Margin</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Last Updated</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
-              {products.map(product => {
-                const margin = product.costPrice > 0 ? 
-                  ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 : 0;
-                return (
-                  <tr key={product.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {product.name}
-                        </div>
-                        <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {product.grade} - {product.size}
-                        </div>
-                      </div>
-                    </td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {categories.find(c => c.value === product.category)?.label}
-                    </td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      د.إ{product.costPrice}
-                    </td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      د.إ{product.sellingPrice}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        margin < 10 
-                          ? 'bg-red-100 text-red-800' 
-                          : margin > 30 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {Math.round(margin)}%
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {product.lastUpdated ? format(new Date(product.lastUpdated), 'MMM dd, yyyy') : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setPriceUpdate({ ...priceUpdate, newPrice: product.sellingPrice });
-                          setShowPriceModal(true);
-                        }}
-                        className={`p-1 rounded hover:bg-opacity-20 transition-colors ${
-                          isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
-                        }`}
-                        title="Update Price"
-                      >
-                        <RefreshCw size={16} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   );
 
   return (
@@ -873,61 +622,35 @@ const SteelProducts = () => {
         </div>
 
         {/* Tabs */}
-        <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-          <nav className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('catalog')}
-              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'catalog'
-                  ? 'border-teal-500 text-teal-600'
-                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-              }`}
-            >
-              <Package size={20} />
-              Product Catalog
-            </button>
-            <button
-              onClick={() => setActiveTab('stock-movements')}
-              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'stock-movements'
-                  ? 'border-teal-500 text-teal-600'
-                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-              }`}
-            >
-              <Move size={20} />
-              Stock Movements
-            </button>
-            <button
-              onClick={() => setActiveTab('inventory')}
-              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'inventory'
-                  ? 'border-teal-500 text-teal-600'
-                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-              }`}
-            >
-              <Warehouse size={20} />
-              Inventory Management
-            </button>
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'pricing'
-                  ? 'border-teal-500 text-teal-600'
-                  : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-              }`}
-            >
-              <DollarSign size={20} />
-              Price Management
-            </button>
-          </nav>
+        <div className={`flex space-x-1 mb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
+          <button
+            onClick={() => setActiveTab('catalog')}
+            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
+              activeTab === 'catalog'
+                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
+                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
+            }`}
+          >
+            <Package size={20} />
+            Product Catalog
+          </button>
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
+              activeTab === 'inventory'
+                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
+                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
+            }`}
+          >
+            <Warehouse size={20} />
+            Inventory Management
+          </button>
         </div>
 
         {/* Tab Content */}
         <div>
           {activeTab === 'catalog' && renderCatalog()}
-          {activeTab === 'stock-movements' && renderStockMovements()}
           {activeTab === 'inventory' && renderInventoryManagement()}
-          {activeTab === 'pricing' && renderPricing()}
         </div>
 
         {/* Add Product Modal */}
@@ -945,8 +668,8 @@ const SteelProducts = () => {
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
-                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
@@ -1214,8 +937,8 @@ const SteelProducts = () => {
                 </h2>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
-                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
@@ -1332,109 +1055,6 @@ const SteelProducts = () => {
           </div>
         )}
 
-        {/* Price Update Modal */}
-        {showPriceModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className={`rounded-xl max-w-md w-full ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-            }`}>
-              {/* Modal Header */}
-              <div className={`flex justify-between items-center p-6 border-b ${
-                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-              }`}>
-                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Update Price - {selectedProduct.name}
-                </h2>
-                <button
-                  onClick={() => setShowPriceModal(false)}
-                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
-                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
-                  }`}
-                >
-                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6">
-                <div className={`flex justify-between items-center p-4 rounded-lg mb-4 ${
-                  isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'
-                }`}>
-                  <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Current Price:</span>
-                  <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    د.إ{selectedProduct.sellingPrice}
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Input
-                      label="New Price"
-                      type="number"
-                      value={priceUpdate.newPrice || ''}
-                      onChange={(e) => setPriceUpdate({...priceUpdate, newPrice: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                      placeholder="Enter new price"
-                      className="pl-12"
-                    />
-                    <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
-                  </div>
-                  <Input
-                    label="Reason for Update"
-                    value={priceUpdate.reason}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, reason: e.target.value})}
-                    placeholder="Enter reason for price change"
-                  />
-                  <Input
-                    label="Effective Date"
-                    type="date"
-                    value={priceUpdate.effectiveDate}
-                    onChange={(e) => setPriceUpdate({...priceUpdate, effectiveDate: e.target.value})}
-                  />
-                  
-                  {selectedProduct.priceHistory && selectedProduct.priceHistory.length > 0 && (
-                    <div>
-                      <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Price History
-                      </h4>
-                      <div className="space-y-2 max-h-32 overflow-y-auto">
-                        {selectedProduct.priceHistory.slice(0, 5).map((entry, index) => (
-                          <div key={index} className={`p-3 rounded-lg ${
-                            isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'
-                          }`}>
-                            <div className="flex justify-between items-center">
-                              <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                {format(new Date(entry.date), 'MMM dd, yyyy')}
-                              </span>
-                              <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                د.إ{entry.price}
-                              </span>
-                            </div>
-                            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                              {entry.reason}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className={`flex justify-end gap-3 p-6 border-t ${
-                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-              }`}>
-                <Button variant="secondary" onClick={() => setShowPriceModal(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handlePriceUpdate}>
-                  <Save size={16} />
-                  Update Price
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Specifications Modal */}
         {showSpecModal && selectedProduct && (
@@ -1451,8 +1071,8 @@ const SteelProducts = () => {
                 </h2>
                 <button
                   onClick={() => setShowSpecModal(false)}
-                  className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors ${
-                    isDarkMode ? 'hover:bg-white' : 'hover:bg-gray-900'
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />

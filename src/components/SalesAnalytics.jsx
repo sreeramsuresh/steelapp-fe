@@ -18,120 +18,17 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  RefreshCw
+  RefreshCw,
+  ChevronDown
 } from 'lucide-react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Tabs,
-  Tab,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  TextField,
-  Chip,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Alert,
-  Stack,
-  Divider,
-  Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { useTheme } from '../contexts/ThemeContext';
 import { format, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, subMonths, subQuarters } from 'date-fns';
 import { analyticsService } from '../services/analyticsService';
 import { useApiData } from '../hooks/useApi';
 
-// Styled Components
-const AnalyticsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  overflow: 'auto',
-}));
-
-const AnalyticsPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: 'hidden',
-}));
-
-const MetricCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const ChartCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[2],
-  height: '100%',
-}));
-
-const RevenueBar = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: theme.spacing(1),
-  minHeight: 200,
-  position: 'relative',
-  '& .bar-fill': {
-    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-    width: 20,
-    borderRadius: '4px 4px 0 0',
-    transition: 'height 0.3s ease',
-    minHeight: 4,
-  },
-  '& .bar-value': {
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    marginTop: theme.spacing(0.5),
-    textAlign: 'center',
-  },
-  '& .bar-label': {
-    fontSize: '0.65rem',
-    color: theme.palette.text.secondary,
-    marginTop: theme.spacing(0.5),
-    textAlign: 'center',
-  },
-}));
-
-const CategoryProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: theme.palette.grey[300],
-  '& .MuiLinearProgress-bar': {
-    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-    borderRadius: 4,
-  },
-}));
 
 const SalesAnalytics = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState('month');
   const [selectedPeriod, setSelectedPeriod] = useState(new Date());
@@ -229,223 +126,261 @@ const SalesAnalytics = () => {
   };
 
   const getGrowthIcon = (growth) => {
-    if (growth > 0) return <ArrowUp size={16} className="growth-positive" />;
-    if (growth < 0) return <ArrowDown size={16} className="growth-negative" />;
-    return <Minus size={16} className="growth-neutral" />;
+    if (growth > 0) return <ArrowUp size={16} className="text-green-600" />;
+    if (growth < 0) return <ArrowDown size={16} className="text-red-600" />;
+    return <Minus size={16} className="text-gray-400" />;
   };
 
   const renderOverview = () => (
-    <Box>
+    <div>
       {/* Period Selector */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <FormControl sx={{ minWidth: 120 }}>
-            <InputLabel>Period</InputLabel>
-            <Select
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <div className="flex gap-4 items-center">
+          <div className="relative">
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Period
+            </label>
+            <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              label="Period"
+              className={`w-32 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
-              <MenuItem value="month">Monthly</MenuItem>
-              <MenuItem value="quarter">Quarterly</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            type="month"
-            value={format(selectedPeriod, 'yyyy-MM')}
-            onChange={(e) => setSelectedPeriod(new Date(e.target.value))}
-            sx={{ minWidth: 150 }}
-          />
-        </Box>
-        <Button
-          variant="outlined"
-          startIcon={<Download size={16} />}
-          sx={{ borderRadius: 2 }}
+              <option value="month">Monthly</option>
+              <option value="quarter">Quarterly</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+              <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+            </div>
+          </div>
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Select Period
+            </label>
+            <input
+              type="month"
+              value={format(selectedPeriod, 'yyyy-MM')}
+              onChange={(e) => setSelectedPeriod(new Date(e.target.value))}
+              className={`w-40 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            />
+          </div>
+        </div>
+        <button
+          className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+            isDarkMode 
+              ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+              : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+          }`}
         >
+          <Download size={16} />
           Export Report
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* Metrics Grid */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div>
+          <div className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <DollarSign size={24} color="#10b981" />
-                <Typography variant="body2" color="text.secondary">Total Revenue</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue</span>
+              </div>
+              <h3 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {formatCurrency(analytics.currentRevenue)}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+              </h3>
+              <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.revenueGrowth)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.revenueGrowth > 0 ? 'success.main' : 
-                           analytics.revenueGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
+                <span className={`text-sm font-medium ${
+                  analytics.revenueGrowth > 0 
+                    ? 'text-green-600' 
+                    : analytics.revenueGrowth < 0 
+                    ? 'text-red-600' 
+                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                }`}>
                   {formatGrowth(analytics.revenueGrowth)} vs last {dateRange}
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+        <div>
+          <div className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <Package size={24} color="#3b82f6" />
-                <Typography variant="body2" color="text.secondary">Total Orders</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Orders</span>
+              </div>
+              <h3 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {analytics.currentOrders}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+              </h3>
+              <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.ordersGrowth)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.ordersGrowth > 0 ? 'success.main' : 
-                           analytics.ordersGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
+                <span className={`text-sm font-medium ${
+                  analytics.ordersGrowth > 0 
+                    ? 'text-green-600' 
+                    : analytics.ordersGrowth < 0 
+                    ? 'text-red-600' 
+                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                }`}>
                   {formatGrowth(analytics.ordersGrowth)} vs last {dateRange}
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+        <div>
+          <div className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <Users size={24} color="#8b5cf6" />
-                <Typography variant="body2" color="text.secondary">Active Customers</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Active Customers</span>
+              </div>
+              <h3 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {analytics.uniqueCustomers}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+              </h3>
+              <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.customersGrowth)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.customersGrowth > 0 ? 'success.main' : 
-                           analytics.customersGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
+                <span className={`text-sm font-medium ${
+                  analytics.customersGrowth > 0 
+                    ? 'text-green-600' 
+                    : analytics.customersGrowth < 0 
+                    ? 'text-red-600' 
+                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                }`}>
                   {formatGrowth(analytics.customersGrowth)} vs last {dateRange}
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+        <div>
+          <div className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <Target size={24} color="#f59e0b" />
-                <Typography variant="body2" color="text.secondary">Avg Order Value</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Avg Order Value</span>
+              </div>
+              <h3 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {formatCurrency(analytics.avgOrderValue)}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+              </h3>
+              <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.avgOrderGrowth)}
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: analytics.avgOrderGrowth > 0 ? 'success.main' : 
-                           analytics.avgOrderGrowth < 0 ? 'error.main' : 'text.secondary',
-                    fontWeight: 500
-                  }}
-                >
+                <span className={`text-sm font-medium ${
+                  analytics.avgOrderGrowth > 0 
+                    ? 'text-green-600' 
+                    : analytics.avgOrderGrowth < 0 
+                    ? 'text-red-600' 
+                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                }`}>
                   {formatGrowth(analytics.avgOrderGrowth)} vs last {dateRange}
-                </Typography>
-              </Box>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Charts Section */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <h3 className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Revenue Trend (Last 6 Months)
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'end', justifyContent: 'space-around', height: 200, px: 2 }}>
-                {analytics.monthlyTrend.map((month, index) => (
-                  <RevenueBar key={index}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'end', height: 150, mb: 1 }}>
-                        <Box 
-                          className="bar-fill"
-                          sx={{ 
-                            height: `${analytics.monthlyTrend.length > 0 ? (month.revenue / Math.max(...analytics.monthlyTrend.map(m => m.revenue || 0))) * 140 : 4}px` 
-                          }}
+              </h3>
+              <div className="flex items-end justify-around h-48 px-4">
+                {analytics.monthlyTrend.map((month, index) => {
+                  const maxRevenue = Math.max(...analytics.monthlyTrend.map(m => m.revenue || 0));
+                  const height = analytics.monthlyTrend.length > 0 ? (month.revenue / maxRevenue) * 140 : 4;
+                  
+                  return (
+                    <div key={index} className="flex flex-col items-center flex-1 min-h-48 relative">
+                      <div className="flex items-end h-36 mb-2">
+                        <div 
+                          className="w-5 bg-gradient-to-br from-teal-600 to-teal-700 rounded-t transition-all duration-300"
+                          style={{ height: `${height}px`, minHeight: '4px' }}
                         />
-                      </Box>
-                      <Typography variant="caption" className="bar-value" sx={{ fontWeight: 600, mb: 0.5 }}>
+                      </div>
+                      <span className={`text-xs font-semibold mb-1 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {formatCurrency(month.revenue || 0).replace('د.إ', 'د.إ')}
-                      </Typography>
-                      <Typography variant="caption" className="bar-label" color="text.secondary">
+                      </span>
+                      <span className={`text-xs text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {month.month || ''}
-                      </Typography>
-                    </Box>
-                  </RevenueBar>
-                ))}
-              </Box>
-            </CardContent>
-          </ChartCard>
-        </Box>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <h3 className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Category Performance
-              </Typography>
-              <Stack spacing={2}>
+              </h3>
+              <div className="space-y-4">
                 {Object.entries(analytics.categoryPerformance)
                   .sort(([,a], [,b]) => b.revenue - a.revenue)
-                  .map(([category, data]) => (
-                    <Box key={category}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {formatCurrency(data.revenue)}
-                        </Typography>
-                      </Box>
-                      <CategoryProgress 
-                        variant="determinate" 
-                        value={Object.values(analytics.categoryPerformance).length > 0 ? (data.revenue / Math.max(...Object.values(analytics.categoryPerformance).map(c => c.revenue || 0))) * 100 : 0}
-                        sx={{ mb: 0.5 }}
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        {data.orders} orders
-                      </Typography>
-                    </Box>
-                  ))}
-              </Stack>
-            </CardContent>
-          </ChartCard>
-        </Box>
-      </Box>
-    </Box>
+                  .map(([category, data]) => {
+                    const maxRevenue = Math.max(...Object.values(analytics.categoryPerformance).map(c => c.revenue || 0));
+                    const percentage = Object.values(analytics.categoryPerformance).length > 0 ? (data.revenue / maxRevenue) * 100 : 0;
+                    
+                    return (
+                      <div key={category}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                          </span>
+                          <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(data.revenue)}
+                          </span>
+                        </div>
+                        <div className={`h-2 rounded-full mb-1 ${
+                          isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+                        }`}>
+                          <div 
+                            className="h-2 bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {data.orders} orders
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   const renderCustomerAnalysis = () => (
@@ -934,64 +869,94 @@ const SalesAnalytics = () => {
   );
 
   return (
-    <AnalyticsContainer>
-      <AnalyticsPaper sx={{ p: 3 }}>
-        {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <BarChart3 size={28} />
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-              📊 Sales Analytics
-            </Typography>
-          </Box>
-          <Typography variant="body1" color="text.secondary">
-            Comprehensive sales performance analysis and reporting
-          </Typography>
-        </Box>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+      isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+    }`}>
+      <div className={`border rounded-xl overflow-hidden shadow-lg ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-2">
+              <BarChart3 size={28} className="text-teal-600" />
+              <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📊 Sales Analytics
+              </h1>
+            </div>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Comprehensive sales performance analysis and reporting
+            </p>
+          </div>
 
-        {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-            <Tab 
-              value="overview" 
-              label="Revenue Overview" 
-              icon={<BarChart3 size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="customers" 
-              label="Customer Analysis" 
-              icon={<Users size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="products" 
-              label="Product Performance" 
-              icon={<Package size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="reports" 
-              label="Reports" 
-              icon={<Calendar size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-          </Tabs>
-        </Box>
+          {/* Tabs */}
+          <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'overview'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <BarChart3 size={20} />
+                Revenue Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('customers')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'customers'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Users size={20} />
+                Customer Analysis
+              </button>
+              <button
+                onClick={() => setActiveTab('products')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'products'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Package size={20} />
+                Product Performance
+              </button>
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'reports'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Calendar size={20} />
+                Reports
+              </button>
+            </div>
+          </div>
 
-        {/* Tab Content */}
-        <Box>
-          {activeTab === 'overview' && renderOverview()}
-          {activeTab === 'customers' && renderCustomerAnalysis()}
-          {activeTab === 'products' && renderProductPerformance()}
-          {activeTab === 'reports' && renderReports()}
-        </Box>
-      </AnalyticsPaper>
-    </AnalyticsContainer>
+          {/* Tab Content */}
+          <div>
+            {activeTab === 'overview' && renderOverview()}
+            {activeTab === 'customers' && renderCustomerAnalysis()}
+            {activeTab === 'products' && renderProductPerformance()}
+            {activeTab === 'reports' && renderReports()}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

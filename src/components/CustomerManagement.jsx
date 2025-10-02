@@ -27,7 +27,7 @@ import {
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('profiles');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   
@@ -449,25 +449,25 @@ const CustomerManagement = () => {
         {/* Tabs */}
         <div className={`flex space-x-1 mb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
           <button
-            onClick={() => setActiveTab(0)}
-            className={`flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all ${
-              activeTab === 0
-                ? 'text-[#008B8B] border-b-2 border-[#008B8B]'
-                : `${textMuted} hover:${textSecondary}`
+            onClick={() => setActiveTab('profiles')}
+            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
+              activeTab === 'profiles'
+                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
+                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
             }`}
           >
-            <FaUsers />
+            <FaUsers size={20} />
             Customer Profiles
           </button>
           <button
-            onClick={() => setActiveTab(1)}
-            className={`flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all ${
-              activeTab === 1
-                ? 'text-[#008B8B] border-b-2 border-[#008B8B]'
-                : `${textMuted} hover:${textSecondary}`
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all rounded-t-lg ${
+              activeTab === 'analytics'
+                ? `${isDarkMode ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-900/10' : 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'}`
+                : `${isDarkMode ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
             }`}
           >
-            <FaChartBar />
+            <FaChartBar size={20} />
             Analytics
           </button>
         </div>
@@ -506,8 +506,8 @@ const CustomerManagement = () => {
 
         {/* Tab Content */}
         <div>
-          {activeTab === 0 && renderProfiles()}
-          {activeTab === 1 && renderAnalytics()}
+          {activeTab === 'profiles' && renderProfiles()}
+          {activeTab === 'analytics' && renderAnalytics()}
         </div>
       </div>
 

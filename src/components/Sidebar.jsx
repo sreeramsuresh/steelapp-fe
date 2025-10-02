@@ -15,7 +15,8 @@ import {
   Move,
   Truck,
   ShoppingCart,
-  Navigation
+  Navigation,
+  Quote
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -51,6 +52,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ListIcon,
           description: 'View all invoices',
           badge: invoiceCount
+        }
+      ]
+    },
+    {
+      section: 'Quotations',
+      items: [
+        {
+          name: 'Quotations',
+          path: '/quotations',
+          icon: Quote,
+          description: 'Manage quotations'
         }
       ]
     },

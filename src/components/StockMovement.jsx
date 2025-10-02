@@ -1,38 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
-  Chip,
-  IconButton,
-  Toolbar,
-  InputAdornment,
-  Alert,
-  CircularProgress,
-  Divider,
-  Avatar
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import {
   Plus as Add,
   Edit,
   Trash2 as Delete,
@@ -42,102 +9,18 @@ import {
   Package,
   Calendar,
   Download,
-  Filter
+  Filter,
+  X,
+  AlertCircle,
+  ChevronDown
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
 
-const StockContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  width: '100%',
-  overflow: 'auto',
-  [theme.breakpoints.down('md')]: {
-    padding: theme.spacing(2),
-  },
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1.5),
-  },
-}));
-
-const SectionHeader = styled(Box)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  padding: theme.spacing(0, 0, 2, 0),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  '& .MuiTableHead-root': {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[50],
-  },
-  '& .MuiTableCell-head': {
-    fontWeight: 600,
-    fontSize: '0.875rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: theme.palette.mode === 'light' ? theme.palette.text.primary : theme.palette.text.secondary,
-  },
-  '& .MuiTableRow-hover:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-
-const MovementChip = styled(Chip)(({ theme, movement }) => ({
-  fontWeight: 600,
-  fontSize: '0.75rem',
-  minWidth: '70px',
-  ...(movement === 'IN' && {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.dark,
-    '& .MuiChip-icon': {
-      color: theme.palette.success.dark,
-    },
-  }),
-  ...(movement === 'OUT' && {
-    backgroundColor: theme.palette.error.light,
-    color: theme.palette.error.dark,
-    '& .MuiChip-icon': {
-      color: theme.palette.error.dark,
-    },
-  }),
-}));
-
-const SearchCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: 'none',
-}));
-
-const EmptyState = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(6),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '400px',
-  gap: theme.spacing(2),
-}));
 
 const StockMovement = () => {
+  const { isDarkMode } = useTheme();
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -233,228 +116,258 @@ const StockMovement = () => {
 
   if (loading) {
     return (
-      <StockContainer>
-        <LoadingContainer>
-          <CircularProgress size={32} />
-          <Typography color="text.secondary">Loading stock movements...</Typography>
-        </LoadingContainer>
-      </StockContainer>
+      <div className={`p-6 min-h-[calc(100vh-64px)] w-full overflow-auto ${
+        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+      } md:p-4 sm:p-3`}>
+        <div className="flex items-center justify-center min-h-96 gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+            Loading stock movements...
+          </span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <StockContainer>
-      <SectionHeader>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
+    <div className={`p-6 min-h-[calc(100vh-64px)] w-full overflow-auto ${
+      isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+    } md:p-4 sm:p-3`}>
+      <div className={`mb-6 pb-4 border-b ${
+        isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+      }`}>
+        <h1 className={`text-3xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           📦 Stock Movements
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        </h1>
+        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
           Track all incoming and outgoing stock movements
-        </Typography>
-      </SectionHeader>
+        </p>
+      </div>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
+        <div className="mb-6">
+          <div className={`p-4 rounded-lg border shadow-lg flex items-center gap-2 ${
+            isDarkMode ? 'bg-red-900/20 border-red-700 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <AlertCircle size={20} />
+            <span className="flex-grow">{error}</span>
+            <button onClick={() => setError('')} className="ml-2">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
       )}
 
-      <SearchCard>
-        <CardContent sx={{ py: 2 }}>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <TextField
-              placeholder="Search movements..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search size={20} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ flexGrow: 1 }}
-            />
-            <Button
-              variant="outlined"
-              startIcon={<Filter size={16} />}
-              sx={{ minWidth: 'auto', px: 2 }}
+      <div className={`mb-6 border rounded-xl ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <div className="p-4">
+          <div className="flex gap-4 items-center">
+            <div className="flex-grow relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search movements..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+            <button
+              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+              }`}
             >
+              <Filter size={16} />
               Filter
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<Add size={16} />}
+            </button>
+            <button
               onClick={() => handleOpenDialog()}
-              sx={{ 
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600
-              }}
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md font-semibold"
             >
+              <Add size={16} />
               Add Movement
-            </Button>
-          </Box>
-        </CardContent>
-      </SearchCard>
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <StyledCard>
-        <StyledTableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Movement</TableCell>
-                <TableCell>Product Type</TableCell>
-                <TableCell>Grade</TableCell>
-                <TableCell>Thickness</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Finish</TableCell>
-                <TableCell>Invoice No</TableCell>
-                <TableCell>Qty</TableCell>
-                <TableCell>Current Stock</TableCell>
-                <TableCell>Seller</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+      <div className={`border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+              <tr>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Date</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Movement</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Product Type</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Grade</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Thickness</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Size</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Finish</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Invoice No</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Qty</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Current Stock</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Seller</th>
+                <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {filteredMovements.map((movement) => (
-                <TableRow key={movement.id} hover>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <tr key={movement.id} className={`transition-colors ${
+                  isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                }`}>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {formatDate(movement.date)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <MovementChip
-                      label={movement.movement}
-                      movement={movement.movement}
-                      icon={movement.movement === 'IN' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                      variant="filled"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full min-w-16 ${
+                      movement.movement === 'IN'
+                        ? (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
+                        : (isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800')
+                    }`}>
+                      {movement.movement === 'IN' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                      {movement.movement}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {movement.productType}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={movement.grade} 
-                      size="small" 
-                      variant="outlined"
-                      sx={{ fontWeight: 500, fontSize: '0.75rem' }}
-                    />
-                  </TableCell>
-                  <TableCell>{movement.thickness}</TableCell>
-                  <TableCell>{movement.size}</TableCell>
-                  <TableCell>
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded border ${
+                      isDarkMode ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'
+                    }`}>
+                      {movement.grade}
+                    </span>
+                  </td>
+                  <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {movement.thickness}
+                  </td>
+                  <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {movement.size}
+                  </td>
+                  <td className="px-4 py-3">
                     {movement.finish && (
-                      <Chip 
-                        label={movement.finish} 
-                        size="small" 
-                        color="secondary"
-                        variant="outlined"
-                        sx={{ fontSize: '0.75rem' }}
-                      />
+                      <span className={`inline-flex px-2 py-1 text-xs rounded border ${
+                        isDarkMode ? 'border-purple-600 text-purple-300' : 'border-purple-300 text-purple-700'
+                      }`}>
+                        {movement.finish}
+                      </span>
                     )}
-                  </TableCell>
-                  <TableCell>
+                  </td>
+                  <td className="px-4 py-3">
                     {movement.invoiceNo && (
-                      <Typography variant="body2" sx={{ 
-                        fontFamily: 'monospace',
-                        backgroundColor: 'grey.100',
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 1,
-                        display: 'inline-block'
-                      }}>
+                      <span className={`text-xs font-mono px-2 py-1 rounded inline-block ${
+                        isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
+                      }`}>
                         {movement.invoiceNo}
-                      </Typography>
+                      </span>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {movement.quantity}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {movement.currentStock}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {movement.seller}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <IconButton
-                        size="small"
+                    </span>
+                  </td>
+                  <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {movement.seller}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <button
                         onClick={() => handleOpenDialog(movement)}
-                        sx={{ 
-                          borderRadius: 1,
-                          '&:hover': { backgroundColor: 'primary.light', color: 'primary.contrastText' }
-                        }}
+                        className={`p-2 rounded transition-colors ${
+                          isDarkMode ? 'hover:bg-teal-900/30 text-teal-400' : 'hover:bg-teal-100 text-teal-600'
+                        }`}
                       >
                         <Edit size={16} />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
+                      </button>
+                      <button
                         onClick={() => handleDelete(movement.id)}
-                        sx={{ 
-                          borderRadius: 1,
-                          '&:hover': { backgroundColor: 'error.light', color: 'error.contrastText' }
-                        }}
+                        className={`p-2 rounded transition-colors ${
+                          isDarkMode ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-100 text-red-600'
+                        }`}
                       >
                         <Delete size={16} />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               ))}
               {filteredMovements.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={12} align="center">
-                    <EmptyState>
-                      <Avatar
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          backgroundColor: 'grey.100',
-                          color: 'grey.400',
-                          mx: 'auto',
-                          mb: 2
-                        }}
-                      >
+                <tr>
+                  <td colSpan={12} className="text-center">
+                    <div className={`p-12 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                        isDarkMode ? 'bg-gray-800 text-gray-600' : 'bg-gray-100 text-gray-400'
+                      }`}>
                         <Package size={32} />
-                      </Avatar>
-                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                      </div>
+                      <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         No stock movements found
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                      </h3>
+                      <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {searchTerm ? 'Try adjusting your search term' : 'Add your first stock movement to get started'}
-                      </Typography>
+                      </p>
                       {!searchTerm && (
-                        <Button
-                          variant="contained"
-                          startIcon={<Add size={16} />}
+                        <button
                           onClick={() => handleOpenDialog()}
-                          sx={{ borderRadius: 2 }}
+                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
                         >
+                          <Add size={16} />
                           Add Movement
-                        </Button>
+                        </button>
                       )}
-                    </EmptyState>
-                  </TableCell>
-                </TableRow>
+                    </div>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
-        </StyledTableContainer>
-      </StyledCard>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Add/Edit Dialog */}
       <Dialog
@@ -613,39 +526,30 @@ const StockMovement = () => {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ 
-          p: 3, 
-          pt: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          gap: 1
-        }}>
-          <Button 
-            onClick={handleCloseDialog}
-            variant="outlined"
-            sx={{ 
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit} 
-            variant="contained"
-            sx={{ 
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 3
-            }}
-          >
-            {editingMovement ? 'Update Movement' : 'Add Movement'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </StockContainer>
+            <div className={`p-6 border-t flex gap-3 justify-end ${
+              isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+            }`}>
+              <button
+                onClick={handleCloseDialog}
+                className={`px-4 py-2 border rounded-lg transition-colors font-medium ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
+              >
+                {editingMovement ? 'Update Movement' : 'Add Movement'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

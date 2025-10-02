@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Components
 import Dashboard from "./Dashboard";
@@ -26,22 +25,16 @@ import MarketingHome from "../marketing/MarketingHome";
 import MarketingProducts from "../marketing/MarketingProducts";
 import MarketingAbout from "../marketing/MarketingAbout";
 import MarketingContact from "../marketing/MarketingContact";
+import AccountStatementList from "../pages/AccountStatementList";
+import AccountStatementForm from "../pages/AccountStatementForm";
+import AccountStatementDetails from "../pages/AccountStatementDetails";
+import QuotationList from "../pages/QuotationList";
+import QuotationForm from "../pages/QuotationForm";
 import ProtectedRoute from "./ProtectedRoute";
-
-const ContentWrapper = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'noPadding',
-})(({ theme, noPadding }) => ({
-  padding: noPadding ? 0 : theme.spacing(2, 1),
-  maxWidth: "100%",
-  minHeight: noPadding ? 'auto' : "calc(100vh - 64px)",
-  backgroundColor: theme.palette.background.default,
-  [theme.breakpoints.down("sm")]: {
-    padding: noPadding ? 0 : theme.spacing(0),
-  },
-}));
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
+  const { isDarkMode } = useTheme();
 
   // Allow public marketing pages and login without auth
   const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
@@ -62,7 +55,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   }
 
   return (
-    <ContentWrapper noPadding={isMarketing}>
+    <div className={`w-full ${isMarketing ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <Routes>
         {/* Public Routes: Marketing + Login */}
         <Route path="/" element={<Navigate to="/marketing" replace />} />
@@ -278,6 +271,69 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        <Route
+          path="/account-statements"
+          element={
+            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+              <AccountStatementList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/account-statements/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="account_statements.create">
+              <AccountStatementForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/account-statements/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+              <AccountStatementDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.read">
+              <QuotationList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.create">
+              <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.read">
+              <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.update">
+              <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Catch all route - redirect to dashboard if logged in, marketing if not */}
         <Route
           path="*"
@@ -290,7 +346,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
       </Routes>
-    </ContentWrapper>
+    </div>
   );
 };
 

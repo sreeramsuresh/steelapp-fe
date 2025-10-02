@@ -1,39 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
-  Chip,
-  IconButton,
-  Toolbar,
-  InputAdornment,
-  Alert,
-  CircularProgress,
-  Tooltip,
-  Avatar,
-  Badge,
-  Autocomplete,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import {
   Plus as Add,
   Edit,
   Trash2 as Delete,
@@ -45,7 +11,12 @@ import {
   DollarSign,
   Filter,
   AlertTriangle,
+  X,
+  CheckCircle,
+  AlertCircle,
+  ChevronDown,
 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import { inventoryService } from "../services/inventoryService";
 import {
   createInventoryItem,
@@ -54,111 +25,8 @@ import {
   FINISHES,
 } from "../types";
 
-const InventoryContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  width: "100%",
-  overflow: "auto",
-  [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(2),
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5),
-  },
-}));
-
-const SectionHeader = styled(Box)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  padding: theme.spacing(0, 0, 2, 0),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: "all 0.3s ease-in-out",
-  "&:hover": {
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  "& .MuiTableHead-root": {
-    backgroundColor:
-      theme.palette.mode === "light"
-        ? theme.palette.grey[100]
-        : theme.palette.grey[50],
-  },
-  "& .MuiTableCell-head": {
-    fontWeight: 600,
-    fontSize: "0.875rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    color:
-      theme.palette.mode === "light"
-        ? theme.palette.text.primary
-        : theme.palette.text.secondary,
-  },
-  "& .MuiTableRow-hover:hover": {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-
-const StockChip = styled(Chip)(({ theme, stock }) => ({
-  fontWeight: 600,
-  fontSize: "0.75rem",
-  minWidth: "60px",
-  ...(stock <= 5 && {
-    backgroundColor: theme.palette.error.light,
-    color: theme.palette.error.dark,
-    "& .MuiChip-icon": {
-      color: theme.palette.error.dark,
-    },
-  }),
-  ...(stock > 5 &&
-    stock <= 10 && {
-      backgroundColor: theme.palette.warning.light,
-      color: theme.palette.warning.dark,
-      "& .MuiChip-icon": {
-        color: theme.palette.warning.dark,
-      },
-    }),
-  ...(stock > 10 && {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.dark,
-    "& .MuiChip-icon": {
-      color: theme.palette.success.dark,
-    },
-  }),
-}));
-
-const SearchCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: "none",
-}));
-
-const EmptyState = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(6),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
-
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "400px",
-  gap: theme.spacing(2),
-}));
-
 const InventoryList = () => {
+  const { isDarkMode } = useTheme();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -291,518 +159,563 @@ const InventoryList = () => {
 
   if (loading) {
     return (
-      <InventoryContainer>
-        <LoadingContainer>
-          <CircularProgress size={32} />
-          <Typography color="text.secondary">Loading inventory...</Typography>
-        </LoadingContainer>
-      </InventoryContainer>
+      <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+          <span className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Loading inventory...
+          </span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <InventoryContainer>
-      <SectionHeader>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
-          📋 Inventory Management
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Manage your steel inventory and track stock levels
-        </Typography>
-      </SectionHeader>
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      <div className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="mb-6">
+          <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            📋 Inventory Management
+          </h1>
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Manage your steel inventory and track stock levels
+          </p>
+        </div>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <div className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
+            isDarkMode ? 'bg-red-900/20 border-red-700 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <span>{error}</span>
+            <button onClick={() => setError("")} className="ml-4">
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
-      <SearchCard>
-        <CardContent sx={{ py: 2 }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <TextField
-              placeholder="Search inventory..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search size={20} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ flexGrow: 1 }}
-            />
-            <Button
-              variant="outlined"
-              startIcon={<Filter size={16} />}
-              sx={{ minWidth: "auto", px: 2 }}
+        <div className={`p-4 mb-6 rounded-lg border ${
+          isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+        }`}>
+          <div className="flex gap-4 items-center">
+            <div className="flex-grow relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search inventory..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+            <button
+              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+              }`}
             >
+              <Filter size={16} />
               Filter
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<Add size={16} />}
+            </button>
+            <button
               onClick={() => handleOpenDialog()}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-              }}
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
+              <Add size={16} />
               Add Item
-            </Button>
-          </Box>
-        </CardContent>
-      </SearchCard>
+            </button>
+          </div>
+        </div>
 
-      <StyledCard>
-        <StyledTableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Description</TableCell>
-                <TableCell>Product Type</TableCell>
-                <TableCell>Grade</TableCell>
-                <TableCell>Finish</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Thickness</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Purchase Price</TableCell>
-                <TableCell>Selling Price</TableCell>
-                <TableCell>Landed Cost</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+              <tr>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Description
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Product Type
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Grade
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Finish
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Size
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Thickness
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Quantity
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Purchase Price
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Selling Price
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Landed Cost
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Location
+                </th>
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {filteredInventory.map((item) => (
-                <TableRow key={item.id} hover>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 500, mb: 0.5 }}
-                    >
+                <tr key={item.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.description || generateDescription(item)}
-                    </Typography>
+                    </div>
                     {item.location && (
-                      <Chip
-                        label={item.location}
-                        size="small"
-                        icon={<Warehouse size={12} />}
-                        variant="outlined"
-                        sx={{ fontSize: "0.7rem", height: 20 }}
-                      />
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${
+                        isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-700'
+                      }`}>
+                        <Warehouse size={12} />
+                        {item.location}
+                      </span>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.productType}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={item.grade}
-                      size="small"
-                      variant="outlined"
-                      sx={{ fontWeight: 500, fontSize: "0.75rem" }}
-                    />
-                  </TableCell>
-                  <TableCell>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${
+                      isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-700'
+                    }`}>
+                      {item.grade}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {item.finish && (
-                      <Chip
-                        label={item.finish}
-                        size="small"
-                        color="secondary"
-                        variant="outlined"
-                        sx={{ fontSize: "0.75rem" }}
-                      />
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${
+                        isDarkMode ? 'bg-purple-900/30 border-purple-600 text-purple-300' : 'bg-purple-100 border-purple-300 text-purple-700'
+                      }`}>
+                        {item.finish}
+                      </span>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{item.size}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{item.thickness}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <StockChip
-                      label={item.quantity}
-                      stock={item.quantity}
-                      icon={
-                        item.quantity <= 5 ? (
-                          <AlertTriangle size={14} />
-                        ) : item.quantity <= 10 ? (
-                          <Package size={14} />
-                        ) : (
-                          <TrendingUp size={14} />
-                        )
-                      }
-                      variant="filled"
-                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {item.size}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {item.thickness}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+                      item.quantity <= 5 
+                        ? isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800'
+                        : item.quantity <= 10
+                        ? isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800'
+                        : isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {item.quantity <= 5 ? (
+                        <AlertTriangle size={14} />
+                      ) : item.quantity <= 10 ? (
+                        <Package size={14} />
+                      ) : (
+                        <TrendingUp size={14} />
+                      )}
+                      {item.quantity}
+                    </span>
                     {item.quantity <= 5 && (
-                      <Typography
-                        variant="caption"
-                        color="error"
-                        sx={{ display: "block", mt: 0.5 }}
-                      >
+                      <div className={`text-xs mt-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
                         Low Stock
-                      </Typography>
+                      </div>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.pricePurchased
                         ? formatCurrency(item.pricePurchased)
                         : "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 600, color: "success.main" }}
-                    >
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-semibold text-green-600`}>
                       {item.sellingPrice
                         ? formatCurrency(item.sellingPrice)
                         : "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {item.landedCost ? formatCurrency(item.landedCost) : "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", gap: 0.5 }}>
-                      <IconButton
-                        size="small"
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {item.location || '-'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex gap-1 justify-end">
+                      <button
                         onClick={() => handleOpenDialog(item)}
-                        sx={{
-                          borderRadius: 1,
-                          "&:hover": {
-                            backgroundColor: "primary.light",
-                            color: "primary.contrastText",
-                          },
-                        }}
+                        className={`p-2 rounded transition-colors ${
+                          isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                        }`}
                       >
                         <Edit size={16} />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
+                      </button>
+                      <button
                         onClick={() => handleDelete(item.id)}
-                        sx={{
-                          borderRadius: 1,
-                          "&:hover": {
-                            backgroundColor: "error.light",
-                            color: "error.contrastText",
-                          },
-                        }}
+                        className={`p-2 rounded transition-colors ${
+                          isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                        }`}
                       >
                         <Delete size={16} />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               ))}
               {filteredInventory.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={11} align="center">
-                    <EmptyState>
-                      <Avatar
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          backgroundColor: "grey.100",
-                          color: "grey.400",
-                          mx: "auto",
-                          mb: 2,
-                        }}
-                      >
+                <tr>
+                  <td colSpan={12} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+                        isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+                      }`}>
                         <Package size={32} />
-                      </Avatar>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ fontWeight: 600 }}
-                      >
+                      </div>
+                      <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         No inventory items found
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 3 }}
-                      >
+                      </h3>
+                      <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {searchTerm
                           ? "Try adjusting your search term"
                           : "Add your first inventory item to get started"}
-                      </Typography>
+                      </p>
                       {!searchTerm && (
-                        <Button
-                          variant="contained"
-                          startIcon={<Add size={16} />}
+                        <button
                           onClick={() => handleOpenDialog()}
-                          sx={{ borderRadius: 2 }}
+                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
                         >
+                          <Add size={16} />
                           Add Item
-                        </Button>
+                        </button>
                       )}
-                    </EmptyState>
-                  </TableCell>
-                </TableRow>
+                    </div>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
-        </StyledTableContainer>
-      </StyledCard>
+            </tbody>
+          </table>
+        </div>
 
-      {/* Add/Edit Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: 8,
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            pb: 1,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {editingItem ? "Edit Inventory Item" : "Add Inventory Item"}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-              gap: 2,
-              mt: 1,
-            }}
-          >
-            <Box sx={{ gridColumn: "1 / -1" }}>
-              <TextField
-                fullWidth
-                label="Description"
-                value={formData.description}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
-                placeholder="Auto-generated if empty"
-              />
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Product Type</InputLabel>
-                <Select
-                  value={formData.productType}
-                  label="Product Type"
-                  onChange={(e) =>
-                    handleInputChange("productType", e.target.value)
-                  }
+        {/* Add/Edit Dialog */}
+        {openDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              <div className={`p-6 border-b ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
+                <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {editingItem ? "Edit Inventory Item" : "Add Inventory Item"}
+                </h3>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                  <div className="sm:col-span-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      placeholder="Auto-generated if empty"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Product Type
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={formData.productType}
+                        onChange={(e) => handleInputChange("productType", e.target.value)}
+                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      >
+                        <option value="">Select Product Type</option>
+                        {PRODUCT_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Grade
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.grade}
+                      onChange={(e) => handleInputChange("grade", e.target.value)}
+                      placeholder="e.g., 304, 316L"
+                      list="steel-grades"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                    <datalist id="steel-grades">
+                      {STEEL_GRADES.map((grade) => (
+                        <option key={grade} value={grade} />
+                      ))}
+                    </datalist>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Select from list or type custom grade
+                    </p>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Finish
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.finish}
+                      onChange={(e) => handleInputChange("finish", e.target.value)}
+                      placeholder="e.g., Mirror, HL, 2B"
+                      list="finishes"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                    <datalist id="finishes">
+                      {FINISHES.map((finish) => (
+                        <option key={finish} value={finish} />
+                      ))}
+                    </datalist>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Select from list or type custom finish
+                    </p>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Size
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.size}
+                      onChange={(e) => handleInputChange("size", e.target.value)}
+                      placeholder="e.g., 4x8"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Thickness
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.thickness}
+                      onChange={(e) => handleInputChange("thickness", e.target.value)}
+                      placeholder="e.g., 0.8, 1.2"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.quantity || ""}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "quantity",
+                          e.target.value === "" ? "" : parseInt(e.target.value) || ""
+                        )
+                      }
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Purchase Price
+                    </label>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        د.إ
+                      </span>
+                      <input
+                        type="number"
+                        value={formData.pricePurchased || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "pricePurchased",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value) || ""
+                          )
+                        }
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Selling Price
+                    </label>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        د.إ
+                      </span>
+                      <input
+                        type="number"
+                        value={formData.sellingPrice || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "sellingPrice",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value) || ""
+                          )
+                        }
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Landed Cost
+                    </label>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        د.إ
+                      </span>
+                      <input
+                        type="number"
+                        value={formData.landedCost || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "landedCost",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value) || ""
+                          )
+                        }
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange("location", e.target.value)}
+                      placeholder="e.g., Warehouse A, Section 1"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={`p-6 border-t flex justify-end gap-3 ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
+                <button
+                  onClick={handleCloseDialog}
+                  className={`px-6 py-3 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                      : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  }`}
                 >
-                  {PRODUCT_TYPES.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <Box>
-              <Autocomplete
-                fullWidth
-                freeSolo
-                options={STEEL_GRADES}
-                value={formData.grade}
-                onChange={(event, newValue) => {
-                  handleInputChange("grade", newValue || "");
-                }}
-                onInputChange={(event, newInputValue) => {
-                  handleInputChange("grade", newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Grade"
-                    helperText="Select from list or type custom grade"
-                    placeholder="e.g., 304, 316L"
-                  />
-                )}
-              />
-            </Box>
-            <Box>
-              <Autocomplete
-                fullWidth
-                freeSolo
-                options={FINISHES}
-                value={formData.finish}
-                onChange={(event, newValue) => {
-                  handleInputChange("finish", newValue || "");
-                }}
-                onInputChange={(event, newInputValue) => {
-                  handleInputChange("finish", newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Finish"
-                    helperText="Select from list or type custom finish"
-                    placeholder="e.g., Mirror, HL, 2B"
-                  />
-                )}
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Size"
-                value={formData.size}
-                onChange={(e) => handleInputChange("size", e.target.value)}
-                placeholder="e.g., 4x8"
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Thickness"
-                value={formData.thickness}
-                onChange={(e) => handleInputChange("thickness", e.target.value)}
-                placeholder="e.g., 0.8, 1.2"
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Quantity"
-                type="number"
-                value={formData.quantity || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "quantity",
-                    e.target.value === "" ? "" : parseInt(e.target.value) || ""
-                  )
-                }
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Purchase Price"
-                type="number"
-                value={formData.pricePurchased || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "pricePurchased",
-                    e.target.value === ""
-                      ? ""
-                      : parseFloat(e.target.value) || ""
-                  )
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">د.إ</InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Selling Price"
-                type="number"
-                value={formData.sellingPrice || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "sellingPrice",
-                    e.target.value === ""
-                      ? ""
-                      : parseFloat(e.target.value) || ""
-                  )
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">د.إ</InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Landed Cost"
-                type="number"
-                value={formData.landedCost || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "landedCost",
-                    e.target.value === ""
-                      ? ""
-                      : parseFloat(e.target.value) || ""
-                  )
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">د.إ</InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            <Box sx={{ gridColumn: "1 / -1" }}>
-              <TextField
-                fullWidth
-                label="Location"
-                value={formData.location}
-                onChange={(e) => handleInputChange("location", e.target.value)}
-                placeholder="e.g., Warehouse A, Section 1"
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            p: 3,
-            pt: 2,
-            borderTop: "1px solid",
-            borderColor: "divider",
-            gap: 1,
-          }}
-        >
-          <Button
-            onClick={handleCloseDialog}
-            variant="outlined"
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 500,
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 600,
-              px: 3,
-            }}
-          >
-            {editingItem ? "Update Item" : "Add Item"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </InventoryContainer>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                >
+                  {editingItem ? "Update Item" : "Add Item"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

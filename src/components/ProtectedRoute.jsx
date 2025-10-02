@@ -1,19 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Box, Typography, Alert, Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Lock, ArrowBack } from '@mui/icons-material';
+import { Lock, ArrowLeft } from 'lucide-react';
 import { authService } from '../services/axiosAuthService';
-
-const UnauthorizedContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '60vh',
-  padding: theme.spacing(4),
-  textAlign: 'center',
-}));
+import { useTheme } from '../contexts/ThemeContext';
 
 const ProtectedRoute = ({ 
   children, 
@@ -23,6 +12,7 @@ const ProtectedRoute = ({
   fallbackPath = '/login' 
 }) => {
   const location = useLocation();
+  const { isDarkMode } = useTheme();
 
   // Check if user is authenticated
   if (!user || !authService.isAuthenticated()) {
@@ -39,27 +29,34 @@ const ProtectedRoute = ({
   // Check role-based access
   if (requiredRole && !authService.hasRole(requiredRole)) {
     return (
-      <UnauthorizedContainer>
-        <Lock sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
-        <Typography variant="h4" gutterBottom color="error">
+      <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <Lock size={64} className="text-red-500 mb-4" />
+        <h1 className={`text-3xl font-bold mb-2 text-red-500`}>
           Access Denied
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        </h1>
+        <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           You don't have the required role ({requiredRole}) to access this page.
-        </Typography>
-        <Alert severity="warning" sx={{ mb: 3, maxWidth: 400 }}>
-          Current role: <strong>{authService.getUserRole()}</strong>
-          <br />
-          Required role: <strong>{requiredRole}</strong>
-        </Alert>
-        <Button
-          variant="contained"
-          startIcon={<ArrowBack />}
+        </p>
+        <div className={`mb-6 max-w-md p-4 rounded-lg border ${isDarkMode ? 'bg-yellow-900/20 border-yellow-700 text-yellow-300' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
+          <p className="mb-2">
+            <strong>Current role:</strong> {authService.getUserRole()}
+          </p>
+          <p>
+            <strong>Required role:</strong> {requiredRole}
+          </p>
+        </div>
+        <button
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+            isDarkMode 
+              ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+          }`}
           onClick={() => window.history.back()}
         >
+          <ArrowLeft size={20} />
           Go Back
-        </Button>
-      </UnauthorizedContainer>
+        </button>
+      </div>
     );
   }
 
@@ -69,27 +66,34 @@ const ProtectedRoute = ({
     
     if (!authService.hasPermission(resource, action)) {
       return (
-        <UnauthorizedContainer>
-          <Lock sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
-          <Typography variant="h4" gutterBottom color="warning.main">
+        <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+          <Lock size={64} className="text-orange-500 mb-4" />
+          <h1 className={`text-3xl font-bold mb-2 text-orange-500`}>
             Insufficient Permissions
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          </h1>
+          <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             You don't have permission to {action} {resource}.
-          </Typography>
-          <Alert severity="info" sx={{ mb: 3, maxWidth: 400 }}>
-            Required permission: <strong>{requiredPermission}</strong>
-            <br />
-            Contact your administrator to request access.
-          </Alert>
-          <Button
-            variant="contained"
-            startIcon={<ArrowBack />}
+          </p>
+          <div className={`mb-6 max-w-md p-4 rounded-lg border ${isDarkMode ? 'bg-blue-900/20 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
+            <p className="mb-2">
+              <strong>Required permission:</strong> {requiredPermission}
+            </p>
+            <p>
+              Contact your administrator to request access.
+            </p>
+          </div>
+          <button
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              isDarkMode 
+                ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+            }`}
             onClick={() => window.history.back()}
           >
+            <ArrowLeft size={20} />
             Go Back
-          </Button>
-        </UnauthorizedContainer>
+          </button>
+        </div>
       );
     }
   }

@@ -1,43 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Alert,
-  Snackbar
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  GetApp as DownloadIcon,
-  Visibility as ViewIcon,
+  Plus as AddIcon,
+  Download as DownloadIcon,
+  Eye as ViewIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
-  LocalShipping as TruckIcon
-} from '@mui/icons-material';
+  Trash2 as DeleteIcon,
+  Truck as TruckIcon,
+  Search,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  AlertCircle,
+  CheckCircle
+} from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
   const invoiceIdFromUrl = searchParams.get('invoice_id');
   
@@ -57,18 +40,41 @@ const DeliveryNoteList = () => {
   // Dialog states
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, number: '' });
 
-  const statusColors = {
-    pending: 'warning',
-    partial: 'info',
-    completed: 'success',
-    cancelled: 'error'
-  };
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      pending: { 
+        className: isDarkMode 
+          ? "bg-orange-900/30 text-orange-300 border-orange-600" 
+          : "bg-orange-100 text-orange-800 border-orange-300", 
+        label: "Pending" 
+      },
+      partial: { 
+        className: isDarkMode 
+          ? "bg-blue-900/30 text-blue-300 border-blue-600" 
+          : "bg-blue-100 text-blue-800 border-blue-300", 
+        label: "Partial Delivery" 
+      },
+      completed: { 
+        className: isDarkMode 
+          ? "bg-green-900/30 text-green-300 border-green-600" 
+          : "bg-green-100 text-green-800 border-green-300", 
+        label: "Completed" 
+      },
+      cancelled: { 
+        className: isDarkMode 
+          ? "bg-red-900/30 text-red-300 border-red-600" 
+          : "bg-red-100 text-red-800 border-red-300", 
+        label: "Cancelled" 
+      },
+    };
 
-  const statusLabels = {
-    pending: 'Pending',
-    partial: 'Partial Delivery',
-    completed: 'Completed',
-    cancelled: 'Cancelled'
+    const config = statusConfig[status] || statusConfig.pending;
+
+    return (
+      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+        {config.label}
+      </span>
+    );
   };
 
   const fetchDeliveryNotes = async () => {
@@ -135,75 +141,103 @@ const DeliveryNoteList = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TruckIcon sx={{ fontSize: 36, color: 'primary.main' }} />
+    <div className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className={`text-2xl font-semibold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          <TruckIcon size={36} className="text-teal-600" />
           Delivery Notes
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
+        </h1>
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           onClick={() => navigate('/delivery-notes/new')}
-          sx={{ borderRadius: 2 }}
         >
+          <AddIcon size={20} />
           Create Delivery Note
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* Invoice Filter Indicator */}
       {invoiceIdFromUrl && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
-          <Button 
-            size="small" 
-            onClick={() => navigate('/delivery-notes')}
-            sx={{ ml: 2 }}
-          >
-            View All Delivery Notes
-          </Button>
-        </Alert>
+        <div className={`mb-4 p-4 rounded-lg border ${
+          isDarkMode ? 'bg-blue-900/20 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'
+        }`}>
+          <div className="flex items-center gap-2">
+            <AlertCircle size={20} />
+            Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
+            <button 
+              className={`ml-4 px-3 py-1 text-sm rounded transition-colors ${
+                isDarkMode ? 'bg-blue-800 hover:bg-blue-700 text-blue-200' : 'bg-blue-200 hover:bg-blue-300 text-blue-800'
+              }`}
+              onClick={() => navigate('/delivery-notes')}
+            >
+              View All Delivery Notes
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Filters */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            label="Search"
-            variant="outlined"
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by delivery note number, invoice, or customer..."
-            sx={{ minWidth: 300 }}
-          />
+      <div className={`p-4 mb-6 rounded-xl border ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="flex gap-4 flex-wrap items-center">
+          <div className="min-w-[300px] relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by delivery note number, invoice, or customer..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+            />
+          </div>
           
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
+          <div className="min-w-[150px] relative">
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              label="Status"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
-              <MenuItem value="">All Status</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="partial">Partial</MenuItem>
-              <MenuItem value="completed">Completed</MenuItem>
-              <MenuItem value="cancelled">Cancelled</MenuItem>
-            </Select>
-          </FormControl>
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="partial">Partial</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+            </div>
+          </div>
 
-          <TextField
-            label="From Date"
-            type="date"
-            size="small"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
+          <div className="min-w-[150px]">
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            />
+          </div>
 
-          <Button
-            variant="outlined"
+          <button
+            className={`px-4 py-3 border rounded-lg transition-colors duration-200 ${
+              isDarkMode 
+                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+            }`}
             onClick={() => {
               setSearch('');
               setStatusFilter('');
@@ -212,173 +246,294 @@ const DeliveryNoteList = () => {
             }}
           >
             Clear Filters
-          </Button>
-        </Box>
-      </Paper>
+          </button>
+        </div>
+      </div>
 
       {/* Delivery Notes Table */}
-      <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.100' : 'grey.50' }}>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Note #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Invoice #</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Delivery Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Vehicle</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: (theme) => theme.palette.mode === 'light' ? 'text.primary' : 'text.secondary' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+      <div className={`rounded-2xl border overflow-hidden ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+              <tr>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Delivery Note #
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Invoice #
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Customer
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Delivery Date
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Vehicle
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
-                    Loading delivery notes...
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+                      <span className={`ml-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        Loading delivery notes...
+                      </span>
+                    </div>
+                  </td>
+                </tr>
               ) : deliveryNotes.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
+                <tr>
+                  <td colSpan={7} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No delivery notes found
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : (
                 deliveryNotes.map((deliveryNote) => (
-                  <TableRow key={deliveryNote.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                  <tr key={deliveryNote.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {deliveryNote.delivery_note_number}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" color="primary">
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-teal-600">
                         {deliveryNote.invoice_number}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {deliveryNote.customer_details?.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      </div>
+                      <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {deliveryNote.customer_details?.company}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                         {formatDate(deliveryNote.delivery_date)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={statusLabels[deliveryNote.status] || deliveryNote.status}
-                        color={statusColors[deliveryNote.status] || 'default'}
-                        size="small"
-                      />
-                      {deliveryNote.is_partial && (
-                        <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 0.5 }}>
-                          Partial Delivery
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1">
+                        {getStatusBadge(deliveryNote.status)}
+                        {deliveryNote.is_partial && (
+                          <span className="text-xs text-orange-500 font-medium">
+                            Partial Delivery
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                         {deliveryNote.vehicle_number || '-'}
-                      </Typography>
+                      </div>
                       {deliveryNote.driver_name && (
-                        <Typography variant="caption" color="text.secondary">
+                        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {deliveryNote.driver_name}
-                        </Typography>
+                        </div>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <IconButton
-                          size="small"
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex gap-2">
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                          }`}
                           onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
                           title="View Details"
                         >
-                          <ViewIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
+                          <ViewIcon size={16} />
+                        </button>
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
+                          }`}
                           onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
                           title="Edit"
                         >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
+                          <EditIcon size={16} />
+                        </button>
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                          }`}
                           onClick={() => handleDownloadPDF(deliveryNote.id)}
                           title="Download PDF"
                         >
-                          <DownloadIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
+                          <DownloadIcon size={16} />
+                        </button>
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                          }`}
                           onClick={() => setDeleteDialog({
                             open: true,
                             id: deliveryNote.id,
                             number: deliveryNote.delivery_note_number
                           })}
                           title="Delete"
-                          color="error"
                         >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                          <DeleteIcon size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </div>
         
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
-          count={totalCount}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      </Paper>
+        {/* Pagination */}
+        <div className={`px-6 py-4 border-t flex items-center justify-between ${
+          isDarkMode ? 'border-gray-700 bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+            Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount} results
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+                className={`px-2 py-1 border rounded transition-colors ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => handlePageChange(e, page - 1)}
+                disabled={page === 0}
+                className={`p-2 rounded transition-colors ${
+                  page === 0 
+                    ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
+                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                }`}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className={`px-3 py-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
+              </span>
+              <button
+                onClick={(e) => handlePageChange(e, page + 1)}
+                disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
+                className={`p-2 rounded transition-colors ${
+                  page >= Math.ceil(totalCount / rowsPerPage) - 1 
+                    ? (isDarkMode ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed')
+                    : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100')
+                }`}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, id: null, number: '' })}>
-        <DialogTitle>Delete Delivery Note</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete delivery note <strong>{deleteDialog.number}</strong>?
-            This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialog({ open: false, id: null, number: '' })}>
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {deleteDialog.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className={`rounded-xl max-w-md w-full ${
+            isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+          }`}>
+            <div className={`p-6 border-b ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Delete Delivery Note
+              </h3>
+            </div>
+            <div className="p-6">
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Are you sure you want to delete delivery note <strong>{deleteDialog.number}</strong>?
+                This action cannot be undone.
+              </p>
+            </div>
+            <div className={`p-6 border-t flex justify-end gap-3 ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <button
+                onClick={() => setDeleteDialog({ open: false, id: null, number: '' })}
+                className={`px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Success/Error Snackbars */}
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
-        <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
-          {error}
-        </Alert>
-      </Snackbar>
+      {/* Success/Error Notifications */}
+      {error && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            isDarkMode ? 'bg-red-900/20 border-red-700 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center gap-2">
+              <AlertCircle size={20} />
+              <span>{error}</span>
+              <button 
+                onClick={() => setError('')}
+                className={`ml-2 ${isDarkMode ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-700'}`}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Snackbar open={!!success} autoHideDuration={6000} onClose={() => setSuccess('')}>
-        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
-          {success}
-        </Alert>
-      </Snackbar>
-    </Box>
+      {success && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            isDarkMode ? 'bg-green-900/20 border-green-700 text-green-300' : 'bg-green-50 border-green-200 text-green-800'
+          }`}>
+            <div className="flex items-center gap-2">
+              <CheckCircle size={20} />
+              <span>{success}</span>
+              <button 
+                onClick={() => setSuccess('')}
+                className={`ml-2 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-700'}`}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

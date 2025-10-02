@@ -20,84 +20,10 @@ import {
   Layers,
   BarChart3
 } from 'lucide-react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Card,
-  CardContent,
-  Tabs,
-  Tab,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Chip,
-  IconButton,
-  Switch,
-  FormControlLabel,
-  Divider,
-  InputAdornment,
-  Stack,
-  Alert,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-
-// Styled Components
-const CalculatorContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-  minHeight: 'calc(100vh - 64px)',
-  overflow: 'auto',
-}));
-
-const CalculatorPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: 'hidden',
-}));
-
-const CalculationCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-}));
-
-const ResultCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-  color: theme.palette.primary.contrastText,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[3],
-}));
-
-const RuleCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
+import { useTheme } from '../contexts/ThemeContext';
 
 const PriceCalculator = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('calculator');
   const [selectedProduct, setSelectedProduct] = useState('rebar');
   const [dimensions, setDimensions] = useState({
@@ -467,568 +393,750 @@ const PriceCalculator = () => {
   };
 
   const renderCalculator = () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Calculator Form */}
-      <Box>
-        <CalculationCard>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-              <Package size={20} />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>Product Selection</Typography>
-            </Box>
-            <Stack spacing={3}>
-              <FormControl fullWidth>
-                <InputLabel>Product Type</InputLabel>
-                <Select
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                  label="Product Type"
-                >
-                  {Object.entries(productTypes).map(([key, product]) => (
-                    <MenuItem key={key} value={key}>{product.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Grade</InputLabel>
-                <Select
-                  value={selectedGrade}
-                  onChange={(e) => setSelectedGrade(e.target.value)}
-                  label="Grade"
-                >
-                  {productTypes[selectedProduct].grades.map(grade => (
-                    <MenuItem key={grade} value={grade}>{grade.toUpperCase()}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Stack>
-          </CardContent>
-        </CalculationCard>
+      <div className="space-y-6">
+        <div className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center gap-3 mb-6">
+            <Package size={20} className="text-teal-600" />
+            <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Product Selection
+            </h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Product Type
+              </label>
+              <select
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                {Object.entries(productTypes).map(([key, product]) => (
+                  <option key={key} value={key}>{product.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Grade
+              </label>
+              <select
+                value={selectedGrade}
+                onChange={(e) => setSelectedGrade(e.target.value)}
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                {productTypes[selectedProduct].grades.map(grade => (
+                  <option key={grade} value={grade}>{grade.toUpperCase()}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
 
-        <CalculationCard sx={{ mt: 2 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-              <Ruler size={20} />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>Dimensions</Typography>
-            </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-              {productTypes[selectedProduct].dimensions.includes('diameter') && (
-                <Box>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Diameter (mm)"
-                    value={dimensions.diameter || ''}
-                    onChange={(e) => setDimensions({...dimensions, diameter: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Enter diameter"
-                  />
-                </Box>
-              )}
-              {productTypes[selectedProduct].dimensions.includes('length') && (
-                <Box>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Length (m)"
-                    value={dimensions.length || ''}
-                    onChange={(e) => setDimensions({...dimensions, length: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Enter length"
-                  />
-                </Box>
-              )}
-              {productTypes[selectedProduct].dimensions.includes('width') && (
-                <Box>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Width (mm)"
-                    value={dimensions.width || ''}
-                    onChange={(e) => setDimensions({...dimensions, width: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Enter width"
-                  />
-                </Box>
-              )}
-              {productTypes[selectedProduct].dimensions.includes('thickness') && (
-                <Box>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Thickness (mm)"
-                    value={dimensions.thickness || ''}
-                    onChange={(e) => setDimensions({...dimensions, thickness: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Enter thickness"
-                  />
-                </Box>
-              )}
-              <Box>
-                <TextField
-                  fullWidth
+        <div className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
+          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center gap-3 mb-6">
+            <Ruler size={20} className="text-teal-600" />
+            <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Dimensions
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {productTypes[selectedProduct].dimensions.includes('diameter') && (
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Diameter (mm)
+                </label>
+                <input
                   type="number"
-                  label="Quantity"
-                  value={dimensions.quantity || ''}
-                  onChange={(e) => setDimensions({...dimensions, quantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  placeholder="Enter quantity"
-                  inputProps={{ min: "1" }}
+                  value={dimensions.diameter || ''}
+                  onChange={(e) => setDimensions({...dimensions, diameter: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter diameter"
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
-              </Box>
-            </Box>
-          </CardContent>
-        </CalculationCard>
-      </Box>
+              </div>
+            )}
+            {productTypes[selectedProduct].dimensions.includes('length') && (
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Length (m)
+                </label>
+                <input
+                  type="number"
+                  value={dimensions.length || ''}
+                  onChange={(e) => setDimensions({...dimensions, length: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter length"
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+            )}
+            {productTypes[selectedProduct].dimensions.includes('width') && (
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Width (mm)
+                </label>
+                <input
+                  type="number"
+                  value={dimensions.width || ''}
+                  onChange={(e) => setDimensions({...dimensions, width: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter width"
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+            )}
+            {productTypes[selectedProduct].dimensions.includes('thickness') && (
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Thickness (mm)
+                </label>
+                <input
+                  type="number"
+                  value={dimensions.thickness || ''}
+                  onChange={(e) => setDimensions({...dimensions, thickness: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter thickness"
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+            )}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Quantity
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={dimensions.quantity || ''}
+                onChange={(e) => setDimensions({...dimensions, quantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                placeholder="Enter quantity"
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Results */}
-      <Box>
-        <ResultCard>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>Calculation Results</Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                Base Price: د.إ{calculatePrice.basePrice}/kg
-              </Typography>
-            </Box>
+      <div>
+        <div className="bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-xl p-6 shadow-lg">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold">Calculation Results</h3>
+            <span className="text-sm opacity-80">
+              Base Price: AED {calculatePrice.basePrice}/kg
+            </span>
+          </div>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Weight size={16} />
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Total Weight</Typography>
-                </Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
-                  {calculateWeight.toFixed(2)} kg
-                </Typography>
-              </Box>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Package size={16} />
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Weight per Unit</Typography>
-                </Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
-                  {dimensions.quantity > 0 ? (calculateWeight / dimensions.quantity).toFixed(2) : 0} kg
-                </Typography>
-              </Box>
-            </Box>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Weight size={16} />
+                <span className="text-sm opacity-90">Total Weight</span>
+              </div>
+              <div className="text-xl font-semibold">
+                {calculateWeight.toFixed(2)} kg
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={16} />
+                <span className="text-sm opacity-90">Weight per Unit</span>
+              </div>
+              <div className="text-xl font-semibold">
+                {dimensions.quantity > 0 ? (calculateWeight / dimensions.quantity).toFixed(2) : 0} kg
+              </div>
+            </div>
+          </div>
 
-            <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
-
-            <Stack spacing={1}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Base Amount</Typography>
-                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>د.إ{calculatePrice.baseAmount.toFixed(2)}</Typography>
-              </Box>
+          <div className="border-t border-white/20 pt-4 mb-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm opacity-90">Base Amount</span>
+                <span className="font-semibold">AED {calculatePrice.baseAmount.toFixed(2)}</span>
+              </div>
 
               {calculatePrice.adjustments.map((adjustment, index) => (
-                <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                <div key={index} className="flex justify-between">
+                  <span className="text-sm opacity-90">
                     {adjustment.name}
-                    <Typography component="span" variant="caption" sx={{ ml: 1, opacity: 0.7 }}>
+                    <span className="ml-1 opacity-70 text-xs">
                       ({adjustment.type === 'percentage' ? `${adjustment.amount < 0 ? '' : '+'}${((adjustment.amount / calculatePrice.baseAmount) * 100).toFixed(1)}%` : 'Fixed'})
-                    </Typography>
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: adjustment.amount < 0 ? '#4ade80' : '#fbbf24', fontWeight: 600 }}>
-                    {adjustment.amount >= 0 ? '+' : ''}د.إ{adjustment.amount.toFixed(2)}
-                  </Typography>
-                </Box>
+                    </span>
+                  </span>
+                  <span className={`font-semibold ${adjustment.amount < 0 ? 'text-green-300' : 'text-yellow-300'}`}>
+                    {adjustment.amount >= 0 ? '+' : ''}AED {adjustment.amount.toFixed(2)}
+                  </span>
+                </div>
               ))}
 
               {calculatePrice.bulkDiscount > 0 && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                <div className="flex justify-between">
+                  <span className="text-sm opacity-90">
                     Bulk Discount ({calculatePrice.appliedDiscount.name})
-                    <Typography component="span" variant="caption" sx={{ ml: 1, opacity: 0.7 }}>
+                    <span className="ml-1 opacity-70 text-xs">
                       (-{calculatePrice.appliedDiscount.discountPercentage}%)
-                    </Typography>
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#4ade80', fontWeight: 600 }}>-د.إ{calculatePrice.bulkDiscount.toFixed(2)}</Typography>
-                </Box>
+                    </span>
+                  </span>
+                  <span className="text-green-300 font-semibold">-AED {calculatePrice.bulkDiscount.toFixed(2)}</span>
+                </div>
               )}
+            </div>
+          </div>
 
-              <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+          <div className="border-t border-white/20 pt-4">
+            <div className="flex justify-between mb-2">
+              <span className="text-lg font-bold">Total Amount</span>
+              <span className="text-lg font-bold">AED {calculatePrice.total.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm opacity-90">Final Price per kg</span>
+              <span className="font-semibold">AED {calculatePrice.pricePerKg.toFixed(2)}</span>
+            </div>
+          </div>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>Total Amount</Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>د.إ{calculatePrice.total.toFixed(2)}</Typography>
-              </Box>
-
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Final Price per kg</Typography>
-                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>د.إ{calculatePrice.pricePerKg.toFixed(2)}</Typography>
-              </Box>
-            </Stack>
-
-            {calculatePrice.appliedDiscount && (
-              <Alert icon={<CheckCircle size={16} />} severity="success" sx={{ mt: 2 }}>
-                Bulk discount applied: {calculatePrice.appliedDiscount.name}
-              </Alert>
-            )}
-          </CardContent>
-        </ResultCard>
-      </Box>
-    </Box>
+          {calculatePrice.appliedDiscount && (
+            <div className="mt-4 p-3 bg-green-600/20 border border-green-500/30 rounded-lg flex items-center gap-2">
+              <CheckCircle size={16} />
+              <span className="text-sm">Bulk discount applied: {calculatePrice.appliedDiscount.name}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 
   const renderPricingRules = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Custom Pricing Rules</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={20} />}
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Custom Pricing Rules
+        </h3>
+        <button
           onClick={() => setShowRulesModal(true)}
-          sx={{ borderRadius: 2 }}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
+          <Plus size={20} />
           Add Rule
-        </Button>
-      </Box>
+        </button>
+      </div>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {customRules.map(rule => (
-          <Box key={rule.id}>
-            <RuleCard>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" component="h4" sx={{ fontWeight: 600, mb: 1 }}>
-                      {rule.name}
-                    </Typography>
-                    <Chip 
-                      label={rule.active ? 'Active' : 'Inactive'}
-                      color={rule.active ? 'success' : 'default'}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                      variant={rule.active ? 'outlined' : 'contained'}
-                      color={rule.active ? 'warning' : 'success'}
-                      size="small"
-                      onClick={() => toggleRuleActive(rule.id)}
-                      sx={{ borderRadius: 1 }}
-                    >
-                      {rule.active ? 'Disable' : 'Enable'}
-                    </Button>
-                    <IconButton
-                      color="error"
-                      size="small"
-                      onClick={() => deleteRule(rule.id)}
-                    >
-                      <X size={16} />
-                    </IconButton>
-                  </Box>
-                </Box>
-                
-                <Stack spacing={1}>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary" component="strong">Condition:</Typography>
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      {rule.condition} {rule.operator.replace('_', ' ')} {rule.value}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary" component="strong">Adjustment:</Typography>
-                    <Typography variant="body2" sx={{ ml: 1, fontWeight: 600, color: rule.adjustmentValue < 0 ? 'success.main' : 'warning.main' }}>
-                      {rule.adjustmentType === 'percentage' 
-                        ? `${rule.adjustmentValue > 0 ? '+' : ''}${rule.adjustmentValue}%`
-                        : `${rule.adjustmentValue > 0 ? '+' : ''}د.إ${rule.adjustmentValue}`
-                      }
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </RuleCard>
-          </Box>
+          <div key={rule.id} className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {rule.name}
+                </h4>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  rule.active 
+                    ? 'bg-green-100 text-green-800 border border-green-200' 
+                    : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {rule.active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleRuleActive(rule.id)}
+                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                    rule.active
+                      ? isDarkMode ? 'border border-yellow-600 text-yellow-400 hover:bg-yellow-900/20' : 'border border-yellow-600 text-yellow-700 hover:bg-yellow-50'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {rule.active ? 'Disable' : 'Enable'}
+                </button>
+                <button
+                  onClick={() => deleteRule(rule.id)}
+                  className={`p-1 rounded-lg transition-colors ${
+                    isDarkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-100'
+                  }`}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Condition:</span>
+                <span className={`ml-2 text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {rule.condition} {rule.operator.replace('_', ' ')} {rule.value}
+                </span>
+              </div>
+              <div>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Adjustment:</span>
+                <span className={`ml-2 text-sm font-semibold ${
+                  rule.adjustmentValue < 0 ? 'text-green-600' : 'text-yellow-600'
+                }`}>
+                  {rule.adjustmentType === 'percentage' 
+                    ? `${rule.adjustmentValue > 0 ? '+' : ''}${rule.adjustmentValue}%`
+                    : `${rule.adjustmentValue > 0 ? '+' : ''}AED ${rule.adjustmentValue}`
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 
   const renderBulkDiscounts = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Bulk Quantity Discounts</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={20} />}
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Bulk Quantity Discounts
+        </h3>
+        <button
           onClick={() => setShowDiscountModal(true)}
-          sx={{ borderRadius: 2 }}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
+          <Plus size={20} />
           Add Discount
-        </Button>
-      </Box>
+        </button>
+      </div>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {bulkDiscounts.map(discount => (
-          <Box key={discount.id}>
-            <RuleCard>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" component="h4" sx={{ fontWeight: 600, mb: 1 }}>
-                      {discount.name}
-                    </Typography>
-                    <Chip 
-                      label={discount.active ? 'Active' : 'Inactive'}
-                      color={discount.active ? 'success' : 'default'}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                      variant={discount.active ? 'outlined' : 'contained'}
-                      color={discount.active ? 'warning' : 'success'}
-                      size="small"
-                      onClick={() => toggleDiscountActive(discount.id)}
-                      sx={{ borderRadius: 1 }}
-                    >
-                      {discount.active ? 'Disable' : 'Enable'}
-                    </Button>
-                    <IconButton
-                      color="error"
-                      size="small"
-                      onClick={() => deleteDiscount(discount.id)}
-                    >
-                      <X size={16} />
-                    </IconButton>
-                  </Box>
-                </Box>
-                
-                <Stack spacing={2}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Layers size={16} />
-                    <Typography variant="body2">
-                      Min Quantity: <strong>{discount.minQuantity.toLocaleString()} kg</strong>
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Percent size={16} />
-                    <Typography variant="body2">
-                      Discount: <strong style={{ color: '#059669' }}>{discount.discountPercentage}%</strong>
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </RuleCard>
-          </Box>
+          <div key={discount.id} className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {discount.name}
+                </h4>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  discount.active 
+                    ? 'bg-green-100 text-green-800 border border-green-200' 
+                    : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {discount.active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleDiscountActive(discount.id)}
+                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                    discount.active
+                      ? isDarkMode ? 'border border-yellow-600 text-yellow-400 hover:bg-yellow-900/20' : 'border border-yellow-600 text-yellow-700 hover:bg-yellow-50'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {discount.active ? 'Disable' : 'Enable'}
+                </button>
+                <button
+                  onClick={() => deleteDiscount(discount.id)}
+                  className={`p-1 rounded-lg transition-colors ${
+                    isDarkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-100'
+                  }`}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Layers size={16} className="text-teal-600" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Min Quantity: <strong>{discount.minQuantity.toLocaleString()} kg</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Percent size={16} className="text-green-600" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Discount: <strong className="text-green-600">{discount.discountPercentage}%</strong>
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 
   return (
-    <CalculatorContainer>
-      <CalculatorPaper sx={{ p: 3 }}>
-        {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Calculator size={28} />
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-              🧮 Steel Price Calculator
-            </Typography>
-          </Box>
-          <Typography variant="body1" color="text.secondary">
-            Calculate steel prices with real-time weight calculations and custom pricing rules
-          </Typography>
-        </Box>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+      isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+    }`}>
+      <div className={`border rounded-xl overflow-hidden shadow-lg ${
+        isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+      }`}>
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-2">
+              <Calculator size={28} className="text-teal-600" />
+              <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                🧮 Steel Price Calculator
+              </h1>
+            </div>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Calculate steel prices with real-time weight calculations and custom pricing rules
+            </p>
+          </div>
 
-        {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-            <Tab 
-              value="calculator" 
-              label="Price Calculator" 
-              icon={<Calculator size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="rules" 
-              label="Pricing Rules" 
-              icon={<Settings size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-            <Tab 
-              value="discounts" 
-              label="Bulk Discounts" 
-              icon={<Percent size={20} />}
-              iconPosition="start"
-              sx={{ textTransform: 'none', fontWeight: 500 }}
-            />
-          </Tabs>
-        </Box>
+          {/* Tabs */}
+          <div className={`border-b mb-6 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('calculator')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'calculator'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Calculator size={20} />
+                Price Calculator
+              </button>
+              <button
+                onClick={() => setActiveTab('rules')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'rules'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Settings size={20} />
+                Pricing Rules
+              </button>
+              <button
+                onClick={() => setActiveTab('discounts')}
+                className={`flex items-center gap-2 pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'discounts'
+                    ? 'border-teal-500 text-teal-600'
+                    : `border-transparent ${
+                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      }`
+                }`}
+              >
+                <Percent size={20} />
+                Bulk Discounts
+              </button>
+            </div>
+          </div>
 
-        {/* Tab Content */}
-        <Box>
-          {activeTab === 'calculator' && renderCalculator()}
-          {activeTab === 'rules' && renderPricingRules()}
-          {activeTab === 'discounts' && renderBulkDiscounts()}
-        </Box>
+          {/* Tab Content */}
+          <div>
+            {activeTab === 'calculator' && renderCalculator()}
+            {activeTab === 'rules' && renderPricingRules()}
+            {activeTab === 'discounts' && renderBulkDiscounts()}
+          </div>
+        </div>
 
-      {/* Add Rule Modal */}
-      <Dialog open={showRulesModal} onClose={() => setShowRulesModal(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">Add Pricing Rule</Typography>
-            <IconButton onClick={() => setShowRulesModal(false)}>
-              <X size={20} />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
-            <Box sx={{ gridColumn: '1 / -1' }}>
-              <TextField
-                fullWidth
-                label="Rule Name"
-                value={newRule.name}
-                onChange={(e) => setNewRule({...newRule, name: e.target.value})}
-                placeholder="Enter rule name"
-              />
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Condition</InputLabel>
-                <Select
-                  value={newRule.condition}
-                  onChange={(e) => setNewRule({...newRule, condition: e.target.value})}
-                  label="Condition"
+        {/* Add Rule Modal */}
+        {showRulesModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              <div className={`p-6 border-b flex justify-between items-center ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Add Pricing Rule
+                </h2>
+                <button
+                  onClick={() => setShowRulesModal(false)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  <MenuItem value="quantity">Quantity</MenuItem>
-                  <MenuItem value="weight">Weight (kg)</MenuItem>
-                  <MenuItem value="total">Total Amount (د.إ)</MenuItem>
-                  <MenuItem value="grade">Grade</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Operator</InputLabel>
-                <Select
-                  value={newRule.operator}
-                  onChange={(e) => setNewRule({...newRule, operator: e.target.value})}
-                  label="Operator"
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="col-span-full">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Rule Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newRule.name}
+                      onChange={(e) => setNewRule({...newRule, name: e.target.value})}
+                      placeholder="Enter rule name"
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Condition
+                    </label>
+                    <select
+                      value={newRule.condition}
+                      onChange={(e) => setNewRule({...newRule, condition: e.target.value})}
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="quantity">Quantity</option>
+                      <option value="weight">Weight (kg)</option>
+                      <option value="total">Total Amount (AED)</option>
+                      <option value="grade">Grade</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Operator
+                    </label>
+                    <select
+                      value={newRule.operator}
+                      onChange={(e) => setNewRule({...newRule, operator: e.target.value})}
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="greater_than">Greater Than</option>
+                      <option value="less_than">Less Than</option>
+                      <option value="equals">Equals</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Value
+                    </label>
+                    {newRule.condition === 'grade' ? (
+                      <select
+                        value={newRule.value}
+                        onChange={(e) => setNewRule({...newRule, value: e.target.value})}
+                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      >
+                        <option value="">Select Grade</option>
+                        <option value="fe415">FE415</option>
+                        <option value="fe500">FE500</option>
+                        <option value="fe550">FE550</option>
+                        <option value="ms">MS</option>
+                        <option value="ss304">SS304</option>
+                        <option value="ss316">SS316</option>
+                        <option value="galvanized">Galvanized</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="number"
+                        value={newRule.value || ''}
+                        onChange={(e) => setNewRule({...newRule, value: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                        placeholder="Enter value"
+                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        }`}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Adjustment Type
+                    </label>
+                    <select
+                      value={newRule.adjustmentType}
+                      onChange={(e) => setNewRule({...newRule, adjustmentType: e.target.value})}
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="percentage">Percentage</option>
+                      <option value="fixed">Fixed Amount</option>
+                    </select>
+                  </div>
+                  <div className="col-span-full">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Adjustment Value {newRule.adjustmentType === 'percentage' ? '(%)' : '(AED)'}
+                    </label>
+                    <input
+                      type="number"
+                      value={newRule.adjustmentValue || ''}
+                      onChange={(e) => setNewRule({...newRule, adjustmentValue: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                      placeholder={newRule.adjustmentType === 'percentage' ? 'Enter percentage' : 'Enter amount'}
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={`p-6 border-t flex gap-3 justify-end ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <button
+                  onClick={() => setShowRulesModal(false)}
+                  className={`px-4 py-2 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                      : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  }`}
                 >
-                  <MenuItem value="greater_than">Greater Than</MenuItem>
-                  <MenuItem value="less_than">Less Than</MenuItem>
-                  <MenuItem value="equals">Equals</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box>
-              {newRule.condition === 'grade' ? (
-                <FormControl fullWidth>
-                  <InputLabel>Value</InputLabel>
-                  <Select
-                    value={newRule.value}
-                    onChange={(e) => setNewRule({...newRule, value: e.target.value})}
-                    label="Value"
-                  >
-                    <MenuItem value="">Select Grade</MenuItem>
-                    <MenuItem value="fe415">FE415</MenuItem>
-                    <MenuItem value="fe500">FE500</MenuItem>
-                    <MenuItem value="fe550">FE550</MenuItem>
-                    <MenuItem value="ms">MS</MenuItem>
-                    <MenuItem value="ss304">SS304</MenuItem>
-                    <MenuItem value="ss316">SS316</MenuItem>
-                    <MenuItem value="galvanized">Galvanized</MenuItem>
-                  </Select>
-                </FormControl>
-              ) : (
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Value"
-                  value={newRule.value || ''}
-                  onChange={(e) => setNewRule({...newRule, value: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  placeholder="Enter value"
-                />
-              )}
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Adjustment Type</InputLabel>
-                <Select
-                  value={newRule.adjustmentType}
-                  onChange={(e) => setNewRule({...newRule, adjustmentType: e.target.value})}
-                  label="Adjustment Type"
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddRule}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
                 >
-                  <MenuItem value="percentage">Percentage</MenuItem>
-                  <MenuItem value="fixed">Fixed Amount</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ gridColumn: '1 / -1' }}>
-              <TextField
-                fullWidth
-                type="number"
-                label={`Adjustment Value ${newRule.adjustmentType === 'percentage' ? '(%)' : '(د.إ)'}`}
-                value={newRule.adjustmentValue || ''}
-                onChange={(e) => setNewRule({...newRule, adjustmentValue: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                placeholder={newRule.adjustmentType === 'percentage' ? 'Enter percentage' : 'Enter amount'}
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowRulesModal(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleAddRule} variant="contained" startIcon={<Save size={20} />}>
-            Add Rule
-          </Button>
-        </DialogActions>
-      </Dialog>
+                  <Save size={20} />
+                  Add Rule
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* Add Discount Modal */}
-      <Dialog open={showDiscountModal} onClose={() => setShowDiscountModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">Add Bulk Discount</Typography>
-            <IconButton onClick={() => setShowDiscountModal(false)}>
-              <X size={20} />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="Discount Name"
-              value={newDiscount.name}
-              onChange={(e) => setNewDiscount({...newDiscount, name: e.target.value})}
-              placeholder="Enter discount name (e.g., 10+ tonnes)"
-            />
-            <TextField
-              fullWidth
-              type="number"
-              label="Minimum Quantity (kg)"
-              value={newDiscount.minQuantity || ''}
-              onChange={(e) => setNewDiscount({...newDiscount, minQuantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-              placeholder="Enter minimum quantity"
-            />
-            <TextField
-              fullWidth
-              type="number"
-              label="Discount Percentage (%)"
-              value={newDiscount.discountPercentage || ''}
-              onChange={(e) => setNewDiscount({...newDiscount, discountPercentage: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-              placeholder="Enter discount percentage"
-              inputProps={{ max: 100, min: 0 }}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDiscountModal(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleAddDiscount} variant="contained" startIcon={<Save size={20} />}>
-            Add Discount
-          </Button>
-        </DialogActions>
-      </Dialog>
-      </CalculatorPaper>
-    </CalculatorContainer>
+        {/* Add Discount Modal */}
+        {showDiscountModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-md w-full max-h-[90vh] overflow-hidden ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              <div className={`p-6 border-b flex justify-between items-center ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Add Bulk Discount
+                </h2>
+                <button
+                  onClick={() => setShowDiscountModal(false)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Discount Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newDiscount.name}
+                    onChange={(e) => setNewDiscount({...newDiscount, name: e.target.value})}
+                    placeholder="Enter discount name (e.g., 10+ tonnes)"
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Minimum Quantity (kg)
+                  </label>
+                  <input
+                    type="number"
+                    value={newDiscount.minQuantity || ''}
+                    onChange={(e) => setNewDiscount({...newDiscount, minQuantity: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                    placeholder="Enter minimum quantity"
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Discount Percentage (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newDiscount.discountPercentage || ''}
+                    onChange={(e) => setNewDiscount({...newDiscount, discountPercentage: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                    placeholder="Enter discount percentage"
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+              </div>
+              <div className={`p-6 border-t flex gap-3 justify-end ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <button
+                  onClick={() => setShowDiscountModal(false)}
+                  className={`px-4 py-2 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                      : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddDiscount}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+                >
+                  <Save size={20} />
+                  Add Discount
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

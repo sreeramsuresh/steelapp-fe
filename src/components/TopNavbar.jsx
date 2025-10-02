@@ -41,8 +41,12 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   };
 
   const handleLogout = () => {
+    console.log('🚨 TopNavbar handleLogout clicked!');
+    console.log('🚨 onLogout function:', typeof onLogout);
     setShowProfileDropdown(false);
+    console.log('🚨 About to call onLogout...');
     onLogout();
+    console.log('🚨 onLogout called successfully');
   };
 
   // Mock notifications (you can replace with real data)

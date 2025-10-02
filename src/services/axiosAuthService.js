@@ -64,13 +64,18 @@ class AuthService {
 
   // Logout user
   async logout() {
+    console.log('🚨 authService.logout() called!');
     try {
+      console.log('🚨 Making API call to /auth/logout...');
       // Call logout endpoint to invalidate tokens on server
       await apiService.post('/auth/logout');
+      console.log('🚨 Logout API call successful');
     } catch (error) {
-      console.warn('Logout API call failed:', error);
+      console.warn('🚨 Logout API call failed:', error);
     } finally {
+      console.log('🚨 Calling clearSession()...');
       this.clearSession();
+      console.log('🚨 Session cleared successfully');
     }
   }
 
@@ -88,25 +93,44 @@ class AuthService {
       try {
         const refreshToken = tokenUtils.getRefreshToken();
         
-        if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
+        console.log('[Auth] 🔄 Starting token refresh process...');
+        console.log('[Auth] Refresh token exists:', !!refreshToken);
+        
+        if (!refreshToken) {
+          console.log('[Auth] ❌ No refresh token found in localStorage');
           throw new Error('No valid refresh token available');
         }
         
-        console.log('[Auth] Attempting to refresh token...');
+        if (tokenUtils.isTokenExpired(refreshToken)) {
+          console.log('[Auth] ❌ Refresh token is expired');
+          const expiry = tokenUtils.getTokenExpirationTime(refreshToken);
+          console.log('[Auth] Refresh token expired at:', new Date(expiry).toISOString());
+          throw new Error('No valid refresh token available');
+        }
+        
+        console.log('[Auth] ✅ Refresh token is valid, making API call...');
         const response = await apiService.post('/auth/refresh', { refreshToken });
         
         if (response.token) {
-          console.log('[Auth] Token refresh successful');
+          console.log('[Auth] ✅ Token refresh successful');
+          console.log('[Auth] New token received, setting up next refresh...');
           this.setTokens(response.token, response.refreshToken);
           this.setupTokenRefresh(); // Re-setup the refresh timer
           return response.token;
         }
         
+        console.log('[Auth] ❌ Token refresh failed - no token in response');
         throw new Error('Token refresh failed - no token in response');
       } catch (error) {
-        console.error('[Auth] Token refresh failed:', error);
+        console.error('[Auth] ❌ Token refresh failed:', error);
+        console.error('[Auth] Error type:', error.constructor.name);
+        console.error('[Auth] Error status:', error.response?.status);
+        console.error('[Auth] Error message:', error.message);
+        console.error('[Auth] Error data:', error.response?.data);
+        
         // Only clear session if it's a 401 or refresh token is actually invalid
         if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
+          console.log('[Auth] 🚨 Clearing session due to auth failure');
           this.clearSession();
         }
         throw error;
@@ -235,7 +259,8 @@ class AuthService {
 
   // Clear all session data
   clearSession() {
-    console.log('[Auth] Clearing session');
+    console.log('[Auth] 🚨 CLEARING SESSION - User will be logged out');
+    console.log('[Auth] Session clear reason:', new Error().stack);
     this.removeTokens();
     this.removeUser();
     this.clearTokenRefreshTimer();
@@ -295,6 +320,17 @@ class AuthService {
     
     console.log(`[Auth] Token expires in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes`);
     console.log(`[Auth] Scheduling refresh in ${Math.round(refreshTime / 1000 / 60)} minutes`);
+    console.log(`[Auth] Current time: ${new Date().toISOString()}`);
+    console.log(`[Auth] Token expiration: ${new Date(expirationTime).toISOString()}`);
+    
+    // Check refresh token status
+    const refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      const refreshExpiry = tokenUtils.getTokenExpirationTime(refreshToken);
+      if (refreshExpiry) {
+        console.log(`[Auth] Refresh token expires in ${Math.round((refreshExpiry - Date.now()) / 1000 / 60)} minutes`);
+      }
+    }
     
     if (refreshTime > 0) {
       this.tokenRefreshTimer = setTimeout(async () => {
@@ -304,13 +340,20 @@ class AuthService {
           // setupTokenRefresh is now called inside refreshToken on success
         } catch (error) {
           console.error('[Auth] Automatic token refresh failed:', error);
+          console.error('[Auth] Error details:', {
+            status: error.response?.status,
+            message: error.message,
+            data: error.response?.data
+          });
+          
           // Don't immediately clear session for network errors
           if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
+            console.log('[Auth] 🚨 LOGOUT TRIGGERED: Invalid or expired refresh token');
             this.clearSession();
             window.location.href = '/login';
           } else {
             // Retry after 30 seconds for network errors
-            console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
+            console.log('[Auth] Scheduling retry for token refresh in 30 seconds due to network error');
             setTimeout(() => this.setupTokenRefresh(), 30000);
           }
         }
@@ -320,7 +363,14 @@ class AuthService {
       console.log('[Auth] Token needs immediate refresh');
       this.refreshToken().catch(error => {
         console.error('[Auth] Immediate token refresh failed:', error);
+        console.error('[Auth] Error details:', {
+          status: error.response?.status,
+          message: error.message,
+          data: error.response?.data
+        });
+        
         if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
+          console.log('[Auth] 🚨 LOGOUT TRIGGERED: Immediate refresh failed with auth error');
           this.clearSession();
           window.location.href = '/login';
         }
