@@ -284,27 +284,6 @@ const InventoryList = () => {
               Filter
             </button>
             <button
-              onClick={async () => {
-                try {
-                  // First check what's in the database
-                  const debugResponse = await (await import('../services/api')).apiClient.get('/inventory/debug');
-                  console.log('Inventory Debug Response:', debugResponse);
-                  
-                  // Refresh the inventory list
-                  await fetchInventory();
-                  
-                  alert(`Found ${debugResponse.count} inventory items in database. Check console for details.`);
-                } catch (error) {
-                  console.error('Error debugging inventory:', error);
-                  alert('Failed to debug inventory');
-                }
-              }}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-sm hover:shadow-md"
-            >
-              <Search size={16} />
-              Debug
-            </button>
-            <button
               onClick={() => handleOpenDialog()}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >

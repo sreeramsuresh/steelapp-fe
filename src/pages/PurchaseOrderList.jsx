@@ -374,24 +374,6 @@ const PurchaseOrderList = () => {
                           <Download size={18} />
                         </button>
                         <button
-                          onClick={async () => {
-                            try {
-                              const response = await (await import('../services/api')).apiClient.post(`/purchase-orders/${po.id}/test-inventory`);
-                              console.log('Test inventory response:', response);
-                              alert(`Test completed! Created ${response.createdInventoryItems?.length || 0} inventory items. Check console for details.`);
-                            } catch (error) {
-                              console.error('Error testing inventory creation:', error);
-                              alert('Test failed: ' + (error.response?.data?.message || error.message));
-                            }
-                          }}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-purple-400' : 'hover:bg-gray-100 text-purple-600'
-                          }`}
-                          title="Test inventory creation"
-                        >
-                          🧪
-                        </button>
-                        <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
                           }`}
