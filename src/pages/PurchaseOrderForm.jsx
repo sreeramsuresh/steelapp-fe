@@ -11,6 +11,9 @@ import {
 } from "../utils/invoiceUtils";
 import { purchaseOrdersAPI } from "../services/api";
 import { stockMovementService } from "../services/stockMovementService";
+import { inventoryService } from "../services/inventoryService";
+import { productService } from "../services/productService";
+import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
@@ -53,6 +56,9 @@ const PurchaseOrderForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
 
   // Load existing purchase order when editing
   useEffect(() => {
@@ -92,6 +98,11 @@ const PurchaseOrderForm = () => {
           notes: data.notes || '',
           terms: data.terms || '',
         }));
+        
+        // Set warehouse if available
+        if (data.warehouse_id) {
+          setSelectedWarehouse(data.warehouse_id.toString());
+        }
       } catch (e) {
         notificationService.error('Failed to load purchase order');
       } finally {
@@ -100,6 +111,38 @@ const PurchaseOrderForm = () => {
     };
     loadExisting();
   }, [id]);
+
+  // Fetch available products and warehouses
+  useEffect(() => {
+    fetchAvailableProducts();
+    fetchWarehouses();
+  }, []);
+
+  const fetchAvailableProducts = async () => {
+    try {
+      const response = await productService.getProducts();
+      const products = response?.products || [];
+      setAvailableProducts(products);
+    } catch (error) {
+      console.warn('Failed to fetch products:', error);
+      // Fallback to static product types if service fails
+      setAvailableProducts(PRODUCT_TYPES.map(type => ({ id: type, name: type, category: type })));
+    }
+  };
+
+  const fetchWarehouses = async () => {
+    try {
+      // Sample warehouse data matching the warehouse management component
+      const sampleWarehouses = [
+        { id: 1, name: 'Main Warehouse', city: 'Sharjah', isActive: true },
+        { id: 2, name: 'Dubai Branch Warehouse', city: 'Dubai', isActive: true },
+        { id: 3, name: 'Abu Dhabi Warehouse', city: 'Abu Dhabi', isActive: true }
+      ];
+      setWarehouses(sampleWarehouses.filter(w => w.isActive));
+    } catch (error) {
+      console.warn('Failed to fetch warehouses:', error);
+    }
+  };
 
   // Get next PO number from server (only for new purchase orders)
   const { data: nextPOData } = useApiData(
@@ -238,6 +281,16 @@ const PurchaseOrderForm = () => {
         return;
       }
       
+      // Validate warehouse selection
+      if (!selectedWarehouse) {
+        notificationService.warning('Please select a destination warehouse');
+        setLoading(false);
+        return;
+      }
+
+      // Get warehouse details
+      const selectedWarehouseDetails = warehouses.find(w => w.id.toString() === selectedWarehouse);
+
       // Transform data to match backend expectations (snake_case)
   const transformedData = {
         po_number: poData.poNumber,
@@ -249,6 +302,8 @@ const PurchaseOrderForm = () => {
         expected_delivery_date: poData.expectedDeliveryDate || null,
     status: poData.status,
         stock_status: poData.stockStatus,
+        warehouse_id: selectedWarehouse,
+        warehouse_name: selectedWarehouseDetails ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})` : '',
         notes: poData.notes || null,
         terms: poData.terms || null,
         subtotal: parseFloat(poData.subtotal) || 0,
@@ -282,28 +337,30 @@ const PurchaseOrderForm = () => {
         savedPO = await purchaseOrdersAPI.create(transformedData);
       }
       
-  // If status is received, add items to stock
+  // If status is received, use sync service to handle inventory and stock movements
   if (poData.status === "received") {
-        for (const item of poData.items) {
-          if ((item.productType || item.name) && item.quantity > 0) {
-            const stockMovement = {
-              date: new Date().toISOString().split("T")[0],
-              movement: "IN", // Stock IN movement
-              productType: item.productType || item.name,
-              grade: item.grade || item.specification || "",
-              thickness: item.thickness || "",
-              size: item.size || "",
-              finish: item.finish || "",
-              invoiceNo: poData.poNumber,
-              quantity: item.quantity,
-              currentStock: item.quantity, // Will be updated by backend
-              seller: poData.supplierName,
-              notes: `Added from PO #${poData.poNumber} - Transit Completed`
-            };
-            
-            await stockMovementService.createMovement(stockMovement);
-          }
-        }
+        // Prepare PO data for sync service
+        const poForSync = {
+          ...savedPO,
+          po_number: transformedData.po_number,
+          supplier_name: transformedData.supplier_name,
+          warehouse_id: transformedData.warehouse_id,
+          warehouse_name: transformedData.warehouse_name,
+          stock_status: transformedData.stock_status,
+          status: transformedData.status,
+          items: transformedData.items.map(item => ({
+            product_type: item.productType || item.name,
+            name: item.productType || item.name,
+            grade: item.grade || '',
+            thickness: item.thickness || '',
+            size: item.size || '',
+            finish: item.finish || '',
+            quantity: item.quantity,
+            rate: item.rate || 0
+          }))
+        };
+        
+        await purchaseOrderSyncService.handlePOStatusChange(poForSync, poData.status, poData.stockStatus);
       }
       
       // Show success notification
@@ -550,6 +607,71 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
 
+          {/* Warehouse Selection */}
+          <div className={`p-6 mt-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Delivery Warehouse
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Select Warehouse *
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedWarehouse}
+                    onChange={(e) => setSelectedWarehouse(e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select Destination Warehouse</option>
+                    {warehouses.map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name} - {warehouse.city}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Items will be delivered to this warehouse
+                </p>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Stock Status
+                </label>
+                <div className="relative">
+                  <select
+                    value={purchaseOrder.stockStatus}
+                    onChange={(e) => handleInputChange("stockStatus", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="retain">Retain (Direct to Stock)</option>
+                    <option value="transit">In Transit</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {purchaseOrder.stockStatus === 'transit' ? 'Items will show as pending in stock movement' : 'Items will be added directly to inventory when received'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Items */}
           <div className={`p-6 mt-6 rounded-xl border ${
             isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
@@ -625,9 +747,9 @@ const PurchaseOrderForm = () => {
                             }`}
                           >
                             <option value="">Select Product</option>
-                            {PRODUCT_TYPES.map((type) => (
-                              <option key={type} value={type}>
-                                {type}
+                            {availableProducts.map((product) => (
+                              <option key={product.id || product.name} value={product.name}>
+                                {product.name} {product.category ? `(${product.category})` : ''}
                               </option>
                             ))}
                           </select>

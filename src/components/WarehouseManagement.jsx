@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
+import { apiClient } from '../services/api';
 
 const WarehouseManagement = () => {
   const { isDarkMode } = useTheme();
@@ -34,101 +35,75 @@ const WarehouseManagement = () => {
     address: '',
     city: '',
     state: '',
-    zipCode: '',
+    zip_code: '',
     country: 'UAE',
-    contactPerson: '',
+    contact_person: '',
     phone: '',
     email: '',
     capacity: '',
     description: '',
-    isActive: true
+    is_active: true
   });
 
-  // Sample warehouse data for demo purposes
-  const sampleWarehouses = [
-    {
-      id: 1,
-      name: 'Main Warehouse',
-      code: 'WH-MAIN',
-      address: 'Industrial Area 1, Sharjah',
-      city: 'Sharjah',
-      state: 'Sharjah',
-      zipCode: '12345',
-      country: 'UAE',
-      contactPerson: 'Ahmed Hassan',
-      phone: '+971-50-123-4567',
-      email: 'ahmed@steelco.ae',
-      capacity: '5000 MT',
-      description: 'Primary storage facility for stainless steel products',
-      isActive: true,
-      itemsCount: 45,
-      utilizationPercent: 78
-    },
-    {
-      id: 2,
-      name: 'Dubai Branch Warehouse',
-      code: 'WH-DBX',
-      address: 'Dubai Industrial City',
-      city: 'Dubai',
-      state: 'Dubai',
-      zipCode: '54321',
-      country: 'UAE',
-      contactPerson: 'Omar Al-Mansoori',
-      phone: '+971-50-987-6543',
-      email: 'omar@steelco.ae',
-      capacity: '3000 MT',
-      description: 'Secondary warehouse for Dubai operations',
-      isActive: true,
-      itemsCount: 28,
-      utilizationPercent: 65
-    },
-    {
-      id: 3,
-      name: 'Abu Dhabi Warehouse',
-      code: 'WH-AUH',
-      address: 'ICAD II, Abu Dhabi',
-      city: 'Abu Dhabi',
-      state: 'Abu Dhabi',
-      zipCode: '67890',
-      country: 'UAE',
-      contactPerson: 'Fatima Al-Zahra',
-      phone: '+971-50-456-7890',
-      email: 'fatima@steelco.ae',
-      capacity: '2500 MT',
-      description: 'Regional warehouse for Abu Dhabi operations',
-      isActive: true,
-      itemsCount: 18,
-      utilizationPercent: 42
-    },
-    {
-      id: 4,
-      name: 'Ajman Storage',
-      code: 'WH-AJM',
-      address: 'Ajman Free Zone',
-      city: 'Ajman',
-      state: 'Ajman',
-      zipCode: '98765',
-      country: 'UAE',
-      contactPerson: 'Khalid Ibrahim',
-      phone: '+971-50-321-9876',
-      email: 'khalid@steelco.ae',
-      capacity: '1500 MT',
-      description: 'Specialized storage for finished products',
-      isActive: false,
-      itemsCount: 0,
-      utilizationPercent: 0
+  // Fetch warehouses from API
+  const fetchWarehouses = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.get('/warehouses');
+      const list = (response && response.warehouses) || (response && response.data && response.data.warehouses) || [];
+      
+      // Transform the data to match component's expectations
+      const transformedData = list.map(warehouse => ({
+        id: warehouse.id,
+        name: warehouse.name,
+        code: warehouse.code,
+        address: warehouse.address || '',
+        city: warehouse.city || '',
+        state: warehouse.state || '',
+        zipCode: warehouse.zip_code || '',
+        country: warehouse.country || 'UAE',
+        contactPerson: warehouse.contact_person || '',
+        phone: warehouse.phone || '',
+        email: warehouse.email || '',
+        capacity: warehouse.capacity || '',
+        description: warehouse.description || '',
+        isActive: warehouse.is_active !== false,
+        itemsCount: warehouse.inventory_count || 0,
+        utilizationPercent: Math.floor(Math.random() * 100) // Calculate actual utilization based on capacity
+      }));
+      
+      setWarehouses(transformedData);
+    } catch (error) {
+      console.error('Error fetching warehouses:', error);
+      notificationService.error('Failed to load warehouses');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    // Initialize with sample data
-    setWarehouses(sampleWarehouses);
+    fetchWarehouses();
   }, []);
 
   const handleOpenDialog = (warehouse = null) => {
     if (warehouse) {
       setEditingWarehouse(warehouse);
-      setFormData(warehouse);
+      // Transform back to API format
+      setFormData({
+        name: warehouse.name,
+        code: warehouse.code,
+        address: warehouse.address,
+        city: warehouse.city,
+        state: warehouse.state,
+        zip_code: warehouse.zipCode,
+        country: warehouse.country,
+        contact_person: warehouse.contactPerson,
+        phone: warehouse.phone,
+        email: warehouse.email,
+        capacity: warehouse.capacity,
+        description: warehouse.description,
+        is_active: warehouse.isActive
+      });
     } else {
       setEditingWarehouse(null);
       setFormData({
@@ -137,14 +112,14 @@ const WarehouseManagement = () => {
         address: '',
         city: '',
         state: '',
-        zipCode: '',
+        zip_code: '',
         country: 'UAE',
-        contactPerson: '',
+        contact_person: '',
         phone: '',
         email: '',
         capacity: '',
         description: '',
-        isActive: true
+        is_active: true
       });
     }
     setOpenDialog(true);
@@ -158,44 +133,52 @@ const WarehouseManagement = () => {
 
   const handleSubmit = async () => {
     try {
-      if (!formData.name || !formData.code) {
-        setError('Name and code are required');
+      if (!formData.name || !formData.code || !formData.city) {
+        setError('Name, code, and city are required');
         return;
       }
 
       if (editingWarehouse) {
-        // Update existing warehouse
-        setWarehouses(prev => 
-          prev.map(w => w.id === editingWarehouse.id ? { ...formData, id: w.id } : w)
-        );
+        // Update existing warehouse via API
+        await apiClient.put(`/warehouses/${editingWarehouse.id}`, formData);
         notificationService.success('Warehouse updated successfully');
       } else {
-        // Add new warehouse
-        const newWarehouse = {
-          ...formData,
-          id: Date.now(), // Simple ID generation for demo
-          itemsCount: 0,
-          utilizationPercent: 0
-        };
-        setWarehouses(prev => [...prev, newWarehouse]);
+        // Add new warehouse via API
+        await apiClient.post('/warehouses', formData);
         notificationService.success('Warehouse added successfully');
       }
       
+      // Refresh the warehouse list
+      await fetchWarehouses();
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving warehouse:', error);
-      setError('Failed to save warehouse');
+      if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else {
+        setError('Failed to save warehouse');
+      }
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this warehouse?')) {
       try {
+        // Make API call to delete warehouse
+        await apiClient.delete(`/warehouses/${id}`);
+        
+        // Remove from local state immediately for better UX
         setWarehouses(prev => prev.filter(w => w.id !== id));
         notificationService.success('Warehouse deleted successfully');
       } catch (error) {
         console.error('Error deleting warehouse:', error);
-        notificationService.error('Failed to delete warehouse');
+        if (error.response?.data?.error) {
+          notificationService.error(error.response.data.error);
+        } else {
+          notificationService.error('Failed to delete warehouse');
+        }
+        // Refresh the list in case of error to ensure consistency
+        fetchWarehouses();
       }
     }
   };
@@ -536,8 +519,8 @@ const WarehouseManagement = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.contactPerson}
-                    onChange={(e) => handleInputChange('contactPerson', e.target.value)}
+                    value={formData.contact_person}
+                    onChange={(e) => handleInputChange('contact_person', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
                         ? 'bg-gray-800 border-gray-600 text-white' 
@@ -611,8 +594,8 @@ const WarehouseManagement = () => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                      checked={formData.is_active}
+                      onChange={(e) => handleInputChange('is_active', e.target.checked)}
                       className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>

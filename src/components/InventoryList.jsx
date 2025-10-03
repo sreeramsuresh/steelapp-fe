@@ -640,27 +640,24 @@ const InventoryList = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                      item.quantity <= 5 
-                        ? isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800'
-                        : item.quantity <= 10
-                        ? isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800'
-                        : isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {item.quantity <= 5 ? (
-                        <AlertTriangle size={14} />
-                      ) : item.quantity <= 10 ? (
-                        <Package size={14} />
-                      ) : (
-                        <TrendingUp size={14} />
-                      )}
-                      {item.quantity}
-                    </span>
-                    {item.quantity <= 5 && (
-                      <div className={`text-xs mt-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
-                        Low Stock
-                      </div>
-                    )}
+                    {(() => {
+                      const isLow = (item.minStock === 0 ? item.quantity <= 5 : item.quantity <= item.minStock);
+                      return (
+                        <div>
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+                            isLow
+                              ? (isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800')
+                              : (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
+                          }`}>
+                            {isLow ? <AlertTriangle size={14} /> : <TrendingUp size={14} />}
+                            {item.quantity}
+                          </span>
+                          <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Min: {item.minStock || 0}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -901,6 +898,26 @@ const InventoryList = () => {
                       onChange={(e) =>
                         handleInputChange(
                           "quantity",
+                          e.target.value === "" ? "" : parseInt(e.target.value) || ""
+                        )
+                      }
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Minimum Stock
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.minStock || ""}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "minStock",
                           e.target.value === "" ? "" : parseInt(e.target.value) || ""
                         )
                       }

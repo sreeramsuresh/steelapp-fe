@@ -1,24 +1,69 @@
 import { apiClient } from './api.js';
 
+// Map UI model -> server payload (snake_case)
+const toServer = (item = {}) => ({
+  description: item.description || '',
+  product_type: item.productType || '',
+  grade: item.grade || '',
+  finish: item.finish || '',
+  size: item.size || '',
+  thickness: item.thickness || '',
+  quantity: typeof item.quantity === 'number' ? item.quantity : (parseFloat(item.quantity) || 0),
+  price_purchased: typeof item.pricePurchased === 'number' ? item.pricePurchased : (parseFloat(item.pricePurchased) || 0),
+  selling_price: typeof item.sellingPrice === 'number' ? item.sellingPrice : (parseFloat(item.sellingPrice) || 0),
+  landed_cost: typeof item.landedCost === 'number' ? item.landedCost : (parseFloat(item.landedCost) || 0),
+  location: item.location || '',
+  warehouse_id: item.warehouseId ? Number(item.warehouseId) : null,
+  min_stock: item.minStock != null ? Number(item.minStock) : 0,
+});
+
+// Map server record -> UI model (camelCase)
+const fromServer = (rec = {}) => ({
+  id: rec.id,
+  description: rec.description || '',
+  productType: rec.product_type || '',
+  grade: rec.grade || '',
+  finish: rec.finish || '',
+  size: rec.size || '',
+  thickness: rec.thickness || '',
+  quantity: rec.quantity || 0,
+  pricePurchased: rec.price_purchased || 0,
+  sellingPrice: rec.selling_price || 0,
+  landedCost: rec.landed_cost || 0,
+  location: rec.location || '',
+  warehouseId: rec.warehouse_id || '',
+  warehouseName: rec.warehouse_name || '',
+  warehouseCode: rec.warehouse_code || '',
+  warehouseCity: rec.warehouse_city || '',
+  minStock: rec.min_stock || 0,
+});
+
 class InventoryService {
   constructor() {
     this.endpoint = '/inventory';
   }
 
   async getAllItems(filters = {}) {
-    return apiClient.get(this.endpoint, filters);
+    const res = await apiClient.get(this.endpoint, filters);
+    const rows = res?.data || res || [];
+    return { data: rows.map(fromServer) };
   }
 
   async getItemById(id) {
-    return apiClient.get(`${this.endpoint}/${id}`);
+    const rec = await apiClient.get(`${this.endpoint}/${id}`);
+    return fromServer(rec);
   }
 
   async createItem(itemData) {
-    return apiClient.post(this.endpoint, itemData);
+    const payload = toServer(itemData);
+    const created = await apiClient.post(this.endpoint, payload);
+    return fromServer(created);
   }
 
   async updateItem(id, itemData) {
-    return apiClient.put(`${this.endpoint}/${id}`, itemData);
+    const payload = toServer(itemData);
+    const updated = await apiClient.put(`${this.endpoint}/${id}`, payload);
+    return fromServer(updated);
   }
 
   async deleteItem(id) {

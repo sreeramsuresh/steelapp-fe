@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
+import { demoDataService } from '../services/demoDataService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import InventoryList from './InventoryList';
@@ -418,6 +419,17 @@ const SteelProducts = () => {
           onChange={(e) => setStockFilter(e.target.value)}
           className="min-w-32"
         />
+        <Button 
+          onClick={async () => {
+            await demoDataService.initializeDemoProducts();
+            refetchProducts();
+          }}
+          variant="outline"
+          disabled={products.length > 0}
+        >
+          <Package size={20} />
+          Initialize Demo Products
+        </Button>
         <Button onClick={() => setShowAddModal(true)}>
           <Plus size={20} />
           Add Product

@@ -17,6 +17,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
 import { purchaseOrdersAPI } from '../services/api';
+import { purchaseOrderSyncService } from '../services/purchaseOrderSyncService';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
 import { notificationService } from '../services/notificationService';
 
@@ -68,32 +69,8 @@ const StockMovement = () => {
       );
       console.log('Found in-transit POs:', inTransitPOs);
       
-      // Convert in-transit POs to stock OUT (negative) movements
-      const inTransitMovements = [];
-      for (const po of inTransitPOs) {
-        if (po.items && Array.isArray(po.items)) {
-          for (const item of po.items) {
-            if ((item.product_type || item.name) && item.quantity > 0) {
-              inTransitMovements.push({
-                id: `transit_${po.id}_${item.id || Math.random()}`,
-                date: po.expected_delivery_date || po.po_date,
-                movement: "OUT",
-                productType: item.product_type || item.name,
-                grade: item.grade || item.specification || "",
-                thickness: item.thickness || "",
-                size: item.size || "",
-                finish: item.finish || "",
-                invoiceNo: po.po_number,
-                quantity: -item.quantity, // Negative value for in-transit
-                currentStock: 0,
-                seller: po.supplier_name,
-                notes: `In Transit from PO #${po.po_number}`,
-                isTransit: true // Flag to identify transit items
-              });
-            }
-          }
-        }
-      }
+      // Use the sync service to generate transit movements
+      const inTransitMovements = purchaseOrderSyncService.generateTransitStockMovements(allPOs);
       
       console.log('Created transit movements:', inTransitMovements);
       
