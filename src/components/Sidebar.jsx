@@ -103,6 +103,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: Package,
           description: 'Manage steel inventory'
         },
+        
         {
           name: 'Price Calculator',
           path: '/calculator',

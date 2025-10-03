@@ -45,6 +45,7 @@ const StockMovement = () => {
       
       // Fetch all purchase orders and filter for in-transit ones
       const poResponse = await purchaseOrdersAPI.getAll();
+      console.log('PO API Response:', poResponse);
       let allPOs = [];
       
       // Handle different response formats
@@ -56,11 +57,18 @@ const StockMovement = () => {
         allPOs = poResponse.purchase_orders;
       }
       
-      // Filter for in-transit purchase orders
-      const inTransitPOs = allPOs.filter(po => po.transit_status === 'in_transit');
+      console.log('All POs:', allPOs);
+      console.log('Sample PO structure:', allPOs[0]);
+      
+      // Filter for in-transit purchase orders.
+      // Backend doesn't expose transit_status; use stock_status === 'transit'
+      // and exclude ones already received/cancelled.
+      const inTransitPOs = allPOs.filter(po =>
+        (po.stock_status === 'transit') && po.status !== 'received' && po.status !== 'cancelled'
+      );
       console.log('Found in-transit POs:', inTransitPOs);
       
-      // Convert in-transit POs to negative stock movements
+      // Convert in-transit POs to stock OUT (negative) movements
       const inTransitMovements = [];
       for (const po of inTransitPOs) {
         if (po.items && Array.isArray(po.items)) {
@@ -69,7 +77,7 @@ const StockMovement = () => {
               inTransitMovements.push({
                 id: `transit_${po.id}_${item.id || Math.random()}`,
                 date: po.expected_delivery_date || po.po_date,
-                movement: "TRANSIT",
+                movement: "OUT",
                 productType: item.product_type || item.name,
                 grade: item.grade || item.specification || "",
                 thickness: item.thickness || "",
@@ -89,8 +97,30 @@ const StockMovement = () => {
       
       console.log('Created transit movements:', inTransitMovements);
       
-      // Combine both movements
-      setMovements([...stockMovements, ...inTransitMovements]);
+      // Build a quick map of PO number -> status/stock_status for filtering
+      const poMap = new Map();
+      for (const po of allPOs) {
+        if (po.po_number) poMap.set(String(po.po_number), { status: po.status, stock_status: po.stock_status });
+      }
+
+      // Combine both movements and filter inconsistencies:
+      // - Hide IN movements that reference a PO still in transit (not received)
+      // - Hide virtual transit OUT if the PO is no longer transit
+      const combined = [...stockMovements, ...inTransitMovements].filter(m => {
+        const key = m.invoiceNo ? String(m.invoiceNo) : '';
+        const poInfo = poMap.get(key);
+        if (poInfo) {
+          if (m.movement === 'IN' && poInfo.stock_status === 'transit' && poInfo.status !== 'received') {
+            return false;
+          }
+          if (m.isTransit && poInfo.stock_status !== 'transit') {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      setMovements(combined);
     } catch (error) {
       console.error('Error fetching stock movements:', error);
       setError('Failed to load stock movements');
@@ -312,13 +342,9 @@ const StockMovement = () => {
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full min-w-16 ${
                       movement.movement === 'IN'
                         ? (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
-                        : movement.movement === 'TRANSIT'
-                        ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
                         : (isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800')
                     }`}>
-                      {movement.movement === 'IN' ? <TrendingUp size={14} /> : 
-                       movement.movement === 'TRANSIT' ? <Package size={14} /> : 
-                       <TrendingDown size={14} />}
+                      {movement.movement === 'IN' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                       {movement.movement}
                     </span>
                   </td>

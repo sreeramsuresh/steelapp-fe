@@ -33,6 +33,7 @@ const InventoryList = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
+  const [inTransitNames, setInTransitNames] = useState(new Set());
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
@@ -46,6 +47,7 @@ const InventoryList = () => {
 
   useEffect(() => {
     fetchInventory();
+    fetchTransitNames();
   }, []);
 
   const fetchInventory = async () => {
@@ -58,6 +60,29 @@ const InventoryList = () => {
       setError("Failed to load inventory");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Build a quick lookup of item names that are currently in-transit in POs
+  const fetchTransitNames = async () => {
+    try {
+      // Ask backend for only transit stock_status POs
+      const poResp = await (await import('../services/api')).purchaseOrdersAPI.getAll({ stock_status: 'transit' });
+      let pos = [];
+      if (Array.isArray(poResp)) pos = poResp;
+      else if (poResp?.data && Array.isArray(poResp.data)) pos = poResp.data;
+      else if (poResp?.purchase_orders && Array.isArray(poResp.purchase_orders)) pos = poResp.purchase_orders;
+      const names = new Set();
+      for (const po of pos) {
+        const items = Array.isArray(po.items) ? po.items : [];
+        for (const it of items) {
+          if (it?.name) names.add(String(it.name).toLowerCase());
+        }
+      }
+      setInTransitNames(names);
+    } catch (e) {
+      // Non-blocking; inventory will still show
+      console.warn('Failed to fetch transit POs for inventory filter:', e);
     }
   };
 
@@ -133,11 +158,19 @@ const InventoryList = () => {
     }));
   };
 
-  const filteredInventory = inventory.filter((item) =>
-    Object.values(item).some((value) =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredInventory = inventory
+    // Hide items whose product name matches any in-transit PO item
+    .filter((item) => {
+      const name = (item.productType || item.description || '').toString().toLowerCase();
+      if (!name) return true;
+      return !inTransitNames.has(name);
+    })
+    // Apply local search filter
+    .filter((item) =>
+      Object.values(item).some((value) =>
+        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-AE", {

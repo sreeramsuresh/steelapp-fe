@@ -13,7 +13,6 @@ import SalesAnalytics from "./SalesAnalytics";
 import CompanySettings from "./CompanySettings";
 import SearchResults from "./SearchResults";
 import RevenueTrends from "./RevenueTrends";
-import StockMovement from "./StockMovement";
 import InventoryList from "./InventoryList";
 import DeliveryNoteList from "../pages/DeliveryNoteList";
 import DeliveryNoteForm from "../pages/DeliveryNoteForm";
@@ -169,14 +168,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        <Route
-          path="/stock-movements"
-          element={
-            <ProtectedRoute user={user}>
-              <StockMovement />
-            </ProtectedRoute>
-          }
-        />
+        
 
         <Route
           path="/inventory"

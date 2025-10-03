@@ -28,7 +28,6 @@ const PurchaseOrderForm = () => {
     poDate: new Date().toISOString().split("T")[0],
     expectedDeliveryDate: "",
     status: "draft",
-    transitStatus: "in_transit", // New field for transit status
     stockStatus: "retain", // Default to 'retain'
     items: [
       {
@@ -54,6 +53,53 @@ const PurchaseOrderForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Load existing purchase order when editing
+  useEffect(() => {
+    const loadExisting = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const data = await purchaseOrdersAPI.getById(id);
+        // Map backend fields to form model
+        setPurchaseOrder(prev => ({
+          ...prev,
+          poNumber: data.po_number || prev.poNumber,
+          supplierName: data.supplier_name || '',
+          supplierEmail: data.supplier_email || '',
+          supplierPhone: data.supplier_phone || '',
+          supplierAddress: data.supplier_address || '',
+          poDate: data.po_date || prev.poDate,
+          expectedDeliveryDate: data.expected_delivery_date || '',
+          status: data.status || 'draft',
+          stockStatus: data.stock_status || 'retain',
+          items: Array.isArray(data.items) ? data.items.map(it => ({
+            productType: it.name || '',
+            name: it.name || '',
+            grade: '',
+            thickness: '',
+            size: '',
+            finish: '',
+            specification: it.specification || '',
+            unit: it.unit || 'MT',
+            quantity: it.quantity || 0,
+            rate: it.rate || 0,
+            amount: it.amount || 0,
+          })) : prev.items,
+          subtotal: data.subtotal || 0,
+          vatAmount: data.gst_amount || 0,
+          total: data.total || 0,
+          notes: data.notes || '',
+          terms: data.terms || '',
+        }));
+      } catch (e) {
+        notificationService.error('Failed to load purchase order');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExisting();
+  }, [id]);
 
   // Get next PO number from server (only for new purchase orders)
   const { data: nextPOData } = useApiData(
@@ -193,7 +239,7 @@ const PurchaseOrderForm = () => {
       }
       
       // Transform data to match backend expectations (snake_case)
-      const transformedData = {
+  const transformedData = {
         po_number: poData.poNumber,
         supplier_name: poData.supplierName,
         supplier_email: poData.supplierEmail || null,
@@ -201,13 +247,12 @@ const PurchaseOrderForm = () => {
         supplier_address: poData.supplierAddress || null,
         po_date: poData.poDate,
         expected_delivery_date: poData.expectedDeliveryDate || null,
-        status: poData.status,
-        transit_status: poData.transitStatus,
+    status: poData.status,
         stock_status: poData.stockStatus,
         notes: poData.notes || null,
         terms: poData.terms || null,
         subtotal: parseFloat(poData.subtotal) || 0,
-        vat_amount: parseFloat(poData.vatAmount) || 0,
+        gst_amount: parseFloat(poData.vatAmount) || 0,
         total: parseFloat(poData.total) || 0,
         // Transform items array
         items: poData.items.map(item => ({
@@ -237,8 +282,8 @@ const PurchaseOrderForm = () => {
         savedPO = await purchaseOrdersAPI.create(transformedData);
       }
       
-      // If transit status is completed, add items to stock
-      if (poData.transitStatus === "completed") {
+  // If status is received, add items to stock
+  if (poData.status === "received") {
         for (const item of poData.items) {
           if ((item.productType || item.name) && item.quantity > 0) {
             const stockMovement = {
@@ -406,52 +451,7 @@ const PurchaseOrderForm = () => {
                     }`}
                   />
                 </div>
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Status
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.status}
-                      onChange={(e) => handleInputChange("status", e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                        isDarkMode 
-                          ? 'bg-gray-800 border-gray-600 text-white' 
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    >
-                      <option value="draft">Draft</option>
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="received">Received</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Transit Status
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.transitStatus}
-                      onChange={(e) => handleInputChange("transitStatus", e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                        isDarkMode 
-                          ? 'bg-gray-800 border-gray-600 text-white' 
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    >
-                      <option value="in_transit">In Transit</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                    </div>
-                  </div>
-                </div>
+                
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Stock Status

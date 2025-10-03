@@ -75,7 +75,9 @@ const PurchaseOrderList = () => {
     );
   };
 
-  const getTransitStatusBadge = (transitStatus = "in_transit") => {
+  // Derive transit-like badge from PO status (backend doesn't have transit_status column)
+  const getTransitStatusBadge = (transitStatus, po) => {
+    const derived = po?.status === 'received' ? 'completed' : 'in_transit';
     const transitConfig = {
       in_transit: { 
         className: isDarkMode 
@@ -91,7 +93,8 @@ const PurchaseOrderList = () => {
       },
     };
 
-    const config = transitConfig[transitStatus] || transitConfig.in_transit;
+    const key = derived;
+    const config = transitConfig[key] || transitConfig.in_transit;
 
     return (
       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
@@ -294,9 +297,6 @@ const PurchaseOrderList = () => {
                   Total
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Status
-                </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Transit Status
                 </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -307,7 +307,7 @@ const PurchaseOrderList = () => {
             <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {purchaseOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <td colSpan={7} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No purchase orders found
                   </td>
                 </tr>
@@ -334,10 +334,7 @@ const PurchaseOrderList = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(po.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getTransitStatusBadge(po.transit_status)}
+                      {getTransitStatusBadge(po.transit_status, po)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">

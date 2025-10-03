@@ -384,488 +384,528 @@ const SalesAnalytics = () => {
   );
 
   const renderCustomerAnalysis = () => (
-    <Box>
+    <div>
       {/* Analysis Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Customer Sales Analysis</Typography>
-        <Chip 
-          label={format(selectedPeriod, dateRange === 'month' ? 'MMMM yyyy' : 'QQQ yyyy')}
-          color="primary"
-          variant="outlined"
-        />
-      </Box>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Customer Sales Analysis</h3>
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
+          isDarkMode ? 'border-teal-600 bg-teal-900/20 text-teal-300' : 'border-teal-300 bg-teal-50 text-teal-700'
+        }`}>
+          {format(selectedPeriod, dateRange === 'month' ? 'MMMM yyyy' : 'QQQ yyyy')}
+        </span>
+      </div>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Customer Distribution */}
-        <Box>
-          <MetricCard>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Users size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Customer Distribution</Typography>
-              </Box>
-              <Stack spacing={2}>
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">High Value (د.إ5L+)</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        <div className="md:col-span-1">
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Users size={20} className="text-purple-600" />
+                <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Customer Distribution</h3>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>High Value (د.إ5L+)</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue >= 500000).length}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
+                    </span>
+                  </div>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {formatCurrency(analytics.topCustomers.filter(c => c.revenue >= 500000).reduce((sum, c) => sum + c.revenue, 0))}
-                  </Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">Medium Value (د.إ1L-5L)</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  </span>
+                </div>
+                <hr className={isDarkMode ? 'border-gray-700' : 'border-gray-200'} />
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Medium Value (د.إ1L-5L)</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue >= 100000 && c.revenue < 500000).length}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
+                    </span>
+                  </div>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {formatCurrency(analytics.topCustomers.filter(c => c.revenue >= 100000 && c.revenue < 500000).reduce((sum, c) => sum + c.revenue, 0))}
-                  </Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">Regular (د.إ1L)</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  </span>
+                </div>
+                <hr className={isDarkMode ? 'border-gray-700' : 'border-gray-200'} />
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Regular (د.إ1L)</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue < 100000).length}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
+                    </span>
+                  </div>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {formatCurrency(analytics.topCustomers.filter(c => c.revenue < 100000).reduce((sum, c) => sum + c.revenue, 0))}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </MetricCard>
-        </Box>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Top Customers */}
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Top Customers by Revenue</Typography>
-              <Stack spacing={2}>
+        <div className="md:col-span-2">
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <h3 className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Top Customers by Revenue</h3>
+              <div className="space-y-3">
                 {analytics.topCustomers.map((customer, index) => (
-                  <Card key={customer.customer || index} variant="outlined">
-                    <CardContent sx={{ py: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        {/* Rank */}
-                        <Avatar sx={{ 
-                          bgcolor: index === 0 ? '#fbbf24' : index === 1 ? '#9ca3af' : index === 2 ? '#cd7c2f' : 'primary.main',
-                          width: 40, height: 40 
-                        }}>
-                          {index === 0 && <Award size={20} />}
-                          {index === 1 && <Award size={20} />}
-                          {index === 2 && <Award size={20} />}
-                          {index > 2 && <Typography variant="body2" sx={{ fontWeight: 600 }}>#{index + 1}</Typography>}
-                        </Avatar>
+                  <div key={customer.customer || index} className={`border rounded-lg p-4 ${
+                    isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      {/* Rank */}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                        index === 0 ? 'bg-yellow-400 text-gray-900' : 
+                        index === 1 ? 'bg-gray-400 text-white' : 
+                        index === 2 ? 'bg-orange-600 text-white' : 
+                        (isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700')
+                      }`}>
+                        {index < 3 ? (
+                          <Award size={20} />
+                        ) : (
+                          <span className="text-sm">#{index + 1}</span>
+                        )}
+                      </div>
 
-                        {/* Customer Info */}
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                            {customer.customer || 'Unknown Customer'}
-                          </Typography>
-                          <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <DollarSign size={14} />
-                              <Typography variant="body2">{formatCurrency(customer.revenue || 0)}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Package size={14} />
-                              <Typography variant="body2">{customer.orders || 0} orders</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Target size={14} />
-                              <Typography variant="body2">{formatCurrency((customer.revenue || 0) / (customer.orders || 1))} avg</Typography>
-                            </Box>
-                          </Box>
-                        </Box>
+                      {/* Customer Info */}
+                      <div className="flex-1">
+                        <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {customer.customer || 'Unknown Customer'}
+                        </h4>
+                        <div className="flex flex-wrap gap-4">
+                          <div className="flex items-center gap-1">
+                            <DollarSign size={14} className="text-green-600" />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{formatCurrency(customer.revenue || 0)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Package size={14} className="text-blue-600" />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{customer.orders || 0} orders</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Target size={14} className="text-orange-600" />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{formatCurrency((customer.revenue || 0) / (customer.orders || 1))} avg</span>
+                          </div>
+                        </div>
+                      </div>
 
-                        {/* Progress */}
-                        <Box sx={{ width: 100 }}>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={(customer.revenue / (analytics.topCustomers[0]?.revenue || 1)) * 100}
-                            sx={{ height: 8, borderRadius: 4 }}
+                      {/* Progress */}
+                      <div className="w-24">
+                        <div className={`h-2 rounded-full overflow-hidden ${
+                          isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                        }`}>
+                          <div 
+                            className="h-full bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                            style={{ width: `${(customer.revenue / (analytics.topCustomers[0]?.revenue || 1)) * 100}%` }}
                           />
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </Stack>
-            </CardContent>
-          </ChartCard>
-        </Box>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Insights */}
-        <Box sx={{ gridColumn: '1 / -1' }}>
-          <MetricCard>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                <TrendingUp size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Key Insights</Typography>
-              </Box>
-              <Stack spacing={2}>
-                <Alert severity="success" icon={<CheckCircle size={16} />}>
-                  Top 3 customers generate {((analytics.topCustomers.slice(0, 3).reduce((sum, c) => sum + c.revenue, 0) / analytics.currentRevenue) * 100).toFixed(1)}% of total revenue
-                </Alert>
-                <Alert severity="warning" icon={<AlertTriangle size={16} />}>
-                  Customer concentration risk: Consider diversifying customer base
-                </Alert>
-                <Alert severity="info" icon={<Target size={16} />}>
-                  Average customer lifetime value: {formatCurrency(analytics.currentRevenue / analytics.uniqueCustomers)}
-                </Alert>
-              </Stack>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
-    </Box>
+        <div className="md:col-span-3">
+          <div className={`border rounded-xl ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp size={20} className="text-teal-600" />
+                <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Key Insights</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+                  <CheckCircle size={16} className="text-green-600 mt-0.5" />
+                  <p className="text-sm text-green-800">
+                    Top 3 customers generate {((analytics.topCustomers.slice(0, 3).reduce((sum, c) => sum + c.revenue, 0) / analytics.currentRevenue) * 100).toFixed(1)}% of total revenue
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                  <AlertTriangle size={16} className="text-yellow-600 mt-0.5" />
+                  <p className="text-sm text-yellow-800">
+                    Customer concentration risk: Consider diversifying customer base
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                  <Target size={16} className="text-blue-600 mt-0.5" />
+                  <p className="text-sm text-blue-800">
+                    Average customer lifetime value: {formatCurrency(analytics.currentRevenue / analytics.uniqueCustomers)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   const renderProductPerformance = () => (
-    <Box>
+    <div>
       {/* Performance Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Product Performance Metrics</Typography>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select
-            defaultValue="revenue"
-            label="Sort By"
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Product Performance Metrics</h3>
+        <div className="relative">
+          <select className={`w-48 px-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+            isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+          }`}
+          defaultValue="revenue"
           >
-            <MenuItem value="revenue">Sort by Revenue</MenuItem>
-            <MenuItem value="quantity">Sort by Quantity</MenuItem>
-            <MenuItem value="orders">Sort by Orders</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+            <option value="revenue">Sort by Revenue</option>
+            <option value="quantity">Sort by Quantity</option>
+            <option value="orders">Sort by Orders</option>
+          </select>
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+          </div>
+        </div>
+      </div>
 
       {/* Product Grid */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {analytics.topProducts.map((product, index) => (
-          <Box key={product.product || index}>
-            <MetricCard>
-              <CardContent>
+          <div key={product.product || index}>
+            <div className={`border rounded-xl h-full ${
+              isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+            }`}>
+              <div className="p-6">
                 {/* Product Header */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <div className="flex items-center gap-2 mb-4">
                   {index < 3 ? (
                     <Star 
                       size={20} 
-                      color={index === 0 ? '#fbbf24' : index === 1 ? '#9ca3af' : '#cd7c2f'} 
-                      fill={index === 0 ? '#fbbf24' : index === 1 ? '#9ca3af' : '#cd7c2f'}
+                      className={index === 0 ? 'text-yellow-400 fill-yellow-400' : index === 1 ? 'text-gray-400 fill-gray-400' : 'text-orange-600 fill-orange-600'}
                     />
                   ) : (
-                    <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>#{index + 1}</Avatar>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                      isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'
+                    }`}>#{index + 1}</span>
                   )}
-                  <Typography variant="h6" sx={{ fontWeight: 600, flex: 1 }}>
+                  <h4 className={`font-semibold flex-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     {product.product || 'Unknown Product'}
-                  </Typography>
-                </Box>
+                  </h4>
+                </div>
                 
                 {/* Product Metrics */}
-                <Stack spacing={2} sx={{ mb: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Revenue</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                <div className="space-y-3 mb-4">
+                  <div className="flex justify-between">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Revenue</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {formatCurrency(product.revenue || 0)}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Quantity Sold</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Quantity Sold</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {(product.quantity || 0).toLocaleString()} units
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Orders</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Orders</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {product.orders || 0}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Avg Order Size</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Avg Order Size</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {Math.round((product.quantity || 0) / (product.orders || 1))} units
-                    </Typography>
-                  </Box>
-                </Stack>
+                    </span>
+                  </div>
+                </div>
 
                 {/* Market Share */}
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2" color="text.secondary">Market Share</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Market Share</span>
+                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {((product.revenue / analytics.currentRevenue) * 100).toFixed(1)}%
-                    </Typography>
-                  </Box>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={(product.revenue / (analytics.topProducts[0]?.revenue || 1)) * 100}
-                    sx={{ height: 6, borderRadius: 3 }}
-                  />
-                </Box>
-              </CardContent>
-            </MetricCard>
-          </Box>
+                    </span>
+                  </div>
+                  <div className={`h-1.5 rounded-full overflow-hidden ${
+                    isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                  }`}>
+                    <div 
+                      className="h-full bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                      style={{ width: `${(product.revenue / (analytics.topProducts[0]?.revenue || 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Product Insights */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3 }}>
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Best Performing Category</Typography>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <h4 className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Best Performing Category</h4>
               {Object.entries(analytics.categoryPerformance)
                 .sort(([,a], [,b]) => b.revenue - a.revenue)[0] && (
                 <>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
+                  <p className="text-xl font-bold mb-1 text-teal-600">
                     {Object.entries(analytics.categoryPerformance)
                       .sort(([,a], [,b]) => b.revenue - a.revenue)[0][0]
                       .charAt(0).toUpperCase() + 
                      Object.entries(analytics.categoryPerformance)
                       .sort(([,a], [,b]) => b.revenue - a.revenue)[0][0].slice(1)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  </p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {formatCurrency(Object.entries(analytics.categoryPerformance)
                       .sort(([,a], [,b]) => b.revenue - a.revenue)[0][1].revenue)} revenue
-                  </Typography>
+                  </p>
                 </>
               )}
-            </CardContent>
-          </MetricCard>
-        </Box>
+            </div>
+          </div>
+        </div>
         
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Most Popular Product</Typography>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <h4 className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Most Popular Product</h4>
+              <p className="text-xl font-bold mb-1 text-teal-600">
                 {analytics.topProducts[0]?.product}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {analytics.topProducts[0]?.orders} orders
-              </Typography>
-            </CardContent>
-          </MetricCard>
-        </Box>
+              </p>
+            </div>
+          </div>
+        </div>
         
-        <Box>
-          <MetricCard>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Revenue Leader</Typography>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6 text-center">
+              <h4 className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Revenue Leader</h4>
+              <p className="text-xl font-bold mb-1 text-teal-600">
                 {analytics.topProducts[0]?.product}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {formatCurrency(analytics.topProducts[0]?.revenue)}
-              </Typography>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
-    </Box>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   const renderReports = () => (
-    <Box>
+    <div>
       {/* Reports Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Monthly & Quarterly Reports</Typography>
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshCw size={16} />}
-            sx={{ borderRadius: 2 }}
-          >
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Monthly & Quarterly Reports</h3>
+        <div className="flex gap-3">
+          <button className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+            isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+          }`}>
+            <RefreshCw size={16} />
             Refresh Data
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Download size={16} />}
-            sx={{ borderRadius: 2 }}
-          >
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+            <Download size={16} />
             Generate Report
-          </Button>
-        </Stack>
-      </Box>
+          </button>
+        </div>
+      </div>
 
       {/* Report Summary */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 4 }}>
-        <Box>
-          <MetricCard>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Calendar size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Report Period</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar size={20} className="text-blue-600" />
+                <h4 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Report Period</h4>
+              </div>
+              <p className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {format(selectedPeriod, dateRange === 'month' ? 'MMMM yyyy' : 'QQQ yyyy')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {dateRange === 'month' ? 'Monthly' : 'Quarterly'} Report
-              </Typography>
-            </CardContent>
-          </MetricCard>
-        </Box>
+              </p>
+            </div>
+          </div>
+        </div>
         
-        <Box>
-          <MetricCard>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <BarChart3 size={20} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Performance vs Target</Typography>
-              </Box>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 700, 
-                  mb: 1,
-                  color: analytics.revenueGrowth > 0 ? 'success.main' : 
-                         analytics.revenueGrowth < 0 ? 'error.main' : 'text.primary'
-                }}
-              >
+        <div>
+          <div className={`border rounded-xl h-full ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 size={20} className="text-teal-600" />
+                <h4 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Performance vs Target</h4>
+              </div>
+              <p className={`text-2xl font-bold mb-2 ${
+                analytics.revenueGrowth > 0 ? 'text-green-600' : 
+                analytics.revenueGrowth < 0 ? 'text-red-600' : 
+                (isDarkMode ? 'text-white' : 'text-gray-900')
+              }`}>
                 {analytics.revenueGrowth > 0 ? 'Above' : analytics.revenueGrowth < 0 ? 'Below' : 'On'} Target
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {formatGrowth(analytics.revenueGrowth)} growth
-              </Typography>
-            </CardContent>
-          </MetricCard>
-        </Box>
-      </Box>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Detailed Tables */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+      <div className="space-y-6">
+        <div>
+          <div className={`border rounded-xl overflow-hidden ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <h4 className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Revenue Breakdown by Product Category
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Revenue</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Orders</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Avg Order Value</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Market Share</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Category</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Revenue</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Orders</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Avg Order Value</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Market Share</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {Object.entries(analytics.categoryPerformance)
                       .sort(([,a], [,b]) => b.revenue - a.revenue)
                       .map(([category, data]) => (
-                        <TableRow key={category} hover>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        <tr key={category} className={`border-b transition-colors ${
+                          isDarkMode ? 'border-gray-700 hover:bg-gray-800/50' : 'border-gray-100 hover:bg-gray-50'
+                        }`}>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {category.charAt(0).toUpperCase() + category.slice(1)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {formatCurrency(data.revenue)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">{data.orders}</Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{data.orders}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                               {formatCurrency(data.revenue / data.orders)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={`${((data.revenue / analytics.currentRevenue) * 100).toFixed(1)}%`}
-                              color="primary"
-                              variant="outlined"
-                              size="small"
-                            />
-                          </TableCell>
-                        </TableRow>
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                              isDarkMode ? 'border-teal-600 bg-teal-900/20 text-teal-300' : 'border-teal-300 bg-teal-50 text-teal-700'
+                            }`}>
+                              {((data.revenue / analytics.currentRevenue) * 100).toFixed(1)}%
+                            </span>
+                          </td>
+                        </tr>
                       ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </ChartCard>
-        </Box>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Box>
-          <ChartCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+        <div>
+          <div className={`border rounded-xl overflow-hidden ${
+            isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+          }`}>
+            <div className="p-6">
+              <h4 className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Monthly Trend Analysis
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Month</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Revenue</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Orders</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Customers</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Growth %</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Month</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Revenue</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Orders</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Customers</th>
+                      <th className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Growth %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {analytics.monthlyTrend.map((month, index) => {
                       const previousMonth = analytics.monthlyTrend[index - 1];
                       const growth = previousMonth ? 
                         ((month.revenue - previousMonth.revenue) / previousMonth.revenue) * 100 : 0;
                       
                       return (
-                        <TableRow key={month.month} hover>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        <tr key={month.month} className={`border-b transition-colors ${
+                          isDarkMode ? 'border-gray-700 hover:bg-gray-800/50' : 'border-gray-100 hover:bg-gray-50'
+                        }`}>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {month.month}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {formatCurrency(month.revenue)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">{month.orders}</Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">{month.customers}</Typography>
-                          </TableCell>
-                          <TableCell>
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{month.orders}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{month.customers}</span>
+                          </td>
+                          <td className="py-3 px-4">
                             {index > 0 ? (
-                              <Chip 
-                                label={formatGrowth(growth)}
-                                color={growth > 0 ? 'success' : growth < 0 ? 'error' : 'default'}
-                                variant="outlined"
-                                size="small"
-                              />
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                                growth > 0 ? 'border-green-300 bg-green-50 text-green-700' : 
+                                growth < 0 ? 'border-red-300 bg-red-50 text-red-700' : 
+                                (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                              }`}>
+                                {formatGrowth(growth)}
+                              </span>
                             ) : (
-                              <Typography variant="body2" color="text.secondary">-</Typography>
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>-</span>
                             )}
-                          </TableCell>
-                        </TableRow>
+                          </td>
+                        </tr>
                       );
                     })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </ChartCard>
-        </Box>
-      </Box>
-    </Box>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (

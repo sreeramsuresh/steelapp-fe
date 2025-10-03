@@ -84,6 +84,38 @@ const DeliveryNoteDetails = () => {
     try {
       await deliveryNotesAPI.updateStatus(id, newStatus);
       setSuccess(`Status updated to ${statusLabels[newStatus]}`);
+      // If marked completed, try to update related purchase order transit status
+      if (newStatus === 'completed' && deliveryNote?.purchase_order_id) {
+        try {
+          const { purchaseOrdersAPI } = await import('../services/api');
+          const { stockMovementService } = await import('../services/stockMovementService');
+          // Update PO status to received
+          await purchaseOrdersAPI.updateStatus(deliveryNote.purchase_order_id, 'received');
+          // Create IN stock movements for each PO item
+          const po = await purchaseOrdersAPI.getById(deliveryNote.purchase_order_id);
+          const items = Array.isArray(po?.items) ? po.items : [];
+          for (const item of items) {
+            if ((item.name || item.product_id) && item.quantity > 0) {
+              await stockMovementService.createMovement({
+                date: new Date().toISOString().split('T')[0],
+                movement: 'IN',
+                productType: item.name || '',
+                grade: item.specification || '',
+                thickness: '',
+                size: '',
+                finish: '',
+                invoiceNo: po.po_number,
+                quantity: item.quantity,
+                currentStock: 0,
+                seller: po.supplier_name || '',
+                notes: `Received from PO #${po.po_number} via Delivery Note`,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to update PO transit status:', e);
+        }
+      }
       loadDeliveryNote(); // Refresh data
     } catch (err) {
       setError('Failed to update status: ' + err.message);

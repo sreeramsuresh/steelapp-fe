@@ -219,6 +219,10 @@ export const purchaseOrdersAPI = {
   update: (id, poData) => {
     return apiClient.put(`/purchase-orders/${id}`, poData);
   },
+  // Update only transit status (if backend supports it)
+  updateTransitStatus: (id, transit_status) => {
+    return apiClient.patch(`/purchase-orders/${id}/transit-status`, { transit_status });
+  },
 
   // Update purchase order status
   updateStatus: (id, status) => {

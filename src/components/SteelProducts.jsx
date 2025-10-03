@@ -13,6 +13,7 @@ import {
   Eye,
   RefreshCw,
   Warehouse,
+  Move,
   ChevronDown
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -20,6 +21,7 @@ import { productService } from '../services/productService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import InventoryList from './InventoryList';
+import StockMovement from './StockMovement';
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', ...props }) => {
@@ -654,6 +656,21 @@ const SteelProducts = () => {
               <Warehouse size={18} />
               Inventory Management
             </button>
+            <button
+              onClick={() => setActiveTab('movements')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'movements'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <Move size={18} />
+              Stock Movements
+            </button>
           </div>
         </div>
 
@@ -661,6 +678,7 @@ const SteelProducts = () => {
         <div>
           {activeTab === 'catalog' && renderCatalog()}
           {activeTab === 'inventory' && renderInventoryManagement()}
+          {activeTab === 'movements' && <StockMovement />}
         </div>
 
         {/* Add Product Modal */}
