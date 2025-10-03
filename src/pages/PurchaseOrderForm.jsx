@@ -337,30 +337,21 @@ const PurchaseOrderForm = () => {
         savedPO = await purchaseOrdersAPI.create(transformedData);
       }
       
-  // If status is received, use sync service to handle inventory and stock movements
-  if (poData.status === "received") {
-        // Prepare PO data for sync service
-        const poForSync = {
-          ...savedPO,
-          po_number: transformedData.po_number,
-          supplier_name: transformedData.supplier_name,
-          warehouse_id: transformedData.warehouse_id,
-          warehouse_name: transformedData.warehouse_name,
-          stock_status: transformedData.stock_status,
-          status: transformedData.status,
-          items: transformedData.items.map(item => ({
-            product_type: item.productType || item.name,
-            name: item.productType || item.name,
-            grade: item.grade || '',
-            thickness: item.thickness || '',
-            size: item.size || '',
-            finish: item.finish || '',
-            quantity: item.quantity,
-            rate: item.rate || 0
-          }))
-        };
-        
-        await purchaseOrderSyncService.handlePOStatusChange(poForSync, poData.status, poData.stockStatus);
+  // If stock status is received, trigger inventory creation via the stock-status endpoint
+  if (poData.stockStatus === "received") {
+        try {
+          const stockStatusResponse = await (await import('../services/api')).apiClient.patch(`/purchase-orders/${savedPO.id}/stock-status`, {
+            stock_status: 'received'
+          });
+          console.log('Stock status updated and inventory created:', stockStatusResponse);
+          
+          if (stockStatusResponse.inventory_created) {
+            notificationService.success('Inventory items created successfully!');
+          }
+        } catch (stockError) {
+          console.error('Error updating stock status:', stockError);
+          notificationService.warning('Purchase order saved but inventory creation failed. Please check the inventory manually.');
+        }
       }
       
       // Show success notification
@@ -508,29 +499,6 @@ const PurchaseOrderForm = () => {
                     }`}
                   />
                 </div>
-                
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Stock Status
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.stockStatus}
-                      onChange={(e) => handleInputChange("stockStatus", e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                        isDarkMode 
-                          ? 'bg-gray-800 border-gray-600 text-white' 
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    >
-                      <option value="retain">Retain (Add to Stock)</option>
-                      <option value="transit">Transit (Do not add to Stock)</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -658,15 +626,18 @@ const PurchaseOrderForm = () => {
                         : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   >
-                    <option value="retain">Retain (Direct to Stock)</option>
+                    <option value="retain">Retain (To be received)</option>
                     <option value="transit">In Transit</option>
+                    <option value="received">Received (Add to Inventory)</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
                   </div>
                 </div>
                 <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {purchaseOrder.stockStatus === 'transit' ? 'Items will show as pending in stock movement' : 'Items will be added directly to inventory when received'}
+                  {purchaseOrder.stockStatus === 'transit' ? 'Items will show as pending in stock movement' : 
+                   purchaseOrder.stockStatus === 'received' ? 'Items are received and will be added to inventory' :
+                   'Items are ordered but not yet received'}
                 </p>
               </div>
             </div>

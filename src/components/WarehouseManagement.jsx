@@ -266,6 +266,42 @@ const WarehouseManagement = () => {
             />
           </div>
           <button
+            onClick={async () => {
+              try {
+                setLoading(true);
+                const response = await apiClient.post('/warehouses/seed');
+                console.log('Seed response:', response);
+                notificationService.success(`Seeded ${response.warehouses_inserted} warehouses successfully`);
+                await fetchWarehouses();
+              } catch (error) {
+                console.error('Error seeding warehouses:', error);
+                notificationService.error('Failed to seed warehouses');
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            <Package size={16} />
+            Seed Warehouses
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                const response = await apiClient.get('/warehouses/debug');
+                console.log('Debug response:', response);
+                notificationService.success(`Found ${response.company_count} companies and ${response.warehouse_count} warehouses`);
+              } catch (error) {
+                console.error('Error fetching debug data:', error);
+                notificationService.error('Failed to fetch debug data');
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            <Search size={16} />
+            Debug DB
+          </button>
+          <button
             onClick={() => handleOpenDialog()}
             className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >

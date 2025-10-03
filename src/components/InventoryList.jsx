@@ -33,8 +33,6 @@ const InventoryList = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
-  const [inTransitNames, setInTransitNames] = useState(new Set());
-  const [addingDummyData, setAddingDummyData] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
@@ -51,7 +49,6 @@ const InventoryList = () => {
 
   useEffect(() => {
     fetchInventory();
-    fetchTransitNames();
     fetchWarehouses();
   }, []);
 
@@ -68,262 +65,30 @@ const InventoryList = () => {
     }
   };
 
-  // Build a quick lookup of item names that are currently in-transit in POs
-  const fetchTransitNames = async () => {
-    try {
-      // Ask backend for only transit stock_status POs
-      const poResp = await (await import('../services/api')).purchaseOrdersAPI.getAll({ stock_status: 'transit' });
-      let pos = [];
-      if (Array.isArray(poResp)) pos = poResp;
-      else if (poResp?.data && Array.isArray(poResp.data)) pos = poResp.data;
-      else if (poResp?.purchase_orders && Array.isArray(poResp.purchase_orders)) pos = poResp.purchase_orders;
-      const names = new Set();
-      for (const po of pos) {
-        const items = Array.isArray(po.items) ? po.items : [];
-        for (const it of items) {
-          if (it?.name) names.add(String(it.name).toLowerCase());
-        }
-      }
-      setInTransitNames(names);
-    } catch (e) {
-      // Non-blocking; inventory will still show
-      console.warn('Failed to fetch transit POs for inventory filter:', e);
-    }
-  };
 
-  const dummyInventoryItems = [
-    {
-      description: "SS SHEET GR316L Mirror finish 4x8 1.2MM",
-      productType: "Sheet",
-      grade: "316L",
-      finish: "Mirror",
-      size: "4x8",
-      thickness: "1.2",
-      quantity: 25,
-      pricePurchased: 850,
-      sellingPrice: 1200,
-      landedCost: 920,
-      warehouseId: "1",
-      warehouseName: "Main Warehouse (Sharjah)",
-      location: "Section A - Row 1"
-    },
-    {
-      description: "SS PIPE GR304 HL finish 2 inch 3.0MM",
-      productType: "Pipe",
-      grade: "304",
-      finish: "HL",
-      size: "2 inch",
-      thickness: "3.0",
-      quantity: 12,
-      pricePurchased: 1200,
-      sellingPrice: 1650,
-      landedCost: 1280,
-      warehouseId: "2",
-      warehouseName: "Dubai Branch Warehouse (Dubai)",
-      location: "Section B - Row 2"
-    },
-    {
-      description: "SS ROUND BAR GR316 Bright finish 25mm",
-      productType: "Round Bar",
-      grade: "316",
-      finish: "Bright",
-      size: "25mm",
-      thickness: "",
-      quantity: 8,
-      pricePurchased: 950,
-      sellingPrice: 1350,
-      landedCost: 1020,
-      warehouseId: "3",
-      warehouseName: "Abu Dhabi Warehouse (Abu Dhabi)",
-      location: "Section C - Row 1"
-    },
-    {
-      description: "SS ANGLE GR304L 2B finish 50x50x5",
-      productType: "Angle",
-      grade: "304L",
-      finish: "2B",
-      size: "50x50x5",
-      thickness: "5.0",
-      quantity: 4,
-      pricePurchased: 720,
-      sellingPrice: 1050,
-      landedCost: 780,
-      warehouseId: "1",
-      warehouseName: "Main Warehouse (Sharjah)",
-      location: "Section D - Row 3"
-    },
-    {
-      description: "SS FLAT BAR GR316L HL finish 40x10",
-      productType: "Flat Bar",
-      grade: "316L",
-      finish: "HL",
-      size: "40x10",
-      thickness: "10.0",
-      quantity: 15,
-      pricePurchased: 890,
-      sellingPrice: 1280,
-      landedCost: 960,
-      location: "Warehouse A - Section 3"
-    },
-    {
-      description: "SS HEXAGON BAR GR304 Bright finish 12mm",
-      productType: "Hexagon Bar",
-      grade: "304",
-      finish: "Bright",
-      size: "12mm",
-      thickness: "",
-      quantity: 6,
-      pricePurchased: 680,
-      sellingPrice: 980,
-      landedCost: 720,
-      location: "Warehouse C - Section 1"
-    },
-    {
-      description: "SS SQUARE BAR GR316 Mirror finish 20x20",
-      productType: "Square Bar",
-      grade: "316",
-      finish: "Mirror",
-      size: "20x20",
-      thickness: "20.0",
-      quantity: 18,
-      pricePurchased: 1150,
-      sellingPrice: 1580,
-      landedCost: 1220,
-      location: "Warehouse C - Section 2"
-    },
-    {
-      description: "SS COIL GR304L 2B finish 1500mm 0.8MM",
-      productType: "Coil",
-      grade: "304L",
-      finish: "2B",
-      size: "1500mm",
-      thickness: "0.8",
-      quantity: 3,
-      pricePurchased: 2200,
-      sellingPrice: 2950,
-      landedCost: 2350,
-      location: "Warehouse D - Large Items"
-    },
-    {
-      description: "SS CHANNEL GR316L HL finish 100x50x8",
-      productType: "Channel",
-      grade: "316L",
-      finish: "HL",
-      size: "100x50x8",
-      thickness: "8.0",
-      quantity: 7,
-      pricePurchased: 1450,
-      sellingPrice: 1920,
-      landedCost: 1520,
-      location: "Warehouse D - Section 1"
-    },
-    {
-      description: "SS WIRE GR304 Bright finish 8mm",
-      productType: "Wire",
-      grade: "304",
-      finish: "Bright",
-      size: "8mm",
-      thickness: "",
-      quantity: 22,
-      pricePurchased: 420,
-      sellingPrice: 680,
-      landedCost: 450,
-      location: "Warehouse B - Section 3"
-    },
-    {
-      description: "SS TEE GR316 Mirror finish 50x50x5",
-      productType: "Tee",
-      grade: "316",
-      finish: "Mirror",
-      size: "50x50x5",
-      thickness: "5.0",
-      quantity: 9,
-      pricePurchased: 1320,
-      sellingPrice: 1780,
-      landedCost: 1390,
-      location: "Warehouse A - Section 4"
-    },
-    {
-      description: "SS ELBOW GR304L HL finish 90 degree 25mm",
-      productType: "Elbow",
-      grade: "304L",
-      finish: "HL",
-      size: "25mm",
-      thickness: "3.0",
-      quantity: 14,
-      pricePurchased: 580,
-      sellingPrice: 850,
-      landedCost: 620,
-      location: "Warehouse C - Section 3"
-    }
-  ];
-
-  const addDummyData = async () => {
-    setAddingDummyData(true);
-    let successCount = 0;
-    let errorCount = 0;
-    
-    try {
-      for (const item of dummyInventoryItems) {
-        try {
-          await inventoryService.createItem(item);
-          successCount++;
-        } catch (error) {
-          console.error(`Failed to add: ${item.description}`, error);
-          errorCount++;
-        }
-        
-        // Small delay to avoid overwhelming the API
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      
-      await fetchInventory(); // Refresh the list
-      setError(`✅ Successfully added ${successCount} dummy items${errorCount > 0 ? ` (${errorCount} failed)` : ''}`);
-      
-    } catch (error) {
-      console.error('Error adding dummy data:', error);
-      setError('Failed to add dummy data');
-    } finally {
-      setAddingDummyData(false);
-    }
-  };
 
   const fetchWarehouses = async () => {
     try {
-      // Sample warehouse data matching the warehouse management component
-      const sampleWarehouses = [
-        {
-          id: 1,
-          name: 'Main Warehouse',
-          code: 'WH-MAIN',
-          city: 'Sharjah',
-          isActive: true
-        },
-        {
-          id: 2,
-          name: 'Dubai Branch Warehouse',
-          code: 'WH-DBX',
-          city: 'Dubai',
-          isActive: true
-        },
-        {
-          id: 3,
-          name: 'Abu Dhabi Warehouse',
-          code: 'WH-AUH',
-          city: 'Abu Dhabi',
-          isActive: true
-        },
-        {
-          id: 4,
-          name: 'Ajman Storage',
-          code: 'WH-AJM',
-          city: 'Ajman',
-          isActive: false
-        }
-      ];
-      setWarehouses(sampleWarehouses.filter(w => w.isActive)); // Only show active warehouses
+      // Fetch real warehouses from API
+      const response = await (await import('../services/api')).apiClient.get('/warehouses');
+      const warehouseList = response?.warehouses || response?.data?.warehouses || [];
+      
+      // Transform to match expected format
+      const transformedWarehouses = warehouseList
+        .filter(w => w.is_active !== false) // Only show active warehouses
+        .map(w => ({
+          id: w.id,
+          name: w.name,
+          code: w.code,
+          city: w.city,
+          isActive: w.is_active !== false
+        }));
+      
+      setWarehouses(transformedWarehouses);
     } catch (error) {
       console.warn('Failed to fetch warehouses:', error);
+      // Fallback to empty array - user can still add inventory without warehouse
+      setWarehouses([]);
     }
   };
 
@@ -421,12 +186,10 @@ const InventoryList = () => {
   };
 
   const filteredInventory = inventory
-    // Hide items whose product name matches any in-transit PO item
-    .filter((item) => {
-      const name = (item.productType || item.description || '').toString().toLowerCase();
-      if (!name) return true;
-      return !inTransitNames.has(name);
-    })
+    // Note: We don't filter out items based on transit PO names anymore
+    // because items can have the same name but different statuses
+    // (one in transit, one actually in inventory from retain POs)
+    
     // Apply local search filter
     .filter((item) =>
       Object.values(item).some((value) =>
@@ -521,24 +284,25 @@ const InventoryList = () => {
               Filter
             </button>
             <button
-              onClick={addDummyData}
-              disabled={addingDummyData || inventory.length > 0}
-              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
-                addingDummyData || inventory.length > 0
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : ''
-              } ${
-                isDarkMode 
-                  ? 'border-blue-600 bg-blue-800 text-blue-100 hover:bg-blue-700' 
-                  : 'border-blue-300 bg-blue-100 text-blue-800 hover:bg-blue-200'
-              }`}
+              onClick={async () => {
+                try {
+                  // First check what's in the database
+                  const debugResponse = await (await import('../services/api')).apiClient.get('/inventory/debug');
+                  console.log('Inventory Debug Response:', debugResponse);
+                  
+                  // Refresh the inventory list
+                  await fetchInventory();
+                  
+                  alert(`Found ${debugResponse.count} inventory items in database. Check console for details.`);
+                } catch (error) {
+                  console.error('Error debugging inventory:', error);
+                  alert('Failed to debug inventory');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
-              {addingDummyData ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-              ) : (
-                <Package size={16} />
-              )}
-              {addingDummyData ? 'Adding...' : 'Add Demo Data'}
+              <Search size={16} />
+              Debug
             </button>
             <button
               onClick={() => handleOpenDialog()}

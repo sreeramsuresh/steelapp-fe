@@ -229,6 +229,11 @@ export const purchaseOrdersAPI = {
     return apiClient.patch(`/purchase-orders/${id}/status`, { status });
   },
 
+  // Update purchase order stock status
+  updateStockStatus: (id, stock_status) => {
+    return apiClient.patch(`/purchase-orders/${id}/stock-status`, { stock_status });
+  },
+
   // Delete purchase order
   delete: (id) => {
     return apiClient.delete(`/purchase-orders/${id}`);
