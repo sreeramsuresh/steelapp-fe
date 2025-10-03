@@ -22,6 +22,7 @@ import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import InventoryList from './InventoryList';
 import StockMovement from './StockMovement';
+import WarehouseManagement from './WarehouseManagement';
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', ...props }) => {
@@ -605,6 +606,10 @@ const SteelProducts = () => {
     <InventoryList />
   );
 
+  const renderWarehouseManagement = () => (
+    <WarehouseManagement />
+  );
+
   return (
     <div className={`p-4 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <div className={`rounded-xl border p-6 ${
@@ -671,6 +676,21 @@ const SteelProducts = () => {
               <Move size={18} />
               Stock Movements
             </button>
+            <button
+              onClick={() => setActiveTab('warehouses')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'warehouses'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <Warehouse size={18} />
+              Warehouses
+            </button>
           </div>
         </div>
 
@@ -679,6 +699,7 @@ const SteelProducts = () => {
           {activeTab === 'catalog' && renderCatalog()}
           {activeTab === 'inventory' && renderInventoryManagement()}
           {activeTab === 'movements' && <StockMovement />}
+          {activeTab === 'warehouses' && renderWarehouseManagement()}
         </div>
 
         {/* Add Product Modal */}

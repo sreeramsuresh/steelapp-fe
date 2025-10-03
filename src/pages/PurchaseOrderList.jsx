@@ -75,9 +75,12 @@ const PurchaseOrderList = () => {
     );
   };
 
-  // Derive transit-like badge from PO status (backend doesn't have transit_status column)
-  const getTransitStatusBadge = (transitStatus, po) => {
-    const derived = po?.status === 'received' ? 'completed' : 'in_transit';
+  // Show completion from status, and true transit from stock_status; otherwise show RETAIN
+  const getTransitStatusBadge = (po) => {
+    const key = po?.status === 'received'
+      ? 'completed'
+      : (po?.stock_status === 'transit' ? 'in_transit' : 'retain');
+
     const transitConfig = {
       in_transit: { 
         className: isDarkMode 
@@ -91,10 +94,15 @@ const PurchaseOrderList = () => {
           : "bg-green-100 text-green-800 border-green-300", 
         label: "COMPLETED" 
       },
+      retain: {
+        className: isDarkMode
+          ? "bg-gray-800/40 text-gray-300 border-gray-600"
+          : "bg-gray-100 text-gray-700 border-gray-300",
+        label: "RETAIN"
+      }
     };
 
-    const key = derived;
-    const config = transitConfig[key] || transitConfig.in_transit;
+    const config = transitConfig[key] || transitConfig.retain;
 
     return (
       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
@@ -334,7 +342,7 @@ const PurchaseOrderList = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getTransitStatusBadge(po.transit_status, po)}
+                      {getTransitStatusBadge(po)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">

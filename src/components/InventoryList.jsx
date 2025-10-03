@@ -34,6 +34,8 @@ const InventoryList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [inTransitNames, setInTransitNames] = useState(new Set());
+  const [addingDummyData, setAddingDummyData] = useState(false);
+  const [warehouses, setWarehouses] = useState([]);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
@@ -42,12 +44,15 @@ const InventoryList = () => {
       pricePurchased: "",
       sellingPrice: "",
       landedCost: "",
+      warehouseId: "",
+      warehouseName: "",
     };
   });
 
   useEffect(() => {
     fetchInventory();
     fetchTransitNames();
+    fetchWarehouses();
   }, []);
 
   const fetchInventory = async () => {
@@ -86,6 +91,242 @@ const InventoryList = () => {
     }
   };
 
+  const dummyInventoryItems = [
+    {
+      description: "SS SHEET GR316L Mirror finish 4x8 1.2MM",
+      productType: "Sheet",
+      grade: "316L",
+      finish: "Mirror",
+      size: "4x8",
+      thickness: "1.2",
+      quantity: 25,
+      pricePurchased: 850,
+      sellingPrice: 1200,
+      landedCost: 920,
+      warehouseId: "1",
+      warehouseName: "Main Warehouse (Sharjah)",
+      location: "Section A - Row 1"
+    },
+    {
+      description: "SS PIPE GR304 HL finish 2 inch 3.0MM",
+      productType: "Pipe",
+      grade: "304",
+      finish: "HL",
+      size: "2 inch",
+      thickness: "3.0",
+      quantity: 12,
+      pricePurchased: 1200,
+      sellingPrice: 1650,
+      landedCost: 1280,
+      warehouseId: "2",
+      warehouseName: "Dubai Branch Warehouse (Dubai)",
+      location: "Section B - Row 2"
+    },
+    {
+      description: "SS ROUND BAR GR316 Bright finish 25mm",
+      productType: "Round Bar",
+      grade: "316",
+      finish: "Bright",
+      size: "25mm",
+      thickness: "",
+      quantity: 8,
+      pricePurchased: 950,
+      sellingPrice: 1350,
+      landedCost: 1020,
+      warehouseId: "3",
+      warehouseName: "Abu Dhabi Warehouse (Abu Dhabi)",
+      location: "Section C - Row 1"
+    },
+    {
+      description: "SS ANGLE GR304L 2B finish 50x50x5",
+      productType: "Angle",
+      grade: "304L",
+      finish: "2B",
+      size: "50x50x5",
+      thickness: "5.0",
+      quantity: 4,
+      pricePurchased: 720,
+      sellingPrice: 1050,
+      landedCost: 780,
+      warehouseId: "1",
+      warehouseName: "Main Warehouse (Sharjah)",
+      location: "Section D - Row 3"
+    },
+    {
+      description: "SS FLAT BAR GR316L HL finish 40x10",
+      productType: "Flat Bar",
+      grade: "316L",
+      finish: "HL",
+      size: "40x10",
+      thickness: "10.0",
+      quantity: 15,
+      pricePurchased: 890,
+      sellingPrice: 1280,
+      landedCost: 960,
+      location: "Warehouse A - Section 3"
+    },
+    {
+      description: "SS HEXAGON BAR GR304 Bright finish 12mm",
+      productType: "Hexagon Bar",
+      grade: "304",
+      finish: "Bright",
+      size: "12mm",
+      thickness: "",
+      quantity: 6,
+      pricePurchased: 680,
+      sellingPrice: 980,
+      landedCost: 720,
+      location: "Warehouse C - Section 1"
+    },
+    {
+      description: "SS SQUARE BAR GR316 Mirror finish 20x20",
+      productType: "Square Bar",
+      grade: "316",
+      finish: "Mirror",
+      size: "20x20",
+      thickness: "20.0",
+      quantity: 18,
+      pricePurchased: 1150,
+      sellingPrice: 1580,
+      landedCost: 1220,
+      location: "Warehouse C - Section 2"
+    },
+    {
+      description: "SS COIL GR304L 2B finish 1500mm 0.8MM",
+      productType: "Coil",
+      grade: "304L",
+      finish: "2B",
+      size: "1500mm",
+      thickness: "0.8",
+      quantity: 3,
+      pricePurchased: 2200,
+      sellingPrice: 2950,
+      landedCost: 2350,
+      location: "Warehouse D - Large Items"
+    },
+    {
+      description: "SS CHANNEL GR316L HL finish 100x50x8",
+      productType: "Channel",
+      grade: "316L",
+      finish: "HL",
+      size: "100x50x8",
+      thickness: "8.0",
+      quantity: 7,
+      pricePurchased: 1450,
+      sellingPrice: 1920,
+      landedCost: 1520,
+      location: "Warehouse D - Section 1"
+    },
+    {
+      description: "SS WIRE GR304 Bright finish 8mm",
+      productType: "Wire",
+      grade: "304",
+      finish: "Bright",
+      size: "8mm",
+      thickness: "",
+      quantity: 22,
+      pricePurchased: 420,
+      sellingPrice: 680,
+      landedCost: 450,
+      location: "Warehouse B - Section 3"
+    },
+    {
+      description: "SS TEE GR316 Mirror finish 50x50x5",
+      productType: "Tee",
+      grade: "316",
+      finish: "Mirror",
+      size: "50x50x5",
+      thickness: "5.0",
+      quantity: 9,
+      pricePurchased: 1320,
+      sellingPrice: 1780,
+      landedCost: 1390,
+      location: "Warehouse A - Section 4"
+    },
+    {
+      description: "SS ELBOW GR304L HL finish 90 degree 25mm",
+      productType: "Elbow",
+      grade: "304L",
+      finish: "HL",
+      size: "25mm",
+      thickness: "3.0",
+      quantity: 14,
+      pricePurchased: 580,
+      sellingPrice: 850,
+      landedCost: 620,
+      location: "Warehouse C - Section 3"
+    }
+  ];
+
+  const addDummyData = async () => {
+    setAddingDummyData(true);
+    let successCount = 0;
+    let errorCount = 0;
+    
+    try {
+      for (const item of dummyInventoryItems) {
+        try {
+          await inventoryService.createItem(item);
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to add: ${item.description}`, error);
+          errorCount++;
+        }
+        
+        // Small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      await fetchInventory(); // Refresh the list
+      setError(`✅ Successfully added ${successCount} dummy items${errorCount > 0 ? ` (${errorCount} failed)` : ''}`);
+      
+    } catch (error) {
+      console.error('Error adding dummy data:', error);
+      setError('Failed to add dummy data');
+    } finally {
+      setAddingDummyData(false);
+    }
+  };
+
+  const fetchWarehouses = async () => {
+    try {
+      // Sample warehouse data matching the warehouse management component
+      const sampleWarehouses = [
+        {
+          id: 1,
+          name: 'Main Warehouse',
+          code: 'WH-MAIN',
+          city: 'Sharjah',
+          isActive: true
+        },
+        {
+          id: 2,
+          name: 'Dubai Branch Warehouse',
+          code: 'WH-DBX',
+          city: 'Dubai',
+          isActive: true
+        },
+        {
+          id: 3,
+          name: 'Abu Dhabi Warehouse',
+          code: 'WH-AUH',
+          city: 'Abu Dhabi',
+          isActive: true
+        },
+        {
+          id: 4,
+          name: 'Ajman Storage',
+          code: 'WH-AJM',
+          city: 'Ajman',
+          isActive: false
+        }
+      ];
+      setWarehouses(sampleWarehouses.filter(w => w.isActive)); // Only show active warehouses
+    } catch (error) {
+      console.warn('Failed to fetch warehouses:', error);
+    }
+  };
+
   const handleOpenDialog = (item = null) => {
     if (item) {
       setEditingItem(item);
@@ -99,6 +340,8 @@ const InventoryList = () => {
         pricePurchased: "",
         sellingPrice: "",
         landedCost: "",
+        warehouseId: "",
+        warehouseName: "",
       });
     }
     setOpenDialog(true);
@@ -107,7 +350,16 @@ const InventoryList = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingItem(null);
-    setFormData(createInventoryItem());
+    const item = createInventoryItem();
+    setFormData({
+      ...item,
+      quantity: "",
+      pricePurchased: "",
+      sellingPrice: "",
+      landedCost: "",
+      warehouseId: "",
+      warehouseName: "",
+    });
     setError("");
   };
 
@@ -155,6 +407,16 @@ const InventoryList = () => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleWarehouseChange = (warehouseId) => {
+    const selectedWarehouse = warehouses.find(w => w.id.toString() === warehouseId);
+    setFormData((prev) => ({
+      ...prev,
+      warehouseId: warehouseId,
+      warehouseName: selectedWarehouse ? `${selectedWarehouse.name} (${selectedWarehouse.city})` : "",
+      location: selectedWarehouse ? `${selectedWarehouse.name} - ${selectedWarehouse.city}` : prev.location,
     }));
   };
 
@@ -259,6 +521,26 @@ const InventoryList = () => {
               Filter
             </button>
             <button
+              onClick={addDummyData}
+              disabled={addingDummyData || inventory.length > 0}
+              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
+                addingDummyData || inventory.length > 0
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : ''
+              } ${
+                isDarkMode 
+                  ? 'border-blue-600 bg-blue-800 text-blue-100 hover:bg-blue-700' 
+                  : 'border-blue-300 bg-blue-100 text-blue-800 hover:bg-blue-200'
+              }`}
+            >
+              {addingDummyData ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+              ) : (
+                <Package size={16} />
+              )}
+              {addingDummyData ? 'Adding...' : 'Add Demo Data'}
+            </button>
+            <button
               onClick={() => handleOpenDialog()}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
@@ -303,7 +585,7 @@ const InventoryList = () => {
                   Landed Cost
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Location
+                  Warehouse & Location
                 </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Actions
@@ -317,12 +599,12 @@ const InventoryList = () => {
                     <div className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.description || generateDescription(item)}
                     </div>
-                    {item.location && (
+                    {(item.warehouseName || item.location) && (
                       <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${
                         isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-700'
                       }`}>
                         <Warehouse size={12} />
-                        {item.location}
+                        {item.warehouseName || item.location}
                       </span>
                     )}
                   </td>
@@ -401,7 +683,17 @@ const InventoryList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {item.location || '-'}
+                      {item.warehouseName && (
+                        <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {item.warehouseName}
+                        </div>
+                      )}
+                      {item.location && (
+                        <div className="text-xs">
+                          {item.location}
+                        </div>
+                      )}
+                      {!item.warehouseName && !item.location && '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -706,15 +998,41 @@ const InventoryList = () => {
                       />
                     </div>
                   </div>
-                  <div className="sm:col-span-2">
+                  <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Location
+                      Warehouse
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={formData.warehouseId}
+                        onChange={(e) => handleWarehouseChange(e.target.value)}
+                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white' 
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                      >
+                        <option value="">Select Warehouse</option>
+                        {warehouses.map((warehouse) => (
+                          <option key={warehouse.id} value={warehouse.id}>
+                            {warehouse.name} - {warehouse.city}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Specific Location
                     </label>
                     <input
                       type="text"
                       value={formData.location}
                       onChange={(e) => handleInputChange("location", e.target.value)}
-                      placeholder="e.g., Warehouse A, Section 1"
+                      placeholder="e.g., Section A, Row 3, Shelf 2"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
                           ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
