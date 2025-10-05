@@ -154,26 +154,26 @@ function App() {
         if (authService.isAuthenticated()) {
           const storedUser = authService.getUser();
           
-          // Try to verify token with server
+          // Try to verify token with server (non-destructive)
           try {
             const isValid = await authService.verifyToken();
-            
             if (isValid) {
               const currentUser = authService.getUser();
               setUser(currentUser);
-            } else {
-              // Token verification failed
-              authService.clearSession();
+            } else if (storedUser) {
+              // Keep user; interceptors will refresh on demand
+              setUser(storedUser);
             }
           } catch (apiError) {
-            // Token might be expired or invalid
+            // Do not auto-logout on failure; keep user
             console.warn('Token verification failed:', apiError);
-            authService.clearSession();
+            if (storedUser) {
+              setUser(storedUser);
+            }
           }
         }
       } catch (error) {
         console.error('Failed to initialize app:', error);
-        authService.clearSession();
       } finally {
         setLoading(false);
       }

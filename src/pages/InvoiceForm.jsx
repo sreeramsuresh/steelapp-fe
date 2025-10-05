@@ -1168,43 +1168,6 @@ const InvoiceForm = ({ onSave }) => {
                         gap: 2,
                       }}
                     >
-                      <Box>
-                        <TextField
-                          label="Purchase Order Number"
-                          variant="outlined"
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.purchaseOrderNumber || ""}
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              purchaseOrderNumber: e.target.value,
-                            }))
-                          }
-                          placeholder="PO Number (Optional)"
-                          helperText="Can be added later if not available now"
-                        />
-                      </Box>
-                      <Box>
-                        <TextField
-                          label="PO Date"
-                          type="date"
-                          variant="outlined"
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                          value={
-                            formatDateForInput(invoice.purchaseOrderDate) || ""
-                          }
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              purchaseOrderDate: e.target.value,
-                            }))
-                          }
-                          InputLabelProps={{ shrink: true }}
-                          helperText="Optional - link to PO later if needed"
-                        />
-                      </Box>
                     </Box>
                     <Box
                       sx={{

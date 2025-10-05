@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Eye, Download, Trash2, Search, FileDown, Truck, Link as LinkIcon, Plus, X, CheckCircle, AlertCircle, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Eye, Download, Trash2, Search, FileDown, Truck, Plus, X, CheckCircle, AlertCircle, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
@@ -26,14 +26,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
-  const [poDialogOpen, setPoDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [poFormData, setPoFormData] = useState({
-    purchaseOrderNumber: '',
-    purchaseOrderDate: '',
-    adjustmentNotes: ''
-  });
-  const [poLoading, setPOLoading] = useState(false);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
   const [searchParams] = useSearchParams();
 
@@ -244,86 +237,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
 
-  // Purchase Order functions
-  const handleOpenPODialog = (invoice) => {
-    setSelectedInvoice(invoice);
-    setPoFormData({
-      purchaseOrderNumber: invoice.purchaseOrderNumber || '',
-      purchaseOrderDate: invoice.purchaseOrderDate || '',
-      adjustmentNotes: ''
-    });
-    setPoDialogOpen(true);
-  };
-
-  const handleClosePODialog = () => {
-    setPoDialogOpen(false);
-    setSelectedInvoice(null);
-    setPoFormData({
-      purchaseOrderNumber: '',
-      purchaseOrderDate: '',
-      adjustmentNotes: ''
-    });
-  };
-
-  const handlePOReconciliation = async () => {
-    if (!selectedInvoice) return;
-
-    try {
-      setPOLoading(true);
-      
-      const response = await fetch(`/api/invoices/${selectedInvoice.id}/reconcile-po`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          purchase_order_number: poFormData.purchaseOrderNumber,
-          purchase_order_date: poFormData.purchaseOrderDate,
-          adjustment_notes: poFormData.adjustmentNotes
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to reconcile invoice with purchase order');
-      }
-
-      // Refresh the invoice list
-      await fetchInvoices();
-      handleClosePODialog();
-      
-      notificationService.success('Invoice successfully reconciled with purchase order!');
-    } catch (error) {
-      console.error('Error reconciling PO:', error);
-      notificationService.error('Failed to reconcile purchase order');
-    } finally {
-      setPOLoading(false);
-    }
-  };
-
-  const getPOStatus = (invoice) => {
-    if (invoice.purchaseOrderNumber) {
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${
-          isDarkMode 
-            ? 'bg-green-900/30 text-green-300 border-green-600' 
-            : 'bg-green-100 text-green-800 border-green-300'
-        }`}>
-          <LinkIcon size={14} />
-          Linked
-        </span>
-      );
-    } else {
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${
-          isDarkMode 
-            ? 'bg-yellow-900/30 text-yellow-300 border-yellow-600' 
-            : 'bg-yellow-100 text-yellow-800 border-yellow-300'
-        }`}>
-          No PO
-        </span>
-      );
-    }
-  };
 
   if (loading) {
     return (
@@ -528,9 +441,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Status
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  PO Status
-                </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Actions
                 </th>
@@ -581,22 +491,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(invoice.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      {getPOStatus(invoice)}
-                      {!invoice.purchaseOrderNumber && (
-                        <button
-                          className={`p-1 rounded transition-colors bg-transparent ${
-                            isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
-                          }`}
-                          title="Link Purchase Order"
-                          onClick={() => handleOpenPODialog(invoice)}
-                        >
-                          <LinkIcon size={14} />
-                        </button>
-                      )}
-                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
@@ -716,129 +610,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         )}
       </div>
 
-      {/* Purchase Order Reconciliation Dialog */}
-      {poDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className={`rounded-xl max-w-md w-full ${
-            isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-          }`}>
-            <div className={`p-6 border-b ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Link Purchase Order
-              </h3>
-              {selectedInvoice && (
-                <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Invoice: {selectedInvoice.invoiceNumber}
-                </p>
-              )}
-            </div>
-            <div className="p-6 space-y-4">
-              <div className={`p-4 rounded-lg border ${
-                isDarkMode ? 'bg-blue-900/20 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'
-              }`}>
-                <p className="text-sm">
-                  Link this invoice to a purchase order. This will update inventory tracking and provide better reconciliation.
-                </p>
-              </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Purchase Order Number *
-                </label>
-                <input
-                  type="text"
-                  value={poFormData.purchaseOrderNumber}
-                  onChange={(e) => setPoFormData(prev => ({
-                    ...prev,
-                    purchaseOrderNumber: e.target.value
-                  }))}
-                  placeholder="PO-2024-001"
-                  required
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                  }`}
-                />
-              </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Purchase Order Date
-                </label>
-                <input
-                  type="date"
-                  value={poFormData.purchaseOrderDate}
-                  onChange={(e) => setPoFormData(prev => ({
-                    ...prev,
-                    purchaseOrderDate: e.target.value
-                  }))}
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
-                />
-              </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Adjustment Notes
-                </label>
-                <textarea
-                  value={poFormData.adjustmentNotes}
-                  onChange={(e) => setPoFormData(prev => ({
-                    ...prev,
-                    adjustmentNotes: e.target.value
-                  }))}
-                  rows={3}
-                  placeholder="Optional notes about the reconciliation..."
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                  }`}
-                />
-              </div>
-            </div>
-            <div className={`p-6 border-t flex justify-end gap-3 ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <button
-                onClick={handleClosePODialog}
-                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
-                  isDarkMode 
-                    ? 'text-white hover:text-gray-300' 
-                    : 'hover:bg-gray-100 text-gray-800'
-                }`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePOReconciliation}
-                disabled={!poFormData.purchaseOrderNumber || poLoading}
-                className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
-                  (!poFormData.purchaseOrderNumber || poLoading) ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {poLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Linking...
-                  </>
-                ) : (
-                  <>
-                    <LinkIcon size={16} />
-                    Link Purchase Order
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

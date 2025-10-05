@@ -29,6 +29,7 @@ import AccountStatementForm from "../pages/AccountStatementForm";
 import AccountStatementDetails from "../pages/AccountStatementDetails";
 import QuotationList from "../pages/QuotationList";
 import QuotationForm from "../pages/QuotationForm";
+import Payables from "../pages/Payables";
 import ProtectedRoute from "./ProtectedRoute";
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
@@ -169,6 +170,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         
+
+        <Route
+          path="/payables"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <Payables />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/inventory"

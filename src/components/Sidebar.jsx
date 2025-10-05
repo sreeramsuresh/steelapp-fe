@@ -17,6 +17,7 @@ import {
   ShoppingCart,
   Quote
 } from 'lucide-react';
+import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 
@@ -33,6 +34,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/',
           icon: Home,
           description: 'Overview & Analytics'
+        }
+      ]
+    },
+    {
+      section: 'Finance',
+      items: [
+        {
+          name: 'Payables',
+          path: '/payables',
+          icon: Banknote,
+          description: 'Invoices & PO payments'
         }
       ]
     },

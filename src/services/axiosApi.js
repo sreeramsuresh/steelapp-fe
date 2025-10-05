@@ -91,13 +91,12 @@ axiosApi.interceptors.request.use(
             console.log('[Request Interceptor] Token refreshed successfully');
           } catch (error) {
             console.error('[Request Interceptor] Token refresh failed:', error);
-            // Remove invalid tokens
-            tokenUtils.removeTokens();
+            // Do not auto-logout or clear tokens; propagate error
             return Promise.reject(error);
           }
         } else {
           console.log('[Request Interceptor] No valid refresh token');
-          tokenUtils.removeTokens();
+          // Do not auto-logout; propagate error to caller
           return Promise.reject(new Error('No valid tokens available'));
         }
       } else {
@@ -197,12 +196,7 @@ axiosApi.interceptors.response.use(
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
           processQueue(refreshError, null);
-          
-          // Refresh failed, redirect to login
-          tokenUtils.removeTokens();
-          if (currentPath !== '/login') {
-            window.location.href = '/login';
-          }
+          // Do not auto-logout or redirect; propagate error
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
@@ -211,12 +205,7 @@ axiosApi.interceptors.response.use(
         console.log('[Interceptor] No valid refresh token');
         isRefreshing = false;
         processQueue(error, null);
-        
-        // No valid refresh token, redirect to login
-        tokenUtils.removeTokens();
-        if (currentPath !== '/login') {
-          window.location.href = '/login';
-        }
+        // Do not auto-logout or redirect; propagate error
         return Promise.reject(error);
       }
     }

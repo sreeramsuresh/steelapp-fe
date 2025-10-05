@@ -268,11 +268,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     {invoice.status.toUpperCase()}
                   </span>
                 </div>
-                {invoice.purchaseOrderNumber && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    <strong>PO #:</strong> {invoice.purchaseOrderNumber}
-                  </p>
-                )}
                 {invoice.deliveryNote && (
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     <strong>Delivery Note:</strong> {invoice.deliveryNote}

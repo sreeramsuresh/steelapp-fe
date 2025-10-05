@@ -946,31 +946,6 @@ const InvoiceForm = ({ onSave }) => {
                     }
                   />
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Purchase Order Number"
-                    value={invoice.purchaseOrderNumber || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        purchaseOrderNumber: e.target.value,
-                      }))
-                    }
-                    placeholder="PO Number (Optional)"
-                  />
-                  <Input
-                    label="PO Date"
-                    type="date"
-                    value={formatDateForInput(invoice.purchaseOrderDate) || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        purchaseOrderDate: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Select
                     label="Invoice Status"

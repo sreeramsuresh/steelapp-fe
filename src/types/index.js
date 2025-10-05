@@ -52,8 +52,6 @@ export const createInvoice = () => ({
   invoiceNumber: '',
   date: new Date().toISOString().split('T')[0],
   dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  purchaseOrderNumber: '',
-  purchaseOrderDate: '',
   deliveryNote: '',
   modeOfPayment: '',
   otherReference: '',
@@ -101,7 +99,7 @@ export const createCompany = () => ({
 
 export const STEEL_UNITS = ['kg', 'ton', 'piece', 'meter', 'feet'];
 export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue'];
-export const PAYMENT_MODES = ['Cash', 'Cheque', 'NEFT', 'RTGS', 'UPI', 'Card', 'Bank Transfer'];
+export const PAYMENT_MODES = ['Cash', 'Cheque', 'CDC', 'PDC', 'Card', 'Bank Transfer'];
 export const DELIVERY_TERMS = ['FOB', 'CIF', 'CFR', 'EXW', 'DDP', 'DAP'];
 export const DISCOUNT_TYPES = ['amount', 'percentage'];
 export const UAE_EMIRATES = [

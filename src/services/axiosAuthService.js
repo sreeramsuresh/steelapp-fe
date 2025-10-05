@@ -128,11 +128,7 @@ class AuthService {
         console.error('[Auth] Error message:', error.message);
         console.error('[Auth] Error data:', error.response?.data);
         
-        // Only clear session if it's a 401 or refresh token is actually invalid
-        if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
-          console.log('[Auth] 🚨 Clearing session due to auth failure');
-          this.clearSession();
-        }
+        // Do not auto-clear session on auth errors; propagate for caller/UI to handle
         throw error;
       } finally {
         this.isRefreshing = false;
@@ -271,8 +267,11 @@ class AuthService {
   // Authentication status
   isAuthenticated() {
     const token = this.getToken();
+    const refreshToken = this.getRefreshToken();
     const user = this.getUser();
-    return !!(token && !tokenUtils.isTokenExpired(token) && user);
+    const hasValidAccess = !!(token && !tokenUtils.isTokenExpired(token));
+    const hasValidRefresh = !!(refreshToken && !tokenUtils.isTokenExpired(refreshToken));
+    return !!(user && (hasValidAccess || hasValidRefresh));
   }
 
   // Check if user has specific permission
@@ -346,16 +345,9 @@ class AuthService {
             data: error.response?.data
           });
           
-          // Don't immediately clear session for network errors
-          if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
-            console.log('[Auth] 🚨 LOGOUT TRIGGERED: Invalid or expired refresh token');
-            this.clearSession();
-            window.location.href = '/login';
-          } else {
-            // Retry after 30 seconds for network errors
-            console.log('[Auth] Scheduling retry for token refresh in 30 seconds due to network error');
-            setTimeout(() => this.setupTokenRefresh(), 30000);
-          }
+          // Do not auto-logout on any refresh error. Retry after 30 seconds.
+          console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
+          setTimeout(() => this.setupTokenRefresh(), 30000);
         }
       }, refreshTime);
     } else {
@@ -368,12 +360,7 @@ class AuthService {
           message: error.message,
           data: error.response?.data
         });
-        
-        if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
-          console.log('[Auth] 🚨 LOGOUT TRIGGERED: Immediate refresh failed with auth error');
-          this.clearSession();
-          window.location.href = '/login';
-        }
+        // Do not auto-logout on immediate refresh failure
       });
     }
   }
@@ -429,7 +416,7 @@ class AuthService {
       return true;
     } catch (error) {
       console.error('Token verification failed:', error);
-      this.clearSession();
+      // Do not auto-clear session; let interceptors handle refresh later
       return false;
     }
   }
