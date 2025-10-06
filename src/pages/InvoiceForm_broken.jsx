@@ -376,7 +376,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <th>Unit</th>
                   <th>Qty</th>
                   <th>Rate</th>
-                  <th>TRN %</th>
+                  <th>VAT %</th>
                   <th>Amount</th>
                   <th>Action</th>
                 </tr>
@@ -516,7 +516,7 @@ const InvoiceForm = ({ onSave, existingInvoice }) => {
                   <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.subtotal)}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>TRN Amount:</span>
+                  <span>VAT Amount:</span>
                   <span style={{ fontWeight: '500' }}>{formatCurrency(invoice.vatAmount)}</span>
                 </div>
                 <hr style={{ border: '1px solid var(--border-primary)', margin: 'var(--spacing-md) 0' }} />

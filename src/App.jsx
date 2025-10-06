@@ -153,23 +153,20 @@ function App() {
         // Check if user is authenticated
         if (authService.isAuthenticated()) {
           const storedUser = authService.getUser();
-          
-          // Try to verify token with server (non-destructive)
           try {
             const isValid = await authService.verifyToken();
             if (isValid) {
               const currentUser = authService.getUser();
               setUser(currentUser);
-            } else if (storedUser) {
-              // Keep user; interceptors will refresh on demand
-              setUser(storedUser);
+            } else {
+              // Verification failed: clear session and ensure user is null
+              await authService.clearSession?.();
+              setUser(null);
             }
           } catch (apiError) {
-            // Do not auto-logout on failure; keep user
             console.warn('Token verification failed:', apiError);
-            if (storedUser) {
-              setUser(storedUser);
-            }
+            await authService.clearSession?.();
+            setUser(null);
           }
         }
       } catch (error) {

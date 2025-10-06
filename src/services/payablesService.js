@@ -5,6 +5,30 @@ import { apiService } from './axiosApi';
 export const PAYMENT_METHODS = ['Cash','Cheque','Bank Transfer','UPI','NEFT','RTGS','Other'];
 
 // Helpers
+const LS_KEYS = { inv: 'payables:inv:payments', po: 'payables:po:payments' };
+const ls = {
+  getAll(scope) {
+    try { return JSON.parse(localStorage.getItem(LS_KEYS[scope]) || '{}'); } catch { return {}; }
+  },
+  saveAll(scope, data) {
+    try { localStorage.setItem(LS_KEYS[scope], JSON.stringify(data)); } catch {}
+  },
+  get(scope, id) {
+    const all = ls.getAll(scope); return all[id] || [];
+  },
+  set(scope, id, payments) {
+    const all = ls.getAll(scope); all[id] = payments; ls.saveAll(scope, all);
+  },
+  add(scope, id, payment) {
+    const arr = ls.get(scope, id); const next = [...arr, payment]; ls.set(scope, id, next); return next;
+  },
+  void(scope, id, paymentId) {
+    const arr = ls.get(scope, id);
+    const next = arr.map(p => p.id === paymentId ? { ...p, voided: true, voided_at: new Date().toISOString() } : p);
+    ls.set(scope, id, next); return next;
+  }
+};
+
 const computeInvoiceDerived = (inv) => {
   const payments = (inv.payments || []).filter(p => !p.voided);
   const received = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
@@ -46,8 +70,12 @@ export const payablesService = {
       const list = response.items || response.invoices || response;
       const aggregates = response.aggregates || {};
       const items = (Array.isArray(list) ? list : []).map((inv) => {
-        const derived = computeInvoiceDerived(inv);
-        return { ...inv, ...derived };
+        // Merge in any locally stored payments if backend doesn't include them
+        const local = ls.get('inv', inv.id);
+        const payments = Array.isArray(inv.payments) && inv.payments.length ? inv.payments : local;
+        const merged = { ...inv, payments };
+        const derived = computeInvoiceDerived(merged);
+        return { ...merged, ...derived };
       });
       return { items, aggregates };
     } catch (e) {
@@ -64,7 +92,7 @@ export const payablesService = {
             due_date: serverData.due_date || serverData.dueDate,
             currency: serverData.currency || 'AED',
             invoice_amount: serverData.total,
-            payments: [],
+            payments: ls.get('inv', serverData.id),
           };
           const derived = computeInvoiceDerived(inv);
           return { ...inv, ...derived };
@@ -78,18 +106,39 @@ export const payablesService = {
 
   async getInvoice(id) {
     const data = await apiClient.get(`/payables/invoices/${id}`);
-    return { ...data, ...computeInvoiceDerived(data) };
+    const local = ls.get('inv', id);
+    const payments = Array.isArray(data.payments) && data.payments.length ? data.payments : local;
+    const merged = { ...data, payments };
+    return { ...merged, ...computeInvoiceDerived(merged) };
   },
 
   async addInvoicePayment(id, payload) {
     // payload: { payment_date, amount, method, reference_no, notes, attachment_url }
-    const saved = await apiClient.post(`/payables/invoices/${id}/payments`, payload);
-    return { ...saved, ...computeInvoiceDerived(saved) };
+    try {
+      const saved = await apiClient.post(`/payables/invoices/${id}/payments`, payload);
+      return { ...saved, ...computeInvoiceDerived(saved) };
+    } catch (e) {
+      // Fallback: store locally so it persists across refresh
+      const localPayment = {
+        id: payload.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tmp_${Date.now()}`),
+        created_at: new Date().toISOString(),
+        ...payload,
+      };
+      const current = ls.add('inv', id, localPayment);
+      const merged = { id, payments: current };
+      return { ...merged, ...computeInvoiceDerived({ invoice_amount: 0, ...merged }) };
+    }
   },
 
   async voidInvoicePayment(id, paymentId, reason) {
-    const saved = await apiClient.post(`/payables/invoices/${id}/payments/${paymentId}/void`, { reason });
-    return { ...saved, ...computeInvoiceDerived(saved) };
+    try {
+      const saved = await apiClient.post(`/payables/invoices/${id}/payments/${paymentId}/void`, { reason });
+      return { ...saved, ...computeInvoiceDerived(saved) };
+    } catch (e) {
+      const current = ls.void('inv', id, paymentId);
+      const merged = { id, payments: current };
+      return { ...merged, ...computeInvoiceDerived({ invoice_amount: 0, ...merged }) };
+    }
   },
 
   // POs (Vendor Payables)
@@ -98,7 +147,12 @@ export const payablesService = {
       const response = await apiClient.get('/payables/pos', params);
       const list = response.items || response.pos || response;
       const aggregates = response.aggregates || {};
-      const items = (Array.isArray(list) ? list : []).map((po) => ({ ...po, ...computePODerived(po) }));
+      const items = (Array.isArray(list) ? list : []).map((po) => {
+        const local = ls.get('po', po.id);
+        const payments = Array.isArray(po.payments) && po.payments.length ? po.payments : local;
+        const merged = { ...po, payments };
+        return { ...merged, ...computePODerived(merged) };
+      });
       return { items, aggregates };
     } catch (e) {
       try {
@@ -113,7 +167,7 @@ export const payablesService = {
             due_date: serverData.due_date || serverData.dueDate,
             currency: serverData.currency || 'AED',
             po_value: serverData.total || serverData.po_value,
-            payments: [],
+            payments: ls.get('po', serverData.id),
           };
           return { ...po, ...computePODerived(po) };
         });
@@ -126,17 +180,37 @@ export const payablesService = {
 
   async getPO(id) {
     const data = await apiClient.get(`/payables/pos/${id}`);
-    return { ...data, ...computePODerived(data) };
+    const local = ls.get('po', id);
+    const payments = Array.isArray(data.payments) && data.payments.length ? data.payments : local;
+    const merged = { ...data, payments };
+    return { ...merged, ...computePODerived(merged) };
   },
 
   async addPOPayment(id, payload) {
-    const saved = await apiClient.post(`/payables/pos/${id}/payments`, payload);
-    return { ...saved, ...computePODerived(saved) };
+    try {
+      const saved = await apiClient.post(`/payables/pos/${id}/payments`, payload);
+      return { ...saved, ...computePODerived(saved) };
+    } catch (e) {
+      const localPayment = {
+        id: payload.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tmp_${Date.now()}`),
+        created_at: new Date().toISOString(),
+        ...payload,
+      };
+      const current = ls.add('po', id, localPayment);
+      const merged = { id, payments: current };
+      return { ...merged, ...computePODerived({ po_value: 0, ...merged }) };
+    }
   },
 
   async voidPOPayment(id, paymentId, reason) {
-    const saved = await apiClient.post(`/payables/pos/${id}/payments/${paymentId}/void`, { reason });
-    return { ...saved, ...computePODerived(saved) };
+    try {
+      const saved = await apiClient.post(`/payables/pos/${id}/payments/${paymentId}/void`, { reason });
+      return { ...saved, ...computePODerived(saved) };
+    } catch (e) {
+      const current = ls.void('po', id, paymentId);
+      const merged = { id, payments: current };
+      return { ...merged, ...computePODerived({ po_value: 0, ...merged }) };
+    }
   },
 
   // Export CSV/XLSX back-end if available

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
+import { supplierService } from '../services/supplierService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -42,6 +43,15 @@ const CustomerManagement = () => {
     () => customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus }),
     [searchTerm, filterStatus]
   );
+
+  // Suppliers API hooks
+  const { data: suppliersData, loading: loadingSuppliers, error: suppliersError, refetch: refetchSuppliers } = useApiData(
+    () => supplierService.getSuppliers(),
+    []
+  );
+  const { execute: createSupplier, loading: creatingSupplier } = useApi(supplierService.createSupplier);
+  const { execute: updateSupplier, loading: updatingSupplier } = useApi(supplierService.updateSupplier);
+  const { execute: deleteSupplier } = useApi(supplierService.deleteSupplier);
   
   const { execute: createCustomer, loading: creatingCustomer } = useApi(customerService.createCustomer);
   const { execute: updateCustomer, loading: updatingCustomer } = useApi(customerService.updateCustomer);
@@ -52,6 +62,10 @@ const CustomerManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  // Supplier modals
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
+  const [showEditSupplierModal, setShowEditSupplierModal] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [showContactHistory, setShowContactHistory] = useState(false);
   const [contactHistoryCustomer, setContactHistoryCustomer] = useState(null);
 
@@ -74,6 +88,18 @@ const CustomerManagement = () => {
     trade_license_expiry: ''
   });
 
+  // TRN validation: UAE VAT TRN must start with "100" and be 15 digits.
+  // Allow empty (optional), but if provided, enforce the full pattern.
+  const validateTRN = (value) => {
+    if (!value) return null; // optional
+    const digits = String(value).replace(/\s+/g, '');
+    if (!/^100\d{12}$/.test(digits)) return 'TRN must start with 100 and be 15 digits';
+    return null;
+  };
+
+  // Best practice: sanitize input to digits-only and cap length to 15
+  const sanitizeTRNInput = (value) => String(value || '').replace(/\D/g, '').slice(0, 15);
+
   const [newContact, setNewContact] = useState({
     type: 'call',
     subject: '',
@@ -82,6 +108,7 @@ const CustomerManagement = () => {
   });
 
   const filteredCustomers = customers;
+  const suppliers = suppliersData?.suppliers || [];
 
   // Sync search from URL param
   const [searchParams] = useSearchParams();
@@ -91,6 +118,11 @@ const CustomerManagement = () => {
   }, [searchParams]);
 
   const handleAddCustomer = async () => {
+    const trnError = validateTRN(newCustomer.trn_number);
+    if (trnError) {
+      notificationService.error(trnError);
+      return;
+    }
     try {
       const customerData = {
         ...newCustomer,
@@ -125,6 +157,11 @@ const CustomerManagement = () => {
   };
 
   const handleEditCustomer = async () => {
+    const trnError = validateTRN(selectedCustomer?.trn_number);
+    if (trnError) {
+      notificationService.error(trnError);
+      return;
+    }
     try {
       const customerData = {
         ...selectedCustomer,
@@ -151,6 +188,57 @@ const CustomerManagement = () => {
         notificationService.deleteError('Customer', error);
       }
     }
+  };
+
+  // Supplier CRUD
+  const [newSupplier, setNewSupplier] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    company: '',
+    status: 'active',
+    trn_number: '',
+    payment_terms: '',
+    default_currency: 'AED',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: ''
+  });
+
+  const handleAddSupplier = async () => {
+    const trnErr = validateTRN(newSupplier.trn_number);
+    if (trnErr) { notificationService.error(trnErr); return; }
+    try {
+      const data = { ...newSupplier };
+      await createSupplier(data);
+      setNewSupplier({ name: '', email: '', phone: '', address: '', company: '', status: 'active', trn_number: '', payment_terms: '', default_currency: 'AED', contact_name: '', contact_email: '', contact_phone: '' });
+      setShowAddSupplierModal(false);
+      refetchSuppliers();
+      notificationService.createSuccess('Supplier');
+    } catch (e) {
+      notificationService.createError('Supplier', e);
+    }
+  };
+
+  const handleEditSupplier = async () => {
+    const trnErr = validateTRN(selectedSupplier?.trn_number);
+    if (trnErr) { notificationService.error(trnErr); return; }
+    try {
+      await updateSupplier(selectedSupplier.id, selectedSupplier);
+      setShowEditSupplierModal(false);
+      setSelectedSupplier(null);
+      refetchSuppliers();
+      notificationService.updateSuccess('Supplier');
+    } catch (e) {
+      notificationService.updateError('Supplier', e);
+    }
+  };
+
+  const handleDeleteSupplier = async (id) => {
+    if (!window.confirm('Delete this supplier?')) return;
+    try { await deleteSupplier(id); refetchSuppliers(); notificationService.deleteSuccess('Supplier'); }
+    catch (e) { notificationService.deleteError('Supplier', e); }
   };
 
   const openContactHistory = (customer) => {
@@ -380,6 +468,63 @@ const CustomerManagement = () => {
     </div>
   );
 
+  const renderSuppliers = () => (
+    <div className={`${cardClasses} p-6 mb-6`}>
+      {/* Controls */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className={`text-lg font-semibold ${textPrimary}`}>Suppliers</h3>
+        <button
+          onClick={() => setShowAddSupplierModal(true)}
+          className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
+        >
+          <FaPlus /> Add Supplier
+        </button>
+      </div>
+      {/* Errors */}
+      {suppliersError && (
+        <div className={`rounded p-3 mb-4 ${isDarkMode ? 'bg-red-900/20 text-red-200' : 'bg-red-50 text-red-700'}`}>Failed to load suppliers</div>
+      )}
+      {/* List */}
+      {loadingSuppliers ? (
+        <div className="py-8 text-center">Loading suppliers...</div>
+      ) : suppliers.length === 0 ? (
+        <div className={`py-8 text-center ${textSecondary}`}>No suppliers yet. Add one.</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {suppliers.map((s) => (
+            <div key={s.id} className={`${cardClasses} p-4`}>
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <div className={`font-semibold ${textPrimary}`}>{s.name}</div>
+                  <div className={`text-sm ${textSecondary}`}>{s.company}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button className={`p-2 rounded ${isDarkMode ? 'text-teal-300 hover:bg-gray-700' : 'text-teal-700 hover:bg-gray-100'}`}
+                    onClick={() => { setSelectedSupplier(s); setShowEditSupplierModal(true); }} title="Edit">
+                    <FaEdit className="w-4 h-4" />
+                  </button>
+                  <button className={`p-2 rounded ${isDarkMode ? 'text-red-300 hover:bg-gray-700' : 'text-red-600 hover:bg-gray-100'}`}
+                    onClick={() => handleDeleteSupplier(s.id)} title="Delete">
+                    <FaTrash className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className={`text-sm space-y-1 ${textSecondary}`}>
+                {s.email && <div><FaEnvelope className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.email}</div>}
+                {s.phone && <div><FaPhone className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.phone}</div>}
+                {s.address && <div><FaMapMarkerAlt className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.address}</div>}
+                {s.trn_number && <div>TRN: {s.trn_number}</div>}
+                {s.default_currency && <div>Currency: {s.default_currency}</div>}
+                {s.payment_terms && <div>Payment Terms: {s.payment_terms}</div>}
+                {s.contact_name && <div>Contact: {s.contact_name}{s.contact_email ? ` • ${s.contact_email}` : ''}{s.contact_phone ? ` • ${s.contact_phone}` : ''}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   const renderAnalytics = () => (
     <div className={`${cardClasses} p-6`}>
       {/* Analytics Cards */}
@@ -483,6 +628,21 @@ const CustomerManagement = () => {
               Customer Profiles
             </button>
             <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                activeTab === 'suppliers'
+                  ? (isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                  : (isDarkMode
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+              }`}
+            >
+              <FaUsers size={18} />
+              Suppliers
+            </button>
+            <button
               onClick={() => setActiveTab('analytics')}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'analytics'
@@ -535,11 +695,12 @@ const CustomerManagement = () => {
         {/* Tab Content */}
         <div>
           {activeTab === 'profiles' && renderProfiles()}
+          {activeTab === 'suppliers' && renderSuppliers()}
           {activeTab === 'analytics' && renderAnalytics()}
         </div>
       </div>
 
-      {/* Add Customer Modal */}
+  {/* Add Customer Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className={`rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
@@ -641,11 +802,20 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="\\d*"
+                    maxLength={15}
                     value={newCustomer.trn_number}
-                    onChange={(e) => setNewCustomer({...newCustomer, trn_number: e.target.value})}
-                    placeholder="Enter TRN number"
+                    onChange={(e) => setNewCustomer({...newCustomer, trn_number: sanitizeTRNInput(e.target.value)})}
+                    placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
+                  {validateTRN(newCustomer.trn_number) && (
+                    <p className="text-xs text-red-600 mt-1">{validateTRN(newCustomer.trn_number)}</p>
+                  )}
+                  {!validateTRN(newCustomer.trn_number) && (
+                    <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
+                  )}
                 </div>
 
                 <div>
@@ -730,12 +900,176 @@ const CustomerManagement = () => {
               </button>
               <button
                 onClick={handleAddCustomer}
-                disabled={creatingCustomer}
+                disabled={creatingCustomer || !!validateTRN(newCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
                 {creatingCustomer ? 'Adding...' : 'Add Customer'}
               </button>
+            </div>
+      </div>
+    </div>
+  )}
+
+      {/* Add Supplier Modal */}
+      {showAddSupplierModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
+            <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
+              <h2 className={`text-xl font-semibold ${textPrimary}`}>Add Supplier</h2>
+              <button onClick={() => setShowAddSupplierModal(false)} className={`${textMuted} hover:${textSecondary}`}>
+                <FaTimes className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Name</label>
+                <input type="text" value={newSupplier.name} onChange={(e)=>setNewSupplier({...newSupplier, name:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Company</label>
+                <input type="text" value={newSupplier.company} onChange={(e)=>setNewSupplier({...newSupplier, company:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Email</label>
+                <input type="email" value={newSupplier.email} onChange={(e)=>setNewSupplier({...newSupplier, email:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Phone</label>
+                <input type="tel" value={newSupplier.phone} onChange={(e)=>setNewSupplier({...newSupplier, phone:e.target.value})} className={inputClasses} />
+              </div>
+              <div className="md:col-span-2">
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Address</label>
+                <input type="text" value={newSupplier.address} onChange={(e)=>setNewSupplier({...newSupplier, address:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>TRN Number</label>
+                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={newSupplier.trn_number} onChange={(e)=>setNewSupplier({...newSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
+                {validateTRN(newSupplier.trn_number) ? (
+                  <p className="text-xs text-red-600 mt-1">{validateTRN(newSupplier.trn_number)}</p>
+                ) : (
+                  <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
+                )}
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
+                <input type="text" placeholder="e.g., Net 30" value={newSupplier.payment_terms} onChange={(e)=>setNewSupplier({...newSupplier, payment_terms:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Default Currency</label>
+                <select value={newSupplier.default_currency} onChange={(e)=>setNewSupplier({...newSupplier, default_currency:e.target.value})} className={inputClasses}>
+                  <option value="AED">AED</option>
+                  <option value="USD">USD</option>
+                  <option value="INR">INR</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Name</label>
+                  <input type="text" value={newSupplier.contact_name} onChange={(e)=>setNewSupplier({...newSupplier, contact_name:e.target.value})} className={inputClasses} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Email</label>
+                  <input type="email" value={newSupplier.contact_email} onChange={(e)=>setNewSupplier({...newSupplier, contact_email:e.target.value})} className={inputClasses} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Phone</label>
+                  <input type="tel" value={newSupplier.contact_phone} onChange={(e)=>setNewSupplier({...newSupplier, contact_phone:e.target.value})} className={inputClasses} />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Status</label>
+                <select value={newSupplier.status} onChange={(e)=>setNewSupplier({...newSupplier, status:e.target.value})} className={inputClasses}>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
+              <button onClick={()=>setShowAddSupplierModal(false)} className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}>Cancel</button>
+              <button onClick={handleAddSupplier} disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {creatingSupplier? 'Adding...' : 'Add Supplier'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Supplier Modal */}
+      {showEditSupplierModal && selectedSupplier && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
+            <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
+              <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Supplier</h2>
+              <button onClick={() => setShowEditSupplierModal(false)} className={`${textMuted} hover:${textSecondary}`}><FaTimes className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Name</label>
+                <input type="text" value={selectedSupplier.name} onChange={(e)=>setSelectedSupplier({...selectedSupplier, name:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Company</label>
+                <input type="text" value={selectedSupplier.company || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, company:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Email</label>
+                <input type="email" value={selectedSupplier.email || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, email:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Phone</label>
+                <input type="tel" value={selectedSupplier.phone || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, phone:e.target.value})} className={inputClasses} />
+              </div>
+              <div className="md:col-span-2">
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Address</label>
+                <input type="text" value={selectedSupplier.address || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, address:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>TRN Number</label>
+                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={selectedSupplier.trn_number || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
+                {validateTRN(selectedSupplier.trn_number) ? (
+                  <p className="text-xs text-red-600 mt-1">{validateTRN(selectedSupplier.trn_number)}</p>
+                ) : (
+                  <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
+                )}
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
+                <input type="text" placeholder="e.g., Net 30" value={selectedSupplier.payment_terms || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, payment_terms:e.target.value})} className={inputClasses} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Default Currency</label>
+                <select value={selectedSupplier.default_currency || 'AED'} onChange={(e)=>setSelectedSupplier({...selectedSupplier, default_currency:e.target.value})} className={inputClasses}>
+                  <option value="AED">AED</option>
+                  <option value="USD">USD</option>
+                  <option value="INR">INR</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Name</label>
+                  <input type="text" value={selectedSupplier.contact_name || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_name:e.target.value})} className={inputClasses} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Email</label>
+                  <input type="email" value={selectedSupplier.contact_email || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_email:e.target.value})} className={inputClasses} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Phone</label>
+                  <input type="tel" value={selectedSupplier.contact_phone || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_phone:e.target.value})} className={inputClasses} />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Status</label>
+                <select value={selectedSupplier.status || 'active'} onChange={(e)=>setSelectedSupplier({...selectedSupplier, status:e.target.value})} className={inputClasses}>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
+              <button onClick={()=>setShowEditSupplierModal(false)} className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}>Cancel</button>
+              <button onClick={handleEditSupplier} disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {updatingSupplier? 'Saving...' : 'Save Changes'}</button>
             </div>
           </div>
         </div>
@@ -827,11 +1161,20 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="\\d*"
+                    maxLength={15}
                     value={selectedCustomer.trn_number || ''}
-                    onChange={(e) => setSelectedCustomer({...selectedCustomer, trn_number: e.target.value})}
-                    placeholder="Enter TRN number"
+                    onChange={(e) => setSelectedCustomer({...selectedCustomer, trn_number: sanitizeTRNInput(e.target.value)})}
+                    placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
+                  {validateTRN(selectedCustomer.trn_number) && (
+                    <p className="text-xs text-red-600 mt-1">{validateTRN(selectedCustomer.trn_number)}</p>
+                  )}
+                  {!validateTRN(selectedCustomer.trn_number) && (
+                    <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
+                  )}
                 </div>
 
                 <div>
@@ -913,7 +1256,7 @@ const CustomerManagement = () => {
               </button>
               <button
                 onClick={handleEditCustomer}
-                disabled={updatingCustomer}
+                disabled={updatingCustomer || !!validateTRN(selectedCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />

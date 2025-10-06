@@ -30,6 +30,9 @@ export const createSteelItem = () => ({
   name: '',
   specification: '',
   grade: '',
+  finish: '',
+  size: '',
+  thickness: '',
   description: '',
   unit: 'kg',
   quantity: 1,
@@ -61,7 +64,7 @@ export const createInvoice = () => ({
   customer: createCustomer(),
   items: [createSteelItem()],
   subtotal: 0,
-  vatAmount: 0, // TRN Amount
+  vatAmount: 0, // VAT Amount
   cvatAmount: 0,
   svatAmount: 0,
   ivatAmount: 0,

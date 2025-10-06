@@ -88,6 +88,10 @@ class AuthService {
     }
     
     this.isRefreshing = true;
+    // Expose a global flag so axios interceptors can avoid double-refreshing
+    if (typeof window !== 'undefined') {
+      window.__AUTH_REFRESHING__ = true;
+    }
     
     this.refreshPromise = (async () => {
       try {
@@ -127,12 +131,15 @@ class AuthService {
         console.error('[Auth] Error status:', error.response?.status);
         console.error('[Auth] Error message:', error.message);
         console.error('[Auth] Error data:', error.response?.data);
-        
-        // Do not auto-clear session on auth errors; propagate for caller/UI to handle
+        // Do NOT clear session here. Transient 401s can happen if a parallel
+        // interceptor-driven refresh rotated the token. Let caller decide.
         throw error;
       } finally {
         this.isRefreshing = false;
         this.refreshPromise = null;
+        if (typeof window !== 'undefined') {
+          window.__AUTH_REFRESHING__ = false;
+        }
       }
     })();
     

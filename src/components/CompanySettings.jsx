@@ -165,7 +165,7 @@ const LogoContainer = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
   
   return (
-    <div className={`w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center ${
+    <div className={`w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden ${
       isDarkMode 
         ? 'border-gray-600 bg-gray-800' 
         : 'border-gray-300 bg-gray-50'
@@ -357,8 +357,19 @@ const CompanySettings = () => {
     }
   });
 
+  // TRN helpers: must start with 100 and be 15 digits (UAE)
+  const validateTRN = (value) => {
+    if (!value) return null; // optional
+    const digits = String(value).replace(/\s+/g, '');
+    if (!/^100\d{12}$/.test(digits)) return 'TRN must start with 100 and be 15 digits';
+    return null;
+  };
+  const sanitizeTRNInput = (value) => String(value || '').replace(/\D/g, '').slice(0, 15);
+
   useEffect(() => {
     if (companyData) {
+      console.log('Loading company data:', companyData);
+      console.log('Company logo URL:', companyData.logo_url);
       setCompanyProfile({
         ...companyData,
         address: typeof companyData.address === 'string' ? companyData.address : (companyData.address?.street || ''),
@@ -510,6 +521,12 @@ const CompanySettings = () => {
         notificationService.warning('Company name is required');
         return;
       }
+      // Validate TRN if provided
+      const trnErr = validateTRN(companyProfile.trnNumber);
+      if (trnErr) {
+        notificationService.error(trnErr);
+        return;
+      }
 
       const companyData = {
         name: companyProfile.name.trim(),
@@ -521,7 +538,7 @@ const CompanySettings = () => {
         phone: companyProfile.phone || '',
         email: companyProfile.email || '',
         vat_number: companyProfile.gstNumber || '',
-        trn_number: companyProfile.trnNumber || '',
+        trn_number: (companyProfile.trnNumber || '').replace(/\D/g, ''),
         logo_url: companyProfile.logo_url || null,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
@@ -603,12 +620,23 @@ const CompanySettings = () => {
     }
 
     try {
-      console.log('Uploading file:', file.name);
+      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       const response = await uploadLogo(file);
-      console.log('Upload response:', response);
+      console.log('Full upload response:', response);
+      console.log('Response keys:', Object.keys(response || {}));
+      
+      // Handle different possible response structures
+      let logoUrl = response?.logoUrl || response?.logo_url || response?.url || response?.path;
+      
+      if (!logoUrl) {
+        console.error('No logo URL found in response. Response structure:', response);
+        throw new Error('Invalid response from server - no logo URL received');
+      }
       
       // Update company profile with new logo URL
-      const newLogoUrl = `http://localhost:5000${response.logoUrl}`;
+      // Keep relative URL (e.g., /uploads/...) so Vite proxy can serve it same-origin
+      const newLogoUrl = logoUrl.startsWith('http') ? logoUrl : logoUrl;
+      console.log('Setting new logo URL:', newLogoUrl);
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
       
       // Save to database
@@ -830,7 +858,7 @@ const CompanySettings = () => {
             variant="primary"
             startIcon={updatingCompany ? <CircularProgress size={16} /> : <Save size={16} />}
             onClick={saveCompanyProfile}
-            disabled={updatingCompany}
+            disabled={updatingCompany || !!validateTRN(companyProfile.trnNumber)}
           >
             {updatingCompany ? 'Saving...' : 'Save Profile'}
           </Button>
@@ -846,16 +874,38 @@ const CompanySettings = () => {
               
               <div className="flex space-x-6 items-start">
                 <LogoContainer>
-                  {companyProfile.logo_url ? (
+                  {uploadingLogo ? (
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                    </div>
+                  ) : companyProfile.logo_url ? (
                     <div className="relative w-full h-full">
+                      {console.log('Rendering logo with URL:', companyProfile.logo_url)}
                       <img 
-                        src={companyProfile.logo_url} 
+                        src={`${companyProfile.logo_url}?t=${Date.now()}`}
                         alt="Company Logo"
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-contain rounded-lg"
+                        crossOrigin="anonymous"
+                        onLoad={() => console.log('Logo loaded successfully:', companyProfile.logo_url)}
+                        onError={(e) => {
+                          console.error('Logo failed to load:', companyProfile.logo_url, e);
+                          console.error('Image load error details:', e.type, e.target?.src);
+                          // Try to reload without cache-busting query first
+                          if (e.target.src.includes('?t=')) {
+                            console.log('Retrying without cache-busting query...');
+                            e.target.src = companyProfile.logo_url;
+                          } else {
+                            // If that also fails, show upload option
+                            setCompanyProfile(prev => ({ ...prev, logo_url: null }));
+                          }
+                        }}
+                        style={{ maxWidth: '100%', maxHeight: '100%' }}
                       />
                       <button
                         className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                         onClick={handleLogoDelete}
+                        title="Delete logo"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -962,8 +1012,11 @@ const CompanySettings = () => {
                 <TextField
                   label="TRN Number"
                   value={companyProfile.trnNumber || ''}
-                  onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: e.target.value})}
-                  placeholder="Enter TRN number"
+                  onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: sanitizeTRNInput(e.target.value)})}
+                  placeholder="100XXXXXXXXXXXX"
+                  type="text"
+                  error={!!validateTRN(companyProfile.trnNumber)}
+                  helperText={validateTRN(companyProfile.trnNumber) || '15 digits; must start with 100'}
                 />
                 <Select
                   label="Country"

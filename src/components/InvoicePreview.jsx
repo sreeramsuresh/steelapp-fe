@@ -276,53 +276,55 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </div>
             </div>
 
-            {/* Transport Details */}
-            {(invoice.despatchedThrough ||
-              invoice.destination ||
-              invoice.termsOfDelivery ||
-              invoice.modeOfPayment) && (
-              <div className="mb-8">
-                <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Transport & Delivery Details:
-                </h3>
-                <div className={`border rounded-lg p-4 ${
-                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
-                }`}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {invoice.despatchedThrough && (
-                      <div>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <strong>Despatched Through:</strong>{" "}
-                          {invoice.despatchedThrough}
-                        </p>
-                      </div>
-                    )}
-                    {invoice.destination && (
-                      <div>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <strong>Destination:</strong> {invoice.destination}
-                        </p>
-                      </div>
-                    )}
-                    {invoice.termsOfDelivery && (
-                      <div>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <strong>Terms of Delivery:</strong>{" "}
-                          {invoice.termsOfDelivery}
-                        </p>
-                      </div>
-                    )}
-                    {invoice.modeOfPayment && (
-                      <div>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <strong>Mode of Payment:</strong>{" "}
-                          {invoice.modeOfPayment}
-                        </p>
-                      </div>
-                    )}
+            {/* Transport Details (disabled for Phase 1) */}
+            {false && (
+              (invoice.despatchedThrough ||
+                invoice.destination ||
+                invoice.termsOfDelivery ||
+                invoice.modeOfPayment) && (
+                <div className="mb-8">
+                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Transport & Delivery Details:
+                  </h3>
+                  <div className={`border rounded-lg p-4 ${
+                    isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                  }`}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {invoice.despatchedThrough && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Despatched Through:</strong>{" "}
+                            {invoice.despatchedThrough}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.destination && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Destination:</strong> {invoice.destination}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.termsOfDelivery && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Terms of Delivery:</strong>{" "}
+                            {invoice.termsOfDelivery}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.modeOfPayment && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Mode of Payment:</strong>{" "}
+                            {invoice.modeOfPayment}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
 
             {/* Invoice Table */}
@@ -348,6 +350,15 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         Grade
                       </th>
                       <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                        Finish
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                        Size
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                        Thickness
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
                         Unit
                       </th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
@@ -365,10 +376,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         Amount
                       </th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        TRN %
+                        VAT %
                       </th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        TRN Amount
+                        VAT Amount
                       </th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
                         Total
@@ -388,6 +399,9 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
                           )}
                           <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.grade || "-"}</td>
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.finish || "-"}</td>
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.size || "-"}</td>
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.thickness || "-"}</td>
                           <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.unit}</td>
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -479,7 +493,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   )}
 
                   <div className="flex justify-between mb-2">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN Amount:</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount:</span>
                     <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedVatAmount)}</span>
                   </div>
 

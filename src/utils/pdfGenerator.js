@@ -158,8 +158,8 @@ const createInvoiceElement = (invoice, company) => {
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Qty</th>
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Rate</th>
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Amount</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">TRN %</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">TRN Amount</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">VAT %</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">VAT Amount</th>
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff; background-color: #009999;">Total</th>
           </tr>
         </thead>
@@ -193,7 +193,7 @@ const createInvoiceElement = (invoice, company) => {
           <span>${formatCurrency(subtotalVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>TRN Amount:</span>
+          <span>VAT Amount:</span>
           <span>${formatCurrency(trnAmountVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">

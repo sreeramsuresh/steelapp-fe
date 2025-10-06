@@ -75,6 +75,28 @@ axiosApi.interceptors.request.use(
     if (token) {
       if (tokenUtils.isTokenExpired(token)) {
         console.log('[Request Interceptor] Token expired, attempting refresh');
+        // If an auth-service driven refresh is in progress, wait for it
+        if (typeof window !== 'undefined' && window.__AUTH_REFRESHING__) {
+          await new Promise((resolve, reject) => {
+            const started = Date.now();
+            const interval = setInterval(() => {
+              const timeout = Date.now() - started > 10000; // 10s timeout
+              if (timeout) {
+                clearInterval(interval);
+                reject(new Error('Timed out waiting for token refresh'));
+              } else if (!window.__AUTH_REFRESHING__) {
+                clearInterval(interval);
+                resolve();
+              }
+            }, 100);
+          });
+          const latest = tokenUtils.getToken();
+          if (latest && !tokenUtils.isTokenExpired(latest)) {
+            config.headers = config.headers || {};
+            config.headers.Authorization = 'Bearer ' + latest;
+            return config;
+          }
+        }
         // Token is expired, try to refresh it before making the request
         const refreshToken = tokenUtils.getRefreshToken();
         if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
@@ -151,7 +173,29 @@ axiosApi.interceptors.response.use(
         console.log('[Interceptor] Skipping refresh for auth request or login page');
         return Promise.reject(error);
       }
-      
+      // If authService is currently refreshing, wait and retry
+      if (typeof window !== 'undefined' && window.__AUTH_REFRESHING__) {
+        console.log('[Interceptor] AuthService is refreshing, waiting to retry request');
+        return new Promise((resolve, reject) => {
+          const started = Date.now();
+          const interval = setInterval(() => {
+            const timeout = Date.now() - started > 10000; // 10s timeout
+            if (timeout) {
+              clearInterval(interval);
+              reject(error);
+            } else if (!window.__AUTH_REFRESHING__) {
+              clearInterval(interval);
+              const latest = tokenUtils.getToken();
+              if (latest && !tokenUtils.isTokenExpired(latest)) {
+                originalRequest.headers = originalRequest.headers || {};
+                originalRequest.headers.Authorization = `Bearer ${latest}`;
+              }
+              resolve(axiosApi(originalRequest));
+            }
+          }, 100);
+        });
+      }
+
       if (isRefreshing) {
         // If we're already refreshing, queue this request
         console.log('[Interceptor] Token refresh in progress, queueing request');
@@ -196,7 +240,7 @@ axiosApi.interceptors.response.use(
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
           processQueue(refreshError, null);
-          // Do not auto-logout or redirect; propagate error
+          // Do not clear tokens here; let caller handle navigation/UI.
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
@@ -205,7 +249,7 @@ axiosApi.interceptors.response.use(
         console.log('[Interceptor] No valid refresh token');
         isRefreshing = false;
         processQueue(error, null);
-        // Do not auto-logout or redirect; propagate error
+        // Do not clear tokens here either.
         return Promise.reject(error);
       }
     }

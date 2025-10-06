@@ -553,18 +553,15 @@ const InvoiceForm = ({ onSave }) => {
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
-      const response = await fetch(
-        `/api/customers/${customerId}/trade-license-status`
-      );
-      if (response.ok) {
-        const licenseStatus = await response.json();
+      // Use axios-based client to benefit from auth + baseURL
+      const { apiClient } = await import('../services/api');
+      const licenseStatus = await apiClient.get(`/customers/${customerId}/trade-license-status`);
+      if (licenseStatus) {
         setTradeLicenseStatus(licenseStatus);
-
         // Show alert for expired or expiring licenses
         if (
           licenseStatus.hasLicense &&
-          (licenseStatus.status === "expired" ||
-            licenseStatus.status === "expiring_soon")
+          (licenseStatus.status === 'expired' || licenseStatus.status === 'expiring_soon')
         ) {
           setShowTradeLicenseAlert(true);
         } else {
@@ -572,7 +569,23 @@ const InvoiceForm = ({ onSave }) => {
         }
       }
     } catch (error) {
-      console.error("Error checking trade license status:", error);
+      // Fall back to fetch with defensive parsing to capture server HTML errors
+      try {
+        const resp = await fetch(`/api/customers/${customerId}/trade-license-status`);
+        const ct = resp.headers.get('content-type') || '';
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`HTTP ${resp.status}: ${txt.slice(0,200)}`);
+        }
+        if (!ct.includes('application/json')) {
+          const txt = await resp.text();
+          throw new SyntaxError(`Unexpected content-type: ${ct}. Body starts: ${txt.slice(0,80)}`);
+        }
+        const licenseStatus = await resp.json();
+        setTradeLicenseStatus(licenseStatus);
+      } catch (fallbackErr) {
+        console.error('Error checking trade license status:', fallbackErr);
+      }
     }
   };
 
@@ -1098,7 +1111,8 @@ const InvoiceForm = ({ onSave }) => {
             </Card>
           </div>
 
-          {/* Transport & Delivery Details */}
+          {/* Transport & Delivery Details (disabled for Phase 1) */}
+          {false && (
           <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               🚚 Transport & Delivery Details
@@ -1156,6 +1170,7 @@ const InvoiceForm = ({ onSave }) => {
               />
             </div>
           </Card>
+          )}
 
           {/* Items Section */}
           <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
@@ -1190,7 +1205,7 @@ const InvoiceForm = ({ onSave }) => {
                       Rate
                     </th>
                     <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
-                      TRN %
+                      VAT %
                     </th>
                     <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
                       Amount
@@ -1441,7 +1456,7 @@ const InvoiceForm = ({ onSave }) => {
                         step="0.01"
                       />
                       <Input
-                        label="TRN %"
+                        label="VAT %"
                         type="number"
                         value={item.vatRate}
                         onChange={(e) =>
@@ -1551,7 +1566,7 @@ const InvoiceForm = ({ onSave }) => {
                 </div>
 
                 <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <span>TRN Amount:</span>
+                  <span>VAT Amount:</span>
                   <span className="font-medium">
                     {formatCurrency(computedVatAmount)}
                   </span>

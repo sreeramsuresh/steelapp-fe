@@ -16,6 +16,7 @@ import { productService } from "../services/productService";
 import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
+import { supplierService } from "../services/supplierService";
 import { notificationService } from "../services/notificationService";
 
 const PurchaseOrderForm = () => {
@@ -52,6 +53,10 @@ const PurchaseOrderForm = () => {
     total: 0,
     notes: "",
     terms: "",
+    currency: 'AED',
+    supplierContactName: '',
+    supplierContactEmail: '',
+    supplierContactPhone: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -59,6 +64,25 @@ const PurchaseOrderForm = () => {
   const [availableProducts, setAvailableProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  
+  // Normalize date value for <input type="date">
+  const toDateInput = (d) => {
+    if (!d) return '';
+    try {
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0,10);
+      const dt = new Date(d);
+      if (isNaN(dt.getTime())) return '';
+      return dt.toISOString().slice(0,10);
+    } catch {
+      return '';
+    }
+  };
+  // Suppliers
+  const { data: suppliersData, loading: loadingSuppliers } = useApiData(
+    () => supplierService.getSuppliers({ status: 'active' }),
+    []
+  );
 
   // Load existing purchase order when editing
   useEffect(() => {
@@ -75,10 +99,14 @@ const PurchaseOrderForm = () => {
           supplierEmail: data.supplier_email || '',
           supplierPhone: data.supplier_phone || '',
           supplierAddress: data.supplier_address || '',
-          poDate: data.po_date || prev.poDate,
-          expectedDeliveryDate: data.expected_delivery_date || '',
+          poDate: toDateInput(data.po_date) || prev.poDate,
+          expectedDeliveryDate: toDateInput(data.expected_delivery_date) || '',
           status: data.status || 'draft',
           stockStatus: data.stock_status || 'retain',
+          currency: data.currency || prev.currency,
+          supplierContactName: data.supplier_contact_name || '',
+          supplierContactEmail: data.supplier_contact_email || data.supplier_email || '',
+          supplierContactPhone: data.supplier_contact_phone || data.supplier_phone || '',
           items: Array.isArray(data.items) ? data.items.map(it => ({
             productType: it.name || '',
             name: it.name || '',
@@ -161,10 +189,40 @@ const PurchaseOrderForm = () => {
     }
   }, [nextPOData, id]);
 
+  // Try to map existing PO supplier to a supplier record by name (best-effort)
+  useEffect(() => {
+    const list = suppliersData?.suppliers || [];
+    if (list.length && purchaseOrder.supplierName && !selectedSupplierId) {
+      const match = list.find(s => s.name && s.name.toLowerCase() === purchaseOrder.supplierName.toLowerCase());
+      if (match) setSelectedSupplierId(String(match.id));
+    }
+  }, [suppliersData, purchaseOrder.supplierName, selectedSupplierId]);
+
   const handleInputChange = (field, value) => {
     setPurchaseOrder((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleSupplierSelect = (supplierId) => {
+    const suppliers = suppliersData?.suppliers || [];
+    const found = suppliers.find((s) => String(s.id) === String(supplierId));
+    if (!found) {
+      setPurchaseOrder((prev) => ({ ...prev, supplierName: '', supplierEmail: '', supplierPhone: '', supplierAddress: '' }));
+      return;
+    }
+    setPurchaseOrder((prev) => ({
+      ...prev,
+      supplierName: found.name || '',
+      supplierEmail: found.email || '',
+      supplierPhone: found.phone || '',
+      supplierAddress: found.address || found.company || '',
+      terms: found.payment_terms || prev.terms || '',
+      currency: found.default_currency || prev.currency || 'AED',
+      supplierContactName: found.contact_name || '',
+      supplierContactEmail: found.contact_email || found.email || '',
+      supplierContactPhone: found.contact_phone || found.phone || ''
     }));
   };
 
@@ -302,6 +360,11 @@ const PurchaseOrderForm = () => {
         expected_delivery_date: poData.expectedDeliveryDate || null,
     status: poData.status,
         stock_status: poData.stockStatus,
+        currency: poData.currency || 'AED',
+        payment_terms: poData.terms || null,
+        supplier_contact_name: poData.supplierContactName || null,
+        supplier_contact_email: poData.supplierContactEmail || null,
+        supplier_contact_phone: poData.supplierContactPhone || null,
         warehouse_id: selectedWarehouse,
         warehouse_name: selectedWarehouseDetails ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})` : '',
         notes: poData.notes || null,
@@ -512,6 +575,24 @@ const PurchaseOrderForm = () => {
               <div className="space-y-4">
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Select Supplier
+                  </label>
+                  <select
+                    value={selectedSupplierId}
+                    onChange={(e)=> { setSelectedSupplierId(e.target.value); handleSupplierSelect(e.target.value); }}
+                    disabled={loadingSuppliers}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select a supplier</option>
+                    {(suppliersData?.suppliers || []).map((s) => (
+                      <option key={s.id} value={s.id}>{s.name} {s.email ? `- ${s.email}` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Supplier Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -525,6 +606,90 @@ const PurchaseOrderForm = () => {
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                     }`}
                   />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Name
+                    </label>
+                    <input
+                      type="text"
+                      value={purchaseOrder.supplierContactName}
+                      onChange={(e) => handleInputChange("supplierContactName", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      value={purchaseOrder.supplierContactEmail}
+                      onChange={(e) => handleInputChange("supplierContactEmail", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={purchaseOrder.supplierContactPhone}
+                      onChange={(e) => handleInputChange("supplierContactPhone", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Payment Terms
+                    </label>
+                    <input
+                      type="text"
+                      value={purchaseOrder.terms}
+                      onChange={(e) => handleInputChange("terms", e.target.value)}
+                      placeholder="e.g., Net 30"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Currency
+                    </label>
+                    <select
+                      value={purchaseOrder.currency}
+                      onChange={(e) => handleInputChange("currency", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="AED">AED</option>
+                      <option value="USD">USD</option>
+                      <option value="INR">INR</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>

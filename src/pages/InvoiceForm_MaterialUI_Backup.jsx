@@ -707,7 +707,7 @@ const InvoiceForm = ({ onSave }) => {
             />
             <TextField
               size="small"
-              label="TRN %"
+              label="VAT %"
               type="number"
               value={item.vatRate}
               onChange={(e) =>
@@ -1218,7 +1218,8 @@ const InvoiceForm = ({ onSave }) => {
             </Box>
           </Box>
 
-          {/* Transport & Delivery Details */}
+          {/* Transport & Delivery Details (disabled for Phase 1) */}
+          {false && (
           <SectionCard sx={{ mb: 3 }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <SectionHeader variant="h6">
@@ -1303,6 +1304,7 @@ const InvoiceForm = ({ onSave }) => {
               </Box>
             </CardContent>
           </SectionCard>
+          )}
 
           {/* Items Section */}
           <SectionCard sx={{ mb: 3 }}>
@@ -1364,7 +1366,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
                       <TableCell>Discount</TableCell>
-                      <TableCell>TRN %</TableCell>
+                      <TableCell>VAT %</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -1794,7 +1796,7 @@ const InvoiceForm = ({ onSave }) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="body1">TRN Amount:</Typography>
+                      <Typography variant="body1">VAT Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {formatCurrency(computedVatAmount)}
                       </Typography>

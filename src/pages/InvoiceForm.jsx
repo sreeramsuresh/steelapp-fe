@@ -54,6 +54,8 @@ import {
   PAYMENT_MODES,
   DELIVERY_TERMS,
   DISCOUNT_TYPES,
+  STEEL_GRADES,
+  FINISHES,
 } from "../types";
 import {
   generateInvoiceNumber,
@@ -145,6 +147,12 @@ const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     display: "block",
   },
+  // Ensure all table cells are visible
+  "& .MuiTableCell-root": {
+    minWidth: "auto",
+    visibility: "visible",
+    display: "table-cell",
+  },
 }));
 
 const MobileItemCard = styled(Card)(({ theme }) => ({
@@ -169,6 +177,21 @@ const InvoiceForm = ({ onSave }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // Debug log for breakpoints
+  console.log("Debug: Screen breakpoints", {
+    isMobile,
+    isSmallScreen,
+    windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'unknown'
+  });
+
+  // Debug constants availability
+  console.log("Debug: Constants", {
+    STEEL_GRADES: STEEL_GRADES,
+    FINISHES: FINISHES,
+    hasGrades: Array.isArray(STEEL_GRADES) && STEEL_GRADES.length > 0,
+    hasFinishes: Array.isArray(FINISHES) && FINISHES.length > 0
+  });
 
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
@@ -823,12 +846,60 @@ const InvoiceForm = ({ onSave }) => {
           />
 
 
+          <FormControl size="small">
+            <InputLabel>Grade</InputLabel>
+            <Select
+              value={item.grade || ""}
+              onChange={(e) =>
+                handleItemChange(index, "grade", e.target.value)
+              }
+              label="Grade"
+            >
+              <MenuItem value="">
+                <em>Select Grade</em>
+              </MenuItem>
+              {STEEL_GRADES.map((grade) => (
+                <MenuItem key={grade} value={grade}>
+                  {grade}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl size="small">
+            <InputLabel>Finish</InputLabel>
+            <Select
+              value={item.finish || ""}
+              onChange={(e) =>
+                handleItemChange(index, "finish", e.target.value)
+              }
+              label="Finish"
+            >
+              <MenuItem value="">
+                <em>Select Finish</em>
+              </MenuItem>
+              {FINISHES.map((finish) => (
+                <MenuItem key={finish} value={finish}>
+                  {finish}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             size="small"
-            label="Grade"
-            value={item.grade || ""}
-            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
-            placeholder="e.g., Fe415, Fe500"
+            label="Size"
+            value={item.size || ""}
+            onChange={(e) => handleItemChange(index, "size", e.target.value)}
+            placeholder="e.g., 4x8, 1200x2400"
+          />
+
+          <TextField
+            size="small"
+            label="Thickness"
+            value={item.thickness || ""}
+            onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+            placeholder="e.g., 1mm, 2.5mm"
           />
 
           <TextField
@@ -895,7 +966,7 @@ const InvoiceForm = ({ onSave }) => {
             />
             <TextField
               size="small"
-              label="TRN %"
+              label="VAT %"
               type="number"
               value={item.vatRate}
               onChange={(e) =>
@@ -1417,7 +1488,8 @@ const InvoiceForm = ({ onSave }) => {
             </Box>
           </Box>
 
-          {/* Transport & Delivery Details */}
+          {/* Transport & Delivery Details (disabled for Phase 1) */}
+          {false && (
           <SectionCard sx={{ mb: 3 }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <SectionHeader variant="h6">
@@ -1508,6 +1580,7 @@ const InvoiceForm = ({ onSave }) => {
               </Box>
             </CardContent>
           </SectionCard>
+          )}
 
           {/* Items Section */}
           <SectionCard sx={{ mb: 3 }}>
@@ -1522,7 +1595,13 @@ const InvoiceForm = ({ onSave }) => {
                   gap: 2,
                 }}
               >
-                <SectionHeader variant="h6">🏗️ Steel Items</SectionHeader>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <SectionHeader variant="h6">🏗️ Steel Items</SectionHeader>
+                  {/* Debug indicator - remove in production */}
+                  <Typography variant="caption" color="text.secondary">
+                    {isMobile ? "(Mobile View)" : "(Desktop View)"}
+                  </Typography>
+                </Box>
                 <Button
                   onClick={addItem}
                   variant="contained"
@@ -1553,22 +1632,25 @@ const InvoiceForm = ({ onSave }) => {
               </MobileTableContainer>
 
               {/* Desktop View - Table */}
-              <DesktopTableContainer>
-                <Table>
+              <DesktopTableContainer sx={{ overflowX: "auto" }}>
+                <Table sx={{ minWidth: 1200, tableLayout: "auto" }}>
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ minWidth: 200 }}>
                         Product Selection
                       </TableCell>
-                      <TableCell sx={{ minWidth: 100 }}>Grade</TableCell>
+                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Grade</TableCell>
+                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Finish</TableCell>
+                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Size</TableCell>
+                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Thickness</TableCell>
                       <TableCell sx={{ minWidth: 120 }}>Description</TableCell>
-                      <TableCell>Unit</TableCell>
-                      <TableCell>Qty</TableCell>
-                      <TableCell>Rate</TableCell>
-                      <TableCell>Discount</TableCell>
-                      <TableCell>TRN %</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Action</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Unit</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Qty</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Rate</TableCell>
+                      <TableCell sx={{ minWidth: 100 }}>Discount</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>VAT %</TableCell>
+                      <TableCell sx={{ minWidth: 100 }}>Amount</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1709,14 +1791,66 @@ const InvoiceForm = ({ onSave }) => {
                             }
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ minWidth: 120 }}>
+                          <FormControl size="small" sx={{ minWidth: 120, width: "100%" }}>
+                            <Select
+                              value={item.grade || ""}
+                              onChange={(e) =>
+                                handleItemChange(index, "grade", e.target.value)
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">
+                                <em>Select Grade</em>
+                              </MenuItem>
+                              {STEEL_GRADES.map((grade) => (
+                                <MenuItem key={grade} value={grade}>
+                                  {grade}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </TableCell>
+                        <TableCell sx={{ minWidth: 120 }}>
+                          <FormControl size="small" sx={{ minWidth: 120, width: "100%" }}>
+                            <Select
+                              value={item.finish || ""}
+                              onChange={(e) =>
+                                handleItemChange(index, "finish", e.target.value)
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">
+                                <em>Select Finish</em>
+                              </MenuItem>
+                              {FINISHES.map((finish) => (
+                                <MenuItem key={finish} value={finish}>
+                                  {finish}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </TableCell>
+                        <TableCell sx={{ minWidth: 120 }}>
                           <TextField
                             size="small"
-                            value={item.grade || ""}
+                            value={item.size || ""}
                             onChange={(e) =>
-                              handleItemChange(index, "grade", e.target.value)
+                              handleItemChange(index, "size", e.target.value)
                             }
-                            placeholder="e.g., Fe415, Fe500"
+                            placeholder="e.g., 4x8, 1200x2400"
+                            sx={{ minWidth: 120, width: "100%" }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ minWidth: 120 }}>
+                          <TextField
+                            size="small"
+                            value={item.thickness || ""}
+                            onChange={(e) =>
+                              handleItemChange(index, "thickness", e.target.value)
+                            }
+                            placeholder="e.g., 1mm, 2.5mm"
+                            sx={{ minWidth: 120, width: "100%" }}
                           />
                         </TableCell>
                         <TableCell>
@@ -2020,7 +2154,7 @@ const InvoiceForm = ({ onSave }) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="body1">TRN Amount:</Typography>
+                      <Typography variant="body1">VAT Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {formatCurrency(computedVatAmount)}
                       </Typography>
