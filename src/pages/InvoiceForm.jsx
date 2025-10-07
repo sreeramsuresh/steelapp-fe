@@ -2,50 +2,23 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useDeferredValue,
   useCallback,
   memo,
   useRef,
 } from "react";
 import { useParams } from "react-router-dom";
-import { Plus, Trash2, Save, Eye, Download } from "lucide-react";
 import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  IconButton,
-  Divider,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  InputAdornment,
-  Autocomplete,
-  Chip,
-  useTheme,
-  useMediaQuery,
-  Alert,
-  AlertTitle,
-  Collapse,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+  Plus,
+  Trash2,
+  Save,
+  Eye,
+  Download,
+  ChevronDown,
+  X,
+  AlertTriangle,
+  Info,
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   createInvoice,
   createCompany,
@@ -72,126 +45,378 @@ import { invoiceService, companyService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { useApiData, useApi } from "../hooks/useApi";
+import { notificationService } from "../services/notificationService";
 
-// Styled Components
-const InvoiceContainer = styled(Box)(({ theme }) => ({
-  paddingTop: theme.spacing(1),
-  paddingBottom: theme.spacing(1),
-  paddingLeft: 0,
-  paddingRight: 0,
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  overflow: "auto",
-  [theme.breakpoints.up("sm")]: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0),
-  },
-}));
+// Custom Tailwind Components
+const Button = ({
+  children,
+  variant = "primary",
+  size = "md",
+  disabled = false,
+  onClick,
+  className = "",
+  ...props
+}) => {
+  const { isDarkMode } = useTheme();
+  
+  const baseClasses =
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+  
+  const getVariantClasses = () => {
+    if (variant === "primary") {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else if (variant === "secondary") {
+      return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${isDarkMode ? 'gray-500' : 'gray-400'} disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    } else { // outline
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+    }
+  };
+  
+  const sizes = {
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2 text-sm",
+    lg: "px-6 py-3 text-base",
+  };
 
-const InvoiceFormPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[1],
-  margin: 0,
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(3),
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[2],
-  },
-}));
+  return (
+    <button
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
+        disabled ? "cursor-not-allowed" : ""
+      } ${className}`}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
 
-const SectionCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  boxShadow: theme.shadows[0],
-  // Allow poppers/menus to render outside the card
-  overflow: "visible",
-  [theme.breakpoints.up("sm")]: {
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[1],
-  },
-}));
+const Input = ({ label, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <input
+        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+          isDarkMode 
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500' 
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? "border-red-500" : ""} ${className}`}
+        {...props}
+      />
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+    </div>
+  );
+};
 
-const SectionHeader = styled(Typography)(({ theme }) => ({
-  fontWeight: 600,
-  color: theme.palette.text.primary,
-  marginBottom: theme.spacing(2),
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1),
-  fontSize: "1rem",
-  [theme.breakpoints.up("sm")]: {
-    fontSize: "1.25rem",
-  },
-}));
+const Select = ({ label, children, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <div className="relative">
+        <select
+          className={`w-full pl-3 pr-9 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
+            isDarkMode 
+              ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500' 
+              : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
+          } ${error ? "border-red-500" : ""} ${className}`}
+          {...props}
+        >
+          {children}
+        </select>
+        <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+      </div>
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+    </div>
+  );
+};
 
-const MobileTableContainer = styled(Box)(({ theme }) => ({
-  display: "block",
-  [theme.breakpoints.up("md")]: {
-    display: "none",
-  },
-}));
+const Textarea = ({ label, error, className = "", ...props }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{label}</label>
+      )}
+      <textarea
+        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+          isDarkMode 
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500' 
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? "border-red-500" : ""} ${className}`}
+        {...props}
+      />
+      {error && <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+    </div>
+  );
+};
 
-const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
-  display: "none",
-  // Allow dropdowns (e.g., Autocomplete poppers) to overflow the table area
-  overflow: "visible",
-  [theme.breakpoints.up("md")]: {
-    display: "block",
-  },
-  // Ensure all table cells are visible
-  "& .MuiTableCell-root": {
-    minWidth: "auto",
-    visibility: "visible",
-    display: "table-cell",
-  },
-}));
+const Card = ({ children, className = "" }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div
+      className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-gray-800 border border-gray-600' 
+          : 'bg-white border border-gray-200'
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
 
-const MobileItemCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  overflow: "visible",
-}));
+const Alert = ({ variant = "info", children, onClose, className = "" }) => {
+  const { isDarkMode } = useTheme();
+  
+  const getVariantClasses = () => {
+    const darkVariants = {
+      info: "bg-blue-900/20 border-blue-500/30 text-blue-300",
+      warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-300",
+      error: "bg-red-900/20 border-red-500/30 text-red-300",
+      success: "bg-green-900/20 border-green-500/30 text-green-300",
+    };
+    
+    const lightVariants = {
+      info: "bg-blue-50 border-blue-200 text-blue-800",
+      warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+      error: "bg-red-50 border-red-200 text-red-800",
+      success: "bg-green-50 border-green-200 text-green-800",
+    };
+    
+    return isDarkMode ? darkVariants[variant] : lightVariants[variant];
+  };
 
-const HeaderActions = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(1),
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "row",
-    width: "auto",
-  },
-}));
+  return (
+    <div className={`border rounded-lg p-4 ${getVariantClasses()} ${className}`}>
+      <div className="flex items-start">
+        <div className="flex-shrink-0">
+          {variant === "warning" && <AlertTriangle className="h-5 w-5" />}
+          {variant === "info" && <Info className="h-5 w-5" />}
+        </div>
+        <div className="ml-3 flex-1">{children}</div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className={`ml-3 flex-shrink-0 ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const Autocomplete = ({
+  options = [],
+  value,
+  onChange,
+  onInputChange,
+  inputValue,
+  placeholder,
+  label,
+  disabled = false,
+  renderOption,
+  noOptionsText = "No options",
+  className = "",
+}) => {
+  const { isDarkMode } = useTheme();
+  const [isOpen, setIsOpen] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState(options);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputValue) {
+      const filtered = options.filter((option) =>
+        option.name?.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredOptions(filtered.slice(0, 20));
+    } else {
+      setFilteredOptions(options.slice(0, 20));
+    }
+  }, [options, inputValue]);
+
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    onInputChange?.(e, newValue);
+    setIsOpen(true);
+  };
+
+  const handleOptionSelect = (option) => {
+    onChange?.(null, option);
+    setIsOpen(false);
+  };
+
+  const updateDropdownPosition = () => {
+    if (dropdownRef.current && inputRef.current && isOpen) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const dropdown = dropdownRef.current;
+      
+      dropdown.style.position = 'fixed';
+      dropdown.style.top = `${inputRect.bottom + 4}px`;
+      dropdown.style.left = `${inputRect.left}px`;
+      dropdown.style.width = `${inputRect.width}px`;
+      dropdown.style.zIndex = '9999';
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+      const handleScroll = () => updateDropdownPosition();
+      const handleResize = () => updateDropdownPosition();
+      
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [isOpen]);
+
+  return (
+    <div className="relative">
+      <div ref={inputRef}>
+        <Input
+          label={label}
+          value={inputValue || ""}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={className}
+        />
+      </div>
+
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600' 
+              : 'bg-white border-gray-200'
+          }`}
+        >
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option, index) => (
+              <div
+                key={option.id || index}
+                className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
+                  isDarkMode 
+                    ? 'hover:bg-gray-700 text-white border-gray-700' 
+                    : 'hover:bg-gray-50 text-gray-900 border-gray-100'
+                }`}
+                onMouseDown={() => handleOptionSelect(option)}
+              >
+                {renderOption ? (
+                  renderOption(option)
+                ) : (
+                  <div>
+                    <div className="font-medium">{option.name}</div>
+                    {option.subtitle && (
+                      <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {option.subtitle}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {noOptionsText}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
+  const { isDarkMode } = useTheme();
+  
+  if (!isOpen) return null;
+
+  const sizes = {
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity" onClick={onClose}>
+          <div className={`absolute inset-0 ${isDarkMode ? 'bg-gray-900' : 'bg-black'} opacity-75`}></div>
+        </div>
+
+        <div
+          className={`inline-block align-bottom border rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${sizes[size]} sm:w-full sm:p-6 ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600' 
+              : 'bg-white border-gray-200'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h3>
+            <button
+              onClick={onClose}
+              className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LoadingSpinner = ({ size = "md" }) => {
+  const { isDarkMode } = useTheme();
+  const sizes = {
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-8 w-8",
+  };
+
+  return (
+    <div
+      className={`animate-spin rounded-full border-2 border-t-blue-600 ${sizes[size]} ${
+        isDarkMode ? 'border-gray-300' : 'border-gray-200'
+      }`}
+    ></div>
+  );
+};
 
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
-  // Debug log for breakpoints
-  console.log("Debug: Screen breakpoints", {
-    isMobile,
-    isSmallScreen,
-    windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'unknown'
-  });
-
-  // Debug constants availability
-  console.log("Debug: Constants", {
-    STEEL_GRADES: STEEL_GRADES,
-    FINISHES: FINISHES,
-    hasGrades: Array.isArray(STEEL_GRADES) && STEEL_GRADES.length > 0,
-    hasFinishes: Array.isArray(FINISHES) && FINISHES.length > 0
-  });
+  const { isDarkMode } = useTheme();
+  
+  // Debug alert - remove in production
+  React.useEffect(() => {
+    alert('🚨 InvoiceFormTailwind.jsx is loading! STEEL_GRADES: ' + STEEL_GRADES.length + ', FINISHES: ' + FINISHES.length);
+    console.log('🔍 Debug - STEEL_GRADES:', STEEL_GRADES);
+    console.log('🔍 Debug - FINISHES:', FINISHES);
+  }, []);
 
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
@@ -230,11 +455,27 @@ const InvoiceForm = ({ onSave }) => {
   const [searchInputs, setSearchInputs] = useState({});
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
+  
+  // Helper to enforce invoice number prefix by status
+  const withStatusPrefix = (num, status) => {
+    const desired = status === 'draft' ? 'DFT' : status === 'proforma' ? 'PFM' : 'INV';
+    if (!num || typeof num !== 'string') return `${desired}-${generateInvoiceNumber().split('-').slice(1).join('-')}`;
+    const dashIdx = num.indexOf('-');
+    if (dashIdx === -1) {
+      // No dash, prepend desired prefix
+      // Avoid duplicate desired prefix
+      const cleaned = num.replace(/^(INV|DFT|PFM)/, '').replace(/^-/, '');
+      return `${desired}-${cleaned || generateInvoiceNumber().split('-').slice(1).join('-')}`;
+    }
+    return `${desired}${num.slice(dashIdx)}`;
+  };
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
-    newInvoice.invoiceNumber = generateInvoiceNumber();
+    newInvoice.invoiceNumber = withStatusPrefix(generateInvoiceNumber(), newInvoice.status || 'draft');
     return newInvoice;
   });
+
+  // No extra payment terms fields; Due Date remains directly editable
 
   // Remove deferred value which might be causing delays
   const deferredItems = invoice.items;
@@ -305,10 +546,10 @@ const InvoiceForm = ({ onSave }) => {
   ]);
 
   useEffect(() => {
-    if (nextInvoiceData && nextInvoiceData.nextNumber && !id) {
+    if (nextInvoiceData && nextInvoiceData.next_invoice_number && !id) {
       setInvoice((prev) => ({
         ...prev,
-        invoiceNumber: nextInvoiceData.nextNumber,
+        invoiceNumber: withStatusPrefix(nextInvoiceData.next_invoice_number, prev.status || 'draft'),
       }));
     }
   }, [nextInvoiceData, id]);
@@ -321,18 +562,15 @@ const InvoiceForm = ({ onSave }) => {
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
-      const response = await fetch(
-        `/api/customers/${customerId}/trade-license-status`
-      );
-      if (response.ok) {
-        const licenseStatus = await response.json();
+      // Use axios-based client to benefit from auth + baseURL
+      const { apiClient } = await import('../services/api');
+      const licenseStatus = await apiClient.get(`/customers/${customerId}/trade-license-status`);
+      if (licenseStatus) {
         setTradeLicenseStatus(licenseStatus);
-
         // Show alert for expired or expiring licenses
         if (
           licenseStatus.hasLicense &&
-          (licenseStatus.status === "expired" ||
-            licenseStatus.status === "expiring_soon")
+          (licenseStatus.status === 'expired' || licenseStatus.status === 'expiring_soon')
         ) {
           setShowTradeLicenseAlert(true);
         } else {
@@ -340,14 +578,30 @@ const InvoiceForm = ({ onSave }) => {
         }
       }
     } catch (error) {
-      console.error("Error checking trade license status:", error);
+      // Fall back to fetch with defensive parsing to capture server HTML errors
+      try {
+        const resp = await fetch(`/api/customers/${customerId}/trade-license-status`);
+        const ct = resp.headers.get('content-type') || '';
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`HTTP ${resp.status}: ${txt.slice(0,200)}`);
+        }
+        if (!ct.includes('application/json')) {
+          const txt = await resp.text();
+          throw new SyntaxError(`Unexpected content-type: ${ct}. Body starts: ${txt.slice(0,80)}`);
+        }
+        const licenseStatus = await resp.json();
+        setTradeLicenseStatus(licenseStatus);
+      } catch (fallbackErr) {
+        console.error('Error checking trade license status:', fallbackErr);
+      }
     }
   };
 
   const handleCustomerSelect = useCallback(
     (customerId) => {
       const customers = customersData?.customers || [];
-      const selectedCustomer = customers.find((c) => c.id === customerId);
+      const selectedCustomer = customers.find((c) => c.id == customerId);
 
       if (selectedCustomer) {
         setInvoice((prev) => ({
@@ -373,30 +627,6 @@ const InvoiceForm = ({ onSave }) => {
     },
     [customersData]
   );
-
-  const handleCustomerChange = useCallback((field, value) => {
-    if (field.includes(".")) {
-      const [parent, child] = field.split(".");
-      setInvoice((prev) => ({
-        ...prev,
-        customer: {
-          ...prev.customer,
-          [parent]: {
-            ...prev.customer[parent],
-            [child]: value,
-          },
-        },
-      }));
-    } else {
-      setInvoice((prev) => ({
-        ...prev,
-        customer: {
-          ...prev.customer,
-          [field]: value,
-        },
-      }));
-    }
-  }, []);
 
   const handleProductSelect = useCallback((index, product) => {
     if (product && typeof product === "object") {
@@ -425,6 +655,8 @@ const InvoiceForm = ({ onSave }) => {
       setSearchInputs((prev) => ({ ...prev, [index]: "" }));
     }
   }, []);
+
+  // No automatic coupling; due date is independently editable by the user
 
   const handleSearchInputChange = useCallback((index, value) => {
     setSearchInputs((prev) => ({ ...prev, [index]: value }));
@@ -477,96 +709,6 @@ const InvoiceForm = ({ onSave }) => {
     });
   }, []);
 
-  const handleAddNewProduct = async () => {
-    try {
-      const productData = {
-        name: newProductData.name,
-        category: newProductData.category,
-        grade: newProductData.grade,
-        size: newProductData.size,
-        weight:
-          newProductData.weight === "" ? 0 : Number(newProductData.weight),
-        unit: newProductData.unit,
-        description: newProductData.description,
-        current_stock:
-          newProductData.current_stock === ""
-            ? 0
-            : Number(newProductData.current_stock),
-        min_stock:
-          newProductData.min_stock === ""
-            ? 10
-            : Number(newProductData.min_stock),
-        max_stock:
-          newProductData.max_stock === ""
-            ? 100
-            : Number(newProductData.max_stock),
-        cost_price:
-          newProductData.cost_price === ""
-            ? 0
-            : Number(newProductData.cost_price),
-        selling_price:
-          newProductData.selling_price === ""
-            ? 0
-            : Number(newProductData.selling_price),
-        supplier: newProductData.supplier,
-        location: newProductData.location,
-        specifications: newProductData.specifications,
-      };
-
-      const newProduct = await createProduct(productData);
-
-      // Refresh products list
-      await refetchProducts();
-
-      // Auto-select the new product for the current row
-      if (selectedProductForRow >= 0) {
-        handleProductSelect(selectedProductForRow, newProduct.id);
-      }
-
-      // Reset form and close modal
-      setNewProductData({
-        name: "",
-        category: "rebar",
-        grade: "",
-        size: "",
-        weight: "",
-        unit: "kg",
-        description: "",
-        current_stock: "",
-        min_stock: "",
-        max_stock: "",
-        cost_price: "",
-        selling_price: "",
-        supplier: "",
-        location: "",
-        specifications: {
-          length: "",
-          width: "",
-          thickness: "",
-          diameter: "",
-          tensileStrength: "",
-          yieldStrength: "",
-          carbonContent: "",
-          coating: "",
-          standard: "",
-        },
-      });
-      setShowAddProductModal(false);
-      setSelectedProductForRow(-1);
-
-      alert("Product added successfully!");
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Failed to add product. Please try again.");
-    }
-  };
-
-  const openAddProductModal = (rowIndex, productName = "") => {
-    setSelectedProductForRow(rowIndex);
-    setNewProductData((prev) => ({ ...prev, name: productName }));
-    setShowAddProductModal(true);
-  };
-
   const productOptions = useMemo(() => {
     const list = productsData?.products || [];
     return list.map((product) => ({
@@ -587,31 +729,6 @@ const InvoiceForm = ({ onSave }) => {
       )
       .slice(0, 20);
   }, []);
-
-  const categories = [
-    { value: "rebar", label: "Rebar & Reinforcement" },
-    { value: "structural", label: "Structural Steel" },
-    { value: "sheet", label: "Steel Sheets" },
-    { value: "pipe", label: "Pipes & Tubes" },
-    { value: "angle", label: "Angles & Channels" },
-    { value: "round", label: "Round Bars" },
-    { value: "flat", label: "Flat Bars" },
-    { value: "wire", label: "Wire & Mesh" },
-  ];
-
-  const grades = [
-    "Fe415",
-    "Fe500",
-    "Fe550",
-    "Fe600",
-    "IS2062",
-    "ASTM A36",
-    "ASTM A572",
-    "SS304",
-    "SS316",
-    "MS",
-    "Galvanized",
-  ];
 
   // Debounced handler for charges fields to prevent calculation blocking
   const handleChargeChange = useCallback((field, value) => {
@@ -668,34 +785,24 @@ const InvoiceForm = ({ onSave }) => {
         );
         if (onSave) onSave(updatedInvoice);
 
-        alert(
-          `✅ Invoice updated successfully!\n\n🔄 Process completed:\n• Original invoice cancelled\n• Inventory movements reversed\n• New invoice created with updated data\n• New inventory movements applied${
-            processedInvoice.status === "paid"
-              ? "\n• Delivery note auto-generated"
-              : ""
-          }`
+        notificationService.success(
+          'Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.'
         );
       } else {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
-        alert(
-          `✅ Invoice created successfully!${
-            processedInvoice.status === "paid"
-              ? "\n🚚 Delivery note auto-generated"
-              : ""
-          }`
-        );
+        notificationService.success('Invoice created successfully!');
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
-      alert("Failed to save invoice. Please try again.");
+      notificationService.error("Failed to save invoice. Please try again.");
     }
   };
 
   const handleDownloadPDF = async () => {
     if (!company) {
-      alert("Company data is still loading. Please wait...");
+      notificationService.warning("Company data is still loading. Please wait...");
       return;
     }
 
@@ -703,333 +810,13 @@ const InvoiceForm = ({ onSave }) => {
 
     try {
       await generateInvoicePDF(invoice, company);
+      notificationService.success("PDF generated successfully!");
     } catch (error) {
-      alert(error.message);
+      notificationService.error(`PDF generation failed: ${error.message}`);
     } finally {
       setIsGeneratingPDF(false);
     }
   };
-
-  // Mobile Item Card Component - Memoized to prevent unnecessary re-renders
-  const MobileItemCard = memo(({ item, index }) => (
-    <Card sx={{ mb: 2, border: 1, borderColor: "divider" }}>
-      <CardContent sx={{ p: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 2,
-          }}
-        >
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-            Item #{index + 1}
-          </Typography>
-          <IconButton
-            onClick={() => removeItem(index)}
-            disabled={invoice.items.length === 1}
-            color="error"
-            size="small"
-          >
-            <Trash2 size={16} />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Autocomplete
-            size="small"
-            options={productOptions}
-            getOptionLabel={(option) =>
-              typeof option === "string" ? option : option.name
-            }
-            value={
-              item.productId
-                ? productOptions.find((p) => p.id === item.productId)
-                : null
-            }
-            inputValue={searchInputs[index] || item.name || ""}
-            onInputChange={(event, newInputValue) => {
-              handleSearchInputChange(index, newInputValue);
-            }}
-            onChange={(event, newValue) => {
-              if (newValue) {
-                handleProductSelect(index, newValue);
-              }
-            }}
-            filterOptions={(options, { inputValue }) =>
-              getFilteredOptions(options, inputValue)
-            }
-            freeSolo
-            disabled={loadingProducts}
-            openOnFocus
-            disablePortal
-            slotProps={{
-              popper: { sx: { zIndex: 6000 }, placement: "top-start" },
-            }}
-            ListboxProps={{ sx: { maxHeight: 320 } }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Product"
-                placeholder="Search products..."
-                size="small"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      {(searchInputs[index] || item.name) &&
-                        !item.productId &&
-                        !isProductExisting(index) && (
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              openAddProductModal(
-                                index,
-                                searchInputs[index] || item.name
-                              )
-                            }
-                            color="primary"
-                            title="Add as new product"
-                            sx={{ mr: 1 }}
-                          >
-                            <Plus size={16} />
-                          </IconButton>
-                        )}
-                      {params.InputProps.endAdornment}
-                    </Box>
-                  ),
-                }}
-              />
-            )}
-            renderOption={(props, option) => {
-              const { key, ...optionProps } = props;
-              return (
-                <Box component="li" key={key} {...optionProps}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {option.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {option.subtitle}
-                    </Typography>
-                  </Box>
-                </Box>
-              );
-            }}
-            noOptionsText={
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  No products found
-                </Typography>
-                {(searchInputs[index] || item.name) && (
-                  <Button
-                    size="small"
-                    startIcon={<Plus size={16} />}
-                    onClick={() =>
-                      openAddProductModal(
-                        index,
-                        searchInputs[index] || item.name
-                      )
-                    }
-                  >
-                    Add "{searchInputs[index] || item.name}"
-                  </Button>
-                )}
-              </Box>
-            }
-          />
-
-
-          <FormControl size="small">
-            <InputLabel>Grade</InputLabel>
-            <Select
-              value={item.grade || ""}
-              onChange={(e) =>
-                handleItemChange(index, "grade", e.target.value)
-              }
-              label="Grade"
-            >
-              <MenuItem value="">
-                <em>Select Grade</em>
-              </MenuItem>
-              {STEEL_GRADES.map((grade) => (
-                <MenuItem key={grade} value={grade}>
-                  {grade}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small">
-            <InputLabel>Finish</InputLabel>
-            <Select
-              value={item.finish || ""}
-              onChange={(e) =>
-                handleItemChange(index, "finish", e.target.value)
-              }
-              label="Finish"
-            >
-              <MenuItem value="">
-                <em>Select Finish</em>
-              </MenuItem>
-              {FINISHES.map((finish) => (
-                <MenuItem key={finish} value={finish}>
-                  {finish}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            size="small"
-            label="Size"
-            value={item.size || ""}
-            onChange={(e) => handleItemChange(index, "size", e.target.value)}
-            placeholder="e.g., 4x8, 1200x2400"
-          />
-
-          <TextField
-            size="small"
-            label="Thickness"
-            value={item.thickness || ""}
-            onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
-            placeholder="e.g., 1mm, 2.5mm"
-          />
-
-          <TextField
-            size="small"
-            label="Description"
-            value={item.description || ""}
-            onChange={(e) =>
-              handleItemChange(index, "description", e.target.value)
-            }
-            placeholder="Additional description"
-            multiline
-            maxRows={2}
-          />
-
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr", gap: 1 }}>
-            <FormControl size="small">
-              <InputLabel>Unit</InputLabel>
-              <Select
-                value={item.unit}
-                label="Unit"
-                onChange={(e) =>
-                  handleItemChange(index, "unit", e.target.value)
-                }
-              >
-                {STEEL_UNITS.map((unit) => (
-                  <MenuItem key={unit} value={unit}>
-                    {unit}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box
-            sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1 }}
-          >
-            <TextField
-              size="small"
-              label="Qty"
-              type="number"
-              value={item.quantity || ""}
-              onChange={(e) =>
-                handleItemChange(
-                  index,
-                  "quantity",
-                  e.target.value === "" ? "" : parseFloat(e.target.value) || ""
-                )
-              }
-              inputProps={{ min: 0, step: 0.01 }}
-            />
-            <TextField
-              size="small"
-              label="Rate"
-              type="number"
-              value={item.rate || ""}
-              onChange={(e) =>
-                handleItemChange(
-                  index,
-                  "rate",
-                  e.target.value === "" ? "" : parseFloat(e.target.value) || ""
-                )
-              }
-              inputProps={{ min: 0, step: 0.01 }}
-            />
-            <TextField
-              size="small"
-              label="VAT %"
-              type="number"
-              value={item.vatRate}
-              onChange={(e) =>
-                handleItemChange(
-                  index,
-                  "vatRate",
-                  parseFloat(e.target.value) || 0
-                )
-              }
-              inputProps={{ min: 0, max: 100 }}
-            />
-          </Box>
-
-          <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 1 }}>
-            <TextField
-              size="small"
-              label="Discount"
-              type="number"
-              value={item.discount || 0}
-              onChange={(e) =>
-                handleItemChange(
-                  index,
-                  "discount",
-                  parseFloat(e.target.value) || 0
-                )
-              }
-              inputProps={{ min: 0, step: 0.01 }}
-            />
-            <FormControl size="small">
-              <InputLabel>Type</InputLabel>
-              <Select
-                value={item.discountType || "amount"}
-                label="Type"
-                onChange={(e) =>
-                  handleItemChange(index, "discountType", e.target.value)
-                }
-              >
-                {DISCOUNT_TYPES.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type === "amount" ? "د.إ" : "%"}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              p: 1,
-              bgcolor: "background.default",
-              borderRadius: 1,
-            }}
-          >
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Amount: {formatCurrency(item.amount)}
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  ));
 
   if (showPreview) {
     return (
@@ -1043,626 +830,398 @@ const InvoiceForm = ({ onSave }) => {
 
   if (loadingInvoice) {
     return (
-      <InvoiceContainer>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: 400,
-          }}
-        >
-          <CircularProgress size={40} />
-          <Typography variant="body1" sx={{ ml: 2 }}>
-            Loading invoice...
-          </Typography>
-        </Box>
-      </InvoiceContainer>
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="flex items-center space-x-3">
+          <LoadingSpinner size="lg" />
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Loading invoice...</span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <InvoiceContainer>
-      <Container maxWidth={false} sx={{ p: 0, width: "100%" }}>
-        <InvoiceFormPaper>
+    <div className={`h-full p-4 overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-none">
+        <Card className="p-4 sm:p-6">
           {/* Header */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: isSmallScreen ? "column" : "row",
-              justifyContent: "space-between",
-              alignItems: isSmallScreen ? "stretch" : "center",
-              mb: 3,
-              pb: 2,
-              borderBottom: 1,
-              borderColor: "divider",
-              gap: 2,
-            }}
-          >
-            <Typography
-              variant={isSmallScreen ? "h5" : "h4"}
-              component="h1"
-              sx={{ fontWeight: 600, color: "text.primary" }}
-            >
+          <div className={`sticky top-0 z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
+            isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+          }`}>
+            <h1 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-0 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {id ? "Edit Invoice" : "Create Invoice"}
-            </Typography>
-            <HeaderActions>
+            </h1>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
+                variant="outline"
                 onClick={() => {
                   if (!company) {
-                    alert("Company data is still loading. Please wait...");
+                    notificationService.warning("Company data is still loading. Please wait...");
                     return;
                   }
                   setShowPreview(true);
                 }}
-                variant="outlined"
-                startIcon={<Eye size={18} />}
                 disabled={loadingCompany}
-                size={isSmallScreen ? "medium" : "medium"}
-                fullWidth={isSmallScreen}
-                sx={{ borderRadius: 2 }}
+                className="w-full sm:w-auto"
               >
+                <Eye className="h-4 w-4" />
                 Preview
               </Button>
               <Button
+                variant="outline"
                 onClick={handleDownloadPDF}
-                variant="outlined"
-                startIcon={
-                  isGeneratingPDF ? (
-                    <CircularProgress size={18} />
-                  ) : (
-                    <Download size={18} />
-                  )
-                }
                 disabled={isGeneratingPDF || loadingCompany}
-                size={isSmallScreen ? "medium" : "medium"}
-                fullWidth={isSmallScreen}
-                sx={{ borderRadius: 2 }}
+                className="w-full sm:w-auto"
               >
+                {isGeneratingPDF ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
                 {isGeneratingPDF ? "Generating..." : "Download PDF"}
               </Button>
               <Button
                 onClick={handleSave}
-                variant="contained"
-                startIcon={
-                  savingInvoice || updatingInvoice ? (
-                    <CircularProgress size={18} />
-                  ) : (
-                    <Save size={18} />
-                  )
-                }
                 disabled={savingInvoice || updatingInvoice}
-                size={isSmallScreen ? "medium" : "medium"}
-                fullWidth={isSmallScreen}
-                sx={{ borderRadius: 2 }}
+                className="w-full sm:w-auto"
               >
+                {savingInvoice || updatingInvoice ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
                 {savingInvoice || updatingInvoice
                   ? "Saving..."
                   : "Save Invoice"}
               </Button>
-            </HeaderActions>
-          </Box>
+            </div>
+          </div>
 
+          <div className="pt-8">
           {/* Edit Invoice Warning */}
           {id && (
-            <Alert severity="warning" sx={{ mb: 3 }}>
-              <AlertTitle>Invoice Editing Policy</AlertTitle>
-              <Typography variant="body2">
-                🔄 To maintain audit trails and inventory accuracy, editing
-                will:
-                <br />• Cancel the original invoice and reverse its inventory
-                impact
-                <br />• Create a new invoice with your updated data
-                <br />• Apply new inventory movements
-                <br />• Cancel any existing delivery notes (new ones will be
-                created if status = 'paid')
-              </Typography>
+            <Alert variant="warning" className="mb-6">
+              <div>
+                <h4 className="font-medium mb-2">Invoice Editing Policy</h4>
+                <p className="text-sm">
+                  🔄 To maintain audit trails and inventory accuracy, editing
+                  will:
+                  <br />• Cancel the original invoice and reverse its inventory
+                  impact
+                  <br />• Create a new invoice with your updated data
+                  <br />• Apply new inventory movements
+                  <br />• Note: Delivery notes are managed separately and are not auto-created on save.
+                </p>
+              </div>
             </Alert>
           )}
 
           {/* Form Grid */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-              gap: 2,
-              mb: 3,
-            }}
-          >
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Invoice Details */}
-            <Box>
-              <SectionCard>
-                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                  <SectionHeader variant="h6">📄 Invoice Details</SectionHeader>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            <Card className="p-4 sm:p-6">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📄 Invoice Details
+              </h2>
+              <div className="space-y-4">
+                <Input
+                  label="Invoice Number"
+                  value={invoice.invoiceNumber}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({
+                      ...prev,
+                      invoiceNumber: e.target.value,
+                    }))
+                  }
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Date"
+                    type="date"
+                    value={formatDateForInput(invoice.date)}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        date: e.target.value,
+                      }))
+                    }
+                  />
+                  <Input
+                    label="Due Date"
+                    type="date"
+                    value={formatDateForInput(invoice.dueDate)}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        dueDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Select
+                    label="Invoice Status"
+                    value={invoice.status || "draft"}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        status: e.target.value,
+                        invoiceNumber: withStatusPrefix(prev.invoiceNumber, e.target.value),
+                      }))
+                    }
                   >
-                    <TextField
-                      label="Invoice Number"
-                      variant="outlined"
-                      fullWidth
-                      size={isSmallScreen ? "small" : "medium"}
-                      value={invoice.invoiceNumber}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          invoiceNumber: e.target.value,
-                        }))
-                      }
-                    />
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                      }}
-                    >
-                      <Box>
-                        <TextField
-                          label="Date"
-                          type="date"
-                          variant="outlined"
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                          value={formatDateForInput(invoice.date)}
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              date: e.target.value,
-                            }))
-                          }
-                          InputLabelProps={{ shrink: true }}
-                        />
-                      </Box>
-                      <Box>
-                        <TextField
-                          label="Due Date"
-                          type="date"
-                          variant="outlined"
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                          value={formatDateForInput(invoice.dueDate)}
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              dueDate: e.target.value,
-                            }))
-                          }
-                          InputLabelProps={{ shrink: true }}
-                        />
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                      }}
-                    >
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                      }}
-                    >
-                      <Box>
-                        <FormControl
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                        >
-                          <InputLabel>Invoice Status</InputLabel>
-                          <Select
-                            value={invoice.status || "draft"}
-                            label="Invoice Status"
-                            onChange={(e) =>
-                              setInvoice((prev) => ({
-                                ...prev,
-                                status: e.target.value,
-                              }))
-                            }
-                          >
-                            <MenuItem value="draft">Draft</MenuItem>
-                            <MenuItem value="proforma">Proforma</MenuItem>
-                            <MenuItem value="paid">
-                              Paid (Auto-creates delivery note)
-                            </MenuItem>
-                            <MenuItem value="overdue">Overdue</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Box>
-                      <Box>
-                        {/* Status info */}
-                        {invoice.status === "paid" && (
-                          <Alert severity="info" sx={{ mt: 0.5 }}>
-                            <Typography variant="caption">
-                              🚚 A delivery note will be automatically created
-                              when this invoice is saved as 'Paid'
-                            </Typography>
-                          </Alert>
-                        )}
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                      }}
-                    >
-                      <Box>
-                        <TextField
-                          label="Delivery Note"
-                          variant="outlined"
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                          value={invoice.deliveryNote || ""}
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              deliveryNote: e.target.value,
-                            }))
-                          }
-                          placeholder="Delivery challan reference"
-                        />
-                      </Box>
-                      <Box>
-                        <FormControl
-                          fullWidth
-                          size={isSmallScreen ? "small" : "medium"}
-                        >
-                          <InputLabel>Payment Mode</InputLabel>
-                          <Select
-                            value={invoice.modeOfPayment || ""}
-                            label="Payment Mode"
-                            onChange={(e) =>
-                              setInvoice((prev) => ({
-                                ...prev,
-                                modeOfPayment: e.target.value,
-                              }))
-                            }
-                          >
-                            <MenuItem value="">
-                              <em>Select payment mode</em>
-                            </MenuItem>
-                            {PAYMENT_MODES.map((mode) => (
-                              <MenuItem key={mode} value={mode}>
-                                {mode}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Box>
+                    <option value="draft">Draft</option>
+                    <option value="proforma">Proforma</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                  </Select>
+                  <Select
+                    label="Payment Mode"
+                    value={invoice.modeOfPayment || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        modeOfPayment: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Select payment mode</option>
+                    {PAYMENT_MODES.map((mode) => (
+                      <option key={mode} value={mode}>
+                        {mode}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                {/* Delivery notes are created separately from invoice save */}
+              </div>
+            </Card>
 
             {/* Customer Details */}
-            <Box>
-              <SectionCard>
-                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                  <SectionHeader variant="h6">
-                    👤 Customer Details
-                  </SectionHeader>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            <Card className="p-4 sm:p-6">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                👤 Customer Details
+              </h2>
+              <div className="space-y-4">
+                <Select
+                  label="Select Customer"
+                  value={invoice.customer.id || ""}
+                  onChange={(e) => handleCustomerSelect(e.target.value)}
+                  disabled={loadingCustomers}
+                >
+                  <option value="">Select a customer</option>
+                  {(customersData?.customers || []).map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.name} - {customer.email}
+                    </option>
+                  ))}
+                </Select>
+
+                {/* Display selected customer details */}
+                {invoice.customer.name && (
+                  <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-100 border-gray-200'}`}>
+                    <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Selected Customer:
+                    </h4>
+                    <div className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p>
+                        <span className="font-medium">Name:</span>{" "}
+                        {invoice.customer.name}
+                      </p>
+                      {invoice.customer.email && (
+                        <p>
+                          <span className="font-medium">Email:</span>{" "}
+                          {invoice.customer.email}
+                        </p>
+                      )}
+                      {invoice.customer.phone && (
+                        <p>
+                          <span className="font-medium">Phone:</span>{" "}
+                          {invoice.customer.phone}
+                        </p>
+                      )}
+                      {invoice.customer.vatNumber && (
+                        <p>
+                          <span className="font-medium">TRN:</span>{" "}
+                          {invoice.customer.vatNumber}
+                        </p>
+                      )}
+                      {(invoice.customer.address.street ||
+                        invoice.customer.address.city) && (
+                        <p>
+                          <span className="font-medium">Address:</span>{" "}
+                          {[
+                            invoice.customer.address.street,
+                            invoice.customer.address.city,
+                            invoice.customer.address.emirate,
+                            invoice.customer.address.poBox,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Trade License Status Alert */}
+                {showTradeLicenseAlert && tradeLicenseStatus && (
+                  <Alert
+                    variant="warning"
+                    onClose={() => setShowTradeLicenseAlert(false)}
                   >
-                    <FormControl
-                      fullWidth
-                      size={isSmallScreen ? "small" : "medium"}
-                    >
-                      <InputLabel>Select Customer</InputLabel>
-                      <Select
-                        value={invoice.customer.id || ""}
-                        label="Select Customer"
-                        onChange={(e) => handleCustomerSelect(e.target.value)}
-                        disabled={loadingCustomers}
-                      >
-                        <MenuItem value="">
-                          <em>Select a customer</em>
-                        </MenuItem>
-                        {(customersData?.customers || []).map((customer) => (
-                          <MenuItem key={customer.id} value={customer.id}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                              }}
-                            >
-                              <Typography variant="body2">
-                                {customer.name}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                {customer.company && `${customer.company} • `}
-                                {customer.email}
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <div>
+                      <h4 className="font-medium mb-1">Trade License Alert</h4>
+                      <p className="text-sm">{tradeLicenseStatus.message}</p>
+                      {tradeLicenseStatus.licenseNumber && (
+                        <p className="text-sm mt-1">
+                          <span className="font-medium">License Number:</span>{" "}
+                          {tradeLicenseStatus.licenseNumber}
+                        </p>
+                      )}
+                      {tradeLicenseStatus.expiryDate && (
+                        <p className="text-sm">
+                          <span className="font-medium">Expiry Date:</span>{" "}
+                          {new Date(
+                            tradeLicenseStatus.expiryDate
+                          ).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </Alert>
+                )}
 
-                    {/* Display selected customer details */}
-                    {invoice.customer.name && (
-                      <Box
-                        sx={{
-                          p: 2,
-                          bgcolor: "background.default",
-                          borderRadius: 1,
-                          border: 1,
-                          borderColor: "divider",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ mb: 1, fontWeight: 600 }}
-                        >
-                          Selected Customer:
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 0.5 }}>
-                          <strong>Name:</strong> {invoice.customer.name}
-                        </Typography>
-                        {invoice.customer.email && (
-                          <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            <strong>Email:</strong> {invoice.customer.email}
-                          </Typography>
-                        )}
-                        {invoice.customer.phone && (
-                          <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            <strong>Phone:</strong> {invoice.customer.phone}
-                          </Typography>
-                        )}
-                        {invoice.customer.vatNumber && (
-                          <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            <strong>TRN:</strong> {invoice.customer.vatNumber}
-                          </Typography>
-                        )}
-                        {(invoice.customer.address.street ||
-                          invoice.customer.address.city) && (
-                          <Typography variant="body2">
-                            <strong>Address:</strong>{" "}
-                            {[
-                              invoice.customer.address.street,
-                              invoice.customer.address.city,
-                              invoice.customer.address.emirate,
-                              invoice.customer.address.poBox,
-                            ]
-                              .filter(Boolean)
-                              .join(", ")}
-                          </Typography>
-                        )}
-                      </Box>
-                    )}
-
-                    {/* Trade License Status Alert */}
-                    <Collapse in={showTradeLicenseAlert}>
-                      <Alert
-                        severity={tradeLicenseStatus?.severity || "warning"}
-                        sx={{ mt: 2 }}
-                        onClose={() => setShowTradeLicenseAlert(false)}
-                      >
-                        <AlertTitle>Trade License Alert</AlertTitle>
-                        {tradeLicenseStatus?.message}
-                        {tradeLicenseStatus?.licenseNumber && (
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            <strong>License Number:</strong>{" "}
-                            {tradeLicenseStatus.licenseNumber}
-                          </Typography>
-                        )}
-                        {tradeLicenseStatus?.expiryDate && (
-                          <Typography variant="body2">
-                            <strong>Expiry Date:</strong>{" "}
-                            {new Date(
-                              tradeLicenseStatus.expiryDate
-                            ).toLocaleDateString()}
-                          </Typography>
-                        )}
-                      </Alert>
-                    </Collapse>
-
-                    {loadingCustomers && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mt: 2,
-                        }}
-                      >
-                        <CircularProgress size={16} />
-                        <Typography variant="body2" color="text.secondary">
-                          Loading customers...
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Box>
-          </Box>
+                {loadingCustomers && (
+                  <div className="flex items-center space-x-2">
+                    <LoadingSpinner size="sm" />
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Loading customers...
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
 
           {/* Transport & Delivery Details (disabled for Phase 1) */}
           {false && (
-          <SectionCard sx={{ mb: 3 }}>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <SectionHeader variant="h6">
-                🚚 Transport & Delivery Details
-              </SectionHeader>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                  gap: 2,
-                }}
+          <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+            <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              🚚 Transport & Delivery Details
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Despatched Through"
+                value={invoice.despatchedThrough || ""}
+                onChange={(e) =>
+                  setInvoice((prev) => ({
+                    ...prev,
+                    despatchedThrough: e.target.value,
+                  }))
+                }
+                placeholder="Transport company/agent"
+              />
+              <Input
+                label="Destination"
+                value={invoice.destination || ""}
+                onChange={(e) =>
+                  setInvoice((prev) => ({
+                    ...prev,
+                    destination: e.target.value,
+                  }))
+                }
+                placeholder="Delivery destination"
+              />
+              <Select
+                label="Terms of Delivery"
+                value={invoice.termsOfDelivery || ""}
+                onChange={(e) =>
+                  setInvoice((prev) => ({
+                    ...prev,
+                    termsOfDelivery: e.target.value,
+                  }))
+                }
               >
-                <Box>
-                  <TextField
-                    label="Despatched Through"
-                    variant="outlined"
-                    fullWidth
-                    size={isSmallScreen ? "small" : "medium"}
-                    value={invoice.despatchedThrough || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        despatchedThrough: e.target.value,
-                      }))
-                    }
-                    placeholder="Transport company/agent"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    label="Destination"
-                    variant="outlined"
-                    fullWidth
-                    size={isSmallScreen ? "small" : "medium"}
-                    value={invoice.destination || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        destination: e.target.value,
-                      }))
-                    }
-                    placeholder="Delivery destination"
-                  />
-                </Box>
-                <Box>
-                  <FormControl
-                    fullWidth
-                    size={isSmallScreen ? "small" : "medium"}
-                  >
-                    <InputLabel>Terms of Delivery</InputLabel>
-                    <Select
-                      value={invoice.termsOfDelivery || ""}
-                      label="Terms of Delivery"
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          termsOfDelivery: e.target.value,
-                        }))
-                      }
-                    >
-                      <MenuItem value="">
-                        <em>Select delivery terms</em>
-                      </MenuItem>
-                      {DELIVERY_TERMS.map((term) => (
-                        <MenuItem key={term} value={term}>
-                          {term}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box>
-                  <TextField
-                    label="Other Reference"
-                    variant="outlined"
-                    fullWidth
-                    size={isSmallScreen ? "small" : "medium"}
-                    value={invoice.otherReference || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        otherReference: e.target.value,
-                      }))
-                    }
-                    placeholder="Additional reference"
-                  />
-                </Box>
-              </Box>
-            </CardContent>
-          </SectionCard>
+                <option value="">Select delivery terms</option>
+                {DELIVERY_TERMS.map((term) => (
+                  <option key={term} value={term}>
+                    {term}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                label="Other Reference"
+                value={invoice.otherReference || ""}
+                onChange={(e) =>
+                  setInvoice((prev) => ({
+                    ...prev,
+                    otherReference: e.target.value,
+                  }))
+                }
+                placeholder="Additional reference"
+              />
+            </div>
+          </Card>
           )}
 
           {/* Items Section */}
-          <SectionCard sx={{ mb: 3 }}>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: isSmallScreen ? "column" : "row",
-                  justifyContent: "space-between",
-                  alignItems: isSmallScreen ? "stretch" : "center",
-                  mb: 3,
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <SectionHeader variant="h6">🏗️ Steel Items</SectionHeader>
-                  {/* Debug indicator - remove in production */}
-                  <Typography variant="caption" color="text.secondary">
-                    {isMobile ? "(Mobile View)" : "(Desktop View)"}
-                  </Typography>
-                </Box>
-                <Button
-                  onClick={addItem}
-                  variant="contained"
-                  startIcon={<Plus size={18} />}
-                  size={isSmallScreen ? "medium" : "medium"}
-                  fullWidth={isSmallScreen}
-                  sx={{
-                    borderRadius: 2,
-                    maxWidth: isSmallScreen ? "none" : "200px",
-                  }}
-                >
-                  Add Item
-                </Button>
-              </Box>
+          <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-0 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                🏗️ Steel Items [UPDATED - NOW WITH FINISH, SIZE, THICKNESS]
+              </h2>
+              <Button onClick={addItem} className="w-full sm:w-auto">
+                <Plus className="h-4 w-4" />
+                Add Item
+              </Button>
+            </div>
 
-              {/* Mobile View - Cards */}
-              <MobileTableContainer>
-                {deferredItems.slice(0, 10).map((item, index) => (
-                  <MobileItemCard key={item.id} item={item} index={index} />
-                ))}
-                {deferredItems.length > 10 && (
-                  <Box sx={{ p: 2, textAlign: "center" }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Showing first 10 items. Add more items as needed.
-                    </Typography>
-                  </Box>
-                )}
-              </MobileTableContainer>
-
-              {/* Desktop View - Table */}
-              <DesktopTableContainer sx={{ overflowX: "auto" }}>
-                <Table sx={{ minWidth: 1200, tableLayout: "auto" }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ minWidth: 200 }}>
-                        Product Selection
-                      </TableCell>
-                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Grade</TableCell>
-                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Finish</TableCell>
-                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Size</TableCell>
-                      <TableCell sx={{ minWidth: 120, fontWeight: 600 }}>Thickness</TableCell>
-                      <TableCell sx={{ minWidth: 120 }}>Description</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Unit</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Qty</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Rate</TableCell>
-                      <TableCell sx={{ minWidth: 100 }}>Discount</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>VAT %</TableCell>
-                      <TableCell sx={{ minWidth: 100 }}>Amount</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {deferredItems.slice(0, 20).map((item, index) => (
-                      <TableRow key={item.id}>
-                        <TableCell sx={{ minWidth: 200, overflow: "visible" }}>
+            {/* Items Table - Desktop */}
+            <div className="hidden xl:block overflow-x-auto">
+              <table className={`min-w-full divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}`}>
+                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                  <tr>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Product
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Grade
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'} bg-blue-50`}>
+                      Finish
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'} bg-green-50`}>
+                      Size
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'} bg-yellow-50`}>
+                      Thickness
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Unit
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Qty
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Rate
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      VAT %
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Amount
+                    </th>
+                    <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`}>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'}`}>
+                  {deferredItems.slice(0, 20).map((item, index) => (
+                    <tr key={item.id}>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <div className="w-48">
                           <Autocomplete
-                            size="small"
                             options={productOptions}
-                            getOptionLabel={(option) =>
-                              typeof option === "string" ? option : option.name
-                            }
                             value={
                               item.productId
                                 ? productOptions.find(
@@ -1679,974 +1238,481 @@ const InvoiceForm = ({ onSave }) => {
                                 handleProductSelect(index, newValue);
                               }
                             }}
-                            filterOptions={(options, { inputValue }) =>
-                              getFilteredOptions(options, inputValue)
-                            }
-                            freeSolo
+                            placeholder="Search products..."
                             disabled={loadingProducts}
-                            openOnFocus
-                            disablePortal
-                            slotProps={{
-                              popper: {
-                                sx: { zIndex: 6000 },
-                                placement: "top-start",
-                              },
-                            }}
-                            ListboxProps={{ sx: { maxHeight: 320 } }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Search or select product"
-                                placeholder="Type to search products..."
-                                InputProps={{
-                                  ...params.InputProps,
-                                  endAdornment: (
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      {(searchInputs[index] || item.name) &&
-                                        !item.productId &&
-                                        !isProductExisting(index) && (
-                                          <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                              openAddProductModal(
-                                                index,
-                                                searchInputs[index] || item.name
-                                              )
-                                            }
-                                            color="primary"
-                                            title="Add as new product"
-                                            sx={{ mr: 1 }}
-                                          >
-                                            <Plus size={16} />
-                                          </IconButton>
-                                        )}
-                                      {params.InputProps.endAdornment}
-                                    </Box>
-                                  ),
-                                }}
-                              />
+                            renderOption={(option) => (
+                              <div>
+                                <div className="font-medium">{option.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {option.subtitle}
+                                </div>
+                              </div>
                             )}
-                            renderOption={(props, option) => {
-                              const { key, ...optionProps } = props;
-                              return (
-                                <Box component="li" key={key} {...optionProps}>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ fontWeight: 500 }}
-                                    >
-                                      {option.name}
-                                    </Typography>
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                    >
-                                      {option.subtitle}
-                                    </Typography>
-                                  </Box>
-                                </Box>
-                              );
-                            }}
-                            noOptionsText={
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  p: 1,
-                                }}
-                              >
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  No products found
-                                </Typography>
-                                {(searchInputs[index] || item.name) && (
-                                  <Button
-                                    size="small"
-                                    startIcon={<Plus size={16} />}
-                                    onClick={() =>
-                                      openAddProductModal(
-                                        index,
-                                        searchInputs[index] || item.name
-                                      )
-                                    }
-                                  >
-                                    Add "{searchInputs[index] || item.name}"
-                                  </Button>
-                                )}
-                              </Box>
-                            }
+                            noOptionsText="No products found"
                           />
-                        </TableCell>
-                        <TableCell sx={{ minWidth: 120 }}>
-                          <FormControl size="small" sx={{ minWidth: 120, width: "100%" }}>
-                            <Select
-                              value={item.grade || ""}
-                              onChange={(e) =>
-                                handleItemChange(index, "grade", e.target.value)
-                              }
-                              displayEmpty
-                            >
-                              <MenuItem value="">
-                                <em>Select Grade</em>
-                              </MenuItem>
-                              {STEEL_GRADES.map((grade) => (
-                                <MenuItem key={grade} value={grade}>
-                                  {grade}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell sx={{ minWidth: 120 }}>
-                          <FormControl size="small" sx={{ minWidth: 120, width: "100%" }}>
-                            <Select
-                              value={item.finish || ""}
-                              onChange={(e) =>
-                                handleItemChange(index, "finish", e.target.value)
-                              }
-                              displayEmpty
-                            >
-                              <MenuItem value="">
-                                <em>Select Finish</em>
-                              </MenuItem>
-                              {FINISHES.map((finish) => (
-                                <MenuItem key={finish} value={finish}>
-                                  {finish}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell sx={{ minWidth: 120 }}>
-                          <TextField
-                            size="small"
-                            value={item.size || ""}
-                            onChange={(e) =>
-                              handleItemChange(index, "size", e.target.value)
-                            }
-                            placeholder="e.g., 4x8, 1200x2400"
-                            sx={{ minWidth: 120, width: "100%" }}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ minWidth: 120 }}>
-                          <TextField
-                            size="small"
-                            value={item.thickness || ""}
-                            onChange={(e) =>
-                              handleItemChange(index, "thickness", e.target.value)
-                            }
-                            placeholder="e.g., 1mm, 2.5mm"
-                            sx={{ minWidth: 120, width: "100%" }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={item.description || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Description"
-                            multiline
-                            maxRows={2}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormControl size="small" sx={{ minWidth: 80 }}>
-                            <Select
-                              value={item.unit}
-                              onChange={(e) =>
-                                handleItemChange(index, "unit", e.target.value)
-                              }
-                            >
-                              {STEEL_UNITS.map((unit) => (
-                                <MenuItem key={unit} value={unit}>
-                                  {unit}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={item.quantity || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "quantity",
-                                e.target.value === ""
-                                  ? ""
-                                  : parseFloat(e.target.value) || ""
-                              )
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            sx={{ width: 80 }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={item.rate || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "rate",
-                                e.target.value === ""
-                                  ? ""
-                                  : parseFloat(e.target.value) || ""
-                              )
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            sx={{ width: 80 }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                            }}
-                          >
-                            <TextField
-                              size="small"
-                              type="number"
-                              value={item.discount || 0}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  "discount",
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              inputProps={{ min: 0, step: 0.01 }}
-                              sx={{ width: 70 }}
-                              placeholder="0"
-                            />
-                            <FormControl size="small" sx={{ minWidth: 60 }}>
-                              <Select
-                                value={item.discountType || "amount"}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "discountType",
-                                    e.target.value
-                                  )
-                                }
-                                displayEmpty
-                              >
-                                <MenuItem value="amount">د.إ</MenuItem>
-                                <MenuItem value="percentage">%</MenuItem>
-                              </Select>
-                            </FormControl>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={item.vatRate}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "vatRate",
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            inputProps={{ min: 0, max: 100 }}
-                            sx={{ width: 60 }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {formatCurrency(item.amount)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <IconButton
-                            onClick={() => removeItem(index)}
-                            disabled={invoice.items.length === 1}
-                            color="error"
-                            size="small"
-                          >
-                            <Trash2 size={16} />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </DesktopTableContainer>
-            </CardContent>
-          </SectionCard>
-
-          {/* Summary and Notes */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-              gap: 2,
-            }}
-          >
-            <Box>
-              <SectionCard>
-                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                  <SectionHeader variant="h6">📝 Notes</SectionHeader>
-                  <TextField
-                    multiline
-                    rows={4}
-                    fullWidth
-                    size={isSmallScreen ? "small" : "medium"}
-                    value={invoice.notes}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({ ...prev, notes: e.target.value }))
-                    }
-                    placeholder="Additional notes..."
-                    variant="outlined"
-                  />
-                </CardContent>
-              </SectionCard>
-            </Box>
-            <Box>
-              <SectionCard>
-                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                  <SectionHeader variant="h6">💰 Invoice Summary</SectionHeader>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body1">Subtotal:</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {formatCurrency(computedSubtotal)}
-                      </Typography>
-                    </Box>
-
-                    {/* Additional Charges Section */}
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                    >
-                      <Box
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: 1,
-                        }}
-                      >
-                        <Box>
-                          <TextField
-                            size="small"
-                            label="Packing Charges"
-                            type="number"
-                            value={invoice.packingCharges || ""}
-                            onChange={(e) =>
-                              handleChargeChange(
-                                "packingCharges",
-                                e.target.value
-                              )
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  د.إ
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Box>
-                        <Box>
-                          <TextField
-                            size="small"
-                            label="Freight Charges"
-                            type="number"
-                            value={invoice.freightCharges || ""}
-                            onChange={(e) =>
-                              handleChargeChange(
-                                "freightCharges",
-                                e.target.value
-                              )
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  د.إ
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Box>
-                        <Box>
-                          <TextField
-                            size="small"
-                            label="Loading Charges"
-                            type="number"
-                            value={invoice.loadingCharges || ""}
-                            onChange={(e) =>
-                              handleChargeChange(
-                                "loadingCharges",
-                                e.target.value
-                              )
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  د.إ
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Box>
-                        <Box>
-                          <TextField
-                            size="small"
-                            label="Other Charges"
-                            type="number"
-                            value={invoice.otherCharges || ""}
-                            onChange={(e) =>
-                              handleChargeChange("otherCharges", e.target.value)
-                            }
-                            inputProps={{ min: 0, step: 0.01 }}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  د.إ
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body1">VAT Amount:</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {formatCurrency(computedVatAmount)}
-                      </Typography>
-                    </Box>
-
-                    <Divider />
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        Total:
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 700, color: "primary.main" }}
-                      >
-                        {formatCurrency(computedTotal)}
-                      </Typography>
-                    </Box>
-
-                    {/* Advance and Balance */}
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                    >
-                      <TextField
-                        size="small"
-                        label="Advance Received"
-                        type="number"
-                        value={invoice.advanceReceived || ""}
-                        onChange={(e) =>
-                          handleChargeChange("advanceReceived", e.target.value)
-                        }
-                        inputProps={{ min: 0, step: 0.01 }}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              د.إ
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      {invoice.advanceReceived > 0 && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            p: 1,
-                            bgcolor: "primary.50",
-                            borderRadius: 1,
-                          }}
-                        >
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            Balance Amount:
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600, color: "primary.main" }}
-                          >
-                            {formatCurrency(
-                              Math.max(
-                                0,
-                                computedTotal - (invoice.advanceReceived || 0)
-                              )
-                            )}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Box>
-          </Box>
-
-          {/* Terms & Conditions */}
-          <SectionCard sx={{ mt: 3 }}>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <SectionHeader variant="h6">📋 Terms & Conditions</SectionHeader>
-              <TextField
-                multiline
-                rows={3}
-                fullWidth
-                size={isSmallScreen ? "small" : "medium"}
-                value={invoice.terms}
-                onChange={(e) =>
-                  setInvoice((prev) => ({ ...prev, terms: e.target.value }))
-                }
-                placeholder="Payment terms and conditions..."
-                variant="outlined"
-              />
-            </CardContent>
-          </SectionCard>
-
-          {/* Add New Product Modal */}
-          <Dialog
-            open={showAddProductModal}
-            onClose={() => setShowAddProductModal(false)}
-            maxWidth="md"
-            fullWidth
-            fullScreen={isSmallScreen}
-          >
-            <DialogTitle>
-              <Typography variant="h6">Add New Product</Typography>
-            </DialogTitle>
-            <DialogContent sx={{ pt: 2, px: { xs: 2, sm: 3 } }}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                {/* Basic Information */}
-                <Box>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ color: "primary.main", mb: 2 }}
-                  >
-                    Basic Information
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                      gap: 2,
-                    }}
-                  >
-                    <Box>
-                      <TextField
-                        label="Product Name *"
-                        value={newProductData.name}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            name: e.target.value,
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter product name"
-                      />
-                    </Box>
-                    <Box>
-                      <FormControl
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                      >
-                        <InputLabel>Category</InputLabel>
+                        </div>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
                         <Select
-                          value={newProductData.category}
-                          label="Category"
+                          value={item.grade || ""}
                           onChange={(e) =>
-                            setNewProductData((prev) => ({
-                              ...prev,
-                              category: e.target.value,
-                            }))
+                            handleItemChange(index, "grade", e.target.value)
                           }
+                          className="w-24"
                         >
-                          {categories.map((cat) => (
-                            <MenuItem key={cat.value} value={cat.value}>
-                              {cat.label}
-                            </MenuItem>
+                          <option value="">Select Grade</option>
+                          {STEEL_GRADES.map((grade) => (
+                            <option key={grade} value={grade}>
+                              {grade}
+                            </option>
                           ))}
                         </Select>
-                      </FormControl>
-                    </Box>
-                    <Box>
-                      <Autocomplete
-                        freeSolo
-                        options={grades}
-                        value={newProductData.grade}
-                        onInputChange={(event, newValue) => {
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            grade: newValue || "",
-                          }));
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Grade"
-                            placeholder="Enter grade (e.g., Fe415)"
-                            size={isSmallScreen ? "small" : "medium"}
-                          />
-                        )}
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Size"
-                        value={newProductData.size}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            size: e.target.value,
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="e.g., 12mm, 50x50x6"
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Weight"
-                        value={newProductData.weight}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            weight: e.target.value,
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter weight"
-                      />
-                    </Box>
-                    <Box>
-                      <FormControl
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                      >
-                        <InputLabel>Unit</InputLabel>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap bg-blue-50">
                         <Select
-                          value={newProductData.unit}
-                          label="Unit"
+                          value={item.finish || ""}
                           onChange={(e) =>
-                            setNewProductData((prev) => ({
-                              ...prev,
-                              unit: e.target.value,
-                            }))
+                            handleItemChange(index, "finish", e.target.value)
                           }
+                          className="w-24"
                         >
-                          <MenuItem value="kg">kg</MenuItem>
-                          <MenuItem value="kg/m">kg/m</MenuItem>
-                          <MenuItem value="kg/sheet">kg/sheet</MenuItem>
-                          <MenuItem value="tonnes">tonnes</MenuItem>
-                          <MenuItem value="pieces">pieces</MenuItem>
+                          <option value="">Select Finish</option>
+                          {FINISHES.map((finish) => (
+                            <option key={finish} value={finish}>
+                              {finish}
+                            </option>
+                          ))}
                         </Select>
-                      </FormControl>
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Description"
-                        value={newProductData.description}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter product description"
-                        multiline
-                        rows={3}
-                      />
-                    </Box>
-                  </Box>
-                </Box>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap bg-green-50">
+                        <Input
+                          value={item.size || ""}
+                          onChange={(e) =>
+                            handleItemChange(index, "size", e.target.value)
+                          }
+                          placeholder="e.g., 4x8"
+                          className="w-24"
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap bg-yellow-50">
+                        <Input
+                          value={item.thickness || ""}
+                          onChange={(e) =>
+                            handleItemChange(index, "thickness", e.target.value)
+                          }
+                          placeholder="e.g., 1mm"
+                          className="w-24"
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <Select
+                          value={item.unit}
+                          onChange={(e) =>
+                            handleItemChange(index, "unit", e.target.value)
+                          }
+                          className="w-20"
+                        >
+                          {STEEL_UNITS.map((unit) => (
+                            <option key={unit} value={unit}>
+                              {unit}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <Input
+                          type="number"
+                          value={item.quantity || ""}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "quantity",
+                              e.target.value === ""
+                                ? ""
+                                : parseFloat(e.target.value) || ""
+                            )
+                          }
+                          min="0"
+                          step="0.01"
+                          className="w-20"
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <Input
+                          type="number"
+                          value={item.rate || ""}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "rate",
+                              e.target.value === ""
+                                ? ""
+                                : parseFloat(e.target.value) || ""
+                            )
+                          }
+                          min="0"
+                          step="0.01"
+                          className="w-24"
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <Input
+                          type="number"
+                          value={item.vatRate}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "vatRate",
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          min="0"
+                          max="100"
+                          className="w-16"
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(item.amount)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => removeItem(index)}
+                          disabled={invoice.items.length === 1}
+                          className={`hover:text-red-300 ${isDarkMode ? 'text-red-400 disabled:text-gray-600' : 'text-red-500 disabled:text-gray-400'}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                {/* Inventory Information */}
-                <Box>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ color: "primary.main", mb: 2 }}
-                  >
-                    Inventory Information
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-                      gap: 2,
-                    }}
-                  >
-                    <Box>
-                      <TextField
-                        label="Current Stock"
-                        type="number"
-                        value={newProductData.current_stock || ""}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            current_stock:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter current stock"
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Minimum Stock"
-                        type="number"
-                        value={newProductData.min_stock || ""}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            min_stock:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter minimum stock level"
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Maximum Stock"
-                        type="number"
-                        value={newProductData.max_stock || ""}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            max_stock:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter maximum stock level"
-                      />
-                    </Box>
-                  </Box>
-                </Box>
+            {/* Items Cards - Mobile */}
+            <div className="xl:hidden space-y-4">
+              {deferredItems.slice(0, 10).map((item, index) => (
+                <Card key={item.id} className="p-4">
+                  <div className="flex justify-between items-start mb-4">
+                    <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Item #{index + 1}
+                    </h4>
+                    <button
+                      onClick={() => removeItem(index)}
+                      disabled={invoice.items.length === 1}
+                      className={`hover:text-red-300 ${isDarkMode ? 'text-red-400 disabled:text-gray-600' : 'text-red-500 disabled:text-gray-400'}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
 
-                {/* Pricing Information */}
-                <Box>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ color: "primary.main", mb: 2 }}
-                  >
-                    Pricing Information
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                      gap: 2,
-                    }}
-                  >
-                    <Box>
-                      <TextField
-                        label="Cost Price"
-                        type="number"
-                        value={newProductData.cost_price || ""}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            cost_price:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
-                          }))
+                  <div className="space-y-4">
+                    <Autocomplete
+                      options={productOptions}
+                      value={
+                        item.productId
+                          ? productOptions.find((p) => p.id === item.productId)
+                          : null
+                      }
+                      inputValue={searchInputs[index] || item.name || ""}
+                      onInputChange={(event, newInputValue) => {
+                        handleSearchInputChange(index, newInputValue);
+                      }}
+                      onChange={(event, newValue) => {
+                        if (newValue) {
+                          handleProductSelect(index, newValue);
                         }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              د.إ
-                            </InputAdornment>
-                          ),
-                        }}
-                        placeholder="Enter cost price"
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Selling Price"
-                        type="number"
-                        value={newProductData.selling_price || ""}
-                        onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            selling_price:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
-                          }))
-                        }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              د.إ
-                            </InputAdornment>
-                          ),
-                        }}
-                        placeholder="Enter selling price"
-                      />
-                    </Box>
-                  </Box>
-                </Box>
+                      }}
+                      label="Product"
+                      placeholder="Search products..."
+                      disabled={loadingProducts}
+                      renderOption={(option) => (
+                        <div>
+                          <div className="font-medium">{option.name}</div>
+                          <div className="text-sm text-gray-500">
+                            {option.subtitle}
+                          </div>
+                        </div>
+                      )}
+                      noOptionsText="No products found"
+                    />
 
-                {/* Supplier & Location */}
-                <Box>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ color: "primary.main", mb: 2 }}
-                  >
-                    Supplier & Location
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                      gap: 2,
-                    }}
-                  >
-                    <Box>
-                      <TextField
-                        label="Supplier"
-                        value={newProductData.supplier}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Select
+                        label="Grade"
+                        value={item.grade || ""}
                         onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            supplier: e.target.value,
-                          }))
+                          handleItemChange(index, "grade", e.target.value)
                         }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter supplier name"
-                      />
-                    </Box>
-                    <Box>
-                      <TextField
-                        label="Storage Location"
-                        value={newProductData.location}
+                      >
+                        <option value="">Select Grade</option>
+                        {STEEL_GRADES.map((grade) => (
+                          <option key={grade} value={grade}>
+                            {grade}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select
+                        label="Finish"
+                        value={item.finish || ""}
                         onChange={(e) =>
-                          setNewProductData((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
+                          handleItemChange(index, "finish", e.target.value)
                         }
-                        fullWidth
-                        size={isSmallScreen ? "small" : "medium"}
-                        placeholder="Enter storage location"
+                      >
+                        <option value="">Select Finish</option>
+                        {FINISHES.map((finish) => (
+                          <option key={finish} value={finish}>
+                            {finish}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <Input
+                        label="Size"
+                        value={item.size || ""}
+                        onChange={(e) =>
+                          handleItemChange(index, "size", e.target.value)
+                        }
+                        placeholder="e.g., 4x8"
                       />
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-            </DialogContent>
-            <DialogActions
-              sx={{
-                p: { xs: 2, sm: 3 },
-                flexDirection: isSmallScreen ? "column" : "row",
-                gap: 1,
-              }}
-            >
-              <Button
-                onClick={() => setShowAddProductModal(false)}
-                fullWidth={isSmallScreen}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleAddNewProduct}
-                disabled={creatingProduct || !newProductData.name}
-                startIcon={
-                  creatingProduct ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <Plus size={16} />
-                  )
+                      <Input
+                        label="Thickness"
+                        value={item.thickness || ""}
+                        onChange={(e) =>
+                          handleItemChange(index, "thickness", e.target.value)
+                        }
+                        placeholder="e.g., 1mm"
+                      />
+                      <Select
+                        label="Unit"
+                        value={item.unit}
+                        onChange={(e) =>
+                          handleItemChange(index, "unit", e.target.value)
+                        }
+                      >
+                        {STEEL_UNITS.map((unit) => (
+                          <option key={unit} value={unit}>
+                            {unit}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <Input
+                        label="Qty"
+                        type="number"
+                        value={item.quantity || ""}
+                        onChange={(e) =>
+                          handleItemChange(
+                            index,
+                            "quantity",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value) || ""
+                          )
+                        }
+                        min="0"
+                        step="0.01"
+                      />
+                      <Input
+                        label="Rate"
+                        type="number"
+                        value={item.rate || ""}
+                        onChange={(e) =>
+                          handleItemChange(
+                            index,
+                            "rate",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value) || ""
+                          )
+                        }
+                        min="0"
+                        step="0.01"
+                      />
+                      <Input
+                        label="VAT %"
+                        type="number"
+                        value={item.vatRate}
+                        onChange={(e) =>
+                          handleItemChange(
+                            index,
+                            "vatRate",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        min="0"
+                        max="100"
+                      />
+                    </div>
+
+                    <div className={`flex justify-end p-3 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Amount: {formatCurrency(item.amount)}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {deferredItems.length > 10 && (
+                <div className={`text-center py-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Showing first 10 items. Add more items as needed.
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Summary and Notes */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+            <Card className="p-4 sm:p-6">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📝 Notes
+              </h2>
+              <Textarea
+                value={invoice.notes}
+                onChange={(e) =>
+                  setInvoice((prev) => ({ ...prev, notes: e.target.value }))
                 }
-                fullWidth={isSmallScreen}
-              >
-                {creatingProduct ? "Adding..." : "Add Product"}
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </InvoiceFormPaper>
-      </Container>
-    </InvoiceContainer>
+                placeholder="Additional notes..."
+                rows="4"
+              />
+            </Card>
+
+            <Card className="p-4 sm:p-6">
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                💰 Invoice Summary
+              </h2>
+              <div className="space-y-4">
+                <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <span>Subtotal:</span>
+                  <span className="font-medium">
+                    {formatCurrency(computedSubtotal)}
+                  </span>
+                </div>
+
+                {/* Additional Charges Section */}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Packing Charges"
+                      type="number"
+                      value={invoice.packingCharges || ""}
+                      onChange={(e) =>
+                        handleChargeChange("packingCharges", e.target.value)
+                      }
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <Input
+                      label="Freight Charges"
+                      type="number"
+                      value={invoice.freightCharges || ""}
+                      onChange={(e) =>
+                        handleChargeChange("freightCharges", e.target.value)
+                      }
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <Input
+                      label="Loading Charges"
+                      type="number"
+                      value={invoice.loadingCharges || ""}
+                      onChange={(e) =>
+                        handleChargeChange("loadingCharges", e.target.value)
+                      }
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <Input
+                      label="Other Charges"
+                      type="number"
+                      value={invoice.otherCharges || ""}
+                      onChange={(e) =>
+                        handleChargeChange("otherCharges", e.target.value)
+                      }
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
+                <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <span>VAT Amount:</span>
+                  <span className="font-medium">
+                    {formatCurrency(computedVatAmount)}
+                  </span>
+                </div>
+
+                <div className={`border-t pt-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total:</span>
+                    <span className="text-lg font-bold text-teal-400">
+                      {formatCurrency(computedTotal)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Advance and Balance */}
+                <div className="space-y-3">
+                  <Input
+                    label="Advance Received"
+                    type="number"
+                    value={invoice.advanceReceived || ""}
+                    onChange={(e) =>
+                      handleChargeChange("advanceReceived", e.target.value)
+                    }
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                  {invoice.advanceReceived > 0 && (
+                    <div className={`flex justify-between items-center p-3 rounded-md border ${isDarkMode ? 'bg-teal-900/20 border-teal-500/30' : 'bg-teal-50 border-teal-200'}`}>
+                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Balance Amount:
+                      </span>
+                      <span className="font-medium text-teal-400">
+                        {formatCurrency(
+                          Math.max(
+                            0,
+                            computedTotal - (invoice.advanceReceived || 0)
+                          )
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Terms & Conditions */}
+          <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
+            <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              📋 Payment as per payment terms
+            </h2>
+            <Textarea
+              value={invoice.terms}
+              onChange={(e) =>
+                setInvoice((prev) => ({ ...prev, terms: e.target.value }))
+              }
+              placeholder="Payment terms and conditions..."
+              rows="3"
+            />
+          </Card>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 };
 

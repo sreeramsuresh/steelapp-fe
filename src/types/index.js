@@ -28,7 +28,6 @@ export const createSteelItem = () => ({
   id: crypto.randomUUID(),
   productId: null,
   name: '',
-  specification: '',
   grade: '',
   finish: '',
   size: '',
@@ -83,7 +82,7 @@ export const createInvoice = () => ({
   total: 0,
   status: 'draft',
   notes: '',
-  terms: 'Payment due within 30 days'
+  terms: 'Kindly check the product before unloading If any complaint arises, contact us immediately. No items will be returned without prior authorisation'
 });
 
 export const createCompany = () => ({

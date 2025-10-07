@@ -591,6 +591,50 @@ const PurchaseOrderForm = () => {
                     ))}
                   </select>
                 </div>
+                {purchaseOrder.supplierName && (
+                  <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-100 border-gray-200'}`}>
+                    <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Selected Supplier:
+                    </h4>
+                    <div className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p>
+                        <span className="font-medium">Name:</span> {purchaseOrder.supplierName}
+                      </p>
+                      {purchaseOrder.supplierEmail && (
+                        <p>
+                          <span className="font-medium">Email:</span> {purchaseOrder.supplierEmail}
+                        </p>
+                      )}
+                      {purchaseOrder.supplierPhone && (
+                        <p>
+                          <span className="font-medium">Phone:</span> {purchaseOrder.supplierPhone}
+                        </p>
+                      )}
+                      {purchaseOrder.supplierAddress && (
+                        <p>
+                          <span className="font-medium">Address:</span> {purchaseOrder.supplierAddress}
+                        </p>
+                      )}
+                      {(purchaseOrder.terms || purchaseOrder.currency) && (
+                        <p>
+                          <span className="font-medium">Terms/Currency:</span> {[
+                            purchaseOrder.terms,
+                            purchaseOrder.currency,
+                          ].filter(Boolean).join(' • ')}
+                        </p>
+                      )}
+                      {(purchaseOrder.supplierContactName || purchaseOrder.supplierContactEmail || purchaseOrder.supplierContactPhone) && (
+                        <p>
+                          <span className="font-medium">Contact:</span> {[
+                            purchaseOrder.supplierContactName,
+                            purchaseOrder.supplierContactEmail,
+                            purchaseOrder.supplierContactPhone,
+                          ].filter(Boolean).join(' • ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Supplier Name <span className="text-red-500">*</span>
@@ -1094,7 +1138,7 @@ const PurchaseOrderForm = () => {
               isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
             }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Terms & Conditions
+                Payment as per payment terms
               </h2>
               <textarea
                 rows={4}

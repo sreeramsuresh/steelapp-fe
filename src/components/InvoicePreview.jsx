@@ -338,9 +338,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
                         Item Description
                       </th>
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Specification
-                      </th>
                       {invoice.items.some((item) => item.description) && (
                         <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
                           Description
@@ -394,7 +391,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       return (
                         <tr key={index}>
                           <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.name}</td>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.specification}</td>
                           {invoice.items.some((item) => item.description) && (
                             <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
                           )}
@@ -577,16 +573,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     }`}>
                       <div className="p-6">
                         <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          Terms & Conditions:
+                          Payment as per payment terms:
                         </h3>
-                        <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {invoice.terms}
-                        </p>
-                        <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          Kindly check the product before unloading
-                        </p>
                         <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          If any complaint arises, contact us immediatel
+                          {invoice.terms}
                         </p>
                       </div>
                     </div>

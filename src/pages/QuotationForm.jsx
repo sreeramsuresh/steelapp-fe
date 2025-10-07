@@ -813,7 +813,7 @@ const QuotationForm = () => {
             isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
           }`}>
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              Terms & Conditions
+              Payment as per payment terms
             </h3>
 
             <div className="space-y-4">
@@ -859,7 +859,7 @@ const QuotationForm = () => {
                 <label className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
-                  Terms & Conditions
+                  Payment terms details
                 </label>
                 <textarea
                   value={formData.terms_and_conditions}

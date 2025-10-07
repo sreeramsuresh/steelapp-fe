@@ -1198,12 +1198,12 @@ const CompanySettings = () => {
                   placeholder="Enter footer text"
                 />
                 <TextField
-                  label="Terms & Conditions"
+                  label="Payment as per payment terms"
                   multiline
                   rows={4}
                   value={invoiceSettings.terms}
                   onChange={(e) => setInvoiceSettings({...invoiceSettings, terms: e.target.value})}
-                  placeholder="Enter terms and conditions"
+                  placeholder="Enter payment terms"
                 />
               </div>
             </div>

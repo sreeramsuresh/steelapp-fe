@@ -213,10 +213,8 @@ const createInvoiceElement = (invoice, company) => {
         ` : ''}
         ${invoice.terms ? `
           <div style="margin-bottom: 15px;">
-            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms & Conditions:</h4>
-            <p style="margin: 0 0 6px 0; color: #64748b;">${invoice.terms}</p>
-            <p style="margin: 0 0 4px 0; color: #64748b;">Kindly check the product before unloading</p>
-            <p style="margin: 0; color: #64748b;">If any complaint arises, contact us immediately</p>
+            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Payment as per payment terms:</h4>
+            <p style="margin: 0; color: #64748b;">${invoice.terms}</p>
           </div>
         ` : ''}
       </div>

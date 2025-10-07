@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
+import { FINISHES } from '../types';
 import { demoDataService } from '../services/demoDataService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
@@ -200,6 +201,7 @@ const SteelProducts = () => {
     name: '',
     category: 'sheet',
     grade: '',
+    finish: '',
     size: '',
     weight: '',
     unit: 'kg',
@@ -248,7 +250,8 @@ const SteelProducts = () => {
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchTerm.toLowerCase());
+                         product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (product.finish && product.finish.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
     const matchesStock = stockFilter === 'all' || 
                         (stockFilter === 'low' && product.currentStock <= product.minStock) ||
@@ -273,6 +276,7 @@ const SteelProducts = () => {
         name: '',
         category: 'sheet',
         grade: '',
+        finish: '',
         size: '',
         weight: '',
         unit: 'kg',
@@ -306,6 +310,7 @@ const SteelProducts = () => {
         name: selectedProduct.name,
         category: selectedProduct.category,
         grade: selectedProduct.grade,
+        finish: selectedProduct.finish,
         size: selectedProduct.size,
         weight: selectedProduct.weight,
         unit: selectedProduct.unit,
@@ -464,6 +469,15 @@ const SteelProducts = () => {
                       }`}>
                         {product.grade}
                       </span>
+                      {product.finish && (
+                        <span className={`px-2 py-1 text-xs rounded-md border ${
+                          isDarkMode 
+                            ? 'bg-blue-900/30 text-blue-300 border-blue-700' 
+                            : 'bg-blue-100 text-blue-800 border-blue-200'
+                        }`}>
+                          {product.finish}
+                        </span>
+                      )}
                       <span className={`px-2 py-1 text-xs rounded-md border ${
                         isDarkMode 
                           ? 'bg-gray-700 text-gray-300 border-gray-600' 
@@ -761,6 +775,12 @@ const SteelProducts = () => {
                       value={newProduct.grade}
                       onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
                     />
+                    <Select
+                      label="Finish"
+                      options={FINISHES.map(finish => ({ value: finish, label: finish }))}
+                      value={newProduct.finish}
+                      onChange={(e) => setNewProduct({...newProduct, finish: e.target.value})}
+                    />
                     <Input
                       label="Size"
                       value={newProduct.size}
@@ -1025,6 +1045,12 @@ const SteelProducts = () => {
                     value={selectedProduct.grade}
                     onChange={(e) => setSelectedProduct({...selectedProduct, grade: e.target.value})}
                   />
+                  <Select
+                    label="Finish"
+                    options={FINISHES.map(finish => ({ value: finish, label: finish }))}
+                    value={selectedProduct.finish || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, finish: e.target.value})}
+                  />
                   <Input
                     label="Size"
                     value={selectedProduct.size}
@@ -1169,6 +1195,14 @@ const SteelProducts = () => {
                         {selectedProduct.grade}
                       </span>
                     </div>
+                    {selectedProduct.finish && (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Finish:</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.finish}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between py-2">
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size:</span>
                       <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>

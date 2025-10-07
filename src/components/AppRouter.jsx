@@ -4,7 +4,7 @@ import { useTheme } from "../contexts/ThemeContext";
 
 // Components
 import Dashboard from "./Dashboard";
-import InvoiceForm from "../pages/InvoiceFormTailwind";
+import InvoiceForm from "../pages/InvoiceForm";
 import InvoiceList from "../pages/InvoiceList";
 import CustomerManagement from "./CustomerManagement";
 import SteelProducts from "./SteelProducts";

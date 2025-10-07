@@ -16,7 +16,6 @@ const transformInvoiceForServer = (invoiceData) => {
     items: invoiceData.items?.map(item => ({
       product_id: item.productId || null,
       name: item.name,
-      specification: item.specification,
       finish: item.finish,
       size: item.size,
       thickness: item.thickness,
@@ -48,7 +47,6 @@ const transformInvoiceFromServer = (serverData) => {
       id: item.id,
       productId: item.product_id,
       name: item.name || '',
-      specification: item.specification || '',
       finish: item.finish || '',
       size: item.size || '',
       thickness: item.thickness || '',

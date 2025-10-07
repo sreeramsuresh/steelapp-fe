@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     open: true,
-    port: 3030,
+    port: 5173,
     host: "0.0.0.0",
     proxy: {
       // Proxy API calls to backend to avoid CORS/CORB and HTML responses
