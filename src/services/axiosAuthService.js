@@ -7,9 +7,6 @@ class AuthService {
   constructor() {
     this.USER_KEY = 'steel-app-user';
     this.isInitialized = false;
-    this.tokenRefreshTimer = null;
-    this.refreshPromise = null; // Prevent multiple simultaneous refresh attempts
-    this.isRefreshing = false;
   }
 
   // Initialize auth service
@@ -18,9 +15,6 @@ class AuthService {
     
     apiService.initialize();
     this.isInitialized = true;
-    
-    // Set up automatic token refresh
-    this.setupTokenRefresh();
   }
 
   // Register new user
@@ -48,7 +42,6 @@ class AuthService {
       if (response.token) {
         this.setTokens(response.token, response.refreshToken);
         this.setUser(response.user);
-        this.setupTokenRefresh();
       }
       
       return response;
@@ -82,78 +75,34 @@ class AuthService {
     }
   }
 
-  // Refresh token
+  // Refresh token - simplified, let interceptors handle most cases
   async refreshToken() {
-    // If already refreshing, return the existing promise
-    if (this.isRefreshing && this.refreshPromise) {
-      console.log('[Auth] Token refresh already in progress, waiting...');
-      return this.refreshPromise;
-    }
-    
-    this.isRefreshing = true;
-    // Expose a global flag so axios interceptors can avoid double-refreshing
-    if (typeof window !== 'undefined') {
-      window.__AUTH_REFRESHING__ = true;
-    }
-    
-    this.refreshPromise = (async () => {
-      try {
-        const refreshToken = tokenUtils.getRefreshToken();
-        
-        console.log('[Auth] 🔄 Starting token refresh process...');
-        console.log('[Auth] Refresh token exists:', !!refreshToken);
-        
-        if (!refreshToken) {
-          console.log('[Auth] ❌ No refresh token found in localStorage');
-          throw new Error('No valid refresh token available');
-        }
-        
-        if (tokenUtils.isTokenExpired(refreshToken)) {
-          console.log('[Auth] ❌ Refresh token is expired');
-          const expiry = tokenUtils.getTokenExpirationTime(refreshToken);
-          console.log('[Auth] Refresh token expired at:', new Date(expiry).toISOString());
-          throw new Error('No valid refresh token available');
-        }
-        
-        console.log('[Auth] ✅ Refresh token is valid, making API call...');
-        // Use a raw axios call to avoid interceptor recursion or header pollution
-        const { data: response } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
-        
-        if (response.token) {
-          console.log('[Auth] ✅ Token refresh successful');
-          console.log('[Auth] New token received, setting up next refresh...');
-          this.setTokens(response.token, response.refreshToken);
-          this.setupTokenRefresh(); // Re-setup the refresh timer
-          return response.token;
-        }
-        
-        console.log('[Auth] ❌ Token refresh failed - no token in response');
-        throw new Error('Token refresh failed - no token in response');
-      } catch (error) {
-        console.error('[Auth] ❌ Token refresh failed:', error);
-        console.error('[Auth] Error type:', error.constructor.name);
-        console.error('[Auth] Error status:', error.response?.status);
-        console.error('[Auth] Error message:', error.message);
-        console.error('[Auth] Error data:', error.response?.data);
-        // If backend says session/refresh is invalid, clear session to prevent loops
-        if (error?.response?.status === 401) {
-          try {
-            this.clearSession();
-          } catch {}
-        }
-        // Do NOT clear session here. Transient 401s can happen if a parallel
-        // interceptor-driven refresh rotated the token. Let caller decide.
-        throw error;
-      } finally {
-        this.isRefreshing = false;
-        this.refreshPromise = null;
-        if (typeof window !== 'undefined') {
-          window.__AUTH_REFRESHING__ = false;
-        }
+    try {
+      const refreshToken = tokenUtils.getRefreshToken();
+      
+      console.log('[Auth] 🔄 Manual token refresh requested...');
+      
+      if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
+        console.log('[Auth] ❌ No valid refresh token available');
+        throw new Error('No valid refresh token available');
       }
-    })();
-    
-    return this.refreshPromise;
+      
+      const response = await apiService.post('/auth/refresh', { refreshToken });
+      
+      if (response.token) {
+        console.log('[Auth] ✅ Token refresh successful');
+        this.setTokens(response.token, response.refreshToken);
+        return response.token;
+      }
+      
+      throw new Error('Token refresh failed - no token in response');
+    } catch (error) {
+      console.error('[Auth] ❌ Token refresh failed:', error);
+      if (error?.response?.status === 401) {
+        this.clearSession();
+      }
+      throw error;
+    }
   }
 
   // Get current user profile from server
@@ -273,12 +222,8 @@ class AuthService {
   // Clear all session data
   clearSession() {
     console.log('[Auth] 🚨 CLEARING SESSION - User will be logged out');
-    console.log('[Auth] Session clear reason:', new Error().stack);
     this.removeTokens();
     this.removeUser();
-    this.clearTokenRefreshTimer();
-    this.isRefreshing = false;
-    this.refreshPromise = null;
   }
 
   // Authentication status
@@ -314,89 +259,14 @@ class AuthService {
     return allowedRoles.includes(user.role);
   }
 
-  // Token refresh timer management
+  // Token refresh timer management - simplified
   setupTokenRefresh() {
-    this.clearTokenRefreshTimer();
-    
-    const token = this.getToken();
-    if (!token || tokenUtils.isTokenExpired(token)) {
-      console.log('[Auth] No valid token for refresh setup');
-      return;
-    }
-    
-    const expirationTime = tokenUtils.getTokenExpirationTime(token);
-    if (!expirationTime) {
-      console.log('[Auth] Could not determine token expiration time');
-      return;
-    }
-    
-    // Calculate time until refresh (5 minutes before expiration)
-    const timeUntilExpiry = expirationTime - Date.now();
-    const refreshTime = timeUntilExpiry - (5 * 60 * 1000);
-    const minsUntilExpiry = Math.max(0, Math.round(timeUntilExpiry / 1000 / 60));
-    const minsUntilRefresh = Math.max(0, Math.round(refreshTime / 1000 / 60));
-    
-    console.log(`[Auth] Token expires in ${minsUntilExpiry} minutes`);
-    console.log(`[Auth] Scheduling refresh in ${minsUntilRefresh} minutes`);
-    console.log(`[Auth] Current time: ${new Date().toISOString()}`);
-    console.log(`[Auth] Token expiration: ${new Date(expirationTime).toISOString()}`);
-    
-    // Check refresh token status
-    const refreshToken = this.getRefreshToken();
-    if (refreshToken) {
-      const refreshExpiry = tokenUtils.getTokenExpirationTime(refreshToken);
-      if (refreshExpiry) {
-        console.log(`[Auth] Refresh token expires in ${Math.round((refreshExpiry - Date.now()) / 1000 / 60)} minutes`);
-      }
-    }
-    
-    if (refreshTime > 0) {
-      this.tokenRefreshTimer = setTimeout(async () => {
-        console.log('[Auth] Token refresh timer triggered');
-        try {
-          await this.refreshToken();
-          // setupTokenRefresh is now called inside refreshToken on success
-        } catch (error) {
-          console.error('[Auth] Automatic token refresh failed:', error);
-          console.error('[Auth] Error details:', {
-            status: error.response?.status,
-            message: error.message,
-            data: error.response?.data
-          });
-          
-          // If unauthorized, session is likely invalid/expired; do not retry
-          if (error?.response?.status === 401) {
-            console.log('[Auth] Not retrying refresh after 401. Session cleared or invalid.');
-          } else {
-            // Retry after a brief delay for transient errors
-            console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
-            setTimeout(() => this.setupTokenRefresh(), 30000);
-          }
-        }
-      }, refreshTime);
-    } else {
-      // Token is about to expire or already expired
-      console.log('[Auth] Token needs immediate refresh');
-      this.refreshToken().catch(error => {
-        console.error('[Auth] Immediate token refresh failed:', error);
-        console.error('[Auth] Error details:', {
-          status: error.response?.status,
-          message: error.message,
-          data: error.response?.data
-        });
-        // If unauthorized, session likely invalid; avoid retry loops
-        if (error?.response?.status === 401) {
-          console.log('[Auth] Not retrying immediate refresh after 401.');
-        }
-      });
-    }
+    // Let axios interceptors handle token refresh automatically
+    console.log('[Auth] Token refresh will be handled by axios interceptors');
   }
 
   clearTokenRefreshTimer() {
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer);
-      this.tokenRefreshTimer = null;
-    }
+    // No longer needed - interceptors handle everything
   }
 
   // Get user roles and permissions

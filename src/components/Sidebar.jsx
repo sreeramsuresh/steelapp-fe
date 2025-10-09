@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       items: [
         {
           name: 'Dashboard',
-          path: '/',
+          path: '/dashboard',
           icon: Home,
           description: 'Overview & Analytics'
         }

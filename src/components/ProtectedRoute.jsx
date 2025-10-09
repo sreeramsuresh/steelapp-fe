@@ -14,8 +14,10 @@ const ProtectedRoute = ({
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
-  // Check if user is authenticated
-  if (!user || !authService.isAuthenticated()) {
+  // Check if user is authenticated - use auth service as primary source of truth
+  const isAuthenticated = authService.isAuthenticated();
+  
+  if (!isAuthenticated) {
     // Save the attempted location for redirect after login
     return (
       <Navigate 
@@ -23,6 +25,16 @@ const ProtectedRoute = ({
         state={{ from: location }} 
         replace 
       />
+    );
+  }
+
+  // If authenticated but no user object, show loading state instead of redirect
+  if (!user) {
+    return (
+      <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <span className={`ml-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Loading...</span>
+      </div>
     );
   }
 

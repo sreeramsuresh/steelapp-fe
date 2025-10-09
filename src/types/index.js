@@ -60,6 +60,8 @@ export const createInvoice = () => ({
   despatchedThrough: '',
   destination: '',
   termsOfDelivery: '',
+  customerPurchaseOrderNumber: '',
+  customerPurchaseOrderDate: '',
   customer: createCustomer(),
   items: [createSteelItem()],
   subtotal: 0,

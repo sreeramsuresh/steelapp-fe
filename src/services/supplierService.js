@@ -11,6 +11,12 @@ const ls = {
 
 export const supplierService = {
   async getSuppliers(params = {}) {
+    // Safeguard: some backends don't expose /suppliers. Avoid noisy 404 logs.
+    const enabled = (import.meta.env.VITE_ENABLE_SUPPLIERS || '').toString().toLowerCase() === 'true';
+    if (!enabled) {
+      // Use local storage cache only
+      return { suppliers: ls.all() };
+    }
     try {
       const res = await apiClient.get('/suppliers', params);
       const suppliers = res.suppliers || res.items || res || [];
@@ -44,4 +50,3 @@ export const supplierService = {
 };
 
 export default supplierService;
-

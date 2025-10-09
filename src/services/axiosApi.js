@@ -59,6 +59,7 @@ export const tokenUtils = {
         email: decoded.email,
         role: decoded.role,
         name: decoded.name,
+        permissions: decoded.permissions
       };
     } catch (error) {
       console.error('Error decoding user from token:', error);
@@ -68,375 +69,139 @@ export const tokenUtils = {
 };
 
 // Request interceptor - Add auth token to requests
-axiosApi.interceptors.request.use(
-  async (config) => {
-    const isAuthRequest = (url) => typeof url === 'string' && (
-      url.includes('/auth/login') ||
-      url.includes('/auth/register') ||
-      url.includes('/auth/forgot-password') ||
-      url.includes('/auth/reset-password') ||
-      url.includes('/auth/refresh')
-    );
-
-    // Never try to refresh while calling auth endpoints (esp. /auth/refresh)
-    if (isAuthRequest(config?.url)) {
-      // Also avoid attaching Authorization to refresh/login requests
-      if (config?.url?.includes('/auth/refresh') || config?.url?.includes('/auth/login') || config?.url?.includes('/auth/register')) {
-        if (config.headers && 'Authorization' in config.headers) {
-          delete config.headers.Authorization;
-        }
-      }
-      return config;
-    }
-    const token = tokenUtils.getToken();
-    
-    if (token) {
-      if (tokenUtils.isTokenExpired(token)) {
-        console.log('[Request Interceptor] Token expired, attempting refresh');
-        // If an auth-service driven refresh is in progress, wait for it
-        if (typeof window !== 'undefined' && window.__AUTH_REFRESHING__) {
-          await new Promise((resolve, reject) => {
-            const started = Date.now();
-            const interval = setInterval(() => {
-              const timeout = Date.now() - started > 10000; // 10s timeout
-              if (timeout) {
-                clearInterval(interval);
-                reject(new Error('Timed out waiting for token refresh'));
-              } else if (!window.__AUTH_REFRESHING__) {
-                clearInterval(interval);
-                resolve();
-              }
-            }, 100);
-          });
-          const latest = tokenUtils.getToken();
-          if (latest && !tokenUtils.isTokenExpired(latest)) {
-            config.headers = config.headers || {};
-            config.headers.Authorization = 'Bearer ' + latest;
-            return config;
-          }
-        }
-        // Token is expired, try to refresh it before making the request
-        const refreshToken = tokenUtils.getRefreshToken();
-        if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
-          try {
-            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-              refreshToken
-            });
-            const { token: newToken, refreshToken: newRefreshToken } = response.data;
-            tokenUtils.setToken(newToken);
-            if (newRefreshToken) {
-              tokenUtils.setRefreshToken(newRefreshToken);
-            }
-            config.headers.Authorization = `Bearer ${newToken}`;
-            console.log('[Request Interceptor] Token refreshed successfully');
-          } catch (error) {
-            console.error('[Request Interceptor] Token refresh failed:', error);
-            // If refresh is unauthorized, clear tokens to avoid loops
-            if (error?.response?.status === 401) {
-              try {
-                delete axiosApi.defaults.headers.common['Authorization'];
-              } catch {}
-              tokenUtils.removeTokens();
-            }
-            // Do not auto-logout or clear tokens; propagate error
-            return Promise.reject(error);
-          }
-        } else {
-          console.log('[Request Interceptor] No valid refresh token');
-          // Do not auto-logout; propagate error to caller
-          return Promise.reject(new Error('No valid tokens available'));
-        }
-      } else {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+axiosApi.interceptors.request.use((config) => {
+  const token = tokenUtils.getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// Global flag to prevent multiple simultaneous refresh attempts
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  
-  failedQueue = [];
-};
-
-// Response interceptor - Handle token refresh and errors
+// Response interceptor - Handle token refresh
 axiosApi.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-    const isAuthRequest = (url) => typeof url === 'string' && (
-      url.includes('/auth/login') ||
-      url.includes('/auth/register') ||
-      url.includes('/auth/forgot-password') ||
-      url.includes('/auth/reset-password') ||
-      url.includes('/auth/refresh')
-    );
-    
-    // If the error is 401 and we haven't already tried to refresh
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // If we're already on the login page or this is an auth endpoint,
-      // do not attempt refresh or force a redirect. Let the caller handle it.
-      if (currentPath === '/login' || isAuthRequest(originalRequest?.url)) {
-        console.log('[Interceptor] Skipping refresh for auth request or login page');
-        return Promise.reject(error);
-      }
-      // If authService is currently refreshing, wait and retry
-      if (typeof window !== 'undefined' && window.__AUTH_REFRESHING__) {
-        console.log('[Interceptor] AuthService is refreshing, waiting to retry request');
-        return new Promise((resolve, reject) => {
-          const started = Date.now();
-          const interval = setInterval(() => {
-            const timeout = Date.now() - started > 10000; // 10s timeout
-            if (timeout) {
-              clearInterval(interval);
-              reject(error);
-            } else if (!window.__AUTH_REFRESHING__) {
-              clearInterval(interval);
-              const latest = tokenUtils.getToken();
-              if (latest && !tokenUtils.isTokenExpired(latest)) {
-                originalRequest.headers = originalRequest.headers || {};
-                originalRequest.headers.Authorization = `Bearer ${latest}`;
-              }
-              resolve(axiosApi(originalRequest));
-            }
-          }, 100);
-        });
-      }
-
-      if (isRefreshing) {
-        // If we're already refreshing, queue this request
-        console.log('[Interceptor] Token refresh in progress, queueing request');
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return axiosApi(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
-      
       const refreshToken = tokenUtils.getRefreshToken();
-      
+
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
           console.log('[Interceptor] Attempting token refresh');
-          // Try to refresh the token
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken
+          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refreshToken,
           });
-          
-          const { token: newToken, refreshToken: newRefreshToken } = response.data;
-          
-          // Update stored tokens
-          tokenUtils.setToken(newToken);
-          if (newRefreshToken) {
-            tokenUtils.setRefreshToken(newRefreshToken);
+
+          if (data.token) {
+            tokenUtils.setToken(data.token);
+            if (data.refreshToken) {
+              tokenUtils.setRefreshToken(data.refreshToken);
+            }
+            
+            // Retry the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${data.token}`;
+            return axiosApi(originalRequest);
           }
-          
-          console.log('[Interceptor] Token refresh successful');
-          processQueue(null, newToken);
-          
-          // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return axiosApi(originalRequest);
-          
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
-          // If refresh is unauthorized, clear tokens to prevent retry loops
-          if (refreshError?.response?.status === 401) {
-            try {
-              delete axiosApi.defaults.headers.common['Authorization'];
-            } catch {}
-            tokenUtils.removeTokens();
-          }
-          processQueue(refreshError, null);
-          // Do not navigate here; propagate for UI to react (e.g., redirect to login)
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
+          // Clear tokens and redirect to login
+          tokenUtils.removeTokens();
+          localStorage.removeItem('steel-app-user');
+          window.location.href = '/login';
         }
       } else {
-        console.log('[Interceptor] No valid refresh token');
-        isRefreshing = false;
-        processQueue(error, null);
-        // Do not clear tokens here either.
-        return Promise.reject(error);
+        // No valid refresh token, clear session and redirect
+        tokenUtils.removeTokens();
+        localStorage.removeItem('steel-app-user');
+        window.location.href = '/login';
       }
     }
-    
-    // For other error statuses, just propagate the error
+
     return Promise.reject(error);
   }
 );
 
-// API service class
-class ApiService {
-  constructor() {
-    this.axios = axiosApi;
-  }
-  
-  // Generic request method
-  async request(config) {
+// API service
+export const apiService = {
+  initialize: () => {
+    // No longer needed - interceptors handle everything
+  },
+
+  setAuthToken: (token) => {
+    // No longer needed - interceptors handle this
+  },
+
+  removeAuthToken: () => {
+    // No longer needed - interceptors handle this
+  },
+
+  get: async (url, config = {}) => {
     try {
-      const response = await this.axios(config);
+      const response = await axiosApi.get(url, config);
       return response.data;
     } catch (error) {
-      this.handleError(error);
+      console.error(`GET ${url} error:`, error.response?.data || error.message);
       throw error;
     }
-  }
-  
-  // HTTP methods
-  async get(endpoint, params = {}) {
-    return this.request({
-      method: 'GET',
-      url: endpoint,
-      params: this.cleanParams(params),
-    });
-  }
-  
-  async post(endpoint, data = {}) {
-    return this.request({
-      method: 'POST',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async put(endpoint, data = {}) {
-    return this.request({
-      method: 'PUT',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async patch(endpoint, data = {}) {
-    return this.request({
-      method: 'PATCH',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async delete(endpoint) {
-    return this.request({
-      method: 'DELETE',
-      url: endpoint,
-    });
-  }
-  
-  // File upload
-  async upload(endpoint, formData) {
-    return this.request({
-      method: 'POST',
-      url: endpoint,
-      data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  }
-  
-  // Clean parameters (remove undefined/null values)
-  cleanParams(params) {
-    return Object.fromEntries(
-      Object.entries(params).filter(([key, value]) => 
-        value !== undefined && value !== null && value !== ''
-      )
-    );
-  }
-  
-  // Error handling
-  handleError(error) {
-    if (error.response) {
-      // Server responded with error status
-      const { status, data } = error.response;
-      console.error(`API Error ${status}:`, data.message || data.error || 'Unknown error');
-      
-      // Handle specific error cases
-      switch (status) {
-        case 401:
-          console.warn('Unauthorized access - token may be invalid');
-          break;
-        case 403:
-          console.warn('Forbidden - insufficient permissions');
-          break;
-        case 404:
-          console.warn('Resource not found');
-          break;
-        case 422:
-          console.warn('Validation error:', data.errors || data.message);
-          break;
-        case 500:
-          console.error('Internal server error');
-          break;
-        default:
-          console.error('API error:', data.message || 'Unknown error');
-      }
-    } else if (error.request) {
-      // Network error
-      console.error('Network error:', error.message);
-    } else {
-      // Other error
-      console.error('Error:', error.message);
-    }
-  }
-  
-  // Set auth token manually (for initial login)
-  setAuthToken(token) {
-    if (token) {
-      this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      tokenUtils.setToken(token);
-    } else {
-      delete this.axios.defaults.headers.common['Authorization'];
-      tokenUtils.removeTokens();
-    }
-  }
-  
-  // Remove auth token
-  removeAuthToken() {
-    delete this.axios.defaults.headers.common['Authorization'];
-    tokenUtils.removeTokens();
-  }
-  
-  // Initialize with stored token
-  initialize() {
-    const token = tokenUtils.getToken();
-    if (token && !tokenUtils.isTokenExpired(token)) {
-      this.setAuthToken(token);
-    } else {
-      this.removeAuthToken();
-    }
-  }
-}
+  },
 
-// Create singleton instance
-export const apiService = new ApiService();
+  post: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.post(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`POST ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
 
-// Auto-initialize on import
-apiService.initialize();
+  put: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.put(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`PUT ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
 
-export default apiService;
+  patch: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.patch(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`PATCH ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  delete: async (url, config = {}) => {
+    try {
+      const response = await axiosApi.delete(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`DELETE ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  upload: async (url, formData, config = {}) => {
+    try {
+      const response = await axiosApi.post(url, formData, {
+        ...config,
+        headers: {
+          ...config.headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`UPLOAD ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
+};
+
+export default axiosApi;

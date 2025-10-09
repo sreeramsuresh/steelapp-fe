@@ -273,6 +273,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     <strong>Delivery Note:</strong> {invoice.deliveryNote}
                   </p>
                 )}
+                {invoice.customerPurchaseOrderNumber && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}
+                  </p>
+                )}
+                {invoice.customerPurchaseOrderDate && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}
+                  </p>
+                )}
               </div>
             </div>
 

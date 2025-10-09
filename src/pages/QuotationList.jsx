@@ -25,6 +25,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { quotationsAPI } from "../services/api";
+import { useApiData } from "../hooks/useApi";
+import { companyService } from "../services";
+import { generateQuotationPDF } from "../utils/quotationPdfGenerator";
 
 const QuotationList = () => {
   const navigate = useNavigate();
@@ -125,6 +128,8 @@ const QuotationList = () => {
     fetchQuotations();
   }, [page, searchTerm, statusFilter]);
 
+  const { data: company } = useApiData(companyService.getCompany, [], true);
+
   const handleDelete = async (id) => {
     try {
       await quotationsAPI.delete(id);
@@ -167,12 +172,19 @@ const QuotationList = () => {
 
   const handleDownloadPDF = async (id) => {
     try {
-      await quotationsAPI.downloadPDF(id);
+      const q = await quotationsAPI.getById(id);
+      await generateQuotationPDF(q, company || {});
       setSuccess("PDF downloaded successfully");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error("Error downloading PDF:", err);
-      setError(err.message || "Failed to download PDF");
+      console.warn("Client quotation PDF failed, falling back:", err);
+      try {
+        await quotationsAPI.downloadPDF(id);
+        setSuccess("PDF downloaded successfully");
+      } catch (err2) {
+        console.error("Error downloading PDF:", err2);
+        setError(err2.message || "Failed to download PDF");
+      }
       setTimeout(() => setError(""), 3000);
     }
   };

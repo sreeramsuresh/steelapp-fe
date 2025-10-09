@@ -30,6 +30,7 @@ import AccountStatementDetails from "../pages/AccountStatementDetails";
 import QuotationList from "../pages/QuotationList";
 import QuotationForm from "../pages/QuotationForm";
 import Payables from "../pages/Payables";
+import CustomerPerspective from "../pages/CustomerPerspective";
 import ProtectedRoute from "./ProtectedRoute";
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
@@ -176,6 +177,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="payables.read">
               <Payables />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payables/customer/:customerId"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <CustomerPerspective />
             </ProtectedRoute>
           }
         />

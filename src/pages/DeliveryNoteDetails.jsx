@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI } from '../services/api';
 import { formatDate } from '../utils/invoiceUtils';
+import { useApiData } from '../hooks/useApi';
+import { companyService } from '../services';
+import { generateDeliveryNotePDF } from '../utils/deliveryNotePdfGenerator';
 
 const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
@@ -33,6 +36,8 @@ const DeliveryNoteDetails = () => {
     loadDeliveryNote();
   }, [id]);
 
+  const { data: company } = useApiData(companyService.getCompany, [], true);
+
   const loadDeliveryNote = async () => {
     try {
       setLoading(true);
@@ -47,10 +52,20 @@ const DeliveryNoteDetails = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await deliveryNotesAPI.downloadPDF(id);
-      setSuccess('PDF downloaded successfully');
+      if (deliveryNote) {
+        await generateDeliveryNotePDF(deliveryNote, company || {});
+        setSuccess('PDF downloaded successfully');
+        return;
+      }
+      throw new Error('No delivery note data');
     } catch (err) {
-      setError('Failed to download PDF: ' + err.message);
+      console.warn('Client DN PDF failed, falling back:', err);
+      try {
+        await deliveryNotesAPI.downloadPDF(id);
+        setSuccess('PDF downloaded successfully');
+      } catch (err2) {
+        setError('Failed to download PDF: ' + err2.message);
+      }
     }
   };
 

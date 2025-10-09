@@ -148,35 +148,78 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
     const initializeApp = async () => {
       try {
         // Check if user is authenticated
         if (authService.isAuthenticated()) {
           const storedUser = authService.getUser();
+          if (storedUser && mounted) {
+            // Set user immediately from storage to prevent loading delays
+            setUser(storedUser);
+          }
+          
           try {
-            const isValid = await authService.verifyToken();
-            if (isValid) {
+            // Only verify token if we have a reasonable timeout and handle errors gracefully
+            const isValid = await Promise.race([
+              authService.verifyToken(),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Verification timeout')), 5000)
+              )
+            ]);
+            
+            if (isValid && mounted) {
               const currentUser = authService.getUser();
               setUser(currentUser);
-            } else {
+            } else if (mounted) {
               // Verification failed: clear session and ensure user is null
-              await authService.clearSession?.();
+              authService.clearSession();
               setUser(null);
             }
           } catch (apiError) {
+            if (!mounted) return;
+            
             console.warn('Token verification failed:', apiError);
-            await authService.clearSession?.();
-            setUser(null);
+            
+            // Check if it's a timeout or connection error
+            if (apiError.message === 'Verification timeout' || 
+                apiError.code === 'ECONNABORTED' || 
+                apiError.message?.includes('timeout')) {
+              console.warn('Server is not responding, keeping user logged in with stored data');
+              // Keep user logged in with stored data when server is down
+              if (storedUser) {
+                setUser(storedUser);
+              }
+            } else if (apiError?.response?.status === 401) {
+              // Only clear session for actual authentication failures
+              authService.clearSession();
+              setUser(null);
+            } else {
+              // For other errors, keep user logged in to prevent unnecessary logouts
+              console.warn('Non-401 error during verification, keeping user logged in');
+              if (storedUser) {
+                setUser(storedUser);
+              }
+            }
           }
         }
       } catch (error) {
-        console.error('Failed to initialize app:', error);
+        if (mounted) {
+          console.error('Failed to initialize app:', error);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     initializeApp();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {

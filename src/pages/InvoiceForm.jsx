@@ -994,6 +994,33 @@ const InvoiceForm = ({ onSave }) => {
                     ))}
                   </Select>
                 </div>
+                
+                {/* Customer Purchase Order Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Customer PO Number (Optional)"
+                    value={invoice.customerPurchaseOrderNumber || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderNumber: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter customer PO number"
+                  />
+                  <Input
+                    label="Customer PO Date (Optional)"
+                    type="date"
+                    value={invoice.customerPurchaseOrderDate || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                
                 {/* Delivery notes are created separately from invoice save */}
               </div>
             </Card>

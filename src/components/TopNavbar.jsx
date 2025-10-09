@@ -16,8 +16,6 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Debug logging
-  console.log('TopNavbar isDarkMode:', isDarkMode);
 
   // Close dropdowns when clicking outside
   useEffect(() => {

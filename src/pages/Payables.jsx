@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { payablesService, PAYMENT_METHODS } from '../services/payablesService';
@@ -85,6 +85,7 @@ const downloadBlob = (blob, filename) => {
 
 const InvoicesTab = ({ canManage }) => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [filters, setFilters] = useURLState({
     tab: 'invoices',
     q: '',
@@ -323,7 +324,24 @@ const InvoicesTab = ({ canManage }) => {
                 <tr key={row.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} cursor-pointer`}>
                   <td className="px-4 py-2"><input type="checkbox" checked={selected.has(row.id)} onChange={() => toggleOne(row.id)} onClick={(e)=>e.stopPropagation()}/></td>
                   <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.invoice_no || row.invoiceNumber}</td>
-                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.customer?.name || ''}</td>
+                  <td className="px-4 py-2">
+                    {row.customer?.name ? (
+                      <button
+                        className="text-teal-600 hover:underline"
+                        onClick={(e)=>{
+                          e.stopPropagation();
+                          const cid = row.customer?.id || row.customer_id || '';
+                          const name = row.customer?.name || '';
+                          if (cid) navigate(`/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
+                          else navigate(`/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`);
+                        }}
+                      >
+                        {row.customer.name}
+                      </button>
+                    ) : (
+                      <span onClick={()=>openDrawer(row)}>{row.customer?.name || ''}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.invoice_date || row.date)}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>
                     <div className="flex items-center gap-2">
