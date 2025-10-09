@@ -70,6 +70,24 @@ export const tokenUtils = {
 // Request interceptor - Add auth token to requests
 axiosApi.interceptors.request.use(
   async (config) => {
+    const isAuthRequest = (url) => typeof url === 'string' && (
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/forgot-password') ||
+      url.includes('/auth/reset-password') ||
+      url.includes('/auth/refresh')
+    );
+
+    // Never try to refresh while calling auth endpoints (esp. /auth/refresh)
+    if (isAuthRequest(config?.url)) {
+      // Also avoid attaching Authorization to refresh/login requests
+      if (config?.url?.includes('/auth/refresh') || config?.url?.includes('/auth/login') || config?.url?.includes('/auth/register')) {
+        if (config.headers && 'Authorization' in config.headers) {
+          delete config.headers.Authorization;
+        }
+      }
+      return config;
+    }
     const token = tokenUtils.getToken();
     
     if (token) {
@@ -113,6 +131,13 @@ axiosApi.interceptors.request.use(
             console.log('[Request Interceptor] Token refreshed successfully');
           } catch (error) {
             console.error('[Request Interceptor] Token refresh failed:', error);
+            // If refresh is unauthorized, clear tokens to avoid loops
+            if (error?.response?.status === 401) {
+              try {
+                delete axiosApi.defaults.headers.common['Authorization'];
+              } catch {}
+              tokenUtils.removeTokens();
+            }
             // Do not auto-logout or clear tokens; propagate error
             return Promise.reject(error);
           }
@@ -239,8 +264,15 @@ axiosApi.interceptors.response.use(
           
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
+          // If refresh is unauthorized, clear tokens to prevent retry loops
+          if (refreshError?.response?.status === 401) {
+            try {
+              delete axiosApi.defaults.headers.common['Authorization'];
+            } catch {}
+            tokenUtils.removeTokens();
+          }
           processQueue(refreshError, null);
-          // Do not clear tokens here; let caller handle navigation/UI.
+          // Do not navigate here; propagate for UI to react (e.g., redirect to login)
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;

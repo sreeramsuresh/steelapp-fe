@@ -411,12 +411,6 @@ const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
   const { isDarkMode } = useTheme();
   
-  // Debug alert - remove in production
-  React.useEffect(() => {
-    alert('🚨 InvoiceFormTailwind.jsx is loading! STEEL_GRADES: ' + STEEL_GRADES.length + ', FINISHES: ' + FINISHES.length);
-    console.log('🔍 Debug - STEEL_GRADES:', STEEL_GRADES);
-    console.log('🔍 Debug - FINISHES:', FINISHES);
-  }, []);
 
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
@@ -524,25 +518,37 @@ const InvoiceForm = ({ onSave }) => {
     [invoice.items]
   );
 
+  const computedDiscountAmount = useMemo(() => {
+    const discountAmount = parseFloat(invoice.discountAmount) || 0;
+    const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
+    
+    if (invoice.discountType === 'percentage') {
+      return (computedSubtotal * discountPercentage) / 100;
+    } else {
+      return discountAmount;
+    }
+  }, [computedSubtotal, invoice.discountAmount, invoice.discountPercentage, invoice.discountType]);
+
   // Parse charges only when calculating final total to avoid blocking on every keystroke
   const computedTotal = useMemo(() => {
-    const packingCharges = parseFloat(invoice.packingCharges) || 0;
-    const freightCharges = parseFloat(invoice.freightCharges) || 0;
-    const loadingCharges = parseFloat(invoice.loadingCharges) || 0;
-    const otherCharges = parseFloat(invoice.otherCharges) || 0;
-    const additionalCharges =
-      packingCharges + freightCharges + loadingCharges + otherCharges;
-    return calculateTotal(
-      computedSubtotal + additionalCharges,
-      computedVatAmount
-    );
+    const discountAmount = parseFloat(invoice.discountAmount) || 0;
+    const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
+    
+    let totalDiscount = 0;
+    if (invoice.discountType === 'percentage') {
+      totalDiscount = (computedSubtotal * discountPercentage) / 100;
+    } else {
+      totalDiscount = discountAmount;
+    }
+    
+    const subtotalAfterDiscount = Math.max(0, computedSubtotal - totalDiscount);
+    return calculateTotal(subtotalAfterDiscount, computedVatAmount);
   }, [
     computedSubtotal,
     computedVatAmount,
-    invoice.packingCharges,
-    invoice.freightCharges,
-    invoice.loadingCharges,
-    invoice.otherCharges,
+    invoice.discountAmount,
+    invoice.discountPercentage,
+    invoice.discountType,
   ]);
 
   useEffect(() => {
@@ -758,14 +764,10 @@ const InvoiceForm = ({ onSave }) => {
       // Convert empty string values to numbers before saving
       const processedInvoice = {
         ...invoice,
-        packingCharges:
-          invoice.packingCharges === "" ? 0 : Number(invoice.packingCharges),
-        freightCharges:
-          invoice.freightCharges === "" ? 0 : Number(invoice.freightCharges),
-        loadingCharges:
-          invoice.loadingCharges === "" ? 0 : Number(invoice.loadingCharges),
-        otherCharges:
-          invoice.otherCharges === "" ? 0 : Number(invoice.otherCharges),
+        discountAmount:
+          invoice.discountAmount === "" ? 0 : Number(invoice.discountAmount),
+        discountPercentage:
+          invoice.discountPercentage === "" ? 0 : Number(invoice.discountPercentage),
         advanceReceived:
           invoice.advanceReceived === "" ? 0 : Number(invoice.advanceReceived),
         items: invoice.items.map((item) => ({
@@ -1596,55 +1598,68 @@ const InvoiceForm = ({ onSave }) => {
                   </span>
                 </div>
 
-                {/* Additional Charges Section */}
+                {/* Discount Section */}
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      label="Packing Charges"
-                      type="number"
-                      value={invoice.packingCharges || ""}
+                  <div className="grid grid-cols-1 gap-3">
+                    <Select
+                      label="Discount Type"
+                      value={invoice.discountType || "amount"}
                       onChange={(e) =>
-                        handleChargeChange("packingCharges", e.target.value)
+                        setInvoice((prev) => ({
+                          ...prev,
+                          discountType: e.target.value,
+                          discountAmount: "",
+                          discountPercentage: ""
+                        }))
                       }
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <Input
-                      label="Freight Charges"
-                      type="number"
-                      value={invoice.freightCharges || ""}
-                      onChange={(e) =>
-                        handleChargeChange("freightCharges", e.target.value)
-                      }
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <Input
-                      label="Loading Charges"
-                      type="number"
-                      value={invoice.loadingCharges || ""}
-                      onChange={(e) =>
-                        handleChargeChange("loadingCharges", e.target.value)
-                      }
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <Input
-                      label="Other Charges"
-                      type="number"
-                      value={invoice.otherCharges || ""}
-                      onChange={(e) =>
-                        handleChargeChange("otherCharges", e.target.value)
-                      }
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
+                    >
+                      <option value="amount">Amount</option>
+                      <option value="percentage">Percentage</option>
+                    </Select>
+                    
+                    {invoice.discountType === "percentage" ? (
+                      <Input
+                        label="Discount Percentage (%)"
+                        type="number"
+                        value={invoice.discountPercentage || ""}
+                        onChange={(e) =>
+                          setInvoice((prev) => ({
+                            ...prev,
+                            discountPercentage: e.target.value
+                          }))
+                        }
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                    ) : (
+                      <Input
+                        label="Discount Amount"
+                        type="number"
+                        value={invoice.discountAmount || ""}
+                        onChange={(e) =>
+                          setInvoice((prev) => ({
+                            ...prev,
+                            discountAmount: e.target.value
+                          }))
+                        }
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                    )}
                   </div>
                 </div>
+
+                {computedDiscountAmount > 0 && (
+                  <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <span>Discount:</span>
+                    <span className="font-medium text-red-500">
+                      -{formatCurrency(computedDiscountAmount)}
+                    </span>
+                  </div>
+                )}
 
                 <div className={`flex justify-between items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <span>VAT Amount:</span>

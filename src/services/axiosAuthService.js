@@ -1,4 +1,7 @@
 import { apiService, tokenUtils } from './axiosApi';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 class AuthService {
   constructor() {
@@ -113,7 +116,8 @@ class AuthService {
         }
         
         console.log('[Auth] ✅ Refresh token is valid, making API call...');
-        const response = await apiService.post('/auth/refresh', { refreshToken });
+        // Use a raw axios call to avoid interceptor recursion or header pollution
+        const { data: response } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
         
         if (response.token) {
           console.log('[Auth] ✅ Token refresh successful');
@@ -131,6 +135,12 @@ class AuthService {
         console.error('[Auth] Error status:', error.response?.status);
         console.error('[Auth] Error message:', error.message);
         console.error('[Auth] Error data:', error.response?.data);
+        // If backend says session/refresh is invalid, clear session to prevent loops
+        if (error?.response?.status === 401) {
+          try {
+            this.clearSession();
+          } catch {}
+        }
         // Do NOT clear session here. Transient 401s can happen if a parallel
         // interceptor-driven refresh rotated the token. Let caller decide.
         throw error;
@@ -323,9 +333,11 @@ class AuthService {
     // Calculate time until refresh (5 minutes before expiration)
     const timeUntilExpiry = expirationTime - Date.now();
     const refreshTime = timeUntilExpiry - (5 * 60 * 1000);
+    const minsUntilExpiry = Math.max(0, Math.round(timeUntilExpiry / 1000 / 60));
+    const minsUntilRefresh = Math.max(0, Math.round(refreshTime / 1000 / 60));
     
-    console.log(`[Auth] Token expires in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes`);
-    console.log(`[Auth] Scheduling refresh in ${Math.round(refreshTime / 1000 / 60)} minutes`);
+    console.log(`[Auth] Token expires in ${minsUntilExpiry} minutes`);
+    console.log(`[Auth] Scheduling refresh in ${minsUntilRefresh} minutes`);
     console.log(`[Auth] Current time: ${new Date().toISOString()}`);
     console.log(`[Auth] Token expiration: ${new Date(expirationTime).toISOString()}`);
     
@@ -352,9 +364,14 @@ class AuthService {
             data: error.response?.data
           });
           
-          // Do not auto-logout on any refresh error. Retry after 30 seconds.
-          console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
-          setTimeout(() => this.setupTokenRefresh(), 30000);
+          // If unauthorized, session is likely invalid/expired; do not retry
+          if (error?.response?.status === 401) {
+            console.log('[Auth] Not retrying refresh after 401. Session cleared or invalid.');
+          } else {
+            // Retry after a brief delay for transient errors
+            console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
+            setTimeout(() => this.setupTokenRefresh(), 30000);
+          }
         }
       }, refreshTime);
     } else {
@@ -367,7 +384,10 @@ class AuthService {
           message: error.message,
           data: error.response?.data
         });
-        // Do not auto-logout on immediate refresh failure
+        // If unauthorized, session likely invalid; avoid retry loops
+        if (error?.response?.status === 401) {
+          console.log('[Auth] Not retrying immediate refresh after 401.');
+        }
       });
     }
   }

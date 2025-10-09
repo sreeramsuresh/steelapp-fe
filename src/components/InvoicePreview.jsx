@@ -336,25 +336,14 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   <thead className="bg-teal-600">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Item Description
+                        Product
                       </th>
                       {invoice.items.some((item) => item.description) && (
                         <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
                           Description
                         </th>
                       )}
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Grade
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Finish
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Size
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Thickness
-                      </th>
+                      {/* Grade/Finish/Size/Thickness merged into Product column */}
                       <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
                         Unit
                       </th>
@@ -390,14 +379,17 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
 
                       return (
                         <tr key={index}>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.name}</td>
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
+                            {(item.grade || item.finish || item.size || item.thickness) && (
+                              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {[item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(' | ')}
+                              </div>
+                            )}
+                          </td>
                           {invoice.items.some((item) => item.description) && (
                             <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
                           )}
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.grade || "-"}</td>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.finish || "-"}</td>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.size || "-"}</td>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.thickness || "-"}</td>
                           <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.unit}</td>
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
