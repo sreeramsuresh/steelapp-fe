@@ -1,30 +1,62 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const isDev = import.meta.env.DEV;
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isDev ? '/api' : 'http://localhost:5000/api');
+if (isDev && /^https?:\/\/localhost:5000\/?/i.test(API_BASE_URL)) {
+  // Prefer dev proxy to avoid CORS during local development
+  API_BASE_URL = '/api';
+}
+const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
 
 // Create axios instance
 const axiosApi = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Simple cookie helper (avoid adding deps)
+const cookie = {
+  get(name) {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  },
+  set(name, value, { days = 7, path = '/' } = {}) {
+    if (typeof document === 'undefined') return;
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${path}`;
+  },
+  remove(name, { path = '/' } = {}) {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`;
+  }
+};
+
 // Token management
 const TOKEN_KEY = 'steel-app-token';
 const REFRESH_TOKEN_KEY = 'steel-app-refresh-token';
+const COOKIE_ACCESS = 'accessToken';
+const COOKIE_REFRESH = 'refreshToken';
 
 // Token utilities
 export const tokenUtils = {
-  getToken: () => localStorage.getItem(TOKEN_KEY),
-  getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
-  setToken: (token) => localStorage.setItem(TOKEN_KEY, token),
-  setRefreshToken: (refreshToken) => localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken),
+  // Cookies only to mirror GigLabz logic
+  getToken: () => cookie.get(COOKIE_ACCESS),
+  getRefreshToken: () => cookie.get(COOKIE_REFRESH),
+  setToken: (token) => {
+    if (token) cookie.set(COOKIE_ACCESS, token, { days: 1 });
+  },
+  setRefreshToken: (refreshToken) => {
+    if (refreshToken) cookie.set(COOKIE_REFRESH, refreshToken, { days: 7 });
+  },
   removeTokens: () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    cookie.remove(COOKIE_ACCESS);
+    cookie.remove(COOKIE_REFRESH);
   },
   
   isTokenExpired: (token) => {
@@ -68,54 +100,87 @@ export const tokenUtils = {
   }
 };
 
-// Request interceptor - Add auth token to requests
-axiosApi.interceptors.request.use((config) => {
+// Request interceptor - Add auth token to requests and check expiration
+axiosApi.interceptors.request.use(async (config) => {
   const token = tokenUtils.getToken();
+  
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Check if token expires within 1 minute (proactive refresh)
+    const expirationTime = tokenUtils.getTokenExpirationTime(token);
+    const currentTime = Date.now();
+    const oneMinuteFromNow = currentTime + (60 * 1000); // 1 minute buffer
+    
+    if (expirationTime && expirationTime < oneMinuteFromNow) {
+      console.log('[Interceptor] Token expires soon, refreshing proactively');
+      
+      const refreshToken = tokenUtils.getRefreshToken();
+      if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
+        try {
+          const { data } = await axios.post(
+            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+            { refreshToken },
+            { withCredentials: true }
+          );
+          
+          const newAccess = data.accessToken || data.token;
+          if (newAccess) {
+            tokenUtils.setToken(newAccess);
+            if (data.refreshToken) tokenUtils.setRefreshToken(data.refreshToken);
+            config.headers.Authorization = `Bearer ${newAccess}`;
+            console.log('[Interceptor] Token refreshed proactively');
+          }
+        } catch (error) {
+          console.error('[Interceptor] Proactive refresh failed:', error);
+          // Continue with expired token - let response interceptor handle it
+        }
+      }
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
+  
   return config;
 });
 
-// Response interceptor - Handle token refresh
+// Response interceptor - Handle token refresh (403 only)
 axiosApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const status = error.response?.status;
+    // Match GigLabz: trigger refresh only on 403
+    if (status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = tokenUtils.getRefreshToken();
 
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
           console.log('[Interceptor] Attempting token refresh');
-          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken,
-          });
+          const { data } = await axios.post(
+            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+            { refreshToken },
+            { withCredentials: true }
+          );
 
-          if (data.token) {
-            tokenUtils.setToken(data.token);
-            if (data.refreshToken) {
-              tokenUtils.setRefreshToken(data.refreshToken);
-            }
-            
-            // Retry the original request with new token
-            originalRequest.headers.Authorization = `Bearer ${data.token}`;
-            return axiosApi(originalRequest);
-          }
+          const newAccess = data.accessToken;
+          if (!newAccess) throw new Error('No accessToken in refresh response');
+
+          tokenUtils.setToken(newAccess);
+          if (data.refreshToken) tokenUtils.setRefreshToken(data.refreshToken);
+
+          // Retry the original request with new token
+          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+          return axiosApi(originalRequest);
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
-          // Clear tokens and redirect to login
+          // Clear tokens only (GigLabz behavior)
           tokenUtils.removeTokens();
-          localStorage.removeItem('steel-app-user');
-          window.location.href = '/login';
+          return Promise.reject(refreshError);
         }
       } else {
-        // No valid refresh token, clear session and redirect
+        // No valid refresh token, clear tokens
         tokenUtils.removeTokens();
-        localStorage.removeItem('steel-app-user');
-        window.location.href = '/login';
       }
     }
 
@@ -152,7 +217,12 @@ export const apiService = {
       const response = await axiosApi.post(url, data, config);
       return response.data;
     } catch (error) {
-      console.error(`POST ${url} error:`, error.response?.data || error.message);
+      // Reduce noise for frequent auth refresh failures during offline/slow backend
+      if (typeof url === 'string' && url.includes('/auth/refresh')) {
+        console.warn(`POST ${url} warn:`, error.response?.data || error.message);
+      } else {
+        console.error(`POST ${url} error:`, error.response?.data || error.message);
+      }
       throw error;
     }
   },

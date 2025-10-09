@@ -1,12 +1,14 @@
 import { apiService, tokenUtils } from './axiosApi';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:5000/api');
+const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
 
 class AuthService {
   constructor() {
     this.USER_KEY = 'steel-app-user';
     this.isInitialized = false;
+    this._refreshPromise = null; // avoid concurrent refreshes
   }
 
   // Initialize auth service
@@ -63,8 +65,18 @@ class AuthService {
     console.log('🚨 authService.logout() called!');
     try {
       console.log('🚨 Making API call to /auth/logout...');
-      // Call logout endpoint to invalidate tokens on server
-      await apiService.post('/auth/logout');
+      // Call logout endpoint to invalidate tokens on server (send refreshToken like GigLabz)
+      const refreshToken = this.getRefreshToken();
+      try {
+        await apiService.post('/auth/logout', refreshToken ? { refreshToken } : {});
+      } catch (e) {
+        // Fallback to GigLabz path if needed
+        try {
+          await apiService.post('/logout', refreshToken ? { refreshToken } : {});
+        } catch (e2) {
+          console.warn('🚨 Logout API call failed (both paths):', e2);
+        }
+      }
       console.log('🚨 Logout API call successful');
     } catch (error) {
       console.warn('🚨 Logout API call failed:', error);
@@ -75,40 +87,52 @@ class AuthService {
     }
   }
 
-  // Refresh token - simplified, let interceptors handle most cases
-  async refreshToken() {
-    try {
-      const refreshToken = tokenUtils.getRefreshToken();
-      
-      console.log('[Auth] 🔄 Manual token refresh requested...');
-      
-      if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
-        console.log('[Auth] ❌ No valid refresh token available');
-        throw new Error('No valid refresh token available');
+  // Refresh token with single-flight and shorter timeout
+  async refreshToken({ timeout = 9000 } = {}) {
+    const run = async () => {
+      try {
+        const refreshToken = tokenUtils.getRefreshToken();
+        console.log('[Auth] 🔄 Manual token refresh requested...');
+
+        if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
+          console.log('[Auth] ❌ No valid refresh token available');
+          throw new Error('No valid refresh token available');
+        }
+
+        const response = await apiService.post(
+          REFRESH_ENDPOINT,
+          { refreshToken },
+          { timeout }
+        );
+
+        const newAccess = response.token || response.accessToken;
+        if (newAccess) {
+          console.log('[Auth] ✅ Token refresh successful');
+          this.setTokens(newAccess, response.refreshToken);
+          return newAccess;
+        }
+
+        throw new Error('Token refresh failed - no token in response');
+      } catch (error) {
+        console.error('[Auth] ❌ Token refresh failed:', error);
+        if (error?.response?.status === 401) {
+          this.clearSession();
+        }
+        throw error;
+      } finally {
+        this._refreshPromise = null;
       }
-      
-      const response = await apiService.post('/auth/refresh', { refreshToken });
-      
-      if (response.token) {
-        console.log('[Auth] ✅ Token refresh successful');
-        this.setTokens(response.token, response.refreshToken);
-        return response.token;
-      }
-      
-      throw new Error('Token refresh failed - no token in response');
-    } catch (error) {
-      console.error('[Auth] ❌ Token refresh failed:', error);
-      if (error?.response?.status === 401) {
-        this.clearSession();
-      }
-      throw error;
-    }
+    };
+
+    if (this._refreshPromise) return this._refreshPromise;
+    this._refreshPromise = run();
+    return this._refreshPromise;
   }
 
   // Get current user profile from server
-  async getCurrentUser() {
+  async getCurrentUser(config = {}) {
     try {
-      const response = await apiService.get('/auth/me');
+      const response = await apiService.get('/auth/me', config);
       
       if (response.user) {
         this.setUser(response.user);
@@ -297,24 +321,34 @@ class AuthService {
   }
 
   // Verify token validity
-  async verifyToken() {
+  async verifyToken({ timeout = 9000 } = {}) {
     try {
       const token = this.getToken();
       if (!token) return false;
       
       if (tokenUtils.isTokenExpired(token)) {
         // Try to refresh if expired
-        await this.refreshToken();
+        await this.refreshToken({ timeout });
         return true;
       }
       
       // Verify with server
-      await this.getCurrentUser();
+      await this.getCurrentUser({ timeout });
       return true;
     } catch (error) {
       console.error('Token verification failed:', error);
-      // Do not auto-clear session; let interceptors handle refresh later
-      return false;
+      // Bubble up transient/network/timeout errors so caller can decide
+      const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '');
+      const isNetwork = !error?.response; // likely network or CORS
+      if (isTimeout || isNetwork) {
+        throw error;
+      }
+      // For auth failures, signal invalid token
+      if (error?.response?.status === 401) {
+        return false;
+      }
+      // For other server errors, let caller keep user logged in
+      throw error;
     }
   }
 }
