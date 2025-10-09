@@ -1,43 +1,7 @@
 import React, { useState, useEffect, useMemo, useDeferredValue, useCallback, memo, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Plus, Trash2, Save, Eye, Download } from "lucide-react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  IconButton,
-  Divider,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  InputAdornment,
-  Autocomplete,
-  Chip,
-  useTheme,
-  useMediaQuery,
-  Alert,
-  AlertTitle,
-  Collapse,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Plus, Trash2, Save, Eye, Download, ChevronDown, X } from "lucide-react";
+import { useTheme as useCustomTheme } from '../contexts/ThemeContext';
 import {
   createInvoice,
   createCompany,
@@ -63,99 +27,25 @@ import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { useApiData, useApi } from "../hooks/useApi";
 
-// Styled Components
-const InvoiceContainer = styled(Box)(({ theme }) => ({
-  paddingTop: theme.spacing(1),
-  paddingBottom: theme.spacing(1),
-  paddingLeft: 0,
-  paddingRight: 0,
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  overflow: "auto",
-  [theme.breakpoints.up("sm")]: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0),
-  },
-}));
-
-const InvoiceFormPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[1],
-  margin: 0,
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(3),
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[2],
-  },
-}));
-
-const SectionCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  boxShadow: theme.shadows[0],
-  [theme.breakpoints.up("sm")]: {
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[1],
-  },
-}));
-
-const SectionHeader = styled(Typography)(({ theme }) => ({
-  fontWeight: 600,
-  color: theme.palette.text.primary,
-  marginBottom: theme.spacing(2),
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1),
-  fontSize: "1rem",
-  [theme.breakpoints.up("sm")]: {
-    fontSize: "1.25rem",
-  },
-}));
-
-const MobileTableContainer = styled(Box)(({ theme }) => ({
-  display: "block",
-  [theme.breakpoints.up("md")]: {
-    display: "none",
-  },
-}));
-
-const DesktopTableContainer = styled(TableContainer)(({ theme }) => ({
-  display: "none",
-  [theme.breakpoints.up("md")]: {
-    display: "block",
-  },
-}));
-
-const MobileItemCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-}));
-
-const HeaderActions = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(1),
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "row",
-    width: "auto",
-  },
-}));
+// Loading component
+const CircularProgress = ({ size = 24 }) => (
+  <div className={`inline-flex animate-spin rounded-full h-${size/4} w-${size/4} border-b-2 border-current`} />
+);
 
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const { isDarkMode } = useCustomTheme();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
@@ -817,7 +707,7 @@ const InvoiceForm = ({ onSave }) => {
             />
             <TextField
               size="small"
-              label="TRN %"
+              label="VAT %"
               type="number"
               value={item.vatRate}
               onChange={(e) =>
@@ -1161,10 +1051,10 @@ const InvoiceForm = ({ onSave }) => {
                           fullWidth
                           size={isSmallScreen ? "small" : "medium"}
                         >
-                          <InputLabel>Payment Terms</InputLabel>
+                          <InputLabel>Payment Mode</InputLabel>
                           <Select
                             value={invoice.modeOfPayment || ""}
-                            label="Payment Terms"
+                            label="Payment Mode"
                             onChange={(e) =>
                               setInvoice((prev) => ({
                                 ...prev,
@@ -1173,7 +1063,7 @@ const InvoiceForm = ({ onSave }) => {
                             }
                           >
                             <MenuItem value="">
-                              <em>Select payment terms</em>
+                              <em>Select payment mode</em>
                             </MenuItem>
                             {PAYMENT_MODES.map((mode) => (
                               <MenuItem key={mode} value={mode}>
@@ -1328,7 +1218,8 @@ const InvoiceForm = ({ onSave }) => {
             </Box>
           </Box>
 
-          {/* Transport & Delivery Details */}
+          {/* Transport & Delivery Details (disabled for Phase 1) */}
+          {false && (
           <SectionCard sx={{ mb: 3 }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <SectionHeader variant="h6">
@@ -1413,6 +1304,7 @@ const InvoiceForm = ({ onSave }) => {
               </Box>
             </CardContent>
           </SectionCard>
+          )}
 
           {/* Items Section */}
           <SectionCard sx={{ mb: 3 }}>
@@ -1474,7 +1366,7 @@ const InvoiceForm = ({ onSave }) => {
                       <TableCell>Qty</TableCell>
                       <TableCell>Rate</TableCell>
                       <TableCell>Discount</TableCell>
-                      <TableCell>TRN %</TableCell>
+                      <TableCell>VAT %</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -1904,7 +1796,7 @@ const InvoiceForm = ({ onSave }) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="body1">TRN Amount:</Typography>
+                      <Typography variant="body1">VAT Amount:</Typography>
                       <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {formatCurrency(computedVatAmount)}
                       </Typography>

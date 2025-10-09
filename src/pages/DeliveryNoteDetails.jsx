@@ -1,44 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Alert,
-  Snackbar,
-  Divider
-} from '@mui/material';
-import {
-  ArrowBack as BackIcon,
-  GetApp as DownloadIcon,
-  Edit as EditIcon,
-  LocalShipping as TruckIcon,
-  Add as AddIcon,
-  CheckCircle as CompleteIcon,
-  Cancel as CancelIcon
-} from '@mui/icons-material';
+import { ArrowLeft, Download, Edit, Truck, Plus, CheckCircle, X, AlertCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI } from '../services/api';
+import { formatDate } from '../utils/invoiceUtils';
+import { useApiData } from '../hooks/useApi';
+import { companyService } from '../services';
+import { generateDeliveryNotePDF } from '../utils/deliveryNotePdfGenerator';
 
 const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { isDarkMode } = useTheme();
 
   const [deliveryNote, setDeliveryNote] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,13 +25,6 @@ const DeliveryNoteDetails = () => {
     quantity: ''
   });
 
-  const statusColors = {
-    pending: 'warning',
-    partial: 'info',
-    completed: 'success',
-    cancelled: 'error'
-  };
-
   const statusLabels = {
     pending: 'Pending',
     partial: 'Partial Delivery',
@@ -69,6 +35,8 @@ const DeliveryNoteDetails = () => {
   useEffect(() => {
     loadDeliveryNote();
   }, [id]);
+
+  const { data: company } = useApiData(companyService.getCompany, [], true);
 
   const loadDeliveryNote = async () => {
     try {
@@ -84,10 +52,20 @@ const DeliveryNoteDetails = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await deliveryNotesAPI.downloadPDF(id);
-      setSuccess('PDF downloaded successfully');
+      if (deliveryNote) {
+        await generateDeliveryNotePDF(deliveryNote, company || {});
+        setSuccess('PDF downloaded successfully');
+        return;
+      }
+      throw new Error('No delivery note data');
     } catch (err) {
-      setError('Failed to download PDF: ' + err.message);
+      console.warn('Client DN PDF failed, falling back:', err);
+      try {
+        await deliveryNotesAPI.downloadPDF(id);
+        setSuccess('PDF downloaded successfully');
+      } catch (err2) {
+        setError('Failed to download PDF: ' + err2.message);
+      }
     }
   };
 
@@ -121,6 +99,38 @@ const DeliveryNoteDetails = () => {
     try {
       await deliveryNotesAPI.updateStatus(id, newStatus);
       setSuccess(`Status updated to ${statusLabels[newStatus]}`);
+      // If marked completed, try to update related purchase order transit status
+      if (newStatus === 'completed' && deliveryNote?.purchase_order_id) {
+        try {
+          const { purchaseOrdersAPI } = await import('../services/api');
+          const { stockMovementService } = await import('../services/stockMovementService');
+          // Update PO status to received
+          await purchaseOrdersAPI.updateStatus(deliveryNote.purchase_order_id, 'received');
+          // Create IN stock movements for each PO item
+          const po = await purchaseOrdersAPI.getById(deliveryNote.purchase_order_id);
+          const items = Array.isArray(po?.items) ? po.items : [];
+          for (const item of items) {
+            if ((item.name || item.product_id) && item.quantity > 0) {
+              await stockMovementService.createMovement({
+                date: new Date().toISOString().split('T')[0],
+                movement: 'IN',
+                productType: item.name || '',
+                grade: item.specification || '',
+                thickness: '',
+                size: '',
+                finish: '',
+                invoiceNo: po.po_number,
+                quantity: item.quantity,
+                currentStock: 0,
+                seller: po.supplier_name || '',
+                notes: `Received from PO #${po.po_number} via Delivery Note`,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to update PO transit status:', e);
+        }
+      }
       loadDeliveryNote(); // Refresh data
     } catch (err) {
       setError('Failed to update status: ' + err.message);
@@ -146,360 +156,505 @@ const DeliveryNoteDetails = () => {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography>Loading delivery note...</Typography>
-      </Box>
+      <div className={`p-6 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+          <span className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Loading delivery note...
+          </span>
+        </div>
+      </div>
     );
   }
 
   if (!deliveryNote) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography>Delivery note not found</Typography>
-      </Box>
+      <div className={`p-6 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className={`text-center p-12 rounded-2xl border ${
+          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+        }`}>
+          <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Delivery note not found
+          </p>
+        </div>
+      </div>
     );
   }
 
-  return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={() => navigate('/delivery-notes')} sx={{ mr: 2 }}>
-            <BackIcon />
-          </IconButton>
-          <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TruckIcon sx={{ fontSize: 36, color: 'primary.main' }} />
-            {deliveryNote.delivery_note_number}
-          </Typography>
-          <Chip
-            label={statusLabels[deliveryNote.status]}
-            color={statusColors[deliveryNote.status]}
-            sx={{ ml: 2 }}
-          />
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<EditIcon />}
-            onClick={() => navigate(`/delivery-notes/${id}/edit`)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<DownloadIcon />}
-            onClick={handleDownloadPDF}
-          >
-            Download PDF
-          </Button>
-        </Box>
-      </Box>
+  const statusColors = {
+    pending: isDarkMode ? 'bg-yellow-900/30 text-yellow-300 border-yellow-600' : 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    partial: isDarkMode ? 'bg-orange-900/30 text-orange-300 border-orange-600' : 'bg-orange-100 text-orange-800 border-orange-300',
+    completed: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
+    in_transit: isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-600' : 'bg-blue-100 text-blue-800 border-blue-300',
+    delivered: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
+    cancelled: isDarkMode ? 'bg-red-900/30 text-red-300 border-red-600' : 'bg-red-100 text-red-800 border-red-300'
+  };
 
-      <Grid container spacing={3}>
+  return (
+    <div className={`p-6 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button
+            onClick={() => navigate('/delivery-notes')}
+            className={`p-2 rounded mr-4 transition-colors bg-transparent ${
+              isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
+            }`}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className={`text-2xl font-semibold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <Truck size={32} className="text-teal-600" />
+            {deliveryNote.delivery_note_number}
+          </h1>
+          <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ml-4 ${
+            statusColors[deliveryNote.status]
+          }`}>
+            {statusLabels[deliveryNote.status]}
+          </span>
+        </div>
+        
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate(`/delivery-notes/${id}/edit`)}
+            className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+              isDarkMode 
+                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+            }`}
+          >
+            <Edit size={18} />
+            Edit
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            <Download size={18} />
+            Download PDF
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column */}
-        <Grid item xs={12} md={8}>
+        <div className="md:col-span-2">
           {/* Basic Information */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Delivery Information</Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Related Invoice</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Delivery Information
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Related Invoice
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.invoice_number}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Delivery Date</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                </p>
+              </div>
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Delivery Date
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {formatDate(deliveryNote.delivery_date)}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Vehicle Number</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                </p>
+              </div>
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Vehicle Number
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.vehicle_number || 'Not specified'}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Driver</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                </p>
+              </div>
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Driver
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.driver_name || 'Not specified'}
-                </Typography>
+                </p>
                 {deliveryNote.driver_phone && (
-                  <Typography variant="body2" color="text.secondary">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {deliveryNote.driver_phone}
-                  </Typography>
+                  </p>
                 )}
-              </Grid>
-            </Grid>
-          </Paper>
+              </div>
+            </div>
+          </div>
 
           {/* Customer Information */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Customer Details</Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Customer Name</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Customer Details
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Customer Name
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.customer_details?.name}
-                </Typography>
+                </p>
                 {deliveryNote.customer_details?.company && (
-                  <Typography variant="body2" color="text.secondary">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {deliveryNote.customer_details.company}
-                  </Typography>
+                  </p>
                 )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="text.secondary">Contact</Typography>
-                <Typography variant="body1">
+              </div>
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Contact
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.customer_details?.phone}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {deliveryNote.customer_details?.email}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" color="text.secondary">Delivery Address</Typography>
-                <Typography variant="body1">
+                </p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Delivery Address
+                </p>
+                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.delivery_address?.street || deliveryNote.customer_details?.address?.street}<br />
                   {deliveryNote.delivery_address?.city || deliveryNote.customer_details?.address?.city} {deliveryNote.delivery_address?.po_box || deliveryNote.customer_details?.address?.po_box}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Items */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">Items</Typography>
-              <Typography variant="body2" color="text.secondary">
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Items
+              </h2>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Delivery Progress: {getTotalDeliveredPercentage()}%
-              </Typography>
-            </Box>
+              </p>
+            </div>
             
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Item</TableCell>
-                    <TableCell>Specification</TableCell>
-                    <TableCell>Unit</TableCell>
-                    <TableCell align="right">Ordered</TableCell>
-                    <TableCell align="right">Delivered</TableCell>
-                    <TableCell align="right">Remaining</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                  <tr>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Item
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Specification
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Unit
+                    </th>
+                    <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Ordered
+                    </th>
+                    <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Delivered
+                    </th>
+                    <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Remaining
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Status
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
                   {deliveryNote.items?.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    <tr key={index}>
+                      <td className="px-4 py-3">
+                        <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           {item.name}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           {item.specification || '-'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{item.unit}</TableCell>
-                      <TableCell align="right">{item.ordered_quantity}</TableCell>
-                      <TableCell align="right">
-                        <Typography 
-                          variant="body2" 
-                          color={item.delivered_quantity > 0 ? 'success.main' : 'text.primary'}
-                          sx={{ fontWeight: 'medium' }}
-                        >
+                        </div>
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {item.unit}
+                      </td>
+                      <td className={`px-4 py-3 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {item.ordered_quantity}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className={`text-sm font-medium ${
+                          item.delivered_quantity > 0 
+                            ? (isDarkMode ? 'text-green-400' : 'text-green-600')
+                            : (isDarkMode ? 'text-white' : 'text-gray-900')
+                        }`}>
                           {item.delivered_quantity}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography 
-                          variant="body2" 
-                          color={item.remaining_quantity === 0 ? 'success.main' : 'warning.main'}
-                          sx={{ fontWeight: 'medium' }}
-                        >
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className={`text-sm font-medium ${
+                          item.remaining_quantity === 0
+                            ? (isDarkMode ? 'text-green-400' : 'text-green-600')
+                            : (isDarkMode ? 'text-yellow-400' : 'text-yellow-600')
+                        }`}>
                           {item.remaining_quantity}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={item.is_fully_delivered ? 'Complete' : 'Partial'}
-                          color={item.is_fully_delivered ? 'success' : 'warning'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          item.is_fully_delivered
+                            ? (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
+                            : (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
+                        }`}>
+                          {item.is_fully_delivered ? 'Complete' : 'Partial'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
                         {!item.is_fully_delivered && deliveryNote.status !== 'completed' && deliveryNote.status !== 'cancelled' && (
-                          <Button
-                            size="small"
-                            startIcon={<AddIcon />}
+                          <button
                             onClick={() => setPartialDialog({
                               open: true,
                               item,
                               quantity: ''
                             })}
+                            className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
+                              isDarkMode 
+                                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                            }`}
                           >
+                            <Plus size={14} />
                             Add Delivery
-                          </Button>
+                          </button>
                         )}
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           {/* Notes */}
           {deliveryNote.notes && (
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Notes</Typography>
-              <Typography variant="body1">
+            <div className={`p-6 mb-6 rounded-xl border ${
+              isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notes</h2>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {deliveryNote.notes}
-              </Typography>
-            </Paper>
+              </p>
+            </div>
           )}
-        </Grid>
+        </div>
 
         {/* Right Column */}
-        <Grid item xs={12} md={4}>
+        <div className="md:col-span-1">
           {/* Quick Actions */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Quick Actions</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Quick Actions</h2>
+            <div className="flex flex-col gap-3">
               {deliveryNote.status === 'pending' && (
                 <>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="success"
-                    startIcon={<CompleteIcon />}
+                  <button
                     onClick={() => handleStatusUpdate('completed')}
+                    className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'border-green-600 text-green-400 hover:bg-green-900/20' 
+                        : 'border-green-300 text-green-700 hover:bg-green-50'
+                    }`}
                   >
+                    <CheckCircle size={18} />
                     Mark as Completed
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="error"
-                    startIcon={<CancelIcon />}
+                  </button>
+                  <button
                     onClick={() => handleStatusUpdate('cancelled')}
+                    className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'border-red-600 text-red-400 hover:bg-red-900/20' 
+                        : 'border-red-300 text-red-700 hover:bg-red-50'
+                    }`}
                   >
+                    <X size={18} />
                     Cancel Delivery
-                  </Button>
+                  </button>
                 </>
               )}
               
               {deliveryNote.status === 'partial' && (
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  color="success"
-                  startIcon={<CompleteIcon />}
+                <button
                   onClick={() => handleStatusUpdate('completed')}
+                  className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'border-green-600 text-green-400 hover:bg-green-900/20' 
+                      : 'border-green-300 text-green-700 hover:bg-green-50'
+                  }`}
                 >
+                  <CheckCircle size={18} />
                   Mark as Completed
-                </Button>
+                </button>
               )}
-            </Box>
-          </Paper>
+            </div>
+          </div>
 
           {/* Delivery Summary */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Delivery Summary</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Total Items</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Delivery Summary</h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Items</span>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.items?.length || 0}
-                </Typography>
-              </Box>
+                </span>
+              </div>
               
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Fully Delivered</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Fully Delivered</span>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.items?.filter(item => item.is_fully_delivered).length || 0}
-                </Typography>
-              </Box>
+                </span>
+              </div>
               
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Pending</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pending</span>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {deliveryNote.items?.filter(item => !item.is_fully_delivered).length || 0}
-                </Typography>
-              </Box>
+                </span>
+              </div>
 
-              <Divider />
+              <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Is Partial Delivery</Typography>
-                <Chip
-                  label={deliveryNote.is_partial ? 'Yes' : 'No'}
-                  color={deliveryNote.is_partial ? 'warning' : 'success'}
-                  size="small"
-                />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Is Partial Delivery</span>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  deliveryNote.is_partial
+                    ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
+                    : (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
+                }`}>
+                  {deliveryNote.is_partial ? 'Yes' : 'No'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Partial Delivery Dialog */}
-      <Dialog open={partialDialog.open} onClose={() => setPartialDialog({ open: false, item: null, quantity: '' })}>
-        <DialogTitle>Add Partial Delivery</DialogTitle>
-        <DialogContent>
-          {partialDialog.item && (
-            <Box sx={{ pt: 1 }}>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                <strong>{partialDialog.item.name}</strong>
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Remaining quantity: {partialDialog.item.remaining_quantity} {partialDialog.item.unit}
-              </Typography>
-              <TextField
-                fullWidth
-                label="Quantity to Deliver"
-                type="number"
-                value={partialDialog.quantity}
-                onChange={(e) => setPartialDialog(prev => ({ ...prev, quantity: e.target.value }))}
-                inputProps={{ 
-                  min: 0, 
-                  max: partialDialog.item.remaining_quantity,
-                  step: 0.01
-                }}
-                helperText={`Maximum: ${partialDialog.item.remaining_quantity} ${partialDialog.item.unit}`}
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPartialDialog({ open: false, item: null, quantity: '' })}>
-            Cancel
-          </Button>
-          <Button onClick={handlePartialDelivery} variant="contained">
-            Update Delivery
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {partialDialog.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className={`rounded-xl max-w-md w-full ${
+            isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+          }`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Add Partial Delivery
+              </h2>
+            </div>
+            <div className="p-6">
+              {partialDialog.item && (
+                <div className="space-y-4">
+                  <div>
+                    <p className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {partialDialog.item.name}
+                    </p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Remaining quantity: {partialDialog.item.remaining_quantity} {partialDialog.item.unit}
+                    </p>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Quantity to Deliver
+                    </label>
+                    <input
+                      type="number"
+                      value={partialDialog.quantity}
+                      onChange={(e) => setPartialDialog(prev => ({ ...prev, quantity: e.target.value }))}
+                      min={0}
+                      max={partialDialog.item.remaining_quantity}
+                      step={0.01}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Maximum: {partialDialog.item.remaining_quantity} {partialDialog.item.unit}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <button
+                onClick={() => setPartialDialog({ open: false, item: null, quantity: '' })}
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
+                  isDarkMode 
+                    ? 'text-white hover:text-gray-300' 
+                    : 'hover:bg-gray-100 text-gray-800'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePartialDelivery}
+                className="px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+              >
+                Update Delivery
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Success/Error Snackbars */}
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
-        <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
-          {error}
-        </Alert>
-      </Snackbar>
+      {/* Success/Error Notifications */}
+      {error && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            isDarkMode ? 'bg-red-900/20 border-red-700 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center gap-2">
+              <AlertCircle size={20} />
+              <span>{error}</span>
+              <button onClick={() => setError('')} className="ml-2">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Snackbar open={!!success} autoHideDuration={6000} onClose={() => setSuccess('')}>
-        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
-          {success}
-        </Alert>
-      </Snackbar>
-    </Box>
+      {success && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            isDarkMode ? 'bg-green-900/20 border-green-700 text-green-300' : 'bg-green-50 border-green-200 text-green-800'
+          }`}>
+            <div className="flex items-center gap-2">
+              <CheckCircle size={20} />
+              <span>{success}</span>
+              <button onClick={() => setSuccess('')} className="ml-2">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

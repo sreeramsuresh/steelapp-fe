@@ -15,8 +15,9 @@ import {
   Move,
   Truck,
   ShoppingCart,
-  Navigation
+  Quote
 } from 'lucide-react';
+import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 
@@ -30,9 +31,20 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       items: [
         {
           name: 'Dashboard',
-          path: '/',
+          path: '/dashboard',
           icon: Home,
           description: 'Overview & Analytics'
+        }
+      ]
+    },
+    {
+      section: 'Finance',
+      items: [
+        {
+          name: 'Payables',
+          path: '/payables',
+          icon: Banknote,
+          description: 'Invoices & PO payments'
         }
       ]
     },
@@ -51,6 +63,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ListIcon,
           description: 'View all invoices',
           badge: invoiceCount
+        }
+      ]
+    },
+    {
+      section: 'Quotations',
+      items: [
+        {
+          name: 'Quotations',
+          path: '/quotations',
+          icon: Quote,
+          description: 'Manage quotations'
         }
       ]
     },
@@ -74,12 +97,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ShoppingCart,
           description: 'Manage purchase orders'
         },
-        {
-          name: 'Transit',
-          path: '/transit',
-          icon: Navigation,
-          description: 'Track goods in transit'
-        }
+        
       ]
     },
     {
@@ -97,6 +115,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: Package,
           description: 'Manage steel inventory'
         },
+        
         {
           name: 'Price Calculator',
           path: '/calculator',
@@ -199,10 +218,10 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
                       title={item.description}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
                         isActive
-                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-md'
+                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
                           : isDarkMode
-                          ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                          ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
+                          : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
                       }`}
                     >
                       <div className="flex-shrink-0">

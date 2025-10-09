@@ -1,30 +1,62 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const isDev = import.meta.env.DEV;
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isDev ? '/api' : 'http://localhost:5000/api');
+if (isDev && /^https?:\/\/localhost:5000\/?/i.test(API_BASE_URL)) {
+  // Prefer dev proxy to avoid CORS during local development
+  API_BASE_URL = '/api';
+}
+const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
 
 // Create axios instance
 const axiosApi = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Simple cookie helper (avoid adding deps)
+const cookie = {
+  get(name) {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  },
+  set(name, value, { days = 7, path = '/' } = {}) {
+    if (typeof document === 'undefined') return;
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${path}`;
+  },
+  remove(name, { path = '/' } = {}) {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`;
+  }
+};
+
 // Token management
 const TOKEN_KEY = 'steel-app-token';
 const REFRESH_TOKEN_KEY = 'steel-app-refresh-token';
+const COOKIE_ACCESS = 'accessToken';
+const COOKIE_REFRESH = 'refreshToken';
 
 // Token utilities
 export const tokenUtils = {
-  getToken: () => localStorage.getItem(TOKEN_KEY),
-  getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
-  setToken: (token) => localStorage.setItem(TOKEN_KEY, token),
-  setRefreshToken: (refreshToken) => localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken),
+  // Cookies only to mirror GigLabz logic
+  getToken: () => cookie.get(COOKIE_ACCESS),
+  getRefreshToken: () => cookie.get(COOKIE_REFRESH),
+  setToken: (token) => {
+    if (token) cookie.set(COOKIE_ACCESS, token, { days: 1 });
+  },
+  setRefreshToken: (refreshToken) => {
+    if (refreshToken) cookie.set(COOKIE_REFRESH, refreshToken, { days: 7 });
+  },
   removeTokens: () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    cookie.remove(COOKIE_ACCESS);
+    cookie.remove(COOKIE_REFRESH);
   },
   
   isTokenExpired: (token) => {
@@ -59,6 +91,7 @@ export const tokenUtils = {
         email: decoded.email,
         role: decoded.role,
         name: decoded.name,
+        permissions: decoded.permissions
       };
     } catch (error) {
       console.error('Error decoding user from token:', error);
@@ -67,311 +100,178 @@ export const tokenUtils = {
   }
 };
 
-// Request interceptor - Add auth token to requests
-axiosApi.interceptors.request.use(
-  async (config) => {
-    const token = tokenUtils.getToken();
-    
-    if (token) {
-      if (tokenUtils.isTokenExpired(token)) {
-        console.log('[Request Interceptor] Token expired, attempting refresh');
-        // Token is expired, try to refresh it before making the request
-        const refreshToken = tokenUtils.getRefreshToken();
-        if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
-          try {
-            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-              refreshToken
-            });
-            const { token: newToken, refreshToken: newRefreshToken } = response.data;
-            tokenUtils.setToken(newToken);
-            if (newRefreshToken) {
-              tokenUtils.setRefreshToken(newRefreshToken);
-            }
-            config.headers.Authorization = `Bearer ${newToken}`;
-            console.log('[Request Interceptor] Token refreshed successfully');
-          } catch (error) {
-            console.error('[Request Interceptor] Token refresh failed:', error);
-            // Remove invalid tokens
-            tokenUtils.removeTokens();
-            return Promise.reject(error);
-          }
-        } else {
-          console.log('[Request Interceptor] No valid refresh token');
-          tokenUtils.removeTokens();
-          return Promise.reject(new Error('No valid tokens available'));
-        }
-      } else {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Global flag to prevent multiple simultaneous refresh attempts
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
+// Request interceptor - Add auth token to requests and check expiration
+axiosApi.interceptors.request.use(async (config) => {
+  const token = tokenUtils.getToken();
   
-  failedQueue = [];
-};
-
-// Response interceptor - Handle token refresh and errors
-axiosApi.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const originalRequest = error.config;
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-    const isAuthRequest = (url) => typeof url === 'string' && (
-      url.includes('/auth/login') ||
-      url.includes('/auth/register') ||
-      url.includes('/auth/forgot-password') ||
-      url.includes('/auth/reset-password') ||
-      url.includes('/auth/refresh')
-    );
+  if (token) {
+    // Check if token expires within 1 minute (proactive refresh)
+    const expirationTime = tokenUtils.getTokenExpirationTime(token);
+    const currentTime = Date.now();
+    const oneMinuteFromNow = currentTime + (60 * 1000); // 1 minute buffer
     
-    // If the error is 401 and we haven't already tried to refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // If we're already on the login page or this is an auth endpoint,
-      // do not attempt refresh or force a redirect. Let the caller handle it.
-      if (currentPath === '/login' || isAuthRequest(originalRequest?.url)) {
-        console.log('[Interceptor] Skipping refresh for auth request or login page');
-        return Promise.reject(error);
-      }
-      
-      if (isRefreshing) {
-        // If we're already refreshing, queue this request
-        console.log('[Interceptor] Token refresh in progress, queueing request');
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return axiosApi(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
+    if (expirationTime && expirationTime < oneMinuteFromNow) {
+      console.log('[Interceptor] Token expires soon, refreshing proactively');
       
       const refreshToken = tokenUtils.getRefreshToken();
-      
+      if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
+        try {
+          const { data } = await axios.post(
+            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+            { refreshToken },
+            { withCredentials: true }
+          );
+          
+          const newAccess = data.accessToken || data.token;
+          if (newAccess) {
+            tokenUtils.setToken(newAccess);
+            if (data.refreshToken) tokenUtils.setRefreshToken(data.refreshToken);
+            config.headers.Authorization = `Bearer ${newAccess}`;
+            console.log('[Interceptor] Token refreshed proactively');
+          }
+        } catch (error) {
+          console.error('[Interceptor] Proactive refresh failed:', error);
+          // Continue with expired token - let response interceptor handle it
+        }
+      }
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  
+  return config;
+});
+
+// Response interceptor - Handle token refresh (403 only)
+axiosApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    const status = error.response?.status;
+    // Match GigLabz: trigger refresh only on 403
+    if (status === 403 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = tokenUtils.getRefreshToken();
+
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
           console.log('[Interceptor] Attempting token refresh');
-          // Try to refresh the token
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken
-          });
-          
-          const { token: newToken, refreshToken: newRefreshToken } = response.data;
-          
-          // Update stored tokens
-          tokenUtils.setToken(newToken);
-          if (newRefreshToken) {
-            tokenUtils.setRefreshToken(newRefreshToken);
-          }
-          
-          console.log('[Interceptor] Token refresh successful');
-          processQueue(null, newToken);
-          
+          const { data } = await axios.post(
+            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+            { refreshToken },
+            { withCredentials: true }
+          );
+
+          const newAccess = data.accessToken;
+          if (!newAccess) throw new Error('No accessToken in refresh response');
+
+          tokenUtils.setToken(newAccess);
+          if (data.refreshToken) tokenUtils.setRefreshToken(data.refreshToken);
+
           // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
           return axiosApi(originalRequest);
-          
         } catch (refreshError) {
           console.error('[Interceptor] Token refresh failed:', refreshError);
-          processQueue(refreshError, null);
-          
-          // Refresh failed, redirect to login
+          // Clear tokens only (GigLabz behavior)
           tokenUtils.removeTokens();
-          if (currentPath !== '/login') {
-            window.location.href = '/login';
-          }
           return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
         }
       } else {
-        console.log('[Interceptor] No valid refresh token');
-        isRefreshing = false;
-        processQueue(error, null);
-        
-        // No valid refresh token, redirect to login
+        // No valid refresh token, clear tokens
         tokenUtils.removeTokens();
-        if (currentPath !== '/login') {
-          window.location.href = '/login';
-        }
-        return Promise.reject(error);
       }
     }
-    
-    // For other error statuses, just propagate the error
+
     return Promise.reject(error);
   }
 );
 
-// API service class
-class ApiService {
-  constructor() {
-    this.axios = axiosApi;
-  }
-  
-  // Generic request method
-  async request(config) {
+// API service
+export const apiService = {
+  initialize: () => {
+    // No longer needed - interceptors handle everything
+  },
+
+  setAuthToken: (token) => {
+    // No longer needed - interceptors handle this
+  },
+
+  removeAuthToken: () => {
+    // No longer needed - interceptors handle this
+  },
+
+  get: async (url, config = {}) => {
     try {
-      const response = await this.axios(config);
+      const response = await axiosApi.get(url, config);
       return response.data;
     } catch (error) {
-      this.handleError(error);
+      console.error(`GET ${url} error:`, error.response?.data || error.message);
       throw error;
     }
-  }
-  
-  // HTTP methods
-  async get(endpoint, params = {}) {
-    return this.request({
-      method: 'GET',
-      url: endpoint,
-      params: this.cleanParams(params),
-    });
-  }
-  
-  async post(endpoint, data = {}) {
-    return this.request({
-      method: 'POST',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async put(endpoint, data = {}) {
-    return this.request({
-      method: 'PUT',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async patch(endpoint, data = {}) {
-    return this.request({
-      method: 'PATCH',
-      url: endpoint,
-      data,
-    });
-  }
-  
-  async delete(endpoint) {
-    return this.request({
-      method: 'DELETE',
-      url: endpoint,
-    });
-  }
-  
-  // File upload
-  async upload(endpoint, formData) {
-    return this.request({
-      method: 'POST',
-      url: endpoint,
-      data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  }
-  
-  // Clean parameters (remove undefined/null values)
-  cleanParams(params) {
-    return Object.fromEntries(
-      Object.entries(params).filter(([key, value]) => 
-        value !== undefined && value !== null && value !== ''
-      )
-    );
-  }
-  
-  // Error handling
-  handleError(error) {
-    if (error.response) {
-      // Server responded with error status
-      const { status, data } = error.response;
-      console.error(`API Error ${status}:`, data.message || data.error || 'Unknown error');
-      
-      // Handle specific error cases
-      switch (status) {
-        case 401:
-          console.warn('Unauthorized access - token may be invalid');
-          break;
-        case 403:
-          console.warn('Forbidden - insufficient permissions');
-          break;
-        case 404:
-          console.warn('Resource not found');
-          break;
-        case 422:
-          console.warn('Validation error:', data.errors || data.message);
-          break;
-        case 500:
-          console.error('Internal server error');
-          break;
-        default:
-          console.error('API error:', data.message || 'Unknown error');
+  },
+
+  post: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.post(url, data, config);
+      return response.data;
+    } catch (error) {
+      // Reduce noise for frequent auth refresh failures during offline/slow backend
+      if (typeof url === 'string' && url.includes('/auth/refresh')) {
+        console.warn(`POST ${url} warn:`, error.response?.data || error.message);
+      } else {
+        console.error(`POST ${url} error:`, error.response?.data || error.message);
       }
-    } else if (error.request) {
-      // Network error
-      console.error('Network error:', error.message);
-    } else {
-      // Other error
-      console.error('Error:', error.message);
+      throw error;
     }
-  }
-  
-  // Set auth token manually (for initial login)
-  setAuthToken(token) {
-    if (token) {
-      this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      tokenUtils.setToken(token);
-    } else {
-      delete this.axios.defaults.headers.common['Authorization'];
-      tokenUtils.removeTokens();
+  },
+
+  put: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.put(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`PUT ${url} error:`, error.response?.data || error.message);
+      throw error;
     }
-  }
-  
-  // Remove auth token
-  removeAuthToken() {
-    delete this.axios.defaults.headers.common['Authorization'];
-    tokenUtils.removeTokens();
-  }
-  
-  // Initialize with stored token
-  initialize() {
-    const token = tokenUtils.getToken();
-    if (token && !tokenUtils.isTokenExpired(token)) {
-      this.setAuthToken(token);
-    } else {
-      this.removeAuthToken();
+  },
+
+  patch: async (url, data = {}, config = {}) => {
+    try {
+      const response = await axiosApi.patch(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`PATCH ${url} error:`, error.response?.data || error.message);
+      throw error;
     }
-  }
-}
+  },
 
-// Create singleton instance
-export const apiService = new ApiService();
+  delete: async (url, config = {}) => {
+    try {
+      const response = await axiosApi.delete(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`DELETE ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
 
-// Auto-initialize on import
-apiService.initialize();
+  upload: async (url, formData, config = {}) => {
+    try {
+      const response = await axiosApi.post(url, formData, {
+        ...config,
+        headers: {
+          ...config.headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`UPLOAD ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
+};
 
-export default apiService;
+export default axiosApi;

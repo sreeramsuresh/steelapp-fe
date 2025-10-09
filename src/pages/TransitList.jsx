@@ -1,70 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Eye, Navigation, Package, FileText } from "lucide-react";
+import { Eye, Navigation, Package, FileText, Search, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  IconButton,
-  InputAdornment,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Grid,
-  Card,
-  CardContent,
-  CircularProgress,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-
-const TransitListContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(0),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(2),
-  },
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  overflow: "auto",
-}));
-
-const TransitListPaper = styled(Paper)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[2],
-  overflow: "hidden",
-}));
-
-const StatsCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  textAlign: "center",
-}));
-
-const EmptyStateContainer = styled(Box)(({ theme }) => ({
-  textAlign: "center",
-  padding: theme.spacing(6),
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-}));
 
 const TransitList = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [transitItems, setTransitItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,41 +14,64 @@ const TransitList = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      draft: { color: "default", label: "DRAFT" },
-      pending: { color: "info", label: "PENDING" },
-      confirmed: { color: "warning", label: "CONFIRMED" },
-      received: { color: "success", label: "RECEIVED" },
+      draft: { 
+        className: isDarkMode 
+          ? "bg-gray-900/30 text-gray-300 border-gray-600" 
+          : "bg-gray-100 text-gray-800 border-gray-300", 
+        label: "DRAFT" 
+      },
+      pending: { 
+        className: isDarkMode 
+          ? "bg-blue-900/30 text-blue-300 border-blue-600" 
+          : "bg-blue-100 text-blue-800 border-blue-300", 
+        label: "PENDING" 
+      },
+      confirmed: { 
+        className: isDarkMode 
+          ? "bg-orange-900/30 text-orange-300 border-orange-600" 
+          : "bg-orange-100 text-orange-800 border-orange-300", 
+        label: "CONFIRMED" 
+      },
+      received: { 
+        className: isDarkMode 
+          ? "bg-green-900/30 text-green-300 border-green-600" 
+          : "bg-green-100 text-green-800 border-green-300", 
+        label: "RECEIVED" 
+      },
     };
 
     const config = statusConfig[status] || statusConfig.draft;
 
     return (
-      <Chip
-        label={config.label}
-        color={config.color}
-        size="small"
-        variant="outlined"
-        sx={{ fontWeight: 600, fontSize: "0.75rem" }}
-      />
+      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+        {config.label}
+      </span>
     );
   };
 
   const getStockStatusBadge = (stockStatus) => {
     const statusConfig = {
-      retain: { color: "success", label: "RETAIN" },
-      transit: { color: "warning", label: "TRANSIT" },
+      retain: { 
+        className: isDarkMode 
+          ? "bg-green-900/30 text-green-300 border-green-600" 
+          : "bg-green-100 text-green-800 border-green-300", 
+        label: "RETAIN" 
+      },
+      transit: { 
+        className: isDarkMode 
+          ? "bg-orange-900/30 text-orange-300 border-orange-600" 
+          : "bg-orange-100 text-orange-800 border-orange-300", 
+        label: "TRANSIT" 
+      },
     };
 
     const config = statusConfig[stockStatus] || statusConfig.retain;
 
     return (
-      <Chip
-        label={config.label}
-        color={config.color}
-        size="small"
-        icon={<Navigation size={12} />}
-        sx={{ fontWeight: 600, fontSize: "0.75rem" }}
-      />
+      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+        <Navigation size={12} />
+        {config.label}
+      </span>
     );
   };
 
@@ -145,241 +110,232 @@ const TransitList = () => {
 
   if (loading) {
     return (
-      <TransitListContainer>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: 400,
-          }}
-        >
-          <CircularProgress size={40} />
-          <Typography variant="body1" sx={{ ml: 2 }}>
+      <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+          <span className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Loading transit items...
-          </Typography>
-        </Box>
-      </TransitListContainer>
+          </span>
+        </div>
+      </div>
     );
   }
 
   if (transitItems.length === 0 && !loading) {
     return (
-      <TransitListContainer>
-        <EmptyStateContainer>
-          <Navigation size={64} style={{ marginBottom: 16, opacity: 0.5 }} />
-          <Typography
-            variant="h4"
-            component="h2"
-            sx={{ mb: 2, fontWeight: 600 }}
-          >
+      <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+        <div className={`text-center p-12 rounded-2xl border ${
+          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+        }`}>
+          <Navigation size={64} className="mx-auto mb-4 opacity-50" />
+          <h2 className={`text-2xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             No Transit Purchase Orders
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          </h2>
+          <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Purchase orders with "Transit" stock status will appear here
-          </Typography>
-        </EmptyStateContainer>
-      </TransitListContainer>
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <TransitListContainer>
-      <TransitListPaper sx={{ p: { xs: 0, sm: 3 }, mx: { xs: 0, sm: 0 }, borderRadius: { xs: 0, sm: 2 } }}>
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      <div className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
         {/* Header Section */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: { xs: 1, sm: 3 },
-            px: { xs: 2, sm: 0 },
-            pt: { xs: 2, sm: 0 },
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              component="h1"
-              sx={{ fontWeight: 600, mb: 1 }}
-            >
+        <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
+          <div>
+            <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               🚛 Transit Purchase Orders
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
+            </h1>
+            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Purchase orders marked as Transit - not yet added to stock
-            </Typography>
-          </Box>
-        </Box>
+            </p>
+          </div>
+        </div>
 
         {/* Stats Cards */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
-          <StatsCard>
-            <CardContent sx={{ py: 2 }}>
-              <Typography
-                variant="h4"
-                component="div"
-                sx={{ fontWeight: 700, color: "warning.main" }}
-              >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+          <div className={`text-center border rounded-2xl shadow-sm ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="py-4">
+              <div className="text-2xl font-bold text-orange-500">
                 {transitItems.filter(item => item.status === 'pending').length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </div>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Pending
-              </Typography>
-            </CardContent>
-          </StatsCard>
-          <StatsCard>
-            <CardContent sx={{ py: 2 }}>
-              <Typography
-                variant="h4"
-                component="div"
-                sx={{ fontWeight: 700, color: "info.main" }}
-              >
+              </p>
+            </div>
+          </div>
+          <div className={`text-center border rounded-2xl shadow-sm ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="py-4">
+              <div className="text-2xl font-bold text-blue-500">
                 {transitItems.filter(item => item.status === 'confirmed').length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </div>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Confirmed
-              </Typography>
-            </CardContent>
-          </StatsCard>
-          <StatsCard>
-            <CardContent sx={{ py: 2 }}>
-              <Typography
-                variant="h4"
-                component="div"
-                sx={{ fontWeight: 700, color: "error.main" }}
-              >
+              </p>
+            </div>
+          </div>
+          <div className={`text-center border rounded-2xl shadow-sm ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="py-4">
+              <div className="text-2xl font-bold text-red-500">
                 {transitItems.filter(item => item.status === 'draft').length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </div>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Draft
-              </Typography>
-            </CardContent>
-          </StatsCard>
-          <StatsCard>
-            <CardContent sx={{ py: 2 }}>
-              <Typography
-                variant="h4"
-                component="div"
-                sx={{ fontWeight: 700, color: "success.main" }}
-              >
+              </p>
+            </div>
+          </div>
+          <div className={`text-center border rounded-2xl shadow-sm ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="py-4">
+              <div className="text-2xl font-bold text-green-500">
                 {formatCurrency(transitItems.reduce((sum, item) => sum + (item.total || 0), 0))}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </div>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Value
-              </Typography>
-            </CardContent>
-          </StatsCard>
-        </Box>
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Filters Section */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            mb: 3,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <TextField
-            placeholder="Search by PO number or supplier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Navigation size={20} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ flexGrow: 1, minWidth: 300 }}
-          />
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel>Status Filter</InputLabel>
-            <Select
+        <div className="flex gap-4 mb-6 flex-wrap items-center">
+          <div className="flex-grow min-w-[300px] relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by PO number or supplier..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+            />
+          </div>
+          <div className="min-w-[150px] relative">
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              label="Status Filter"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
-              <MenuItem value="all">All Status</MenuItem>
-              <MenuItem value="draft">Draft</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="confirmed">Confirmed</MenuItem>
-              <MenuItem value="received">Received</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+              <option value="all">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="received">Received</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+            </div>
+          </div>
+        </div>
 
         {/* Transit Items Table */}
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>PO Number</TableCell>
-                <TableCell>Supplier</TableCell>
-                <TableCell>PO Date</TableCell>
-                <TableCell>Expected Delivery</TableCell>
-                <TableCell>Total Value</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Stock Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+              <tr>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  PO Number
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Supplier
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  PO Date
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Expected Delivery
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Total Value
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Stock Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {filteredItems.map((item) => (
-                <TableRow key={item.id} hover>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 600, color: "primary.main" }}
-                    >
+                <tr key={item.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-teal-600">
                       {item.po_number}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.supplier_name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    </div>
+                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {item.supplier_email}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {formatDate(item.po_date)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {formatDate(item.expected_delivery_date)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {formatCurrency(item.total)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(item.status)}</TableCell>
-                  <TableCell>{getStockStatusBadge(item.stock_status)}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(item.status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStockStatusBadge(item.stock_status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      className={`p-2 rounded-lg transition-colors ${
+                        isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                      }`}
                       title="Edit Purchase Order"
-                      color="info"
                       onClick={() => {
                         navigate(`/purchase-orders/${item.id}/edit`);
                       }}
                     >
                       <Eye size={16} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+                    </button>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TransitListPaper>
-    </TransitListContainer>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 };
 

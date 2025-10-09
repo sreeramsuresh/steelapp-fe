@@ -2,27 +2,7 @@ import React from "react";
 import logoCompany from "../assets/logocompany.png";
 import seal from "../assets/Seal.png";
 import { X, Download } from "lucide-react";
-import {
-  Box,
-  Button,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  Grid,
-  Chip,
-  Card,
-  CardContent,
-} from "@mui/material";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   formatCurrency,
   formatDate,
@@ -33,6 +13,7 @@ import {
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
+  const { isDarkMode } = useTheme();
   // Compute summary values locally to ensure correctness in preview/PDF
   const computedSubtotal = calculateSubtotal(invoice.items || []);
   const computedVatAmount = calculateTotalTRN(invoice.items || []);
@@ -90,16 +71,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
         `;
         
         // Special handling for specific elements
-        if (el.classList.contains('MuiTableHead-root') || el.closest('.MuiTableHead-root')) {
+        if (el.classList.contains('bg-teal-600') || el.closest('thead')) {
           el.style.backgroundColor = '#f5f5f5 !important';
         }
         
-        if (el.classList.contains('MuiCard-root') || el.classList.contains('MuiPaper-root')) {
+        if (el.classList.contains('border') || el.classList.contains('rounded')) {
           el.style.backgroundColor = '#ffffff !important';
           el.style.borderColor = '#e0e0e0 !important';
         }
         
-        if (el.classList.contains('MuiChip-root')) {
+        if (el.classList.contains('inline-flex') && el.classList.contains('px-2')) {
           el.style.backgroundColor = '#e3f2fd !important';
           el.style.color = '#1976d2 !important';
         }
@@ -134,577 +115,502 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
   };
 
   return (
-    <Dialog
-      open={true}
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          minHeight: "90vh",
-          maxHeight: "90vh",
-        },
-      }}
-    >
-      <DialogTitle>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h5">Invoice Preview</Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className={`rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden ${
+        isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+      }`}>
+        <div className={`p-6 border-b flex justify-between items-center ${
+          isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+        }`}>
+          <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Invoice Preview
+          </h2>
+          <div className="flex gap-3">
+            <button
               onClick={handleDownloadPDF}
-              variant="contained"
-              startIcon={<Download size={18} />}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
+              <Download size={18} />
               Download PDF
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={onClose}
-              variant="outlined"
-              startIcon={<X size={18} />}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+              }`}
             >
+              <X size={18} />
               Close
-            </Button>
-          </Box>
-        </Box>
-      </DialogTitle>
+            </button>
+          </div>
+        </div>
 
-      <DialogContent>
-        <Box id="invoice-preview" sx={{ p: 3, bgcolor: "background.paper" }}>
-          {/* Invoice Header */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
-            <Box>
-              {/* Company Logo (fallbacks to name if logo fails) */}
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', minHeight: 48 }}>
-                <img
-                  src={company?.logo_url || logoCompany}
-                  alt={company?.name || 'Company Logo'}
-                  crossOrigin="anonymous"
-                  style={{ maxHeight: 48, width: 'auto', objectFit: 'contain' }}
-                  onError={(e) => {
-                    // If custom URL fails, fallback to text
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                {/* If logo hidden due to error, show name */}
-                <noscript>
-                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    {company?.name}
-                  </Typography>
-                </noscript>
-              </Box>
-              {/* Removed company name here; it's part of address at right */}
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
-                  <strong>BANK NAME:</strong> ULTIMATE STEEL AND
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
-                  BUILDING MATERIALS TRADING
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, lineHeight: 1.3 }}>
-                  Account No: 019101641144
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.3 }}>
-                  IBAN: AE490330000019101641144
-                </Typography>
-              </Box>
-              {/* Address moved to right column */}
-            </Box>
-
-            {/* Right column: Company name (as part of address) and contacts */}
-            <Box sx={{ textAlign: "left" }}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2">Ultimate Steels Building Materials Trading</Typography>
-                <Typography variant="body2">{company.address?.street}</Typography>
-                <Typography variant="body2">
-                  {company.address?.city}
-                  {company.address?.emirate ? `, ${company.address.emirate}` : ''}
-                  {company.address?.poBox ? ` ${company.address.poBox}` : ''}
-                </Typography>
-                <Typography variant="body2">{company.address?.country}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="body2">Phone: {company.phone}</Typography>
-                <Typography variant="body2">Email: {company.email}</Typography>
-                <Typography variant="body2">TRN: {company.vatNumber}</Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Full-width Heading Bar */}
-          <Box sx={{ width: '100%', bgcolor: '#009999', color: '#fff', display: 'flex', justifyContent: 'center', mb: 3, py: 1.5 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: 0.5, color: '#fff' }}>
-              TAX INVOICE
-            </Typography>
-          </Box>
-
-          {/* Bill To + Invoice Summary Row (space-between), no boxes, narrower width */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: 4 }}>
-            {/* Bill To (outside box) */}
-            <Box sx={{ flex: '0 0 40%', minWidth: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5 }}>
-                Bill To:
-              </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                {invoice.customer.name}
-              </Typography>
-              <Typography variant="body2">{invoice.customer.address?.street}</Typography>
-              <Typography variant="body2">
-                {invoice.customer.address?.city}{' '}
-                {invoice.customer.address?.emirate}{' '}
-                {invoice.customer.address?.poBox}
-              </Typography>
-              <Typography variant="body2">{invoice.customer.address?.country}</Typography>
-              {invoice.customer.vatNumber && (
-                <Typography variant="body2">TRN: {invoice.customer.vatNumber}</Typography>
-              )}
-              <Typography variant="body2">Phone: {invoice.customer.phone}</Typography>
-              <Typography variant="body2">Email: {invoice.customer.email}</Typography>
-            </Box>
-
-            {/* Invoice summary (outside box), styled like Bill To */}
-            <Box sx={{ flex: '0 0 40%', minWidth: 0, textAlign: 'left' }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5 }}>
-                INVOICE
-              </Typography>
-              <Typography variant="body1">
-                <strong>Invoice #:</strong> {invoice.invoiceNumber}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Date:</strong> {formatDate(invoice.date)}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-start', mt: 1 }}>
-                <Typography variant="body1" component="span">
-                  <strong>Status:</strong>
-                </Typography>
-                <Chip
-                  label={invoice.status.toUpperCase()}
-                  color={
-                    invoice.status === 'paid'
-                      ? 'success'
-                      : invoice.status === 'draft'
-                      ? 'default'
-                      : 'warning'
-                  }
-                  size="small"
-                />
-              </Box>
-              {invoice.purchaseOrderNumber && (
-                <Typography variant="body1">
-                  <strong>PO #:</strong> {invoice.purchaseOrderNumber}
-                </Typography>
-              )}
-              {invoice.deliveryNote && (
-                <Typography variant="body1">
-                  <strong>Delivery Note:</strong> {invoice.deliveryNote}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-
-          {/* Transport Details */}
-          {(invoice.despatchedThrough ||
-            invoice.destination ||
-            invoice.termsOfDelivery ||
-            invoice.modeOfPayment) && (
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                Transport & Delivery Details:
-              </Typography>
-              <Card variant="outlined" sx={{ p: 2 }}>
-                <Grid container spacing={2}>
-                  {invoice.despatchedThrough && (
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2">
-                        <strong>Despatched Through:</strong>{" "}
-                        {invoice.despatchedThrough}
-                      </Typography>
-                    </Grid>
-                  )}
-                  {invoice.destination && (
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2">
-                        <strong>Destination:</strong> {invoice.destination}
-                      </Typography>
-                    </Grid>
-                  )}
-                  {invoice.termsOfDelivery && (
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2">
-                        <strong>Terms of Delivery:</strong>{" "}
-                        {invoice.termsOfDelivery}
-                      </Typography>
-                    </Grid>
-                  )}
-                  {invoice.modeOfPayment && (
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2">
-                        <strong>Mode of Payment:</strong>{" "}
-                        {invoice.modeOfPayment}
-                      </Typography>
-                    </Grid>
-                  )}
-                </Grid>
-              </Card>
-            </Box>
-          )}
-
-          {/* Invoice Table */}
-          <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
-            <Table>
-              <TableHead sx={{ '& .MuiTableCell-root': { color: '#ffffff' } }}>
-                <TableRow sx={{ bgcolor: '#009999' }}>
-                  <TableCell>
-                    <strong>Item Description</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Specification</strong>
-                  </TableCell>
-                  {invoice.items.some((item) => item.description) && (
-                    <TableCell>
-                      <strong>Description</strong>
-                    </TableCell>
-                  )}
-                  <TableCell>
-                    <strong>Grade</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Unit</strong>
-                  </TableCell>
-                  <TableCell align="right">
-                    <strong>Qty</strong>
-                  </TableCell>
-                  <TableCell align="right">
-                    <strong>Rate</strong>
-                  </TableCell>
-                  {invoice.items.some((item) => item.discount > 0) && (
-                    <TableCell align="right">
-                      <strong>Discount</strong>
-                    </TableCell>
-                  )}
-                  <TableCell align="right">
-                    <strong>Amount</strong>
-                  </TableCell>
-                  <TableCell align="right">
-                    <strong>TRN %</strong>
-                  </TableCell>
-                  <TableCell align="right">
-                    <strong>TRN Amount</strong>
-                  </TableCell>
-                  <TableCell align="right">
-                    <strong>Total</strong>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {invoice.items.map((item, index) => {
-                  const vatAmount = calculateTRN(item.amount, item.vatRate);
-                  const totalWithTRN = item.amount + vatAmount;
-
-                  return (
-                    <TableRow key={index}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.specification}</TableCell>
-                      {invoice.items.some((item) => item.description) && (
-                        <TableCell>{item.description || "-"}</TableCell>
-                      )}
-                      <TableCell>{item.grade || "-"}</TableCell>
-                      <TableCell>{item.unit}</TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
-                      <TableCell align="right">
-                        {formatCurrency(item.rate)}
-                      </TableCell>
-                      {invoice.items.some((item) => item.discount > 0) && (
-                        <TableCell align="right">
-                          {item.discount > 0
-                            ? `${formatCurrency(item.discount)}${
-                                item.discountType === "percentage" ? "%" : ""
-                              }`
-                            : "-"}
-                        </TableCell>
-                      )}
-                      <TableCell align="right">
-                        {formatCurrency(item.amount)}
-                      </TableCell>
-                      <TableCell align="right">{item.vatRate}%</TableCell>
-                      <TableCell align="right">
-                        {formatCurrency(vatAmount)}
-                      </TableCell>
-                      <TableCell align="right">
-                        <strong>{formatCurrency(totalWithTRN)}</strong>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Invoice Summary */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 4 }}>
-            <Card variant="outlined" sx={{ minWidth: 350 }}>
-              <CardContent>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography variant="body1">Subtotal:</Typography>
-                  <Typography variant="body1">{formatCurrency(computedSubtotal)}</Typography>
-                </Box>
-
-                {/* Additional Charges */}
-                {(invoice.packingCharges > 0 ||
-                  invoice.freightCharges > 0 ||
-                  invoice.loadingCharges > 0 ||
-                  invoice.otherCharges > 0) && (
-                  <>
-                    {invoice.packingCharges > 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography variant="body2">
-                          Packing Charges:
-                        </Typography>
-                        <Typography variant="body2">
-                          {formatCurrency(invoice.packingCharges)}
-                        </Typography>
-                      </Box>
-                    )}
-                    {invoice.freightCharges > 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography variant="body2">
-                          Freight Charges:
-                        </Typography>
-                        <Typography variant="body2">
-                          {formatCurrency(invoice.freightCharges)}
-                        </Typography>
-                      </Box>
-                    )}
-                    {invoice.loadingCharges > 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography variant="body2">
-                          Loading Charges:
-                        </Typography>
-                        <Typography variant="body2">
-                          {formatCurrency(invoice.loadingCharges)}
-                        </Typography>
-                      </Box>
-                    )}
-                    {invoice.otherCharges > 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography variant="body2">Other Charges:</Typography>
-                        <Typography variant="body2">
-                          {formatCurrency(invoice.otherCharges)}
-                        </Typography>
-                      </Box>
-                    )}
-                  </>
-                )}
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography variant="body1">TRN Amount:</Typography>
-                  <Typography variant="body1">{formatCurrency(computedVatAmount)}</Typography>
-                </Box>
-
-                {invoice.roundOff && invoice.roundOff !== 0 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mb: 1,
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div id="invoice-preview" className={`p-6 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}>
+            {/* Invoice Header */}
+            <div className="flex justify-between mb-8">
+              <div>
+                {/* Company Logo (fallbacks to name if logo fails) */}
+                <div className="mb-4 flex items-center min-h-12">
+                  <img
+                    src={company?.logo_url || logoCompany}
+                    alt={company?.name || 'Company Logo'}
+                    crossOrigin="anonymous"
+                    className="max-h-12 w-auto object-contain"
+                    onError={(e) => {
+                      // If custom URL fails, fallback to text
+                      e.currentTarget.style.display = 'none';
                     }}
-                  >
-                    <Typography variant="body2">Round Off:</Typography>
-                    <Typography variant="body2">
-                      {formatCurrency(invoice.roundOff)}
-                    </Typography>
-                  </Box>
+                  />
+                  {/* If logo hidden due to error, show name */}
+                  <noscript>
+                    <h1 className="text-2xl font-bold">
+                      {company?.name}
+                    </h1>
+                  </noscript>
+                </div>
+                {/* Removed company name here; it's part of address at right */}
+                <div className="mt-2">
+                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <strong>BANK NAME:</strong> ULTIMATE STEEL AND
+                  </p>
+                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    BUILDING MATERIALS TRADING
+                  </p>
+                  <p className={`text-sm leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Account No: 019101641144
+                  </p>
+                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    IBAN: AE490330000019101641144
+                  </p>
+                </div>
+                {/* Address moved to right column */}
+              </div>
+
+              {/* Right column: Company name (as part of address) and contacts */}
+              <div className="text-left">
+                <div className="mb-4">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ultimate Steels Building Materials Trading</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.street}</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {company.address?.city}
+                    {company.address?.emirate ? `, ${company.address.emirate}` : ''}
+                    {company.address?.poBox ? ` ${company.address.poBox}` : ''}
+                  </p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.country}</p>
+                </div>
+                <div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {company.phone}</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {company.email}</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {company.vatNumber}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Full-width Heading Bar */}
+            <div className="w-full bg-teal-600 text-white flex justify-center mb-6 py-3">
+              <h2 className="text-xl font-bold tracking-wide text-white">
+                TAX INVOICE
+              </h2>
+            </div>
+
+            {/* Bill To + Invoice Summary Row (space-between), no boxes, narrower width */}
+            <div className="flex justify-between gap-4 mb-8">
+              {/* Bill To (outside box) */}
+              <div className="flex-none w-2/5 min-w-0">
+                <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Bill To:
+                </h3>
+                <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {invoice.customer.name}
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.street}</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {invoice.customer.address?.city}{' '}
+                  {invoice.customer.address?.emirate}{' '}
+                  {invoice.customer.address?.poBox}
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.country}</p>
+                {invoice.customer.vatNumber && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {invoice.customer.vatNumber}</p>
                 )}
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {invoice.customer.phone}</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {invoice.customer.email}</p>
+              </div>
 
-                <Divider sx={{ my: 1 }} />
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Total Amount:
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", color: "primary.main" }}
-                  >
-                    {formatCurrency(computedTotal)}
-                  </Typography>
-                </Box>
-
-                {/* Advance and Balance */}
-                {invoice.advanceReceived > 0 && (
-                  <>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1,
-                      }}
-                    >
-                      <Typography variant="body2">Advance Received:</Typography>
-                      <Typography variant="body2">
-                        {formatCurrency(invoice.advanceReceived)}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        p: 1,
-                        bgcolor: "action.hover",
-                        borderRadius: 1,
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                        Balance Amount:
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: "bold", color: "error.main" }}
-                      >
-                        {formatCurrency(Math.max(0, computedTotal - (invoice.advanceReceived || 0)))}
-                      </Typography>
-                    </Box>
-                  </>
+              {/* Invoice summary (outside box), styled like Bill To */}
+              <div className="flex-none w-2/5 min-w-0 text-left">
+                <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  INVOICE
+                </h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <strong>Invoice #:</strong> {invoice.invoiceNumber}
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <strong>Date:</strong> {formatDate(invoice.date)}
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
+                </p>
+                <div className="flex items-center gap-2 justify-start mt-2">
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Status:</strong>
+                  </span>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    invoice.status === 'paid'
+                      ? 'bg-green-100 text-green-800'
+                      : invoice.status === 'draft'
+                      ? 'bg-gray-100 text-gray-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {invoice.status.toUpperCase()}
+                  </span>
+                </div>
+                {invoice.deliveryNote && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Delivery Note:</strong> {invoice.deliveryNote}
+                  </p>
                 )}
-
-                {/* Total in Words */}
-                {invoice.totalInWords && (
-                  <Box
-                    sx={{ mt: 2, p: 1, bgcolor: "action.selected", borderRadius: 1 }}
-                  >
-                    <Typography variant="body2" sx={{ fontStyle: "italic" }}>
-                      <strong>Amount in Words:</strong> {invoice.totalInWords}
-                    </Typography>
-                  </Box>
+                {invoice.customerPurchaseOrderNumber && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}
+                  </p>
                 )}
-              </CardContent>
-            </Card>
-          </Box>
+                {invoice.customerPurchaseOrderDate && (
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}
+                  </p>
+                )}
+              </div>
+            </div>
 
-          {/* Notes and Terms */}
-          {(invoice.notes || invoice.terms) && (
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-              {invoice.notes && (
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", mb: 2 }}
-                      >
-                        Notes:
-                      </Typography>
-                      <Typography variant="body2">{invoice.notes}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-              {invoice.terms && (
-                <Grid size={{ xs: 12, md: invoice.notes ? 6 : 12 }}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", mb: 2 }}
-                      >
-                        Terms & Conditions:
-                      </Typography>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        {invoice.terms}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mb: 0.5 }}>
-                        Kindly check the product before unloading
-                      </Typography>
-                      <Typography variant="body2">
-                        If any complaint arises, contact us immediatel
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </Grid>
-          )}
+            {/* Transport Details (disabled for Phase 1) */}
+            {false && (
+              (invoice.despatchedThrough ||
+                invoice.destination ||
+                invoice.termsOfDelivery ||
+                invoice.modeOfPayment) && (
+                <div className="mb-8">
+                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Transport & Delivery Details:
+                  </h3>
+                  <div className={`border rounded-lg p-4 ${
+                    isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                  }`}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {invoice.despatchedThrough && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Despatched Through:</strong>{" "}
+                            {invoice.despatchedThrough}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.destination && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Destination:</strong> {invoice.destination}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.termsOfDelivery && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Terms of Delivery:</strong>{" "}
+                            {invoice.termsOfDelivery}
+                          </p>
+                        </div>
+                      )}
+                      {invoice.modeOfPayment && (
+                        <div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <strong>Mode of Payment:</strong>{" "}
+                            {invoice.modeOfPayment}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
 
-          {/* Signature Section with Seal on Left */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 6 }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-              <img
-                src={seal}
-                alt="Company Seal"
-                crossOrigin="anonymous"
-                style={{ height: 180, width: 'auto', objectFit: 'contain', opacity: 0.95 }}
-              />
-              <Box sx={{ textAlign: "center", minWidth: 200 }}>
-                <Typography variant="body2" sx={{ mb: 4 }}>
-                  Authorized Signatory
-                </Typography>
-                <Box
-                  sx={{
-                    borderBottom: "1px solid black",
-                    mb: 1,
-                    height: "50px",
-                    width: "200px",
-                  }}
+            {/* Invoice Table */}
+            <div className={`border rounded-lg mb-8 overflow-hidden ${
+              isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+            }`}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-teal-600">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                        Product
+                      </th>
+                      {invoice.items.some((item) => item.description) && (
+                        <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                          Description
+                        </th>
+                      )}
+                      {/* Grade/Finish/Size/Thickness merged into Product column */}
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
+                        Unit
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        Qty
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        Rate
+                      </th>
+                      {invoice.items.some((item) => item.discount > 0) && (
+                        <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                          Discount
+                        </th>
+                      )}
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        VAT %
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        VAT Amount
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
+                        Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                    {invoice.items.map((item, index) => {
+                      const vatAmount = calculateTRN(item.amount, item.vatRate);
+                      const totalWithTRN = item.amount + vatAmount;
+
+                      return (
+                        <tr key={index}>
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
+                            {(item.grade || item.finish || item.size || item.thickness) && (
+                              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {[item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(' | ')}
+                              </div>
+                            )}
+                          </td>
+                          {invoice.items.some((item) => item.description) && (
+                            <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
+                          )}
+                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.unit}</td>
+                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
+                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(item.rate)}
+                          </td>
+                          {invoice.items.some((item) => item.discount > 0) && (
+                            <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {item.discount > 0
+                                ? `${formatCurrency(item.discount)}${
+                                    item.discountType === "percentage" ? "%" : ""
+                                  }`
+                                : "-"}
+                            </td>
+                          )}
+                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(item.amount)}
+                          </td>
+                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.vatRate}%</td>
+                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(vatAmount)}
+                          </td>
+                          <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(totalWithTRN)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Invoice Summary */}
+            <div className="flex justify-end mb-8">
+              <div className={`border rounded-lg min-w-80 ${
+                isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+              }`}>
+                <div className="p-6">
+                  <div className="flex justify-between mb-2">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal:</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedSubtotal)}</span>
+                  </div>
+
+                  {/* Additional Charges */}
+                  {(invoice.packingCharges > 0 ||
+                    invoice.freightCharges > 0 ||
+                    invoice.loadingCharges > 0 ||
+                    invoice.otherCharges > 0) && (
+                    <>
+                      {invoice.packingCharges > 0 && (
+                        <div className="flex justify-between mb-2">
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Packing Charges:
+                          </span>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(invoice.packingCharges)}
+                          </span>
+                        </div>
+                      )}
+                      {invoice.freightCharges > 0 && (
+                        <div className="flex justify-between mb-2">
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Freight Charges:
+                          </span>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(invoice.freightCharges)}
+                          </span>
+                        </div>
+                      )}
+                      {invoice.loadingCharges > 0 && (
+                        <div className="flex justify-between mb-2">
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Loading Charges:
+                          </span>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(invoice.loadingCharges)}
+                          </span>
+                        </div>
+                      )}
+                      {invoice.otherCharges > 0 && (
+                        <div className="flex justify-between mb-2">
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Other Charges:</span>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatCurrency(invoice.otherCharges)}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="flex justify-between mb-2">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount:</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedVatAmount)}</span>
+                  </div>
+
+                  {invoice.roundOff && invoice.roundOff !== 0 && (
+                    <div className="flex justify-between mb-2">
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Round Off:</span>
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {formatCurrency(invoice.roundOff)}
+                      </span>
+                    </div>
+                  )}
+
+                  <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+
+                  <div className="flex justify-between mb-4">
+                    <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Total Amount:
+                    </span>
+                    <span className="text-lg font-bold text-teal-600">
+                      {formatCurrency(computedTotal)}
+                    </span>
+                  </div>
+
+                  {/* Advance and Balance */}
+                  {invoice.advanceReceived > 0 && (
+                    <>
+                      <div className="flex justify-between mb-2">
+                        <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Advance Received:</span>
+                        <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {formatCurrency(invoice.advanceReceived)}
+                        </span>
+                      </div>
+                      <div className={`flex justify-between p-2 rounded ${
+                        isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                      }`}>
+                        <span className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          Balance Amount:
+                        </span>
+                        <span className="text-sm font-bold text-red-600">
+                          {formatCurrency(Math.max(0, computedTotal - (invoice.advanceReceived || 0)))}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Total in Words */}
+                  {invoice.totalInWords && (
+                    <div className={`mt-4 p-2 rounded ${
+                      isDarkMode ? 'bg-gray-800' : 'bg-blue-50'
+                    }`}>
+                      <p className={`text-xs italic ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <strong>Amount in Words:</strong> {invoice.totalInWords}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Notes and Terms */}
+            {(invoice.notes || invoice.terms) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {invoice.notes && (
+                  <div>
+                    <div className={`border rounded-lg ${
+                      isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                    }`}>
+                      <div className="p-6">
+                        <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          Notes:
+                        </h3>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.notes}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {invoice.terms && (
+                  <div className={invoice.notes ? '' : 'md:col-span-2'}>
+                    <div className={`border rounded-lg ${
+                      isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                    }`}>
+                      <div className="p-6">
+                        <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          Payment as per payment terms:
+                        </h3>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {invoice.terms}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Signature Section with Seal on Left */}
+            <div className="flex justify-end mt-12">
+              <div className="flex items-end gap-4">
+                <img
+                  src={seal}
+                  alt="Company Seal"
+                  crossOrigin="anonymous"
+                  className="h-48 w-auto object-contain opacity-95"
                 />
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                  ULTIMATE STEELS
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </DialogContent>
-    </Dialog>
+                <div className="text-center min-w-48">
+                  <p className={`text-sm mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Authorized Signatory
+                  </p>
+                  <div className="border-b border-black mb-2 h-12 w-48" />
+                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    ULTIMATE STEELS
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

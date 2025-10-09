@@ -118,10 +118,10 @@ const Dashboard = () => {
       const invoices = invoicesResponse.data || [];
 
       // Calculate stats
-      const totalRevenue = invoices.reduce(
-        (sum, invoice) => sum + (parseFloat(invoice.total) || 0),
-        0
-      );
+      const totalRevenue = invoices.reduce((sum, invoice) => {
+        const amount = parseFloat(invoice.total);
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
       const totalCustomers = customers.length;
       const totalProducts = products.length;
       const totalInvoices = invoices.length;
@@ -158,11 +158,15 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (amount) => {
+    // Handle NaN, null, undefined, or non-numeric values
+    const numericAmount = parseFloat(amount);
+    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   const formatDate = (dateString) => {

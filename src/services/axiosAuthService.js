@@ -1,12 +1,14 @@
 import { apiService, tokenUtils } from './axiosApi';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:5000/api');
+const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
 
 class AuthService {
   constructor() {
     this.USER_KEY = 'steel-app-user';
     this.isInitialized = false;
-    this.tokenRefreshTimer = null;
-    this.refreshPromise = null; // Prevent multiple simultaneous refresh attempts
-    this.isRefreshing = false;
+    this._refreshPromise = null; // avoid concurrent refreshes
   }
 
   // Initialize auth service
@@ -15,9 +17,6 @@ class AuthService {
     
     apiService.initialize();
     this.isInitialized = true;
-    
-    // Set up automatic token refresh
-    this.setupTokenRefresh();
   }
 
   // Register new user
@@ -45,7 +44,6 @@ class AuthService {
       if (response.token) {
         this.setTokens(response.token, response.refreshToken);
         this.setUser(response.user);
-        this.setupTokenRefresh();
       }
       
       return response;
@@ -64,65 +62,77 @@ class AuthService {
 
   // Logout user
   async logout() {
+    console.log('🚨 authService.logout() called!');
     try {
-      // Call logout endpoint to invalidate tokens on server
-      await apiService.post('/auth/logout');
+      console.log('🚨 Making API call to /auth/logout...');
+      // Call logout endpoint to invalidate tokens on server (send refreshToken like GigLabz)
+      const refreshToken = this.getRefreshToken();
+      try {
+        await apiService.post('/auth/logout', refreshToken ? { refreshToken } : {});
+      } catch (e) {
+        // Fallback to GigLabz path if needed
+        try {
+          await apiService.post('/logout', refreshToken ? { refreshToken } : {});
+        } catch (e2) {
+          console.warn('🚨 Logout API call failed (both paths):', e2);
+        }
+      }
+      console.log('🚨 Logout API call successful');
     } catch (error) {
-      console.warn('Logout API call failed:', error);
+      console.warn('🚨 Logout API call failed:', error);
     } finally {
+      console.log('🚨 Calling clearSession()...');
       this.clearSession();
+      console.log('🚨 Session cleared successfully');
     }
   }
 
-  // Refresh token
-  async refreshToken() {
-    // If already refreshing, return the existing promise
-    if (this.isRefreshing && this.refreshPromise) {
-      console.log('[Auth] Token refresh already in progress, waiting...');
-      return this.refreshPromise;
-    }
-    
-    this.isRefreshing = true;
-    
-    this.refreshPromise = (async () => {
+  // Refresh token with single-flight and shorter timeout
+  async refreshToken({ timeout = 9000 } = {}) {
+    const run = async () => {
       try {
         const refreshToken = tokenUtils.getRefreshToken();
-        
+        console.log('[Auth] 🔄 Manual token refresh requested...');
+
         if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
+          console.log('[Auth] ❌ No valid refresh token available');
           throw new Error('No valid refresh token available');
         }
-        
-        console.log('[Auth] Attempting to refresh token...');
-        const response = await apiService.post('/auth/refresh', { refreshToken });
-        
-        if (response.token) {
-          console.log('[Auth] Token refresh successful');
-          this.setTokens(response.token, response.refreshToken);
-          this.setupTokenRefresh(); // Re-setup the refresh timer
-          return response.token;
+
+        const response = await apiService.post(
+          REFRESH_ENDPOINT,
+          { refreshToken },
+          { timeout }
+        );
+
+        const newAccess = response.token || response.accessToken;
+        if (newAccess) {
+          console.log('[Auth] ✅ Token refresh successful');
+          this.setTokens(newAccess, response.refreshToken);
+          return newAccess;
         }
-        
+
         throw new Error('Token refresh failed - no token in response');
       } catch (error) {
-        console.error('[Auth] Token refresh failed:', error);
-        // Only clear session if it's a 401 or refresh token is actually invalid
-        if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
+        console.error('[Auth] ❌ Token refresh failed:', error);
+        if (error?.response?.status === 401) {
           this.clearSession();
         }
         throw error;
       } finally {
-        this.isRefreshing = false;
-        this.refreshPromise = null;
+        this._refreshPromise = null;
       }
-    })();
-    
-    return this.refreshPromise;
+    };
+
+    if (this._refreshPromise) return this._refreshPromise;
+    this._refreshPromise = run();
+    return this._refreshPromise;
   }
 
   // Get current user profile from server
-  async getCurrentUser() {
+  async getCurrentUser(config = {}) {
     try {
-      const response = await apiService.get('/auth/me');
+      const response = await apiService.get('/auth/me', config);
       
       if (response.user) {
         this.setUser(response.user);
@@ -235,19 +245,19 @@ class AuthService {
 
   // Clear all session data
   clearSession() {
-    console.log('[Auth] Clearing session');
+    console.log('[Auth] 🚨 CLEARING SESSION - User will be logged out');
     this.removeTokens();
     this.removeUser();
-    this.clearTokenRefreshTimer();
-    this.isRefreshing = false;
-    this.refreshPromise = null;
   }
 
   // Authentication status
   isAuthenticated() {
     const token = this.getToken();
+    const refreshToken = this.getRefreshToken();
     const user = this.getUser();
-    return !!(token && !tokenUtils.isTokenExpired(token) && user);
+    const hasValidAccess = !!(token && !tokenUtils.isTokenExpired(token));
+    const hasValidRefresh = !!(refreshToken && !tokenUtils.isTokenExpired(refreshToken));
+    return !!(user && (hasValidAccess || hasValidRefresh));
   }
 
   // Check if user has specific permission
@@ -273,66 +283,14 @@ class AuthService {
     return allowedRoles.includes(user.role);
   }
 
-  // Token refresh timer management
+  // Token refresh timer management - simplified
   setupTokenRefresh() {
-    this.clearTokenRefreshTimer();
-    
-    const token = this.getToken();
-    if (!token || tokenUtils.isTokenExpired(token)) {
-      console.log('[Auth] No valid token for refresh setup');
-      return;
-    }
-    
-    const expirationTime = tokenUtils.getTokenExpirationTime(token);
-    if (!expirationTime) {
-      console.log('[Auth] Could not determine token expiration time');
-      return;
-    }
-    
-    // Calculate time until refresh (5 minutes before expiration)
-    const timeUntilExpiry = expirationTime - Date.now();
-    const refreshTime = timeUntilExpiry - (5 * 60 * 1000);
-    
-    console.log(`[Auth] Token expires in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes`);
-    console.log(`[Auth] Scheduling refresh in ${Math.round(refreshTime / 1000 / 60)} minutes`);
-    
-    if (refreshTime > 0) {
-      this.tokenRefreshTimer = setTimeout(async () => {
-        console.log('[Auth] Token refresh timer triggered');
-        try {
-          await this.refreshToken();
-          // setupTokenRefresh is now called inside refreshToken on success
-        } catch (error) {
-          console.error('[Auth] Automatic token refresh failed:', error);
-          // Don't immediately clear session for network errors
-          if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
-            this.clearSession();
-            window.location.href = '/login';
-          } else {
-            // Retry after 30 seconds for network errors
-            console.log('[Auth] Scheduling retry for token refresh in 30 seconds');
-            setTimeout(() => this.setupTokenRefresh(), 30000);
-          }
-        }
-      }, refreshTime);
-    } else {
-      // Token is about to expire or already expired
-      console.log('[Auth] Token needs immediate refresh');
-      this.refreshToken().catch(error => {
-        console.error('[Auth] Immediate token refresh failed:', error);
-        if (error.response?.status === 401 || error.message === 'No valid refresh token available') {
-          this.clearSession();
-          window.location.href = '/login';
-        }
-      });
-    }
+    // Let axios interceptors handle token refresh automatically
+    console.log('[Auth] Token refresh will be handled by axios interceptors');
   }
 
   clearTokenRefreshTimer() {
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer);
-      this.tokenRefreshTimer = null;
-    }
+    // No longer needed - interceptors handle everything
   }
 
   // Get user roles and permissions
@@ -363,24 +321,34 @@ class AuthService {
   }
 
   // Verify token validity
-  async verifyToken() {
+  async verifyToken({ timeout = 9000 } = {}) {
     try {
       const token = this.getToken();
       if (!token) return false;
       
       if (tokenUtils.isTokenExpired(token)) {
         // Try to refresh if expired
-        await this.refreshToken();
+        await this.refreshToken({ timeout });
         return true;
       }
       
       // Verify with server
-      await this.getCurrentUser();
+      await this.getCurrentUser({ timeout });
       return true;
     } catch (error) {
       console.error('Token verification failed:', error);
-      this.clearSession();
-      return false;
+      // Bubble up transient/network/timeout errors so caller can decide
+      const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '');
+      const isNetwork = !error?.response; // likely network or CORS
+      if (isTimeout || isNetwork) {
+        throw error;
+      }
+      // For auth failures, signal invalid token
+      if (error?.response?.status === 401) {
+        return false;
+      }
+      // For other server errors, let caller keep user logged in
+      throw error;
     }
   }
 }

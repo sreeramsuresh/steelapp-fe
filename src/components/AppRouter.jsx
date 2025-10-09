@@ -1,47 +1,41 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Components
 import Dashboard from "./Dashboard";
-import InvoiceForm from "../pages/InvoiceFormTailwind";
+import InvoiceForm from "../pages/InvoiceForm";
 import InvoiceList from "../pages/InvoiceList";
 import CustomerManagement from "./CustomerManagement";
 import SteelProducts from "./SteelProducts";
 import PriceCalculator from "./PriceCalculator";
 import SalesAnalytics from "./SalesAnalytics";
 import CompanySettings from "./CompanySettings";
+import SearchResults from "./SearchResults";
 import RevenueTrends from "./RevenueTrends";
-import StockMovement from "./StockMovement";
 import InventoryList from "./InventoryList";
 import DeliveryNoteList from "../pages/DeliveryNoteList";
 import DeliveryNoteForm from "../pages/DeliveryNoteForm";
 import DeliveryNoteDetails from "../pages/DeliveryNoteDetails";
 import PurchaseOrderList from "../pages/PurchaseOrderList";
 import PurchaseOrderForm from "../pages/PurchaseOrderForm";
-import TransitList from "../pages/TransitList";
 import Login from "./Login";
 import MarketingHome from "../marketing/MarketingHome";
 import MarketingProducts from "../marketing/MarketingProducts";
 import MarketingAbout from "../marketing/MarketingAbout";
 import MarketingContact from "../marketing/MarketingContact";
+import AccountStatementList from "../pages/AccountStatementList";
+import AccountStatementForm from "../pages/AccountStatementForm";
+import AccountStatementDetails from "../pages/AccountStatementDetails";
+import QuotationList from "../pages/QuotationList";
+import QuotationForm from "../pages/QuotationForm";
+import Payables from "../pages/Payables";
+import CustomerPerspective from "../pages/CustomerPerspective";
 import ProtectedRoute from "./ProtectedRoute";
-
-const ContentWrapper = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'noPadding',
-})(({ theme, noPadding }) => ({
-  padding: noPadding ? 0 : theme.spacing(2, 1),
-  maxWidth: "100%",
-  minHeight: noPadding ? 'auto' : "calc(100vh - 64px)",
-  backgroundColor: theme.palette.background.default,
-  [theme.breakpoints.down("sm")]: {
-    padding: noPadding ? 0 : theme.spacing(0),
-  },
-}));
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
+  const { isDarkMode } = useTheme();
 
   // Allow public marketing pages and login without auth
   const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
@@ -62,7 +56,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   }
 
   return (
-    <ContentWrapper noPadding={isMarketing}>
+    <div className={`w-full ${isMarketing ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <Routes>
         {/* Public Routes: Marketing + Login */}
         <Route path="/" element={<Navigate to="/marketing" replace />} />
@@ -76,6 +70,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         {/* Protected Routes */}
+
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute user={user}>
+              <SearchResults />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"
@@ -167,11 +170,21 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        
+
         <Route
-          path="/stock-movements"
+          path="/payables"
           element={
-            <ProtectedRoute user={user}>
-              <StockMovement />
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <Payables />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payables/customer/:customerId"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <CustomerPerspective />
             </ProtectedRoute>
           }
         />
@@ -269,11 +282,67 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        
+
         <Route
-          path="/transit"
+          path="/account-statements"
           element={
-            <ProtectedRoute user={user} requiredPermission="transit.read">
-              <TransitList />
+            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+              <AccountStatementList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/account-statements/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="account_statements.create">
+              <AccountStatementForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/account-statements/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+              <AccountStatementDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.read">
+              <QuotationList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.create">
+              <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.read">
+              <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="quotations.update">
+              <QuotationForm />
             </ProtectedRoute>
           }
         />
@@ -290,7 +359,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
       </Routes>
-    </ContentWrapper>
+    </div>
   );
 };
 

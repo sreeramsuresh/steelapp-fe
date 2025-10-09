@@ -31,12 +31,13 @@ import { companyService } from '../services/companyService';
 import { templateService } from '../services/templateService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
 
 // Custom Tailwind Components
-const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
+const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
   const { isDarkMode } = useTheme();
   
-  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer';
   
   const getVariantClasses = () => {
     if (variant === 'primary') {
@@ -52,16 +53,17 @@ const Button = ({ children, variant = 'primary', size = 'md', disabled = false, 
     lg: 'px-6 py-3 text-base',
   };
 
+  const Component = as;
+  const componentProps = as === 'button' ? { disabled, onClick, ...props } : { ...props };
+
   return (
-    <button
+    <Component
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
+      {...componentProps}
     >
       {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
       {children}
-    </button>
+    </Component>
   );
 };
 
@@ -131,6 +133,191 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
   );
 };
 
+const SettingsPaper = ({ children, className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className={`rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
+      isDarkMode 
+        ? 'bg-gray-800 border border-gray-700' 
+        : 'bg-white border border-gray-200'
+    } ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+const SettingsCard = ({ children, className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className={`rounded-lg border transition-all duration-300 ${
+      isDarkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-200'
+    } ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+const LogoContainer = ({ children, className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className={`w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden ${
+      isDarkMode 
+        ? 'border-gray-600 bg-gray-800' 
+        : 'border-gray-300 bg-gray-50'
+    } ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+const CircularProgress = ({ size = 20, className = '' }) => {
+  return (
+    <svg 
+      className={`animate-spin ${className}`} 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none"
+    >
+      <circle 
+        className="opacity-25" 
+        cx="12" 
+        cy="12" 
+        r="10" 
+        stroke="currentColor" 
+        strokeWidth="4"
+      />
+      <path 
+        className="opacity-75" 
+        fill="currentColor" 
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+};
+
+const TextField = ({ label, value, onChange, placeholder, multiline, rows, startAdornment, endAdornment, error, helperText, disabled = false, type = 'text', className = '' }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        {startAdornment && (
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {startAdornment}
+          </div>
+        )}
+        {multiline ? (
+          <textarea
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            rows={rows || 3}
+            disabled={disabled}
+            className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              error ? 'border-red-500' : (isDarkMode ? 'border-gray-600' : 'border-gray-300')
+            } ${
+              isDarkMode 
+                ? 'bg-gray-800 text-white placeholder-gray-400' 
+                : 'bg-white text-gray-900 placeholder-gray-500'
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+          />
+        ) : (
+          <input
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              error ? 'border-red-500' : (isDarkMode ? 'border-gray-600' : 'border-gray-300')
+            } ${
+              isDarkMode 
+                ? 'bg-gray-800 text-white placeholder-gray-400' 
+                : 'bg-white text-gray-900 placeholder-gray-500'
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+          />
+        )}
+        {endAdornment && (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            {endAdornment}
+          </div>
+        )}
+      </div>
+      {helperText && (
+        <p className={`text-sm ${error ? 'text-red-500' : (isDarkMode ? 'text-gray-400' : 'text-gray-500')}`}>
+          {helperText}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const Checkbox = ({ checked, onChange, label, disabled = false }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <label className="flex items-center space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+        className={`w-4 h-4 rounded border focus:ring-2 focus:ring-teal-500 ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-600' 
+            : 'bg-white border-gray-300'
+        } text-teal-600 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      />
+      {label && (
+        <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          {label}
+        </span>
+      )}
+    </label>
+  );
+};
+
+const Switch = ({ checked, onChange, label, disabled = false }) => {
+  const { isDarkMode } = useTheme();
+  
+  return (
+    <label className="flex items-center space-x-2 cursor-pointer">
+      <div className="relative">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          className="sr-only"
+        />
+        <div className={`w-10 h-6 rounded-full transition-colors duration-200 ${
+          checked ? 'bg-teal-600' : (isDarkMode ? 'bg-gray-700' : 'bg-gray-300')
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+          <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200 ${
+            checked ? 'transform translate-x-4' : ''
+          }`} />
+        </div>
+      </div>
+      {label && (
+        <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          {label}
+        </span>
+      )}
+    </label>
+  );
+};
+
 const CompanySettings = () => {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
@@ -166,21 +353,30 @@ const CompanySettings = () => {
     bankDetails: {
       bankName: '',
       accountNumber: '',
-      ifscCode: '',
-      accountHolderName: ''
+      iban: ''
     }
   });
 
+  // TRN helpers: must start with 100 and be 15 digits (UAE)
+  const validateTRN = (value) => {
+    if (!value) return null; // optional
+    const digits = String(value).replace(/\s+/g, '');
+    if (!/^100\d{12}$/.test(digits)) return 'TRN must start with 100 and be 15 digits';
+    return null;
+  };
+  const sanitizeTRNInput = (value) => String(value || '').replace(/\D/g, '').slice(0, 15);
+
   useEffect(() => {
     if (companyData) {
+      console.log('Loading company data:', companyData);
+      console.log('Company logo URL:', companyData.logo_url);
       setCompanyProfile({
         ...companyData,
         address: typeof companyData.address === 'string' ? companyData.address : (companyData.address?.street || ''),
         bankDetails: companyData.bankDetails || {
           bankName: '',
           accountNumber: '',
-          ifscCode: '',
-          accountHolderName: ''
+          iban: ''
         }
       });
     }
@@ -224,6 +420,11 @@ const CompanySettings = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  // Set up theme integration for notifications
+  useEffect(() => {
+    notificationService.setTheme(isDarkMode);
+  }, [isDarkMode]);
 
   const templateStyles = [
     { id: 'modern', name: 'Modern', description: 'Clean and professional design' },
@@ -317,7 +518,13 @@ const CompanySettings = () => {
     try {
       // Validate required fields
       if (!companyProfile.name || companyProfile.name.trim() === '') {
-        alert('Company name is required');
+        notificationService.warning('Company name is required');
+        return;
+      }
+      // Validate TRN if provided
+      const trnErr = validateTRN(companyProfile.trnNumber);
+      if (trnErr) {
+        notificationService.error(trnErr);
         return;
       }
 
@@ -331,18 +538,23 @@ const CompanySettings = () => {
         phone: companyProfile.phone || '',
         email: companyProfile.email || '',
         vat_number: companyProfile.gstNumber || '',
-        trn_number: companyProfile.trnNumber || '',
-        logo_url: companyProfile.logo_url || null
+        trn_number: (companyProfile.trnNumber || '').replace(/\D/g, ''),
+        logo_url: companyProfile.logo_url || null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       
       console.log('Sending company data:', companyData);
       
       await updateCompany(companyData);
-      alert('Company profile saved successfully!');
+      notificationService.success('Company profile saved successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error saving company profile:', error);
-      alert('Failed to save company profile. Please try again.');
+      notificationService.error('Failed to save company profile. Please try again.');
     }
   };
 
@@ -368,11 +580,11 @@ const CompanySettings = () => {
         await createTemplate(templateData);
       }
 
-      alert('Invoice settings saved successfully!');
+      notificationService.success('Invoice settings saved successfully!');
       refetchTemplates();
     } catch (error) {
       console.error('Error saving invoice settings:', error);
-      alert('Failed to save invoice settings. Please try again.');
+      notificationService.error('Failed to save invoice settings. Please try again.');
     }
   };
 
@@ -385,27 +597,46 @@ const CompanySettings = () => {
   };
 
   const handleLogoUpload = async (event) => {
+    console.log('handleLogoUpload called', event);
     const file = event.target.files[0];
-    if (!file) return;
+    console.log('Selected file:', file);
+    
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      notificationService.warning('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
       return;
     }
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      notificationService.warning('File size must be less than 5MB');
       return;
     }
 
     try {
+      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       const response = await uploadLogo(file);
+      console.log('Full upload response:', response);
+      console.log('Response keys:', Object.keys(response || {}));
+      
+      // Handle different possible response structures
+      let logoUrl = response?.logoUrl || response?.logo_url || response?.url || response?.path;
+      
+      if (!logoUrl) {
+        console.error('No logo URL found in response. Response structure:', response);
+        throw new Error('Invalid response from server - no logo URL received');
+      }
       
       // Update company profile with new logo URL
-      const newLogoUrl = `http://localhost:5000${response.logoUrl}`;
+      // Keep relative URL (e.g., /uploads/...) so Vite proxy can serve it same-origin
+      const newLogoUrl = logoUrl.startsWith('http') ? logoUrl : logoUrl;
+      console.log('Setting new logo URL:', newLogoUrl);
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
       
       // Save to database
@@ -419,15 +650,20 @@ const CompanySettings = () => {
         phone: companyProfile.phone,
         email: companyProfile.email,
         vat_number: companyProfile.gstNumber,
-        logo_url: newLogoUrl
+        logo_url: newLogoUrl,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       await updateCompany(companyData);
       
-      alert('Logo uploaded successfully!');
+      notificationService.success('Logo uploaded successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error uploading logo:', error);
-      alert('Failed to upload logo. Please try again.');
+      notificationService.error('Failed to upload logo. Please try again.');
     }
   };
 
@@ -460,15 +696,20 @@ const CompanySettings = () => {
         phone: companyProfile.phone,
         email: companyProfile.email,
         vat_number: companyProfile.gstNumber,
-        logo_url: null
+        logo_url: null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
       };
       await updateCompany(companyData);
       
-      alert('Logo deleted successfully!');
+      notificationService.success('Logo deleted successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error deleting logo:', error);
-      alert('Failed to delete logo. Please try again.');
+      notificationService.error('Failed to delete logo. Please try again.');
     }
   };
 
@@ -531,6 +772,7 @@ const CompanySettings = () => {
       const updatedTaxes = taxSettings.filter(tax => tax.id !== taxId);
       setTaxSettings(updatedTaxes);
       saveTaxSettings();
+      notificationService.success('Tax setting deleted successfully!');
     }
   };
 
@@ -550,6 +792,7 @@ const CompanySettings = () => {
       const updatedUsers = users.filter(user => user.id !== userId);
       setUsers(updatedUsers);
       saveUsers();
+      notificationService.success('User deleted successfully!');
     }
   };
 
@@ -606,479 +849,347 @@ const CompanySettings = () => {
 
   const renderProfile = () => (
     <SettingsPaper>
-      <Box sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Typography variant="h5" component="h3" sx={{ fontWeight: 600 }}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Company Profile
-          </Typography>
+          </h3>
           <Button
-            variant="contained"
+            variant="primary"
             startIcon={updatingCompany ? <CircularProgress size={16} /> : <Save size={16} />}
             onClick={saveCompanyProfile}
-            disabled={updatingCompany}
+            disabled={updatingCompany || !!validateTRN(companyProfile.trnNumber)}
           >
             {updatingCompany ? 'Saving...' : 'Save Profile'}
           </Button>
-        </Stack>
+        </div>
 
-        <Stack spacing={4}>
+        <div className="space-y-6">
           {/* Logo Section */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Company Logo
-              </Typography>
+              </h4>
               
-              <Stack direction="row" spacing={3} alignItems="flex-start">
+              <div className="flex space-x-6 items-start">
                 <LogoContainer>
-                  {companyProfile.logo_url ? (
-                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+                  {uploadingLogo ? (
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                    </div>
+                  ) : companyProfile.logo_url ? (
+                    <div className="relative w-full h-full">
+                      {console.log('Rendering logo with URL:', companyProfile.logo_url)}
                       <img 
-                        src={companyProfile.logo_url} 
+                        src={`${companyProfile.logo_url}?t=${Date.now()}`}
                         alt="Company Logo"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <IconButton
-                        sx={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 4,
-                          backgroundColor: 'error.main',
-                          color: 'white',
-                          '&:hover': { backgroundColor: 'error.dark' }
+                        className="w-full h-full object-contain rounded-lg"
+                        crossOrigin="anonymous"
+                        onLoad={() => console.log('Logo loaded successfully:', companyProfile.logo_url)}
+                        onError={(e) => {
+                          console.error('Logo failed to load:', companyProfile.logo_url, e);
+                          console.error('Image load error details:', e.type, e.target?.src);
+                          // Try to reload without cache-busting query first
+                          if (e.target.src.includes('?t=')) {
+                            console.log('Retrying without cache-busting query...');
+                            e.target.src = companyProfile.logo_url;
+                          } else {
+                            // If that also fails, show upload option
+                            setCompanyProfile(prev => ({ ...prev, logo_url: null }));
+                          }
                         }}
-                        size="small"
+                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                      />
+                      <button
+                        className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                         onClick={handleLogoDelete}
+                        title="Delete logo"
                       >
                         <Trash2 size={16} />
-                      </IconButton>
-                    </Box>
+                      </button>
+                    </div>
                   ) : (
-                    <Stack alignItems="center" spacing={1}>
-                      <Camera size={32} />
-                      <Typography variant="body2">Upload Logo</Typography>
-                    </Stack>
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Logo</span>
+                    </div>
                   )}
                 </LogoContainer>
                 
-                <Stack spacing={2}>
+                <div className="space-y-3">
                   <input
                     type="file"
                     id="logo-upload"
                     accept="image/*"
                     onChange={handleLogoUpload}
-                    style={{ display: 'none' }}
+                    className="hidden"
                   />
-                  <Button
-                    component="label"
-                    htmlFor="logo-upload"
-                    variant="outlined"
-                    startIcon={uploadingLogo ? <CircularProgress size={16} /> : <Upload size={16} />}
-                    disabled={uploadingLogo}
-                  >
-                    {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                  </Button>
-                  <Typography variant="caption" color="text.secondary">
+                  <label htmlFor="logo-upload" className="cursor-pointer">
+                    <Button
+                      as="span"
+                      variant="outline"
+                      startIcon={uploadingLogo ? <Upload size={16} className="animate-spin" /> : <Upload size={16} />}
+                      disabled={uploadingLogo}
+                    >
+                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                    </Button>
+                  </label>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
-                  </Typography>
-                </Stack>
-              </Stack>
-            </CardContent>
+                  </p>
+                </div>
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Basic Information */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Basic Information
-              </Typography>
+              </h4>
               
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Company Name"
-                    value={companyProfile.name || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, name: e.target.value})}
-                    placeholder="Enter company name"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={companyProfile.email || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, email: e.target.value})}
-                    placeholder="Enter email address"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Mail size={20} />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    type="tel"
-                    value={companyProfile.phone || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, phone: e.target.value})}
-                    placeholder="Enter phone number"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Phone size={20} />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Website"
-                    type="url"
-                    value={companyProfile.website || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, website: e.target.value})}
-                    placeholder="Enter website URL"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Globe size={20} />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-              </Box>
-            </CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="Company Name"
+                  value={companyProfile.name || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, name: e.target.value})}
+                  placeholder="Enter company name"
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={companyProfile.email || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, email: e.target.value})}
+                  placeholder="Enter email address"
+                  startAdornment={<Mail size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
+                />
+                <TextField
+                  label="Phone"
+                  type="tel"
+                  value={companyProfile.phone || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, phone: e.target.value})}
+                  placeholder="Enter phone number"
+                  startAdornment={<Phone size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
+                />
+                <TextField
+                  label="Website"
+                  type="url"
+                  value={companyProfile.website || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, website: e.target.value})}
+                  placeholder="Enter website URL"
+                  startAdornment={<Globe size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
+                />
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Address Information */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Address Information
-              </Typography>
+              </h4>
               
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Box sx={{ gridColumn: '1 / -1' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
                   <TextField
-                    fullWidth
                     label="Street Address"
                     value={typeof companyProfile.address === 'string' ? companyProfile.address : (companyProfile.address?.street || '')}
                     onChange={(e) => setCompanyProfile({...companyProfile, address: e.target.value})}
                     placeholder="Enter street address"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MapPin size={20} />
-                        </InputAdornment>
-                      ),
-                    }}
+                    startAdornment={<MapPin size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
                   />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="City"
-                    value={companyProfile.city || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, city: e.target.value})}
-                    placeholder="Enter city"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="TRN Number"
-                    value={companyProfile.trnNumber || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: e.target.value})}
-                    placeholder="Enter TRN number"
-                  />
-                </Box>
-                <Box>
-                  <FormControl fullWidth>
-                    <InputLabel>Country</InputLabel>
-                    <Select
-                      value={companyProfile.country || ''}
-                      onChange={(e) => setCompanyProfile({...companyProfile, country: e.target.value})}
-                      label="Country"
-                    >
-                      <MenuItem value="India">India</MenuItem>
-                      <MenuItem value="United States">United States</MenuItem>
-                      <MenuItem value="United Kingdom">United Kingdom</MenuItem>
-                      <MenuItem value="Canada">Canada</MenuItem>
-                      <MenuItem value="Australia">Australia</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Box>
-            </CardContent>
+                </div>
+                <TextField
+                  label="City"
+                  value={companyProfile.city || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, city: e.target.value})}
+                  placeholder="Enter city"
+                />
+                <TextField
+                  label="TRN Number"
+                  value={companyProfile.trnNumber || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: sanitizeTRNInput(e.target.value)})}
+                  placeholder="100XXXXXXXXXXXX"
+                  type="text"
+                  error={!!validateTRN(companyProfile.trnNumber)}
+                  helperText={validateTRN(companyProfile.trnNumber) || '15 digits; must start with 100'}
+                />
+                <Select
+                  label="Country"
+                  value={companyProfile.country || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, country: e.target.value})}
+                  options={[
+                    { value: 'India', label: 'India' },
+                    { value: 'United States', label: 'United States' },
+                    { value: 'United Kingdom', label: 'United Kingdom' },
+                    { value: 'Canada', label: 'Canada' },
+                    { value: 'Australia', label: 'Australia' }
+                  ]}
+                />
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Tax Information */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Tax Information
-              </Typography>
+              </h4>
               
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="PAN Number"
-                    value={companyProfile.panNumber || ''}
-                    onChange={(e) => setCompanyProfile({...companyProfile, panNumber: e.target.value})}
-                    placeholder="Enter PAN number"
-                  />
-                </Box>
-              </Box>
-            </CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="PAN Number"
+                  value={companyProfile.panNumber || ''}
+                  onChange={(e) => setCompanyProfile({...companyProfile, panNumber: e.target.value})}
+                  placeholder="Enter PAN number"
+                />
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Bank Details */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Bank Details
-              </Typography>
+              </h4>
               
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Bank Name"
-                    value={companyProfile.bankDetails?.bankName || ''}
-                    onChange={(e) => setCompanyProfile({
-                      ...companyProfile,
-                      bankDetails: {...(companyProfile.bankDetails || {}), bankName: e.target.value}
-                    })}
-                    placeholder="Enter bank name"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Account Number"
-                    value={companyProfile.bankDetails?.accountNumber || ''}
-                    onChange={(e) => setCompanyProfile({
-                      ...companyProfile,
-                      bankDetails: {...(companyProfile.bankDetails || {}), accountNumber: e.target.value}
-                    })}
-                    placeholder="Enter account number"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="IFSC Code"
-                    value={companyProfile.bankDetails?.ifscCode || ''}
-                    onChange={(e) => setCompanyProfile({
-                      ...companyProfile,
-                      bankDetails: {...(companyProfile.bankDetails || {}), ifscCode: e.target.value}
-                    })}
-                    placeholder="Enter IFSC code"
-                  />
-                </Box>
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Account Holder Name"
-                    value={companyProfile.bankDetails?.accountHolderName || ''}
-                    onChange={(e) => setCompanyProfile({
-                      ...companyProfile,
-                      bankDetails: {...(companyProfile.bankDetails || {}), accountHolderName: e.target.value}
-                    })}
-                    placeholder="Enter account holder name"
-                  />
-                </Box>
-              </Box>
-            </CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="Bank Name"
+                  value={companyProfile.bankDetails?.bankName || ''}
+                  onChange={(e) => setCompanyProfile({
+                    ...companyProfile,
+                    bankDetails: {...(companyProfile.bankDetails || {}), bankName: e.target.value}
+                  })}
+                  placeholder="Enter bank name"
+                />
+                <TextField
+                  label="Account Number"
+                  value={companyProfile.bankDetails?.accountNumber || ''}
+                  onChange={(e) => setCompanyProfile({
+                    ...companyProfile,
+                    bankDetails: {...(companyProfile.bankDetails || {}), accountNumber: e.target.value}
+                  })}
+                  placeholder="Enter account number"
+                />
+                <TextField
+                  label="IBAN"
+                  value={companyProfile.bankDetails?.iban || ''}
+                  onChange={(e) => setCompanyProfile({
+                    ...companyProfile,
+                    bankDetails: {...(companyProfile.bankDetails || {}), iban: e.target.value}
+                  })}
+                  placeholder="Enter IBAN"
+                />
+              </div>
+            </div>
           </SettingsCard>
-        </Stack>
-      </Box>
+        </div>
+      </div>
     </SettingsPaper>
   );
 
   const renderInvoiceTemplates = () => (
     <SettingsPaper>
-      <Box sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Typography variant="h5" component="h3" sx={{ fontWeight: 600 }}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Invoice Templates
-          </Typography>
+          </h3>
           <Button
-            variant="contained"
+            variant="primary"
             startIcon={(creatingTemplate || updatingTemplate) ? <CircularProgress size={16} /> : <Save size={16} />}
             onClick={saveInvoiceSettings}
             disabled={creatingTemplate || updatingTemplate}
           >
             {creatingTemplate || updatingTemplate ? 'Saving...' : 'Save Settings'}
           </Button>
-        </Stack>
+        </div>
 
-        <Stack spacing={4}>
-          {/* Template Styles */}
-          <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
-                Template Style
-              </Typography>
-              
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-                {templateStyles.map(style => (
-                  <Box key={style.id}>
-                    <TemplateStyleCard
-                      selected={invoiceSettings.templateStyle === style.id}
-                      onClick={() => setInvoiceSettings({...invoiceSettings, templateStyle: style.id})}
-                    >
-                      <CardContent>
-                        <Box
-                          sx={{
-                            height: 120,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            mb: 2,
-                            p: 1,
-                            backgroundColor: 'background.default'
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              height: 20,
-                              backgroundColor: invoiceSettings.primaryColor,
-                              borderRadius: 0.5,
-                              mb: 1
-                            }}
-                          />
-                          <Box sx={{ space: 1 }}>
-                            <Box sx={{ height: 4, backgroundColor: 'text.disabled', borderRadius: 0.5, mb: 0.5 }} />
-                            <Box sx={{ height: 4, backgroundColor: 'text.disabled', borderRadius: 0.5, width: '70%', mb: 0.5 }} />
-                            <Box sx={{ height: 4, backgroundColor: 'text.disabled', borderRadius: 0.5 }} />
-                          </Box>
-                        </Box>
-                        
-                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                          <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                              {style.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {style.description}
-                            </Typography>
-                          </Box>
-                          {invoiceSettings.templateStyle === style.id && (
-                            <CheckCircle size={20} color="primary" />
-                          )}
-                        </Stack>
-                      </CardContent>
-                    </TemplateStyleCard>
-                  </Box>
-                ))}
-              </Box>
-            </CardContent>
-          </SettingsCard>
-
+        <div className="space-y-6">
           {/* Customization Options */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Customization
-              </Typography>
+              </h4>
               
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Box>
-                  <Stack spacing={2}>
-                    <Typography variant="body2">Primary Color</Typography>
-                    <Stack direction="row" alignItems="center" spacing={2}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="space-y-2">
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                      Primary Color
+                    </label>
+                    <div className="flex items-center space-x-2">
                       <input
                         type="color"
                         value={invoiceSettings.primaryColor}
                         onChange={(e) => setInvoiceSettings({...invoiceSettings, primaryColor: e.target.value})}
-                        style={{
-                          width: 40,
-                          height: 40,
-                          border: 'none',
-                          borderRadius: 8,
-                          cursor: 'pointer'
-                        }}
+                        className="w-10 h-10 border-0 rounded-lg cursor-pointer"
                       />
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                      <span className={`text-sm font-mono ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         {invoiceSettings.primaryColor}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                </Box>
-                <Box>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <TextField
+                  label="Due Days"
+                  type="number"
+                  value={invoiceSettings.dueDays || ''}
+                  onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Default due days"
+                />
+                <div className="md:col-span-2">
                   <TextField
-                    fullWidth
-                    label="Due Days"
-                    type="number"
-                    value={invoiceSettings.dueDays || ''}
-                    onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                    placeholder="Default due days"
-                  />
-                </Box>
-                <Box sx={{ gridColumn: '1 / -1' }}>
-                  <TextField
-                    fullWidth
                     label="Invoice Number Format"
                     value={invoiceSettings.invoiceNumberFormat}
                     onChange={(e) => setInvoiceSettings({...invoiceSettings, invoiceNumberFormat: e.target.value})}
                     placeholder="e.g., INV-{YYYY}-{MM}-{###}"
                     helperText="Use {YYYY} for year, {MM} for month, {###} for number"
                   />
-                </Box>
-              </Box>
-            </CardContent>
+                </div>
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Display Options */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Display Options
-              </Typography>
+              </h4>
               
-              <Stack spacing={2}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={invoiceSettings.showLogo}
-                      onChange={(e) => setInvoiceSettings({...invoiceSettings, showLogo: e.target.checked})}
-                    />
-                  }
+              <div className="space-y-3">
+                <Checkbox
+                  checked={invoiceSettings.showLogo}
+                  onChange={(e) => setInvoiceSettings({...invoiceSettings, showLogo: e.target.checked})}
                   label="Show company logo"
                 />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={invoiceSettings.showBankDetails}
-                      onChange={(e) => setInvoiceSettings({...invoiceSettings, showBankDetails: e.target.checked})}
-                    />
-                  }
+                <Checkbox
+                  checked={invoiceSettings.showBankDetails}
+                  onChange={(e) => setInvoiceSettings({...invoiceSettings, showBankDetails: e.target.checked})}
                   label="Show bank details"
                 />
-              </Stack>
-            </CardContent>
+              </div>
+            </div>
           </SettingsCard>
 
           {/* Default Text */}
           <SettingsCard>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Default Text
-              </Typography>
+              </h4>
               
-              <Stack spacing={3}>
+              <div className="space-y-4">
                 <TextField
-                  fullWidth
                   label="Footer Text"
                   multiline
                   rows={3}
@@ -1087,19 +1198,18 @@ const CompanySettings = () => {
                   placeholder="Enter footer text"
                 />
                 <TextField
-                  fullWidth
-                  label="Terms & Conditions"
+                  label="Payment as per payment terms"
                   multiline
                   rows={4}
                   value={invoiceSettings.terms}
                   onChange={(e) => setInvoiceSettings({...invoiceSettings, terms: e.target.value})}
-                  placeholder="Enter terms and conditions"
+                  placeholder="Enter payment terms"
                 />
-              </Stack>
-            </CardContent>
+              </div>
+            </div>
           </SettingsCard>
-        </Stack>
-      </Box>
+        </div>
+      </div>
     </SettingsPaper>
   );
 
@@ -1259,236 +1369,219 @@ const CompanySettings = () => {
 
   const renderUserManagement = () => (
     <SettingsPaper>
-      <Box sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Typography variant="h5" component="h3" sx={{ fontWeight: 600 }}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             User Management
-          </Typography>
+          </h3>
           <Button
-            variant="contained"
+            variant="primary"
             startIcon={<Plus size={16} />}
             onClick={() => setShowAddUserModal(true)}
           >
             Add User
           </Button>
-        </Stack>
+        </div>
 
-        <Stack spacing={3}>
+        <div className="space-y-4">
           {users.map(user => (
-            <UserCard key={user.id} status={user.status}>
-              <CardContent>
+            <SettingsCard key={user.id} className={user.status === 'active' ? '' : 'opacity-60'}>
+              <div className="p-6">
                 {/* User Header */}
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
+                      isDarkMode ? 'bg-teal-600' : 'bg-teal-500'
+                    }`}>
                       {user.name.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    </div>
+                    <div>
+                      <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {user.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      </h4>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {user.email}
-                      </Typography>
-                      <Chip
-                        label={userRoles.find(r => r.id === user.role)?.name}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                        sx={{ mt: 1 }}
-                      />
-                    </Box>
-                  </Stack>
+                      </p>
+                      <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded border ${
+                        isDarkMode 
+                          ? 'text-teal-400 border-teal-600 bg-teal-900/20' 
+                          : 'text-teal-600 border-teal-300 bg-teal-50'
+                      }`}>
+                        {userRoles.find(r => r.id === user.role)?.name}
+                      </span>
+                    </div>
+                  </div>
                   
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                  <div className="flex items-center space-x-3">
                     <Switch
                       checked={user.status === 'active'}
                       onChange={() => toggleUserStatus(user.id)}
-                      size="small"
+                      label={user.status === 'active' ? 'Active' : 'Inactive'}
                     />
-                    <Typography variant="body2" color={user.status === 'active' ? 'success.main' : 'text.disabled'}>
-                      {user.status === 'active' ? 'Active' : 'Inactive'}
-                    </Typography>
-                    <IconButton
-                      color="error"
+                    <button
                       onClick={() => deleteUser(user.id)}
-                      size="small"
+                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                     >
                       <Trash2 size={16} />
-                    </IconButton>
-                  </Stack>
-                </Stack>
+                    </button>
+                  </div>
+                </div>
 
-                <Divider sx={{ my: 2 }} />
+                <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
                 {/* User Stats */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
-                  <Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Created
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {user.createdAt}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Last Login
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {user.lastLogin || 'Never'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Created
+                    </p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {user.createdAt}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Last Login
+                    </p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {user.lastLogin || 'Never'}
+                    </p>
+                  </div>
+                </div>
 
                 {/* User Permissions */}
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      Permissions
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Stack spacing={2}>
+                <div className={`border rounded-lg ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <details className="group">
+                    <summary className={`flex justify-between items-center p-3 cursor-pointer ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
+                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Permissions
+                      </span>
+                      <ChevronDown size={16} className={`transition-transform group-open:rotate-180 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    </summary>
+                    <div className={`p-3 border-t space-y-3 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                       {Object.entries(user.permissions).map(([module, perms]) => (
-                        <Box key={module}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                              {module}
-                            </Typography>
-                            <Stack direction="row" spacing={1}>
-                              {typeof perms === 'object' ? (
-                                Object.entries(perms).map(([action, allowed]) => (
-                                  <Chip
-                                    key={action}
-                                    label={action.charAt(0).toUpperCase()}
-                                    size="small"
-                                    color={allowed ? 'success' : 'default'}
-                                    variant={allowed ? 'filled' : 'outlined'}
-                                  />
-                                ))
-                              ) : (
-                                <Chip
-                                  label="R"
-                                  size="small"
-                                  color={perms ? 'success' : 'default'}
-                                  variant={perms ? 'filled' : 'outlined'}
-                                />
-                              )}
-                            </Stack>
-                          </Stack>
-                        </Box>
+                        <div key={module} className="flex justify-between items-center">
+                          <span className={`text-sm font-medium capitalize ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {module}
+                          </span>
+                          <div className="flex space-x-1">
+                            {typeof perms === 'object' ? (
+                              Object.entries(perms).map(([action, allowed]) => (
+                                <span
+                                  key={action}
+                                  className={`px-2 py-1 text-xs font-medium rounded ${
+                                    allowed
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                      : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                  }`}
+                                >
+                                  {action.charAt(0).toUpperCase()}
+                                </span>
+                              ))
+                            ) : (
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded ${
+                                  perms
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                }`}
+                              >
+                                R
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       ))}
-                    </Stack>
-                  </AccordionDetails>
-                </Accordion>
-              </CardContent>
-            </UserCard>
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </SettingsCard>
           ))}
-        </Stack>
-      </Box>
+        </div>
+      </div>
 
       
-      {/* Add User Dialog */}
-      <Dialog
-        open={showAddUserModal}
-        onClose={() => setShowAddUserModal(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Add New User</Typography>
-            <IconButton onClick={() => setShowAddUserModal(false)}>
-              <X size={20} />
-            </IconButton>
-          </Stack>
-        </DialogTitle>
-        
-        <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 1 }}>
-            <Box>
-              <TextField
-                fullWidth
-                label="Full Name"
-                value={newUser.name}
-                onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                placeholder="Enter full name"
-              />
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Email"
-                type="email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                placeholder="Enter email address"
-              />
-            </Box>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel>Role</InputLabel>
-                <Select
-                  value={newUser.role}
-                  onChange={(e) => handleRoleChange(e.target.value)}
-                  label="Role"
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Add New User
+                </h3>
+                <button
+                  onClick={() => setShowAddUserModal(false)}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
                 >
-                  {userRoles.map(role => (
-                    <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Typography variant="caption" color="text.secondary">
-                {userRoles.find(r => r.id === newUser.role)?.description}
-              </Typography>
-            </Box>
-            <Box>
-              <TextField
-                fullWidth
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                value={newUser.password}
-                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                placeholder="Enter password"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-          </Box>
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="Full Name"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                  placeholder="Enter full name"
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  placeholder="Enter email address"
+                />
+                <div>
+                  <Select
+                    label="Role"
+                    value={newUser.role}
+                    onChange={(e) => handleRoleChange(e.target.value)}
+                    options={userRoles.map(role => ({ value: role.id, label: role.name }))}
+                  />
+                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {userRoles.find(r => r.id === newUser.role)?.description}
+                  </p>
+                </div>
+                <TextField
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  placeholder="Enter password"
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  }
+                />
+              </div>
 
-          <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" sx={{ mb: 3 }}>
-              Permissions
-            </Typography>
-            <PermissionGrid>
-              {Object.entries(newUser.permissions).map(([module, perms]) => (
-                <SettingsCard key={module}>
-                  <CardContent>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, textTransform: 'capitalize' }}>
-                      {module}
-                    </Typography>
-                    <Stack spacing={1}>
-                      {typeof perms === 'object' ? (
-                        Object.entries(perms).map(([action, allowed]) => (
-                          <FormControlLabel
-                            key={action}
-                            control={
+              <div className="mt-6">
+                <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Permissions
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(newUser.permissions).map(([module, perms]) => (
+                    <SettingsCard key={module}>
+                      <div className="p-4">
+                        <h5 className={`text-sm font-semibold mb-3 capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {module}
+                        </h5>
+                        <div className="space-y-2">
+                          {typeof perms === 'object' ? (
+                            Object.entries(perms).map(([action, allowed]) => (
                               <Checkbox
+                                key={action}
                                 checked={allowed}
                                 onChange={(e) => setNewUser({
                                   ...newUser,
@@ -1500,15 +1593,10 @@ const CompanySettings = () => {
                                     }
                                   }
                                 })}
-                                size="small"
+                                label={action.charAt(0).toUpperCase() + action.slice(1)}
                               />
-                            }
-                            label={action.charAt(0).toUpperCase() + action.slice(1)}
-                          />
-                        ))
-                      ) : (
-                        <FormControlLabel
-                          control={
+                            ))
+                          ) : (
                             <Checkbox
                               checked={perms}
                               onChange={(e) => setNewUser({
@@ -1518,29 +1606,34 @@ const CompanySettings = () => {
                                   [module]: { read: e.target.checked }
                                 }
                               })}
-                              size="small"
+                              label="Read"
                             />
-                          }
-                          label="Read"
-                        />
-                      )}
-                    </Stack>
-                  </CardContent>
-                </SettingsCard>
-              ))}
-            </PermissionGrid>
-          </Box>
-        </DialogContent>
-        
-        <DialogActions>
-          <Button onClick={() => setShowAddUserModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleAddUser} startIcon={<Save size={20} />}>
-            Add User
-          </Button>
-        </DialogActions>
-      </Dialog>
+                          )}
+                        </div>
+                      </div>
+                    </SettingsCard>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddUserModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddUser}
+                startIcon={<Save size={20} />}
+              >
+                Add User
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </SettingsPaper>
   );
 
@@ -1550,6 +1643,9 @@ const CompanySettings = () => {
     { id: 'tax', label: 'Tax Settings', icon: Calculator },
     { id: 'users', label: 'User Management', icon: Users },
   ];
+
+  // Debug logging
+  console.log('CompanySettings isDarkMode:', isDarkMode);
 
   return (
     <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
@@ -1569,9 +1665,9 @@ const CompanySettings = () => {
           </div>
         </div>
         
-        {/* Tabs */}
-        <div className={`border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-          <div className="flex overflow-x-auto">
+        {/* Tabs - Pill style for clarity, wraps on small screens */}
+        <div className={`${isDarkMode ? 'bg-gray-800 border-y border-[#37474F]' : 'bg-white border-y border-gray-200'}`}>
+          <div className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1579,13 +1675,18 @@ const CompanySettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${
-                    isActive
-                      ? 'border-teal-500 text-teal-600'
-                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                  aria-selected={isActive}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 ${
+                    isDarkMode
+                      ? (isActive
+                          ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                          : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white')
+                      : (isActive
+                          ? 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                          : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                   }`}
                 >
-                  <Icon size={20} />
+                  <Icon size={18} />
                   {tab.label}
                 </button>
               );

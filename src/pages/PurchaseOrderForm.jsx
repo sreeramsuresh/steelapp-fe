@@ -1,84 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Save, ArrowLeft } from "lucide-react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  IconButton,
-  Divider,
-  Alert,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   formatCurrency,
   calculateItemAmount,
   calculateSubtotal,
   calculateTotal,
+  generatePONumber,
 } from "../utils/invoiceUtils";
-
-const PurchaseOrderContainer = styled(Box)(({ theme }) => ({
-  paddingTop: theme.spacing(1),
-  paddingBottom: theme.spacing(1),
-  paddingLeft: 0,
-  paddingRight: 0,
-  background: theme.palette.background.default,
-  minHeight: "calc(100vh - 64px)",
-  overflow: "auto",
-  [theme.breakpoints.up("sm")]: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0),
-  },
-}));
-
-const PurchaseOrderFormPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  background: theme.palette.background.paper,
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[1],
-  margin: 0,
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(3),
-    borderRadius: theme.spacing(2),
-    boxShadow: theme.shadows[2],
-  },
-}));
-
-const SectionCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  mb: 2,
-}));
+import { purchaseOrdersAPI } from "../services/api";
+import { stockMovementService } from "../services/stockMovementService";
+import { inventoryService } from "../services/inventoryService";
+import { productService } from "../services/productService";
+import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
+import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
+import { useApiData } from "../hooks/useApi";
+import { supplierService } from "../services/supplierService";
+import { notificationService } from "../services/notificationService";
 
 const PurchaseOrderForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [purchaseOrder, setPurchaseOrder] = useState({
-    poNumber: "",
+    poNumber: generatePONumber(), // Fallback PO number generation
     supplierName: "",
     supplierEmail: "",
     supplierPhone: "",
@@ -89,8 +35,13 @@ const PurchaseOrderForm = () => {
     stockStatus: "retain", // Default to 'retain'
     items: [
       {
-        name: "",
-        specification: "",
+        productType: "",
+        name: "", // This will be same as productType for consistency
+        grade: "",
+        thickness: "",
+        size: "",
+        finish: "",
+        specification: "", // Keep for backward compatibility
         unit: "MT",
         quantity: 0,
         rate: 0,
@@ -102,15 +53,176 @@ const PurchaseOrderForm = () => {
     total: 0,
     notes: "",
     terms: "",
+    currency: 'AED',
+    supplierContactName: '',
+    supplierContactEmail: '',
+    supplierContactPhone: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  
+  // Normalize date value for <input type="date">
+  const toDateInput = (d) => {
+    if (!d) return '';
+    try {
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0,10);
+      const dt = new Date(d);
+      if (isNaN(dt.getTime())) return '';
+      return dt.toISOString().slice(0,10);
+    } catch {
+      return '';
+    }
+  };
+  // Suppliers
+  const { data: suppliersData, loading: loadingSuppliers } = useApiData(
+    () => supplierService.getSuppliers({ status: 'active' }),
+    []
+  );
+
+  // Load existing purchase order when editing
+  useEffect(() => {
+    const loadExisting = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const data = await purchaseOrdersAPI.getById(id);
+        // Map backend fields to form model
+        setPurchaseOrder(prev => ({
+          ...prev,
+          poNumber: data.po_number || prev.poNumber,
+          supplierName: data.supplier_name || '',
+          supplierEmail: data.supplier_email || '',
+          supplierPhone: data.supplier_phone || '',
+          supplierAddress: data.supplier_address || '',
+          poDate: toDateInput(data.po_date) || prev.poDate,
+          expectedDeliveryDate: toDateInput(data.expected_delivery_date) || '',
+          status: data.status || 'draft',
+          stockStatus: data.stock_status || 'retain',
+          currency: data.currency || prev.currency,
+          supplierContactName: data.supplier_contact_name || '',
+          supplierContactEmail: data.supplier_contact_email || data.supplier_email || '',
+          supplierContactPhone: data.supplier_contact_phone || data.supplier_phone || '',
+          items: Array.isArray(data.items) ? data.items.map(it => ({
+            productType: it.name || '',
+            name: it.name || '',
+            grade: '',
+            thickness: '',
+            size: '',
+            finish: '',
+            specification: it.specification || '',
+            unit: it.unit || 'MT',
+            quantity: it.quantity || 0,
+            rate: it.rate || 0,
+            amount: it.amount || 0,
+          })) : prev.items,
+          subtotal: data.subtotal || 0,
+          vatAmount: data.gst_amount || 0,
+          total: data.total || 0,
+          notes: data.notes || '',
+          terms: data.terms || '',
+        }));
+        
+        // Set warehouse if available
+        if (data.warehouse_id) {
+          setSelectedWarehouse(data.warehouse_id.toString());
+        }
+      } catch (e) {
+        notificationService.error('Failed to load purchase order');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExisting();
+  }, [id]);
+
+  // Fetch available products and warehouses
+  useEffect(() => {
+    fetchAvailableProducts();
+    fetchWarehouses();
+  }, []);
+
+  const fetchAvailableProducts = async () => {
+    try {
+      const response = await productService.getProducts();
+      const products = response?.products || [];
+      setAvailableProducts(products);
+    } catch (error) {
+      console.warn('Failed to fetch products:', error);
+      // Fallback to static product types if service fails
+      setAvailableProducts(PRODUCT_TYPES.map(type => ({ id: type, name: type, category: type })));
+    }
+  };
+
+  const fetchWarehouses = async () => {
+    try {
+      // Sample warehouse data matching the warehouse management component
+      const sampleWarehouses = [
+        { id: 1, name: 'Main Warehouse', city: 'Sharjah', isActive: true },
+        { id: 2, name: 'Dubai Branch Warehouse', city: 'Dubai', isActive: true },
+        { id: 3, name: 'Abu Dhabi Warehouse', city: 'Abu Dhabi', isActive: true }
+      ];
+      setWarehouses(sampleWarehouses.filter(w => w.isActive));
+    } catch (error) {
+      console.warn('Failed to fetch warehouses:', error);
+    }
+  };
+
+  // Get next PO number from server (only for new purchase orders)
+  const { data: nextPOData } = useApiData(
+    () => purchaseOrdersAPI.getNextNumber(),
+    [],
+    !id  // Only fetch when creating new PO (not editing)
+  );
+
+  // Update PO number when server data is available
+  useEffect(() => {
+    if (nextPOData && nextPOData.next_po_number && !id) {
+      setPurchaseOrder((prev) => ({
+        ...prev,
+        poNumber: nextPOData.next_po_number,
+      }));
+    }
+  }, [nextPOData, id]);
+
+  // Try to map existing PO supplier to a supplier record by name (best-effort)
+  useEffect(() => {
+    const list = suppliersData?.suppliers || [];
+    if (list.length && purchaseOrder.supplierName && !selectedSupplierId) {
+      const match = list.find(s => s.name && s.name.toLowerCase() === purchaseOrder.supplierName.toLowerCase());
+      if (match) setSelectedSupplierId(String(match.id));
+    }
+  }, [suppliersData, purchaseOrder.supplierName, selectedSupplierId]);
 
   const handleInputChange = (field, value) => {
     setPurchaseOrder((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleSupplierSelect = (supplierId) => {
+    const suppliers = suppliersData?.suppliers || [];
+    const found = suppliers.find((s) => String(s.id) === String(supplierId));
+    if (!found) {
+      setPurchaseOrder((prev) => ({ ...prev, supplierName: '', supplierEmail: '', supplierPhone: '', supplierAddress: '' }));
+      return;
+    }
+    setPurchaseOrder((prev) => ({
+      ...prev,
+      supplierName: found.name || '',
+      supplierEmail: found.email || '',
+      supplierPhone: found.phone || '',
+      supplierAddress: found.address || found.company || '',
+      terms: found.payment_terms || prev.terms || '',
+      currency: found.default_currency || prev.currency || 'AED',
+      supplierContactName: found.contact_name || '',
+      supplierContactEmail: found.contact_email || found.email || '',
+      supplierContactPhone: found.contact_phone || found.phone || ''
     }));
   };
 
@@ -158,7 +270,12 @@ const PurchaseOrderForm = () => {
       items: [
         ...prev.items,
         {
+          productType: "",
           name: "",
+          grade: "",
+          thickness: "",
+          size: "",
+          finish: "",
           specification: "",
           unit: "MT",
           quantity: 0,
@@ -196,429 +313,849 @@ const PurchaseOrderForm = () => {
   const handleSubmit = async (status = "draft") => {
     setLoading(true);
     try {
-      // TODO: Implement API call to save purchase order
-      console.log("Saving purchase order:", { ...purchaseOrder, status });
+      const poData = { ...purchaseOrder, status };
+      
+      // Basic validation
+      if (!poData.supplierName) {
+        notificationService.warning('Supplier name is required');
+        setLoading(false);
+        return;
+      }
+      
+      if (!poData.items || poData.items.length === 0) {
+        notificationService.warning('At least one item is required');
+        setLoading(false);
+        return;
+      }
+      
+      // Validate that at least one item has required fields
+      const validItems = poData.items.filter(item => 
+        (item.productType || item.name) && item.quantity > 0
+      );
+      
+      if (validItems.length === 0) {
+        notificationService.warning('At least one item must have a product type and quantity greater than 0');
+        setLoading(false);
+        return;
+      }
+      
+      // Validate warehouse selection
+      if (!selectedWarehouse) {
+        notificationService.warning('Please select a destination warehouse');
+        setLoading(false);
+        return;
+      }
+
+      // Get warehouse details
+      const selectedWarehouseDetails = warehouses.find(w => w.id.toString() === selectedWarehouse);
+
+      // Transform data to match backend expectations (snake_case)
+  const transformedData = {
+        po_number: poData.poNumber,
+        supplier_name: poData.supplierName,
+        supplier_email: poData.supplierEmail || null,
+        supplier_phone: poData.supplierPhone || null,
+        supplier_address: poData.supplierAddress || null,
+        po_date: poData.poDate,
+        expected_delivery_date: poData.expectedDeliveryDate || null,
+    status: poData.status,
+        stock_status: poData.stockStatus,
+        currency: poData.currency || 'AED',
+        payment_terms: poData.terms || null,
+        supplier_contact_name: poData.supplierContactName || null,
+        supplier_contact_email: poData.supplierContactEmail || null,
+        supplier_contact_phone: poData.supplierContactPhone || null,
+        warehouse_id: selectedWarehouse,
+        warehouse_name: selectedWarehouseDetails ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})` : '',
+        notes: poData.notes || null,
+        terms: poData.terms || null,
+        subtotal: parseFloat(poData.subtotal) || 0,
+        gst_amount: parseFloat(poData.vatAmount) || 0,
+        total: parseFloat(poData.total) || 0,
+        // Transform items array
+        items: poData.items.map(item => ({
+          product_type: item.productType || item.name || '',
+          name: item.name || item.productType || '',
+          grade: item.grade || null,
+          thickness: item.thickness || null,
+          size: item.size || null,
+          finish: item.finish || null,
+          specification: item.specification || null,
+          unit: item.unit,
+          quantity: parseFloat(item.quantity) || 0,
+          rate: parseFloat(item.rate) || 0,
+          amount: parseFloat(item.amount) || 0
+        }))
+      };
+      
+      // Log the full data structure for debugging
+      console.log('Submitting PO data:', JSON.stringify(transformedData, null, 2));
+      
+      let savedPO;
+      if (id) {
+        // Update existing purchase order
+        savedPO = await purchaseOrdersAPI.update(id, transformedData);
+      } else {
+        // Create new purchase order
+        savedPO = await purchaseOrdersAPI.create(transformedData);
+      }
+      
+  // If stock status is received, trigger inventory creation via the stock-status endpoint
+  if (poData.stockStatus === "received") {
+        try {
+          const stockStatusResponse = await (await import('../services/api')).apiClient.patch(`/purchase-orders/${savedPO.id}/stock-status`, {
+            stock_status: 'received'
+          });
+          console.log('Stock status updated and inventory created:', stockStatusResponse);
+          
+          if (stockStatusResponse.inventory_created) {
+            notificationService.success('Inventory items created successfully!');
+          }
+        } catch (stockError) {
+          console.error('Error updating stock status:', stockError);
+          notificationService.warning('Purchase order saved but inventory creation failed. Please check the inventory manually.');
+        }
+      }
+      
+      // Show success notification
+      const action = id ? 'updated' : 'created';
+      notificationService.success(`Purchase order ${action} successfully!`);
+      
       navigate("/purchase-orders");
     } catch (error) {
       console.error("Error saving purchase order:", error);
+      const action = id ? 'update' : 'create';
+      
+      // Extract more detailed error message
+      let errorMessage = 'Unknown error';
+      const errorData = error.response?.data;
+      
+      // Check for validation errors array
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Join all error messages
+        errorMessage = errorData.errors.map(err => 
+          typeof err === 'string' ? err : err.message || err.msg || JSON.stringify(err)
+        ).join(', ');
+        
+        // Show each error as a separate notification
+        errorData.errors.forEach(err => {
+          const msg = typeof err === 'string' ? err : err.message || err.msg || JSON.stringify(err);
+          notificationService.error(msg);
+        });
+      } else if (errorData?.message) {
+        errorMessage = errorData.message;
+      } else if (errorData?.error) {
+        errorMessage = errorData.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('Detailed error:', errorData);
+      console.log('Error messages:', errorData?.errors);
+      
+      setErrors({ submit: errorMessage });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <PurchaseOrderContainer>
-      <Container maxWidth="100%" sx={{ p: 0 }}>
-        <PurchaseOrderFormPaper>
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+      <div className="container mx-auto px-0">
+        <div className={`p-4 sm:p-6 mx-0 rounded-none sm:rounded-2xl border ${
+          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+        }`}>
           {/* Header */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <IconButton
+          <div className={`sticky top-0 z-10 flex justify-between items-center mb-6 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="flex items-center gap-4">
+              <button
                 onClick={() => navigate("/purchase-orders")}
-                size="small"
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                }`}
               >
                 <ArrowLeft size={20} />
-              </IconButton>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+              </button>
+              <h1 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 🛒 {id ? "Edit" : "Create"} Purchase Order
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
-                variant="outlined"
+              </h1>
+            </div>
+            <div className="flex gap-3">
+              <button
                 onClick={() => handleSubmit("draft")}
                 disabled={loading}
-                sx={{ borderRadius: 2 }}
+                className={`px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Save Draft
-              </Button>
-              <Button
-                variant="contained"
+              </button>
+              <button
                 onClick={() => handleSubmit("pending")}
                 disabled={loading}
-                startIcon={<Save size={18} />}
-                sx={{ borderRadius: 2 }}
+                className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
+                <Save size={18} />
                 Submit PO
-              </Button>
-            </Box>
-          </Box>
+              </button>
+            </div>
+          </div>
 
-          <Grid container spacing={3}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
             {/* PO Details */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Purchase Order Details
-                  </Typography>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <TextField
-                      label="PO Number"
-                      value={purchaseOrder.poNumber}
-                      onChange={(e) =>
-                        handleInputChange("poNumber", e.target.value)
-                      }
-                      placeholder="PO-2024-001"
-                      fullWidth
-                    />
-                    <TextField
-                      label="PO Date"
-                      type="date"
-                      value={purchaseOrder.poDate}
-                      onChange={(e) =>
-                        handleInputChange("poDate", e.target.value)
-                      }
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                    />
-                    <TextField
-                      label="Expected Delivery Date"
-                      type="date"
-                      value={purchaseOrder.expectedDeliveryDate}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "expectedDeliveryDate",
-                          e.target.value
-                        )
-                      }
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                    />
-                    <FormControl fullWidth>
-                      <InputLabel>Status</InputLabel>
-                      <Select
-                        value={purchaseOrder.status}
-                        onChange={(e) =>
-                          handleInputChange("status", e.target.value)
-                        }
-                        label="Status"
-                      >
-                        <MenuItem value="draft">Draft</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="confirmed">Confirmed</MenuItem>
-                        <MenuItem value="received">Received</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                      <InputLabel>Stock Status</InputLabel>
-                      <Select
-                        value={purchaseOrder.stockStatus}
-                        onChange={(e) =>
-                          handleInputChange("stockStatus", e.target.value)
-                        }
-                        label="Stock Status"
-                      >
-                        <MenuItem value="retain">
-                          Retain (Add to Stock)
-                        </MenuItem>
-                        <MenuItem value="transit">
-                          Transit (Do not add to Stock)
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Grid>
+            <div className={`p-6 rounded-xl border ${
+              isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Purchase Order Details
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    PO Number
+                  </label>
+                  <input
+                    type="text"
+                    value={purchaseOrder.poNumber}
+                    onChange={(e) => handleInputChange("poNumber", e.target.value)}
+                    placeholder="PO-2024-001"
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    PO Date
+                  </label>
+                  <input
+                    type="date"
+                    value={purchaseOrder.poDate}
+                    onChange={(e) => handleInputChange("poDate", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Expected Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    value={purchaseOrder.expectedDeliveryDate}
+                    onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* Supplier Details */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Supplier Details
-                  </Typography>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            <div className={`p-6 rounded-xl border ${
+              isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Supplier Details
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Select Supplier
+                  </label>
+                  <select
+                    value={selectedSupplierId}
+                    onChange={(e)=> { setSelectedSupplierId(e.target.value); handleSupplierSelect(e.target.value); }}
+                    disabled={loadingSuppliers}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   >
-                    <TextField
-                      label="Supplier Name"
-                      value={purchaseOrder.supplierName}
-                      onChange={(e) =>
-                        handleInputChange("supplierName", e.target.value)
-                      }
-                      fullWidth
-                      required
+                    <option value="">Select a supplier</option>
+                    {(suppliersData?.suppliers || []).map((s) => (
+                      <option key={s.id} value={s.id}>{s.name} {s.email ? `- ${s.email}` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+                {purchaseOrder.supplierName && (
+                  <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-100 border-gray-200'}`}>
+                    <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Selected Supplier:
+                    </h4>
+                    <div className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p>
+                        <span className="font-medium">Name:</span> {purchaseOrder.supplierName}
+                      </p>
+                      {purchaseOrder.supplierEmail && (
+                        <p>
+                          <span className="font-medium">Email:</span> {purchaseOrder.supplierEmail}
+                        </p>
+                      )}
+                      {purchaseOrder.supplierPhone && (
+                        <p>
+                          <span className="font-medium">Phone:</span> {purchaseOrder.supplierPhone}
+                        </p>
+                      )}
+                      {purchaseOrder.supplierAddress && (
+                        <p>
+                          <span className="font-medium">Address:</span> {purchaseOrder.supplierAddress}
+                        </p>
+                      )}
+                      {(purchaseOrder.terms || purchaseOrder.currency) && (
+                        <p>
+                          <span className="font-medium">Terms/Currency:</span> {[
+                            purchaseOrder.terms,
+                            purchaseOrder.currency,
+                          ].filter(Boolean).join(' • ')}
+                        </p>
+                      )}
+                      {(purchaseOrder.supplierContactName || purchaseOrder.supplierContactEmail || purchaseOrder.supplierContactPhone) && (
+                        <p>
+                          <span className="font-medium">Contact:</span> {[
+                            purchaseOrder.supplierContactName,
+                            purchaseOrder.supplierContactEmail,
+                            purchaseOrder.supplierContactPhone,
+                          ].filter(Boolean).join(' • ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Supplier Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={purchaseOrder.supplierName}
+                    onChange={(e) => handleInputChange("supplierName", e.target.value)}
+                    required
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Name
+                    </label>
+                    <input
+                      type="text"
+                      value={purchaseOrder.supplierContactName}
+                      onChange={(e) => handleInputChange("supplierContactName", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                     />
-                    <TextField
-                      label="Email"
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Email
+                    </label>
+                    <input
                       type="email"
-                      value={purchaseOrder.supplierEmail}
-                      onChange={(e) =>
-                        handleInputChange("supplierEmail", e.target.value)
-                      }
-                      fullWidth
+                      value={purchaseOrder.supplierContactEmail}
+                      onChange={(e) => handleInputChange("supplierContactEmail", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                     />
-                    <TextField
-                      label="Phone"
-                      value={purchaseOrder.supplierPhone}
-                      onChange={(e) =>
-                        handleInputChange("supplierPhone", e.target.value)
-                      }
-                      fullWidth
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Contact Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={purchaseOrder.supplierContactPhone}
+                      onChange={(e) => handleInputChange("supplierContactPhone", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                     />
-                    <TextField
-                      label="Address"
-                      multiline
-                      rows={3}
-                      value={purchaseOrder.supplierAddress}
-                      onChange={(e) =>
-                        handleInputChange("supplierAddress", e.target.value)
-                      }
-                      fullWidth
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Payment Terms
+                    </label>
+                    <input
+                      type="text"
+                      value={purchaseOrder.terms}
+                      onChange={(e) => handleInputChange("terms", e.target.value)}
+                      placeholder="e.g., Net 30"
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                     />
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Grid>
-
-            {/* Items */}
-            <Grid size={{ xs: 12 }}>
-              <SectionCard>
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 2,
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Items
-                    </Typography>
-                    <Button
-                      startIcon={<Plus size={18} />}
-                      onClick={addItem}
-                      variant="outlined"
-                      size="small"
-                      sx={{ borderRadius: 2 }}
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Currency
+                    </label>
+                    <select
+                      value={purchaseOrder.currency}
+                      onChange={(e) => handleInputChange("currency", e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     >
-                      Add Item
-                    </Button>
-                  </Box>
+                      <option value="AED">AED</option>
+                      <option value="USD">USD</option>
+                      <option value="INR">INR</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={purchaseOrder.supplierEmail}
+                    onChange={(e) => handleInputChange("supplierEmail", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={purchaseOrder.supplierPhone}
+                    onChange={(e) => handleInputChange("supplierPhone", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Address
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={purchaseOrder.supplierAddress}
+                    onChange={(e) => handleInputChange("supplierAddress", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Product Name</TableCell>
-                          <TableCell>Specification</TableCell>
-                          <TableCell>Unit</TableCell>
-                          <TableCell>Quantity</TableCell>
-                          <TableCell>Rate</TableCell>
-                          <TableCell>Amount</TableCell>
-                          <TableCell width="50px"></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {purchaseOrder.items.map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell>
-                              <TextField
-                                value={item.name}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Product name"
-                                size="small"
-                                fullWidth
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <TextField
-                                value={item.specification}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "specification",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Specification"
-                                size="small"
-                                fullWidth
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormControl size="small" fullWidth>
-                                <Select
-                                  value={item.unit}
-                                  onChange={(e) =>
-                                    handleItemChange(
-                                      index,
-                                      "unit",
-                                      e.target.value
-                                    )
-                                  }
-                                >
-                                  <MenuItem value="MT">MT</MenuItem>
-                                  <MenuItem value="KG">KG</MenuItem>
-                                  <MenuItem value="PC">PC</MenuItem>
-                                  <MenuItem value="FT">FT</MenuItem>
-                                </Select>
-                              </FormControl>
-                            </TableCell>
-                            <TableCell>
-                              <TextField
-                                type="number"
-                                value={item.quantity}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "quantity",
-                                    e.target.value
-                                  )
-                                }
-                                size="small"
-                                fullWidth
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <TextField
-                                type="number"
-                                value={item.rate}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "rate",
-                                    e.target.value
-                                  )
-                                }
-                                size="small"
-                                fullWidth
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Typography
-                                variant="body2"
-                                sx={{ fontWeight: 600 }}
-                              >
-                                {formatCurrency(item.amount)}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <IconButton
-                                onClick={() => removeItem(index)}
-                                size="small"
-                                color="error"
-                                disabled={purchaseOrder.items.length === 1}
-                              >
-                                <Trash2 size={16} />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+          {/* Warehouse Selection */}
+          <div className={`p-6 mt-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Delivery Warehouse
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Select Warehouse *
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedWarehouse}
+                    onChange={(e) => setSelectedWarehouse(e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select Destination Warehouse</option>
+                    {warehouses.map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name} - {warehouse.city}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Items will be delivered to this warehouse
+                </p>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Stock Status
+                </label>
+                <div className="relative">
+                  <select
+                    value={purchaseOrder.stockStatus}
+                    onChange={(e) => handleInputChange("stockStatus", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="retain">Retain (To be received)</option>
+                    <option value="transit">In Transit</option>
+                    <option value="received">Received (Add to Inventory)</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {purchaseOrder.stockStatus === 'transit' ? 'Items will show as pending in stock movement' : 
+                   purchaseOrder.stockStatus === 'received' ? 'Items are received and will be added to inventory' :
+                   'Items are ordered but not yet received'}
+                </p>
+              </div>
+            </div>
+          </div>
 
-                  <Divider sx={{ my: 2 }} />
+          {/* Items */}
+          <div className={`p-6 mt-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Items
+              </h2>
+              <button
+                onClick={addItem}
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-colors ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                <Plus size={18} />
+                Add Item
+              </button>
+            </div>
 
-                  {/* Totals */}
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Box sx={{ width: 300 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography>Subtotal:</Typography>
-                        <Typography sx={{ fontWeight: 600 }}>
-                          {formatCurrency(purchaseOrder.subtotal)}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography>TRN (5%):</Typography>
-                        <Typography sx={{ fontWeight: 600 }}>
-                          {formatCurrency(purchaseOrder.vatAmount)}
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ my: 1 }} />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                          Total:
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 700, color: "primary.main" }}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                  <tr>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Product Type
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Grade
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Thickness
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Size
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Finish
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Unit
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Qty
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Rate
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Amount
+                    </th>
+                    <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                  {purchaseOrder.items.map((item, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.productType}
+                            onChange={(e) => {
+                              handleItemChange(index, "productType", e.target.value);
+                              handleItemChange(index, "name", e.target.value); // Keep name in sync
+                            }}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Product</option>
+                            {availableProducts.map((product) => (
+                              <option key={product.id || product.name} value={product.name}>
+                                {product.name} {product.category ? `(${product.category})` : ''}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.grade}
+                            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Grade</option>
+                            {STEEL_GRADES.map((grade) => (
+                              <option key={grade} value={grade}>
+                                {grade}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={item.thickness}
+                          onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+                          placeholder="e.g., 12mm"
+                          className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={item.size}
+                          onChange={(e) => handleItemChange(index, "size", e.target.value)}
+                          placeholder="e.g., 4x8"
+                          className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.finish}
+                            onChange={(e) => handleItemChange(index, "finish", e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Select Finish</option>
+                            {FINISHES.map((finish) => (
+                              <option key={finish} value={finish}>
+                                {finish}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative">
+                          <select
+                            value={item.unit}
+                            onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="MT">MT</option>
+                            <option value="KG">KG</option>
+                            <option value="PC">PC</option>
+                            <option value="FT">FT</option>
+                          </select>
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={item.rate}
+                          onChange={(e) => handleItemChange(index, "rate", e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(item.amount)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => removeItem(index)}
+                          disabled={purchaseOrder.items.length === 1}
+                          className={`p-2 rounded transition-colors ${
+                            purchaseOrder.items.length === 1
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                          }`}
                         >
-                          {formatCurrency(purchaseOrder.total)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </SectionCard>
-            </Grid>
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            {/* Notes and Terms */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Notes
-                  </Typography>
-                  <TextField
-                    multiline
-                    rows={4}
-                    value={purchaseOrder.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    placeholder="Additional notes..."
-                    fullWidth
-                  />
-                </CardContent>
-              </SectionCard>
-            </Grid>
+            <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Terms & Conditions
-                  </Typography>
-                  <TextField
-                    multiline
-                    rows={4}
-                    value={purchaseOrder.terms}
-                    onChange={(e) => handleInputChange("terms", e.target.value)}
-                    placeholder="Terms and conditions..."
-                    fullWidth
-                  />
-                </CardContent>
-              </SectionCard>
-            </Grid>
-          </Grid>
-        </PurchaseOrderFormPaper>
-      </Container>
-    </PurchaseOrderContainer>
+            {/* Totals */}
+            <div className="flex justify-end">
+              <div className="w-full max-w-xs">
+                <div className="flex justify-between mb-2">
+                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+                    Subtotal:
+                  </span>
+                  <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {formatCurrency(purchaseOrder.subtotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+                    TRN (5%):
+                  </span>
+                  <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {formatCurrency(purchaseOrder.vatAmount)}
+                  </span>
+                </div>
+                <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                <div className="flex justify-between">
+                  <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Total:
+                  </span>
+                  <span className={`text-lg font-bold text-teal-600`}>
+                    {formatCurrency(purchaseOrder.total)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Notes and Terms */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className={`p-6 rounded-xl border ${
+              isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Notes
+              </h2>
+              <textarea
+                rows={4}
+                value={purchaseOrder.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+                placeholder="Additional notes..."
+                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+
+            <div className={`p-6 rounded-xl border ${
+              isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Payment as per payment terms
+              </h2>
+              <textarea
+                rows={4}
+                value={purchaseOrder.terms}
+                onChange={(e) => handleInputChange("terms", e.target.value)}
+                placeholder="Terms and conditions..."
+                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

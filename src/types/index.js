@@ -28,8 +28,10 @@ export const createSteelItem = () => ({
   id: crypto.randomUUID(),
   productId: null,
   name: '',
-  specification: '',
   grade: '',
+  finish: '',
+  size: '',
+  thickness: '',
   description: '',
   unit: 'kg',
   quantity: 1,
@@ -52,18 +54,18 @@ export const createInvoice = () => ({
   invoiceNumber: '',
   date: new Date().toISOString().split('T')[0],
   dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  purchaseOrderNumber: '',
-  purchaseOrderDate: '',
   deliveryNote: '',
   modeOfPayment: '',
   otherReference: '',
   despatchedThrough: '',
   destination: '',
   termsOfDelivery: '',
+  customerPurchaseOrderNumber: '',
+  customerPurchaseOrderDate: '',
   customer: createCustomer(),
   items: [createSteelItem()],
   subtotal: 0,
-  vatAmount: 0, // TRN Amount
+  vatAmount: 0, // VAT Amount
   cvatAmount: 0,
   svatAmount: 0,
   ivatAmount: 0,
@@ -82,7 +84,7 @@ export const createInvoice = () => ({
   total: 0,
   status: 'draft',
   notes: '',
-  terms: 'Payment due within 30 days'
+  terms: 'Kindly check the product before unloading If any complaint arises, contact us immediately. No items will be returned without prior authorisation'
 });
 
 export const createCompany = () => ({
@@ -101,7 +103,7 @@ export const createCompany = () => ({
 
 export const STEEL_UNITS = ['kg', 'ton', 'piece', 'meter', 'feet'];
 export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue'];
-export const PAYMENT_MODES = ['Cash', 'Cheque', 'NEFT', 'RTGS', 'UPI', 'Card', 'Bank Transfer'];
+export const PAYMENT_MODES = ['Cash', 'Cheque', 'CDC', 'PDC', 'Card', 'Bank Transfer'];
 export const DELIVERY_TERMS = ['FOB', 'CIF', 'CFR', 'EXW', 'DDP', 'DAP'];
 export const DISCOUNT_TYPES = ['amount', 'percentage'];
 export const UAE_EMIRATES = [
