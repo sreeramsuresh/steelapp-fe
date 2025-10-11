@@ -1,12 +1,13 @@
-import { apiService, tokenUtils } from './axiosApi';
-import axios from 'axios';
+import { apiService, tokenUtils } from "./axiosApi";
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:5000/api');
-const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const REFRESH_ENDPOINT =
+  import.meta.env.VITE_REFRESH_ENDPOINT || "/auth/refresh";
 
 class AuthService {
   constructor() {
-    this.USER_KEY = 'steel-app-user';
+    this.USER_KEY = "steel-app-user";
     this.isInitialized = false;
     this._refreshPromise = null; // avoid concurrent refreshes
   }
@@ -14,7 +15,7 @@ class AuthService {
   // Initialize auth service
   initialize() {
     if (this.isInitialized) return;
-    
+
     apiService.initialize();
     this.isInitialized = true;
   }
@@ -22,68 +23,81 @@ class AuthService {
   // Register new user
   async register(userData) {
     try {
-      const response = await apiService.post('/auth/register', userData);
-      
+      const response = await apiService.post("/auth/register", userData);
+
       if (response.token) {
         this.setTokens(response.token, response.refreshToken);
         this.setUser(response.user);
       }
-      
+
       return response;
     } catch (error) {
-      console.error('Registration failed:', error);
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      console.error("Registration failed:", error);
+      throw new Error(error.response?.data?.message || "Registration failed");
     }
   }
 
   // Login user
   async login(email, password) {
     try {
-      const response = await apiService.post('/auth/login', { email, password });
-      
+      const response = await apiService.post("/auth/login", {
+        email,
+        password,
+      });
+
       if (response.token) {
         this.setTokens(response.token, response.refreshToken);
         this.setUser(response.user);
       }
-      
+
       return response;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       const data = error.response?.data;
       const status = error.response?.status;
       // Prefer explicit backend error messages
       const details = Array.isArray(data?.errors)
-        ? data.errors.map((e) => e.msg).join(', ')
-        : (data?.error || data?.message);
-      const msg = details || (status === 400 ? 'Invalid input. Check email and password.' : 'Login failed');
+        ? data.errors.map((e) => e.msg).join(", ")
+        : data?.error || data?.message;
+      const msg =
+        details ||
+        (status === 400
+          ? "Invalid input. Check email and password."
+          : "Login failed");
       throw new Error(msg);
     }
   }
 
   // Logout user
   async logout() {
-    console.log('🚨 authService.logout() called!');
+    console.log("🚨 authService.logout() called!");
     try {
-      console.log('🚨 Making API call to /auth/logout...');
+      console.log("🚨 Making API call to /auth/logout...");
       // Call logout endpoint to invalidate tokens on server (send refreshToken like GigLabz)
       const refreshToken = this.getRefreshToken();
       try {
-        await apiService.post('/auth/logout', refreshToken ? { refreshToken } : {});
+        await apiService.post(
+          "/auth/logout",
+          refreshToken ? { refreshToken } : {}
+        );
       } catch (e) {
         // Fallback to GigLabz path if needed
         try {
-          await apiService.post('/logout', refreshToken ? { refreshToken } : {});
+          await apiService.post(
+            "/logout",
+            refreshToken ? { refreshToken } : {}
+          );
         } catch (e2) {
-          console.warn('🚨 Logout API call failed (both paths):', e2);
+          console.warn("🚨 Logout API call failed (both paths):", e2);
         }
       }
-      console.log('🚨 Logout API call successful');
+      console.log("🚨 Logout API call successful");
     } catch (error) {
-      console.warn('🚨 Logout API call failed:', error);
+      console.warn("🚨 Logout API call failed:", error);
     } finally {
-      console.log('🚨 Calling clearSession()...');
+      console.log("🚨 Calling clearSession()...");
       this.clearSession();
-      console.log('🚨 Session cleared successfully');
+      console.log("🚨 Session cleared successfully");
     }
   }
 
@@ -92,11 +106,11 @@ class AuthService {
     const run = async () => {
       try {
         const refreshToken = tokenUtils.getRefreshToken();
-        console.log('[Auth] 🔄 Manual token refresh requested...');
+        console.log("[Auth] 🔄 Manual token refresh requested...");
 
         if (!refreshToken || tokenUtils.isTokenExpired(refreshToken)) {
-          console.log('[Auth] ❌ No valid refresh token available');
-          throw new Error('No valid refresh token available');
+          console.log("[Auth] ❌ No valid refresh token available");
+          throw new Error("No valid refresh token available");
         }
 
         const response = await apiService.post(
@@ -107,14 +121,14 @@ class AuthService {
 
         const newAccess = response.token || response.accessToken;
         if (newAccess) {
-          console.log('[Auth] ✅ Token refresh successful');
+          console.log("[Auth] ✅ Token refresh successful");
           this.setTokens(newAccess, response.refreshToken);
           return newAccess;
         }
 
-        throw new Error('Token refresh failed - no token in response');
+        throw new Error("Token refresh failed - no token in response");
       } catch (error) {
-        console.error('[Auth] ❌ Token refresh failed:', error);
+        console.error("[Auth] ❌ Token refresh failed:", error);
         if (error?.response?.status === 401) {
           this.clearSession();
         }
@@ -132,16 +146,16 @@ class AuthService {
   // Get current user profile from server
   async getCurrentUser(config = {}) {
     try {
-      const response = await apiService.get('/auth/me', config);
-      
+      const response = await apiService.get("/auth/me", config);
+
       if (response.user) {
         this.setUser(response.user);
         return response.user;
       }
-      
+
       return response;
     } catch (error) {
-      console.error('Get current user failed:', error);
+      console.error("Get current user failed:", error);
       throw error;
     }
   }
@@ -149,41 +163,47 @@ class AuthService {
   // Change password
   async changePassword(currentPassword, newPassword) {
     try {
-      const response = await apiService.post('/auth/change-password', {
+      const response = await apiService.post("/auth/change-password", {
         currentPassword,
-        newPassword
+        newPassword,
       });
-      
+
       return response;
     } catch (error) {
-      console.error('Change password failed:', error);
-      throw new Error(error.response?.data?.message || 'Password change failed');
+      console.error("Change password failed:", error);
+      throw new Error(
+        error.response?.data?.message || "Password change failed"
+      );
     }
   }
 
   // Request password reset
   async requestPasswordReset(email) {
     try {
-      const response = await apiService.post('/auth/forgot-password', { email });
+      const response = await apiService.post("/auth/forgot-password", {
+        email,
+      });
       return response;
     } catch (error) {
-      console.error('Password reset request failed:', error);
-      throw new Error(error.response?.data?.message || 'Password reset request failed');
+      console.error("Password reset request failed:", error);
+      throw new Error(
+        error.response?.data?.message || "Password reset request failed"
+      );
     }
   }
 
   // Reset password with token
   async resetPassword(token, newPassword) {
     try {
-      const response = await apiService.post('/auth/reset-password', {
+      const response = await apiService.post("/auth/reset-password", {
         token,
-        newPassword
+        newPassword,
       });
-      
+
       return response;
     } catch (error) {
-      console.error('Password reset failed:', error);
-      throw new Error(error.response?.data?.message || 'Password reset failed');
+      console.error("Password reset failed:", error);
+      throw new Error(error.response?.data?.message || "Password reset failed");
     }
   }
 
@@ -220,12 +240,12 @@ class AuthService {
       try {
         return JSON.parse(userData);
       } catch (error) {
-        console.error('Error parsing user data:', error);
+        console.error("Error parsing user data:", error);
         localStorage.removeItem(this.USER_KEY);
         return null;
       }
     }
-    
+
     // Try to get user from token if no stored user data
     const token = this.getToken();
     if (token && !tokenUtils.isTokenExpired(token)) {
@@ -235,7 +255,7 @@ class AuthService {
         return userFromToken;
       }
     }
-    
+
     return null;
   }
 
@@ -245,7 +265,7 @@ class AuthService {
 
   // Clear all session data
   clearSession() {
-    console.log('[Auth] 🚨 CLEARING SESSION - User will be logged out');
+    console.log("[Auth] 🚨 CLEARING SESSION - User will be logged out");
     this.removeTokens();
     this.removeUser();
   }
@@ -256,7 +276,9 @@ class AuthService {
     const refreshToken = this.getRefreshToken();
     const user = this.getUser();
     const hasValidAccess = !!(token && !tokenUtils.isTokenExpired(token));
-    const hasValidRefresh = !!(refreshToken && !tokenUtils.isTokenExpired(refreshToken));
+    const hasValidRefresh = !!(
+      refreshToken && !tokenUtils.isTokenExpired(refreshToken)
+    );
     return !!(user && (hasValidAccess || hasValidRefresh));
   }
 
@@ -264,13 +286,13 @@ class AuthService {
   hasPermission(resource, action) {
     const user = this.getUser();
     if (!user) return false;
-    
+
     // Admin has all permissions
-    if (user.role === 'admin') return true;
-    
+    if (user.role === "admin") return true;
+
     const permissions = user.permissions || {};
     const resourcePermissions = permissions[resource];
-    
+
     return resourcePermissions && resourcePermissions[action];
   }
 
@@ -278,7 +300,7 @@ class AuthService {
   hasRole(roles) {
     const user = this.getUser();
     if (!user) return false;
-    
+
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
     return allowedRoles.includes(user.role);
   }
@@ -286,7 +308,7 @@ class AuthService {
   // Token refresh timer management - simplified
   setupTokenRefresh() {
     // Let axios interceptors handle token refresh automatically
-    console.log('[Auth] Token refresh will be handled by axios interceptors');
+    console.log("[Auth] Token refresh will be handled by axios interceptors");
   }
 
   clearTokenRefreshTimer() {
@@ -307,16 +329,16 @@ class AuthService {
   // Update user profile
   async updateProfile(profileData) {
     try {
-      const response = await apiService.put('/auth/profile', profileData);
-      
+      const response = await apiService.put("/auth/profile", profileData);
+
       if (response.user) {
         this.setUser(response.user);
       }
-      
+
       return response;
     } catch (error) {
-      console.error('Profile update failed:', error);
-      throw new Error(error.response?.data?.message || 'Profile update failed');
+      console.error("Profile update failed:", error);
+      throw new Error(error.response?.data?.message || "Profile update failed");
     }
   }
 
@@ -325,20 +347,21 @@ class AuthService {
     try {
       const token = this.getToken();
       if (!token) return false;
-      
+
       if (tokenUtils.isTokenExpired(token)) {
         // Try to refresh if expired
         await this.refreshToken({ timeout });
         return true;
       }
-      
+
       // Verify with server
       await this.getCurrentUser({ timeout });
       return true;
     } catch (error) {
-      console.error('Token verification failed:', error);
+      console.error("Token verification failed:", error);
       // Bubble up transient/network/timeout errors so caller can decide
-      const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '');
+      const isTimeout =
+        error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "");
       const isNetwork = !error?.response; // likely network or CORS
       if (isTimeout || isNetwork) {
         throw error;

@@ -1,23 +1,23 @@
-import { apiService } from './axiosApi';
+import { apiService } from "./axiosApi";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 class ApiClient {
   constructor() {
     this.baseURL = API_BASE_URL;
     this.defaultHeaders = {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     };
   }
 
   setAuthHeader(token) {
-    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    this.defaultHeaders["Authorization"] = `Bearer ${token}`;
     // Also set on axios-based service so interceptors use it
     apiService.setAuthToken(token);
   }
 
   removeAuthHeader() {
-    delete this.defaultHeaders['Authorization'];
+    delete this.defaultHeaders["Authorization"];
     apiService.removeAuthToken();
   }
 
@@ -25,18 +25,23 @@ class ApiClient {
   // New code should use the axios-based methods below which benefit from interceptors
   async request(endpoint, options = {}) {
     // Delegate to axios-based apiService
-    const method = (options.method || 'GET').toUpperCase();
-    const data = options.body instanceof FormData ? options.body : (typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+    const method = (options.method || "GET").toUpperCase();
+    const data =
+      options.body instanceof FormData
+        ? options.body
+        : typeof options.body === "string"
+        ? JSON.parse(options.body)
+        : options.body;
     switch (method) {
-      case 'GET':
+      case "GET":
         return apiService.get(endpoint);
-      case 'POST':
+      case "POST":
         return apiService.post(endpoint, data);
-      case 'PUT':
+      case "PUT":
         return apiService.put(endpoint, data);
-      case 'PATCH':
+      case "PATCH":
         return apiService.patch(endpoint, data);
-      case 'DELETE':
+      case "DELETE":
         return apiService.delete(endpoint);
       default:
         return apiService.request({ method, url: endpoint, data });
@@ -70,7 +75,7 @@ export const apiClient = new ApiClient();
 export const deliveryNotesAPI = {
   // Get all delivery notes with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/delivery-notes', params);
+    return apiClient.get("/delivery-notes", params);
   },
 
   // Get delivery note by ID
@@ -80,12 +85,15 @@ export const deliveryNotesAPI = {
 
   // Create delivery note from invoice
   create: (deliveryNoteData) => {
-    return apiClient.post('/delivery-notes', deliveryNoteData);
+    return apiClient.post("/delivery-notes", deliveryNoteData);
   },
 
   // Update delivery quantities (partial delivery)
   updateDelivery: (deliveryNoteId, itemId, deliveryData) => {
-    return apiClient.patch(`/delivery-notes/${deliveryNoteId}/items/${itemId}/deliver`, deliveryData);
+    return apiClient.patch(
+      `/delivery-notes/${deliveryNoteId}/items/${itemId}/deliver`,
+      deliveryData
+    );
   },
 
   // Update delivery note status
@@ -100,41 +108,41 @@ export const deliveryNotesAPI = {
 
   // Get next delivery note number
   getNextNumber: () => {
-    return apiClient.get('/delivery-notes/number/next');
+    return apiClient.get("/delivery-notes/number/next");
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     // Use axios-based service to leverage interceptors and auth headers
     const blob = await apiService.request({
-      method: 'GET',
+      method: "GET",
       url: `/delivery-notes/${id}/pdf`,
-      responseType: 'blob'
+      responseType: "blob",
     });
     const downloadUrl = window.URL.createObjectURL(blob);
-    
+
     // Get delivery note number for filename
     const deliveryNote = await deliveryNotesAPI.getById(id);
     const filename = `delivery-note-${deliveryNote.delivery_note_number}.pdf`;
-    
+
     // Create download link
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up
     window.URL.revokeObjectURL(downloadUrl);
-  }
+  },
 };
 
 // Enhanced Invoices API methods
 export const invoicesAPI = {
   // Get all invoices with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/invoices', params);
+    return apiClient.get("/invoices", params);
   },
 
   // Get invoice by ID
@@ -144,7 +152,7 @@ export const invoicesAPI = {
 
   // Create invoice
   create: (invoiceData) => {
-    return apiClient.post('/invoices', invoiceData);
+    return apiClient.post("/invoices", invoiceData);
   },
 
   // Update invoice
@@ -164,45 +172,45 @@ export const invoicesAPI = {
 
   // Get next invoice number
   getNextNumber: () => {
-    return apiClient.get('/invoices/number/next');
+    return apiClient.get("/invoices/number/next");
   },
 
   // Get analytics
   getAnalytics: (params = {}) => {
-    return apiClient.get('/invoices/analytics', params);
+    return apiClient.get("/invoices/analytics", params);
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: 'GET',
+      method: "GET",
       url: `/invoices/${id}/pdf`,
-      responseType: 'blob'
+      responseType: "blob",
     });
     const downloadUrl = window.URL.createObjectURL(blob);
-    
+
     // Get invoice number for filename
     const invoice = await invoicesAPI.getById(id);
     const filename = `invoice-${invoice.invoice_number}.pdf`;
-    
+
     // Create download link
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up
     window.URL.revokeObjectURL(downloadUrl);
-  }
+  },
 };
 
 // Purchase Orders API methods
 export const purchaseOrdersAPI = {
   // Get all purchase orders with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/purchase-orders', params);
+    return apiClient.get("/purchase-orders", params);
   },
 
   // Get purchase order by ID
@@ -212,7 +220,7 @@ export const purchaseOrdersAPI = {
 
   // Create purchase order
   create: (poData) => {
-    return apiClient.post('/purchase-orders', poData);
+    return apiClient.post("/purchase-orders", poData);
   },
 
   // Update purchase order
@@ -221,7 +229,9 @@ export const purchaseOrdersAPI = {
   },
   // Update only transit status (if backend supports it)
   updateTransitStatus: (id, transit_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/transit-status`, { transit_status });
+    return apiClient.patch(`/purchase-orders/${id}/transit-status`, {
+      transit_status,
+    });
   },
 
   // Update purchase order status
@@ -231,7 +241,9 @@ export const purchaseOrdersAPI = {
 
   // Update purchase order stock status
   updateStockStatus: (id, stock_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/stock-status`, { stock_status });
+    return apiClient.patch(`/purchase-orders/${id}/stock-status`, {
+      stock_status,
+    });
   },
 
   // Delete purchase order
@@ -241,38 +253,38 @@ export const purchaseOrdersAPI = {
 
   // Get next PO number
   getNextNumber: () => {
-    return apiClient.get('/purchase-orders/number/next');
+    return apiClient.get("/purchase-orders/number/next");
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const apiUrl = `${apiClient.baseURL}/purchase-orders/${id}/pdf`;
     const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders
+      headers: apiClient.defaultHeaders,
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to generate PDF');
+      throw new Error("Failed to generate PDF");
     }
-    
+
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = blobUrl;
     a.download = `PurchaseOrder-${id}.pdf`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
-  }
+  },
 };
 
 // Account Statements API methods
 export const accountStatementsAPI = {
   // Get all account statements with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/account-statements', params);
+    return apiClient.get("/account-statements", params);
   },
 
   // Get account statement by ID
@@ -282,7 +294,7 @@ export const accountStatementsAPI = {
 
   // Create account statement
   create: (data) => {
-    return apiClient.post('/account-statements', data);
+    return apiClient.post("/account-statements", data);
   },
 
   // Update account statement
@@ -299,24 +311,24 @@ export const accountStatementsAPI = {
   downloadPDF: async (id) => {
     const apiUrl = `${apiClient.baseURL}/account-statements/${id}/pdf`;
     const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders
+      headers: apiClient.defaultHeaders,
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to generate PDF');
+      throw new Error("Failed to generate PDF");
     }
-    
+
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = blobUrl;
     a.download = `AccountStatement-${id}.pdf`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
-  }
+  },
 };
 
 // Transit API methods
@@ -324,7 +336,7 @@ export const transitAPI = {
   // Get all items in transit
   getAll: (params = {}) => {
     // This combines data from invoices and purchase orders that are in transit
-    return apiClient.get('/transit', params);
+    return apiClient.get("/transit", params);
   },
 
   // Get transit tracking for specific item
@@ -335,14 +347,14 @@ export const transitAPI = {
   // Update transit status
   updateStatus: (type, id, status) => {
     return apiClient.patch(`/transit/${type}/${id}/status`, { status });
-  }
+  },
 };
 
 // Customers API methods
 export const customersAPI = {
   // Get all customers with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/customers', params);
+    return apiClient.get("/customers", params);
   },
 
   // Get customer by ID
@@ -352,7 +364,7 @@ export const customersAPI = {
 
   // Create customer
   create: (customerData) => {
-    return apiClient.post('/customers', customerData);
+    return apiClient.post("/customers", customerData);
   },
 
   // Update customer
@@ -367,15 +379,15 @@ export const customersAPI = {
 
   // Search customers
   search: (query) => {
-    return apiClient.get('/customers/search', { query });
-  }
+    return apiClient.get("/customers/search", { query });
+  },
 };
 
 // Products API methods
 export const productsAPI = {
   // Get all products with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/products', params);
+    return apiClient.get("/products", params);
   },
 
   // Get product by ID
@@ -385,7 +397,7 @@ export const productsAPI = {
 
   // Create product
   create: (productData) => {
-    return apiClient.post('/products', productData);
+    return apiClient.post("/products", productData);
   },
 
   // Update product
@@ -400,25 +412,25 @@ export const productsAPI = {
 
   // Search products
   search: (query) => {
-    return apiClient.get('/products/search', { query });
+    return apiClient.get("/products/search", { query });
   },
 
   // Get product categories
   getCategories: () => {
-    return apiClient.get('/products/categories');
+    return apiClient.get("/products/categories");
   },
 
   // Get products by category
   getByCategory: (category) => {
     return apiClient.get(`/products/category/${category}`);
-  }
+  },
 };
 
 // Quotations API methods
 export const quotationsAPI = {
   // Get all quotations with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/quotations', params);
+    return apiClient.get("/quotations", params);
   },
 
   // Get quotation by ID
@@ -428,7 +440,7 @@ export const quotationsAPI = {
 
   // Create quotation
   create: (data) => {
-    return apiClient.post('/quotations', data);
+    return apiClient.post("/quotations", data);
   },
 
   // Update quotation
@@ -453,29 +465,29 @@ export const quotationsAPI = {
 
   // Get next quotation number
   getNextNumber: () => {
-    return apiClient.get('/quotations/number/next');
+    return apiClient.get("/quotations/number/next");
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const apiUrl = `${apiClient.baseURL}/quotations/${id}/pdf`;
     const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders
+      headers: apiClient.defaultHeaders,
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to generate PDF');
+      throw new Error("Failed to generate PDF");
     }
-    
+
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = blobUrl;
     a.download = `Quotation-${id}.pdf`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
-  }
+  },
 };
