@@ -1,5 +1,6 @@
 import { apiClient } from './api';
 import { apiService } from './axiosApi';
+import { uuid } from '../utils/uuid';
 
 // Payment method options specific to recording payments (not invoice creation modes)
 export const PAYMENT_METHODS = ['Cash','Cheque','Bank Transfer','UPI','NEFT','RTGS','Other'];
@@ -120,7 +121,7 @@ export const payablesService = {
     } catch (e) {
       // Fallback: store locally so it persists across refresh
       const localPayment = {
-        id: payload.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tmp_${Date.now()}`),
+        id: payload.id || uuid(),
         created_at: new Date().toISOString(),
         ...payload,
       };
@@ -192,7 +193,7 @@ export const payablesService = {
       return { ...saved, ...computePODerived(saved) };
     } catch (e) {
       const localPayment = {
-        id: payload.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tmp_${Date.now()}`),
+        id: payload.id || uuid(),
         created_at: new Date().toISOString(),
         ...payload,
       };
