@@ -657,8 +657,13 @@ const CompanySettings = () => {
       }
       
       // Update company profile with new logo URL
-      // Keep relative URL (e.g., /uploads/...) so Vite proxy can serve it same-origin
-      const newLogoUrl = logoUrl.startsWith('http') ? logoUrl : logoUrl;
+      // Transform localhost URLs to production URLs for deployment
+      let newLogoUrl = logoUrl;
+      if (logoUrl.includes('localhost:5000')) {
+        // In production, replace localhost with the proper domain/CDN
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace('/api', '');
+        newLogoUrl = logoUrl.replace('http://localhost:5000', baseUrl);
+      }
       console.log('Setting new logo URL:', newLogoUrl);
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
       
