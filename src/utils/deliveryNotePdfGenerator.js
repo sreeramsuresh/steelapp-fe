@@ -81,6 +81,7 @@ const createDNElement = (dn, company) => {
           <p style="margin:2px 0;">${safe(custAddr.street || dn.delivery_address?.street || '')}</p>
           <p style="margin:2px 0;">${safe(custAddr.city || dn.delivery_address?.city || '')} ${safe(custAddr.poBox || dn.delivery_address?.po_box || '')}</p>
           <p style="margin:2px 0;"><strong>Delivery Note #:</strong> ${safe(dn.delivery_note_number || dn.id)}</p>
+          <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoice_number || '')}</p>
           <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(dn.delivery_date || dn.created_at || new Date())}</p>
           ${dn.status ? `<p style=\"margin:2px 0; line-height:1.5;\"><strong>Status:</strong> <span style=\"color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;\">${safe(dn.status)}</span></p>` : ''}
         </div>

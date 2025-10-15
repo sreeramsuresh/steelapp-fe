@@ -396,58 +396,46 @@ const DeliveryNoteForm = () => {
               <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Items for Delivery
               </h2>
-              {/* Table content will be converted later */}
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Item</TableCell>
-                      <TableCell>Specification</TableCell>
-                      <TableCell>Unit</TableCell>
-                      <TableCell>Ordered Qty</TableCell>
-                      <TableCell>Deliver Qty</TableCell>
-                      <TableCell>Remaining</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                    <tr>
+                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Item</th>
+                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Specification</th>
+                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Unit</th>
+                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ordered Qty</th>
+                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Deliver Qty</th>
+                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {formData.items.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                            {item.name}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {item.specification || '-'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell>{item.ordered_quantity}</TableCell>
-                        <TableCell>
-                          <TextField
+                      <tr key={index} className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
+                        <td className="px-4 py-3">
+                          <span className="font-medium">{item.name}</span>
+                        </td>
+                        <td className="px-4 py-3">{item.specification || '-'}</td>
+                        <td className="px-4 py-3">{item.unit}</td>
+                        <td className="px-4 py-3 text-right">{item.ordered_quantity}</td>
+                        <td className="px-4 py-3 text-right">
+                          <input
                             type="number"
-                            size="small"
                             value={item.delivered_quantity || ''}
                             onChange={(e) => handleItemQuantityChange(index, 'delivered_quantity', e.target.value)}
-                            inputProps={{ 
-                              min: 0, 
-                              max: item.ordered_quantity,
-                              step: 0.01
-                            }}
-                            sx={{ width: 100 }}
+                            min={0}
+                            max={item.ordered_quantity}
+                            step={0.01}
+                            className={`w-24 px-2 py-1 border rounded ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                           />
-                        </TableCell>
-                        <TableCell>
-                          <Typography 
-                            variant="body2" 
-                            color={item.remaining_quantity === 0 ? 'success.main' : 'warning.main'}
-                          >
-                            {item.remaining_quantity}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                        <td className={`px-4 py-3 text-right ${item.remaining_quantity === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                          {item.remaining_quantity}
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-              {/* Table placeholder */}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
@@ -543,56 +531,7 @@ const DeliveryNoteForm = () => {
         </div>
       </div>
 
-      {/* Invoice Selection Dialog - Temporarily disabled for conversion
-        <DialogTitle>Select Invoice</DialogTitle>
-        <DialogContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Invoice #</TableCell>
-                  <TableCell>Customer</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow key={invoice.id} hover>
-                    <TableCell>{invoice.invoice_number}</TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {invoice.customer_details?.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {invoice.customer_details?.company}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(invoice.invoice_date).toLocaleDateString('en-AE')}
-                    </TableCell>
-                    <TableCell>
-                      د.إ{invoice.total?.toLocaleString('en-AE')}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => handleInvoiceSelect(invoice)}
-                      >
-                        Select
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowInvoiceDialog(false)}>Cancel</Button>
-      */}
+      {/* Invoice Selection Dialog removed during UI de-MUI cleanup */}
 
       {/* Success/Error Notifications - will be converted later */}
       {error && (

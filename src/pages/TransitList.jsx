@@ -90,18 +90,12 @@ const TransitList = () => {
   const fetchTransitPurchaseOrders = async () => {
     try {
       setLoading(true);
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(
-        `${API_BASE_URL}/purchase-orders?stock_status=transit`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setTransitItems(data.purchase_orders || data || []);
-      } else {
-        console.error("Failed to fetch transit purchase orders");
-        setTransitItems([]);
-      }
+      const { apiClient } = await import("../services/api");
+      // Use axios client with interceptors + baseURL + auth
+      const data = await apiClient.get("/purchase-orders", {
+        params: { stock_status: "transit" },
+      });
+      setTransitItems(data.purchase_orders || data || []);
     } catch (error) {
       console.error("Error fetching transit purchase orders:", error);
       setTransitItems([]);

@@ -17,6 +17,9 @@ const axiosApi = axios.create({
   },
 });
 
+// Shared single-flight lock for refresh calls
+let refreshInFlight = null;
+
 // Simple cookie helper (avoid adding deps)
 const cookie = {
   get(name) {
@@ -58,7 +61,7 @@ export const tokenUtils = {
     if (token) cookie.set(COOKIE_ACCESS, token, { days: 1 });
   },
   setRefreshToken: (refreshToken) => {
-    if (refreshToken) cookie.set(COOKIE_REFRESH, refreshToken, { days: 7 });
+    if (refreshToken) cookie.set(COOKIE_REFRESH, refreshToken, { days: 1 });
   },
   removeTokens: () => {
     cookie.remove(COOKIE_ACCESS);
@@ -106,11 +109,14 @@ export const tokenUtils = {
   },
 };
 
-// Request interceptor - Add auth token to requests and check expiration
+// Request interceptor - Add auth token and attempt proactive refresh safely
 axiosApi.interceptors.request.use(async (config) => {
   const token = tokenUtils.getToken();
 
   if (token) {
+    // Always attach whatever token we currently have
+    config.headers.Authorization = `Bearer ${token}`;
+
     // Check if token expires within 1 minute (proactive refresh)
     const expirationTime = tokenUtils.getTokenExpirationTime(token);
     const currentTime = Date.now();
@@ -122,59 +128,80 @@ axiosApi.interceptors.request.use(async (config) => {
       const refreshToken = tokenUtils.getRefreshToken();
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
-          const { data } = await axios.post(
-            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
-            { refreshToken },
-            { withCredentials: true }
-          );
+          // Deduplicate concurrent refresh calls
+          if (!refreshInFlight) {
+            refreshInFlight = axios
+              .post(
+                `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+                { refreshToken },
+                { withCredentials: true }
+              )
+              .then(({ data }) => {
+                const newAccess = data.accessToken || data.token;
+                if (newAccess) {
+                  tokenUtils.setToken(newAccess);
+                  const newRefresh = data.refreshToken || data.refresh_token;
+                  if (newRefresh) tokenUtils.setRefreshToken(newRefresh);
+                }
+                return newAccess;
+              })
+              .finally(() => {
+                refreshInFlight = null;
+              });
+          }
 
-          const newAccess = data.accessToken || data.token;
+          const newAccess = await refreshInFlight;
           if (newAccess) {
-            tokenUtils.setToken(newAccess);
-            if (data.refreshToken)
-              tokenUtils.setRefreshToken(data.refreshToken);
             config.headers.Authorization = `Bearer ${newAccess}`;
             console.log("[Interceptor] Token refreshed proactively");
           }
         } catch (error) {
           console.error("[Interceptor] Proactive refresh failed:", error);
-          // Continue with expired token - let response interceptor handle it
+          // Keep existing Authorization header; response interceptor may handle
         }
       }
-    } else {
-      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
   return config;
 });
 
-// Response interceptor - Handle token refresh (403 only)
+// Response interceptor - Handle token refresh (401/403)
 axiosApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
     const status = error.response?.status;
-    // Match GigLabz: trigger refresh only on 403
-    if (status === 403 && !originalRequest._retry) {
+    // Try refresh on 401 Unauthorized or 403 Forbidden
+    if ((status === 401 || status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = tokenUtils.getRefreshToken();
 
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
           console.log("[Interceptor] Attempting token refresh");
-          const { data } = await axios.post(
-            `${API_BASE_URL}${REFRESH_ENDPOINT}`,
-            { refreshToken },
-            { withCredentials: true }
-          );
+          // Reuse in-flight refresh if one is running
+          if (!refreshInFlight) {
+            refreshInFlight = axios
+              .post(
+                `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+                { refreshToken },
+                { withCredentials: true }
+              )
+              .finally(() => {
+                // allow subsequent refreshes
+                refreshInFlight = null;
+              });
+          }
 
-          const newAccess = data.accessToken;
+          const { data } = await refreshInFlight;
+          const newAccess = data.accessToken || data.token;
           if (!newAccess) throw new Error("No accessToken in refresh response");
 
           tokenUtils.setToken(newAccess);
-          if (data.refreshToken) tokenUtils.setRefreshToken(data.refreshToken);
+          const newRefresh = data.refreshToken || data.refresh_token;
+          if (newRefresh) tokenUtils.setRefreshToken(newRefresh);
 
           // Retry the original request with new token
           originalRequest.headers.Authorization = `Bearer ${newAccess}`;
@@ -215,6 +242,29 @@ export const apiService = {
       return response.data;
     } catch (error) {
       console.error(`GET ${url} error:`, error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  // Remove empty query params
+  cleanParams: (params = {}) => {
+    try {
+      return Object.fromEntries(
+        Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "")
+      );
+    } catch {
+      return params || {};
+    }
+  },
+
+  // Generic request for advanced use-cases (e.g., blobs)
+  request: async (config = {}) => {
+    try {
+      const response = await axiosApi.request(config);
+      return response.data;
+    } catch (error) {
+      const label = `${config.method || 'GET'} ${config.url}`;
+      console.error(`${label} error:`, error.response?.data || error.message);
       throw error;
     }
   },

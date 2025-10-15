@@ -153,7 +153,6 @@ const createInvoiceElement = (invoice, company) => {
           <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${safe(invoice.invoiceNumber)}</p>
           <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
           <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
-          <p style="margin: 4px 0; line-height: 1.5;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #eff6ff; border: 1px solid #2563eb; border-radius: 4px; white-space: nowrap;">${safe(invoice.status)}</span></p>
           ${invoice.customerPurchaseOrderNumber ? `<p style="margin: 4px 0;"><strong>Customer PO #:</strong> ${safe(invoice.customerPurchaseOrderNumber)}</p>` : ''}
           ${invoice.customerPurchaseOrderDate ? `<p style="margin: 4px 0;"><strong>Customer PO Date:</strong> ${formatDate(invoice.customerPurchaseOrderDate)}</p>` : ''}
         </div>

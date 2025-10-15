@@ -258,16 +258,12 @@ export const purchaseOrdersAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const apiUrl = `${apiClient.baseURL}/purchase-orders/${id}/pdf`;
-    const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders,
+    const { apiService } = await import("./axiosApi");
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/purchase-orders/${id}/pdf`,
+      responseType: "blob",
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to generate PDF");
-    }
-
-    const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
@@ -309,16 +305,12 @@ export const accountStatementsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const apiUrl = `${apiClient.baseURL}/account-statements/${id}/pdf`;
-    const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders,
+    const { apiService } = await import("./axiosApi");
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/account-statements/${id}/pdf`,
+      responseType: "blob",
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to generate PDF");
-    }
-
-    const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
@@ -470,16 +462,12 @@ export const quotationsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const apiUrl = `${apiClient.baseURL}/quotations/${id}/pdf`;
-    const response = await fetch(apiUrl, {
-      headers: apiClient.defaultHeaders,
+    const { apiService } = await import("./axiosApi");
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/quotations/${id}/pdf`,
+      responseType: "blob",
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to generate PDF");
-    }
-
-    const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";

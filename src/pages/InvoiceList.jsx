@@ -42,6 +42,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [downloadingIds, setDownloadingIds] = useState(new Set());
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [createdDeliveryNote, setCreatedDeliveryNote] = useState(null);
   const [searchParams] = useSearchParams();
 
   const company = createCompany();
@@ -230,29 +232,42 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handleCreateDeliveryNote = async (invoice) => {
     try {
-      // Create delivery note by calling the API to generate one for this invoice
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(
-        `${API_BASE_URL}/invoices/${invoice.id}/generate-delivery-note`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const confirmed = window.confirm(
+        `Create a delivery note for Invoice #${invoice.invoice_number || invoice.invoiceNumber}?`+
+        `\nNote: Only one delivery note is allowed per invoice.`
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to create delivery note");
-      }
+      if (!confirmed) return;
+      // Create delivery note using axios client (auth + baseURL + refresh)
+      const { apiClient } = await import("../services/api");
+      const resp = await apiClient.post(`/invoices/${invoice.id}/generate-delivery-note`);
+      const dn = resp?.delivery_note || resp?.data?.delivery_note || resp;
 
       notificationService.createSuccess("Delivery note");
-
-      // Refresh the invoices to get updated delivery note status
+      // Open modal with the created delivery note
+      if (dn && dn.id) {
+        setCreatedDeliveryNote(dn);
+        setShowDeliveryModal(true);
+      }
+      // Refresh invoices to get updated status
       fetchInvoices();
     } catch (error) {
       console.error("Error creating delivery note:", error);
+      // If a delivery note already exists, fetch it and open modal
+      const msg = error?.response?.data?.error || error?.message || "";
+      if (String(msg).toLowerCase().includes("already exists")) {
+        try {
+          const list = await deliveryNotesAPI.getAll({ invoice_id: invoice.id, limit: 1, page: 1 });
+          const dn = Array.isArray(list?.delivery_notes) ? list.delivery_notes[0] : (Array.isArray(list) ? list[0] : null);
+          if (dn) {
+            setCreatedDeliveryNote(dn);
+            setShowDeliveryModal(true);
+            notificationService.warning("Delivery note already exists. Showing it.");
+            return;
+          }
+        } catch (e) {
+          // ignore and fall through to error toast
+        }
+      }
       notificationService.createError("Delivery note", error);
     }
   };
@@ -275,6 +290,84 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       </div>
     );
   }
+
+  // Delivery Note Preview Modal
+  const DeliveryNoteModal = () => {
+    if (!showDeliveryModal || !createdDeliveryNote) return null;
+    const dn = createdDeliveryNote;
+    const items = Array.isArray(dn.items) ? dn.items : [];
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className={`w-full max-w-3xl rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F] text-white' : 'bg-white border-[#E0E0E0] text-gray-900'}`}>
+          <div className={`flex items-center justify-between px-6 py-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+            <div className="flex items-center gap-3">
+              <Truck className="text-teal-600" size={20} />
+              <div className="font-semibold">Delivery Note {dn.delivery_note_number}</div>
+            </div>
+            <button onClick={() => setShowDeliveryModal(false)} className={isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}>
+              <X size={18} />
+            </button>
+          </div>
+          <div className="px-6 py-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <div className="text-sm text-gray-500">Invoice #</div>
+                <div className="font-medium text-teal-600">{dn.invoice_number || '-'}</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Delivery Date</div>
+                <div className="font-medium">{formatDate(dn.delivery_date)}</div>
+              </div>
+              <div className="col-span-2">
+                <div className="text-sm text-gray-500">Customer</div>
+                <div className="font-medium">{dn.customer_details?.name || '-'}</div>
+              </div>
+            </div>
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="w-full text-sm">
+                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                  <tr>
+                    <th className="px-3 py-2 text-left">Item</th>
+                    <th className="px-3 py-2 text-left">Spec</th>
+                    <th className="px-3 py-2 text-left">Unit</th>
+                    <th className="px-3 py-2 text-right">Ordered</th>
+                    <th className="px-3 py-2 text-right">Delivered</th>
+                    <th className="px-3 py-2 text-right">Remaining</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((it) => (
+                    <tr key={it.id} className={isDarkMode ? 'border-b border-[#37474F]' : 'border-b border-gray-100'}>
+                      <td className="px-3 py-2">{it.name}</td>
+                      <td className="px-3 py-2">{it.specification || '-'}</td>
+                      <td className="px-3 py-2">{it.unit || ''}</td>
+                      <td className="px-3 py-2 text-right">{it.ordered_quantity}</td>
+                      <td className="px-3 py-2 text-right">{it.delivered_quantity}</td>
+                      <td className="px-3 py-2 text-right">{it.remaining_quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className={`px-6 py-4 border-t flex justify-end gap-3 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+            <button
+              onClick={() => navigate(`/delivery-notes/${dn.id}`)}
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-500"
+            >
+              View Full Details
+            </button>
+            <button
+              onClick={() => setShowDeliveryModal(false)}
+              className={isDarkMode ? 'px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700' : 'px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-800 hover:bg-gray-50'}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (invoices.length === 0 && !loading) {
     return (
