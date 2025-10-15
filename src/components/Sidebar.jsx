@@ -195,7 +195,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           </div>
           <div>
             <div className="font-bold text-lg leading-tight">
-              Steel Invoice Pro
+              ULTIMATE STEELS
             </div>
             <div className={`text-xs opacity-70 ${
               isDarkMode ? 'text-gray-400' : 'text-gray-600'

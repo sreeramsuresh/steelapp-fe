@@ -85,7 +85,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               style={{ color: isDarkMode ? '#9ca3af' : '#6b7280' }}
               className="text-xs -mt-1"
             >
-              Steel Invoice Pro
+              ULTIMATE STEELS
             </p>
           </div>
         </div>
