@@ -11,7 +11,7 @@ class AuthService {
     this.isInitialized = true;
   }
 
-  // Login user (matching GigLabz approach)
+  // Login user (supporting both response formats)
   async login(email, password) {
     try {
       const response = await apiService.post("/auth/login", {
@@ -19,18 +19,26 @@ class AuthService {
         password,
       });
 
-      if (response.accessToken && response.refreshToken && response.user) {
-        const { accessToken, refreshToken, user } = response;
-        
-        // Store tokens in cookies (matching GigLabz)
+      console.log("Login response:", response); // Debug log
+
+      // Support both response formats: SteelApp (token) and GigLabz (accessToken)
+      const accessToken = response.accessToken || response.token;
+      const refreshToken = response.refreshToken || response.refresh_token;
+      const user = response.user;
+
+      if (accessToken && user) {
+        // Store tokens in cookies
         tokenUtils.setToken(accessToken);
-        tokenUtils.setRefreshToken(refreshToken);
+        if (refreshToken) {
+          tokenUtils.setRefreshToken(refreshToken);
+        }
         
-        // Store user data in sessionStorage (matching GigLabz)
+        // Store user data in sessionStorage
         tokenUtils.setUser(user);
         
         return response;
       } else {
+        console.error("Missing required fields in response:", { accessToken, refreshToken, user });
         throw new Error("Invalid response format from server");
       }
     } catch (error) {
@@ -116,10 +124,18 @@ class AuthService {
         refreshToken,
       });
 
-      if (response.accessToken && response.refreshToken) {
-        tokenUtils.setToken(response.accessToken);
-        tokenUtils.setRefreshToken(response.refreshToken);
-        return response.accessToken;
+      console.log("Refresh response:", response); // Debug log
+
+      // Support both response formats
+      const newAccessToken = response.accessToken || response.token;
+      const newRefreshToken = response.refreshToken || response.refresh_token;
+
+      if (newAccessToken) {
+        tokenUtils.setToken(newAccessToken);
+        if (newRefreshToken) {
+          tokenUtils.setRefreshToken(newRefreshToken);
+        }
+        return newAccessToken;
       }
 
       throw new Error("Token refresh failed - no tokens in response");

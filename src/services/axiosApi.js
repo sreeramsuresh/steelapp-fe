@@ -70,13 +70,21 @@ api.interceptors.response.use(
           refreshToken,
         });
         
-        if (data.accessToken && data.refreshToken) {
+        console.log("[Interceptor] Refresh response:", data); // Debug log
+        
+        // Support both response formats
+        const newAccessToken = data.accessToken || data.token;
+        const newRefreshToken = data.refreshToken || data.refresh_token;
+        
+        if (newAccessToken) {
           // Store new tokens
-          Cookies.set("accessToken", data.accessToken);
-          Cookies.set("refreshToken", data.refreshToken, { expires: 7 });
+          Cookies.set("accessToken", newAccessToken);
+          if (newRefreshToken) {
+            Cookies.set("refreshToken", newRefreshToken, { expires: 7 });
+          }
           
           // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } else {
           throw new Error("No tokens in refresh response");
