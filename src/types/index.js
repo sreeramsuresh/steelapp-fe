@@ -1,4 +1,5 @@
 // Default data structures for the invoice application
+import { uuid } from '../utils/uuid';
 
 export const createCustomer = () => ({
   id: '',
@@ -25,7 +26,7 @@ export const createCustomer = () => ({
 });
 
 export const createSteelItem = () => ({
-  id: crypto.randomUUID(),
+  id: uuid(),
   productId: null,
   name: '',
   grade: '',
@@ -50,7 +51,7 @@ export const createSteelItem = () => ({
 });
 
 export const createInvoice = () => ({
-  id: crypto.randomUUID(),
+  id: uuid(),
   invoiceNumber: '',
   date: new Date().toISOString().split('T')[0],
   dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -134,7 +135,7 @@ export const UAE_CITIES = [
 ];
 
 export const createStockMovement = () => ({
-  id: crypto.randomUUID(),
+  id: uuid(),
   date: new Date().toISOString().split('T')[0],
   movement: 'IN', // 'IN' or 'OUT'
   productType: '',
@@ -149,7 +150,7 @@ export const createStockMovement = () => ({
 });
 
 export const createInventoryItem = () => ({
-  id: crypto.randomUUID(),
+  id: uuid(),
   description: '',
   productType: '',
   grade: '',

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { payablesService, PAYMENT_METHODS } from '../services/payablesService';
+import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
 import { notificationService } from '../services/notificationService';
@@ -157,7 +158,7 @@ const InvoicesTab = ({ canManage }) => {
     if (Number(amount) > outstanding) return alert('Amount exceeds outstanding');
     // Optimistic update
     const newPayment = {
-      id: crypto.randomUUID(),
+      id: uuid(),
       payment_date: payment_date || new Date().toISOString().slice(0,10),
       amount: Number(amount),
       method, reference_no, notes, created_at: new Date().toISOString(),
@@ -369,7 +370,7 @@ const InvoicesTab = ({ canManage }) => {
             <div className="flex gap-2">
               <button className={`px-3 py-2 rounded border ${canManage ? '' : 'text-gray-400 cursor-not-allowed'}`} disabled={!canManage} onClick={()=>{
                 // Mark selected as paid (optimistic)
-                setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, received: (i.received||0)+(i.outstanding||0), outstanding: 0, status:'paid', payments: [...(i.payments||[]), { id: crypto.randomUUID(), amount: i.outstanding||0, method:'Other', payment_date: new Date().toISOString().slice(0,10) }] } : i));
+                setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, received: (i.received||0)+(i.outstanding||0), outstanding: 0, status:'paid', payments: [...(i.payments||[]), { id: uuid(), amount: i.outstanding||0, method:'Other', payment_date: new Date().toISOString().slice(0,10) }] } : i));
                 setSelected(new Set());
               }}><CheckCircle size={16} className="inline mr-1"/>Mark as Paid</button>
               <button className="px-3 py-2 rounded border" onClick={()=>exportInvoices()}><Download size={16} className="inline mr-1"/>Export</button>
@@ -559,7 +560,7 @@ const POTab = ({ canManage }) => {
     const balance = Number(po.balance || 0);
     if (!(Number(amount) > 0)) return alert('Amount must be > 0');
     if (Number(amount) > balance) return alert('Amount exceeds balance');
-    const newPayment = { id: crypto.randomUUID(), payment_date: payment_date || new Date().toISOString().slice(0,10), amount: Number(amount), method, reference_no, notes };
+    const newPayment = { id: uuid(), payment_date: payment_date || new Date().toISOString().slice(0,10), amount: Number(amount), method, reference_no, notes };
     const updated = { ...po, payments: [...(po.payments||[]), newPayment] };
     const paid = (po.paid||0)+newPayment.amount; const newBal = Math.max(0, +(balance - newPayment.amount).toFixed(2));
     let status='unpaid'; if (newBal===0) status='paid'; else if (newBal<(po.po_value||0)) status='partially_paid';

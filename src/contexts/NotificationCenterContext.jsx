@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { apiClient } from '../services/api';
+import { uuid } from '../utils/uuid';
 
 const NotificationCenterContext = createContext(null);
 
@@ -31,7 +32,7 @@ export const NotificationCenterProvider = ({ children }) => {
   };
 
   const normalize = (list = []) => list.map(n => ({
-    id: n.id ?? crypto.randomUUID(),
+    id: n.id ?? uuid(),
     title: n.title ?? 'Notification',
     message: n.message ?? '',
     time: n.time ?? new Date().toISOString(),
