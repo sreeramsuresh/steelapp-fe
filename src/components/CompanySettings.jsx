@@ -28,10 +28,12 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
+import { authService } from '../services/axiosAuthService';
 import { templateService } from '../services/templateService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
+import { userAdminAPI } from '../services/userAdminApi';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -396,6 +398,7 @@ const CompanySettings = () => {
   const [taxSettings, setTaxSettings] = useState([]);
   const [users, setUsers] = useState([]);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [editUserModal, setEditUserModal] = useState({ open: false, user: null });
   const [showAddTaxModal, setShowAddTaxModal] = useState(false);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -407,7 +410,12 @@ const CompanySettings = () => {
       customers: { create: false, read: false, update: false, delete: false },
       products: { create: false, read: false, update: false, delete: false },
       analytics: { read: false },
-      settings: { read: false, update: false }
+      settings: { read: false, update: false },
+      payables: { create: false, read: false, update: false, delete: false },
+      invoices_all: { create: false, read: false, update: false, delete: false },
+      quotations: { create: false, read: false, update: false, delete: false },
+      delivery_notes: { create: false, read: false, update: false, delete: false },
+      purchase_orders: { create: false, read: false, update: false, delete: false }
     }
   });
 
@@ -420,6 +428,44 @@ const CompanySettings = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  // Formatters
+  const formatDateTime = (value) => {
+    if (!value) return 'Never';
+    try {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return String(value);
+      return d.toLocaleString('en-AE', {
+        year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch {
+      return String(value);
+    }
+  };
+  const formatDateOnly = (value) => {
+    if (!value) return '';
+    try {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return String(value);
+      return d.toLocaleDateString('en-AE', { year: 'numeric', month: 'short', day: '2-digit' });
+    } catch {
+      return String(value);
+    }
+  };
+
+  // Permission module label mapping
+  const moduleLabel = (module) => {
+    const map = {
+      invoices: 'Create Invoices',
+      invoices_all: 'All Invoices',
+      purchase_orders: 'Purchase Orders',
+      delivery_notes: 'Delivery Notes',
+      quotations: 'Quotations',
+      payables: 'Payables',
+    };
+    return map[module] || module.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  };
 
   // Set up theme integration for notifications
   useEffect(() => {
@@ -456,9 +502,8 @@ const CompanySettings = () => {
       });
     }
 
-    // Load tax and user settings (still using localStorage for now)
+    // Load tax settings (local fallback)
     const savedTaxSettings = localStorage.getItem('steel-app-tax-settings');
-    const savedUsers = localStorage.getItem('steel-app-users');
 
     if (savedTaxSettings) {
       setTaxSettings(JSON.parse(savedTaxSettings));
@@ -472,46 +517,26 @@ const CompanySettings = () => {
       setTaxSettings(defaultTaxes);
     }
 
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    } else {
-      // Default users
-      const defaultUsers = [
-        {
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@steelindustries.com',
-          role: 'admin',
-          status: 'active',
-          createdAt: '2024-01-01',
-          lastLogin: '2024-12-14',
-          permissions: {
-            invoices: { create: true, read: true, update: true, delete: true },
-            customers: { create: true, read: true, update: true, delete: true },
-            products: { create: true, read: true, update: true, delete: true },
-            analytics: { read: true },
-            settings: { read: true, update: true }
-          }
-        },
-        {
-          id: '2',
-          name: 'Sales Manager',
-          email: 'manager@steelindustries.com',
-          role: 'manager',
-          status: 'active',
-          createdAt: '2024-02-15',
-          lastLogin: '2024-12-13',
-          permissions: {
-            invoices: { create: true, read: true, update: true, delete: false },
-            customers: { create: true, read: true, update: true, delete: false },
-            products: { create: false, read: true, update: false, delete: false },
-            analytics: { read: true },
-            settings: { read: false, update: false }
-          }
-        }
-      ];
-      setUsers(defaultUsers);
-    }
+    // Load users from backend (admin only)
+    (async () => {
+      try {
+        const remoteUsers = await userAdminAPI.list();
+        const mapped = remoteUsers.map(u => ({
+          id: String(u.id),
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          status: u.status || 'active',
+          createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+          lastLogin: u.last_login || u.lastLogin || null,
+          permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+        }));
+        setUsers(mapped);
+      } catch (e) {
+        console.warn('Failed to load users from backend:', e?.response?.data || e?.message);
+        setUsers([]);
+      }
+    })();
   }, [templatesData]);
 
   const saveCompanyProfile = async () => {
@@ -592,9 +617,7 @@ const CompanySettings = () => {
     localStorage.setItem('steel-app-tax-settings', JSON.stringify(taxSettings));
   };
 
-  const saveUsers = () => {
-    localStorage.setItem('steel-app-users', JSON.stringify(users));
-  };
+  const saveUsers = () => {};
 
   const handleLogoUpload = async (event) => {
     console.log('handleLogoUpload called', event);
@@ -713,31 +736,46 @@ const CompanySettings = () => {
     }
   };
 
-  const handleAddUser = () => {
-    const user = {
-      ...newUser,
-      id: Date.now().toString(),
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: null
-    };
-    const updatedUsers = [...users, user];
-    setUsers(updatedUsers);
-    saveUsers();
-    setNewUser({
-      name: '',
-      email: '',
-      role: 'user',
-      password: '',
-      permissions: {
-        invoices: { create: false, read: false, update: false, delete: false },
-        customers: { create: false, read: false, update: false, delete: false },
-        products: { create: false, read: false, update: false, delete: false },
-        analytics: { read: false },
-        settings: { read: false, update: false }
-      }
-    });
-    setShowAddUserModal(false);
+  const handleAddUser = async () => {
+    try {
+      const payload = {
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password,
+        role: newUser.role,
+        permissions: newUser.permissions,
+      };
+      await userAdminAPI.create(payload);
+      notificationService.success('User created successfully!');
+      const remoteUsers = await userAdminAPI.list();
+      const mapped = remoteUsers.map(u => ({
+        id: String(u.id),
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        status: u.status || 'active',
+        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.last_login || u.lastLogin || null,
+        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+      }));
+      setUsers(mapped);
+      setNewUser({
+        name: '',
+        email: '',
+        role: 'user',
+        password: '',
+        permissions: {
+          invoices: { create: false, read: false, update: false, delete: false },
+          customers: { create: false, read: false, update: false, delete: false },
+          products: { create: false, read: false, update: false, delete: false },
+          analytics: { read: false },
+          settings: { read: false, update: false }
+        }
+      });
+      setShowAddUserModal(false);
+    } catch (e) {
+      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to add user');
+    }
   };
 
   const handleAddTax = () => {
@@ -776,35 +814,55 @@ const CompanySettings = () => {
     }
   };
 
-  const toggleUserStatus = (userId) => {
-    const updatedUsers = users.map(user =>
-      user.id === userId ? { 
-        ...user, 
-        status: user.status === 'active' ? 'inactive' : 'active' 
-      } : user
-    );
-    setUsers(updatedUsers);
-    saveUsers();
+  const toggleUserStatus = async (userId) => {
+    try {
+      const u = users.find(x => x.id === userId);
+      if (!u) return;
+      const newStatus = u.status === 'active' ? 'inactive' : 'active';
+      await userAdminAPI.update(userId, { status: newStatus });
+      const remoteUsers = await userAdminAPI.list();
+      const mapped = remoteUsers.map(u => ({
+        id: String(u.id),
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        status: u.status || 'active',
+        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.last_login || u.lastLogin || null,
+        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+      }));
+      setUsers(mapped);
+      notificationService.success('User status updated');
+    } catch (e) {
+      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to update user');
+    }
   };
 
-  const deleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      const updatedUsers = users.filter(user => user.id !== userId);
-      setUsers(updatedUsers);
-      saveUsers();
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await userAdminAPI.remove(userId);
+      const remoteUsers = await userAdminAPI.list();
+      const mapped = remoteUsers.map(u => ({
+        id: String(u.id),
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        status: u.status || 'active',
+        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.last_login || u.lastLogin || null,
+        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+      }));
+      setUsers(mapped);
       notificationService.success('User deleted successfully!');
+    } catch (e) {
+      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to delete user');
     }
   };
 
   const handleRoleChange = (role) => {
-    let permissions = {
-      invoices: { create: false, read: false, update: false, delete: false },
-      customers: { create: false, read: false, update: false, delete: false },
-      products: { create: false, read: false, update: false, delete: false },
-      analytics: { read: false },
-      settings: { read: false, update: false }
-    };
-
+    // Align permissions with backend defaultPermissions in routes/auth.js
+    let permissions;
     switch (role) {
       case 'admin':
         permissions = {
@@ -812,39 +870,218 @@ const CompanySettings = () => {
           customers: { create: true, read: true, update: true, delete: true },
           products: { create: true, read: true, update: true, delete: true },
           analytics: { read: true },
-          settings: { read: true, update: true }
+          settings: { read: true, update: true },
+          payables: { create: true, read: true, update: true, delete: true },
+          invoices_all: { create: true, read: true, update: true, delete: true },
+          quotations: { create: true, read: true, update: true, delete: true },
+          delivery_notes: { create: true, read: true, update: true, delete: true },
+          purchase_orders: { create: true, read: true, update: true, delete: true },
         };
         break;
       case 'manager':
         permissions = {
           invoices: { create: true, read: true, update: true, delete: false },
           customers: { create: true, read: true, update: true, delete: false },
-          products: { create: false, read: true, update: false, delete: false },
+          products: { create: true, read: true, update: true, delete: false },
           analytics: { read: true },
-          settings: { read: false, update: false }
+          settings: { read: true, update: false },
+          payables: { create: true, read: true, update: true, delete: false },
+          invoices_all: { create: true, read: true, update: true, delete: false },
+          quotations: { create: true, read: true, update: true, delete: false },
+          delivery_notes: { create: true, read: true, update: true, delete: false },
+          purchase_orders: { create: true, read: true, update: true, delete: false },
         };
         break;
       case 'user':
         permissions = {
-          invoices: { create: true, read: true, update: false, delete: false },
-          customers: { create: false, read: true, update: false, delete: false },
+          invoices: { create: true, read: true, update: true, delete: false },
+          customers: { create: true, read: true, update: true, delete: false },
           products: { create: false, read: true, update: false, delete: false },
           analytics: { read: false },
-          settings: { read: false, update: false }
+          settings: { read: false, update: false },
+          payables: { create: false, read: true, update: false, delete: false },
+          invoices_all: { create: false, read: true, update: false, delete: false },
+          quotations: { create: false, read: true, update: false, delete: false },
+          delivery_notes: { create: false, read: true, update: false, delete: false },
+          purchase_orders: { create: false, read: true, update: false, delete: false },
         };
         break;
-      case 'viewer':
+      default: // 'viewer'
         permissions = {
           invoices: { create: false, read: true, update: false, delete: false },
           customers: { create: false, read: true, update: false, delete: false },
           products: { create: false, read: true, update: false, delete: false },
+          analytics: { read: false },
+          settings: { read: false, update: false },
+          payables: { create: false, read: true, update: false, delete: false },
+          invoices_all: { create: false, read: true, update: false, delete: false },
+          quotations: { create: false, read: true, update: false, delete: false },
+          delivery_notes: { create: false, read: true, update: false, delete: false },
+          purchase_orders: { create: false, read: true, update: false, delete: false },
+        };
+    }
+    setNewUser({ ...newUser, role, permissions });
+  };
+
+  // Edit user handlers
+  const openEditUser = (user) => {
+    // Ensure new modules exist in permissions for editing visibility
+    const ensureModules = (p) => {
+      const base = { ...p };
+      const mods = ['invoices','invoices_all','purchase_orders','delivery_notes','quotations','payables','customers','products','analytics','settings'];
+      for (const m of mods) {
+        if (base[m] === undefined) base[m] = { read: false };
+      }
+      return base;
+    };
+    setEditUserModal({
+      open: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        permissions: ensureModules(JSON.parse(JSON.stringify(user.permissions || {}))),
+      },
+    });
+  };
+
+  const setEditPermission = (module, action, value) => {
+    setEditUserModal(prev => ({
+      ...prev,
+      user: {
+        ...prev.user,
+        permissions: {
+          ...prev.user.permissions,
+          [module]: { ...(prev.user.permissions?.[module] || {}), [action]: value },
+        },
+      },
+    }));
+  };
+
+  const handleEditRoleChange = (role) => {
+    // reuse role mapping
+    setNewUser({ ...newUser, role });
+    // apply to edit user by invoking mapping and copying
+    const snapshot = { ...newUser, role };
+    // build permissions by calling handleRoleChange-like map
+    let perms;
+    switch (role) {
+      case 'admin':
+        perms = {
+          invoices: { create: true, read: true, update: true, delete: true },
+          customers: { create: true, read: true, update: true, delete: true },
+          products: { create: true, read: true, update: true, delete: true },
           analytics: { read: true },
-          settings: { read: false, update: false }
+          settings: { read: true, update: true },
+          payables: { create: true, read: true, update: true, delete: true },
+          invoices_all: { create: true, read: true, update: true, delete: true },
+          quotations: { create: true, read: true, update: true, delete: true },
+          delivery_notes: { create: true, read: true, update: true, delete: true },
+          purchase_orders: { create: true, read: true, update: true, delete: true },
         };
         break;
+      case 'manager':
+        perms = {
+          invoices: { create: true, read: true, update: true, delete: false },
+          customers: { create: true, read: true, update: true, delete: false },
+          products: { create: true, read: true, update: true, delete: false },
+          analytics: { read: true },
+          settings: { read: true, update: false },
+          payables: { create: true, read: true, update: true, delete: false },
+          invoices_all: { create: true, read: true, update: true, delete: false },
+          quotations: { create: true, read: true, update: true, delete: false },
+          delivery_notes: { create: true, read: true, update: true, delete: false },
+          purchase_orders: { create: true, read: true, update: true, delete: false },
+        };
+        break;
+      case 'user':
+        perms = {
+          invoices: { create: true, read: true, update: true, delete: false },
+          customers: { create: true, read: true, update: true, delete: false },
+          products: { create: false, read: true, update: false, delete: false },
+          analytics: { read: false },
+          settings: { read: false, update: false },
+          payables: { create: false, read: true, update: false, delete: false },
+          invoices_all: { create: false, read: true, update: false, delete: false },
+          quotations: { create: false, read: true, update: false, delete: false },
+          delivery_notes: { create: false, read: true, update: false, delete: false },
+          purchase_orders: { create: false, read: true, update: false, delete: false },
+        };
+        break;
+      default:
+        perms = {
+          invoices: { create: false, read: true, update: false, delete: false },
+          customers: { create: false, read: true, update: false, delete: false },
+          products: { create: false, read: true, update: false, delete: false },
+          analytics: { read: false },
+          settings: { read: false, update: false },
+          payables: { create: false, read: true, update: false, delete: false },
+          invoices_all: { create: false, read: true, update: false, delete: false },
+          quotations: { create: false, read: true, update: false, delete: false },
+          delivery_notes: { create: false, read: true, update: false, delete: false },
+          purchase_orders: { create: false, read: true, update: false, delete: false },
+        };
     }
+    setEditUserModal(prev => ({ ...prev, user: { ...prev.user, role, permissions: perms } }));
+  };
 
-    setNewUser({ ...newUser, role, permissions });
+  const saveEditUser = async () => {
+    try {
+      const currentUser = authService.getUser();
+      const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
+
+      // Handle password change: self requires current+new+confirm; admin-reset allows new+confirm only
+      if (editUserModal.user.newPassword || editUserModal.user.currentPassword || editUserModal.user.confirmPassword) {
+        if (!editUserModal.user.newPassword || !editUserModal.user.confirmPassword) {
+          notificationService.error('Please enter new and confirm password');
+          return;
+        }
+        if (editUserModal.user.newPassword !== editUserModal.user.confirmPassword) {
+          notificationService.error('New password and confirm password do not match');
+          return;
+        }
+        if (isSelf) {
+          if (!editUserModal.user.currentPassword) {
+            notificationService.error('Please enter your current password');
+            return;
+          }
+          // Call self password change endpoint
+          await apiService.post('/auth/change-password', {
+            currentPassword: editUserModal.user.currentPassword,
+            newPassword: editUserModal.user.newPassword,
+          });
+        } else {
+          // Admin reset password via admin users API
+          await userAdminAPI.update(editUserModal.user.id, { password: editUserModal.user.newPassword });
+        }
+      }
+
+      // Update role/permissions if changed
+      await userAdminAPI.update(editUserModal.user.id, {
+        role: editUserModal.user.role,
+        permissions: editUserModal.user.permissions,
+      });
+      notificationService.success('User updated successfully');
+      const remoteUsers = await userAdminAPI.list();
+      const mapped = remoteUsers.map(u => ({
+        id: String(u.id),
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        status: u.status || 'active',
+        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.last_login || u.lastLogin || null,
+        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+      }));
+      setUsers(mapped);
+      setEditUserModal({ open: false, user: null });
+    } catch (e) {
+      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to update user');
+    }
   };
 
   const renderProfile = () => (
@@ -1419,6 +1656,12 @@ const CompanySettings = () => {
                       label={user.status === 'active' ? 'Active' : 'Inactive'}
                     />
                     <button
+                      onClick={() => openEditUser(user)}
+                      className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'}`}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
                       onClick={() => deleteUser(user.id)}
                       className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                     >
@@ -1436,7 +1679,7 @@ const CompanySettings = () => {
                       Created
                     </p>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {user.createdAt}
+                      {formatDateOnly(user.createdAt)}
                     </p>
                   </div>
                   <div>
@@ -1444,7 +1687,7 @@ const CompanySettings = () => {
                       Last Login
                     </p>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {user.lastLogin || 'Never'}
+                      {formatDateTime(user.lastLogin)}
                     </p>
                   </div>
                 </div>
@@ -1574,8 +1817,8 @@ const CompanySettings = () => {
                   {Object.entries(newUser.permissions).map(([module, perms]) => (
                     <SettingsCard key={module}>
                       <div className="p-4">
-                        <h5 className={`text-sm font-semibold mb-3 capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {module}
+                        <h5 className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {moduleLabel(module)}
                         </h5>
                         <div className="space-y-2">
                           {typeof perms === 'object' ? (
@@ -1634,14 +1877,185 @@ const CompanySettings = () => {
           </div>
         </div>
       )}
+
+      {/* Edit User Modal */}
+      {editUserModal.open && editUserModal.user && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Edit User
+                </h3>
+                <button
+                  onClick={() => setEditUserModal({ open: false, user: null })}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="Full Name"
+                  value={editUserModal.user.name}
+                  onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, name: e.target.value } }))}
+                  placeholder="Enter full name"
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={editUserModal.user.email}
+                  onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, email: e.target.value } }))}
+                  placeholder="Enter email address"
+                />
+                <div>
+                  <Select
+                    label="Role"
+                    value={editUserModal.user.role}
+                    onChange={(e) => handleEditRoleChange(e.target.value)}
+                    options={userRoles.map(role => ({ value: role.id, label: role.name }))}
+                  />
+                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {userRoles.find(r => r.id === editUserModal.user.role)?.description}
+                  </p>
+                </div>
+                {/* Password change / reset */}
+                {(() => {
+                  const currentUser = authService.getUser();
+                  const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
+                  if (isSelf) {
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
+                        <TextField
+                          label="Current Password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={editUserModal.user.currentPassword}
+                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, currentPassword: e.target.value } }))}
+                          placeholder="Enter current password"
+                        />
+                        <TextField
+                          label="New Password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={editUserModal.user.newPassword}
+                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, newPassword: e.target.value } }))}
+                          placeholder="Enter new password"
+                          endAdornment={
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          }
+                        />
+                        <TextField
+                          label="Confirm New Password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={editUserModal.user.confirmPassword}
+                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, confirmPassword: e.target.value } }))}
+                          placeholder="Re-enter new password"
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
+                      <TextField
+                        label="New Password (admin reset)"
+                        type={showPassword ? 'text' : 'password'}
+                        value={editUserModal.user.newPassword}
+                        onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, newPassword: e.target.value } }))}
+                        placeholder="Enter new password"
+                        endAdornment={
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
+                      />
+                      <TextField
+                        label="Confirm New Password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={editUserModal.user.confirmPassword}
+                        onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, confirmPassword: e.target.value } }))}
+                        placeholder="Re-enter new password"
+                      />
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="mt-6">
+                <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Permissions
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(editUserModal.user.permissions || {}).map(([module, perms]) => (
+                    <SettingsCard key={module}>
+                      <div className="p-4">
+                        <h5 className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {moduleLabel(module)}
+                        </h5>
+                        <div className="space-y-2">
+                          {typeof perms === 'object' ? (
+                            Object.entries(perms).map(([action, allowed]) => (
+                              <Checkbox
+                                key={action}
+                                checked={!!allowed}
+                                onChange={(e) => setEditPermission(module, action, e.target.checked)}
+                                label={action.charAt(0).toUpperCase() + action.slice(1)}
+                              />
+                            ))
+                          ) : (
+                            <Checkbox
+                              checked={!!perms}
+                              onChange={(e) => setEditPermission(module, 'read', e.target.checked)}
+                              label="Read"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </SettingsCard>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setEditUserModal({ open: false, user: null })}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveEditUser}
+                startIcon={<Save size={20} />}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </SettingsPaper>
   );
 
+  const isAdmin = authService.hasRole('admin');
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
     { id: 'templates', label: 'Invoice Templates', icon: FileText },
     { id: 'tax', label: 'Tax Settings', icon: Calculator },
-    { id: 'users', label: 'User Management', icon: Users },
+    ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
   ];
 
   // Debug logging
@@ -1700,7 +2114,7 @@ const CompanySettings = () => {
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'templates' && renderInvoiceTemplates()}
         {activeTab === 'tax' && renderTaxSettings()}
-        {activeTab === 'users' && renderUserManagement()}
+        {isAdmin && activeTab === 'users' && renderUserManagement()}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
+import { authService } from '../services/axiosAuthService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -147,13 +148,15 @@ const DeliveryNoteList = () => {
           <TruckIcon size={36} className="text-teal-600" />
           Delivery Notes
         </h1>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-          onClick={() => navigate('/delivery-notes/new')}
-        >
-          <AddIcon size={20} />
-          Create Delivery Note
-        </button>
+        {authService.hasPermission('delivery_notes','create') && (
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            onClick={() => navigate('/delivery-notes/new')}
+          >
+            <AddIcon size={20} />
+            Create Delivery Note
+          </button>
+        )}
       </div>
 
       {/* Invoice Filter Indicator */}
@@ -347,6 +350,7 @@ const DeliveryNoteList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
+                        {authService.hasPermission('delivery_notes','read') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
@@ -356,6 +360,8 @@ const DeliveryNoteList = () => {
                         >
                           <ViewIcon size={16} />
                         </button>
+                        )}
+                        {authService.hasPermission('delivery_notes','update') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
@@ -365,6 +371,8 @@ const DeliveryNoteList = () => {
                         >
                           <EditIcon size={16} />
                         </button>
+                        )}
+                        {authService.hasPermission('delivery_notes','read') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
@@ -374,6 +382,8 @@ const DeliveryNoteList = () => {
                         >
                           <DownloadIcon size={16} />
                         </button>
+                        )}
+                        {authService.hasPermission('delivery_notes','delete') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
@@ -387,6 +397,7 @@ const DeliveryNoteList = () => {
                         >
                           <DeleteIcon size={16} />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>

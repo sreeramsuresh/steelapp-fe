@@ -744,7 +744,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
-                      <Link
+                      {authService.hasPermission('invoices', 'update') && (
+                        <Link
                         to={`/edit/${invoice.id}`}
                         className={`p-2 rounded transition-colors ${
                           isDarkMode
@@ -755,6 +756,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       >
                         <Edit size={16} />
                       </Link>
+                      )}
                       <button
                         className={`p-2 rounded transition-colors bg-transparent ${
                           isDarkMode
@@ -768,6 +770,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       >
                         <Eye size={16} />
                       </button>
+                      {authService.hasPermission('invoices', 'read') && (
                       <button
                         className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                           downloadingIds.has(invoice.id)
@@ -786,7 +789,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           <Download size={16} />
                         )}
                       </button>
-                      {invoice.status === "paid" && (
+                      )}
+                      {invoice.status === "paid" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             deliveryNoteStatus[invoice.id]?.hasNotes
@@ -799,7 +803,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           }`}
                           title={
                             deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? `View Delivery Notes (${
+                              ? `View Delivery Notes (${ 
                                   deliveryNoteStatus[invoice.id]?.count
                                 })`
                               : "Create delivery note"
@@ -815,6 +819,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           <Truck size={16} />
                         </button>
                       )}
+                      {authService.hasPermission('invoices', 'delete') && (
                       <button
                         className={`p-2 rounded transition-colors bg-transparent ${
                           isDarkMode
@@ -828,6 +833,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       >
                         <Trash2 size={16} />
                       </button>
+                      )}
                     </div>
                   </td>
                 </tr>

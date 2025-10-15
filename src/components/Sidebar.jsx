@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { authService } from '../services/axiosAuthService';
 
 
 const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
@@ -44,7 +45,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Payables',
           path: '/payables',
           icon: Banknote,
-          description: 'Invoices & PO payments'
+          description: 'Invoices & PO payments',
+          requiredPermission: 'payables.read'
         }
       ]
     },
@@ -55,14 +57,16 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Create Invoice',
           path: '/create-invoice',
           icon: Plus,
-          description: 'Create new invoice'
+          description: 'Create new invoice',
+          requiredPermission: 'invoices.create'
         },
         {
           name: 'All Invoices',
           path: '/invoices',
           icon: ListIcon,
           description: 'View all invoices',
-          badge: invoiceCount
+          badge: invoiceCount,
+          requiredPermission: 'invoices_all.read'
         }
       ]
     },
@@ -73,7 +77,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Quotations',
           path: '/quotations',
           icon: Quote,
-          description: 'Manage quotations'
+          description: 'Manage quotations',
+          requiredPermission: 'quotations.read'
         }
       ]
     },
@@ -84,7 +89,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Delivery Notes',
           path: '/delivery-notes',
           icon: Truck,
-          description: 'Manage delivery notes'
+          description: 'Manage delivery notes',
+          requiredPermission: 'delivery_notes.read'
         }
       ]
     },
@@ -95,7 +101,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Purchase Orders',
           path: '/purchase-orders',
           icon: ShoppingCart,
-          description: 'Manage purchase orders'
+          description: 'Manage purchase orders',
+          requiredPermission: 'purchase_orders.read'
         },
         
       ]
@@ -107,13 +114,15 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Customers',
           path: '/customers',
           icon: Users,
-          description: 'Manage customers'
+          description: 'Manage customers',
+          requiredPermission: 'customers.read'
         },
         {
           name: 'Steel Products',
           path: '/products',
           icon: Package,
-          description: 'Manage steel inventory'
+          description: 'Manage steel inventory',
+          requiredPermission: 'products.read'
         },
         
         {
@@ -131,13 +140,15 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Sales Analytics',
           path: '/analytics',
           icon: BarChart3,
-          description: 'View sales reports'
+          description: 'View sales reports',
+          requiredPermission: 'analytics.read'
         },
         {
           name: 'Revenue Trends',
           path: '/trends',
           icon: TrendingUp,
-          description: 'Revenue analytics'
+          description: 'Revenue analytics',
+          requiredPermission: 'analytics.read'
         }
       ]
     },
@@ -148,7 +159,8 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Company Settings',
           path: '/settings',
           icon: Settings,
-          description: 'Configure company details'
+          description: 'Configure company details',
+          requiredRole: 'admin'
         }
       ]
     }
@@ -206,7 +218,18 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
               </div>
             )}
             <div className="space-y-1">
-              {section.items.map((item, itemIndex) => {
+              {section.items
+                .filter(item => {
+                  if (item.requiredRole) {
+                    return authService.hasRole(item.requiredRole);
+                  }
+                  if (item.requiredPermission) {
+                    const [res, act] = item.requiredPermission.split('.');
+                    return authService.hasPermission(res, act);
+                  }
+                  return true;
+                })
+                .map((item, itemIndex) => {
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.path);
                 

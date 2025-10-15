@@ -22,6 +22,7 @@ import {
   FileCheck
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../services/axiosAuthService";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { quotationsAPI } from "../services/api";
@@ -217,13 +218,15 @@ const QuotationList = () => {
               Manage and track your quotations
             </p>
           </div>
-          <Link
-            to="/quotations/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
-          >
-            <Plus size={20} />
-            New Quotation
-          </Link>
+          {authService.hasPermission('quotations','create') && (
+            <Link
+              to="/quotations/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
+            >
+              <Plus size={20} />
+              New Quotation
+            </Link>
+          )}
         </div>
       </div>
 
@@ -426,7 +429,8 @@ const QuotationList = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
-                        <Link
+                        {authService.hasPermission('quotations','read') && (
+                          <Link
                           to={`/quotations/${quotation.id}`}
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode 
@@ -437,6 +441,8 @@ const QuotationList = () => {
                         >
                           <Eye size={16} />
                         </Link>
+                        )}
+                        {authService.hasPermission('quotations','update') && (
                         <Link
                           to={`/quotations/${quotation.id}/edit`}
                           className={`p-2 rounded-lg transition-colors ${
@@ -448,6 +454,8 @@ const QuotationList = () => {
                         >
                           <Edit size={16} />
                         </Link>
+                        )}
+                        {authService.hasPermission('quotations','read') && (
                         <button
                           onClick={() => handleDownloadPDF(quotation.id)}
                           className={`p-2 rounded-lg transition-colors ${
@@ -459,6 +467,7 @@ const QuotationList = () => {
                         >
                           <Download size={16} />
                         </button>
+                        )}
                         
                         {/* Status Update Dropdown */}
                         {quotation.status !== 'converted' && (
@@ -520,6 +529,7 @@ const QuotationList = () => {
                           </div>
                         )}
 
+                        {authService.hasPermission('quotations','delete') && (
                         <button
                           onClick={() => setDeleteConfirm(quotation.id)}
                           className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
@@ -527,6 +537,7 @@ const QuotationList = () => {
                         >
                           <Trash2 size={16} />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>

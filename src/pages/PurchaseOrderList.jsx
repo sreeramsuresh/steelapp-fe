@@ -15,6 +15,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../services/axiosAuthService";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { purchaseOrdersAPI } from "../services/api";
@@ -247,13 +248,15 @@ const PurchaseOrderList = () => {
               Manage and track all your purchase orders
             </p>
           </div>
-          <Link
-            to="/purchase-orders/new"
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            <Plus size={18} />
-            Create PO
-          </Link>
+          {authService.hasPermission('purchase_orders','create') && (
+            <Link
+              to="/purchase-orders/new"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <Plus size={18} />
+              Create PO
+            </Link>
+          )}
         </div>
 
         {/* Filters Section */}
@@ -359,6 +362,7 @@ const PurchaseOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">
+                        {authService.hasPermission('purchase_orders','read') && (
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
@@ -368,6 +372,8 @@ const PurchaseOrderList = () => {
                         >
                           <Eye size={18} />
                         </button>
+                        )}
+                        {authService.hasPermission('purchase_orders','update') && (
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
@@ -377,6 +383,8 @@ const PurchaseOrderList = () => {
                         >
                           <Edit size={18} />
                         </button>
+                        )}
+                        {authService.hasPermission('purchase_orders','read') && (
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
@@ -386,6 +394,8 @@ const PurchaseOrderList = () => {
                         >
                           <Download size={18} />
                         </button>
+                        )}
+                        {authService.hasPermission('purchase_orders','delete') && (
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
@@ -395,6 +405,7 @@ const PurchaseOrderList = () => {
                         >
                           <Trash2 size={18} />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>

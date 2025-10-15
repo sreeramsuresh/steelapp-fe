@@ -107,10 +107,11 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        {/* All invoices list requires invoices_all.read */}
         <Route
           path="/invoices"
           element={
-            <ProtectedRoute user={user} requiredPermission="invoices.read">
+            <ProtectedRoute user={user} requiredPermission="invoices_all.read">
               <InvoiceList />
             </ProtectedRoute>
           }
