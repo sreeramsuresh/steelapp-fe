@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Warehouse,
   Move,
-  ChevronDown
+  ChevronDown,
+  Upload
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
@@ -25,6 +26,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import InventoryList from './InventoryList';
 import StockMovement from './StockMovement';
 import WarehouseManagement from './WarehouseManagement';
+import ProductUpload from './ProductUpload';
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', ...props }) => {
@@ -195,6 +197,7 @@ const SteelProducts = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSpecModal, setShowSpecModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [newProduct, setNewProduct] = useState({
@@ -434,6 +437,13 @@ const SteelProducts = () => {
         >
           <Package size={20} />
           Initialize Demo Products
+        </Button>
+        <Button 
+          onClick={() => setShowUploadModal(true)}
+          className="bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+        >
+          <Upload size={20} />
+          Upload Products
         </Button>
         <Button onClick={() => setShowAddModal(true)}>
           <Plus size={20} />
@@ -1308,6 +1318,16 @@ const SteelProducts = () => {
             </div>
           </div>
         )}
+
+        {/* Product Upload Modal */}
+        <ProductUpload 
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={() => {
+            refetchProducts();
+            setShowUploadModal(false);
+          }}
+        />
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
   ChevronDown,
+  Upload,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { inventoryService } from "../services/inventoryService";
@@ -24,6 +25,7 @@ import {
   STEEL_GRADES,
   FINISHES,
 } from "../types";
+import InventoryUpload from "./InventoryUpload";
 
 const InventoryList = () => {
   const { isDarkMode } = useTheme();
@@ -33,6 +35,7 @@ const InventoryList = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
@@ -289,6 +292,13 @@ const InventoryList = () => {
             >
               <Add size={16} />
               Add Item
+            </button>
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-green-600 to-green-700 text-white rounded-lg hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <Upload size={16} />
+              Upload Items
             </button>
           </div>
         </div>
@@ -824,6 +834,18 @@ const InventoryList = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Inventory Upload Modal */}
+        {showUploadModal && (
+          <InventoryUpload
+            isOpen={showUploadModal}
+            onClose={() => setShowUploadModal(false)}
+            onUploadComplete={() => {
+              setShowUploadModal(false);
+              fetchInventory();
+            }}
+          />
         )}
       </div>
     </div>
