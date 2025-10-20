@@ -64,8 +64,8 @@ class ApiClient {
     return apiService.patch(endpoint, data);
   }
 
-  async delete(endpoint) {
-    return apiService.delete(endpoint);
+  async delete(endpoint, config = {}) {
+    return apiService.delete(endpoint, config);
   }
 }
 

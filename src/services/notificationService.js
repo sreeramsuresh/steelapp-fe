@@ -137,7 +137,8 @@ class NotificationService {
   }
 
   deleteError(itemType = 'Item', error) {
-    const message = error?.message || `Failed to delete ${itemType.toLowerCase()}`;
+    const apiMsg = error?.response?.data?.error || error?.response?.data?.message;
+    const message = apiMsg || error?.message || `Failed to delete ${itemType.toLowerCase()}`;
     return this.error(message);
   }
 

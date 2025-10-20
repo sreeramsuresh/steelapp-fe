@@ -52,8 +52,8 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // Only trigger refresh on 403 status (not 401) and if not already retried
-    if (error.response?.status === 403 && !originalRequest._retry) {
+    // Trigger refresh on 401/403 if not already retried
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get("refreshToken");
       
@@ -66,9 +66,11 @@ api.interceptors.response.use(
       
       try {
         console.log("[Interceptor] Attempting token refresh");
-        const { data } = await axios.post(`${API_BASE_URL}${REFRESH_ENDPOINT}`, {
-          refreshToken,
-        });
+        const { data } = await axios.post(
+          `${API_BASE_URL}${REFRESH_ENDPOINT}`,
+          { refreshToken },
+          { withCredentials: true }
+        );
         
         console.log("[Interceptor] Refresh response:", data); // Debug log
         
@@ -108,8 +110,22 @@ api.interceptors.response.use(
 
 // Simple API service
 export const apiService = {
+  // For compatibility with older callers that try to push tokens directly
+  // Interceptors handle tokens, so these are intentional no-ops
+  setAuthToken: (_token) => {
+    // no-op; Authorization header is set by the request interceptor
+  },
+
+  removeAuthToken: () => {
+    // no-op; clearing cookies/session is handled via tokenUtils.clearSession
+  },
+
   get: async (url, config = {}) => {
-    const response = await api.get(url, config);
+    const axiosConfig =
+      config && !("params" in config) && typeof config === "object"
+        ? { params: apiService.cleanParams(config) }
+        : config;
+    const response = await api.get(url, axiosConfig);
     return response.data;
   },
 

@@ -23,6 +23,7 @@ import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
+import { authService } from "../services/axiosAuthService";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -269,6 +270,26 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         }
       }
       notificationService.createError("Delivery note", error);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoice) => {
+    const number = invoice.invoice_number || invoice.invoiceNumber || invoice.id;
+    const confirmed = window.confirm(`Delete invoice ${number}? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      await invoiceService.deleteInvoice(invoice.id);
+      notificationService.deleteSuccess('Invoice');
+      // If the last item on the page was deleted, optionally go back one page
+      const remaining = (invoices?.length || 1) - 1;
+      if (remaining === 0 && pagination && currentPage > 1) {
+        setCurrentPage((p) => Math.max(1, p - 1));
+      } else {
+        await fetchInvoices();
+      }
+    } catch (error) {
+      notificationService.deleteError('Invoice', error);
     }
   };
 
@@ -827,9 +848,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                             : "hover:bg-gray-100 text-red-600"
                         }`}
                         title="Delete Invoice"
-                        onClick={() => {
-                          /* TODO: Implement delete */
-                        }}
+                        onClick={() => handleDeleteInvoice(invoice)}
                       >
                         <Trash2 size={16} />
                       </button>

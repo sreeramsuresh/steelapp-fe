@@ -112,3 +112,5 @@ export const NotificationCenterProvider = ({ children }) => {
   );
 };
 
+// Backward-compatible alias for older code paths
+export const useNotificationCenter = useNotifications;
