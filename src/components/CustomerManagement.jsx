@@ -7,6 +7,7 @@ import { supplierService } from '../services/supplierService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
+import { authService } from '../services/axiosAuthService';
 import { 
   FaUsers, 
   FaPlus, 
@@ -25,8 +26,11 @@ import {
   FaExclamationTriangle,
   FaArrowUp,
   FaDollarSign,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaUpload,
+  FaArchive
 } from 'react-icons/fa';
+import CustomerUpload from './CustomerUpload';
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
@@ -38,10 +42,18 @@ const CustomerManagement = () => {
   const [activeTab, setActiveTab] = useState('profiles');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showArchived, setShowArchived] = useState(false);
   
+  const canReadCustomers = authService.hasPermission('customers','read') || authService.hasRole('admin');
   const { data: customersData, loading: loadingCustomers, error: customersError, refetch: refetchCustomers } = useApiData(
-    () => customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus }),
-    [searchTerm, filterStatus]
+    () => {
+      if (!canReadCustomers) {
+        // Avoid hitting the API if not permitted
+        return Promise.resolve({ customers: [] });
+      }
+      return customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus });
+    },
+    [searchTerm, filterStatus, canReadCustomers]
   );
 
   // Suppliers API hooks
@@ -56,9 +68,11 @@ const CustomerManagement = () => {
   const { execute: createCustomer, loading: creatingCustomer } = useApi(customerService.createCustomer);
   const { execute: updateCustomer, loading: updatingCustomer } = useApi(customerService.updateCustomer);
   const { execute: deleteCustomer } = useApi(customerService.deleteCustomer);
+  const { execute: archiveCustomer } = useApi(customerService.archiveCustomer);
   const { execute: addContactHistory } = useApi(customerService.addContactHistory);
   
   const customers = customersData?.customers || [];
+  const canDeleteCustomers = authService.hasPermission('customers','delete') || authService.hasRole('admin');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -68,6 +82,7 @@ const CustomerManagement = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [showContactHistory, setShowContactHistory] = useState(false);
   const [contactHistoryCustomer, setContactHistoryCustomer] = useState(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [newCustomer, setNewCustomer] = useState({
     name: '',
@@ -107,7 +122,7 @@ const CustomerManagement = () => {
     contact_date: new Date().toISOString().split('T')[0]
   });
 
-  const filteredCustomers = customers;
+  const filteredCustomers = customers.filter(c => showArchived ? true : (c.status !== 'archived'));
   const suppliers = suppliersData?.suppliers || [];
 
   // Sync search from URL param
@@ -179,13 +194,14 @@ const CustomerManagement = () => {
   };
 
   const handleDeleteCustomer = async (customerId) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    // Repurposed as Archive for safety
+    if (window.confirm('Archive this customer? You can restore later from the backend.')) {
       try {
-        await deleteCustomer(customerId);
+        await archiveCustomer(customerId);
         refetchCustomers();
-        notificationService.deleteSuccess('Customer');
+        notificationService.success('Customer archived successfully');
       } catch (error) {
-        notificationService.deleteError('Customer', error);
+        notificationService.apiError('Archive customer', error);
       }
     }
   };
@@ -330,10 +346,10 @@ const CustomerManagement = () => {
             />
           </div>
           
-          {/* Status Filter */}
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+        {/* Status Filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
             className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
               isDarkMode 
                 ? 'border-[#37474F] bg-[#1E2328] text-white' 
@@ -342,18 +358,41 @@ const CustomerManagement = () => {
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        {/* Show Archived Toggle */}
+        <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={(e) => setShowArchived(e.target.checked)}
+            className="form-checkbox h-4 w-4 text-teal-600"
+          />
+          <span className="text-sm">Show archived</span>
+        </label>
         </div>
         
-        {/* Add Button */}
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
-        >
-          <FaPlus />
-          Add Customer
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            <FaPlus />
+            Add Customer
+          </button>
+          
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            <FaUpload />
+            Upload Customers
+          </button>
+        </div>
       </div>
 
       {/* Customer Grid */}
@@ -402,13 +441,15 @@ const CustomerManagement = () => {
                   >
                     <FaEdit className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => handleDeleteCustomer(customer.id)}
-                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'}`}
-                    title="Delete Customer"
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </button>
+                  {canDeleteCustomers && (
+                    <button
+                      onClick={() => handleDeleteCustomer(customer.id)}
+                      className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-yellow-400 hover:text-yellow-300' : 'hover:bg-gray-100 text-yellow-600'}`}
+                      title="Archive Customer"
+                    >
+                      <FaArchive className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1387,6 +1428,18 @@ const CustomerManagement = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Customer Upload Modal */}
+      {showUploadModal && (
+        <CustomerUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={() => {
+            setShowUploadModal(false);
+            refetchCustomers();
+          }}
+        />
       )}
     </div>
   );
