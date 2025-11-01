@@ -354,9 +354,6 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         </th>
                       )}
                       {/* Grade/Finish/Size/Thickness merged into Product column */}
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Unit
-                      </th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
                         Qty
                       </th>
@@ -386,21 +383,76 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     {invoice.items.map((item, index) => {
                       const vatAmount = calculateTRN(item.amount, item.vatRate);
                       const totalWithTRN = item.amount + vatAmount;
+                      const displaySize = (() => {
+                        try {
+                          if (!item.size) return null;
+                          if (!item.thickness) return item.size;
+                          const thkMatch = String(item.thickness).match(/\d+(?:\.\d+)?/);
+                          if (!thkMatch) return item.size;
+                          const thkNum = thkMatch[0];
+                          const parts = String(item.size)
+                            .split(/x|X|\*/)
+                            .map((p) => p.trim())
+                            .filter(Boolean);
+                          const cleaned = parts.filter((p) => {
+                            const pn = p.toLowerCase().replace(/\s+/g, '');
+                            return pn !== thkNum && pn !== `${thkNum}mm`;
+                          });
+                          return cleaned.join('x') || item.size;
+                        } catch {
+                          return item.size;
+                        }
+                      })();
+                      const isPipeOrTube = /pipe/i.test(item.category || '');
+                      const sanitizeInch = (v) => {
+                        const s = (v ?? '').toString().replace(/"/g, '').trim();
+                        return s ? `${s}"` : null;
+                      };
+                      const sizeInchPart = sanitizeInch(item.sizeInch);
+                      const diaHay = [item.size, item.sizeInch, item.name, item.description].filter(Boolean).join(' ');
+                      const hasDia = /dia\b/i.test(diaHay) || /[øØ∅φΦ]/.test(diaHay);
+                      const odWithDia = (() => {
+                        const raw = (item.od ?? '').toString().replace(/"/g, '').trim();
+                        if (!raw) return null;
+                        const txt = raw.toUpperCase();
+                        return `(${txt})${hasDia ? 'DIA' : ''}`;
+                      })();
+                      const lengthPart = sanitizeInch(item.length);
 
                       return (
                         <tr key={index}>
                           <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
-                            {(item.grade || item.finish || item.size || item.thickness) && (
-                              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {[item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(' | ')}
-                              </div>
-                            )}
+                            <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>
+                              {[
+                                item.commodity || null,
+                                item.category ? String(item.category).toUpperCase() : null,
+                                (() => {
+                                  const g=(item.grade||'').toString().trim();
+                                  if(!g) return null;
+                                  const m=g.match(/^gr\s*(.+)$/i);
+                                  return m ? `GR${m[1]}` : `GR${g}`;
+                                })(),
+                                (() => { const f=(item.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : null; })(),
+                                isPipeOrTube ? sizeInchPart : displaySize,
+                                isPipeOrTube ? odWithDia : null,
+                                isPipeOrTube ? lengthPart : null,
+                                (() => {
+                                  const thk = (item.thickness ?? '').toString();
+                                  if (!thk) return null;
+                                  // avoid duplicating if thickness equals size string (common in pipes)
+                                  const a = thk.replace(/\s+/g,'').toLowerCase();
+                                  const b = (item.size ?? '').toString().replace(/\s+/g,'').toLowerCase();
+                                  return a === b ? null : String(item.thickness).toUpperCase();
+                                })(),
+                              ]
+                                .filter(Boolean)
+                                .join(' - ')}
+                            </div>
                           </td>
                           {invoice.items.some((item) => item.description) && (
                             <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
                           )}
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.unit}</td>
+                          
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
                           <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             {formatCurrency(item.rate)}

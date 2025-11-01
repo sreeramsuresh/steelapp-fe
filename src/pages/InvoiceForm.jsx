@@ -23,7 +23,6 @@ import {
   createInvoice,
   createCompany,
   createSteelItem,
-  STEEL_UNITS,
   PAYMENT_MODES,
   DELIVERY_TERMS,
   DISCOUNT_TYPES,
@@ -309,7 +308,7 @@ const Autocomplete = ({
       );
       setFilteredOptions(filtered.slice(0, 20));
     } else {
-      setFilteredOptions(options.slice(0, 20));
+      setFilteredOptions(options);
     }
   }, [options, inputValue]);
 
@@ -601,7 +600,7 @@ const InvoiceForm = ({ onSave }) => {
     data: productsData,
     loading: loadingProducts,
     refetch: refetchProducts,
-  } = useApiData(() => productService.getProducts({}), []);
+  } = useApiData(() => productService.getProducts({ limit: 1000 }), []);
   const { execute: createProduct, loading: creatingProduct } = useApi(
     productService.createProduct
   );
@@ -749,14 +748,43 @@ const InvoiceForm = ({ onSave }) => {
 
   const handleProductSelect = useCallback((index, product) => {
     if (product && typeof product === "object") {
+      // Helper: extract thickness from product specs or size string
+      const getThickness = (p) => {
+        try {
+          const cat = (p?.category || '').toString().toLowerCase();
+          const isPipe = /pipe/.test(cat);
+          const specThk = p?.specifications?.thickness || p?.specifications?.Thickness;
+          if (specThk && String(specThk).trim()) return String(specThk).trim();
+          if (isPipe) return ""; // avoid deriving thickness from pipe size
+          const sizeStr = p?.size ? String(p.size) : "";
+          const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
+          if (mmMatch) return `${mmMatch[1]}mm`;
+          const xParts = sizeStr.split(/x|X|\*/).map((s) => s.trim()).filter(Boolean);
+          if (xParts.length >= 2) {
+            const last = xParts[xParts.length - 1];
+            const numMatch = last.match(/\d+(?:\.\d+)?/);
+            if (numMatch) return `${numMatch[0]}mm`;
+          }
+        } catch {}
+        return "";
+      };
+
       setInvoice((prev) => {
         const newItems = [...prev.items];
         newItems[index] = {
           ...newItems[index],
           productId: product.id,
           name: product.name,
+          category: product.category || "",
+          commodity: product.commodity || "SS",
           grade: product.grade || "",
-          unit: product.unit,
+          finish: product.finish || "",
+          size: product.size || "",
+          sizeInch: product.size_inch || "",
+          od: product.od || "",
+          length: product.length || "",
+          thickness: getThickness(product),
+          // unit removed from invoice UI
           rate: product.selling_price || 0,
           amount: calculateItemAmount(
             newItems[index].quantity,
@@ -835,8 +863,33 @@ const InvoiceForm = ({ onSave }) => {
       label: product.name,
       subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
         product.selling_price || 0
-      }/${product.unit}`,
+      }`,
     }));
+  }, [productsData]);
+
+  // Dynamic option lists augmented from products data
+  const allGrades = useMemo(() => {
+    try {
+      const set = new Set(STEEL_GRADES || []);
+      (productsData?.products || []).forEach((p) => {
+        if (p && p.grade && String(p.grade).trim()) set.add(String(p.grade).trim());
+      });
+      return Array.from(set);
+    } catch {
+      return STEEL_GRADES || [];
+    }
+  }, [productsData]);
+
+  const allFinishes = useMemo(() => {
+    try {
+      const set = new Set(FINISHES || []);
+      (productsData?.products || []).forEach((p) => {
+        if (p && p.finish && String(p.finish).trim()) set.add(String(p.finish).trim());
+      });
+      return Array.from(set);
+    } catch {
+      return FINISHES || [];
+    }
   }, [productsData]);
 
   // Simplified filtering to reduce computation
@@ -1425,13 +1478,7 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         Thickness
                       </th>
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        }`}
-                      >
-                        Unit
-                      </th>
+                      
                       <th
                         className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
@@ -1522,10 +1569,11 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               handleItemChange(index, "grade", e.target.value)
                             }
+                            disabled
                             className="w-36"
                           >
                             <option value="">Select Grade</option>
-                            {STEEL_GRADES.map((grade) => (
+                            {allGrades.map((grade) => (
                               <option key={grade} value={grade}>
                                 {grade}
                               </option>
@@ -1538,10 +1586,11 @@ const InvoiceForm = ({ onSave }) => {
                             onChange={(e) =>
                               handleItemChange(index, "finish", e.target.value)
                             }
+                            disabled
                             className="w-36"
                           >
                             <option value="">Select Finish</option>
-                            {FINISHES.map((finish) => (
+                            {allFinishes.map((finish) => (
                               <option key={finish} value={finish}>
                                 {finish}
                               </option>
@@ -1555,6 +1604,7 @@ const InvoiceForm = ({ onSave }) => {
                               handleItemChange(index, "size", e.target.value)
                             }
                             placeholder="e.g., 4x8"
+                            disabled
                             className="w-24"
                           />
                         </td>
@@ -1569,24 +1619,11 @@ const InvoiceForm = ({ onSave }) => {
                               )
                             }
                             placeholder="e.g., 1mm"
+                            disabled
                             className="w-24"
                           />
                         </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <Select
-                            value={item.unit}
-                            onChange={(e) =>
-                              handleItemChange(index, "unit", e.target.value)
-                            }
-                            className="w-20"
-                          >
-                            {STEEL_UNITS.map((unit) => (
-                              <option key={unit} value={unit}>
-                                {unit}
-                              </option>
-                            ))}
-                          </Select>
-                        </td>
+                        
                         <td className="px-3 py-4 whitespace-nowrap">
                           <Input
                             type="number"
@@ -1732,9 +1769,10 @@ const InvoiceForm = ({ onSave }) => {
                           onChange={(e) =>
                             handleItemChange(index, "grade", e.target.value)
                           }
+                          disabled
                         >
                           <option value="">Select Grade</option>
-                          {STEEL_GRADES.map((grade) => (
+                          {allGrades.map((grade) => (
                             <option key={grade} value={grade}>
                               {grade}
                             </option>
@@ -1746,9 +1784,10 @@ const InvoiceForm = ({ onSave }) => {
                           onChange={(e) =>
                             handleItemChange(index, "finish", e.target.value)
                           }
+                          disabled
                         >
                           <option value="">Select Finish</option>
-                          {FINISHES.map((finish) => (
+                          {allFinishes.map((finish) => (
                             <option key={finish} value={finish}>
                               {finish}
                             </option>
@@ -1756,7 +1795,7 @@ const InvoiceForm = ({ onSave }) => {
                         </Select>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <Input
                           label="Size"
                           value={item.size || ""}
@@ -1764,6 +1803,7 @@ const InvoiceForm = ({ onSave }) => {
                             handleItemChange(index, "size", e.target.value)
                           }
                           placeholder="e.g., 4x8"
+                          disabled
                         />
                         <Input
                           label="Thickness"
@@ -1772,20 +1812,8 @@ const InvoiceForm = ({ onSave }) => {
                             handleItemChange(index, "thickness", e.target.value)
                           }
                           placeholder="e.g., 1mm"
+                          disabled
                         />
-                        <Select
-                          label="Unit"
-                          value={item.unit}
-                          onChange={(e) =>
-                            handleItemChange(index, "unit", e.target.value)
-                          }
-                        >
-                          {STEEL_UNITS.map((unit) => (
-                            <option key={unit} value={unit}>
-                              {unit}
-                            </option>
-                          ))}
-                        </Select>
                       </div>
 
                       <div className="grid grid-cols-3 gap-4">

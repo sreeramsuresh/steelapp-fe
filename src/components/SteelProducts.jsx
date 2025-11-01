@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Package, 
   Plus, 
@@ -176,7 +176,8 @@ const SteelProducts = () => {
     () => productService.getProducts({ 
       search: searchTerm, 
       category: categoryFilter === 'all' ? undefined : categoryFilter,
-      stock_status: stockFilter === 'all' ? undefined : stockFilter
+      stock_status: stockFilter === 'all' ? undefined : stockFilter,
+      limit: 1000
     }),
     [searchTerm, categoryFilter, stockFilter]
   );
@@ -186,6 +187,19 @@ const SteelProducts = () => {
   const { execute: deleteProduct } = useApi(productService.deleteProduct);
   
   const products = productsData?.products || [];
+
+  // Build a robust list of finishes: predefined + those present in products
+  const allFinishes = useMemo(() => {
+    try {
+      const set = new Set(FINISHES || []);
+      (products || []).forEach((p) => {
+        if (p && p.finish && String(p.finish).trim()) set.add(String(p.finish).trim());
+      });
+      return Array.from(set);
+    } catch {
+      return FINISHES || [];
+    }
+  }, [products]);
   
   // Debug products data structure
   console.log('🏗️ Products data structure:', {
@@ -203,11 +217,14 @@ const SteelProducts = () => {
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'sheet',
+    commodity: 'SS',
     grade: '',
     finish: '',
     size: '',
+    sizeInch: '',
+    od: '',
+    length: '',
     weight: '',
-    unit: 'kg',
     description: '',
     currentStock: '',
     minStock: '',
@@ -251,20 +268,42 @@ const SteelProducts = () => {
 
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.finish && product.finish.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+    const name = (product?.name ?? '').toString().toLowerCase();
+    const grade = (product?.grade ?? '').toString().toLowerCase();
+    const category = (product?.category ?? '').toString().toLowerCase();
+    const finish = (product?.finish ?? '').toString().toLowerCase();
+    const thickness = (product?.thickness ?? '').toString().toLowerCase();
+    const needle = (searchTerm ?? '').toString().toLowerCase();
+
+    const matchesSearch = name.includes(needle) ||
+                          grade.includes(needle) ||
+                          category.includes(needle) ||
+                          (!!finish && finish.includes(needle)) ||
+                          (!!thickness && thickness.includes(needle));
+
+    const matchesCategory = categoryFilter === 'all' || product?.category === categoryFilter;
+
+    const current = Number(product?.currentStock ?? product?.current_stock ?? 0);
+    const min = Number(product?.minStock ?? product?.min_stock ?? 0);
+    const max = Number(product?.maxStock ?? product?.max_stock ?? 1) || 1;
+
     const matchesStock = stockFilter === 'all' || 
-                        (stockFilter === 'low' && product.currentStock <= product.minStock) ||
-                        (stockFilter === 'normal' && product.currentStock > product.minStock && product.currentStock < product.maxStock * 0.8) ||
-                        (stockFilter === 'high' && product.currentStock >= product.maxStock * 0.8);
+                         (stockFilter === 'low' && current <= min) ||
+                         (stockFilter === 'normal' && current > min && current < max * 0.8) ||
+                         (stockFilter === 'high' && current >= max * 0.8);
+
     return matchesSearch && matchesCategory && matchesStock;
   });
 
   const handleAddProduct = async () => {
     try {
+      const isPipeOrTube = /pipe/i.test(newProduct.category || '');
+      if (isPipeOrTube) {
+        if (!newProduct.sizeInch || !newProduct.od || !newProduct.length) {
+          alert('For Pipe/Tube, Size (inch), OD, and Length are required.');
+          return;
+        }
+      }
       // Convert empty strings to appropriate default values
       const productData = {
         ...newProduct,
@@ -274,15 +313,24 @@ const SteelProducts = () => {
         costPrice: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
         sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice)
       };
+      // Ensure we do not send unit (removed from UI)
+      delete productData.unit;
+      // Map pipe fields
+      productData.size_inch = newProduct.sizeInch || undefined;
+      productData.od = newProduct.od || undefined;
+      productData.length = newProduct.length || undefined;
       await createProduct(productData);
       setNewProduct({
         name: '',
         category: 'sheet',
+        commodity: 'SS',
         grade: '',
         finish: '',
         size: '',
+        sizeInch: '',
+        od: '',
+        length: '',
         weight: '',
-        unit: 'kg',
         description: '',
         currentStock: '',
         minStock: '',
@@ -304,6 +352,29 @@ const SteelProducts = () => {
     }
   };
 
+  // Auto-compose product name from Commodity, Category, Grade, Finish, Size, Thickness (with 'GR ' prefix on grade)
+  useEffect(() => {
+    const parts = [];
+    if (newProduct.commodity) parts.push(String(newProduct.commodity).trim());
+    const catLabel = categories.find(c => c.value === newProduct.category)?.label;
+    if (catLabel) parts.push(catLabel);
+    if (newProduct.grade) {
+      const g = String(newProduct.grade).trim();
+      const m = g.match(/^gr\s*(.+)$/i);
+      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+    }
+    if (newProduct.finish) parts.push(String(newProduct.finish).trim());
+    const isPipeOrTube = /pipe/i.test(newProduct.category || '');
+    if (isPipeOrTube) {
+      if (newProduct.sizeInch) parts.push(String(newProduct.sizeInch).trim() + '"');
+    } else {
+      if (newProduct.size) parts.push(String(newProduct.size).trim());
+    }
+    if (newProduct.thickness) parts.push(String(newProduct.thickness).trim());
+    const composed = parts.join(' ');
+    setNewProduct(prev => ({ ...prev, name: composed }));
+  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.thickness]);
+
   const handleEditProduct = async () => {
     try {
       console.log('🔄 Starting product edit...', selectedProduct);
@@ -312,9 +383,14 @@ const SteelProducts = () => {
       const productData = {
         name: selectedProduct.name,
         category: selectedProduct.category,
+        commodity: selectedProduct.commodity || 'SS',
         grade: selectedProduct.grade,
         finish: selectedProduct.finish,
         size: selectedProduct.size,
+        size_inch: selectedProduct.sizeInch,
+        od: selectedProduct.od,
+        length: selectedProduct.length,
+        thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || undefined,
         weight: selectedProduct.weight,
         unit: selectedProduct.unit,
         description: selectedProduct.description,
@@ -325,7 +401,10 @@ const SteelProducts = () => {
         selling_price: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),
         supplier: selectedProduct.supplier,
         location: selectedProduct.location,
-        specifications: selectedProduct.specifications
+        specifications: {
+          ...(selectedProduct.specifications || {}),
+          thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || ''
+        }
       };
       
       console.log('📤 Sending product data:', productData);
@@ -477,7 +556,12 @@ const SteelProducts = () => {
                           ? 'bg-teal-900/30 text-teal-300 border-teal-700' 
                           : 'bg-teal-100 text-teal-800 border-teal-200'
                       }`}>
-                        {product.grade}
+                        {(() => {
+                          const g = (product.grade || '').toString().trim();
+                          if (!g) return '';
+                          const m = g.match(/^gr\s*(.+)$/i);
+                          return m ? `GR${m[1]}` : `GR${g}`;
+                        })()}
                       </span>
                       {product.finish && (
                         <span className={`px-2 py-1 text-xs rounded-md border ${
@@ -485,16 +569,49 @@ const SteelProducts = () => {
                             ? 'bg-blue-900/30 text-blue-300 border-blue-700' 
                             : 'bg-blue-100 text-blue-800 border-blue-200'
                         }`}>
-                          {product.finish}
+                          {(() => { const f=(product.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : ''; })()}
                         </span>
                       )}
-                      <span className={`px-2 py-1 text-xs rounded-md border ${
-                        isDarkMode 
-                          ? 'bg-gray-700 text-gray-300 border-gray-600' 
-                          : 'bg-gray-100 text-gray-700 border-gray-300'
-                      }`}>
-                        {product.size}
-                      </span>
+                      {(/pipe/i.test(product.category || '')) ? (
+                        <>
+                          {product.size_inch && (
+                            <span className={`px-2 py-1 text-xs rounded-md border ${
+                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
+                            }`}>
+                              {product.size_inch}
+                            </span>
+                          )}
+                          {product.od && (
+                            <span className={`px-2 py-1 text-xs rounded-md border ${
+                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
+                            }`}>
+                              {(() => {
+                                const hay = [product.size, product.size_inch, product.name, product.description]
+                                  .filter(Boolean)
+                                  .join(' ');
+                                const hasDia = /dia\b/i.test(hay) || /[øØ∅φΦ]/.test(hay);
+                                const odText = String(product.od || '').replace(/"/g, '').toUpperCase();
+                                return `(${odText})${hasDia ? 'DIA' : ''}`;
+                              })()}
+                            </span>
+                          )}
+                          {product.length && (
+                            <span className={`px-2 py-1 text-xs rounded-md border ${
+                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
+                            }`}>
+                              L: {product.length}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className={`px-2 py-1 text-xs rounded-md border ${
+                          isDarkMode 
+                            ? 'bg-gray-700 text-gray-300 border-gray-600' 
+                            : 'bg-gray-100 text-gray-700 border-gray-300'
+                        }`}>
+                          {product.size}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -521,9 +638,13 @@ const SteelProducts = () => {
                           sellingPrice: product.sellingPrice
                         });
                         
-                        // Convert snake_case to camelCase for form
+                        // Convert snake_case to camelCase for form and normalize strings
                         const formattedProduct = {
                           ...product,
+                          sizeInch: product.size_inch,
+                          od: product.od,
+                          length: product.length,
+                          finish: product.finish ? String(product.finish).trim() : '',
                           currentStock: product.current_stock,
                           minStock: product.min_stock,
                           maxStock: product.max_stock,
@@ -563,9 +684,9 @@ const SteelProducts = () => {
                 {/* Product Stats */}
                 <div className="mb-4 space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Weight:</span>
+                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Qty:</span>
                     <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.weight} {product.unit}
+                      {product.current_stock}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
@@ -768,6 +889,12 @@ const SteelProducts = () => {
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
+                      label="Commodity"
+                      value={newProduct.commodity}
+                      onChange={(e) => setNewProduct({...newProduct, commodity: e.target.value})}
+                      placeholder="e.g., SS"
+                    />
+                    <Input
                       label="Product Name *"
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
@@ -787,33 +914,44 @@ const SteelProducts = () => {
                     />
                     <Select
                       label="Finish"
-                      options={FINISHES.map(finish => ({ value: finish, label: finish }))}
-                      value={newProduct.finish}
-                      onChange={(e) => setNewProduct({...newProduct, finish: e.target.value})}
+                      options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
+                      value={(newProduct.finish || '').trim()}
+                      onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
                     />
+                    {(/pipe/i.test(newProduct.category || '')) ? (
+                      <>
+                        <Input
+                          label={'Size (inch \" )'}
+                          value={newProduct.sizeInch}
+                          onChange={(e) => setNewProduct({ ...newProduct, sizeInch: e.target.value })}
+                          placeholder={'e.g., 2\"'}
+                        />
+                        <Input
+                          label={'OD (\")'}
+                          value={newProduct.od}
+                          onChange={(e) => setNewProduct({ ...newProduct, od: e.target.value })}
+                          placeholder={'e.g., 2\"'}
+                        />
+                        <Input
+                          label={'Length (\")'}
+                          value={newProduct.length}
+                          onChange={(e) => setNewProduct({ ...newProduct, length: e.target.value })}
+                          placeholder={'e.g., 96\"'}
+                        />
+                      </>
+                    ) : (
+                      <Input
+                        label="Size (MM)"
+                        value={newProduct.size}
+                        onChange={(e) => setNewProduct({ ...newProduct, size: e.target.value })}
+                        placeholder="e.g., 50x50x6"
+                      />
+                    )}
                     <Input
-                      label="Size"
-                      value={newProduct.size}
-                      onChange={(e) => setNewProduct({...newProduct, size: e.target.value})}
-                      placeholder="e.g., 12mm, 50x50x6"
-                    />
-                    <Input
-                      label="Weight"
-                      value={newProduct.weight}
-                      onChange={(e) => setNewProduct({...newProduct, weight: e.target.value})}
-                      placeholder="Enter weight"
-                    />
-                    <Select
-                      label="Unit"
-                      options={[
-                        { value: 'kg', label: 'kg' },
-                        { value: 'kg/m', label: 'kg/m' },
-                        { value: 'kg/sheet', label: 'kg/sheet' },
-                        { value: 'tonnes', label: 'tonnes' },
-                        { value: 'pieces', label: 'pieces' }
-                      ]}
-                      value={newProduct.unit}
-                      onChange={(e) => setNewProduct({...newProduct, unit: e.target.value})}
+                      label="Thickness"
+                      value={newProduct.thickness}
+                      onChange={(e) => setNewProduct({...newProduct, thickness: e.target.value})}
+                      placeholder="e.g., 1.2mm"
                     />
                     <div className="sm:col-span-2">
                       <Textarea
@@ -1051,20 +1189,50 @@ const SteelProducts = () => {
                     onChange={(e) => setSelectedProduct({...selectedProduct, category: e.target.value})}
                   />
                   <Input
+                    label="Commodity"
+                    value={selectedProduct.commodity || 'SS'}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, commodity: e.target.value})}
+                  />
+                  <Input
                     label="Grade"
                     value={selectedProduct.grade}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, grade: e.target.value})}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, grade: e.target.value })}
                   />
                   <Select
                     label="Finish"
-                    options={FINISHES.map(finish => ({ value: finish, label: finish }))}
-                    value={selectedProduct.finish || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, finish: e.target.value})}
+                    options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
+                    value={(selectedProduct.finish || '').trim()}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim() })}
                   />
+                  {(/pipe/i.test(selectedProduct.category || '')) ? (
+                    <>
+                      <Input
+                        label={'Size (inch \" )'}
+                        value={selectedProduct.sizeInch || ''}
+                        onChange={(e) => setSelectedProduct({ ...selectedProduct, sizeInch: e.target.value })}
+                      />
+                      <Input
+                        label={'OD (\")'}
+                        value={selectedProduct.od || ''}
+                        onChange={(e) => setSelectedProduct({ ...selectedProduct, od: e.target.value })}
+                      />
+                      <Input
+                        label={'Length (\")'}
+                        value={selectedProduct.length || ''}
+                        onChange={(e) => setSelectedProduct({ ...selectedProduct, length: e.target.value })}
+                      />
+                    </>
+                  ) : (
+                    <Input
+                      label="Size (MM)"
+                      value={selectedProduct.size}
+                      onChange={(e) => setSelectedProduct({ ...selectedProduct, size: e.target.value })}
+                    />
+                  )}
                   <Input
-                    label="Size"
-                    value={selectedProduct.size}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, size: e.target.value})}
+                    label="Thickness"
+                    value={selectedProduct.thickness || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, thickness: e.target.value})}
                   />
                   <Input
                     label="Current Stock"
@@ -1202,27 +1370,68 @@ const SteelProducts = () => {
                     <div className="flex justify-between py-2">
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Grade:</span>
                       <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.grade}
+                        {(() => {
+                          const g = (selectedProduct.grade || '').toString().trim();
+                          if (!g) return '';
+                          const m = g.match(/^gr\s*(.+)$/i);
+                          return m ? `GR${m[1]}` : `GR${g}`;
+                        })()}
                       </span>
                     </div>
                     {selectedProduct.finish && (
                       <div className="flex justify-between py-2">
                         <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Finish:</span>
                         <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.finish}
+                          {(() => { const f=(selectedProduct.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : ''; })()}
+                        </span>
+                      </div>
+                    )}
+                    {(/pipe/i.test(selectedProduct.category || '')) ? (
+                      <>
+                        {(selectedProduct.sizeInch || selectedProduct.size_inch) && (
+                          <div className="flex justify-between py-2">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size (in):</span>
+                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {selectedProduct.sizeInch || selectedProduct.size_inch}
+                            </span>
+                          </div>
+                        )}
+                        {(selectedProduct.od || selectedProduct.OD) && (
+                          <div className="flex justify-between py-2">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>OD:</span>
+                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {(() => {
+                                const hay = [selectedProduct.size, selectedProduct.sizeInch, selectedProduct.name, selectedProduct.description]
+                                  .filter(Boolean)
+                                  .join(' ');
+                                const hasDia = /dia\b/i.test(hay) || /[øØ∅φΦ]/.test(hay);
+                                const odText = String(selectedProduct.od || selectedProduct.OD || '').replace(/"/g, '').toUpperCase();
+                                return `(${odText})${hasDia ? 'DIA' : ''}`;
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                        {(selectedProduct.length) && (
+                          <div className="flex justify-between py-2">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length ("):</span>
+                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {selectedProduct.length}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex justify-between py-2">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size (MM):</span>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selectedProduct.size}
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size:</span>
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Qty:</span>
                       <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.size}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Weight:</span>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.weight} {selectedProduct.unit}
+                        {selectedProduct.current_stock}
                       </span>
                     </div>
                   </div>

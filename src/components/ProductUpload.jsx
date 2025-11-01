@@ -123,7 +123,8 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await api.post('/products/upload', formData, {
+      // Use synchronous mode to return per-row results immediately
+      const response = await api.post('/products/upload?sync=1', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
