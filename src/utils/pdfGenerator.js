@@ -180,70 +180,11 @@ const createInvoiceElement = (invoice, company) => {
             const vatRateNum = parseFloat(item.vatRate) || 0;
             const vatAmount = calculateTRN(amountNum, vatRateNum);
             const totalWithTRN = amountNum + vatAmount;
-            const cleanSize = (() => {
-              try {
-                if (!item.size) return null;
-                if (!item.thickness) return item.size;
-                const thkMatch = String(item.thickness).match(/\d+(?:\.\d+)?/);
-                if (!thkMatch) return item.size;
-                const thkNum = thkMatch[0];
-                const parts = String(item.size)
-                  .split(/x|X|\*/)
-                  .map((p) => p.trim())
-                  .filter(Boolean);
-                const cleaned = parts.filter((p) => {
-                  const pn = p.toLowerCase().replace(/\s+/g, '');
-                  return pn !== thkNum && pn !== `${thkNum}mm`;
-                });
-                return cleaned.join('x') || item.size;
-              } catch {
-                return item.size;
-              }
-            })();
-
-            const isPipeOrTube = /pipe/i.test(item.category || '');
-            const sanitizeInch = (v) => {
-              const s = (v ?? '').toString().replace(/\"/g, '"').replace(/"/g, '').trim();
-              return s ? `${s}"` : null;
-            };
-            const sizeInchPart = sanitizeInch(item.sizeInch);
-            const diaHay = [item.size, item.sizeInch, item.name, item.description].filter(Boolean).join(' ');
-            const hasDia = /dia\b/i.test(diaHay) || /[øØ∅φΦ]/.test(diaHay);
-            const odPart = (() => {
-              const raw = (item.od ?? '').toString().replace(/\"/g, '"').replace(/"/g, '').trim();
-              if (!raw) return null;
-              const txt = raw.toUpperCase();
-              return `(${txt})${hasDia ? 'DIA' : ''}`;
-            })();
-            const lengthPart = sanitizeInch(item.length);
-
-            const productLine = [
-              (item.commodity || 'SS'),
-              item.category ? String(item.category).toUpperCase() : null,
-              (() => {
-                const g=(item.grade||'').toString().trim();
-                if(!g) return null;
-                const m=g.match(/^gr\s*(.+)$/i);
-                return m ? `GR${m[1]}` : `GR${g}`;
-              })(),
-              (() => { const f=(item.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : null; })(),
-              isPipeOrTube ? sizeInchPart : cleanSize,
-              isPipeOrTube ? odPart : null,
-              isPipeOrTube ? lengthPart : null,
-              (() => {
-                const thk = (item.thickness ?? '').toString();
-                if (!thk) return null;
-                const a = thk.replace(/\s+/g,'').toLowerCase();
-                const b = (item.size ?? '').toString().replace(/\s+/g,'').toLowerCase();
-                return a === b ? null : String(item.thickness).toUpperCase();
-              })(),
-            ]
-              .filter(Boolean)
-              .join(' - ');
+            const productLine = safe(item.name);
             
             return `
               <tr>
-                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight:600;color:#0f172a;">${safe(productLine)}</td>
+                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight:600;color:#0f172a;">${productLine}</td>
                 ${hasDescription ? '<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">' + (safe(item.description) || '-') + '</td>' : ''}
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.quantity)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate || 0)}</td>

@@ -301,11 +301,73 @@ const Autocomplete = ({
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
+  const norm = (s) => (s || '').toString().toLowerCase().trim();
+  const ed1 = (a, b) => {
+    // Early exits
+    if (a === b) return 0;
+    const la = a.length, lb = b.length;
+    if (Math.abs(la - lb) > 1) return 2; // too far
+    // DP edit distance capped at 1 for speed
+    let dpPrev = new Array(lb + 1);
+    let dpCurr = new Array(lb + 1);
+    for (let j = 0; j <= lb; j++) dpPrev[j] = j;
+    for (let i = 1; i <= la; i++) {
+      dpCurr[0] = i;
+      const ca = a.charCodeAt(i - 1);
+      for (let j = 1; j <= lb; j++) {
+        const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
+        dpCurr[j] = Math.min(
+          dpPrev[j] + 1,            // deletion
+          dpCurr[j - 1] + 1,        // insertion
+          dpPrev[j - 1] + cost      // substitution
+        );
+        // Early cut: if all >1 can break (skip for simplicity)
+      }
+      // swap
+      const tmp = dpPrev; dpPrev = dpCurr; dpCurr = tmp;
+    }
+    return dpPrev[lb];
+  };
+
+  const tokenMatch = (token, label) => {
+    const t = norm(token);
+    const l = norm(label);
+    if (!t) return true;
+    if (l.includes(t)) return true;
+    // fuzzy: split label into words and check any word within edit distance 1
+    const words = l.split(/\s+/);
+    for (const w of words) {
+      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+    }
+    return false;
+  };
+
+  const fuzzyFilter = (opts, query) => {
+    const q = norm(query);
+    if (!q) return opts;
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const scored = [];
+    for (const o of opts) {
+      const label = norm(o.label || o.name || '');
+      if (!label) continue;
+      let ok = true;
+      let score = 0;
+      for (const t of tokens) {
+        if (!tokenMatch(t, label)) { ok = false; break; }
+        // basic score: shorter distance preferred
+        const idx = label.indexOf(norm(t));
+        score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
+      }
+      if (ok) scored.push({ o, score });
+    }
+    scored.sort((a, b) => a.score - b.score);
+    return scored.map(s => s.o);
+  };
+
   useEffect(() => {
     if (inputValue) {
-      const filtered = options.filter((option) =>
-        option.name?.toLowerCase().includes(inputValue.toLowerCase())
-      );
+      const filtered = fuzzyFilter(options, inputValue);
       setFilteredOptions(filtered.slice(0, 20));
     } else {
       setFilteredOptions(options);
@@ -331,7 +393,10 @@ const Autocomplete = ({
       dropdown.style.position = "fixed";
       dropdown.style.top = `${inputRect.bottom + 4}px`;
       dropdown.style.left = `${inputRect.left}px`;
-      dropdown.style.width = `${inputRect.width}px`;
+      // Make dropdown at least as wide as the input, but allow it to grow to fit contents
+      dropdown.style.minWidth = `${inputRect.width}px`;
+      dropdown.style.width = 'auto';
+      dropdown.style.maxWidth = '90vw';
       dropdown.style.zIndex = "9999";
     }
   };
@@ -805,6 +870,8 @@ const InvoiceForm = ({ onSave }) => {
 
   // No automatic coupling; due date is independently editable by the user
 
+  const searchTimerRef = useRef(null);
+
   const handleSearchInputChange = useCallback((index, value) => {
     setSearchInputs((prev) => ({ ...prev, [index]: value }));
 
@@ -821,6 +888,24 @@ const InvoiceForm = ({ onSave }) => {
         items: newItems,
       };
     });
+    // Debounced server-side product search
+    try {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(async () => {
+        const term = (value || '').trim();
+        if (!term) return;
+        try {
+          const resp = await productService.getProducts({ search: term, limit: 20 });
+          // Overwrite the shared productsData with the fetched subset is complex;
+          // instead we keep a local map of options for active row via Autocomplete filtering.
+          // Here we attach the fetched results to a special key for the row.
+          setSearchInputs((prev) => ({ ...prev, __results: resp?.products || [] }));
+        } catch (err) {
+          console.warn('Product search failed:', err);
+          setSearchInputs((prev) => ({ ...prev, __results: [] }));
+        }
+      }, 300);
+    } catch {}
   }, []);
 
   const isProductExisting = useCallback(
@@ -866,6 +951,17 @@ const InvoiceForm = ({ onSave }) => {
       }`,
     }));
   }, [productsData]);
+
+  const searchOptions = useMemo(() => {
+    const list = searchInputs?.__results || [];
+    return list.map((product) => ({
+      ...product,
+      label: product.name,
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
+        product.selling_price || 0
+      }`,
+    }));
+  }, [searchInputs.__results]);
 
   // Dynamic option lists augmented from products data
   const allGrades = useMemo(() => {
@@ -1528,7 +1624,7 @@ const InvoiceForm = ({ onSave }) => {
                         <td className="px-3 py-4 whitespace-nowrap">
                           <div className="w-48">
                             <Autocomplete
-                              options={productOptions}
+                              options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
                               value={
                                 item.productId
                                   ? productOptions.find(
@@ -1731,7 +1827,7 @@ const InvoiceForm = ({ onSave }) => {
 
                     <div className="space-y-4">
                       <Autocomplete
-                        options={productOptions}
+                        options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
                         value={
                           item.productId
                             ? productOptions.find(

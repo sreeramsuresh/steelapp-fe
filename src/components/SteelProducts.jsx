@@ -895,10 +895,10 @@ const SteelProducts = () => {
                       placeholder="e.g., SS"
                     />
                     <Input
-                      label="Product Name *"
+                      label="Product Name (auto-generated)"
                       value={newProduct.name}
-                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                      placeholder="Enter product name"
+                      readOnly
+                      placeholder="Auto-generated"
                     />
                     <Select
                       label="Category"
@@ -1178,9 +1178,9 @@ const SteelProducts = () => {
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
-                    label="Product Name"
+                    label="Product Name (auto-generated)"
                     value={selectedProduct.name}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, name: e.target.value})}
+                    readOnly
                   />
                   <Select
                     label="Category"
