@@ -10,6 +10,7 @@ import {
   calculateSubtotal,
   calculateTotalTRN,
   calculateTotal,
+  titleCase,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
@@ -61,58 +62,148 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
       
       allElements.forEach((el, index) => {
         originalElementStyles[index] = el.style.cssText;
-        
-        // Force light mode colors
-        el.style.cssText = `
-          ${el.style.cssText}
-          color: #000000 !important;
-          background-color: transparent !important;
-          border-color: #e0e0e0 !important;
-        `;
-        
-        // Special handling for specific elements
-        if (el.classList.contains('bg-teal-600') || el.closest('thead')) {
-          el.style.backgroundColor = '#f5f5f5 !important';
-        }
-        
-        if (el.classList.contains('border') || el.classList.contains('rounded')) {
-          el.style.backgroundColor = '#ffffff !important';
-          el.style.borderColor = '#e0e0e0 !important';
-        }
-        
-        if (el.classList.contains('inline-flex') && el.classList.contains('px-2')) {
-          el.style.backgroundColor = '#e3f2fd !important';
-          el.style.color = '#1976d2 !important';
+        // Keep original white text for TAX INVOICE banner and table headers
+        const isHeaderArea = el.closest('thead') || el.classList.contains('bg-teal-600') || el.classList.contains('text-white');
+        if (!isHeaderArea) {
+          el.style.cssText = `${el.style.cssText}; color: #000000 !important;`;
         }
       });
 
       await waitForImages(element);
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-      });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+
+      // Render each logical page node separately to avoid slicing bugs
+      const pageNodes = Array.from(element.querySelectorAll('[data-invoice-page="true"]'));
+      const headerEl = element.querySelector('[data-invoice-global-top="true"]');
+      const Mx = 15; // mm side margin per business docs
+      const My = 15; // mm top/bottom margin per business docs
+      if (pageNodes.length > 0) {
+        for (let i = 0; i < pageNodes.length; i++) {
+          let targetNode = pageNodes[i];
+          let pageCanvas;
+          if (i === 0 && headerEl) {
+            // Compose first page: header + first page content in a temporary container
+            const temp = document.createElement('div');
+            temp.style.cssText = 'position:absolute; left:-9999px; top:-9999px; background:#ffffff;';
+            temp.style.width = `${targetNode.clientWidth || element.clientWidth}px`;
+            temp.appendChild(headerEl.cloneNode(true));
+            temp.appendChild(targetNode.cloneNode(true));
+            document.body.appendChild(temp);
+            pageCanvas = await html2canvas(temp, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff',
+            });
+            document.body.removeChild(temp);
+          } else {
+            pageCanvas = await html2canvas(targetNode, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff',
+            });
+          }
+          const img = pageCanvas.toDataURL('image/png');
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          const aspect = pageCanvas.height / pageCanvas.width;
+          // Scale to fit inside margins
+          let drawWidth = pageWidth - 2 * Mx;
+          let drawHeight = drawWidth * aspect;
+          const maxHeight = pageHeight - 2 * My;
+          if (drawHeight > maxHeight) {
+            drawHeight = maxHeight;
+            drawWidth = drawHeight / aspect;
+          }
+          const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2; // center within margins
+          const y = My; // top-align within margin
+          if (i > 0) pdf.addPage();
+          pdf.addImage(img, 'PNG', x, y, drawWidth, drawHeight);
+        }
+      } else {
+        // Fallback: single canvas of full element
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+        });
+        const fullImg = canvas.toDataURL('image/png');
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const aspect = canvas.height / canvas.width;
+        let drawWidth = pageWidth - 2 * Mx;
+        let drawHeight = drawWidth * aspect;
+        const maxHeight = pageHeight - 2 * My;
+        if (drawHeight > maxHeight) {
+          drawHeight = maxHeight;
+          drawWidth = drawHeight / aspect;
+        }
+        const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2;
+        const y = My;
+        pdf.addImage(fullImg, 'PNG', x, y, drawWidth, drawHeight);
+      }
 
       // Restore original styles
       element.style.cssText = originalStyles;
       allElements.forEach((el, index) => {
         el.style.cssText = originalElementStyles[index];
       });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`${invoice.invoiceNumber}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Error generating PDF. Please try again.");
     }
   };
+
+  // Auto-fit pagination in preview by measurement
+  const [pages, setPages] = React.useState([]);
+  const measureRef = React.useRef(null);
+  const measureTopRef = React.useRef(null);
+  const measureHeadRef = React.useRef(null);
+  const measureRowsRef = React.useRef(null);
+  const measureFooterRef = React.useRef(null);
+  const measureTotalsRef = React.useRef(null);
+
+  React.useEffect(() => {
+    try {
+      const el = measureRef.current;
+      if (!el) return;
+      // Force a reflow after mount
+      const topH = measureTopRef.current?.offsetHeight || 0;
+      const headH = measureHeadRef.current?.offsetHeight || 0;
+      const footH = measureFooterRef.current?.offsetHeight || 0;
+      const totalsH = measureTotalsRef.current?.offsetHeight || 0;
+      const rows = Array.from((measureRowsRef.current || {}).querySelectorAll('tr'));
+      const rowHeights = rows.map((r) => r.offsetHeight || 0);
+      const pageHeightPx = 1140; // must match visible page wrapper height
+      const padding = 16; // internal padding allowance
+      const frameHeight = Math.max(200, pageHeightPx - (topH + headH + footH + padding));
+      // Build pages by accumulating rows within frameHeight; last page leaves room for totals
+      const items = invoice.items || [];
+      const result = [];
+      let idx = 0;
+      while (idx < items.length) {
+        let used = 0;
+        const start = idx;
+        const isLast = (start === 0 ? rowHeights.reduce((a,b)=>a+b,0) : rowHeights.slice(start).reduce((a,b)=>a+b,0)) <= frameHeight; // rough
+        const budget = (idx === items.length - 1) ? frameHeight - totalsH : frameHeight;
+        while (idx < items.length) {
+          const h = rowHeights[idx] || 32;
+          if (used + h > budget && idx > start) break;
+          if (h > budget && idx === start) { idx++; break; } // ensure progress
+          used += h;
+          idx++;
+        }
+        result.push(items.slice(start, idx));
+      }
+      setPages(result);
+    } catch (e) {
+      console.warn('Pagination measure failed:', e);
+      setPages([]);
+    }
+  }, [invoice.items, isDarkMode]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -148,8 +239,89 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
         </div>
 
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-          <div id="invoice-preview" className={`p-6 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}>
+          <div
+            id="invoice-preview"
+            className={`px-12 py-6 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
+            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+          >
+            {/* Hidden measurement container */}
+            <div style={{ position: 'absolute', left: -9999, top: -9999, visibility: 'hidden', width: '800px' }} ref={measureRef}>
+              {/* Top repeated block */}
+              <div ref={measureTopRef}>
+                <div className="flex justify-between mb-6">
+                  <div>
+                    <div className="mb-2 flex items-center min-h-10">
+                      <img src={company?.logo_url || logoCompany} alt="Company Logo" crossOrigin="anonymous" className="max-h-10 w-auto object-contain" />
+                    </div>
+                    <div className="mt-1">
+                      <p className="text-sm">{company?.name || 'Ultimate Steels Building Materials Trading'}</p>
+                      <p className="text-sm">{company.address?.street}</p>
+                      <p className="text-sm">{company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}</p>
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <div className="mb-2">
+                      <h3 className="text-base font-bold">INVOICE</h3>
+                      <p className="text-sm"><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
+                      <p className="text-sm"><strong>Date:</strong> {formatDate(invoice.date)}</p>
+                      <p className="text-sm"><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold mb-1">Bill To:</h3>
+                      <p className="text-sm font-bold">{titleCase(invoice.customer.name)}</p>
+                      <p className="text-sm">{invoice.customer.address?.street}</p>
+                      <p className="text-sm">{invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full bg-teal-600 text-white flex justify-center mb-4 py-2"><h2 className="text-lg font-bold tracking-wide">TAX INVOICE</h2></div>
+              </div>
+              {/* Table header */}
+              <div ref={measureHeadRef}>
+                <table className="w-full">
+                  <thead className="bg-teal-600">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Qty</th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate</th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+              {/* Rows measure */}
+              <table className="w-full"><tbody ref={measureRowsRef}>
+                {(invoice.items || []).map((item, idx) => (
+                  <tr key={`m-${idx}`}>
+                    <td className="px-3 py-2 text-sm"><div className="font-medium">{item.name}</div></td>
+                    <td className="px-3 py-2 text-sm text-right">{item.quantity}</td>
+                    <td className="px-3 py-2 text-sm text-right">{formatCurrency(item.rate)}</td>
+                    <td className="px-3 py-2 text-sm text-right">{formatCurrency(item.amount)}</td>
+                  </tr>
+                ))}
+              </tbody></table>
+              {/* Footer/signature measure */}
+              <div ref={measureFooterRef} className="flex justify-end mt-8">
+                <div className="flex items-end gap-4">
+                  <div className="h-36 w-36 border" />
+                  <div className="text-center min-w-48">
+                    <p className="text-sm mb-6">Authorized Signatory</p>
+                    <div className="border-b border-black mb-2 h-10 w-48" />
+                    <p className="text-sm font-bold">ULTIMATE STEELS</p>
+                  </div>
+                </div>
+              </div>
+              {/* Totals measure */}
+              <div ref={measureTotalsRef} className="flex justify-end mt-6">
+                <div className="border rounded-lg min-w-80"><div className="p-4">
+                  <div className="flex justify-between mb-2"><span className="text-sm">Subtotal:</span><span className="text-sm">{formatCurrency(computedSubtotal)}</span></div>
+                  <div className="flex justify-between mb-2"><span className="text-sm">VAT Amount:</span><span className="text-sm">{formatCurrency(computedVatAmount)}</span></div>
+                  <div className="flex justify-between"><span className="text-lg font-bold">Total Amount:</span><span className="text-lg font-bold">{formatCurrency(computedTotal)}</span></div>
+                </div></div>
+              </div>
+            </div>
             {/* Invoice Header */}
+            <div data-invoice-global-top="true">
             <div className="flex justify-between mb-8">
               <div>
                 {/* Company Logo (fallbacks to name if logo fails) */}
@@ -195,16 +367,15 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ultimate Steels Building Materials Trading</p>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.street}</p>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {company.address?.city}
-                    {company.address?.emirate ? `, ${company.address.emirate}` : ''}
-                    {company.address?.poBox ? ` ${company.address.poBox}` : ''}
+                    {company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}
                   </p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.country}</p>
                 </div>
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {company.phone}</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Ph: {company.phone ? company.phone.split(',').map(phone => phone.trim()).join(' | ') : ''}
+                  </p>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {company.email}</p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {company.vatNumber}</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>VAT Reg No: 104858252000003</p>
                 </div>
               </div>
             </div>
@@ -224,15 +395,12 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   Bill To:
                 </h3>
                 <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {invoice.customer.name}
+                  {titleCase(invoice.customer.name)}
                 </p>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.street}</p>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {invoice.customer.address?.city}{' '}
-                  {invoice.customer.address?.emirate}{' '}
-                  {invoice.customer.address?.poBox}
+                  {invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.country}</p>
                 {invoice.customer.vatNumber && (
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {invoice.customer.vatNumber}</p>
                 )}
@@ -286,6 +454,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </div>
             </div>
 
+            </div>
+
             {/* Transport Details (disabled for Phase 1) */}
             {false && (
               (invoice.despatchedThrough ||
@@ -337,95 +507,288 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               )
             )}
 
-            {/* Invoice Table */}
-            <div className={`border rounded-lg mb-8 overflow-hidden ${
-              isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-            }`}>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-teal-600">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                        Product
-                      </th>
-                      {invoice.items.some((item) => item.description) && (
-                        <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">
-                          Description
-                        </th>
-                      )}
-                      {/* Grade/Finish/Size/Thickness merged into Product column */}
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        Qty
-                      </th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        Rate
-                      </th>
-                      {invoice.items.some((item) => item.discount > 0) && (
-                        <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                          Discount
-                        </th>
-                      )}
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        VAT %
-                      </th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        VAT Amount
-                      </th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                    {invoice.items.map((item, index) => {
-                      const vatAmount = calculateTRN(item.amount, item.vatRate);
-                      const totalWithTRN = item.amount + vatAmount;
-                      return (
-                        <tr key={index}>
-                          <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>
-                              {item.name}
-                            </div>
-                          </td>
-                          {invoice.items.some((item) => item.description) && (
-                            <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || "-"}</td>
-                          )}
-                          
-                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
-                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {formatCurrency(item.rate)}
-                          </td>
-                          {invoice.items.some((item) => item.discount > 0) && (
-                            <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                              {item.discount > 0
-                                ? `${formatCurrency(item.discount)}${
-                                    item.discountType === "percentage" ? "%" : ""
-                                  }`
-                                : "-"}
-                            </td>
-                          )}
-                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {formatCurrency(item.amount)}
-                          </td>
-                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.vatRate}%</td>
-                          <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {formatCurrency(vatAmount)}
-                          </td>
-                          <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {formatCurrency(totalWithTRN)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {/* Paginated Invoice Table with repeated signature */}
+            {(() => {
+              const perPage = 11; // reduce rows per page to leave breathing room
+              const pages = [];
+              const items = invoice.items || [];
+              const showDescCol = items.some(it => !!it.description);
+              const showDiscCol = items.some(it => (parseFloat(it.discount)||0) > 0);
+              for (let i = 0; i < items.length; i += perPage) {
+                pages.push(items.slice(i, i + perPage));
+              }
+              return pages.map((pageItems, pi) => {
+                const isFirst = pi === 0;
+                return (
+                <div
+                  key={`page-${pi}`}
+                  className="mb-8"
+                  style={{
+                    height: '1140px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    paddingBottom: '16px',
+                    paddingTop: '0px',
+                  }}
+                  data-invoice-page="true"
+                >
+                  {/* Repeated global top on pages after the first: header + banner + bill-to/summary */}
+                  {pi > 0 && (
+                    <>
+                      {/* Company header (left: logo + bank details) and company info (right) */}
+                      <div className="flex justify-between mb-8">
+                        <div>
+                          {/* Logo */}
+                          <div className="mb-4 flex items-center min-h-12">
+                            <img
+                              src={company?.logo_url || logoCompany}
+                              alt={company?.name || 'Company Logo'}
+                              crossOrigin="anonymous"
+                              className="max-h-12 w-auto object-contain"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          </div>
+                          {/* Bank details */}
+                          <div className="mt-2">
+                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <strong>BANK NAME:</strong> ULTIMATE STEEL AND
+                            </p>
+                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>BUILDING MATERIALS TRADING</p>
+                            <p className={`text-sm leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Account No: 019101641144</p>
+                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>IBAN: AE490330000019101641144</p>
+                          </div>
+                        </div>
+                        {/* Company info (right) */}
+                        <div className="text-left">
+                          <div className="mb-4">
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ultimate Steels Building Materials Trading</p>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.street}</p>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}</p>
+                          </div>
+                          <div>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ph: {company.phone ? company.phone.split(',').map(p => p.trim()).join(' | ') : ''}</p>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {company.email}</p>
+                            <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>VAT Reg No: 104858252000003</p>
+                          </div>
+                        </div>
+                      </div>
 
-            {/* Invoice Summary */}
+                      {/* TAX INVOICE banner */}
+                      <div className="w-full bg-teal-600 text-white flex justify-center mb-6 py-3">
+                        <h2 className="text-xl font-bold tracking-wide text-white">TAX INVOICE</h2>
+                      </div>
+
+                      {/* Bill To (left) and Invoice summary (right) */}
+                      <div className="flex justify-between gap-4 mb-8">
+                        {/* Bill To */}
+                        <div className="flex-none w-2/5 min-w-0">
+                          <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Bill To:</h3>
+                          <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{titleCase(invoice.customer.name)}</p>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.street}</p>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}</p>
+                          {invoice.customer.vatNumber && (
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {invoice.customer.vatNumber}</p>
+                          )}
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {invoice.customer.phone}</p>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {invoice.customer.email}</p>
+                        </div>
+
+                        {/* Invoice summary */}
+                        <div className="flex-none w-2/5 min-w-0 text-left">
+                          <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>INVOICE</h3>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Date:</strong> {formatDate(invoice.date)}</p>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
+                          <div className="flex items-center gap-2 justify-start mt-2">
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Status:</strong></span>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              invoice.status === 'paid'
+                                ? 'bg-green-100 text-green-800'
+                                : invoice.status === 'draft'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {invoice.status.toUpperCase()}
+                            </span>
+                          </div>
+                          {invoice.deliveryNote && (
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Delivery Note:</strong> {invoice.deliveryNote}</p>
+                          )}
+                          {invoice.customerPurchaseOrderNumber && (
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}</p>
+                          )}
+                          {invoice.customerPurchaseOrderDate && (
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}</p>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`} style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className="overflow-x-auto" style={{ paddingBottom: '16px' }}>
+                      <table className="w-full">
+                        <thead className="bg-teal-600">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                            {showDescCol && (
+                              <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Description</th>
+                            )}
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Qty</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate</th>
+                            {showDiscCol && (
+                              <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Discount</th>
+                            )}
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT %</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT Amount</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                          {pageItems.map((item, index) => {
+                            const vatAmount = calculateTRN(item.amount, item.vatRate);
+                            const totalWithTRN = item.amount + vatAmount;
+                            return (
+                              <tr key={`${pi}-${index}`}>
+                                <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
+                                </td>
+                                {showDescCol && (
+                                  <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || '-'}</td>
+                                )}
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(item.rate)}</td>
+                                {showDiscCol && (
+                                  <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    {item.discount > 0 ? `${formatCurrency(item.discount)}${item.discountType === 'percentage' ? '%' : ''}` : '-'}
+                                  </td>
+                                )}
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(item.amount)}</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.vatRate}%</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(vatAmount)}</td>
+                                <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(totalWithTRN)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  {/* On last page, show summary and terms above the signature */}
+                  {pi === pages.length - 1 && (
+                    <>
+                      {/* Invoice Summary (last page only) */}
+                      <div className="flex justify-end mt-6">
+                        <div className={`border rounded-lg min-w-80 ${
+                          isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                        }`}>
+                          <div className="p-6">
+                            <div className="flex justify-between mb-2">
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal:</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedSubtotal)}</span>
+                            </div>
+                            {(invoice.packingCharges > 0 || invoice.freightCharges > 0 || invoice.loadingCharges > 0 || invoice.otherCharges > 0) && (
+                              <>
+                                {invoice.packingCharges > 0 && (
+                                  <div className="flex justify-between mb-2">
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Packing Charges:</span>
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.packingCharges)}</span>
+                                  </div>
+                                )}
+                                {invoice.freightCharges > 0 && (
+                                  <div className="flex justify-between mb-2">
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Freight Charges:</span>
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.freightCharges)}</span>
+                                  </div>
+                                )}
+                                {invoice.loadingCharges > 0 && (
+                                  <div className="flex justify-between mb-2">
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading Charges:</span>
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.loadingCharges)}</span>
+                                  </div>
+                                )}
+                                {invoice.otherCharges > 0 && (
+                                  <div className="flex justify-between mb-2">
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Other Charges:</span>
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.otherCharges)}</span>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            <div className="flex justify-between mb-2">
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount:</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedVatAmount)}</span>
+                            </div>
+                            {invoice.roundOff && invoice.roundOff !== 0 && (
+                              <div className="flex justify-between mb-2">
+                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Round Off:</span>
+                                <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.roundOff)}</span>
+                              </div>
+                            )}
+                            <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                            <div className="flex justify-between mb-2">
+                              <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total Amount:</span>
+                              <span className="text-lg font-bold text-teal-600">{formatCurrency(computedTotal)}</span>
+                            </div>
+                            {invoice.advanceReceived > 0 && (
+                              <>
+                                <div className="flex justify-between mb-2">
+                                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Advance Received:</span>
+                                  <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.advanceReceived)}</span>
+                                </div>
+                                <div className={`flex justify-between p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                                  <span className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Balance Amount:</span>
+                                  <span className="text-sm font-bold text-red-600">{formatCurrency(Math.max(0, computedTotal - (invoice.advanceReceived || 0)))}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {(invoice.notes || invoice.terms) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                          {invoice.notes && (
+                            <div>
+                              <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'}`}>
+                                <div className="p-6">
+                                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notes:</h3>
+                                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.notes}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {invoice.terms && (
+                            <div className={invoice.notes ? '' : 'md:col-span-2'}>
+                              <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'}`}>
+                                <div className="p-6">
+                                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Payment as per payment terms:</h3>
+                                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.terms}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* Signature repeated each page at bottom */}
+                  <div className="flex justify-end mt-8" style={{ flexShrink: 0 }}>
+                    <div className="flex items-end gap-4">
+                      <img src={seal} alt="Company Seal" crossOrigin="anonymous" className="h-36 w-auto object-contain opacity-95" />
+                      <div className="text-center min-w-48">
+                        <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Authorized Signatory</p>
+                        <div className="border-b border-black mb-2 h-10 w-48" />
+                        <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>ULTIMATE STEELS</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );});
+            })()}
+
+            {/* Invoice Summary (moved to last page). Keep here only if no items */}
+            {(!invoice.items || invoice.items.length === 0) && (
             <div className="flex justify-end mb-8">
               <div className={`border rounded-lg min-w-80 ${
                 isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
@@ -543,9 +906,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Notes and Terms */}
-            {(invoice.notes || invoice.terms) && (
+            {(!invoice.items || invoice.items.length === 0) && (invoice.notes || invoice.terms) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 {invoice.notes && (
                   <div>
@@ -580,26 +944,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               </div>
             )}
 
-            {/* Signature Section with Seal on Left */}
-            <div className="flex justify-end mt-12">
-              <div className="flex items-end gap-4">
-                <img
-                  src={seal}
-                  alt="Company Seal"
-                  crossOrigin="anonymous"
-                  className="h-48 w-auto object-contain opacity-95"
-                />
-                <div className="text-center min-w-48">
-                  <p className={`text-sm mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Authorized Signatory
-                  </p>
-                  <div className="border-b border-black mb-2 h-12 w-48" />
-                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ULTIMATE STEELS
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Signature section is now repeated per page above */}
           </div>
         </div>
       </div>

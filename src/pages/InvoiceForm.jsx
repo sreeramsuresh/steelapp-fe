@@ -37,6 +37,7 @@ import {
   calculateTotal,
   formatCurrency,
   formatDateForInput,
+  titleCase,
 } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
@@ -1338,7 +1339,7 @@ const InvoiceForm = ({ onSave }) => {
                     <option value="">Select a customer</option>
                     {(customersData?.customers || []).map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.name} - {customer.email}
+                        {titleCase(customer.name)} - {customer.email}
                       </option>
                     ))}
                   </Select>
@@ -1366,7 +1367,7 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         <p>
                           <span className="font-medium">Name:</span>{" "}
-                          {invoice.customer.name}
+                          {titleCase(invoice.customer.name)}
                         </p>
                         {invoice.customer.email && (
                           <p>

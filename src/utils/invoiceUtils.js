@@ -86,3 +86,11 @@ export const formatDateForInput = (date) => {
   }
   return date;
 };
+
+// Title-case each word: capitalize first letter, lowercase the rest
+export const titleCase = (value) => {
+  if (value == null) return '';
+  const s = String(value).trim().toLowerCase();
+  // Capitalize first alpha after a word boundary
+  return s.replace(/\b([a-z])/g, (m, p1) => p1.toUpperCase());
+};
