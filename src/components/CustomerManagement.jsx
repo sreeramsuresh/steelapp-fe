@@ -88,10 +88,12 @@ const CustomerManagement = () => {
     name: '',
     email: '',
     phone: '',
+    alternate_phone: '',
+    website: '',
     address: {
       street: '',
       city: '',
-      country: 'India'
+      country: 'UAE'
     },
     company: '',
     credit_limit: 0,
@@ -149,10 +151,12 @@ const CustomerManagement = () => {
         name: '',
         email: '',
         phone: '',
+        alternate_phone: '',
+        website: '',
         address: {
           street: '',
           city: '',
-          country: 'India'
+          country: 'UAE'
         },
         company: '',
         credit_limit: '',
@@ -813,6 +817,32 @@ const CustomerManagement = () => {
 
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Alternate Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={newCustomer.alternate_phone}
+                    onChange={(e) => setNewCustomer({...newCustomer, alternate_phone: e.target.value})}
+                    placeholder="Enter alternate phone number"
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    value={newCustomer.website}
+                    onChange={(e) => setNewCustomer({...newCustomer, website: e.target.value})}
+                    placeholder="Enter website URL"
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
                     Street Address
                   </label>
                   <input
@@ -1178,6 +1208,32 @@ const CustomerManagement = () => {
                     type="tel"
                     value={selectedCustomer.phone}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, phone: e.target.value})}
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Alternate Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={selectedCustomer.alternate_phone || ''}
+                    onChange={(e) => setSelectedCustomer({...selectedCustomer, alternate_phone: e.target.value})}
+                    placeholder="Enter alternate phone number"
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    value={selectedCustomer.website || ''}
+                    onChange={(e) => setSelectedCustomer({...selectedCustomer, website: e.target.value})}
+                    placeholder="Enter website URL"
                     className={inputClasses}
                   />
                 </div>

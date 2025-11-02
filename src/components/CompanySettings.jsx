@@ -349,8 +349,6 @@ const CompanySettings = () => {
     email: '',
     website: '',
     gstNumber: '',
-    panNumber: '',
-    trnNumber: '',
     logo: null,
     bankDetails: {
       bankName: '',
@@ -359,22 +357,32 @@ const CompanySettings = () => {
     }
   });
 
-  // TRN helpers: must start with 100 and be 15 digits (UAE)
-  const validateTRN = (value) => {
-    if (!value) return null; // optional
-    const digits = String(value).replace(/\s+/g, '');
-    if (!/^100\d{12}$/.test(digits)) return 'TRN must start with 100 and be 15 digits';
-    return null;
-  };
-  const sanitizeTRNInput = (value) => String(value || '').replace(/\D/g, '').slice(0, 15);
 
   useEffect(() => {
     if (companyData) {
       console.log('Loading company data:', companyData);
       console.log('Company logo URL:', companyData.logo_url);
+      
+      // Extract address fields from JSONB or keep as string for backwards compatibility
+      const addressData = companyData.address;
+      let addressStr = '';
+      let city = '';
+      let country = '';
+      
+      if (typeof addressData === 'object' && addressData !== null) {
+        addressStr = addressData.street || '';
+        city = addressData.city || '';
+        country = addressData.country || '';
+      } else if (typeof addressData === 'string') {
+        addressStr = addressData;
+      }
+      
       setCompanyProfile({
         ...companyData,
-        address: typeof companyData.address === 'string' ? companyData.address : (companyData.address?.street || ''),
+        address: addressStr,
+        city: city,
+        country: country,
+        website: companyData.website || '',
         bankDetails: companyData.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -546,12 +554,6 @@ const CompanySettings = () => {
         notificationService.warning('Company name is required');
         return;
       }
-      // Validate TRN if provided
-      const trnErr = validateTRN(companyProfile.trnNumber);
-      if (trnErr) {
-        notificationService.error(trnErr);
-        return;
-      }
 
       const companyData = {
         name: companyProfile.name.trim(),
@@ -562,8 +564,8 @@ const CompanySettings = () => {
         },
         phone: companyProfile.phone || '',
         email: companyProfile.email || '',
-        vat_number: companyProfile.gstNumber || '',
-        trn_number: (companyProfile.trnNumber || '').replace(/\D/g, ''),
+        website: companyProfile.website || '',
+        vat_number: '104858252000003',
         logo_url: companyProfile.logo_url || null,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
@@ -1100,7 +1102,7 @@ const CompanySettings = () => {
             variant="primary"
             startIcon={updatingCompany ? <CircularProgress size={16} /> : <Save size={16} />}
             onClick={saveCompanyProfile}
-            disabled={updatingCompany || !!validateTRN(companyProfile.trnNumber)}
+            disabled={updatingCompany}
           >
             {updatingCompany ? 'Saving...' : 'Save Profile'}
           </Button>
@@ -1209,11 +1211,11 @@ const CompanySettings = () => {
                   startAdornment={<Mail size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
                 />
                 <TextField
-                  label="Phone"
+                  label="Phone Numbers"
                   type="tel"
                   value={companyProfile.phone || ''}
                   onChange={(e) => setCompanyProfile({...companyProfile, phone: e.target.value})}
-                  placeholder="Enter phone number"
+                  placeholder="Enter phone numbers (comma-separated): +971506061680, +971506067680"
                   startAdornment={<Phone size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />}
                 />
                 <TextField
@@ -1251,20 +1253,12 @@ const CompanySettings = () => {
                   onChange={(e) => setCompanyProfile({...companyProfile, city: e.target.value})}
                   placeholder="Enter city"
                 />
-                <TextField
-                  label="TRN Number"
-                  value={companyProfile.trnNumber || ''}
-                  onChange={(e) => setCompanyProfile({...companyProfile, trnNumber: sanitizeTRNInput(e.target.value)})}
-                  placeholder="100XXXXXXXXXXXX"
-                  type="text"
-                  error={!!validateTRN(companyProfile.trnNumber)}
-                  helperText={validateTRN(companyProfile.trnNumber) || '15 digits; must start with 100'}
-                />
                 <Select
                   label="Country"
                   value={companyProfile.country || ''}
                   onChange={(e) => setCompanyProfile({...companyProfile, country: e.target.value})}
                   options={[
+                    { value: 'UAE', label: 'UAE' },
                     { value: 'India', label: 'India' },
                     { value: 'United States', label: 'United States' },
                     { value: 'United Kingdom', label: 'United Kingdom' },
@@ -1285,10 +1279,10 @@ const CompanySettings = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
-                  label="PAN Number"
-                  value={companyProfile.panNumber || ''}
-                  onChange={(e) => setCompanyProfile({...companyProfile, panNumber: e.target.value})}
-                  placeholder="Enter PAN number"
+                  label="VAT REG NO"
+                  value="104858252000003"
+                  readOnly
+                  placeholder="VAT Registration Number"
                 />
               </div>
             </div>
