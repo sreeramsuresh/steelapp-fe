@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, calculateTRN, calculateSubtotal, calculateTotalTRN, calculateTotal, titleCase } from './invoiceUtils';
+import { formatCurrency, formatDate, calculateTRN, calculateSubtotal, calculateTotalTRN, calculateTotal, titleCase, formatNumber } from './invoiceUtils';
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 
@@ -77,23 +77,25 @@ export const generateInvoicePDF = async (invoice, company) => {
   // Table header measure/draw
   const tableHeaderHeight = 8;
   const drawTableHeader = (y) => {
-    // Columns: Description | Qty | Rate | Amount
+    // Columns: S.No. | Description | Qty | Rate (AED) | Amount (AED)
     const W = page.w - M.left - M.right;
     const col = {
-      desc: W * 0.58,
-      qty:  W * 0.12,
-      rate: W * 0.14,
-      amt:  W * 0.16,
+      sno:  W * 0.07,
+      desc: W * 0.51,
+      qty:  W * 0.10,
+      rate: W * 0.15,
+      amt:  W * 0.17,
     };
     pdf.setFillColor(0, 128, 128);
     pdf.rect(M.left, y, W, tableHeaderHeight, 'F');
     setBold(); pdf.setTextColor(255);
-    pdf.text('Description', M.left + 2, y + 5.5);
-    const xQty = M.left + col.desc + col.qty;
-    const xRate = M.left + col.desc + col.qty + col.rate;
-    pdf.text('Qty', M.left + col.desc + col.qty - 2, y + 5.5, { align: 'right' });
-    pdf.text('Rate', xRate - 2, y + 5.5, { align: 'right' });
-    pdf.text('Amount', M.left + W - 2, y + 5.5, { align: 'right' });
+    pdf.text('S.No.', M.left + 2, y + 5.5);
+    pdf.text('Description', M.left + col.sno + 2, y + 5.5);
+    const xQty = M.left + col.sno + col.desc + col.qty;
+    const xRate = M.left + col.sno + col.desc + col.qty + col.rate;
+    pdf.text('Qty', xQty - 2, y + 5.5, { align: 'right' });
+    pdf.text('Rate (AED)', xRate - 2, y + 5.5, { align: 'right' });
+    pdf.text('Amount (AED)', M.left + W - 2, y + 5.5, { align: 'right' });
     setBody(); black();
     return { col, height: tableHeaderHeight };
   };
@@ -142,15 +144,17 @@ export const generateInvoicePDF = async (invoice, company) => {
       if (y + rowH > frame.y + frame.h) break; // move whole row to next page
       // Draw row
       setBody(); black();
+      // S.No.
+      pdf.text(String(idx + 1), M.left + col.sno - 2, y + 5, { align: 'right' });
       // Description (left)
       let ty = y + 5;
-      descLines.forEach((ln)=>{ pdf.text(ln, M.left + 2, ty); ty += 5; });
+      descLines.forEach((ln)=>{ pdf.text(ln, M.left + col.sno + 2, ty); ty += 5; });
       // Qty / Rate / Amount (right-aligned)
-      const xQty = M.left + col.desc + col.qty;
-      const xRate = M.left + col.desc + col.qty + col.rate;
+      const xQty = M.left + col.sno + col.desc + col.qty;
+      const xRate = M.left + col.sno + col.desc + col.qty + col.rate;
       pdf.text(String(it.quantity ?? ''), xQty - 2, y + 5, { align: 'right' });
-      pdf.text(formatCurrency(it.rate ?? 0), xRate - 2, y + 5, { align: 'right' });
-      pdf.text(formatCurrency(it.amount ?? 0), M.left + frame.w - 2, y + 5, { align: 'right' });
+      pdf.text(formatNumber(it.rate ?? 0), xRate - 2, y + 5, { align: 'right' });
+      pdf.text(formatNumber(it.amount ?? 0), M.left + frame.w - 2, y + 5, { align: 'right' });
       // Divider
       pdf.setDrawColor(220); pdf.line(M.left, y + rowH, M.left + frame.w, y + rowH);
       y += rowH;
@@ -190,13 +194,13 @@ export const generateInvoicePDF = async (invoice, company) => {
   const totalsY = page.h - M.bottom - measureFooter() - 18;
   pdf.setDrawColor(200); pdf.line(M.left, totalsY - 4, page.w - M.right, totalsY - 4);
   setBody();
-  pdf.text('Subtotal:', page.w - M.right - 60, totalsY);
-  pdf.text(formatCurrency(calculateSubtotal(items)), page.w - M.right, totalsY, { align: 'right' });
-  pdf.text('VAT Amount:', page.w - M.right - 60, totalsY + 6);
-  pdf.text(formatCurrency(calculateTotalTRN(items)), page.w - M.right, totalsY + 6, { align: 'right' });
+  pdf.text('Subtotal (AED):', page.w - M.right - 60, totalsY);
+  pdf.text(formatNumber(calculateSubtotal(items)), page.w - M.right, totalsY, { align: 'right' });
+  pdf.text('VAT Amount (AED):', page.w - M.right - 60, totalsY + 6);
+  pdf.text(formatNumber(calculateTotalTRN(items)), page.w - M.right, totalsY + 6, { align: 'right' });
   setBold();
-  pdf.text('Total:', page.w - M.right - 60, totalsY + 12);
-  pdf.text(formatCurrency(calculateTotal(calculateSubtotal(items), calculateTotalTRN(items))), page.w - M.right, totalsY + 12, { align: 'right' });
+  pdf.text('Total (AED):', page.w - M.right - 60, totalsY + 12);
+  pdf.text(formatNumber(calculateTotal(calculateSubtotal(items), calculateTotalTRN(items))), page.w - M.right, totalsY + 12, { align: 'right' });
 
   // Save
   pdf.save(`${invoice.invoiceNumber}.pdf`);
@@ -311,19 +315,20 @@ const createInvoiceElement = (invoice, company) => {
       <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
           <tr style="background-color: #009999 !important; color: #ffffff !important;">
+            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; width: 40px; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">S.No.</th>
             <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Product</th>
             ${hasDescription ? '<th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Description</th>' : ''}
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Qty</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Rate</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Rate (AED)</th>
             ${hasItemDiscount ? '<th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Discount</th>' : ''}
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Amount</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Amount (AED)</th>
             <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">VAT %</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">VAT Amount</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Total</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">VAT Amount (AED)</th>
+            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Total (AED)</th>
           </tr>
         </thead>
         <tbody>
-          ${items.map(item => {
+          ${items.map((item, i) => {
             const amountNum = parseFloat(item.amount) || 0;
             const vatRateNum = parseFloat(item.vatRate) || 0;
             const vatAmount = calculateTRN(amountNum, vatRateNum);
@@ -332,15 +337,16 @@ const createInvoiceElement = (invoice, company) => {
             
             return `
               <tr>
+                <td style="padding: 8px; text-align: center; border: 1px solid #e2e8f0; width: 40px;">${i + 1}</td>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight:600;color:#0f172a;">${productLine}</td>
                 ${hasDescription ? '<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">' + (safe(item.description) || '-') + '</td>' : ''}
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.quantity)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate || 0)}</td>
-                ${hasItemDiscount ? '<td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">' + (((parseFloat(item.discount)||0) > 0) ? (formatCurrency(item.discount) + (item.discountType === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(amountNum)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(item.rate || 0)}</td>
+                ${hasItemDiscount ? '<td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">' + (((parseFloat(item.discount)||0) > 0) ? (formatNumber(item.discount) + (item.discountType === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(amountNum)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${vatRateNum}%</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(vatAmount)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(totalWithTRN)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(vatAmount)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatNumber(totalWithTRN)}</td>
               </tr>
             `;
           }).join('')}
@@ -351,16 +357,16 @@ const createInvoiceElement = (invoice, company) => {
     <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
       <div style="min-width: 300px;">
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>Subtotal:</span>
-          <span>${formatCurrency(subtotalVal)}</span>
+          <span>Subtotal (AED):</span>
+          <span>${formatNumber(subtotalVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>VAT Amount:</span>
-          <span>${formatCurrency(trnAmountVal)}</span>
+          <span>VAT Amount (AED):</span>
+          <span>${formatNumber(trnAmountVal)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
-          <span><strong>Total Amount:</strong></span>
-          <span><strong>${formatCurrency(totalVal)}</strong></span>
+          <span><strong>Total Amount (AED):</strong></span>
+          <span><strong>${formatNumber(totalVal)}</strong></span>
         </div>
       </div>
     </div>

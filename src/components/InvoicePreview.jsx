@@ -11,6 +11,7 @@ import {
   calculateTotalTRN,
   calculateTotal,
   titleCase,
+  formatNumber,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
@@ -180,15 +181,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
       const pageHeightPx = 1140; // must match visible page wrapper height
       const padding = 16; // internal padding allowance
       const frameHeight = Math.max(200, pageHeightPx - (topH + headH + footH + padding));
-      // Build pages by accumulating rows within frameHeight; last page leaves room for totals
+      // Build pages by accumulating rows within frameHeight; leave room for totals on the final page
       const items = invoice.items || [];
       const result = [];
       let idx = 0;
       while (idx < items.length) {
         let used = 0;
         const start = idx;
-        const isLast = (start === 0 ? rowHeights.reduce((a,b)=>a+b,0) : rowHeights.slice(start).reduce((a,b)=>a+b,0)) <= frameHeight; // rough
-        const budget = (idx === items.length - 1) ? frameHeight - totalsH : frameHeight;
+        const remainingHeight = rowHeights.slice(idx).reduce((a,b)=>a+b,0) || ((items.length - idx) * 32);
+        // If the remaining rows can fit in a single page when reserving totals, use reduced budget
+        const budget = remainingHeight <= (frameHeight - totalsH) ? (frameHeight - totalsH) : frameHeight;
         while (idx < items.length) {
           const h = rowHeights[idx] || 32;
           if (used + h > budget && idx > start) break;
@@ -207,7 +209,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className={`rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden ${
+      <div className={`rounded-xl w-full max-w-6xl max-h-[90vh] overflow-auto ${
         isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
       }`}>
         <div className={`p-6 border-b flex justify-between items-center ${
@@ -238,7 +240,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div>
           <div
             id="invoice-preview"
             className={`px-12 py-6 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
@@ -281,10 +283,11 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 <table className="w-full">
                   <thead className="bg-teal-600">
                     <tr>
+                      <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider w-12">S.No.</th>
                       <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
                       <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Qty</th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate</th>
-                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount</th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate (AED)</th>
+                      <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount (AED)</th>
                     </tr>
                   </thead>
                 </table>
@@ -293,10 +296,11 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               <table className="w-full"><tbody ref={measureRowsRef}>
                 {(invoice.items || []).map((item, idx) => (
                   <tr key={`m-${idx}`}>
+                    <td className="px-3 py-2 text-sm text-center w-12">{idx + 1}</td>
                     <td className="px-3 py-2 text-sm"><div className="font-medium">{item.name}</div></td>
                     <td className="px-3 py-2 text-sm text-right">{item.quantity}</td>
-                    <td className="px-3 py-2 text-sm text-right">{formatCurrency(item.rate)}</td>
-                    <td className="px-3 py-2 text-sm text-right">{formatCurrency(item.amount)}</td>
+                    <td className="px-3 py-2 text-sm text-right">{formatNumber(item.rate)}</td>
+                    <td className="px-3 py-2 text-sm text-right">{formatNumber(item.amount)}</td>
                   </tr>
                 ))}
               </tbody></table>
@@ -314,9 +318,9 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               {/* Totals measure */}
               <div ref={measureTotalsRef} className="flex justify-end mt-6">
                 <div className="border rounded-lg min-w-80"><div className="p-4">
-                  <div className="flex justify-between mb-2"><span className="text-sm">Subtotal:</span><span className="text-sm">{formatCurrency(computedSubtotal)}</span></div>
-                  <div className="flex justify-between mb-2"><span className="text-sm">VAT Amount:</span><span className="text-sm">{formatCurrency(computedVatAmount)}</span></div>
-                  <div className="flex justify-between"><span className="text-lg font-bold">Total Amount:</span><span className="text-lg font-bold">{formatCurrency(computedTotal)}</span></div>
+                  <div className="flex justify-between mb-2"><span className="text-sm">Subtotal (AED):</span><span className="text-sm">{formatNumber(computedSubtotal)}</span></div>
+                  <div className="flex justify-between mb-2"><span className="text-sm">VAT Amount (AED):</span><span className="text-sm">{formatNumber(computedVatAmount)}</span></div>
+                  <div className="flex justify-between"><span className="text-lg font-bold">Total Amount (AED):</span><span className="text-lg font-bold">{formatNumber(computedTotal)}</span></div>
                 </div></div>
               </div>
             </div>
@@ -509,15 +513,17 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
 
             {/* Paginated Invoice Table with repeated signature */}
             {(() => {
-              const perPage = 11; // reduce rows per page to leave breathing room
-              const pages = [];
               const items = invoice.items || [];
               const showDescCol = items.some(it => !!it.description);
               const showDiscCol = items.some(it => (parseFloat(it.discount)||0) > 0);
-              for (let i = 0; i < items.length; i += perPage) {
-                pages.push(items.slice(i, i + perPage));
-              }
-              return pages.map((pageItems, pi) => {
+              const fallbackPerPage = 16;
+              const chunk = (arr, size) => {
+                const out = [];
+                for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+                return out;
+              };
+              const computedPages = (pages && pages.length > 0) ? pages : chunk(items, fallbackPerPage);
+              return computedPages.map((pageItems, pi) => {
                 const isFirst = pi === 0;
                 return (
                 <div
@@ -625,24 +631,25 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       </div>
                     </>
                   )}
-                  <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`} style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div className="overflow-x-auto" style={{ paddingBottom: '16px' }}>
+                  <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`} style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ paddingBottom: '16px' }}>
                       <table className="w-full">
                         <thead className="bg-teal-600">
                           <tr>
+                            <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider w-12">S.No.</th>
                             <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
                             {showDescCol && (
                               <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Description</th>
                             )}
                             <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Qty</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate (AED)</th>
                             {showDiscCol && (
                               <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Discount</th>
                             )}
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount (AED)</th>
                             <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT %</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT Amount</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Total</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT Amount (AED)</th>
+                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Total (AED)</th>
                           </tr>
                         </thead>
                         <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
@@ -651,6 +658,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             const totalWithTRN = item.amount + vatAmount;
                             return (
                               <tr key={`${pi}-${index}`}>
+                                <td className={`px-3 py-2 text-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{index + 1 + computedPages.slice(0, pi).reduce((sum, arr) => sum + arr.length, 0)}</td>
                                 <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                   <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
                                 </td>
@@ -658,16 +666,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                   <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || '-'}</td>
                                 )}
                                 <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(item.rate)}</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(item.rate)}</td>
                                 {showDiscCol && (
                                   <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                    {item.discount > 0 ? `${formatCurrency(item.discount)}${item.discountType === 'percentage' ? '%' : ''}` : '-'}
+                                    {item.discount > 0 ? `${formatNumber(item.discount)}${item.discountType === 'percentage' ? '%' : ''}` : '-'}
                                   </td>
                                 )}
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(item.amount)}</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(item.amount)}</td>
                                 <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.vatRate}%</td>
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(vatAmount)}</td>
-                                <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(totalWithTRN)}</td>
+                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(vatAmount)}</td>
+                                <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(totalWithTRN)}</td>
                               </tr>
                             );
                           })}
@@ -685,8 +693,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         }`}>
                           <div className="p-6">
                             <div className="flex justify-between mb-2">
-                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal:</span>
-                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedSubtotal)}</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal (AED):</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedSubtotal)}</span>
                             </div>
                             {(invoice.packingCharges > 0 || invoice.freightCharges > 0 || invoice.loadingCharges > 0 || invoice.otherCharges > 0) && (
                               <>
@@ -717,8 +725,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               </>
                             )}
                             <div className="flex justify-between mb-2">
-                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount:</span>
-                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedVatAmount)}</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount (AED):</span>
+                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedVatAmount)}</span>
                             </div>
                             {invoice.roundOff && invoice.roundOff !== 0 && (
                               <div className="flex justify-between mb-2">
@@ -728,8 +736,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             )}
                             <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
                             <div className="flex justify-between mb-2">
-                              <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total Amount:</span>
-                              <span className="text-lg font-bold text-teal-600">{formatCurrency(computedTotal)}</span>
+                              <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total Amount (AED):</span>
+                              <span className="text-lg font-bold text-teal-600">{formatNumber(computedTotal)}</span>
                             </div>
                             {invoice.advanceReceived > 0 && (
                               <>
@@ -795,8 +803,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               }`}>
                 <div className="p-6">
                   <div className="flex justify-between mb-2">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal:</span>
-                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedSubtotal)}</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal (AED):</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedSubtotal)}</span>
                   </div>
 
                   {/* Additional Charges */}
@@ -847,8 +855,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   )}
 
                   <div className="flex justify-between mb-2">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount:</span>
-                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(computedVatAmount)}</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount (AED):</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedVatAmount)}</span>
                   </div>
 
                   {invoice.roundOff && invoice.roundOff !== 0 && (
@@ -864,10 +872,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
 
                   <div className="flex justify-between mb-4">
                     <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      Total Amount:
+                      Total Amount (AED):
                     </span>
                     <span className="text-lg font-bold text-teal-600">
-                      {formatCurrency(computedTotal)}
+                      {formatNumber(computedTotal)}
                     </span>
                   </div>
 

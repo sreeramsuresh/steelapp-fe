@@ -94,3 +94,13 @@ export const titleCase = (value) => {
   // Capitalize first alpha after a word boundary
   return s.replace(/\b([a-z])/g, (m, p1) => p1.toUpperCase());
 };
+
+// Numeric currency without symbol (e.g., 1,234.56)
+export const formatNumber = (value, fractionDigits = 2) => {
+  const num = Number(value);
+  const safe = isNaN(num) ? 0 : num;
+  return new Intl.NumberFormat('en-AE', {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(safe);
+};
