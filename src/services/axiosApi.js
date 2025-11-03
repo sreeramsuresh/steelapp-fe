@@ -1,6 +1,21 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// Resolve API base URL with a LAN-safe fallback.
+// If the env points to localhost but the app is accessed via a LAN IP/hostname,
+// use relative "/api" so the Vite proxy handles requests correctly.
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+try {
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
+  if (
+    API_BASE_URL && /localhost|127\.0\.0\.1/.test(API_BASE_URL) &&
+    host && !/^(localhost|127\.0\.0\.1)$/.test(host)
+  ) {
+    API_BASE_URL = "/api";
+  }
+} catch (_) {
+  // no-op; keep configured base URL
+}
+
 const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT || "/auth/refresh-token";
 
 // Simple cookie helper (matching GigLabz approach)

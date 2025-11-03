@@ -15,6 +15,8 @@ const toServer = (item = {}) => ({
   location: item.location || '',
   warehouse_id: item.warehouseId ? Number(item.warehouseId) : null,
   min_stock: item.minStock != null ? Number(item.minStock) : 0,
+  product_id: item.productId ? Number(item.productId) : null,
+  product_name: item.productName || null,
 });
 
 // Map server record -> UI model (camelCase)
@@ -36,6 +38,8 @@ const fromServer = (rec = {}) => ({
   warehouseCode: rec.warehouse_code || '',
   warehouseCity: rec.warehouse_city || '',
   minStock: rec.min_stock || 0,
+  productId: rec.product_id || null,
+  productName: rec.product_name || null,
 });
 
 class InventoryService {

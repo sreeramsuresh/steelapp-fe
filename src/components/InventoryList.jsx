@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { inventoryService } from "../services/inventoryService";
+import { productService } from "../services/productService";
 import {
   createInventoryItem,
   PRODUCT_TYPES,
@@ -37,6 +38,9 @@ const InventoryList = () => {
   const [error, setError] = useState("");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
+  const [productQuery, setProductQuery] = useState("");
+  const [productOptions, setProductOptions] = useState([]);
+  const [productSearching, setProductSearching] = useState(false);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
@@ -47,6 +51,8 @@ const InventoryList = () => {
       landedCost: "",
       warehouseId: "",
       warehouseName: "",
+      productId: null,
+      productName: "",
     };
   });
 
@@ -98,7 +104,13 @@ const InventoryList = () => {
   const handleOpenDialog = (item = null) => {
     if (item) {
       setEditingItem(item);
-      setFormData(item);
+      setFormData({
+        ...item,
+        productId: item.productId || null,
+        productName: item.productName || "",
+      });
+      setProductQuery("");
+      setProductOptions([]);
     } else {
       setEditingItem(null);
       const item = createInventoryItem();
@@ -110,7 +122,11 @@ const InventoryList = () => {
         landedCost: "",
         warehouseId: "",
         warehouseName: "",
+        productId: null,
+        productName: "",
       });
+      setProductQuery("");
+      setProductOptions([]);
     }
     setOpenDialog(true);
   };
@@ -127,6 +143,8 @@ const InventoryList = () => {
       landedCost: "",
       warehouseId: "",
       warehouseName: "",
+      productId: null,
+      productName: "",
     });
     setError("");
   };
@@ -186,6 +204,44 @@ const InventoryList = () => {
       warehouseName: selectedWarehouse ? `${selectedWarehouse.name} (${selectedWarehouse.city})` : "",
       location: selectedWarehouse ? `${selectedWarehouse.name} - ${selectedWarehouse.city}` : prev.location,
     }));
+  };
+
+  // Product catalog search with simple debounce
+  useEffect(() => {
+    let t;
+    if (!openDialog) return;
+    if (!productQuery || productQuery.trim().length < 2) {
+      setProductOptions([]);
+      return;
+    }
+    setProductSearching(true);
+    t = setTimeout(async () => {
+      try {
+        const res = await productService.searchProducts(productQuery, { limit: 10 });
+        const rows = res?.data || res?.products || res || [];
+        setProductOptions(rows);
+      } catch (e) {
+        setProductOptions([]);
+      } finally {
+        setProductSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [productQuery, openDialog]);
+
+  const handleSelectProduct = (product) => {
+    if (!product) return;
+    setFormData((prev) => ({
+      ...prev,
+      productId: product.id,
+      productName: product.name,
+    }));
+    setProductQuery("");
+    setProductOptions([]);
+  };
+
+  const clearLinkedProduct = () => {
+    setFormData((prev) => ({ ...prev, productId: null, productName: "" }));
   };
 
   const filteredInventory = inventory
@@ -311,6 +367,9 @@ const InventoryList = () => {
                   Description
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Product Name
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Product Type
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -360,6 +419,21 @@ const InventoryList = () => {
                         {item.warehouseName || item.location}
                       </span>
                     )}
+                  </td>
+                  
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {item.productName ? (
+                        <div>
+                          <div className="font-medium text-teal-600">{item.productName}</div>
+                          <div className="text-xs text-gray-500">From Catalog</div>
+                        </div>
+                      ) : (
+                        <span className={`text-xs italic ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Not linked
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -453,6 +527,7 @@ const InventoryList = () => {
                         className={`p-2 rounded transition-colors ${
                           isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
                         }`}
+                        title="Edit"
                       >
                         <Edit size={16} />
                       </button>
@@ -461,11 +536,13 @@ const InventoryList = () => {
                         className={`p-2 rounded transition-colors ${
                           isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
                         }`}
+                        title="Delete"
                       >
                         <Delete size={16} />
                       </button>
                     </div>
                   </td>
+                  
                 </tr>
               ))}
               {filteredInventory.length === 0 && (
@@ -517,6 +594,57 @@ const InventoryList = () => {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                  {/* Product Catalog Link */}
+                  <div className="sm:col-span-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Product (Catalog)
+                    </label>
+                    {formData.productId ? (
+                      <div className={`flex items-center justify-between px-4 py-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}>
+                        <div>
+                          <div className="font-medium text-teal-500">{formData.productName}</div>
+                          <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Linked to catalog</div>
+                        </div>
+                        <button onClick={clearLinkedProduct} className={`px-3 py-1 rounded border ${isDarkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'}`}>
+                          Unlink
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={productQuery}
+                          onChange={(e) => setProductQuery(e.target.value)}
+                          placeholder="Search and select a product to link (optional)"
+                          className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                        {productSearching && (
+                          <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Searching...</div>
+                        )}
+                        {productOptions.length > 0 && (
+                          <div className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow ${isDarkMode ? 'bg-[#1E2328] border-gray-700' : 'bg-white border-gray-200'}`}>
+                            {productOptions.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => handleSelectProduct(p)}
+                                className={`w-full text-left px-4 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                              >
+                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.name}</div>
+                                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.category} {p.grade ? `• GR${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Linking helps show the exact product name in Inventory and enables catalog-based analytics.
+                    </p>
+                  </div>
                   <div className="sm:col-span-2">
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Description

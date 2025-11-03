@@ -1,231 +1,392 @@
-import { formatCurrency, formatDate, calculateTRN, calculateSubtotal, calculateTotalTRN, calculateTotal, titleCase, formatNumber } from './invoiceUtils';
-import logoCompany from '../assets/logocompany.png';
-import sealImage from '../assets/Seal.png';
+import {
+  formatCurrency,
+  formatDate,
+  calculateTRN,
+  calculateSubtotal,
+  calculateTotalTRN,
+  calculateTotal,
+  titleCase,
+  formatNumber,
+} from "./invoiceUtils";
+import logoCompany from "../assets/logocompany.png";
+import sealImage from "../assets/Seal.png";
 
 // Measurement‑based pagination generator
 export const generateInvoicePDF = async (invoice, company) => {
-  const { jsPDF } = await import('jspdf');
-  const pdf = new jsPDF('p', 'mm', 'a4');
+  const { jsPDF } = await import("jspdf");
+  const pdf = new jsPDF("p", "mm", "a4");
 
-  // Base margins (mm) — business docs spec
-  const M = { top: 15, bottom: 15, left: 15, right: 15 };
-  const page = { w: pdf.internal.pageSize.getWidth(), h: pdf.internal.pageSize.getHeight() };
+  // Base margins (mm) — ultra minimal for maximum content space
+  const M = { top: 8, bottom: 5, left: 10, right: 10 };
+  const page = {
+    w: pdf.internal.pageSize.getWidth(),
+    h: pdf.internal.pageSize.getHeight(),
+  };
 
   // Fonts
-  const setBody = () => { pdf.setFont('helvetica', ''); pdf.setFontSize(11); };
-  const setBold = () => { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(11); };
-  const gray = (v=140) => pdf.setTextColor(v);
+  const setBody = () => {
+    pdf.setFont("helvetica", "");
+    pdf.setFontSize(11);
+  };
+  const setBold = () => {
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+  };
+  const gray = (v = 140) => pdf.setTextColor(v);
   const black = () => pdf.setTextColor(0);
 
-  const textWidth = (txt, fontSize=11, fontStyle='') => {
+  const textWidth = (txt, fontSize = 11, fontStyle = "") => {
     const prevSize = pdf.getFontSize();
     const prev = pdf.getFont();
-    pdf.setFont('helvetica', fontStyle || '');
+    pdf.setFont("helvetica", fontStyle || "");
     pdf.setFontSize(fontSize);
     const w = pdf.getTextDimensions(txt).w;
     pdf.setFont(prev.fontName, prev.fontStyle);
     pdf.setFontSize(prevSize);
     return w;
   };
-  const split = (txt, maxW) => pdf.splitTextToSize(txt || '', maxW);
+  const split = (txt, maxW) => pdf.splitTextToSize(txt || "", maxW);
 
-  // Measure header height based on text blocks (kept consistent on every page)
-  const measureHeader = () => {
-    const titleH = 8;               // TAX INVOICE banner
-    const companyBlockH = 5 * 4;    // approx 4 lines (name + address)
-    const invoiceMetaH  = 5 * 4;    // invoice details (2–3 lines)
-    const billToH       = 5 * 4;    // bill to block (approx 3–4 lines)
-    const gutter        = 4;        // spacing between rows
-    return titleH + companyBlockH + gutter + Math.max(invoiceMetaH, billToH) + 2; // mm
+  const measureHeader = (isFirstPage = true) => {
+    if (isFirstPage) {
+      const companyNameH = 4;
+      const taxInvoiceH = 5;
+      const customerInfoH = 8;
+      const invoiceInfoH = 6;
+      const spacing = 2;
+      return (
+        companyNameH +
+        taxInvoiceH +
+        Math.max(customerInfoH, invoiceInfoH) +
+        spacing
+      );
+    } else {
+      return 8;
+    }
   };
 
-  const drawHeader = (pageIdx, pageCount) => {
+  const drawHeader = (pageIdx, pageCount, isFirstPage = true) => {
     let y = M.top;
-    // TAX INVOICE banner
-    pdf.setFillColor(0, 128, 128);
-    pdf.rect(M.left, y, page.w - M.left - M.right, 8, 'F');
-    setBold(); pdf.setTextColor(255);
-    pdf.text('TAX INVOICE', M.left + 4, y + 5.5);
-    y += 12;
-    // Company (left)
-    setBody(); black();
-    const compName = company?.name || 'Ultimate Steels Building Materials Trading';
-    pdf.text(compName, M.left, y); y += 5;
-    const addr = [company?.address?.street, company?.address?.city, company?.address?.emirate, company?.address?.country]
-      .filter(Boolean).join(', ');
-    if (addr) { pdf.text(addr, M.left, y); y += 5; }
-    // Logo (optional) to left of company name if available (fallback safe)
-    // Note: For simplicity, we keep text-only header. Logo embedding can be added if a base64 image is available.
 
-    // Right column: Invoice details + Bill To
-    const rightX = page.w - M.right - 70; // fixed width box
-    let ry = M.top + 12;
-    setBold(); pdf.text('Invoice Details', rightX, ry); ry += 6; setBody();
-    const invNo = `Invoice #: ${invoice.invoiceNumber || ''}`;
-    const invDate = `Date: ${formatDate(invoice.date || new Date())}`;
-    pdf.text(invNo, rightX, ry); ry += 5; pdf.text(invDate, rightX, ry);
+    if (isFirstPage) {
+      setBody();
+      black();
 
-    // Bill To block
-    const cust = invoice.customer || {};
-    const billTop = M.top + 12;
-    setBold(); pdf.text('Bill To:', rightX + 40, billTop); setBody();
-    const billLines = split(`${titleCase(cust.name || '')}\n${cust.address?.street || ''}\n${cust.address?.city || ''}`, 70);
-    let by = billTop + 6;
-    billLines.forEach((ln)=>{ pdf.text(ln, rightX + 40, by); by += 5; });
+      const compName =
+        company?.name || "Ultimate Steels Building Materials Trading";
+      pdf.text(compName, M.left, y);
+      y += 4;
+
+      pdf.setFillColor(0, 128, 128);
+      pdf.rect(M.left, y, page.w - M.left - M.right, 5, "F");
+      setBold();
+      pdf.setTextColor(255);
+      const titleWidth = textWidth("TAX INVOICE", 10, "bold");
+      const centerX = M.left + (page.w - M.left - M.right) / 2 - titleWidth / 2;
+      pdf.setFontSize(10);
+      pdf.text("TAX INVOICE", centerX, y + 3.5);
+      pdf.setFontSize(11);
+      y += 6;
+
+      setBody();
+      black();
+      const leftColX = M.left;
+      const rightColX = page.w - M.right - 70;
+
+      const cust = invoice.customer || {};
+      pdf.text(`Bill To: ${titleCase(cust.name || "")}`, leftColX, y);
+
+      const invNo = `Invoice #: ${invoice.invoiceNumber || ""}`;
+      pdf.text(invNo, rightColX, y);
+      y += 4;
+
+      const invDate = `Date: ${formatDate(invoice.date || new Date())}`;
+      pdf.text(invDate, rightColX, y);
+      y += 4;
+    } else {
+      setBody();
+      black();
+      const compName =
+        company?.name || "Ultimate Steels Building Materials Trading";
+      pdf.text(compName, M.left, y);
+
+      const invInfo = `Invoice #: ${invoice.invoiceNumber || ""} (Continued)`;
+      pdf.text(invInfo, page.w - M.right, y, { align: "right" });
+      y += 4;
+    }
   };
 
-  // Table header measure/draw
-  const tableHeaderHeight = 8;
-  const drawTableHeader = (y) => {
-    // Columns: S.No. | Description | Qty | Rate (AED) | Amount (AED)
+  const tableHeaderHeight = 0;
+  const getColumnLayout = () => {
     const W = page.w - M.left - M.right;
-    const col = {
-      sno:  W * 0.07,
+    return {
+      sno: W * 0.07,
       desc: W * 0.51,
-      qty:  W * 0.10,
+      qty: W * 0.1,
       rate: W * 0.15,
-      amt:  W * 0.17,
+      amt: W * 0.17,
     };
-    pdf.setFillColor(0, 128, 128);
-    pdf.rect(M.left, y, W, tableHeaderHeight, 'F');
-    setBold(); pdf.setTextColor(255);
-    pdf.text('S.No.', M.left + 2, y + 5.5);
-    pdf.text('Description', M.left + col.sno + 2, y + 5.5);
-    const xQty = M.left + col.sno + col.desc + col.qty;
-    const xRate = M.left + col.sno + col.desc + col.qty + col.rate;
-    pdf.text('Qty', xQty - 2, y + 5.5, { align: 'right' });
-    pdf.text('Rate (AED)', xRate - 2, y + 5.5, { align: 'right' });
-    pdf.text('Amount (AED)', M.left + W - 2, y + 5.5, { align: 'right' });
-    setBody(); black();
-    return { col, height: tableHeaderHeight };
   };
 
-  // Footer measure/draw (signature + stamp + page numbering)
-  const measureFooter = () => 30; // mm approx area for seal + signatory
-  const drawFooter = (pageIdx, pageCount) => {
-    const footerH = measureFooter();
-    const yTop = page.h - M.bottom - footerH;
-    // Stamp/Seal box
+  const measureFooter = (isLastPage = false) => {
+    return isLastPage ? 25 : 20;
+  };
+
+  const drawFooter = (pageIdx, pageCount, customFooterY = null) => {
+    const isLastPage = pageIdx === pageCount;
+    const footerH = measureFooter(isLastPage);
+    const yTop = customFooterY || page.h - M.bottom - footerH;
+
     pdf.setDrawColor(60);
-    pdf.rect(M.left, yTop + 2, 35, 25);
-    setBody(); gray(100);
-    pdf.text('Stamp / Seal', M.left + 3, yTop + 8);
-    // Authorized Signatory
+    pdf.rect(M.left, yTop + 2, 35, 22);
+    setBody();
+    gray(100);
+    pdf.text("Company Seal", M.left + 2, yTop + 6);
+
+    setBody();
+    gray(80);
+    pdf.setFontSize(9);
+    pdf.text("Ultimate Steels", M.left + 2, yTop + 11);
+    pdf.text("Building Materials", M.left + 2, yTop + 15);
+    pdf.text("Trading LLC", M.left + 2, yTop + 19);
+    pdf.setFontSize(11);
+
     black();
-    pdf.text('Authorized Signatory', page.w - M.right - 55, yTop + 8);
-    pdf.line(page.w - M.right - 55, yTop + 20, page.w - M.right, yTop + 20);
-    setBody(); gray(110);
-    pdf.text('ULTIMATE STEELS', page.w - M.right - 40, yTop + 26);
-    // Page numbering
-    setBody(); gray(120);
-    pdf.text(`Page ${pageIdx} of ${pageCount}`, page.w - M.right, page.h - 6, { align: 'right' });
+    setBold();
+    pdf.text("Authorized Signatory", page.w - M.right - 70, yTop + 5);
+
+    pdf.setDrawColor(0);
+    pdf.line(
+      page.w - M.right - 70,
+      yTop + 16,
+      page.w - M.right - 15,
+      yTop + 16
+    );
+
+    setBody();
+    gray(80);
+    pdf.setFontSize(9);
+    pdf.text("ULTIMATE STEELS", page.w - M.right - 60, yTop + 20);
+    pdf.text("BUILDING MATERIALS TRADING", page.w - M.right - 75, yTop + 23);
+    pdf.setFontSize(11);
+
+    setBody();
+    gray(120);
+    pdf.text(`Page ${pageIdx} of ${pageCount}`, page.w - M.right, page.h - 4, {
+      align: "right",
+    });
+
+    pdf.setDrawColor(200);
+    pdf.line(M.left, yTop, page.w - M.right, yTop);
   };
 
-  // Row renderer & measurer
-  const renderRows = (startIndex) => {
-    const headerH = measureHeader();
-    const footerH = measureFooter();
+  const renderRows = (startIndex, isFirstPage = true, isLastPage = false) => {
+    const headerH = measureHeader(isFirstPage);
     const topBoundaryY = M.top + headerH + tableHeaderHeight;
-    const bottomBoundaryY = page.h - M.bottom - footerH;
-    const frame = { x: M.left, y: topBoundaryY, w: page.w - M.left - M.right, h: bottomBoundaryY - topBoundaryY };
+    const frame = {
+      x: M.left,
+      y: topBoundaryY,
+      w: page.w - M.left - M.right,
+      h: page.h - topBoundaryY - M.bottom - 5,
+    };
 
-    // Draw header each page
-    drawHeader(1, 1); // page numbers postdraw
-    const { col } = drawTableHeader(M.top + headerH);
+    const currentPage = pdf.getCurrentPageInfo().pageNumber;
+    drawHeader(currentPage, 1, isFirstPage);
+    const col = getColumnLayout();
 
     let y = frame.y;
     let idx = startIndex;
     const items = invoice.items || [];
+    let itemsOnThisPage = 0;
+
+    const remainingItems = items.length - idx;
+
+    const footerMinSpace = 25;
+    const maxAvailableHeight = frame.h - footerMinSpace;
+
     while (idx < items.length) {
       const it = items[idx];
       const descW = col.desc - 4;
-      const descLines = split(it.name || '', descW);
-      const rowH = Math.max(8, descLines.length * 5 + 4);
-      if (y + rowH > frame.y + frame.h) break; // move whole row to next page
-      // Draw row
-      setBody(); black();
-      // S.No.
-      pdf.text(String(idx + 1), M.left + col.sno - 2, y + 5, { align: 'right' });
-      // Description (left)
-      let ty = y + 5;
-      descLines.forEach((ln)=>{ pdf.text(ln, M.left + col.sno + 2, ty); ty += 5; });
-      // Qty / Rate / Amount (right-aligned)
+      const descLines = split(it.name || "", descW);
+      const baseHeight = 4;
+      const lineHeight = 3;
+      const padding = 1;
+      const rowH =
+        baseHeight + Math.max(0, descLines.length - 1) * lineHeight + padding;
+
+      const contentHeightAfterItem = y + rowH - frame.y;
+      const spaceNeededForFooter = measureFooter(idx === items.length - 1) + 3;
+      const totalSpaceNeeded = contentHeightAfterItem + spaceNeededForFooter;
+
+      if (totalSpaceNeeded > maxAvailableHeight && idx < items.length - 1) {
+        break;
+      }
+      setBody();
+      black();
+      pdf.text(String(idx + 1), M.left + col.sno - 2, y + 4, {
+        align: "right",
+      });
+      let ty = y + 3;
+      descLines.forEach((ln, lineIndex) => {
+        pdf.text(ln, M.left + col.sno + 2, ty);
+        ty += lineIndex < descLines.length - 1 ? 3 : 0;
+      });
       const xQty = M.left + col.sno + col.desc + col.qty;
       const xRate = M.left + col.sno + col.desc + col.qty + col.rate;
-      pdf.text(String(it.quantity ?? ''), xQty - 2, y + 5, { align: 'right' });
-      pdf.text(formatNumber(it.rate ?? 0), xRate - 2, y + 5, { align: 'right' });
-      pdf.text(formatNumber(it.amount ?? 0), M.left + frame.w - 2, y + 5, { align: 'right' });
-      // Divider
-      pdf.setDrawColor(220); pdf.line(M.left, y + rowH, M.left + frame.w, y + rowH);
+      pdf.text(String(it.quantity ?? ""), xQty - 2, y + 4, { align: "right" });
+      pdf.text(formatNumber(it.rate ?? 0), xRate - 2, y + 4, {
+        align: "right",
+      });
+      pdf.text(formatNumber(it.amount ?? 0), M.left + frame.w - 2, y + 4, {
+        align: "right",
+      });
+
       y += rowH;
       idx++;
+      itemsOnThisPage++;
     }
-    return { nextIndex: idx, frame, headerH, footerH };
+
+    const actualContentHeight = y - frame.y;
+    const remainingSpace = frame.h - actualContentHeight;
+
+    return {
+      nextIndex: idx,
+      frame,
+      headerH,
+      footerH: measureFooter(idx >= items.length),
+      actualContentHeight: y - frame.y,
+      remainingSpace: frame.h - (y - frame.y),
+      lastItemY: y,
+    };
   };
 
-  // Pagination loop
   let index = 0;
   const items = invoice.items || [];
   const pagesMeta = [];
+  let pageCount = 0;
+
   while (index < items.length) {
+    pageCount++;
+    const isFirstPage = pageCount === 1;
+    const isLastPage = index + 15 >= items.length;
     const startPage = pdf.getCurrentPageInfo().pageNumber;
-    const res = renderRows(index);
+    const res = renderRows(index, isFirstPage, isLastPage);
     index = res.nextIndex;
-    pagesMeta.push({ pageNumber: pdf.getCurrentPageInfo().pageNumber, lastIndex: index });
-    // Footer (+ continue note if not last page)
-    const totalPagesSoFar = pdf.getNumberOfPages();
-    // We'll add numbering after all pages are created
+
+    const minFooterGap = 1;
+    const footerY = res.lastItemY + minFooterGap;
+
+    pagesMeta.push({
+      pageNumber: pdf.getCurrentPageInfo().pageNumber,
+      lastIndex: index,
+      isFirstPage,
+      footerY: footerY,
+      actualContentHeight: res.actualContentHeight,
+    });
+
     if (index < items.length) {
-      setBody(); gray(120);
-      pdf.text('Items continue on next page.', M.left, page.h - M.bottom - measureFooter() - 2);
+      setBody();
+      gray(120);
+      pdf.text("Items continue on next page.", M.left, footerY - 2);
       pdf.addPage();
     }
   }
 
-  // Draw footer and totals on last page
-  const pageCount = pdf.getNumberOfPages();
-  for (let p = 1; p <= pageCount; p++) {
+  const totalPages = pdf.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
     pdf.setPage(p);
-    drawFooter(p, pageCount);
+    const isLastPg = p === totalPages;
+    const pageMeta = pagesMeta[p - 1];
+    const customFooterY = pageMeta ? pageMeta.footerY : null;
+    drawFooter(p, totalPages, customFooterY);
   }
-  // Totals only on last page
-  pdf.setPage(pageCount);
-  setBold(); black();
-  const totalsY = page.h - M.bottom - measureFooter() - 18;
-  pdf.setDrawColor(200); pdf.line(M.left, totalsY - 4, page.w - M.right, totalsY - 4);
-  setBody();
-  pdf.text('Subtotal (AED):', page.w - M.right - 60, totalsY);
-  pdf.text(formatNumber(calculateSubtotal(items)), page.w - M.right, totalsY, { align: 'right' });
-  pdf.text('VAT Amount (AED):', page.w - M.right - 60, totalsY + 6);
-  pdf.text(formatNumber(calculateTotalTRN(items)), page.w - M.right, totalsY + 6, { align: 'right' });
-  setBold();
-  pdf.text('Total (AED):', page.w - M.right - 60, totalsY + 12);
-  pdf.text(formatNumber(calculateTotal(calculateSubtotal(items), calculateTotalTRN(items))), page.w - M.right, totalsY + 12, { align: 'right' });
 
-  // Save
+  pdf.setPage(totalPages);
+  setBold();
+  black();
+  const lastPageMeta = pagesMeta[totalPages - 1];
+  const totalsY = lastPageMeta
+    ? lastPageMeta.lastItemY + 2
+    : page.h - M.bottom - measureFooter(true) - 3;
+  pdf.setDrawColor(200);
+  pdf.line(M.left, totalsY - 2, page.w - M.right, totalsY - 2);
+  setBody();
+
+  pdf.text("Subtotal (AED):", page.w - M.right - 60, totalsY);
+  pdf.text(formatNumber(calculateSubtotal(items)), page.w - M.right, totalsY, {
+    align: "right",
+  });
+
+  pdf.text("VAT Amount (AED):", page.w - M.right - 60, totalsY + 3);
+  pdf.text(
+    formatNumber(calculateTotalTRN(items)),
+    page.w - M.right,
+    totalsY + 3,
+    { align: "right" }
+  );
+
+  setBold();
+  pdf.text("Total (AED):", page.w - M.right - 60, totalsY + 6);
+  pdf.text(
+    formatNumber(
+      calculateTotal(calculateSubtotal(items), calculateTotalTRN(items))
+    ),
+    page.w - M.right,
+    totalsY + 6,
+    { align: "right" }
+  );
+
+  let currentY = totalsY + 8;
+  setBody();
+  black();
+
+  if (invoice.notes) {
+    pdf.text("Notes:", M.left, currentY);
+    currentY += 3;
+    const notesLines = split(invoice.notes, page.w - M.left - M.right - 10);
+    notesLines.forEach((line) => {
+      pdf.text(line, M.left, currentY);
+      currentY += 3;
+    });
+    currentY += 1;
+  }
+
+  if (invoice.terms) {
+    pdf.text("Payment as per payment terms:", M.left, currentY);
+    currentY += 3;
+    const termsLines = split(invoice.terms, page.w - M.left - M.right - 10);
+    termsLines.forEach((line) => {
+      pdf.text(line, M.left, currentY);
+      currentY += 3;
+    });
+  }
+
+  const finalContentY = currentY + 2;
+
+  pdf.setPage(totalPages);
+  drawFooter(totalPages, totalPages, finalContentY);
+
   pdf.save(`${invoice.invoiceNumber}.pdf`);
   return true;
 };
 
 const createInvoiceElement = (invoice, company) => {
-  const element = document.createElement('div');
+  const element = document.createElement("div");
   element.style.cssText = `
     width: 210mm;
     min-height: 297mm;
-    padding: 15mm 25mm;
+    padding: 12mm 20mm;
     background: white;
     font-family: Calibri, Arial, sans-serif;
     font-size: 11pt;
-    line-height: 1.4;
+    line-height: 1.2;
     color: #1e293b;
     position: absolute;
     top: -9999px;
     left: -9999px;
   `;
-  
+
   const items = Array.isArray(invoice.items) ? invoice.items : [];
-  const hasDescription = items.some((it) => !!it.description);
-  const hasItemDiscount = items.some((it) => (parseFloat(it.discount) || 0) > 0);
   const subtotalVal = calculateSubtotal(items);
   const trnAmountVal = calculateTotalTRN(items);
   const packing = parseFloat(invoice.packingCharges) || 0;
@@ -233,9 +394,12 @@ const createInvoiceElement = (invoice, company) => {
   const loading = parseFloat(invoice.loadingCharges) || 0;
   const other = parseFloat(invoice.otherCharges) || 0;
   const additionalChargesVal = packing + freight + loading + other;
-  const totalVal = calculateTotal(subtotalVal + additionalChargesVal, trnAmountVal);
-  // Safe access helpers
-  const safe = (v) => (v == null ? '' : v);
+  const totalVal = calculateTotal(
+    subtotalVal + additionalChargesVal,
+    trnAmountVal
+  );
+
+  const safe = (v) => (v == null ? "" : v);
   const cust = invoice.customer || {};
   const custAddr = cust.address || {};
   const comp = company || {};
@@ -243,181 +407,275 @@ const createInvoiceElement = (invoice, company) => {
 
   element.innerHTML = `
     <style>
-      /* Calibri 11 for body text; headings and table headers keep their own sizes */
-      p, td, span, li, div { font-family: Calibri, Arial, sans-serif; font-size: 11pt; }
-      th { font-family: inherit; }
-      h1, h2, h3, h4, h5, h6 { font-family: inherit; }
+      /* CRITICAL: Prevent ANY spacing from elements */
+      * {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+      }
+      
+      /* Only add back necessary spacing explicitly */
+      p, td, span, li, div { 
+        font-family: Calibri, Arial, sans-serif; 
+        font-size: 11pt; 
+        line-height: 1.2; 
+      }
+      
+      /* Completely remove table structures - NO TABLES ALLOWED */
+      table { display: none !important; }
+      
+      .header-section-first {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 12px 20px !important;
+        border-bottom: 2px solid #e2e8f0;
+        z-index: 1000;
+      }
+      
+      .content-area-first {
+        margin-top: 160px !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .footer-section {
+        margin-top: 10px !important;
+        padding: 10px 20px !important;
+        border-top: 1px solid #e2e8f0;
+      }
+      
+      .item-row {
+        padding: 3px 0 !important;
+        margin: 0 !important;
+      }
+      
+      .totals-section {
+        margin-top: 5px !important;
+        padding: 0 !important;
+      }
     </style>
-    <div style="display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0;">
-      <div style="flex: 1;">
-        <div style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
-          <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 48px; width: auto; object-fit: contain;" />
-        </div>
-        <div style="margin-top: 8px; line-height: 1.3;">
-          ${company.bankDetails && (company.bankDetails.bankName || company.bankDetails.accountNumber) ? `
-            <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ${company.bankDetails.bankName || 'Not specified'}</p>
-            ${company.bankDetails.accountNumber ? `<p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: ${company.bankDetails.accountNumber}</p>` : ''}
-            ${company.bankDetails.iban ? `<p style="margin: 0; font-size: 11px; color: #334155;">IBAN: ${company.bankDetails.iban}</p>` : ''}
-          ` : `
-            <p style="margin: 0; font-size: 11px; color: #334155;"><strong>BANK NAME:</strong> ULTIMATE STEEL AND</p>
-            <p style="margin: 0; font-size: 11px; color: #334155;">BUILDING MATERIALS TRADING</p>
-            <p style="margin: 4px 0 0 0; font-size: 11px; color: #334155;">Account No: 019101641144</p>
-            <p style="margin: 0; font-size: 11px; color: #334155;">IBAN: AE490330000019101641144</p>
-          `}
+    
+    <!-- HEADER -->
+    <div class="header-section-first">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px !important;">
+        <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 35px; width: auto;" />
+        <div>
+          <p style="font-weight: bold; font-size: 11pt;">Ultimate Steels Building Materials Trading</p>
         </div>
       </div>
       
-      <div style="text-align: left;">
-        <div style="margin-bottom: 6px;">
-          <p style="margin: 2px 0;">Ultimate Steels Building Materials Trading</p>
-        </div>
-        <div style="margin-bottom: 10px;">
-          <p style="margin: 2px 0;">${safe(compAddr.street)}</p>
-          <p style="margin: 2px 0;">${safe(compAddr.city)}${compAddr.city && compAddr.country ? ', ' : ''}${safe(compAddr.country)}</p>
-        </div>
-        <div>
-          <p style="margin: 2px 0;">Ph: ${comp.phone ? comp.phone.split(',').map(phone => phone.trim()).join(' | ') : ''}</p>
-          <p style="margin: 2px 0;">Email: ${safe(comp.email)}</p>
-          <p style="margin: 2px 0; font-weight: bold; font-size: 12pt;">VAT Reg No: 104858252000003</p>
-        </div>
+      <div style="margin-bottom: 12px !important;">
+        <p style="margin: 1px 0 !important; font-size: 10pt;">${safe(
+          compAddr.street
+        )}</p>
+        <p style="margin: 1px 0 !important; font-size: 10pt;">${safe(
+          compAddr.city
+        )}${compAddr.city && compAddr.country ? ", " : ""}${safe(
+    compAddr.country
+  )}</p>
+        <p style="margin: 1px 0 !important; font-size: 10pt;">Ph: ${
+          comp.phone
+            ? comp.phone
+                .split(",")
+                .map((phone) => phone.trim())
+                .join(" | ")
+            : ""
+        }</p>
+        <p style="margin: 1px 0 !important; font-size: 10pt;">Email: ${safe(
+          comp.email
+        )}</p>
+        <p style="margin: 1px 0 !important; font-weight: bold; font-size: 10pt;">VAT Reg No: 104858252000003</p>
       </div>
-    </div>
-
-    <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 15px 0;">
-      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff;">TAX INVOICE</h2>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 30px; align-items: flex-start;">
-      <div style="flex: 0 0 40%; min-width: 0;">
-        <h3 style="margin: 0 0 10px 0; color: #ffffff; background-color: #009999; padding: 8px 12px; font-weight: bold;">Bill To:</h3>
-        <div>
-          <p style="margin: 2px 0; font-weight: 600;">${titleCase(safe(cust.name))}</p>
-          <p style="margin: 2px 0;">${safe(custAddr.street)}</p>
-          <p style="margin: 2px 0;">${safe(custAddr.city)}${custAddr.city && custAddr.country ? ', ' : ''}${safe(custAddr.country)}</p>
-          ${(cust.vatNumber || cust.gstNumber) ? `<p style="margin: 2px 0;">TRN: ${safe(cust.vatNumber || cust.gstNumber)}</p>` : ''}
-          <p style="margin: 2px 0;">Phone: ${safe(cust.phone)}</p>
-          <p style="margin: 2px 0;">Email: ${safe(cust.email)}</p>
-        </div>
+      
+      <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 8px 0 !important; padding: 10px 0 !important;">
+        <h2 style="font-size: 16px; font-weight: 700; color: #ffffff;">TAX INVOICE</h2>
       </div>
-      <div style="flex: 0 0 40%; min-width: 0; text-align: left;">
-        <h3 style="margin: 0 0 10px 0; color: #ffffff; background-color: #009999; padding: 8px 12px; font-weight: bold; text-align: center;">INVOICE</h3>
-        <div>
-          <p style="margin: 4px 0;"><strong>Invoice #:</strong> ${safe(invoice.invoiceNumber)}</p>
-          <p style="margin: 4px 0;"><strong>Date:</strong> ${formatDate(invoice.date)}</p>
-          <p style="margin: 4px 0;"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
-          ${invoice.customerPurchaseOrderNumber ? `<p style="margin: 4px 0;"><strong>Customer PO #:</strong> ${safe(invoice.customerPurchaseOrderNumber)}</p>` : ''}
-          ${invoice.customerPurchaseOrderDate ? `<p style="margin: 4px 0;"><strong>Customer PO Date:</strong> ${formatDate(invoice.customerPurchaseOrderDate)}</p>` : ''}
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-bottom: 30px;">
-      <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-        <thead>
-          <tr style="background-color: #009999 !important; color: #ffffff !important;">
-            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; width: 40px; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">S.No.</th>
-            <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Product</th>
-            ${hasDescription ? '<th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Description</th>' : ''}
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Qty</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Rate (AED)</th>
-            ${hasItemDiscount ? '<th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Discount</th>' : ''}
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Amount (AED)</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">VAT %</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">VAT Amount (AED)</th>
-            <th style="padding: 10px 8px; text-align: right; border: 1px solid #007d7d; font-weight: 600; color: #ffffff !important; background-color: #009999 !important;">Total (AED)</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item, i) => {
-            const amountNum = parseFloat(item.amount) || 0;
-            const vatRateNum = parseFloat(item.vatRate) || 0;
-            const vatAmount = calculateTRN(amountNum, vatRateNum);
-            const totalWithTRN = amountNum + vatAmount;
-            const productLine = safe(item.name);
-            
-            return `
-              <tr>
-                <td style="padding: 8px; text-align: center; border: 1px solid #e2e8f0; width: 40px;">${i + 1}</td>
-                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0; font-weight:600;color:#0f172a;">${productLine}</td>
-                ${hasDescription ? '<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">' + (safe(item.description) || '-') + '</td>' : ''}
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.quantity)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(item.rate || 0)}</td>
-                ${hasItemDiscount ? '<td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">' + (((parseFloat(item.discount)||0) > 0) ? (formatNumber(item.discount) + (item.discountType === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(amountNum)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${vatRateNum}%</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatNumber(vatAmount)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatNumber(totalWithTRN)}</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
-      <div style="min-width: 300px;">
-        <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>Subtotal (AED):</span>
-          <span>${formatNumber(subtotalVal)}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-          <span>VAT Amount (AED):</span>
-          <span>${formatNumber(trnAmountVal)}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
-          <span><strong>Total Amount (AED):</strong></span>
-          <span><strong>${formatNumber(totalVal)}</strong></span>
-        </div>
-      </div>
-    </div>
-
-    ${(invoice.notes || invoice.terms) ? `
-      <div style="margin-bottom: 30px;">
-        ${invoice.notes ? `
-          <div style="margin-bottom: 15px;">
-            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
-            <p style="margin: 0; color: #64748b;">${invoice.notes}</p>
+      
+      <div style="display: flex; justify-content: space-between; gap: 15px;">
+        <div style="flex: 0 0 45%;">
+          <h3 style="margin: 0 0 6px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 10pt;">Bill To:</h3>
+          <div>
+            <p style="margin: 1px 0 !important; font-weight: 600; font-size: 10pt;">${titleCase(
+              safe(cust.name)
+            )}</p>
+            <p style="margin: 1px 0 !important; font-size: 10pt;">${safe(
+              custAddr.street
+            )}</p>
+            <p style="margin: 1px 0 !important; font-size: 10pt;">${safe(
+              custAddr.city
+            )}${custAddr.city && custAddr.country ? ", " : ""}${safe(
+    custAddr.country
+  )}</p>
+            ${
+              cust.vatNumber || cust.gstNumber
+                ? `<p style="margin: 1px 0 !important; font-size: 10pt;">TRN: ${safe(
+                    cust.vatNumber || cust.gstNumber
+                  )}</p>`
+                : ""
+            }
+            <p style="margin: 1px 0 !important; font-size: 10pt;">Phone: ${safe(
+              cust.phone
+            )}</p>
+            <p style="margin: 1px 0 !important; font-size: 10pt;">Email: ${safe(
+              cust.email
+            )}</p>
           </div>
-        ` : ''}
-        ${invoice.terms ? `
-          <div style="margin-bottom: 15px;">
-            <h4 style="margin: 0 0 5px 0; color: #1e293b;">Payment as per payment terms:</h4>
-            <p style="margin: 0; color: #64748b;">${invoice.terms}</p>
+        </div>
+        <div style="flex: 0 0 45%;">
+          <h3 style="margin: 0 0 6px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 10pt; text-align: center;">INVOICE</h3>
+          <div>
+            <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Invoice #:</strong> ${safe(
+              invoice.invoiceNumber
+            )}</p>
+            <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Date:</strong> ${formatDate(
+              invoice.date
+            )}</p>
+            <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Due Date:</strong> ${formatDate(
+              invoice.dueDate
+            )}</p>
+            ${
+              invoice.customerPurchaseOrderNumber
+                ? `<p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Customer PO #:</strong> ${safe(
+                    invoice.customerPurchaseOrderNumber
+                  )}</p>`
+                : ""
+            }
+            ${
+              invoice.customerPurchaseOrderDate
+                ? `<p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Customer PO Date:</strong> ${formatDate(
+                    invoice.customerPurchaseOrderDate
+                  )}</p>`
+                : ""
+            }
           </div>
-        ` : ''}
+        </div>
       </div>
-    ` : ''}
+    </div>
+    
+    <!-- CONTENT AREA - NO TABLES, ONLY DIVS -->
+    <div class="content-area-first">
+      <!-- Items as simple divs, no table -->
+      ${items
+        .map((item, i) => {
+          const amountNum = parseFloat(item.amount) || 0;
+          const vatRateNum = parseFloat(item.vatRate) || 0;
+          const vatAmount = calculateTRN(amountNum, vatRateNum);
+          const totalWithTRN = amountNum + vatAmount;
+          const productLine = safe(item.name);
 
-    <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
-      <div style="display: flex; align-items: flex-end; gap: 20px;">
-        <img src="${sealImage}" alt="Company Seal" crossorigin="anonymous" style="height: 180px; width: auto; object-fit: contain; opacity: 0.95;" />
-        <div style="text-align: center; min-width: 200px;">
-          <p style="margin: 0;">Authorized Signatory</p>
-          <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
-          <p style="margin: 0; font-weight: 600;">ULTIMATE STEELS</p>
+          return `
+          <div class="item-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: ${
+            i === items.length - 1 ? "none" : "1px solid #f1f5f9"
+          };">
+            <div style="flex: 0 0 30px; font-size: 10pt;">${i + 1}.</div>
+            <div style="flex: 1; font-weight: 600; font-size: 10pt; color: #0f172a; padding-right: 10px !important;">${productLine}</div>
+            <div style="flex: 0 0 60px; text-align: right; font-size: 10pt;">${safe(
+              item.quantity
+            )}</div>
+            <div style="flex: 0 0 80px; text-align: right; font-size: 10pt;">${formatNumber(
+              item.rate || 0
+            )}</div>
+            <div style="flex: 0 0 100px; text-align: right; font-size: 10pt; font-weight: 600;">${formatNumber(
+              totalWithTRN
+            )}</div>
+          </div>
+        `;
+        })
+        .join("")}
+
+      <!-- Totals Section -->
+      <div class="totals-section" style="display: flex; justify-content: flex-end;">
+        <div style="min-width: 280px; padding-top: 5px !important;">
+          <div style="display: flex; justify-content: space-between; padding: 2px 0 !important;">
+            <span>Subtotal (AED):</span>
+            <span>${formatNumber(subtotalVal)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 2px 0 !important;">
+            <span>VAT Amount (AED):</span>
+            <span>${formatNumber(trnAmountVal)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 2px 0 !important; border-top: 1px solid #e2e8f0; margin-top: 2px !important; font-weight: 600; font-size: 12px;">
+            <span><strong>Total Amount (AED):</strong></span>
+            <span><strong>${formatNumber(totalVal)}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      ${
+        invoice.notes || invoice.terms
+          ? `
+        <div style="margin-top: 8px !important;">
+          ${
+            invoice.notes
+              ? `
+            <div style="margin-bottom: 3px !important;">
+              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 10pt;">Notes:</h4>
+              <p style="color: #64748b; font-size: 10pt;">${invoice.notes}</p>
+            </div>
+          `
+              : ""
+          }
+          ${
+            invoice.terms
+              ? `
+            <div style="margin-bottom: 3px !important;">
+              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 10pt;">Payment as per payment terms:</h4>
+              <p style="color: #64748b; font-size: 10pt;">${invoice.terms}</p>
+            </div>
+          `
+              : ""
+          }
+        </div>
+      `
+          : ""
+      }
+    </div>
+    
+    <!-- FOOTER -->
+    <div class="footer-section">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="${sealImage}" alt="Company Seal" crossorigin="anonymous" style="height: 65px; width: auto;" />
+          <div>
+            <p style="font-size: 9pt; color: #666;">Company Seal</p>
+            <p style="margin: 1px 0 !important; font-size: 8pt; color: #666;">Ultimate Steels</p>
+            <p style="margin: 1px 0 !important; font-size: 8pt; color: #666;">Building Materials Trading</p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; min-width: 180px;">
+          <p style="font-size: 10pt;">Authorized Signatory</p>
+          <div style="border-bottom: 1px solid #000; margin: 20px 0 6px 0 !important;"></div>
+          <p style="font-weight: 600; font-size: 9pt;">ULTIMATE STEELS</p>
+          <p style="margin: 1px 0 !important; font-weight: 600; font-size: 9pt;">BUILDING MATERIALS TRADING</p>
         </div>
       </div>
     </div>
   `;
-  
+
   return element;
 };
 
-// Wait for all images within a container to load (or error) before rendering
+// Wait for all images within a container to load
 const waitForImages = (container) => {
-  const images = Array.from(container.querySelectorAll('img'));
+  const images = Array.from(container.querySelectorAll("img"));
   if (images.length === 0) return Promise.resolve();
 
   return Promise.all(
     images.map((img) => {
       return new Promise((resolve) => {
-        // If already complete, resolve immediately
         if (img.complete && img.naturalWidth !== 0) return resolve();
-        // Set crossOrigin for safety
-        try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch (_) {}
-        img.addEventListener('load', () => resolve(), { once: true });
-        img.addEventListener('error', () => resolve(), { once: true });
+        try {
+          img.crossOrigin = img.crossOrigin || "anonymous";
+        } catch (_) {}
+        img.addEventListener("load", () => resolve(), { once: true });
+        img.addEventListener("error", () => resolve(), { once: true });
       });
     })
   );
 };
+
+export { createInvoiceElement, waitForImages };

@@ -87,6 +87,17 @@ export const formatDateForInput = (date) => {
   return date;
 };
 
+// Normalize LLC formatting function
+export const normalizeLLC = (companyName) => {
+  if (!companyName) return '';
+  
+  // Regex to match any variation of LLC with optional periods, spaces, and case variations
+  const llcPattern = /\b[Ll]\.?\s*[Ll]\.?\s*[Cc]\.?\b/g;
+  
+  // Replace all variations with standardized "LLC"
+  return companyName.replace(llcPattern, 'LLC');
+};
+
 // Title-case each word: capitalize first letter, lowercase the rest
 export const titleCase = (value) => {
   if (value == null) return '';

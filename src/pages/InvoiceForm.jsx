@@ -38,6 +38,7 @@ import {
   formatCurrency,
   formatDateForInput,
   titleCase,
+  normalizeLLC,
 } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
@@ -795,7 +796,8 @@ const InvoiceForm = ({ onSave }) => {
             name: selectedCustomer.name,
             email: selectedCustomer.email || "",
             phone: selectedCustomer.phone || "",
-            vatNumber: selectedCustomer.vat_number || "",
+            // Prefer uploaded TRN if present; fallback to legacy vat_number
+            vatNumber: selectedCustomer.trn_number || selectedCustomer.vat_number || "",
             address: {
               street: selectedCustomer.address?.street || "",
               city: selectedCustomer.address?.city || "",
@@ -1339,7 +1341,7 @@ const InvoiceForm = ({ onSave }) => {
                     <option value="">Select a customer</option>
                     {(customersData?.customers || []).map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {titleCase(customer.name)} - {customer.email}
+                        {titleCase(normalizeLLC(customer.name))} - {customer.email}
                       </option>
                     ))}
                   </Select>
@@ -1367,7 +1369,7 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         <p>
                           <span className="font-medium">Name:</span>{" "}
-                          {titleCase(invoice.customer.name)}
+                          {titleCase(normalizeLLC(invoice.customer.name))}
                         </p>
                         {invoice.customer.email && (
                           <p>

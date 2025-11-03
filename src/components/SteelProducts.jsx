@@ -20,7 +20,6 @@ import {
 import { format } from 'date-fns';
 import { productService } from '../services/productService';
 import { FINISHES } from '../types';
-import { demoDataService } from '../services/demoDataService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import InventoryList from './InventoryList';
@@ -508,14 +507,17 @@ const SteelProducts = () => {
         />
         <Button 
           onClick={async () => {
-            await demoDataService.initializeDemoProducts();
-            refetchProducts();
+            try {
+              await productService.downloadProducts();
+            } catch (error) {
+              console.error('Error downloading products:', error);
+              alert('Failed to download products');
+            }
           }}
           variant="outline"
-          disabled={products.length > 0}
         >
           <Package size={20} />
-          Initialize Demo Products
+          Download Products
         </Button>
         <Button 
           onClick={() => setShowUploadModal(true)}

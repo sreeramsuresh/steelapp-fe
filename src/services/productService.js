@@ -46,5 +46,25 @@ export const productService = {
 
   async getLowStockProducts() {
     return apiClient.get('/products', { stock_status: 'low' });
+  },
+
+  async downloadProducts() {
+    const { apiService } = await import('./axiosApi');
+    const blob = await apiService.request({
+      method: 'GET',
+      url: '/products/download',
+      responseType: 'blob',
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const filename = `products_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    window.URL.revokeObjectURL(downloadUrl);
   }
 };

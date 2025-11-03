@@ -12,6 +12,7 @@ import {
   calculateTotal,
   titleCase,
   formatNumber,
+  normalizeLLC,
 } from "../utils/invoiceUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
@@ -178,9 +179,10 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
       const totalsH = measureTotalsRef.current?.offsetHeight || 0;
       const rows = Array.from((measureRowsRef.current || {}).querySelectorAll('tr'));
       const rowHeights = rows.map((r) => r.offsetHeight || 0);
-      const pageHeightPx = 1140; // must match visible page wrapper height
-      const padding = 16; // internal padding allowance
-      const frameHeight = Math.max(200, pageHeightPx - (topH + headH + footH + padding));
+      const pageHeightPx = 1122; // A4 height: 297mm = 1122px at 96dpi  
+      const footerReservedSpace = 265; // 70mm reserved (50mm footer + 20mm bottom margin) = 265px
+      const padding = 8; // Internal padding allowance
+      const frameHeight = Math.max(200, pageHeightPx - (topH + headH + footerReservedSpace + padding));
       // Build pages by accumulating rows within frameHeight; leave room for totals on the final page
       const items = invoice.items || [];
       const result = [];
@@ -256,7 +258,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       <img src={company?.logo_url || logoCompany} alt="Company Logo" crossOrigin="anonymous" className="max-h-10 w-auto object-contain" />
                     </div>
                     <div className="mt-1">
-                      <p className="text-sm">{company?.name || 'Ultimate Steels Building Materials Trading'}</p>
+                      <p className="text-sm">{normalizeLLC(company?.name || 'Ultimate Steels Building Materials Trading')}</p>
                       <p className="text-sm">{company.address?.street}</p>
                       <p className="text-sm">{company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}</p>
                     </div>
@@ -270,7 +272,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     </div>
                     <div>
                       <h3 className="text-base font-bold mb-1">Bill To:</h3>
-                      <p className="text-sm font-bold">{titleCase(invoice.customer.name)}</p>
+                      <p className="text-sm font-bold">{titleCase(normalizeLLC(invoice.customer.name))}</p>
                       <p className="text-sm">{invoice.customer.address?.street}</p>
                       <p className="text-sm">{invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}</p>
                     </div>
@@ -349,16 +351,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 </div>
                 {/* Removed company name here; it's part of address at right */}
                 <div className="mt-2">
-                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    <strong>BANK NAME:</strong> ULTIMATE STEEL AND
+                  <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
+                    <strong>{titleCase('Bank Account Name')}:</strong> {titleCase(normalizeLLC('Ultimate Steel And'))}
                   </p>
-                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    BUILDING MATERIALS TRADING
+                  <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
+                    {titleCase(normalizeLLC('Building Materials Trading'))}
                   </p>
-                  <p className={`text-sm leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     Account No: 019101641144
                   </p>
-                  <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     IBAN: AE490330000019101641144
                   </p>
                 </div>
@@ -368,25 +370,25 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
               {/* Right column: Company name (as part of address) and contacts */}
               <div className="text-left">
                 <div className="mb-4">
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ultimate Steels Building Materials Trading</p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.street}</p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{normalizeLLC('Ultimate Steels Building Materials Trading')}</p>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{company.address?.street}</p>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     {company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}
                   </p>
                 </div>
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     Ph: {company.phone ? company.phone.split(',').map(phone => phone.trim()).join(' | ') : ''}
                   </p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {company.email}</p>
-                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>VAT Reg No: 104858252000003</p>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Email: {company.email}</p>
+                  <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '12pt', fontWeight: 'bold' }}>VAT Reg No: 104858252000003</p>
                 </div>
               </div>
             </div>
 
             {/* Full-width Heading Bar */}
-            <div className="w-full bg-teal-600 text-white flex justify-center mb-6 py-3">
-              <h2 className="text-xl font-bold tracking-wide text-white">
+            <div className="w-full bg-teal-600 text-white flex justify-center items-center mb-6 py-3">
+              <h2 className="text-xl font-bold tracking-wide text-white" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>
                 TAX INVOICE
               </h2>
             </div>
@@ -395,39 +397,39 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
             <div className="flex justify-between gap-4 mb-8">
               {/* Bill To (outside box) */}
               <div className="flex-none w-2/5 min-w-0">
-                <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>
                   Bill To:
                 </h3>
-                <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {titleCase(invoice.customer.name)}
+                <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
+                  {titleCase(normalizeLLC(invoice.customer.name))}
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.street}</p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{invoice.customer.address?.street}</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                   {invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}
                 </p>
                 {invoice.customer.vatNumber && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {invoice.customer.vatNumber}</p>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>TRN: {invoice.customer.vatNumber}</p>
                 )}
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {invoice.customer.phone}</p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {invoice.customer.email}</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Phone: {invoice.customer.phone}</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Email: {invoice.customer.email}</p>
               </div>
 
               {/* Invoice summary (outside box), styled like Bill To */}
               <div className="flex-none w-2/5 min-w-0 text-left">
-                <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>
                   INVOICE
                 </h3>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                   <strong>Invoice #:</strong> {invoice.invoiceNumber}
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                   <strong>Date:</strong> {formatDate(invoice.date)}
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                   <strong>Due Date:</strong> {formatDate(invoice.dueDate)}
                 </p>
                 <div className="flex items-center gap-2 justify-start mt-2">
-                  <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     <strong>Status:</strong>
                   </span>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -441,17 +443,17 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   </span>
                 </div>
                 {invoice.deliveryNote && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     <strong>Delivery Note:</strong> {invoice.deliveryNote}
                   </p>
                 )}
                 {invoice.customerPurchaseOrderNumber && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     <strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}
                   </p>
                 )}
                 {invoice.customerPurchaseOrderDate && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                     <strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}
                   </p>
                 )}
@@ -528,14 +530,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 return (
                 <div
                   key={`page-${pi}`}
-                  className="mb-8"
+                  className="mb-4"
                   style={{
-                    height: '1140px',
+                    height: '1122px',  // A4 height: 297mm = 1122px at 96dpi (297mm ÷ 25.4 × 96)
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    paddingBottom: '16px',
-                    paddingTop: '0px',
+                    position: 'relative',
+                    padding: '0',
+                    margin: '0',
+                    overflow: 'hidden',
+                    boxSizing: 'border-box'
                   }}
                   data-invoice-page="true"
                 >
@@ -557,57 +561,57 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                           </div>
                           {/* Bank details */}
                           <div className="mt-2">
-                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              <strong>BANK NAME:</strong> ULTIMATE STEEL AND
+                            <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
+                              <strong>{titleCase('Bank Account Name')}:</strong> {titleCase(normalizeLLC('Ultimate Steel And'))}
                             </p>
-                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>BUILDING MATERIALS TRADING</p>
-                            <p className={`text-sm leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Account No: 019101641144</p>
-                            <p className={`text-sm leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>IBAN: AE490330000019101641144</p>
+                            <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{titleCase(normalizeLLC('Building Materials Trading'))}</p>
+                            <p className={`leading-tight mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Account No: 019101641144</p>
+                            <p className={`leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>IBAN: AE490330000019101641144</p>
                           </div>
                         </div>
                         {/* Company info (right) */}
                         <div className="text-left">
                           <div className="mb-4">
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ultimate Steels Building Materials Trading</p>
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.street}</p>
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{normalizeLLC('Ultimate Steels Building Materials Trading')}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{company.address?.street}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{company.address?.city}{company.address?.city && company.address?.country ? ', ' : ''}{company.address?.country}</p>
                           </div>
                           <div>
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ph: {company.phone ? company.phone.split(',').map(p => p.trim()).join(' | ') : ''}</p>
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {company.email}</p>
-                            <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>VAT Reg No: 104858252000003</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Ph: {company.phone ? company.phone.split(',').map(p => p.trim()).join(' | ') : ''}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Email: {company.email}</p>
+                            <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '12pt', fontWeight: 'bold' }}>VAT Reg No: 104858252000003</p>
                           </div>
                         </div>
                       </div>
 
                       {/* TAX INVOICE banner */}
-                      <div className="w-full bg-teal-600 text-white flex justify-center mb-6 py-3">
-                        <h2 className="text-xl font-bold tracking-wide text-white">TAX INVOICE</h2>
+                      <div className="w-full bg-teal-600 text-white flex justify-center items-center mb-6 py-3">
+                        <h2 className="text-xl font-bold tracking-wide text-white" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>TAX INVOICE</h2>
                       </div>
 
                       {/* Bill To (left) and Invoice summary (right) */}
                       <div className="flex justify-between gap-4 mb-8">
                         {/* Bill To */}
                         <div className="flex-none w-2/5 min-w-0">
-                          <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Bill To:</h3>
-                          <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{titleCase(invoice.customer.name)}</p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.street}</p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}</p>
+                          <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>Bill To:</h3>
+                          <p className={`font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{titleCase(normalizeLLC(invoice.customer.name))}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{invoice.customer.address?.street}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{invoice.customer.address?.city}{invoice.customer.address?.city && invoice.customer.address?.country ? ', ' : ''}{invoice.customer.address?.country}</p>
                           {invoice.customer.vatNumber && (
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>TRN: {invoice.customer.vatNumber}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>TRN: {invoice.customer.vatNumber}</p>
                           )}
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone: {invoice.customer.phone}</p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email: {invoice.customer.email}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Phone: {invoice.customer.phone}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Email: {invoice.customer.email}</p>
                         </div>
 
                         {/* Invoice summary */}
                         <div className="flex-none w-2/5 min-w-0 text-left">
-                          <h3 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>INVOICE</h3>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Date:</strong> {formatDate(invoice.date)}</p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
+                          <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>INVOICE</h3>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Date:</strong> {formatDate(invoice.date)}</p>
+                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
                           <div className="flex items-center gap-2 justify-start mt-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Status:</strong></span>
+                            <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Status:</strong></span>
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               invoice.status === 'paid'
                                 ? 'bg-green-100 text-green-800'
@@ -619,37 +623,44 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             </span>
                           </div>
                           {invoice.deliveryNote && (
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Delivery Note:</strong> {invoice.deliveryNote}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Delivery Note:</strong> {invoice.deliveryNote}</p>
                           )}
                           {invoice.customerPurchaseOrderNumber && (
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Customer PO #:</strong> {invoice.customerPurchaseOrderNumber}</p>
                           )}
                           {invoice.customerPurchaseOrderDate && (
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}><strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}><strong>Customer PO Date:</strong> {formatDate(invoice.customerPurchaseOrderDate)}</p>
                           )}
                         </div>
                       </div>
                     </>
                   )}
-                  <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`} style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ paddingBottom: '16px' }}>
+                  {/* Content Area - Items and Summary */}
+                  <div style={{ 
+                    flex: '1 1 auto', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    paddingBottom: '265px' // Reserve 70mm for footer area (50mm footer + 20mm bottom margin)
+                  }}>
+                    <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`} style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ paddingBottom: '4px' }}>
                       <table className="w-full">
                         <thead className="bg-teal-600">
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider w-12">S.No.</th>
-                            <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider w-12" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>S.No.</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Product</th>
                             {showDescCol && (
-                              <th className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Description</th>
+                              <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Description</th>
                             )}
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Qty</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Rate (AED)</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Qty</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Rate (AED)</th>
                             {showDiscCol && (
-                              <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Discount</th>
+                              <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Discount</th>
                             )}
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Amount (AED)</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT %</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">VAT Amount (AED)</th>
-                            <th className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider">Total (AED)</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Amount (AED)</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>VAT %</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>VAT Amount (AED)</th>
+                            <th className="px-3 py-2 text-center text-xs font-bold text-white uppercase tracking-wider" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>Total (AED)</th>
                           </tr>
                         </thead>
                         <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
@@ -658,86 +669,89 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             const totalWithTRN = item.amount + vatAmount;
                             return (
                               <tr key={`${pi}-${index}`}>
-                                <td className={`px-3 py-2 text-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{index + 1 + computedPages.slice(0, pi).reduce((sum, arr) => sum + arr.length, 0)}</td>
-                                <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                  <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`}>{item.name}</div>
+                                <td className={`px-3 py-2 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{index + 1 + computedPages.slice(0, pi).reduce((sum, arr) => sum + arr.length, 0)}</td>
+                                <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
+                                  <div className={`${isDarkMode ? 'text-gray-200' : 'text-gray-900'} font-medium`} style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>{item.name}</div>
                                 </td>
                                 {showDescCol && (
-                                  <td className={`px-3 py-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.description || '-'}</td>
+                                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{item.description || '-'}</td>
                                 )}
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.quantity}</td>
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(item.rate)}</td>
+                                <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{item.quantity}</td>
+                                <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(item.rate)}</td>
                                 {showDiscCol && (
-                                  <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>
                                     {item.discount > 0 ? `${formatNumber(item.discount)}${item.discountType === 'percentage' ? '%' : ''}` : '-'}
                                   </td>
                                 )}
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(item.amount)}</td>
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.vatRate}%</td>
-                                <td className={`px-3 py-2 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatNumber(vatAmount)}</td>
-                                <td className={`px-3 py-2 text-right text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(totalWithTRN)}</td>
+                                <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(item.amount)}</td>
+                                <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{item.vatRate}%</td>
+                                <td className={`px-3 py-2 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(vatAmount)}</td>
+                                <td className={`px-3 py-2 text-right font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(totalWithTRN)}</td>
                               </tr>
                             );
                           })}
                         </tbody>
                       </table>
+                      </div>
                     </div>
-                  </div>
-                  {/* On last page, show summary and terms above the signature */}
-                  {pi === pages.length - 1 && (
-                    <>
-                      {/* Invoice Summary (last page only) */}
-                      <div className="flex justify-end mt-6">
+                    {/* On last page, show summary in content area */}
+                    {pi === computedPages.length - 1 && (
+                      <>
+                        {/* Invoice Summary (last page only) */}
+                        <div className="flex justify-end mt-2">
                         <div className={`border rounded-lg min-w-80 ${
                           isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
                         }`}>
-                          <div className="p-6">
+                          <div className="p-4">
                             <div className="flex justify-between mb-2">
-                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Subtotal (AED):</span>
-                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedSubtotal)}</span>
+                              <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>Subtotal (AED):</span>
+                              <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(computedSubtotal)}</span>
                             </div>
                             {(invoice.packingCharges > 0 || invoice.freightCharges > 0 || invoice.loadingCharges > 0 || invoice.otherCharges > 0) && (
                               <>
                                 {invoice.packingCharges > 0 && (
                                   <div className="flex justify-between mb-2">
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Packing Charges:</span>
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.packingCharges)}</span>
+                                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Packing Charges:</span>
+                                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>{formatCurrency(invoice.packingCharges)}</span>
                                   </div>
                                 )}
                                 {invoice.freightCharges > 0 && (
                                   <div className="flex justify-between mb-2">
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Freight Charges:</span>
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.freightCharges)}</span>
+                                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Freight Charges:</span>
+                                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>{formatCurrency(invoice.freightCharges)}</span>
                                   </div>
                                 )}
                                 {invoice.loadingCharges > 0 && (
                                   <div className="flex justify-between mb-2">
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading Charges:</span>
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.loadingCharges)}</span>
+                                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Loading Charges:</span>
+                                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>{formatCurrency(invoice.loadingCharges)}</span>
                                   </div>
                                 )}
                                 {invoice.otherCharges > 0 && (
                                   <div className="flex justify-between mb-2">
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Other Charges:</span>
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.otherCharges)}</span>
+                                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Other Charges:</span>
+                                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>{formatCurrency(invoice.otherCharges)}</span>
                                   </div>
                                 )}
                               </>
                             )}
                             <div className="flex justify-between mb-2">
-                              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>VAT Amount (AED):</span>
-                              <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedVatAmount)}</span>
+                              <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>VAT Amount (AED):</span>
+                              <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}>{formatNumber(computedVatAmount)}</span>
                             </div>
-                            {invoice.roundOff && invoice.roundOff !== 0 && (
-                              <div className="flex justify-between mb-2">
-                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Round Off:</span>
-                                <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatCurrency(invoice.roundOff)}</span>
-                              </div>
-                            )}
+                            {(() => {
+                              const roundOffValue = parseFloat(invoice.roundOff || 0);
+                              return roundOffValue !== 0 && (
+                                <div className="flex justify-between mb-2">
+                                  <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Round Off:</span>
+                                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>{formatCurrency(roundOffValue)}</span>
+                                </div>
+                              );
+                            })()}
                             <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
                             <div className="flex justify-between mb-2">
-                              <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Total Amount (AED):</span>
-                              <span className="text-lg font-bold text-teal-600">{formatNumber(computedTotal)}</span>
+                              <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>Total Amount (AED):</span>
+                              <span className="font-bold text-teal-600" style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '13pt' }}>{formatNumber(computedTotal)}</span>
                             </div>
                             {invoice.advanceReceived > 0 && (
                               <>
@@ -753,41 +767,132 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             )}
                           </div>
                         </div>
-                      </div>
-                      {(invoice.notes || invoice.terms) && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                          {invoice.notes && (
-                            <div>
-                              <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'}`}>
-                                <div className="p-6">
-                                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notes:</h3>
-                                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.notes}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {invoice.terms && (
-                            <div className={invoice.notes ? '' : 'md:col-span-2'}>
-                              <div className={`border rounded-lg ${isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'}`}>
-                                <div className="p-6">
-                                  <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Payment as per payment terms:</h3>
-                                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{invoice.terms}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      )}
-                    </>
-                  )}
-                  {/* Signature repeated each page at bottom */}
-                  <div className="flex justify-end mt-8" style={{ flexShrink: 0 }}>
-                    <div className="flex items-end gap-4">
-                      <img src={seal} alt="Company Seal" crossOrigin="anonymous" className="h-36 w-auto object-contain opacity-95" />
-                      <div className="text-center min-w-48">
-                        <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Authorized Signatory</p>
-                        <div className="border-b border-black mb-2 h-10 w-48" />
-                        <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>ULTIMATE STEELS</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Fixed Footer Section - 50mm height, 15mm from bottom edge */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    bottom: '0px',         // Start from the very bottom of the A4 page
+                    left: '0', 
+                    right: '0',
+                    height: '189px',       // 50mm footer height = 189px (50mm ÷ 25.4 × 96)
+                    marginBottom: '57px',  // 15mm bottom margin = 57px (15mm ÷ 25.4 × 96)
+                    paddingLeft: '45px',   // 12mm side margin = 45px (12mm ÷ 25.4 × 96)
+                    paddingRight: '45px',  // 12mm side margin = 45px
+                    paddingTop: '19px',    // 5mm top padding = 19px (5mm ÷ 25.4 × 96)
+                    paddingBottom: '19px', // 5mm bottom padding = 19px
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center', // Center content vertically in footer area
+                    gap: '8px',
+                    zIndex: 10,
+                    backgroundColor: isDarkMode ? '#1E2328' : '#ffffff',
+                    borderTop: `1px solid ${isDarkMode ? '#37474F' : '#e5e7eb'}`, // Visible footer separator
+                    boxSizing: 'border-box'
+                  }}>
+                    {/* Footer Content - Notes/Terms on Left, Signature on Right */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      gap: '24px',
+                      height: '100%',
+                      width: '100%'
+                    }}>
+                      {/* Left Side - Notes and Terms */}
+                      <div style={{ 
+                        flex: '1 1 60%', 
+                        maxWidth: '60%',
+                        minHeight: '100px'
+                      }}>
+                        {(invoice.notes || invoice.terms) ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {invoice.notes && (
+                              <div style={{
+                                border: `1px solid ${isDarkMode ? '#37474F' : '#e5e7eb'}`,
+                                borderRadius: '8px',
+                                backgroundColor: isDarkMode ? '#1E2328' : '#ffffff',
+                                padding: '8px'
+                              }}>
+                                <h3 style={{
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  marginBottom: '4px',
+                                  color: isDarkMode ? '#ffffff' : '#000000'
+                                }}>Notes:</h3>
+                                <p style={{
+                                  fontSize: '11px',
+                                  color: isDarkMode ? '#d1d5db' : '#374151'
+                                }}>{invoice.notes}</p>
+                              </div>
+                            )}
+                            {invoice.terms && (
+                              <div style={{
+                                border: `1px solid ${isDarkMode ? '#37474F' : '#e5e7eb'}`,
+                                borderRadius: '8px',
+                                backgroundColor: isDarkMode ? '#1E2328' : '#ffffff',
+                                padding: '8px'
+                              }}>
+                                <h3 style={{
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  marginBottom: '4px',
+                                  color: isDarkMode ? '#ffffff' : '#000000'
+                                }}>Payment as per agreed terms:</h3>
+                                <p style={{
+                                  fontSize: '11px',
+                                  color: isDarkMode ? '#d1d5db' : '#374151'
+                                }}>{invoice.terms}</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '11px', color: '#6b7280' }}>No notes or terms available</div>
+                        )}
+                      </div>
+                      
+                      {/* Right Side - Signature Area - Always visible */}
+                      <div style={{ 
+                        flexShrink: '0'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img 
+                            src={seal} 
+                            alt="Company Seal" 
+                            crossOrigin="anonymous" 
+                            style={{ 
+                              height: '96px', 
+                              width: 'auto', 
+                              objectFit: 'contain',
+                              opacity: '0.95'
+                            }} 
+                          />
+                          <div style={{ textAlign: 'center', minWidth: '160px' }}>
+                            <p style={{
+                              fontSize: '12px',
+                              marginBottom: '8px',
+                              color: isDarkMode ? '#d1d5db' : '#374151'
+                            }}>Authorized Signatory</p>
+                            <div style={{
+                              borderBottom: '1px solid #000000',
+                              margin: '0 0 4px 0',
+                              height: '24px',
+                              width: '160px'
+                            }} />
+                            <p style={{
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              color: isDarkMode ? '#ffffff' : '#000000'
+                            }}>{normalizeLLC('ULTIMATE STEELS')}</p>
+                            <p style={{
+                              fontSize: '11px',
+                              color: isDarkMode ? '#9ca3af' : '#6b7280'
+                            }}>{normalizeLLC('BUILDING MATERIALS')}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -859,14 +964,17 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{formatNumber(computedVatAmount)}</span>
                   </div>
 
-                  {invoice.roundOff && invoice.roundOff !== 0 && (
-                    <div className="flex justify-between mb-2">
-                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Round Off:</span>
-                      <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {formatCurrency(invoice.roundOff)}
-                      </span>
-                    </div>
-                  )}
+                  {(() => {
+                    const roundOffValue = parseFloat(invoice.roundOff || 0);
+                    return roundOffValue !== 0 && (
+                      <div className="flex justify-between mb-2">
+                        <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>Round Off:</span>
+                        <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}>
+                          {formatCurrency(roundOffValue)}
+                        </span>
+                      </div>
+                    );
+                  })()}
 
                   <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
