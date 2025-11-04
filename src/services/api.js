@@ -479,3 +479,84 @@ export const quotationsAPI = {
     document.body.removeChild(a);
   },
 };
+
+// Suppliers API methods
+export const suppliersAPI = {
+  // Get all suppliers with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get("/suppliers", params);
+  },
+
+  // Get supplier by ID
+  getById: (id) => {
+    return apiClient.get(`/suppliers/${id}`);
+  },
+
+  // Create supplier
+  create: (supplierData) => {
+    return apiClient.post("/suppliers", supplierData);
+  },
+
+  // Update supplier
+  update: (id, supplierData) => {
+    return apiClient.put(`/suppliers/${id}`, supplierData);
+  },
+
+  // Delete supplier
+  delete: (id) => {
+    return apiClient.delete(`/suppliers/${id}`);
+  },
+
+  // Search suppliers
+  search: (query) => {
+    return apiClient.get("/suppliers/search", { query });
+  },
+
+  // Get suppliers by category
+  getByCategory: (category) => {
+    return apiClient.get(`/suppliers/category/${category}`);
+  },
+
+  // Update supplier status
+  updateStatus: (id, status) => {
+    return apiClient.patch(`/suppliers/${id}/status`, { status });
+  },
+
+  // Get supplier analytics
+  getAnalytics: (id) => {
+    return apiClient.get(`/suppliers/${id}/analytics`);
+  },
+
+  // Get trade license status
+  getTradeLicenseStatus: (id) => {
+    return apiClient.get(`/suppliers/${id}/trade-license-status`);
+  },
+
+  // Get expiring trade licenses
+  getExpiringTradeLicenses: (days = 30) => {
+    return apiClient.get(`/suppliers/trade-license/expiring?days=${days}`);
+  },
+
+  // Add contact history
+  addContactHistory: (id, historyData) => {
+    return apiClient.post(`/suppliers/${id}/contact-history`, historyData);
+  },
+
+  // Upload suppliers from file
+  uploadFile: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post("/suppliers/upload", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  // Download upload template
+  downloadTemplate: () => {
+    return apiClient.get("/suppliers/upload/template", {
+      responseType: 'blob',
+    });
+  },
+};

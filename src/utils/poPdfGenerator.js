@@ -154,7 +154,7 @@ const createPOElement = (po, company) => {
         ${po.terms ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms:</h4>
-            <p style="margin: 0; color: #64748b;">${po.terms}</p>
+            <p style="margin: 0; color: #64748b;">${po.terms.replace(/\n/g, '<br>')}</p>
           </div>
         ` : ''}
       </div>

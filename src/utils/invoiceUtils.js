@@ -30,6 +30,43 @@ export const calculateTotalTRN = (items) => {
   }, 0);
 };
 
+// Compute VAT after applying invoice-level discount per UAE rules
+// - Percentage: reduce each line by the percent, then apply VAT per line
+// - Amount: allocate discount proportionally by line amount, then apply VAT per line
+export const calculateDiscountedTRN = (items, discountType, discountPercent, discountAmount) => {
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  const total = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
+  if (total <= 0) return 0;
+
+  const pct = parseFloat(discountPercent) || 0;
+  const amt = parseFloat(discountAmount) || 0;
+
+  let vatSum = 0;
+  if (discountType === 'percentage' && pct > 0) {
+    const factor = Math.max(0, 1 - pct / 100);
+    for (const it of items) {
+      const lineAmt = (parseFloat(it.amount) || 0) * factor;
+      const rate = parseFloat(it.vatRate) || 0;
+      vatSum += calculateTRN(lineAmt, rate);
+    }
+    return vatSum;
+  }
+
+  // Amount-based or no/invalid type
+  const cap = Math.min(Math.max(0, amt), total);
+  if (cap === 0) return calculateTotalTRN(items);
+
+  for (const it of items) {
+    const base = parseFloat(it.amount) || 0;
+    const share = base / total;
+    const allocated = cap * share;
+    const net = Math.max(0, base - allocated);
+    const rate = parseFloat(it.vatRate) || 0;
+    vatSum += calculateTRN(net, rate);
+  }
+  return vatSum;
+};
+
 // Keep for backward compatibility
 export const calculateTotalVAT = (items) => {
   return calculateTotalTRN(items);
@@ -74,6 +111,17 @@ export const formatDate = (date) => {
     month: 'long',
     day: 'numeric',
   });
+};
+
+// Format as DD/MM/YYYY (e.g., 04/06/2025)
+export const formatDateDMY = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d)) return '';
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 };
 
 export const formatDateForInput = (date) => {

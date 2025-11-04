@@ -39,6 +39,7 @@ import {
   formatDateForInput,
   titleCase,
   normalizeLLC,
+  calculateDiscountedTRN,
 } from "../utils/invoiceUtils";
 import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
@@ -296,6 +297,7 @@ const Autocomplete = ({
   renderOption,
   noOptionsText = "No options",
   className = "",
+  title,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -431,6 +433,7 @@ const Autocomplete = ({
           placeholder={placeholder}
           disabled={disabled}
           className={className}
+          title={title}
         />
       </div>
 
@@ -672,15 +675,61 @@ const InvoiceForm = ({ onSave }) => {
     productService.createProduct
   );
 
+  // Date helpers for constraints
+  const invoiceDateObj = useMemo(() => {
+    try {
+      return invoice.date ? new Date(invoice.date) : new Date();
+    } catch {
+      return new Date();
+    }
+  }, [invoice.date]);
+
+  const dueMinStr = useMemo(() => formatDateForInput(invoiceDateObj), [invoiceDateObj]);
+  const dueMaxStr = useMemo(() => {
+    const d = new Date(invoiceDateObj.getTime());
+    d.setMonth(d.getMonth() + 6);
+    return formatDateForInput(d);
+  }, [invoiceDateObj]);
+
+  // Warehouses state
+  const [warehouses, setWarehouses] = useState([]);
+
+  // Fetch warehouses once (active only)
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const res = await (await import("../services/api")).apiClient.get(
+          "/warehouses"
+        );
+        const list = res?.warehouses || res?.data?.warehouses || [];
+        const active = list.filter((w) => w.is_active !== false);
+        setWarehouses(active);
+      } catch (err) {
+        console.warn("Failed to fetch warehouses:", err);
+        setWarehouses([]);
+      }
+    };
+    fetchWarehouses();
+  }, []);
+
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(
     () => calculateSubtotal(invoice.items),
     [invoice.items]
   );
-  const computedVatAmount = useMemo(
-    () => calculateTotalTRN(invoice.items),
-    [invoice.items]
-  );
+  const computedVatAmount = useMemo(() => {
+    return calculateDiscountedTRN(
+      invoice.items,
+      invoice.discountType,
+      invoice.discountPercentage,
+      invoice.discountAmount
+    );
+  }, [
+    invoice.items,
+    invoice.discountType,
+    invoice.discountPercentage,
+    invoice.discountAmount,
+  ]);
 
   const computedDiscountAmount = useMemo(() => {
     const discountAmount = parseFloat(invoice.discountAmount) || 0;
@@ -1070,17 +1119,24 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleDownloadPDF = async () => {
-    if (!company) {
-      notificationService.warning(
-        "Company data is still loading. Please wait..."
-      );
+    // If company details still loading, set a pending flag and retry when ready
+    if (loadingCompany) {
+      setPdfPending(true);
+      notificationService.info('Loading company details… Will download when ready.');
       return;
     }
 
     setIsGeneratingPDF(true);
 
     try {
-      await generateInvoicePDF(invoice, company);
+      const fallbackCompany = company || {
+        name: 'Your Company',
+        address: { street: '', city: '', country: 'UAE' },
+        phone: '',
+        email: '',
+        vat_number: '',
+      };
+      await generateInvoicePDF(invoice, fallbackCompany);
       notificationService.success("PDF generated successfully!");
     } catch (error) {
       notificationService.error(`PDF generation failed: ${error.message}`);
@@ -1088,6 +1144,32 @@ const InvoiceForm = ({ onSave }) => {
       setIsGeneratingPDF(false);
     }
   };
+
+  // Auto-retry PDF generation once company finishes loading if user requested it
+  const [pdfPending, setPdfPending] = useState(false);
+  useEffect(() => {
+    if (pdfPending && !loadingCompany) {
+      setPdfPending(false);
+      // Use real company now available
+      (async () => {
+        setIsGeneratingPDF(true);
+        try {
+          await generateInvoicePDF(invoice, company || {
+            name: 'Your Company',
+            address: { street: '', city: '', country: 'UAE' },
+            phone: '',
+            email: '',
+            vat_number: '',
+          });
+          notificationService.success('PDF generated successfully!');
+        } catch (err) {
+          notificationService.error(`PDF generation failed: ${err.message}`);
+        } finally {
+          setIsGeneratingPDF(false);
+        }
+      })();
+    }
+  }, [pdfPending, loadingCompany, company, invoice]);
 
   if (showPreview) {
     return (
@@ -1160,15 +1242,19 @@ const InvoiceForm = ({ onSave }) => {
               <Button
                 variant="outline"
                 onClick={handleDownloadPDF}
-                disabled={isGeneratingPDF || loadingCompany}
+                disabled={isGeneratingPDF}
                 className="w-full sm:w-auto"
               >
-                {isGeneratingPDF ? (
+                {(isGeneratingPDF || (loadingCompany && pdfPending)) ? (
                   <LoadingSpinner size="sm" />
                 ) : (
                   <Download className="h-4 w-4" />
                 )}
-                {isGeneratingPDF ? "Generating..." : "Download PDF"}
+                {isGeneratingPDF
+                  ? "Generating..."
+                  : loadingCompany
+                    ? (pdfPending ? "Loading company…" : "Download PDF")
+                    : "Download PDF"}
               </Button>
               <Button
                 onClick={handleSave}
@@ -1222,34 +1308,28 @@ const InvoiceForm = ({ onSave }) => {
                   <Input
                     label="Invoice Number"
                     value={invoice.invoiceNumber}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        invoiceNumber: e.target.value,
-                      }))
-                    }
+                    readOnly
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
                       label="Date"
                       type="date"
                       value={formatDateForInput(invoice.date)}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          date: e.target.value,
-                        }))
-                      }
+                      readOnly
                     />
                     <Input
                       label="Due Date"
                       type="date"
                       value={formatDateForInput(invoice.dueDate)}
+                      min={dueMinStr}
+                      max={dueMaxStr}
                       onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          dueDate: e.target.value,
-                        }))
+                        setInvoice((prev) => {
+                          let v = e.target.value;
+                          if (v && v < dueMinStr) v = dueMinStr;
+                          if (v && v > dueMaxStr) v = dueMaxStr;
+                          return { ...prev, dueDate: v };
+                        })
                       }
                     />
                   </div>
@@ -1287,6 +1367,36 @@ const InvoiceForm = ({ onSave }) => {
                       {PAYMENT_MODES.map((mode) => (
                         <option key={mode} value={mode}>
                           {mode}
+                        </option>
+                      ))}
+                    </Select>
+                    {(invoice.modeOfPayment === 'Cheque' || invoice.modeOfPayment === 'CDC' || invoice.modeOfPayment === 'PDC') && (
+                      <Input
+                        label="Cheque Number (optional)"
+                        value={invoice.chequeNumber || ''}
+                        onChange={(e) => setInvoice(prev => ({ ...prev, chequeNumber: e.target.value }))}
+                        placeholder="Enter cheque reference number"
+                      />
+                    )}
+                    <Select
+                      label="Warehouse"
+                      value={invoice.warehouseId || ""}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        const w = warehouses.find((wh) => wh.id.toString() === id);
+                        setInvoice((prev) => ({
+                          ...prev,
+                          warehouseId: id,
+                          warehouseName: w ? w.name : "",
+                          warehouseCode: w ? w.code : "",
+                          warehouseCity: w ? w.city : "",
+                        }));
+                      }}
+                    >
+                      <option value="">Select warehouse</option>
+                      {warehouses.map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.name} - {w.city}
                         </option>
                       ))}
                     </Select>
@@ -1525,7 +1635,7 @@ const InvoiceForm = ({ onSave }) => {
                     isDarkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  🏗️ Steel Items [UPDATED - NOW WITH FINISH, SIZE, THICKNESS]
+                  🏗️ Steel Items
                 </h2>
                 <Button onClick={addItem} className="w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
@@ -1536,80 +1646,49 @@ const InvoiceForm = ({ onSave }) => {
               {/* Items Table - Desktop */}
               <div className="hidden xl:block overflow-x-auto">
                 <table
-                  className={`min-w-full divide-y ${
+                  className={`min-w-full table-fixed divide-y ${
                     isDarkMode ? "divide-gray-600" : "divide-gray-200"
                   }`}
                 >
                   <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                     <tr>
                       <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
+                        style={{ width: "50%" }}
                       >
                         Product
                       </th>
                       <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                      >
-                        Grade
-                      </th>
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        } bg-blue-50`}
-                      >
-                        Finish
-                      </th>
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        } bg-green-50`}
-                      >
-                        Size
-                      </th>
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        } bg-yellow-50`}
-                      >
-                        Thickness
-                      </th>
-                      
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        }`}
+                        style={{ width: "12%" }}
                       >
                         Qty
                       </th>
                       <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
+                        style={{ width: "14%" }}
                       >
                         Rate
                       </th>
                       <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                      >
-                        VAT %
-                      </th>
-                      <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-100" : "text-gray-700"
-                        }`}
+                        style={{ width: "16%" }}
                       >
                         Amount
                       </th>
                       <th
-                        className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
+                        style={{ width: "8%" }}
                       >
                         Action
                       </th>
@@ -1622,10 +1701,25 @@ const InvoiceForm = ({ onSave }) => {
                         : "bg-white divide-gray-200"
                     }`}
                   >
-                    {deferredItems.slice(0, 20).map((item, index) => (
+                    {deferredItems.slice(0, 20).map((item, index) => {
+                      const tooltip = [
+                        item.name ? `Name: ${item.name}` : '',
+                        item.category ? `Category: ${item.category}` : '',
+                        item.commodity ? `Commodity: ${item.commodity}` : '',
+                        item.grade ? `Grade: ${item.grade}` : '',
+                        item.finish ? `Finish: ${item.finish}` : '',
+                        item.size ? `Size: ${item.size}` : '',
+                        item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                        item.od ? `OD: ${item.od}` : '',
+                        item.length ? `Length: ${item.length}` : '',
+                        item.thickness ? `Thickness: ${item.thickness}` : '',
+                        item.unit ? `Unit: ${item.unit}` : '',
+                        item.hsn_code ? `HSN: ${item.hsn_code}` : '',
+                      ].filter(Boolean).join('\n');
+                      return (
                       <tr key={item.id}>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <div className="w-48">
+                        <td className="px-2 py-2 align-middle">
+                          <div className="w-full">
                             <Autocomplete
                               options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
                               value={
@@ -1648,6 +1742,7 @@ const InvoiceForm = ({ onSave }) => {
                               }}
                               placeholder="Search products..."
                               disabled={loadingProducts}
+                              title={tooltip}
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">
@@ -1662,68 +1757,7 @@ const InvoiceForm = ({ onSave }) => {
                             />
                           </div>
                         </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <Select
-                            value={item.grade || ""}
-                            onChange={(e) =>
-                              handleItemChange(index, "grade", e.target.value)
-                            }
-                            disabled
-                            className="w-36"
-                          >
-                            <option value="">Select Grade</option>
-                            {allGrades.map((grade) => (
-                              <option key={grade} value={grade}>
-                                {grade}
-                              </option>
-                            ))}
-                          </Select>
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap bg-blue-50">
-                          <Select
-                            value={item.finish || ""}
-                            onChange={(e) =>
-                              handleItemChange(index, "finish", e.target.value)
-                            }
-                            disabled
-                            className="w-36"
-                          >
-                            <option value="">Select Finish</option>
-                            {allFinishes.map((finish) => (
-                              <option key={finish} value={finish}>
-                                {finish}
-                              </option>
-                            ))}
-                          </Select>
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap bg-green-50">
-                          <Input
-                            value={item.size || ""}
-                            onChange={(e) =>
-                              handleItemChange(index, "size", e.target.value)
-                            }
-                            placeholder="e.g., 4x8"
-                            disabled
-                            className="w-24"
-                          />
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap bg-yellow-50">
-                          <Input
-                            value={item.thickness || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "thickness",
-                                e.target.value
-                              )
-                            }
-                            placeholder="e.g., 1mm"
-                            disabled
-                            className="w-24"
-                          />
-                        </td>
-                        
-                        <td className="px-3 py-4 whitespace-nowrap">
+                        <td className="px-2 py-2 align-middle">
                           <Input
                             type="number"
                             value={item.quantity || ""}
@@ -1733,15 +1767,54 @@ const InvoiceForm = ({ onSave }) => {
                                 "quantity",
                                 e.target.value === ""
                                   ? ""
-                                  : parseFloat(e.target.value) || ""
+                                  : Number.isNaN(Number(e.target.value))
+                                  ? ""
+                                  : parseInt(e.target.value, 10)
                               )
                             }
                             min="0"
-                            step="0.01"
-                            className="w-20"
+                            step="1"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            onKeyDown={(e) => {
+                              const allow = [
+                                "Backspace",
+                                "Delete",
+                                "Tab",
+                                "Escape",
+                                "Enter",
+                                "ArrowLeft",
+                                "ArrowRight",
+                                "Home",
+                                "End",
+                              ];
+                              if (
+                                allow.includes(e.key) ||
+                                (e.ctrlKey || e.metaKey)
+                              ) {
+                                return;
+                              }
+                              if (!/^[0-9]$/.test(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onPaste={(e) => {
+                              e.preventDefault();
+                              const t = (e.clipboardData || window.clipboardData).getData(
+                                "text"
+                              );
+                              const digits = (t || "").replace(/\D/g, "");
+                              handleItemChange(
+                                index,
+                                "quantity",
+                                digits ? parseInt(digits, 10) : ""
+                              );
+                            }}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            className="w-full text-right"
                           />
                         </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
+                        <td className="px-2 py-2 align-middle">
                           <Input
                             type="number"
                             value={item.rate || ""}
@@ -1756,35 +1829,15 @@ const InvoiceForm = ({ onSave }) => {
                             }
                             min="0"
                             step="0.01"
-                            className="w-24"
+                            className="w-full text-right"
                           />
                         </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <Input
-                            type="number"
-                            value={item.vatRate}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "vatRate",
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            min="0"
-                            max="100"
-                            className="w-26"
-                          />
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <span
-                            className={`font-medium ${
-                              isDarkMode ? "text-white" : "text-gray-900"
-                            }`}
-                          >
+                        <td className="px-2 py-2 align-middle">
+                          <div className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"} text-right`}>
                             {formatCurrency(item.amount)}
-                          </span>
+                          </div>
                         </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
+                        <td className="px-2 py-2 align-middle text-center">
                           <button
                             onClick={() => removeItem(index)}
                             disabled={invoice.items.length === 1}
@@ -1798,14 +1851,29 @@ const InvoiceForm = ({ onSave }) => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>
 
               {/* Items Cards - Mobile */}
               <div className="xl:hidden space-y-4">
-                {deferredItems.slice(0, 10).map((item, index) => (
+                {deferredItems.slice(0, 10).map((item, index) => {
+                  const tooltip = [
+                    item.name ? `Name: ${item.name}` : '',
+                    item.category ? `Category: ${item.category}` : '',
+                    item.commodity ? `Commodity: ${item.commodity}` : '',
+                    item.grade ? `Grade: ${item.grade}` : '',
+                    item.finish ? `Finish: ${item.finish}` : '',
+                    item.size ? `Size: ${item.size}` : '',
+                    item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                    item.od ? `OD: ${item.od}` : '',
+                    item.length ? `Length: ${item.length}` : '',
+                    item.thickness ? `Thickness: ${item.thickness}` : '',
+                    item.unit ? `Unit: ${item.unit}` : '',
+                    item.hsn_code ? `HSN: ${item.hsn_code}` : '',
+                  ].filter(Boolean).join('\n');
+                  return (
                   <Card key={item.id} className="p-4">
                     <div className="flex justify-between items-start mb-4">
                       <h4
@@ -1850,6 +1918,7 @@ const InvoiceForm = ({ onSave }) => {
                         label="Product"
                         placeholder="Search products..."
                         disabled={loadingProducts}
+                        title={tooltip}
                         renderOption={(option) => (
                           <div>
                             <div className="font-medium">{option.name}</div>
@@ -1861,61 +1930,9 @@ const InvoiceForm = ({ onSave }) => {
                         noOptionsText="No products found"
                       />
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <Select
-                          label="Grade"
-                          value={item.grade || ""}
-                          onChange={(e) =>
-                            handleItemChange(index, "grade", e.target.value)
-                          }
-                          disabled
-                        >
-                          <option value="">Select Grade</option>
-                          {allGrades.map((grade) => (
-                            <option key={grade} value={grade}>
-                              {grade}
-                            </option>
-                          ))}
-                        </Select>
-                        <Select
-                          label="Finish"
-                          value={item.finish || ""}
-                          onChange={(e) =>
-                            handleItemChange(index, "finish", e.target.value)
-                          }
-                          disabled
-                        >
-                          <option value="">Select Finish</option>
-                          {allFinishes.map((finish) => (
-                            <option key={finish} value={finish}>
-                              {finish}
-                            </option>
-                          ))}
-                        </Select>
-                      </div>
+                      {/* Removed Grade, Finish, Size, Thickness fields */}
 
                       <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          label="Size"
-                          value={item.size || ""}
-                          onChange={(e) =>
-                            handleItemChange(index, "size", e.target.value)
-                          }
-                          placeholder="e.g., 4x8"
-                          disabled
-                        />
-                        <Input
-                          label="Thickness"
-                          value={item.thickness || ""}
-                          onChange={(e) =>
-                            handleItemChange(index, "thickness", e.target.value)
-                          }
-                          placeholder="e.g., 1mm"
-                          disabled
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4">
                         <Input
                           label="Qty"
                           type="number"
@@ -1926,11 +1943,45 @@ const InvoiceForm = ({ onSave }) => {
                               "quantity",
                               e.target.value === ""
                                 ? ""
-                                : parseFloat(e.target.value) || ""
+                                : Number.isNaN(Number(e.target.value))
+                                ? ""
+                                : parseInt(e.target.value, 10)
                             )
                           }
                           min="0"
-                          step="0.01"
+                          step="1"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          onKeyDown={(e) => {
+                            const allow = [
+                              "Backspace",
+                              "Delete",
+                              "Tab",
+                              "Escape",
+                              "Enter",
+                              "ArrowLeft",
+                              "ArrowRight",
+                              "Home",
+                              "End",
+                            ];
+                            if (allow.includes(e.key) || (e.ctrlKey || e.metaKey)) {
+                              return;
+                            }
+                            if (!/^[0-9]$/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            const t = (e.clipboardData || window.clipboardData).getData("text");
+                            const digits = (t || "").replace(/\D/g, "");
+                            handleItemChange(
+                              index,
+                              "quantity",
+                              digits ? parseInt(digits, 10) : ""
+                            );
+                          }}
+                          onWheel={(e) => e.currentTarget.blur()}
                         />
                         <Input
                           label="Rate"
@@ -1948,20 +1999,7 @@ const InvoiceForm = ({ onSave }) => {
                           min="0"
                           step="0.01"
                         />
-                        <Input
-                          label="VAT %"
-                          type="number"
-                          value={item.vatRate}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "vatRate",
-                              parseFloat(e.target.value) || 0
-                            )
-                          }
-                          min="0"
-                          max="100"
-                        />
+                        {/* Removed VAT % field */}
                       </div>
 
                       <div
@@ -1979,7 +2017,7 @@ const InvoiceForm = ({ onSave }) => {
                       </div>
                     </div>
                   </Card>
-                ))}
+                )})}
                 {deferredItems.length > 10 && (
                   <div
                     className={`text-center py-4 text-sm ${
@@ -2056,31 +2094,57 @@ const InvoiceForm = ({ onSave }) => {
                           label="Discount Percentage (%)"
                           type="number"
                           value={invoice.discountPercentage || ""}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === "") {
+                              setInvoice((prev) => ({ ...prev, discountPercentage: "" }));
+                              return;
+                            }
+                            const num = Number(raw);
+                            if (Number.isNaN(num)) return;
+                            const clamped = Math.max(0, Math.min(100, num));
                             setInvoice((prev) => ({
                               ...prev,
-                              discountPercentage: e.target.value,
-                            }))
-                          }
+                              discountPercentage: clamped,
+                            }));
+                          }}
                           min="0"
                           max="100"
                           step="0.01"
                           placeholder="0.00"
+                          inputMode="decimal"
+                          onKeyDown={(e) => {
+                            // Disallow exponent & plus/minus signs
+                            const blocked = ["e", "E", "+", "-"];
+                            if (blocked.includes(e.key)) e.preventDefault();
+                          }}
                         />
                       ) : (
                         <Input
                           label="Discount Amount"
                           type="number"
                           value={invoice.discountAmount || ""}
-                          onChange={(e) =>
-                            setInvoice((prev) => ({
-                              ...prev,
-                              discountAmount: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === "") {
+                              setInvoice((prev) => ({ ...prev, discountAmount: "" }));
+                              return;
+                            }
+                            const num = Number(raw);
+                            if (Number.isNaN(num)) return;
+                            const clamped = Math.max(0, Math.min(computedSubtotal, num));
+                            setInvoice((prev) => ({ ...prev, discountAmount: clamped }));
+                          }}
                           min="0"
+                          max={computedSubtotal}
                           step="0.01"
                           placeholder="0.00"
+                          inputMode="decimal"
+                          onKeyDown={(e) => {
+                            const blocked = ["e", "E", "+", "-"];
+                            if (blocked.includes(e.key)) e.preventDefault();
+                          }}
+                          onWheel={(e) => e.currentTarget.blur()}
                         />
                       )}
                     </div>

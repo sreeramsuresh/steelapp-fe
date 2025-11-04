@@ -57,6 +57,11 @@ export const createInvoice = () => ({
   dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   deliveryNote: '',
   modeOfPayment: '',
+  // Warehouse selection (for preview/PDF only; not persisted yet)
+  warehouseId: '',
+  warehouseName: '',
+  warehouseCode: '',
+  warehouseCity: '',
   otherReference: '',
   despatchedThrough: '',
   destination: '',
@@ -85,7 +90,7 @@ export const createInvoice = () => ({
   total: 0,
   status: 'draft',
   notes: '',
-  terms: 'Kindly check the product before unloading If any complaint arises, contact us immediately. No items will be returned without prior authorisation'
+  terms: 'Kindly check the product before unloading. If any complaint arises, contact us immediately.\nNo items will be returned without prior authorisation'
 });
 
 export const createCompany = () => ({

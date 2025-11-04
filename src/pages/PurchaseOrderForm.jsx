@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
@@ -18,6 +18,221 @@ import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
 import { supplierService } from "../services/supplierService";
 import { notificationService } from "../services/notificationService";
+
+const Autocomplete = ({
+  options = [],
+  value,
+  onChange,
+  onInputChange,
+  inputValue,
+  placeholder,
+  label,
+  disabled = false,
+  renderOption,
+  noOptionsText = "No options",
+  className = "",
+}) => {
+  const { isDarkMode } = useTheme();
+  const [isOpen, setIsOpen] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState(options);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
+  const norm = (s) => (s || '').toString().toLowerCase().trim();
+  const ed1 = (a, b) => {
+    // Early exits
+    if (a === b) return 0;
+    const la = a.length, lb = b.length;
+    if (Math.abs(la - lb) > 1) return 2; // too far
+    // DP edit distance capped at 1 for speed
+    let dpPrev = new Array(lb + 1);
+    let dpCurr = new Array(lb + 1);
+    for (let j = 0; j <= lb; j++) dpPrev[j] = j;
+    for (let i = 1; i <= la; i++) {
+      dpCurr[0] = i;
+      const ca = a.charCodeAt(i - 1);
+      for (let j = 1; j <= lb; j++) {
+        const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
+        dpCurr[j] = Math.min(
+          dpPrev[j] + 1,            // deletion
+          dpCurr[j - 1] + 1,        // insertion
+          dpPrev[j - 1] + cost      // substitution
+        );
+      }
+      // swap
+      const tmp = dpPrev; dpPrev = dpCurr; dpCurr = tmp;
+    }
+    return dpPrev[lb];
+  };
+
+  const tokenMatch = (token, label) => {
+    const t = norm(token);
+    const l = norm(label);
+    if (!t) return true;
+    if (l.includes(t)) return true;
+    // fuzzy: split label into words and check any word within edit distance 1
+    const words = l.split(/\s+/);
+    for (const w of words) {
+      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+    }
+    return false;
+  };
+
+  const fuzzyFilter = (opts, query) => {
+    const q = norm(query);
+    if (!q) return opts;
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const scored = [];
+    for (const o of opts) {
+      const label = norm(o.label || o.name || '');
+      if (!label) continue;
+      let ok = true;
+      let score = 0;
+      for (const t of tokens) {
+        if (!tokenMatch(t, label)) { ok = false; break; }
+        // basic score: shorter distance preferred
+        const idx = label.indexOf(norm(t));
+        score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
+      }
+      if (ok) scored.push({ o, score });
+    }
+    scored.sort((a, b) => a.score - b.score);
+    return scored.map(s => s.o);
+  };
+
+  useEffect(() => {
+    if (inputValue) {
+      const filtered = fuzzyFilter(options, inputValue);
+      setFilteredOptions(filtered.slice(0, 20));
+    } else {
+      setFilteredOptions(options);
+    }
+  }, [options, inputValue]);
+
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    onInputChange?.(e, newValue);
+    setIsOpen(true);
+  };
+
+  const handleOptionSelect = (option) => {
+    onChange?.(null, option);
+    setIsOpen(false);
+  };
+
+  const updateDropdownPosition = () => {
+    if (dropdownRef.current && inputRef.current && isOpen) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const dropdown = dropdownRef.current;
+
+      dropdown.style.position = "fixed";
+      dropdown.style.top = `${inputRect.bottom + 4}px`;
+      dropdown.style.left = `${inputRect.left}px`;
+      dropdown.style.minWidth = `${inputRect.width}px`;
+      dropdown.style.width = 'auto';
+      dropdown.style.maxWidth = '90vw';
+      dropdown.style.zIndex = "9999";
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+      const handleScroll = () => updateDropdownPosition();
+      const handleResize = () => updateDropdownPosition();
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+            inputRef.current && !inputRef.current.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
+      document.addEventListener('mousedown', handleClickOutside);
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  return (
+    <div className={`relative ${className}`}>
+      {label && (
+        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          {label}
+        </label>
+      )}
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputValue || ""}
+        onChange={handleInputChange}
+        onFocus={() => setIsOpen(true)}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      />
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className={`border rounded-md shadow-lg max-h-60 overflow-y-auto ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-600' 
+              : 'bg-white border-gray-300'
+          }`}
+        >
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option, index) => (
+              <div
+                key={option.id || option.name || index}
+                className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
+                  isDarkMode
+                    ? "hover:bg-gray-700 text-white border-gray-700"
+                    : "hover:bg-gray-50 text-gray-900 border-gray-100"
+                }`}
+                onMouseDown={() => handleOptionSelect(option)}
+              >
+                {renderOption ? (
+                  renderOption(option)
+                ) : (
+                  <div>
+                    <div className="font-medium">{option.name}</div>
+                    {option.subtitle && (
+                      <div
+                        className={`text-sm ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {option.subtitle}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div
+              className={`px-3 py-2 text-sm ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              {noOptionsText}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const PurchaseOrderForm = () => {
   const { id } = useParams();
@@ -42,7 +257,6 @@ const PurchaseOrderForm = () => {
         size: "",
         finish: "",
         specification: "", // Keep for backward compatibility
-        unit: "MT",
         quantity: 0,
         rate: 0,
         amount: 0,
@@ -65,6 +279,7 @@ const PurchaseOrderForm = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  const [searchInputs, setSearchInputs] = useState({});
   
   // Normalize date value for <input type="date">
   const toDateInput = (d) => {
@@ -83,6 +298,28 @@ const PurchaseOrderForm = () => {
     () => supplierService.getSuppliers({ status: 'active' }),
     []
   );
+
+  // Product options for autocomplete
+  const productOptions = useMemo(() => {
+    return (availableProducts || []).map((product) => ({
+      ...product,
+      label: product.name,
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
+        product.selling_price || 0
+      }`,
+    }));
+  }, [availableProducts]);
+
+  const searchOptions = useMemo(() => {
+    const list = searchInputs?.__results || [];
+    return list.map((product) => ({
+      ...product,
+      label: product.name,
+      subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
+        product.selling_price || 0
+      }`,
+    }));
+  }, [searchInputs.__results]);
 
   // Load existing purchase order when editing
   useEffect(() => {
@@ -115,7 +352,6 @@ const PurchaseOrderForm = () => {
             size: '',
             finish: '',
             specification: it.specification || '',
-            unit: it.unit || 'MT',
             quantity: it.quantity || 0,
             rate: it.rate || 0,
             amount: it.amount || 0,
@@ -226,6 +462,121 @@ const PurchaseOrderForm = () => {
     }));
   };
 
+  // Helper function to extract thickness from product specs or size string
+  const getThickness = (product) => {
+    try {
+      const cat = (product?.category || '').toString().toLowerCase();
+      const isPipe = /pipe/.test(cat);
+      const specThk = product?.specifications?.thickness || product?.specifications?.Thickness;
+      if (specThk && String(specThk).trim()) return String(specThk).trim();
+      if (isPipe) return ""; // avoid deriving thickness from pipe size
+      const sizeStr = product?.size ? String(product.size) : "";
+      const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
+      if (mmMatch) return `${mmMatch[1]}mm`;
+      const xParts = sizeStr.split(/x|X|\*/).map((s) => s.trim()).filter(Boolean);
+      if (xParts.length >= 2) {
+        const last = xParts[xParts.length - 1];
+        const numMatch = last.match(/\d+(?:\.\d+)?/);
+        if (numMatch) return `${numMatch[0]}mm`;
+      }
+    } catch {}
+    return "";
+  };
+
+  const handleProductSelect = (index, selectedProductName) => {
+    // Find the full product object from availableProducts
+    const product = availableProducts.find(p => p.name === selectedProductName);
+    
+    if (product && typeof product === "object") {
+      const updatedItems = [...purchaseOrder.items];
+      
+      // Try multiple possible field names for finish and thickness
+      const rawFinish = product.finish || product.surface_finish || product.finishType || "";
+      
+      // Match finish with predefined FINISHES options (case-insensitive)
+      const finish = (() => {
+        if (!rawFinish) return "";
+        const rawFinishLower = rawFinish.toLowerCase();
+        const matchedFinish = FINISHES.find(f => f.toLowerCase() === rawFinishLower);
+        return matchedFinish || rawFinish; // Use matched finish or original if no match
+      })();
+      
+      const thickness = product.thickness || product.thick || getThickness(product);
+      
+      updatedItems[index] = {
+        ...updatedItems[index],
+        productType: product.name,
+        name: product.name,
+        grade: product.grade || product.steel_grade || "",
+        finish: finish,
+        size: product.size || product.dimensions || "",
+        thickness: thickness,
+        specification: product.specification || product.description || "",
+        rate: product.selling_price || product.purchase_price || product.price || 0,
+      };
+
+      // Calculate amount if quantity exists
+      if (updatedItems[index].quantity) {
+        updatedItems[index].amount = updatedItems[index].quantity * (product.selling_price || product.purchase_price || 0);
+      }
+
+      // Recalculate totals
+      const subtotal = calculateSubtotal(updatedItems);
+      const vatAmount = subtotal * 0.05; // 5% TRN
+      const total = subtotal + vatAmount;
+
+      setPurchaseOrder((prev) => ({
+        ...prev,
+        items: updatedItems,
+        subtotal,
+        vatAmount,
+        total,
+      }));
+
+      // Clear search input for this row
+      setSearchInputs((prev) => ({ ...prev, [index]: "" }));
+    }
+  };
+
+  const searchTimerRef = useRef(null);
+
+  const handleSearchInputChange = useCallback((index, value) => {
+    setSearchInputs((prev) => ({ ...prev, [index]: value }));
+
+    // Update the item name immediately for responsive typing
+    setPurchaseOrder((prev) => {
+      const newItems = [...prev.items];
+      newItems[index] = {
+        ...newItems[index],
+        name: value,
+        productId: null, // Clear product ID when typing custom name
+      };
+      return {
+        ...prev,
+        items: newItems,
+      };
+    });
+
+    // Debounced search
+    clearTimeout(searchTimerRef.current);
+    const term = (value || '').trim();
+    try {
+      searchTimerRef.current = setTimeout(async () => {
+        if (!term) {
+          setSearchInputs((prev) => ({ ...prev, __results: [] }));
+          return;
+        }
+        try {
+          const resp = await productService.getProducts({ search: term, limit: 20 });
+          setSearchInputs((prev) => ({ ...prev, __results: resp?.products || [] }));
+        } catch (err) {
+          console.warn('Product search failed:', err);
+          setSearchInputs((prev) => ({ ...prev, __results: [] }));
+        }
+      }, 300);
+    } catch {}
+  }, []);
+
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...purchaseOrder.items];
     updatedItems[index] = {
@@ -277,7 +628,6 @@ const PurchaseOrderForm = () => {
           size: "",
           finish: "",
           specification: "",
-          unit: "MT",
           quantity: 0,
           rate: 0,
           amount: 0,
@@ -381,7 +731,6 @@ const PurchaseOrderForm = () => {
           size: item.size || null,
           finish: item.finish || null,
           specification: item.specification || null,
-          unit: item.unit,
           quantity: parseFloat(item.quantity) || 0,
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0
@@ -893,9 +1242,6 @@ const PurchaseOrderForm = () => {
                       Finish
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Unit
-                    </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Qty
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -913,29 +1259,42 @@ const PurchaseOrderForm = () => {
                   {purchaseOrder.items.map((item, index) => (
                     <tr key={index}>
                       <td className="px-4 py-3">
-                        <div className="relative">
-                          <select
-                            value={item.productType}
-                            onChange={(e) => {
-                              handleItemChange(index, "productType", e.target.value);
-                              handleItemChange(index, "name", e.target.value); // Keep name in sync
+                        <div className="w-48">
+                          <Autocomplete
+                            options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
+                            value={
+                              item.productId
+                                ? productOptions.find(
+                                    (p) => p.id === item.productId
+                                  )
+                                : null
+                            }
+                            inputValue={
+                              searchInputs[index] || item.name || ""
+                            }
+                            onInputChange={(event, newInputValue) => {
+                              handleSearchInputChange(index, newInputValue);
                             }}
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                              isDarkMode 
-                                ? 'bg-gray-800 border-gray-600 text-white' 
-                                : 'bg-white border-gray-300 text-gray-900'
-                            }`}
-                          >
-                            <option value="">Select Product</option>
-                            {availableProducts.map((product) => (
-                              <option key={product.id || product.name} value={product.name}>
-                                {product.name} {product.category ? `(${product.category})` : ''}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          </div>
+                            onChange={(event, newValue) => {
+                              if (newValue) {
+                                handleProductSelect(index, newValue.name);
+                              }
+                            }}
+                            placeholder="Search products..."
+                            disabled={loading}
+                            renderOption={(option) => (
+                              <div>
+                                <div className="font-medium">{option.name}</div>
+                                <div
+                                  className={`text-sm ${
+                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                  }`}
+                                >
+                                  {option.subtitle}
+                                </div>
+                              </div>
+                            )}
+                          />
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -1004,27 +1363,6 @@ const PurchaseOrderForm = () => {
                                 {finish}
                               </option>
                             ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="relative">
-                          <select
-                            value={item.unit}
-                            onChange={(e) => handleItemChange(index, "unit", e.target.value)}
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                              isDarkMode 
-                                ? 'bg-gray-800 border-gray-600 text-white' 
-                                : 'bg-white border-gray-300 text-gray-900'
-                            }`}
-                          >
-                            <option value="MT">MT</option>
-                            <option value="KG">KG</option>
-                            <option value="PC">PC</option>
-                            <option value="FT">FT</option>
                           </select>
                           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />

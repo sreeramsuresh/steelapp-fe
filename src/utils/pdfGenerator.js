@@ -7,6 +7,8 @@ import {
   calculateTotal,
   titleCase,
   formatNumber,
+  formatDateDMY,
+  calculateDiscountedTRN,
 } from "./invoiceUtils";
 import logoCompany from "../assets/logocompany.png";
 import sealImage from "../assets/Seal.png";
@@ -94,15 +96,22 @@ export const generateInvoicePDF = async (invoice, company) => {
       const rightColX = page.w - M.right - 70;
 
       const cust = invoice.customer || {};
+      // Show invoice date above Bill To in DMY format
+      pdf.text(`INVOICE Date : ${formatDateDMY(invoice.date || new Date())}`, leftColX, y);
+      y += 4;
       pdf.text(`Bill To: ${titleCase(cust.name || "")}`, leftColX, y);
 
       const invNo = `Invoice #: ${invoice.invoiceNumber || ""}`;
       pdf.text(invNo, rightColX, y);
       y += 4;
-
-      const invDate = `Date: ${formatDate(invoice.date || new Date())}`;
-      pdf.text(invDate, rightColX, y);
-      y += 4;
+      if (invoice.modeOfPayment) {
+        pdf.text(`Payment Mode: ${invoice.modeOfPayment}`, rightColX, y);
+        y += 4;
+      }
+      if (invoice.chequeNumber) {
+        pdf.text(`Cheque No: ${invoice.chequeNumber}`, rightColX, y);
+        y += 4;
+      }
     } else {
       setBody();
       black();
@@ -312,27 +321,50 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.line(M.left, totalsY - 2, page.w - M.right, totalsY - 2);
   setBody();
 
+  const subtotalValForTotals = calculateSubtotal(items);
+  const addChargesValForTotals =
+    (parseFloat(invoice.packingCharges) || 0) +
+    (parseFloat(invoice.freightCharges) || 0) +
+    (parseFloat(invoice.loadingCharges) || 0) +
+    (parseFloat(invoice.otherCharges) || 0);
+  const discountPerc = parseFloat(invoice.discountPercentage) || 0;
+  const discountFlat = parseFloat(invoice.discountAmount) || 0;
+  const discountValForTotals =
+    invoice.discountType === "percentage"
+      ? (subtotalValForTotals * discountPerc) / 100
+      : discountFlat;
+
   pdf.text("Subtotal (AED):", page.w - M.right - 60, totalsY);
-  pdf.text(formatNumber(calculateSubtotal(items)), page.w - M.right, totalsY, {
+  pdf.text(formatNumber(subtotalValForTotals), page.w - M.right, totalsY, {
     align: "right",
   });
+  if (discountValForTotals > 0) {
+    pdf.text("Discount (AED):", page.w - M.right - 60, totalsY + 3);
+    pdf.text("-" + formatNumber(discountValForTotals), page.w - M.right, totalsY + 3, { align: "right" });
+  }
 
-  pdf.text("VAT Amount (AED):", page.w - M.right - 60, totalsY + 3);
-  pdf.text(
-    formatNumber(calculateTotalTRN(items)),
-    page.w - M.right,
-    totalsY + 3,
-    { align: "right" }
+  const vatLineY = discountValForTotals > 0 ? totalsY + 6 : totalsY + 3;
+  const vatAfterDiscount = calculateDiscountedTRN(
+    items,
+    invoice.discountType,
+    invoice.discountPercentage,
+    invoice.discountAmount
   );
+  pdf.text("VAT Amount (AED):", page.w - M.right - 60, vatLineY);
+  pdf.text(formatNumber(vatAfterDiscount), page.w - M.right, vatLineY, { align: "right" });
 
   setBold();
-  pdf.text("Total (AED):", page.w - M.right - 60, totalsY + 6);
+  const totalLineY = vatLineY + 3;
+  pdf.text("Total (AED):", page.w - M.right - 60, totalLineY);
   pdf.text(
     formatNumber(
-      calculateTotal(calculateSubtotal(items), calculateTotalTRN(items))
+      calculateTotal(
+        Math.max(0, subtotalValForTotals - discountValForTotals) + addChargesValForTotals,
+        vatAfterDiscount
+      )
     ),
     page.w - M.right,
-    totalsY + 6,
+    totalLineY,
     { align: "right" }
   );
 
@@ -354,10 +386,21 @@ export const generateInvoicePDF = async (invoice, company) => {
   if (invoice.terms) {
     pdf.text("Payment as per payment terms:", M.left, currentY);
     currentY += 3;
-    const termsLines = split(invoice.terms, page.w - M.left - M.right - 10);
-    termsLines.forEach((line) => {
-      pdf.text(line, M.left, currentY);
-      currentY += 3;
+    
+    // First split by manual line breaks (\n), then by width
+    const manualLines = invoice.terms.split('\n');
+    manualLines.forEach((manualLine) => {
+      if (manualLine.trim()) {
+        // Split each manual line by width if it's too long
+        const termsLines = split(manualLine, page.w - M.left - M.right - 10);
+        termsLines.forEach((line) => {
+          pdf.text(line, M.left, currentY);
+          currentY += 3;
+        });
+      } else {
+        // Empty line - just add spacing
+        currentY += 3;
+      }
     });
   }
 
@@ -388,14 +431,25 @@ const createInvoiceElement = (invoice, company) => {
 
   const items = Array.isArray(invoice.items) ? invoice.items : [];
   const subtotalVal = calculateSubtotal(items);
-  const trnAmountVal = calculateTotalTRN(items);
+  const trnAmountVal = calculateDiscountedTRN(
+    items,
+    invoice.discountType,
+    invoice.discountPercentage,
+    invoice.discountAmount
+  );
   const packing = parseFloat(invoice.packingCharges) || 0;
   const freight = parseFloat(invoice.freightCharges) || 0;
   const loading = parseFloat(invoice.loadingCharges) || 0;
   const other = parseFloat(invoice.otherCharges) || 0;
   const additionalChargesVal = packing + freight + loading + other;
+  const discountPercVal = parseFloat(invoice.discountPercentage) || 0;
+  const discountFlatVal = parseFloat(invoice.discountAmount) || 0;
+  const discountVal =
+    invoice.discountType === "percentage"
+      ? (subtotalVal * discountPercVal) / 100
+      : discountFlatVal;
   const totalVal = calculateTotal(
-    subtotalVal + additionalChargesVal,
+    Math.max(0, subtotalVal - discountVal) + additionalChargesVal,
     trnAmountVal
   );
 
@@ -496,7 +550,10 @@ const createInvoiceElement = (invoice, company) => {
       
       <div style="display: flex; justify-content: space-between; gap: 15px;">
         <div style="flex: 0 0 45%;">
-          <h3 style="margin: 0 0 6px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 10pt;">Bill To:</h3>
+          <div style="margin: 0 0 6px 0 !important; font-size: 10pt; color: #0f172a;">
+            <strong>INVOICE Date :</strong> ${formatDateDMY(invoice.date)}
+          </div>
+          <h3 style="margin: 0 0 2px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 10pt;">Bill To:</h3>
           <div>
             <p style="margin: 1px 0 !important; font-weight: 600; font-size: 10pt;">${titleCase(
               safe(cust.name)
@@ -525,16 +582,9 @@ const createInvoiceElement = (invoice, company) => {
           </div>
         </div>
         <div style="flex: 0 0 45%;">
-          <h3 style="margin: 0 0 6px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 10pt; text-align: center;">INVOICE</h3>
           <div>
             <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Invoice #:</strong> ${safe(
               invoice.invoiceNumber
-            )}</p>
-            <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Date:</strong> ${formatDate(
-              invoice.date
-            )}</p>
-            <p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Due Date:</strong> ${formatDate(
-              invoice.dueDate
             )}</p>
             ${
               invoice.customerPurchaseOrderNumber
@@ -549,6 +599,26 @@ const createInvoiceElement = (invoice, company) => {
                     invoice.customerPurchaseOrderDate
                   )}</p>`
                 : ""
+            }
+            ${
+              invoice.modeOfPayment
+                ? `<p style="margin: 2px 0 !important; font-size: 10pt;"><strong>Payment Mode:</strong> ${safe(invoice.modeOfPayment)}</p>`
+                : ''
+            }
+            ${
+              invoice.chequeNumber
+                ? `<p style=\"margin: 2px 0 !important; font-size: 10pt;\"><strong>Cheque No:</strong> ${safe(invoice.chequeNumber)}</p>`
+                : ''
+            }
+            ${
+              invoice.warehouseName || invoice.warehouseCode || invoice.warehouseCity
+                ? `<div style="margin: 4px 0 !important; font-size: 10pt;">
+                    <strong>Warehouse:</strong><br/>
+                    ${safe(invoice.warehouseName || '')}<br/>
+                    ${invoice.warehouseCode ? `WAREHOUSE NO:${safe(invoice.warehouseCode)}` : ''}${invoice.warehouseCity ? '<br/>' : ''}
+                    ${safe(invoice.warehouseCity || '')}
+                  </div>`
+                : ''
             }
           </div>
         </div>
@@ -593,6 +663,14 @@ const createInvoiceElement = (invoice, company) => {
             <span>Subtotal (AED):</span>
             <span>${formatNumber(subtotalVal)}</span>
           </div>
+          ${
+            discountVal > 0
+              ? `<div style="display: flex; justify-content: space-between; padding: 2px 0 !important;">
+                   <span>Discount (AED):</span>
+                   <span>- ${formatNumber(discountVal)}</span>
+                 </div>`
+              : ""
+          }
           <div style="display: flex; justify-content: space-between; padding: 2px 0 !important;">
             <span>VAT Amount (AED):</span>
             <span>${formatNumber(trnAmountVal)}</span>
@@ -613,7 +691,7 @@ const createInvoiceElement = (invoice, company) => {
               ? `
             <div style="margin-bottom: 3px !important;">
               <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 10pt;">Notes:</h4>
-              <p style="color: #64748b; font-size: 10pt;">${invoice.notes}</p>
+              <p style="color: #64748b; font-size: 10pt; white-space: pre-line;">${invoice.notes}</p>
             </div>
           `
               : ""
@@ -623,7 +701,7 @@ const createInvoiceElement = (invoice, company) => {
               ? `
             <div style="margin-bottom: 3px !important;">
               <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 10pt;">Payment as per payment terms:</h4>
-              <p style="color: #64748b; font-size: 10pt;">${invoice.terms}</p>
+              <p style="color: #64748b; font-size: 10pt; white-space: pre-line;">${invoice.terms}</p>
             </div>
           `
               : ""

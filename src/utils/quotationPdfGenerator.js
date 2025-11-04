@@ -173,7 +173,7 @@ const createQuotationElement = (q, company) => {
         ${q.terms_and_conditions ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Terms & Conditions:</h4>
-            <p style="margin:0; color:#64748b;">${q.terms_and_conditions}</p>
+            <p style="margin:0; color:#64748b;">${q.terms_and_conditions.replace(/\n/g, '<br>')}</p>
           </div>
         ` : ''}
       </div>
