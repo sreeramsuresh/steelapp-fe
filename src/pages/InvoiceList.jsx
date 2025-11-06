@@ -24,6 +24,7 @@ import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
+import InvoicePreview from "../components/InvoicePreview";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -46,6 +47,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [createdDeliveryNote, setCreatedDeliveryNote] = useState(null);
   const [searchParams] = useSearchParams();
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewInvoice, setPreviewInvoice] = useState(null);
 
   const company = createCompany();
 
@@ -195,9 +198,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setDownloadingIds((prev) => new Set(prev).add(invoice.id));
 
     try {
-      await generateInvoicePDF(invoice, company);
+      // Fetch complete invoice details including items before generating PDF
+      const fullInvoice = await invoiceService.getInvoice(invoice.id);
+      await generateInvoicePDF(fullInvoice, company);
       notificationService.success("PDF downloaded successfully!");
     } catch (error) {
+      console.error("PDF generation error:", error);
       notificationService.error(error.message || "Failed to download PDF");
     } finally {
       setDownloadingIds((prev) => {
@@ -216,19 +222,32 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     );
     if (!confirmed) return;
 
+    let successCount = 0;
+    let failCount = 0;
+
     for (const invoice of invoices) {
       try {
-        await generateInvoicePDF(invoice, company);
+        // Fetch complete invoice details including items before generating PDF
+        const fullInvoice = await invoiceService.getInvoice(invoice.id);
+        await generateInvoicePDF(fullInvoice, company);
+        successCount++;
         // Add a small delay between downloads
         await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         console.error(`Failed to download ${invoice.invoiceNumber}:`, error);
+        failCount++;
       }
     }
 
-    notificationService.success(
-      `Downloaded ${invoices.length} invoice PDFs successfully!`
-    );
+    if (failCount === 0) {
+      notificationService.success(
+        `Downloaded ${successCount} invoice PDFs successfully!`
+      );
+    } else {
+      notificationService.warning(
+        `Downloaded ${successCount} PDFs. ${failCount} failed.`
+      );
+    }
   };
 
   const handleCreateDeliveryNote = async (invoice) => {
@@ -290,6 +309,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     } catch (error) {
       notificationService.deleteError('Invoice', error);
+    }
+  };
+
+  const handleViewInvoice = async (invoice) => {
+    try {
+      // Fetch complete invoice details including items
+      const fullInvoice = await invoiceService.getInvoice(invoice.id);
+      setPreviewInvoice(fullInvoice);
+      setShowPreviewModal(true);
+    } catch (error) {
+      console.error("Error fetching invoice:", error);
+      notificationService.error("Failed to load invoice details");
     }
   };
 
@@ -435,6 +466,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
       }`}
     >
+      {/* Invoice Preview Modal */}
+      {showPreviewModal && previewInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <InvoicePreview
+              invoice={previewInvoice}
+              company={company}
+              onClose={() => {
+                setShowPreviewModal(false);
+                setPreviewInvoice(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Delivery Note Modal */}
+      <DeliveryNoteModal />
+
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode
@@ -785,9 +835,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                             : "hover:bg-gray-100 text-cyan-600"
                         }`}
                         title="View Invoice"
-                        onClick={() => {
-                          /* TODO: Implement view */
-                        }}
+                        onClick={() => handleViewInvoice(invoice)}
                       >
                         <Eye size={16} />
                       </button>
