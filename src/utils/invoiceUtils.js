@@ -78,6 +78,19 @@ export const calculateTotal = (subtotal, vatAmount) => {
   return sub + vat;
 };
 
+/**
+ * ⚠️ CRITICAL BUSINESS RULE - DO NOT MODIFY WITHOUT EXPLICIT USER APPROVAL ⚠️
+ *
+ * Document numbering format: PREFIX-YYYYMM-NNNN (all with yearly reset)
+ * - Invoice: INV-YYYYMM-NNNN
+ * - Purchase Order: PO-YYYYMM-NNNN
+ * - Quotation: QT-YYYYMM-NNNN
+ * - Delivery Note: DN-YYYYMM-NNNN
+ *
+ * Last Confirmed: 2025-01-07 by User
+ * Documentation: See /NAMING_CONVENTIONS.md
+ */
+
 export const generateInvoiceNumber = () => {
   const date = new Date();
   const year = date.getFullYear();
@@ -89,10 +102,11 @@ export const generateInvoiceNumber = () => {
 
 export const generatePONumber = () => {
   const date = new Date();
-  const year = date.getFullYear().toString().slice(-2);
+  const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `PO-${year}${month}-${random}`;
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number comes from backend API
+  return `PO-${yearMonth}-0001`;
 };
 
 export const formatCurrency = (amount) => {
