@@ -77,7 +77,7 @@ const transformInvoiceFromServer = (serverData) => {
       unit: item.unit || '',
       quantity: item.quantity || 0,
       rate: item.rate || 0,
-      vatRate: item.vat_rate || 0,
+      vatRate: item.vat_rate || 5,
       amount: item.amount || 0
     })) || [],
     createdAt: serverData.created_at,

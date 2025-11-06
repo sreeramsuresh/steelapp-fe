@@ -350,7 +350,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     invoice.discountPercentage,
     invoice.discountAmount
   );
-  pdf.text("VAT Amount (AED):", page.w - M.right - 60, vatLineY);
+  pdf.text("VAT (AED):", page.w - M.right - 60, vatLineY);
   pdf.text(formatNumber(vatAfterDiscount), page.w - M.right, vatLineY, { align: "right" });
 
   setBold();
@@ -567,9 +567,9 @@ const createInvoiceElement = (invoice, company) => {
     custAddr.country
   )}</p>
             ${
-              cust.vatNumber || cust.gstNumber
+              cust.vatNumber
                 ? `<p style="margin: 1px 0 !important; font-size: 10pt;">TRN: ${safe(
-                    cust.vatNumber || cust.gstNumber
+                    cust.vatNumber
                   )}</p>`
                 : ""
             }

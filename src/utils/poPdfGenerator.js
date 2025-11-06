@@ -71,7 +71,7 @@ const createPOElement = (po, company) => {
           <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.country)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Email: ${safe(comp.email)}</p>
-          <p style="margin: 0; font-size: 11px; color: #334155;">TRN: ${safe(comp.vatNumber || comp.gstNumber)}</p>
+          <p style="margin: 0; font-size: 11px; color: #334155;">TRN: ${safe(comp.vatNumber)}</p>
         </div>
       </div>
 
@@ -131,10 +131,10 @@ const createPOElement = (po, company) => {
           <span>Subtotal:</span>
           <span>${formatCurrency(po.subtotal || 0)}</span>
         </div>
-        ${(po.vatAmount || po.gst_amount) ? `
+        ${(po.vatAmount) ? `
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>VAT Amount:</span>
-          <span>${formatCurrency(po.vatAmount || po.gst_amount || 0)}</span>
+          <span>${formatCurrency(po.vatAmount || 0)}</span>
         </div>` : ''}
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
           <span><strong>Total Amount:</strong></span>

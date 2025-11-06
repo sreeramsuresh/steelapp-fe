@@ -694,6 +694,7 @@ const POTab = ({ canManage }) => {
                 <th className="px-4 py-3 text-left text-xs uppercase">Currency</th>
                 <th className="px-4 py-3 text-right text-xs uppercase">PO Value</th>
                 <th className="px-4 py-3 text-right text-xs uppercase">Paid To-Date</th>
+                <th className="px-4 py-3 text-left text-xs uppercase">Last Payment</th>
                 <th className="px-4 py-3 text-right text-xs uppercase">Balance</th>
                 <th className="px-4 py-3 text-left text-xs uppercase">Status</th>
                 <th className="px-4 py-3 text-right text-xs uppercase">Actions</th>
@@ -701,9 +702,9 @@ const POTab = ({ canManage }) => {
             </thead>
             <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {loading ? (
-                <tr><td colSpan={10} className="px-4 py-6 text-center">Loading...</td></tr>
+                <tr><td colSpan={11} className="px-4 py-6 text-center">Loading...</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={10} className="px-4 py-6 text-center">No records</td></tr>
+                <tr><td colSpan={11} className="px-4 py-6 text-center">No records</td></tr>
               ) : items.map((row) => (
                 <tr key={row.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} cursor-pointer`}>
                   <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.po_no || row.poNumber}</td>
@@ -717,7 +718,26 @@ const POTab = ({ canManage }) => {
                   </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.currency || 'AED'}</td>
                   <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.po_value || 0)}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.paid || 0)}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>
+                    <div>
+                      <div className="font-medium">{formatCurrency(row.paid || 0)}</div>
+                      {(row.payments && row.payments.filter(p => !p.voided).length > 0) && (
+                        <div className="text-xs opacity-70">
+                          {row.payments.filter(p => !p.voided).length} payment{row.payments.filter(p => !p.voided).length !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>
+                    {(row.payments && row.payments.length > 0) ? (
+                      <div className="text-xs">
+                        <div className="font-medium">{formatDate(row.payments[row.payments.length - 1]?.payment_date)}</div>
+                        <div className="opacity-70">{formatCurrency(row.payments[row.payments.length - 1]?.amount || 0)}</div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">No payments</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.balance || 0)}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}><StatusPill status={row.status} /></td>
                   <td className="px-4 py-2 text-right">

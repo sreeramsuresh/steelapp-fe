@@ -15,7 +15,18 @@ import {
   Move,
   Truck,
   ShoppingCart,
-  Quote
+  Quote,
+  Ship,
+  Globe,
+  FileCheck,
+  Anchor,
+  CreditCard,
+  DollarSign,
+  Scroll,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Award,
+  MapPin
 } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -110,8 +121,19 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ShoppingCart,
           description: 'Manage purchase orders',
           requiredPermission: 'purchase_orders.read'
-        },
-        
+        }
+      ]
+    },
+    {
+      section: 'Trade Operations',
+      items: [
+        {
+          name: 'Import / Export',
+          path: '/import-export',
+          icon: Ship,
+          description: 'Manage international trade operations',
+          requiredPermission: 'import_orders.read'
+        }
       ]
     },
     {

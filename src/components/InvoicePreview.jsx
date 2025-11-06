@@ -368,7 +368,9 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 </div>
                 <div className="w-full bg-teal-600 text-white flex justify-center mb-4 py-2">
                   <h2 className="text-lg font-bold tracking-wide">
-                    TAX INVOICE
+                    {invoice.status === 'draft' ? 'DRAFT' : 
+                     invoice.status === 'proforma' ? 'PROFORMA' : 
+                     'TAX INVOICE'}
                   </h2>
                 </div>
               </div>
@@ -631,7 +633,9 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   className="text-xl font-bold tracking-wide text-white"
                   style={{ fontFamily: "Calibri, Arial, sans-serif" }}
                 >
-                  TAX INVOICE
+                  {invoice.status === 'draft' ? 'DRAFT' : 
+                   invoice.status === 'proforma' ? 'PROFORMA' : 
+                   'TAX INVOICE'}
                 </h2>
               </div>
 
@@ -1106,13 +1110,15 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                           </div>
                         </div>
 
-                        {/* TAX INVOICE banner */}
+                        {/* Invoice banner */}
                         <div className="w-full bg-teal-600 text-white flex justify-center items-center mb-6 py-3">
                           <h2
                             className="text-xl font-bold tracking-wide text-white"
                             style={{ fontFamily: "Calibri, Arial, sans-serif" }}
                           >
-                            TAX INVOICE
+                            {invoice.status === 'draft' ? 'DRAFT' : 
+                             invoice.status === 'proforma' ? 'PROFORMA' : 
+                             'TAX INVOICE'}
                           </h2>
                         </div>
 
@@ -1857,7 +1863,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       fontSize: "11pt",
                                     }}
                                   >
-                                    VAT Amount (AED):
+                                    VAT (AED):
                                   </span>
                                   <span
                                     className={`${

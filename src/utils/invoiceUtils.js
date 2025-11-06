@@ -89,10 +89,29 @@ export const generateInvoiceNumber = () => {
 
 export const generatePONumber = () => {
   const date = new Date();
-  const year = date.getFullYear().toString().slice(-2);
+  const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `PO-${year}${month}-${random}`;
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number should come from backend API
+  return `PO-${yearMonth}-0001`;
+};
+
+export const generateQuotationNumber = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number should come from backend API
+  return `QT-${yearMonth}-0001`;
+};
+
+export const generateDeliveryNoteNumber = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number should come from backend API
+  return `DN-${yearMonth}-0001`;
 };
 
 export const formatCurrency = (amount) => {
