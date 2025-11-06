@@ -1635,7 +1635,7 @@ const InvoiceForm = ({ onSave }) => {
                     isDarkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  🏗️ Steel Items
+                  🏗️ Stainless Steel Items
                 </h2>
                 <Button onClick={addItem} className="w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
