@@ -41,6 +41,15 @@ import ImportOrderDetails from "../pages/ImportOrderDetails";
 import ExportOrderForm from "../pages/ExportOrderForm";
 import ExportOrderDetails from "../pages/ExportOrderDetails";
 
+// Finance Components
+import FinanceDashboard from "../pages/FinanceDashboard";
+
+// Business Components
+import BusinessDashboard from "../pages/BusinessDashboard";
+
+// Reports Components
+import ReportsDashboard from "../pages/ReportsDashboard";
+
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
@@ -126,46 +135,19 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         <Route
-          path="/customers"
+          path="/business"
           element={
             <ProtectedRoute user={user} requiredPermission="customers.read">
-              <CustomerManagement />
+              <BusinessDashboard />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/products"
-          element={
-            <ProtectedRoute user={user} requiredPermission="products.read">
-              <SteelProducts />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/calculator"
-          element={
-            <ProtectedRoute user={user}>
-              <PriceCalculator />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/analytics"
+          path="/reports"
           element={
             <ProtectedRoute user={user} requiredPermission="analytics.read">
-              <SalesAnalytics />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/trends"
-          element={
-            <ProtectedRoute user={user} requiredPermission="analytics.read">
-              <RevenueTrends />
+              <ReportsDashboard />
             </ProtectedRoute>
           }
         />
@@ -182,18 +164,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         
 
         <Route
-          path="/payables"
+          path="/finance"
           element={
             <ProtectedRoute user={user} requiredPermission="payables.read">
-              <Payables />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/receivables"
-          element={
-            <ProtectedRoute user={user} requiredPermission="payables.read">
-              <Receivables />
+              <FinanceDashboard />
             </ProtectedRoute>
           }
         />
