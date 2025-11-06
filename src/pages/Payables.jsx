@@ -238,19 +238,19 @@ const InvoicesTab = ({ canManage }) => {
       {/* Filters Row */}
       <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
             <select value={filters.dateType} onChange={(e)=>setFilters({ dateType:e.target.value, page:'1' })} className="px-2 py-2 rounded border w-32">
               <option value="invoice">Invoice Date</option>
               <option value="due">Due Date</option>
             </select>
-            <input type="date" value={filters.start} onChange={(e)=>setFilters({ start:e.target.value, page:'1' })} className="px-2 py-2 rounded border flex-1"/>
-            <span className="opacity-70">to</span>
-            <input type="date" value={filters.end} onChange={(e)=>setFilters({ end:e.target.value, page:'1' })} className="px-2 py-2 rounded border flex-1"/>
+            <input type="date" value={filters.start} onChange={(e)=>setFilters({ start:e.target.value, page:'1' })} className="px-2 py-2 rounded border flex-1 min-w-0"/>
+            <span className="opacity-70 shrink-0">to</span>
+            <input type="date" value={filters.end} onChange={(e)=>setFilters({ end:e.target.value, page:'1' })} className="px-2 py-2 rounded border flex-1 min-w-0"/>
           </div>
-          <div className="flex gap-2">
-            <input placeholder="Customer (name/email)" value={filters.customer} onChange={(e)=>setFilters({ customer:e.target.value, page:'1' })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input placeholder="Customer (name/email)" value={filters.customer} onChange={(e)=>setFilters({ customer:e.target.value, page:'1' })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <select value={filters.status} onChange={(e)=>setFilters({ status:e.target.value, page:'1' })} className="px-2 py-2 rounded border w-full">
               <option value="all">All</option>
               <option value="unpaid">Unpaid</option>
@@ -259,14 +259,14 @@ const InvoicesTab = ({ canManage }) => {
               <option value="overdue">Overdue</option>
             </select>
           </div>
-          <div className="flex gap-2">
-            <input placeholder="Invoice # or search" value={filters.q} onChange={(e)=>setFilters({ q:e.target.value, page:'1' })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input placeholder="Invoice # or search" value={filters.q} onChange={(e)=>setFilters({ q:e.target.value, page:'1' })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2">
-            <input type="number" step="0.01" placeholder="Min Outstanding" value={filters.minOut} onChange={(e)=>setFilters({ minOut:numberInput(e.target.value), page:'1' })} className="px-3 py-2 rounded border w-full"/>
-            <input type="number" step="0.01" placeholder="Max Outstanding" value={filters.maxOut} onChange={(e)=>setFilters({ maxOut:numberInput(e.target.value), page:'1' })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input type="number" step="0.01" placeholder="Min Outstanding" value={filters.minOut} onChange={(e)=>setFilters({ minOut:numberInput(e.target.value), page:'1' })} className="px-3 py-2 rounded border w-full min-w-0"/>
+            <input type="number" step="0.01" placeholder="Max Outstanding" value={filters.maxOut} onChange={(e)=>setFilters({ maxOut:numberInput(e.target.value), page:'1' })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2 items-center justify-end">
+          <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
             <button onClick={fetchData} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
             <button onClick={exportInvoices} className="px-3 py-2 rounded border flex items-center gap-2"><Download size={16}/>Export</button>
           </div>
@@ -624,19 +624,19 @@ const POTab = ({ canManage }) => {
     <div className="space-y-4">
       <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
             <select value={filters.dateType} onChange={(e)=>setFilters({ dateType:e.target.value })} className="px-2 py-2 rounded border w-32">
               <option value="po">PO Date</option>
               <option value="due">Due Date</option>
             </select>
-            <input type="date" value={filters.start} onChange={(e)=>setFilters({ start:e.target.value })} className="px-2 py-2 rounded border flex-1"/>
-            <span className="opacity-70">to</span>
-            <input type="date" value={filters.end} onChange={(e)=>setFilters({ end:e.target.value })} className="px-2 py-2 rounded border flex-1"/>
+            <input type="date" value={filters.start} onChange={(e)=>setFilters({ start:e.target.value })} className="px-2 py-2 rounded border flex-1 min-w-0"/>
+            <span className="opacity-70 shrink-0">to</span>
+            <input type="date" value={filters.end} onChange={(e)=>setFilters({ end:e.target.value })} className="px-2 py-2 rounded border flex-1 min-w-0"/>
           </div>
-          <div className="flex gap-2">
-            <input placeholder="Vendor" value={filters.vendor} onChange={(e)=>setFilters({ vendor:e.target.value })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input placeholder="Vendor" value={filters.vendor} onChange={(e)=>setFilters({ vendor:e.target.value })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <select value={filters.status} onChange={(e)=>setFilters({ status:e.target.value })} className="px-2 py-2 rounded border w-full">
               <option value="all">All</option>
               <option value="unpaid">Unpaid</option>
@@ -645,14 +645,14 @@ const POTab = ({ canManage }) => {
               <option value="overdue">Overdue</option>
             </select>
           </div>
-          <div className="flex gap-2">
-            <input placeholder="PO # or search" value={filters.q} onChange={(e)=>setFilters({ q:e.target.value })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input placeholder="PO # or search" value={filters.q} onChange={(e)=>setFilters({ q:e.target.value })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2">
-            <input type="number" step="0.01" placeholder="Min Balance" value={filters.minBal} onChange={(e)=>setFilters({ minBal:numberInput(e.target.value) })} className="px-3 py-2 rounded border w-full"/>
-            <input type="number" step="0.01" placeholder="Max Balance" value={filters.maxBal} onChange={(e)=>setFilters({ maxBal:numberInput(e.target.value) })} className="px-3 py-2 rounded border w-full"/>
+          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <input type="number" step="0.01" placeholder="Min Balance" value={filters.minBal} onChange={(e)=>setFilters({ minBal:numberInput(e.target.value) })} className="px-3 py-2 rounded border w-full min-w-0"/>
+            <input type="number" step="0.01" placeholder="Max Balance" value={filters.maxBal} onChange={(e)=>setFilters({ maxBal:numberInput(e.target.value) })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
-          <div className="flex gap-2 items-center justify-end">
+          <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
             <button onClick={fetchData} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
             <button onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2"><Download size={16}/>Export</button>
           </div>
@@ -830,7 +830,7 @@ const POTab = ({ canManage }) => {
 const Payables = () => {
   const { isDarkMode } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab') || 'invoices';
+  const tab = searchParams.get('tab') || 'pos';
   const canManage = authService.hasPermission('payables','manage')
     || authService.hasPermission('payables','write')
     || authService.hasRole(['admin','finance']);
