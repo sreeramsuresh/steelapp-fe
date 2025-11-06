@@ -42,10 +42,17 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       section: 'Finance',
       items: [
         {
+          name: 'Receivables',
+          path: '/receivables',
+          icon: Banknote,
+          description: 'Customer invoices & receipts',
+          requiredPermission: 'payables.read'
+        },
+        {
           name: 'Payables',
           path: '/payables',
           icon: Banknote,
-          description: 'Invoices & PO payments',
+          description: 'Vendor PO payments',
           requiredPermission: 'payables.read'
         }
       ]

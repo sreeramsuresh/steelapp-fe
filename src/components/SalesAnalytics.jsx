@@ -48,6 +48,22 @@ const SalesAnalytics = () => {
     return { startDate, endDate };
   }, [selectedPeriod, dateRange]);
 
+  // Compute previous period params for growth comparisons
+  const prevDateParams = useMemo(() => {
+    const date = new Date(selectedPeriod);
+    let prevStart, prevEnd;
+    if (dateRange === 'month') {
+      const prev = subMonths(date, 1);
+      prevStart = format(startOfMonth(prev), 'yyyy-MM-dd');
+      prevEnd = format(endOfMonth(prev), 'yyyy-MM-dd');
+    } else if (dateRange === 'quarter') {
+      const prev = subQuarters(date, 1);
+      prevStart = format(startOfQuarter(prev), 'yyyy-MM-dd');
+      prevEnd = format(endOfQuarter(prev), 'yyyy-MM-dd');
+    }
+    return { startDate: prevStart, endDate: prevEnd };
+  }, [selectedPeriod, dateRange]);
+
   const { data: dashboardData, loading: loadingDashboard, refetch: refetchDashboard } = useApiData(
     () => analyticsService.getDashboardData(dateParams),
     [dateParams]
@@ -61,6 +77,16 @@ const SalesAnalytics = () => {
   const { data: productPerformance, loading: loadingProducts } = useApiData(
     () => analyticsService.getProductPerformance(dateParams),
     [dateParams]
+  );
+
+  // Previous period datasets for growth comparisons
+  const { data: dashboardPrev } = useApiData(
+    () => analyticsService.getDashboardData(prevDateParams),
+    [prevDateParams]
+  );
+  const { data: productPerformancePrev } = useApiData(
+    () => analyticsService.getProductPerformance(prevDateParams),
+    [prevDateParams]
   );
 
   const { data: customerAnalysis, loading: loadingCustomers } = useApiData(
@@ -93,21 +119,128 @@ const SalesAnalytics = () => {
       };
     }
 
-    return {
-      currentRevenue: dashboardData.totalRevenue || 0,
-      revenueGrowth: dashboardData.revenueGrowth || 0,
-      currentOrders: dashboardData.totalOrders || 0,
-      ordersGrowth: dashboardData.ordersGrowth || 0,
-      uniqueCustomers: dashboardData.totalCustomers || 0,
-      customersGrowth: dashboardData.customersGrowth || 0,
-      avgOrderValue: dashboardData.avgOrderValue || 0,
-      avgOrderGrowth: dashboardData.avgOrderGrowth || 0,
-      topProducts: productPerformance?.topProducts || [],
-      topCustomers: customerAnalysis?.topCustomers || [],
-      categoryPerformance: productPerformance?.categoryPerformance || [],
-      monthlyTrend: salesTrends?.monthlyData || []
+    const safeNum = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
     };
-  }, [dashboardData, productPerformance, customerAnalysis, salesTrends]);
+
+    // Monthly trend from salesTrends (array of rows)
+    const monthlyTrend = Array.isArray(salesTrends)
+      ? salesTrends
+          .slice()
+          .sort((a, b) => new Date(a.period) - new Date(b.period))
+          .map((row) => ({
+            month: format(new Date(row.period), 'MMM yyyy'),
+            revenue: safeNum(row.revenue),
+            orders: parseInt(row.invoice_count || 0),
+            customers: parseInt(row.unique_customers || 0),
+          }))
+      : [];
+
+    // Compute growth vs previous point from trends
+    const curr = monthlyTrend[monthlyTrend.length - 1] || {};
+    const prev = monthlyTrend[monthlyTrend.length - 2] || {};
+    const pct = (c, p) => (p && p !== 0 ? ((c - p) / p) * 100 : 0);
+
+    // Build previous period map by product id for growth
+    const prevMap = new Map(
+      (Array.isArray(productPerformancePrev) ? productPerformancePrev : []).map((p) => [p.id, p])
+    );
+
+    // Top products mapping from productPerformance array with growth vs previous period
+    const topProductsArr = Array.isArray(productPerformance)
+      ? productPerformance
+          .slice()
+          .sort((a, b) => safeNum(b.total_revenue) - safeNum(a.total_revenue))
+          .map((p) => {
+            const prev = prevMap.get(p.id) || {};
+            const revGrowth = (function () {
+              const c = safeNum(p.total_revenue);
+              const pr = safeNum(prev.total_revenue);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const qtyGrowth = (function () {
+              const c = safeNum(p.total_sold);
+              const pr = safeNum(prev.total_sold);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const ordGrowth = (function () {
+              const c = parseInt(p.times_sold || 0);
+              const pr = parseInt(prev.times_sold || 0);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            return {
+              id: p.id,
+              product: p.name,
+              revenue: safeNum(p.total_revenue),
+              orders: parseInt(p.times_sold || 0),
+              quantity: safeNum(p.total_sold),
+              category: p.category,
+              revenueGrowth: revGrowth,
+              quantityGrowth: qtyGrowth,
+              ordersGrowth: ordGrowth,
+              prevRevenue: safeNum(prev.total_revenue),
+              prevQuantity: safeNum(prev.total_sold),
+              prevOrders: parseInt(prev.times_sold || 0),
+            };
+          })
+      : [];
+
+    // Category performance aggregated from productPerformance
+    const categoryPerf = {};
+    if (Array.isArray(productPerformance)) {
+      for (const p of productPerformance) {
+        const key = p.category || 'Uncategorized';
+        if (!categoryPerf[key]) {
+          categoryPerf[key] = { revenue: 0, orders: 0, avgOrderValue: 0 };
+        }
+        categoryPerf[key].revenue += safeNum(p.total_revenue);
+        categoryPerf[key].orders += parseInt(p.times_sold || 0);
+      }
+      for (const k of Object.keys(categoryPerf)) {
+        const c = categoryPerf[k];
+        c.avgOrderValue = c.orders > 0 ? c.revenue / c.orders : 0;
+      }
+    }
+
+    // Top customers mapping from customerAnalysis array
+    const topCustomersArr = Array.isArray(customerAnalysis)
+      ? customerAnalysis
+          .slice()
+          .sort((a, b) => safeNum(b.total_revenue) - safeNum(a.total_revenue))
+          .map((c) => ({
+            customer: c.name || c.company || 'Unknown',
+            revenue: safeNum(c.total_revenue),
+            orders: parseInt(c.total_invoices || 0),
+          }))
+      : [];
+
+    const revMetrics = dashboardData.revenue_metrics || {};
+    const revPrev = (dashboardPrev && dashboardPrev.revenue_metrics) || {};
+    const custMetrics = dashboardData.customer_metrics || {};
+
+    return {
+      currentRevenue: safeNum(revMetrics.total_revenue),
+      revenueGrowth: pct(safeNum(curr.revenue), safeNum(prev.revenue)),
+      currentOrders: parseInt(revMetrics.total_invoices || 0),
+      ordersGrowth: pct(parseInt(curr.orders || 0), parseInt(prev.orders || 0)),
+      uniqueCustomers: parseInt(custMetrics.total_customers || curr.customers || 0),
+      customersGrowth: pct(parseInt(curr.customers || 0), parseInt(prev.customers || 0)),
+      avgOrderValue: safeNum(revMetrics.average_invoice_value),
+      avgOrderGrowth: (function () {
+        const c = safeNum(revMetrics.average_invoice_value);
+        const p = safeNum(revPrev.average_invoice_value);
+        return p !== 0 ? ((c - p) / p) * 100 : 0;
+      })(),
+      prevTotalRevenue: safeNum(revPrev.total_revenue),
+      prevTotalInvoices: parseInt(revPrev.total_invoices || 0),
+      prevAvgOrderValue: safeNum(revPrev.average_invoice_value),
+      topProducts: topProductsArr,
+      topCustomers: topCustomersArr,
+      categoryPerformance: categoryPerf,
+      monthlyTrend,
+    };
+  }, [dashboardData, productPerformance, customerAnalysis, salesTrends, selectedPeriod, dateRange, isDarkMode]);
 
 
   const formatCurrency = (amount) => {
@@ -200,7 +333,7 @@ const SalesAnalytics = () => {
               </h3>
               <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.revenueGrowth)}
-                <span className={`text-sm font-medium ${
+                <span title={`Prev: ${formatCurrency(analytics.prevTotalRevenue || 0)} • Current: ${formatCurrency(analytics.currentRevenue || 0)}`} className={`text-sm font-medium ${
                   analytics.revenueGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.revenueGrowth < 0 
@@ -228,7 +361,7 @@ const SalesAnalytics = () => {
               </h3>
               <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.ordersGrowth)}
-                <span className={`text-sm font-medium ${
+                <span title={`Prev: ${(analytics.prevTotalInvoices || 0).toLocaleString()} • Current: ${(analytics.currentOrders || 0).toLocaleString()}`} className={`text-sm font-medium ${
                   analytics.ordersGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.ordersGrowth < 0 
@@ -284,7 +417,7 @@ const SalesAnalytics = () => {
               </h3>
               <div className="flex items-center justify-center gap-1">
                 {getGrowthIcon(analytics.avgOrderGrowth)}
-                <span className={`text-sm font-medium ${
+                <span title={`Prev: ${formatCurrency(analytics.prevAvgOrderValue || 0)} • Current: ${formatCurrency(analytics.avgOrderValue || 0)}`} className={`text-sm font-medium ${
                   analytics.avgOrderGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.avgOrderGrowth < 0 
@@ -599,23 +732,65 @@ const SalesAnalytics = () => {
                 
                 {/* Product Metrics */}
                 <div className="space-y-3 mb-4">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Revenue</span>
-                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(product.revenue || 0)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {product.revenueGrowth !== undefined && (
+                        <span title={`Prev: ${formatCurrency(product.prevRevenue || 0)} • Current: ${formatCurrency(product.revenue || 0)}`} className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
+                          product.revenueGrowth > 0
+                            ? 'border-green-300 bg-green-50 text-green-700'
+                            : product.revenueGrowth < 0
+                            ? 'border-red-300 bg-red-50 text-red-700'
+                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                        }`}>
+                          {getGrowthIcon(product.revenueGrowth)}
+                          {formatGrowth(product.revenueGrowth)}
+                        </span>
+                      )}
+                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {formatCurrency(product.revenue || 0)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Quantity Sold</span>
-                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {(product.quantity || 0).toLocaleString()} units
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {product.quantityGrowth !== undefined && (
+                        <span title={`Prev: ${(product.prevQuantity || 0).toLocaleString()} • Current: ${(product.quantity || 0).toLocaleString()}`} className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
+                          product.quantityGrowth > 0
+                            ? 'border-green-300 bg-green-50 text-green-700'
+                            : product.quantityGrowth < 0
+                            ? 'border-red-300 bg-red-50 text-red-700'
+                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                        }`}>
+                          {getGrowthIcon(product.quantityGrowth)}
+                          {formatGrowth(product.quantityGrowth)}
+                        </span>
+                      )}
+                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {(product.quantity || 0).toLocaleString()} units
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Orders</span>
-                    <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.orders || 0}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {product.ordersGrowth !== undefined && (
+                        <span title={`Prev: ${product.prevOrders || 0} • Current: ${product.orders || 0}`} className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
+                          product.ordersGrowth > 0
+                            ? 'border-green-300 bg-green-50 text-green-700'
+                            : product.ordersGrowth < 0
+                            ? 'border-red-300 bg-red-50 text-red-700'
+                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                        }`}>
+                          {getGrowthIcon(product.ordersGrowth)}
+                          {formatGrowth(product.ordersGrowth)}
+                        </span>
+                      )}
+                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {product.orders || 0}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Avg Order Size</span>

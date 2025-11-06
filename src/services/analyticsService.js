@@ -1,20 +1,31 @@
 import { apiClient } from './api';
 
 export const analyticsService = {
+  // Normalize common date param names to snake_case expected by API
+  normalizeParams(params = {}) {
+    if (!params) return {};
+    const p = { ...params };
+    if (p.startDate && !p.start_date) p.start_date = p.startDate;
+    if (p.endDate && !p.end_date) p.end_date = p.endDate;
+    delete p.startDate;
+    delete p.endDate;
+    return p;
+  },
+
   async getDashboardData(params = {}) {
-    return apiClient.get('/analytics/dashboard', params);
+    return apiClient.get('/analytics/dashboard', analyticsService.normalizeParams(params));
   },
 
   async getSalesTrends(params = {}) {
-    return apiClient.get('/analytics/sales-trends', params);
+    return apiClient.get('/analytics/sales-trends', analyticsService.normalizeParams(params));
   },
 
   async getProductPerformance(params = {}) {
-    return apiClient.get('/analytics/product-performance', params);
+    return apiClient.get('/analytics/product-performance', analyticsService.normalizeParams(params));
   },
 
   async getCustomerAnalysis(params = {}) {
-    return apiClient.get('/analytics/customer-analysis', params);
+    return apiClient.get('/analytics/customer-analysis', analyticsService.normalizeParams(params));
   },
 
   async getInventoryInsights() {

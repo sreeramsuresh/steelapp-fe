@@ -11,7 +11,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
-import { apiClient } from "../services/api";
+import { invoicesAPI } from "../services/api";
+import { analyticsService } from "../services/analyticsService";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Custom components for consistent theming
@@ -82,6 +84,7 @@ const ChangeIndicator = ({ positive, children }) => {
 
 const Dashboard = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalCustomers: 0,
@@ -105,51 +108,67 @@ const Dashboard = () => {
     try {
       setLoading(true);
 
-      // Fetch customers
-      const customersResponse = await apiClient.get("/customers");
-      const customers = customersResponse.data || [];
+      // Dashboard analytics
+      const dashboard = await analyticsService.getDashboardData();
 
-      // Fetch products
-      const productsResponse = await apiClient.get("/products");
-      const products = productsResponse.data || [];
+      // Recent invoices (limit 5)
+      const invResp = await invoicesAPI.getAll({ page: 1, limit: 5 });
+      const invoices = Array.isArray(invResp?.invoices) ? invResp.invoices : [];
 
-      // Fetch invoices
-      const invoicesResponse = await apiClient.get("/invoices");
-      const invoices = invoicesResponse.data || [];
+      // Trends for month-over-month change
+      const trends = Array.isArray(dashboard?.monthly_trends)
+        ? dashboard.monthly_trends
+        : [];
+      const current = trends[0] || {};
+      const previous = trends[1] || {};
+      const safeNum = (v) => {
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+      const percentChange = (curr, prev) => {
+        const c = safeNum(curr);
+        const p = safeNum(prev);
+        if (p === 0) return 0;
+        return ((c - p) / p) * 100;
+      };
 
-      // Calculate stats
-      const totalRevenue = invoices.reduce((sum, invoice) => {
-        const amount = parseFloat(invoice.total);
-        return sum + (isNaN(amount) ? 0 : amount);
-      }, 0);
-      const totalCustomers = customers.length;
-      const totalProducts = products.length;
-      const totalInvoices = invoices.length;
+      const totalRevenue = safeNum(dashboard?.revenue_metrics?.total_revenue);
+      const totalCustomers = parseInt(dashboard?.customer_metrics?.total_customers || 0);
+      const totalProducts = parseInt(dashboard?.product_metrics?.total_products || 0);
+      const totalInvoices = parseInt(dashboard?.revenue_metrics?.total_invoices || 0);
+
+      const revenueChange = percentChange(current?.revenue, previous?.revenue);
+      const invoicesChange = percentChange(current?.invoice_count, previous?.invoice_count);
+      const customersChange = percentChange(
+        current?.unique_customers,
+        previous?.unique_customers
+      );
 
       setStats({
         totalRevenue,
         totalCustomers,
         totalProducts,
         totalInvoices,
-        revenueChange: 12.5, // Mock data for demo
-        customersChange: 8.2,
-        productsChange: 4.1,
-        invoicesChange: 15.3,
+        revenueChange,
+        customersChange,
+        productsChange: 0,
+        invoicesChange,
       });
 
-      // Set recent invoices (last 5)
-      const sortedInvoices = invoices
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 5);
-      setRecentInvoices(sortedInvoices);
+      // Recent invoices list
+      setRecentInvoices(invoices);
 
-      // Set top products (mock data for demo)
-      const topProductsData = products.slice(0, 5).map((product, index) => ({
-        ...product,
-        sales: Math.floor(Math.random() * 100) + 10,
-        revenue: Math.floor(Math.random() * 50000) + 10000,
-      }));
-      setTopProducts(topProductsData);
+      // Top products from analytics
+      const tops = Array.isArray(dashboard?.top_products)
+        ? dashboard.top_products.slice(0, 5).map((p) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            sales: safeNum(p.total_sold),
+            revenue: safeNum(p.total_revenue),
+          }))
+        : [];
+      setTopProducts(tops);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -364,6 +383,7 @@ const Dashboard = () => {
                     size="sm"
                     startIcon={<BarChart3 size={16} />}
                     className="w-full sm:w-auto"
+                    onClick={() => navigate('/trends')}
                   >
                     View Report
                   </Button>
@@ -411,6 +431,7 @@ const Dashboard = () => {
                   variant="outline"
                   size="sm"
                   className="w-full sm:w-auto"
+                  onClick={() => navigate('/products')}
                 >
                   View All
                 </Button>
@@ -501,6 +522,7 @@ const Dashboard = () => {
                 variant="primary"
                 startIcon={<FileText size={16} />}
                 className="w-full sm:w-auto"
+                onClick={() => navigate('/create-invoice')}
               >
                 Create Invoice
               </Button>
@@ -573,10 +595,20 @@ const Dashboard = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex gap-2 flex-col sm:flex-row">
-                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full sm:w-auto"
+                              onClick={() => navigate('/invoices')}
+                            >
                               View
                             </Button>
-                            <Button variant="primary" size="sm" className="w-full sm:w-auto">
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="w-full sm:w-auto"
+                              onClick={() => navigate(`/edit/${invoice.id}`)}
+                            >
                               Edit
                             </Button>
                           </div>
@@ -594,7 +626,7 @@ const Dashboard = () => {
                           <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             No invoices found
                           </h4>
-                          <Button variant="primary">
+                          <Button variant="primary" onClick={() => navigate('/create-invoice')}>
                             Create Your First Invoice
                           </Button>
                         </div>
