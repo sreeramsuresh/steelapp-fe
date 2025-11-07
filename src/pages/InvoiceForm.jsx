@@ -657,25 +657,25 @@ const InvoiceForm = ({ onSave }) => {
    *
    * ALLOWED TRANSITIONS:
    * - draft → proforma (convert draft to quote)
-   * - draft → paid (direct finalization)
-   * - proforma → paid (convert quote to final invoice after payment)
+   * - draft → issued (direct finalization - issue tax invoice)
+   * - proforma → issued (convert quote to final tax invoice after sale completion)
    *
    * FORBIDDEN TRANSITIONS:
-   * - paid → draft (cannot un-finalize)
-   * - paid → proforma (cannot un-finalize)
-   * - Any backward movement from paid status
+   * - issued → draft (cannot un-finalize)
+   * - issued → proforma (cannot un-finalize)
+   * - Any backward movement from issued status
    *
    * INVENTORY IMPACT BY STATUS:
    * - draft: NO inventory impact (work in progress)
    * - proforma: NO inventory impact (quote only, no commitment)
-   * - paid (Final Tax Invoice): YES - inventory deducted, revenue recorded
+   * - issued (Final Tax Invoice): YES - inventory deducted, revenue recorded
    *
-   * Backend should enforce inventory deduction ONLY when status changes to 'paid'
+   * Backend should enforce inventory deduction ONLY when status changes to 'issued'
    */
   const ALLOWED_STATUS_TRANSITIONS = {
-    'draft': ['proforma', 'paid'],
-    'proforma': ['paid'],
-    'paid': [] // Final Tax Invoice cannot be changed (requires credit note)
+    'draft': ['proforma', 'issued'],
+    'proforma': ['issued'],
+    'issued': [] // Final Tax Invoice cannot be changed (requires credit note)
   };
 
   const isValidStatusTransition = (fromStatus, toStatus) => {
@@ -685,13 +685,13 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const needsConfirmation = (fromStatus, toStatus) => {
-    // Require confirmation when moving to 'paid' (Final Tax Invoice)
-    return toStatus === 'paid' && fromStatus !== 'paid';
+    // Require confirmation when moving to 'issued' (Final Tax Invoice)
+    return toStatus === 'issued' && fromStatus !== 'issued';
   };
 
   const canEditInvoice = (status) => {
-    // Cannot edit Final Tax Invoice (paid status) - requires credit note
-    return status !== 'paid';
+    // Cannot edit Final Tax Invoice (issued status) - requires credit note
+    return status !== 'issued';
   };
 
   const [invoice, setInvoice] = useState(() => {
@@ -1180,7 +1180,7 @@ const InvoiceForm = ({ onSave }) => {
     }));
 
     // Show notification about inventory impact
-    if (newStatus === 'paid') {
+    if (newStatus === 'issued') {
       notificationService.info(
         'Status changed to Final Tax Invoice. Inventory will be deducted when you save.'
       );
@@ -1403,9 +1403,9 @@ const InvoiceForm = ({ onSave }) => {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={savingInvoice || updatingInvoice || (id && invoice.status === 'paid')}
+                disabled={savingInvoice || updatingInvoice || (id && invoice.status === 'issued')}
                 className="w-full sm:w-auto"
-                title={id && invoice.status === 'paid' ? 'Final Tax Invoice cannot be edited. Create a credit note to reverse.' : ''}
+                title={id && invoice.status === 'issued' ? 'Final Tax Invoice cannot be edited. Create a credit note to reverse.' : ''}
               >
                 {savingInvoice || updatingInvoice ? (
                   <LoadingSpinner size="sm" />
@@ -1414,7 +1414,7 @@ const InvoiceForm = ({ onSave }) => {
                 )}
                 {savingInvoice || updatingInvoice
                   ? "Saving..."
-                  : (id && invoice.status === 'paid' ? "Cannot Edit Final Invoice" : "Save Invoice")}
+                  : (id && invoice.status === 'issued' ? "Cannot Edit Final Invoice" : "Save Invoice")}
               </Button>
               </div>
             </div>
@@ -1489,9 +1489,9 @@ const InvoiceForm = ({ onSave }) => {
                     >
                       <option value="draft">Draft Invoice</option>
                       <option value="proforma">Proforma Invoice</option>
-                      <option value="paid">Final Tax Invoice</option>
+                      <option value="issued">Final Tax Invoice</option>
                     </Select>
-                    {invoice.status === 'paid' && (
+                    {invoice.status === 'issued' && (
                       <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                         ⚠️ Final Tax Invoice cannot be edited. Create a credit note to reverse.
                       </p>
@@ -1661,7 +1661,7 @@ const InvoiceForm = ({ onSave }) => {
                   )}
 
                   {/* Final Tax Invoice Warning */}
-                  {invoice.status === 'paid' && (
+                  {invoice.status === 'issued' && (
                     <Alert variant="warning">
                       <div>
                         <h4 className="font-medium mb-1 flex items-center">
@@ -2481,10 +2481,11 @@ const InvoiceForm = ({ onSave }) => {
                   Confirm Status Change to Final Tax Invoice
                 </h3>
                 <p className="text-sm mb-4">
-                  You are about to change this invoice to <strong>Final Tax Invoice</strong> (Paid status).
+                  You are about to finalize this invoice as an official <strong>Tax Invoice</strong>.
                 </p>
                 <p className="text-sm">
-                  <strong>Have you received payment?</strong> Only proceed if payment has been confirmed.
+                  Ready to proceed? Once finalized, this invoice cannot be edited.
+                  You can track payments separately after issuance.
                 </p>
               </div>
             </div>
@@ -2503,7 +2504,7 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleConfirmStatusChange}
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
-                Yes, Confirm Payment Received
+                Yes, Issue Tax Invoice
               </button>
             </div>
           </div>

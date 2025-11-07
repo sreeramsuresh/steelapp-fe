@@ -163,11 +163,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           : "bg-blue-100 text-blue-800 border-blue-300",
         label: "SENT",
       },
-      paid: {
+      issued: {
         className: isDarkMode
           ? "bg-green-900/30 text-green-300 border-green-600"
           : "bg-green-100 text-green-800 border-green-300",
-        label: "PAID",
+        label: "ISSUED",
       },
       overdue: {
         className: isDarkMode
@@ -653,7 +653,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <option value="draft">Draft Invoice</option>
               <option value="proforma">Proforma Invoice</option>
               <option value="sent">Sent</option>
-              <option value="paid">Paid</option>
+              <option value="issued">Issued</option>
               <option value="overdue">Overdue</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -873,7 +873,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         )}
                       </button>
                       )}
-                      {invoice.status === "paid" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
+                      {invoice.status === "issued" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             deliveryNoteStatus[invoice.id]?.hasNotes
