@@ -219,9 +219,9 @@ export const generateInvoicePDF = async (invoice, company) => {
       const it = items[idx];
       const descW = col.desc - 4;
       const descLines = split(it.name || "", descW);
-      const baseHeight = 4;
-      const lineHeight = 3;
-      const padding = 1;
+      const baseHeight = 5.5; // Increased for 13pt font
+      const lineHeight = 4.5; // Increased for 13pt font
+      const padding = 1.5;
       const rowH =
         baseHeight + Math.max(0, descLines.length - 1) * lineHeight + padding;
 
