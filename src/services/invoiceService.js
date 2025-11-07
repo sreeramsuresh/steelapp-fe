@@ -95,9 +95,19 @@ const transformInvoiceFromServer = (serverData) => {
 };
 
 export const invoiceService = {
-  async getInvoices(params = {}) {
-    const response = await apiClient.get('/invoices', params);
-    
+  async getInvoices(params = {}, signal = null) {
+    // Separate signal from params and create proper axios config
+    const axiosConfig = {
+      params: params
+    };
+
+    // Add abort signal if provided
+    if (signal) {
+      axiosConfig.signal = signal;
+    }
+
+    const response = await apiClient.get('/invoices', axiosConfig);
+
     // Handle paginated response
     if (response.invoices && response.pagination) {
       return {
@@ -105,11 +115,11 @@ export const invoiceService = {
         pagination: response.pagination
       };
     }
-    
+
     // Handle non-paginated response (for backward compatibility)
     const invoices = response.invoices || response;
     return {
-      invoices: Array.isArray(invoices) 
+      invoices: Array.isArray(invoices)
         ? invoices.map(transformInvoiceFromServer)
         : [],
       pagination: null

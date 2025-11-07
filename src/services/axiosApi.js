@@ -136,8 +136,10 @@ export const apiService = {
   },
 
   get: async (url, config = {}) => {
+    // If config has params property, use it as-is (it may also have signal, etc.)
+    // Otherwise, treat the config object itself as params and wrap it
     const axiosConfig =
-      config && !("params" in config) && typeof config === "object"
+      config && !("params" in config) && !("signal" in config) && typeof config === "object"
         ? { params: apiService.cleanParams(config) }
         : config;
     const response = await api.get(url, axiosConfig);

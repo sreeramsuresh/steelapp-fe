@@ -47,7 +47,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [showDeleted, setShowDeleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(20);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
   const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -80,17 +80,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setDeliveryNoteStatus(statusMap);
   };
 
-  // Fetch invoices with pagination
-  const fetchInvoices = async (params = {}) => {
+  // Fetch invoices with pagination and abort controller
+  const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
     try {
       setLoading(true);
       const queryParams = {
-        page: currentPage,
-        limit: pageSize,
-        search: searchTerm || undefined,
-        status: statusFilter === "all" ? undefined : statusFilter,
-        include_deleted: showDeleted ? 'true' : undefined,
-        ...params,
+        page: page,
+        limit: limit,
+        search: search || undefined,
+        status: status === "all" ? undefined : status,
+        include_deleted: includeDeleted ? 'true' : undefined,
       };
 
       // Remove undefined values
@@ -98,7 +97,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         (key) => queryParams[key] === undefined && delete queryParams[key]
       );
 
-      const response = await invoiceService.getInvoices(queryParams);
+      const response = await invoiceService.getInvoices(queryParams, signal);
+
+      // Check if request was aborted
+      if (signal?.aborted) {
+        return;
+      }
 
       if (response.invoices) {
         setInvoices(response.invoices);
@@ -115,34 +119,54 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         processDeliveryNoteStatus(response);
       }
     } catch (error) {
+      // Ignore abort errors
+      if (error.name === 'AbortError' || error.message === 'canceled') {
+        console.log('Request cancelled');
+        return;
+      }
       console.error("Error fetching invoices:", error);
       setInvoices([]);
       setPagination(null);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
 
-  // Fetch invoices when component mounts or dependencies change
+  // Consolidated effect with debouncing and request cancellation
   useEffect(() => {
-    fetchInvoices();
-  }, [currentPage, pageSize]);
+    const abortController = new AbortController();
 
-  // Debounced search and filter effect
-  useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setCurrentPage(1); // Reset to first page when searching
-      fetchInvoices();
-    }, 500);
+      fetchInvoices(
+        currentPage,
+        pageSize,
+        searchTerm,
+        statusFilter,
+        showDeleted,
+        abortController.signal
+      );
+    }, searchTerm ? 500 : 0); // Debounce search by 500ms, others immediately
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      abortController.abort();
+    };
+  }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted, fetchInvoices]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchTerm, statusFilter, showDeleted]);
 
-  // Initialize search from URL param and keep in sync
+  // Initialize search from URL param
   useEffect(() => {
     const q = searchParams.get("search") || "";
-    setSearchTerm(q);
-    setCurrentPage(1);
+    if (q !== searchTerm) {
+      setSearchTerm(q);
+      setCurrentPage(1);
+    }
   }, [searchParams]);
 
   // Client-side payment status filtering
@@ -856,11 +880,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   : "bg-white border-gray-300 text-gray-900"
               }`}
             >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+              <option value={10}>10 per page</option>
+              <option value={15}>15 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={25}>25 per page</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown
