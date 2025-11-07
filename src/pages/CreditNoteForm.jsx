@@ -36,6 +36,14 @@ const CREDIT_NOTE_STATUSES = [
   { value: 'completed', label: 'Completed' }
 ];
 
+const REFUND_METHODS = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'cheque', label: 'Cheque' },
+  { value: 'credit_adjustment', label: 'Credit Adjustment' },
+  { value: 'credit_card', label: 'Credit Card' }
+];
+
 const CreditNoteForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -65,7 +73,17 @@ const CreditNoteForm = () => {
     subtotal: 0,
     vatAmount: 0,
     totalCredit: 0,
-    notes: ''
+    notes: '',
+    // Refund Information
+    refundMethod: '',
+    refundDate: '',
+    refundReference: '',
+    // Return Logistics
+    expectedReturnDate: '',
+    warehouseId: null,
+    returnShippingCost: 0,
+    // Additional Charges
+    restockingFee: 0
   });
 
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -661,6 +679,132 @@ const CreditNoteForm = () => {
               </div>
             </div>
 
+            {/* Refund Information */}
+            {(creditNote.status === 'refunded' || creditNote.status === 'completed') && (
+              <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+                <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Refund Information
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Refund Method
+                    </label>
+                    <select
+                      value={creditNote.refundMethod}
+                      onChange={(e) => setCreditNote(prev => ({ ...prev, refundMethod: e.target.value }))}
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    >
+                      <option value="">Select method...</option>
+                      {REFUND_METHODS.map(method => (
+                        <option key={method.value} value={method.value}>
+                          {method.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Refund Date
+                    </label>
+                    <input
+                      type="date"
+                      value={creditNote.refundDate}
+                      onChange={(e) => setCreditNote(prev => ({ ...prev, refundDate: e.target.value }))}
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Refund Reference/Transaction ID
+                    </label>
+                    <input
+                      type="text"
+                      value={creditNote.refundReference}
+                      onChange={(e) => setCreditNote(prev => ({ ...prev, refundReference: e.target.value }))}
+                      placeholder="e.g., TXN12345, CHQ67890"
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Return Logistics */}
+            <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Return Logistics
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Expected Return Date
+                  </label>
+                  <input
+                    type="date"
+                    value={creditNote.expectedReturnDate}
+                    onChange={(e) => setCreditNote(prev => ({ ...prev, expectedReturnDate: e.target.value }))}
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? 'border-gray-600 bg-gray-700 text-white'
+                        : 'border-gray-300 bg-white text-gray-900'
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Return Shipping Cost (AED)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={creditNote.returnShippingCost}
+                    onChange={(e) => setCreditNote(prev => ({ ...prev, returnShippingCost: parseFloat(e.target.value) || 0 }))}
+                    placeholder="0.00"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Restocking Fee (AED)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={creditNote.restockingFee}
+                    onChange={(e) => setCreditNote(prev => ({ ...prev, restockingFee: parseFloat(e.target.value) || 0 }))}
+                    placeholder="0.00"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                  <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Fee charged for processing the return
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Credit Summary */}
             {creditNote.items.some(item => item.selected) && (
               <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
@@ -680,14 +824,58 @@ const CreditNoteForm = () => {
                       {formatCurrency(creditNote.vatAmount)}
                     </span>
                   </div>
-                  <div className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <div className={`flex justify-between pt-2 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       Total Credit:
                     </span>
-                    <span className="text-lg font-bold text-teal-600">
+                    <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {formatCurrency(creditNote.totalCredit)}
                     </span>
                   </div>
+
+                  {/* Deductions */}
+                  {(creditNote.restockingFee > 0 || creditNote.returnShippingCost > 0) && (
+                    <>
+                      <div className={`pt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm`}>
+                        <div className="font-medium mb-2">Deductions:</div>
+                        {creditNote.restockingFee > 0 && (
+                          <div className="flex justify-between ml-2">
+                            <span>Restocking Fee:</span>
+                            <span className="text-red-600">
+                              -{formatCurrency(creditNote.restockingFee)}
+                            </span>
+                          </div>
+                        )}
+                        {creditNote.returnShippingCost > 0 && (
+                          <div className="flex justify-between ml-2">
+                            <span>Return Shipping:</span>
+                            <span className="text-red-600">
+                              -{formatCurrency(creditNote.returnShippingCost)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          Net Refund:
+                        </span>
+                        <span className="text-lg font-bold text-teal-600">
+                          {formatCurrency(creditNote.totalCredit - creditNote.restockingFee - creditNote.returnShippingCost)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {!(creditNote.restockingFee > 0 || creditNote.returnShippingCost > 0) && (
+                    <div className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                      <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Net Refund:
+                      </span>
+                      <span className="text-lg font-bold text-teal-600">
+                        {formatCurrency(creditNote.totalCredit)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
