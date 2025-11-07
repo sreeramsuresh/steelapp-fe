@@ -24,9 +24,32 @@ import {
   formatPaymentDisplay
 } from "../utils/paymentUtils";
 
-const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving }) => {
+const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
   const { isDarkMode } = useTheme();
   const [isDownloading, setIsDownloading] = React.useState(false);
+
+  // Check if form has required fields for new invoices
+  const checkFormValidity = () => {
+    // If editing existing invoice, always allow save
+    if (invoiceId) return true;
+
+    // For new invoices, check required fields
+    const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== '';
+    const hasItems = invoice.items && invoice.items.length > 0;
+    const hasValidItems = hasItems && invoice.items.every(item =>
+      item.name && item.name.trim() !== '' &&
+      item.quantity > 0 &&
+      item.rate > 0
+    );
+    const hasDate = !!invoice.date;
+    const hasDueDate = !!invoice.dueDate;
+
+    const isValid = hasCustomer && hasItems && hasValidItems && hasDate && hasDueDate;
+    return isValid;
+  };
+
+  const canSave = checkFormValidity();
+
   // Compute summary values locally to ensure correctness in preview/PDF
   const computedSubtotal = calculateSubtotal(invoice.items || []);
   const computedVatAmount = calculateDiscountedTRN(
@@ -231,6 +254,25 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
     } catch (error) {
       console.error("Error saving and downloading:", error);
+
+      // If validation failed, close preview silently - form will show validation errors
+      if (error.message === 'VALIDATION_FAILED') {
+        setIsDownloading(false);
+        if (onClose) {
+          onClose(); // Close the preview to show validation errors on form
+
+          // Scroll to validation errors after preview closes
+          setTimeout(() => {
+            const errorAlert = document.getElementById('validation-errors-alert');
+            if (errorAlert) {
+              errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 300);
+        }
+        return;
+      }
+
+      // For other errors, show generic alert
       alert("Failed to save invoice. Please try again.");
       setIsDownloading(false);
     }
@@ -321,11 +363,17 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           <div className="flex gap-3">
             <button
               onClick={invoiceId ? handleDownloadPDF : handleSaveAndDownload}
-              disabled={isSaving || isDownloading}
+              disabled={isSaving || isDownloading || (!invoiceId && !canSave)}
               className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
-                isSaving || isDownloading ? 'opacity-50 cursor-not-allowed' : ''
+                (isSaving || isDownloading || (!invoiceId && !canSave)) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              title={invoiceId ? "Download invoice as PDF" : "Save invoice and download PDF"}
+              title={
+                !invoiceId && !canSave
+                  ? "Please fill all required fields before saving (Customer name, items, dates are required)"
+                  : invoiceId
+                    ? "Download invoice as PDF"
+                    : "Save invoice and download PDF"
+              }
             >
               <Download size={18} />
               {isSaving

@@ -145,7 +145,8 @@ export const invoiceService = {
 
   async deleteInvoice(id, deletionData = {}) {
     // Soft delete with reason for audit trail
-    return apiClient.delete(`/invoices/${id}`, deletionData);
+    // Axios DELETE requires data to be wrapped in config.data
+    return apiClient.delete(`/invoices/${id}`, { data: deletionData });
   },
 
   async restoreInvoice(id) {

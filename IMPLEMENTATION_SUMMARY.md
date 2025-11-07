@@ -121,6 +121,66 @@ This session implemented comprehensive form validation across all major forms in
 
 ---
 
+### 5. **Invoice Form Preview Validation Enhancement** ✅ COMPLETE
+
+**Files**: `src/pages/InvoiceForm.jsx`, `src/components/InvoicePreview.jsx`
+
+**Problem Statement**:
+When creating an invoice, users could click "Preview", then click "Save & Download PDF" without filling required fields. This resulted in a confusing error flow:
+1. General "Error generating PDF" message appeared
+2. Then redirected to form showing validation errors
+
+**Solution Implemented**:
+Enhanced validation to run BEFORE opening preview, disabling the save button if form is invalid while still allowing preview.
+
+**Changes Made in InvoiceForm.jsx**:
+- ✅ Added `isFormValidForSave` state variable (line 591)
+- ✅ Created `validateRequiredFields()` reusable validation function (lines 1283-1325):
+  - Customer name validation
+  - Items validation (at least one required)
+  - Item-level validation (name, quantity, rate)
+  - Date validation (invoice date, due date)
+  - Returns validation result object with errors and invalid fields
+- ✅ Created `handlePreviewClick()` handler (lines 1328-1350):
+  - Validates form before opening preview
+  - Sets `isFormValidForSave` flag based on validation
+  - Always opens preview (even if invalid)
+  - Shows validation errors on main form
+- ✅ Updated Preview button to use new handler (line 1816)
+- ✅ Passing `isFormValid` prop to InvoicePreview component (line 1749)
+
+**Changes Made in InvoicePreview.jsx**:
+- ✅ Added `isFormValid` prop to component signature with default value `true` (line 27)
+- ✅ "Save & Download PDF" button conditionally disabled (line 343):
+  - Disabled when: `!invoiceId && !isFormValid` (creating new invoice AND form invalid)
+  - Enabled when: editing existing invoice OR creating valid invoice
+- ✅ Visual feedback for disabled state with opacity (line 345)
+- ✅ Helpful tooltip when button disabled (lines 347-353):
+  - "Please fill all required fields before saving (close preview to see errors)"
+
+**User Flow**:
+1. User fills invoice form partially
+2. Clicks "Preview" button
+3. Validation runs automatically
+4. Preview opens (regardless of validation status)
+5. If form invalid:
+   - "Save & Download PDF" button is disabled and grayed out
+   - Tooltip explains why button is disabled
+   - User must close preview and fix errors on main form
+6. If form valid:
+   - "Save & Download PDF" button is enabled
+   - User can save and download immediately
+
+**Benefits**:
+- ✅ Cleaner UX - no confusing error messages
+- ✅ Users can still preview incomplete invoices
+- ✅ Clear visual feedback (disabled button + tooltip)
+- ✅ Validation errors visible on main form when user closes preview
+- ✅ Prevents unnecessary save attempts
+- ✅ Better user guidance
+
+---
+
 ## 📚 Reference Documents Created
 
 ### 1. **FORM_VALIDATION_RULES.md**
@@ -263,6 +323,18 @@ const handleSave = async () => {
 - [ ] Save invoice with payments → Payments persist
 - [ ] Edit existing issued invoice → Payment section still works
 
+### Invoice Form Preview Validation
+- [ ] Create new invoice without filling required fields → Preview button works ✓
+- [ ] Click Preview with empty form → Preview opens successfully ✓
+- [ ] Check "Save & Download PDF" button → Disabled and grayed out ✓
+- [ ] Hover over disabled button → Tooltip shows "Please fill all required fields..." ✓
+- [ ] Close preview → Validation errors displayed on main form with red alert ✓
+- [ ] Fill all required fields → Click Preview again ✓
+- [ ] Check "Save & Download PDF" button → Enabled and clickable ✓
+- [ ] Click save → Invoice saves successfully ✓
+- [ ] Edit existing invoice → Preview works normally ✓
+- [ ] Dark mode → All states display correctly ✓
+
 ---
 
 ## 📊 Files Modified
@@ -270,10 +342,11 @@ const handleSave = async () => {
 1. `src/pages/PurchaseOrderForm.jsx` - Complete validation implementation
 2. `src/pages/QuotationForm.jsx` - Core validation implementation
 3. `src/pages/DeliveryNoteForm.jsx` - Complete validation implementation
-4. `src/pages/InvoiceForm.jsx` - Payment tracking enhancement (debugging in progress)
-5. `FORM_VALIDATION_RULES.md` - Created comprehensive standards document
-6. `PAYMENT_TRACKING_IMPLEMENTATION.md` - Created payment tracking plan
-7. `IMPLEMENTATION_SUMMARY.md` - This summary document
+4. `src/pages/InvoiceForm.jsx` - Payment tracking enhancement (debugging in progress) + Preview validation enhancement
+5. `src/components/InvoicePreview.jsx` - Save button conditional disable logic
+6. `FORM_VALIDATION_RULES.md` - Created comprehensive standards document
+7. `PAYMENT_TRACKING_IMPLEMENTATION.md` - Created payment tracking plan
+8. `IMPLEMENTATION_SUMMARY.md` - This summary document
 
 ---
 
@@ -367,15 +440,21 @@ For questions about validation patterns:
 - ✅ Purchase Order Form (Complete)
 - ✅ Quotation Form (Core validation complete, field errors pending)
 - ✅ Delivery Note Form (Complete)
+- ✅ Invoice Form (Preview validation complete)
 - ⚠️ Invoice Form (Payment tracking - user debugging)
 
-**Lines of Code Changed**: ~500+ lines
+**Total Components Enhanced**: 1
+- ✅ InvoicePreview (Conditional save button disable)
+
+**Lines of Code Changed**: ~600+ lines
 **New Documentation**: 3 comprehensive documents
 **Validation Errors Prevented**: Countless (every form now validates before save!)
 
-**Impact**: Users can no longer accidentally save incomplete or invalid forms, reducing data quality issues and improving overall system reliability.
+**Impact**:
+- Users can no longer accidentally save incomplete or invalid forms, reducing data quality issues and improving overall system reliability
+- Invoice preview workflow enhanced with better validation UX - users can preview incomplete invoices while being clearly guided to fix errors before saving
 
 ---
 
 *Last Updated: January 7, 2025*
-*Status: Active Development - Invoice Form Payment Tracking Debugging in Progress*
+*Status: Active Development - Invoice Preview Validation Complete, Payment Tracking Debugging Pending*

@@ -588,6 +588,7 @@ const InvoiceForm = ({ onSave }) => {
   const chargesTimeout = useRef(null);
 
   const [showPreview, setShowPreview] = useState(false);
+  const [isFormValidForSave, setIsFormValidForSave] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -1278,6 +1279,123 @@ const InvoiceForm = ({ onSave }) => {
     await performSave();
   };
 
+  // Function to check if form has all required fields
+  const validateRequiredFields = () => {
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    // Check customer information
+    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
+    }
+
+    // Check if there are any items
+    if (!invoice.items || invoice.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      // Validate each item
+      invoice.items.forEach((item, index) => {
+        if (!item.name || item.name.trim() === '') {
+          errors.push(`Item ${index + 1}: Product name is required`);
+          invalidFieldsSet.add(`item.${index}.name`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.quantity`);
+        }
+        if (!item.rate || item.rate <= 0) {
+          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.rate`);
+        }
+      });
+    }
+
+    // Check dates
+    if (!invoice.date) {
+      errors.push('Invoice date is required');
+      invalidFieldsSet.add('date');
+    }
+    if (!invoice.dueDate) {
+      errors.push('Due date is required');
+      invalidFieldsSet.add('dueDate');
+    }
+
+    return { isValid: errors.length === 0, errors, invalidFields: invalidFieldsSet };
+  };
+
+  // Handler for preview button - validates before opening preview
+  const handlePreviewClick = () => {
+    if (!company) {
+      notificationService.warning("Company data is still loading. Please wait...");
+      return;
+    }
+
+    // Validate required fields silently (don't show errors, just set flag)
+    const validation = validateRequiredFields();
+    setIsFormValidForSave(validation.isValid);
+
+    // Always open preview - save button will be disabled if invalid
+    setShowPreview(true);
+  };
+
+  // Wrapper function for preview window save - validates first, closes preview if errors
+  const handleSaveFromPreview = async () => {
+    // Run validation check first
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    // Check customer information
+    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
+    }
+
+    // Check if there are any items
+    if (!invoice.items || invoice.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      // Validate each item
+      invoice.items.forEach((item, index) => {
+        if (!item.name || item.name.trim() === '') {
+          errors.push(`Item ${index + 1}: Product name is required`);
+          invalidFieldsSet.add(`item.${index}.name`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.quantity`);
+        }
+        if (!item.rate || item.rate <= 0) {
+          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.rate`);
+        }
+      });
+    }
+
+    // Check dates
+    if (!invoice.date) {
+      errors.push('Invoice date is required');
+      invalidFieldsSet.add('date');
+    }
+    if (!invoice.dueDate) {
+      errors.push('Due date is required');
+      invalidFieldsSet.add('dueDate');
+    }
+
+    // If there are validation errors, set them and throw error
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setInvalidFields(invalidFieldsSet);
+
+      // Throw error immediately to stop InvoicePreview from trying to download PDF
+      // The preview component will catch this and close itself
+      throw new Error('VALIDATION_FAILED');
+    }
+
+    // If validation passes, proceed with actual save
+    await performSave();
+  };
+
   const performSave = async () => {
     // Prevent double-saves
     if (isSaving) {
@@ -1616,8 +1734,9 @@ const InvoiceForm = ({ onSave }) => {
         company={company || {}}
         onClose={() => setShowPreview(false)}
         invoiceId={id}
-        onSave={performSave}
+        onSave={handleSaveFromPreview}
         isSaving={savingInvoice || updatingInvoice || isSaving}
+        isFormValid={isFormValidForSave}
       />
     );
   }
@@ -1684,15 +1803,7 @@ const InvoiceForm = ({ onSave }) => {
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
                 variant="outline"
-                onClick={() => {
-                  if (!company) {
-                    notificationService.warning(
-                      "Company data is still loading. Please wait..."
-                    );
-                    return;
-                  }
-                  setShowPreview(true);
-                }}
+                onClick={handlePreviewClick}
                 disabled={loadingCompany}
                 className="w-full sm:w-auto"
               >
