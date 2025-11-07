@@ -24,8 +24,9 @@ import {
   formatPaymentDisplay
 } from "../utils/paymentUtils";
 
-const InvoicePreview = ({ invoice, company, onClose }) => {
+const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving }) => {
   const { isDarkMode } = useTheme();
+  const [isDownloading, setIsDownloading] = React.useState(false);
   // Compute summary values locally to ensure correctness in preview/PDF
   const computedSubtotal = calculateSubtotal(invoice.items || []);
   const computedVatAmount = calculateDiscountedTRN(
@@ -50,12 +51,16 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
     computedVatAmount
   );
   const handleDownloadPDF = async () => {
+    setIsDownloading(true);
     try {
       const { jsPDF } = await import("jspdf");
       const html2canvas = (await import("html2canvas")).default;
 
       const element = document.getElementById("invoice-preview");
-      if (!element) return;
+      if (!element) {
+        setIsDownloading(false);
+        return;
+      }
 
       // Ensure any images (like logo) are loaded before rendering
       const waitForImages = async (container) => {
@@ -194,6 +199,34 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Error generating PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Handle save and download flow for unsaved invoices
+  const handleSaveAndDownload = async () => {
+    if (!onSave) {
+      alert("Save function not available");
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+
+      // Save the invoice first
+      await onSave();
+
+      // Wait a moment for the save to complete and state to update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Then download the PDF
+      await handleDownloadPDF();
+
+    } catch (error) {
+      console.error("Error saving and downloading:", error);
+      alert("Failed to save invoice. Please try again.");
+      setIsDownloading(false);
     }
   };
 
@@ -281,11 +314,21 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
           </h2>
           <div className="flex gap-3">
             <button
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              onClick={invoiceId ? handleDownloadPDF : handleSaveAndDownload}
+              disabled={isSaving || isDownloading}
+              className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
+                isSaving || isDownloading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              title={invoiceId ? "Download invoice as PDF" : "Save invoice and download PDF"}
             >
               <Download size={18} />
-              Download PDF
+              {isSaving
+                ? "Saving..."
+                : isDownloading
+                  ? "Generating..."
+                  : invoiceId
+                    ? "Download PDF"
+                    : "Save & Download PDF"}
             </button>
             <button
               onClick={onClose}

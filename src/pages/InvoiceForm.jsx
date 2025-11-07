@@ -1435,6 +1435,9 @@ const InvoiceForm = ({ onSave }) => {
         invoice={invoice}
         company={company || {}}
         onClose={() => setShowPreview(false)}
+        invoiceId={id}
+        onSave={performSave}
+        isSaving={savingInvoice || updatingInvoice}
       />
     );
   }
