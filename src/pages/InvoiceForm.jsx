@@ -310,6 +310,7 @@ const Autocomplete = ({
   noOptionsText = "No options",
   className = "",
   title,
+  error,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -446,6 +447,7 @@ const Autocomplete = ({
           disabled={disabled}
           className={className}
           title={title}
+          error={error}
         />
       </div>
 
@@ -628,6 +630,10 @@ const InvoiceForm = ({ onSave }) => {
   // Payment tracking management
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
+
+  // Form validation state
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [invalidFields, setInvalidFields] = useState(new Set());
 
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
@@ -1271,6 +1277,67 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
+    // Validate required fields before saving
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    // Check customer information
+    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
+    }
+
+    // Check if there are any items
+    if (!invoice.items || invoice.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      // Validate each item
+      invoice.items.forEach((item, index) => {
+        if (!item.name || item.name.trim() === '') {
+          errors.push(`Item ${index + 1}: Product name is required`);
+          invalidFieldsSet.add(`item.${index}.name`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.quantity`);
+        }
+        if (!item.rate || item.rate <= 0) {
+          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.rate`);
+        }
+      });
+    }
+
+    // Check dates
+    if (!invoice.date) {
+      errors.push('Invoice date is required');
+      invalidFieldsSet.add('date');
+    }
+    if (!invoice.dueDate) {
+      errors.push('Due date is required');
+      invalidFieldsSet.add('dueDate');
+    }
+
+    // If there are validation errors, show them and stop
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setInvalidFields(invalidFieldsSet);
+
+      // Scroll to the first error (save button area)
+      setTimeout(() => {
+        const errorAlert = document.getElementById('validation-errors-alert');
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      return;
+    }
+
+    // Clear any previous validation errors
+    setValidationErrors([]);
+    setInvalidFields(new Set());
+
     setIsSaving(true);
     try {
       // Convert empty string values to numbers before saving
@@ -1322,7 +1389,31 @@ const InvoiceForm = ({ onSave }) => {
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
-      notificationService.error("Failed to save invoice. Please try again.");
+
+      // Extract detailed error message
+      let errorMessage = "Failed to save invoice. Please try again.";
+
+      if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      // Show detailed validation errors if available
+      if (error?.response?.data?.details) {
+        const details = error.response.data.details;
+        if (Array.isArray(details)) {
+          errorMessage += "\n" + details.join("\n");
+        } else if (typeof details === 'object') {
+          errorMessage += "\n" + Object.entries(details)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join("\n");
+        }
+      }
+
+      notificationService.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -1586,6 +1677,45 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </div>
 
+          {/* Validation Errors Alert */}
+          {validationErrors.length > 0 && (
+            <div
+              id="validation-errors-alert"
+              className={`mt-6 p-4 rounded-lg border-2 ${
+                isDarkMode
+                  ? "bg-red-900/20 border-red-600 text-red-200"
+                  : "bg-red-50 border-red-500 text-red-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+                <div className="flex-1">
+                  <h4 className="font-bold text-lg mb-2">
+                    Please fix the following errors:
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => {
+                      setValidationErrors([]);
+                      setInvalidFields(new Set());
+                    }}
+                    className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                      isDarkMode
+                        ? "bg-red-800 hover:bg-red-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Final Tax Invoice Lock Warning - Only show when editing a Final Tax Invoice */}
           {id && invoice.status === 'issued' && (
             <Alert variant="info" className="mt-6">
@@ -1687,6 +1817,7 @@ const InvoiceForm = ({ onSave }) => {
                       type="date"
                       value={formatDateForInput(invoice.date)}
                       readOnly
+                      error={invalidFields.has('date')}
                     />
                     <Input
                       label="Due Date"
@@ -1694,6 +1825,7 @@ const InvoiceForm = ({ onSave }) => {
                       value={formatDateForInput(invoice.dueDate)}
                       min={dueMinStr}
                       max={dueMaxStr}
+                      error={invalidFields.has('dueDate')}
                       onChange={(e) =>
                         setInvoice((prev) => {
                           let v = e.target.value;
@@ -1816,6 +1948,7 @@ const InvoiceForm = ({ onSave }) => {
                     value={invoice.customer.id || ""}
                     onChange={(e) => handleCustomerSelect(e.target.value)}
                     disabled={loadingCustomers}
+                    error={invalidFields.has('customer.name')}
                   >
                     <option value="">Select a customer</option>
                     {(customersData?.customers || []).map((customer) => (
@@ -2120,6 +2253,7 @@ const InvoiceForm = ({ onSave }) => {
                               placeholder="Search products..."
                               disabled={loadingProducts}
                               title={tooltip}
+                              error={invalidFields.has(`item.${index}.name`)}
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">
@@ -2153,6 +2287,7 @@ const InvoiceForm = ({ onSave }) => {
                             step="1"
                             inputMode="numeric"
                             pattern="[0-9]*"
+                            error={invalidFields.has(`item.${index}.quantity`)}
                             onKeyDown={(e) => {
                               const allow = [
                                 "Backspace",
@@ -2207,6 +2342,7 @@ const InvoiceForm = ({ onSave }) => {
                             min="0"
                             step="0.01"
                             className="w-full text-right"
+                            error={invalidFields.has(`item.${index}.rate`)}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
@@ -2316,6 +2452,7 @@ const InvoiceForm = ({ onSave }) => {
                         placeholder="Search products..."
                         disabled={loadingProducts}
                         title={tooltip}
+                        error={invalidFields.has(`item.${index}.name`)}
                         renderOption={(option) => (
                           <div>
                             <div className="font-medium">{option.name}</div>
@@ -2349,6 +2486,7 @@ const InvoiceForm = ({ onSave }) => {
                           step="1"
                           inputMode="numeric"
                           pattern="[0-9]*"
+                          error={invalidFields.has(`item.${index}.quantity`)}
                           onKeyDown={(e) => {
                             const allow = [
                               "Backspace",
@@ -2395,6 +2533,7 @@ const InvoiceForm = ({ onSave }) => {
                           }
                           min="0"
                           step="0.01"
+                          error={invalidFields.has(`item.${index}.rate`)}
                         />
                         <Input
                           label="VAT %"
