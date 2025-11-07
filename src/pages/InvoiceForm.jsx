@@ -1390,7 +1390,6 @@ const InvoiceForm = ({ onSave }) => {
                       <option value="draft">Draft Invoice</option>
                       <option value="proforma">Proforma Invoice</option>
                       <option value="paid">Final Tax Invoice</option>
-                      <option value="overdue">Overdue</option>
                     </Select>
                     <Select
                       label="Payment Mode"
