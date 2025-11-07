@@ -624,6 +624,9 @@ const InvoiceForm = ({ onSave }) => {
   const [showStatusConfirmDialog, setShowStatusConfirmDialog] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState(null);
 
+  // Save confirmation for Final Tax Invoice (new invoices only)
+  const [showSaveConfirmDialog, setShowSaveConfirmDialog] = useState(false);
+
   // Payment tracking management
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
@@ -1166,20 +1169,24 @@ const InvoiceForm = ({ onSave }) => {
   const handleStatusChange = (newStatus) => {
     const currentStatus = invoice.status || 'draft';
 
-    // For new invoices (no id), allow any status selection freely
-    // Only apply transition validation for existing invoices
-    if (id) {
-      // Check if transition is valid for existing invoices
-      if (!isValidStatusTransition(currentStatus, newStatus)) {
-        notificationService.error(
-          `Cannot change from ${currentStatus.toUpperCase()} to ${newStatus.toUpperCase()}. ` +
-          `Final Tax Invoice cannot be changed back to Draft or Proforma.`
-        );
-        return;
-      }
+    // For new invoices (no id), allow any status selection freely WITHOUT confirmation
+    // Confirmation will happen at save time if status is "issued"
+    if (!id) {
+      applyStatusChange(newStatus);
+      return;
     }
 
-    // Check if confirmation is needed (moving to Final Tax Invoice)
+    // For existing invoices (edit mode), apply transition validation
+    // Check if transition is valid for existing invoices
+    if (!isValidStatusTransition(currentStatus, newStatus)) {
+      notificationService.error(
+        `Cannot change from ${currentStatus.toUpperCase()} to ${newStatus.toUpperCase()}. ` +
+        `Final Tax Invoice cannot be changed back to Draft or Proforma.`
+      );
+      return;
+    }
+
+    // Check if confirmation is needed (moving to Final Tax Invoice in edit mode)
     if (needsConfirmation(currentStatus, newStatus)) {
       setPendingStatusChange(newStatus);
       setShowStatusConfirmDialog(true);
@@ -1290,6 +1297,17 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleSave = async () => {
+    // For new invoices with Final Tax Invoice status, show confirmation first
+    if (!id && invoice.status === 'issued') {
+      setShowSaveConfirmDialog(true);
+      return;
+    }
+
+    // Otherwise proceed with save directly
+    await performSave();
+  };
+
+  const performSave = async () => {
     try {
       // Convert empty string values to numbers before saving
       const processedInvoice = {
@@ -1332,6 +1350,15 @@ const InvoiceForm = ({ onSave }) => {
       console.error("Error saving invoice:", error);
       notificationService.error("Failed to save invoice. Please try again.");
     }
+  };
+
+  const handleConfirmSave = async () => {
+    setShowSaveConfirmDialog(false);
+    await performSave();
+  };
+
+  const handleCancelSave = () => {
+    setShowSaveConfirmDialog(false);
   };
 
   const handleDownloadPDF = async () => {
@@ -2670,6 +2697,59 @@ const InvoiceForm = ({ onSave }) => {
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
                 Confirm Selection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Confirmation Dialog (for Final Tax Invoice) */}
+      {showSaveConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <div className="flex items-start mb-4">
+              <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Confirm Final Tax Invoice Creation
+                </h3>
+                <p className="text-sm mb-4">
+                  You are about to create and save a <strong>Final Tax Invoice</strong>.
+                </p>
+                <p className="text-sm mb-2">
+                  <strong>This action will:</strong>
+                </p>
+                <ul className="text-sm list-disc list-inside space-y-1 ml-2">
+                  <li>Deduct inventory from stock immediately</li>
+                  <li>Record revenue in the system</li>
+                  <li>Create an invoice that cannot be edited (requires credit note)</li>
+                  <li>Generate an official tax invoice number (INV-YYYYMM-NNNN)</li>
+                </ul>
+                <p className="text-sm mt-3 font-semibold text-red-600 dark:text-red-400">
+                  ⚠️ This action cannot be undone!
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={handleCancelSave}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSave}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Yes, Create Final Tax Invoice
               </button>
             </div>
           </div>
