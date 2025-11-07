@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Bell,
   RotateCcw,
+  FileText,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -28,6 +29,7 @@ import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
+import GenerateStatementModal from "../components/GenerateStatementModal";
 import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
 import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
 
@@ -60,6 +62,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [activeCardFilter, setActiveCardFilter] = useState(null);
+  const [showStatementModal, setShowStatementModal] = useState(false);
+  const [statementCustomer, setStatementCustomer] = useState(null);
 
   const company = createCompany();
 
@@ -471,6 +475,21 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         return newSet;
       });
     }
+  };
+
+  const handleGenerateStatement = (invoice) => {
+    setStatementCustomer({
+      id: invoice.customer.id || invoice.customer_id,
+      name: invoice.customer.name || invoice.customer_name,
+      email: invoice.customer.email || invoice.customer_email,
+      company: invoice.customer.company
+    });
+    setShowStatementModal(true);
+  };
+
+  const handleStatementGenerated = (statement) => {
+    notificationService.success('Statement generated successfully!');
+    // Optionally refresh invoices or navigate to statement
   };
 
   const handleBulkDownload = async () => {
@@ -1347,6 +1366,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           )}
                         </button>
                       )}
+                      {/* Generate Statement Button */}
+                      {authService.hasPermission('customers', 'read') && (
+                        <button
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode
+                              ? "text-purple-400 hover:text-purple-300"
+                              : "hover:bg-gray-100 text-purple-600"
+                          }`}
+                          title="Generate Statement of Accounts"
+                          onClick={() => handleGenerateStatement(invoice)}
+                        >
+                          <FileText size={16} />
+                        </button>
+                      )}
                       {invoice.status === "issued" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
@@ -1360,7 +1393,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           }`}
                           title={
                             deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? `View Delivery Notes (${ 
+                              ? `View Delivery Notes (${
                                   deliveryNoteStatus[invoice.id]?.count
                                 })`
                               : "Create delivery note"
@@ -1479,6 +1512,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           </div>
         )}
       </div>
+
+      {/* Generate Statement Modal */}
+      <GenerateStatementModal
+        isOpen={showStatementModal}
+        onClose={() => setShowStatementModal(false)}
+        customer={statementCustomer}
+        onGenerated={handleStatementGenerated}
+      />
     </div>
   );
 };

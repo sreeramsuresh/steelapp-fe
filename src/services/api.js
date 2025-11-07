@@ -331,6 +331,27 @@ export const accountStatementsAPI = {
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
   },
+
+  // Generate statement on-the-fly without saving
+  generateOnTheFly: async (data) => {
+    const { apiService } = await import("./axiosApi");
+    const blob = await apiService.request({
+      method: "POST",
+      url: "/account-statements/generate",
+      data,
+      responseType: "blob",
+    });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = blobUrl;
+    const fileName = `Statement-${data.customer_id || 'Customer'}-${data.start_date}-to-${data.end_date}.pdf`;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
+  },
 };
 
 // Transit API methods
