@@ -59,6 +59,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [previewInvoice, setPreviewInvoice] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+  const [activeCardFilter, setActiveCardFilter] = useState(null);
 
   const company = createCompany();
 
@@ -169,22 +170,55 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   }, [searchParams]);
 
-  // Client-side payment status filtering
+  // Client-side payment status and card filtering
   const filteredInvoices = React.useMemo(() => {
-    if (paymentStatusFilter === 'all') {
-      return invoices;
+    let filtered = invoices;
+
+    // Apply payment status filter
+    if (paymentStatusFilter !== 'all') {
+      filtered = filtered.filter((invoice) => {
+        // Only apply payment filter to issued invoices
+        if (invoice.status !== 'issued') {
+          return true; // Show non-issued invoices regardless of payment filter
+        }
+
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return paymentStatus === paymentStatusFilter;
+      });
     }
 
-    return invoices.filter((invoice) => {
-      // Only apply payment filter to issued invoices
-      if (invoice.status !== 'issued') {
-        return true; // Show non-issued invoices regardless of payment filter
-      }
+    // Apply card-specific filters
+    if (activeCardFilter === 'outstanding') {
+      filtered = filtered.filter(invoice => {
+        if (invoice.status !== 'issued') return false;
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
+      });
+    } else if (activeCardFilter === 'overdue') {
+      filtered = filtered.filter(invoice => {
+        if (invoice.status !== 'issued') return false;
+        const dueDate = new Date(invoice.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+      });
+    } else if (activeCardFilter === 'due_soon') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const futureDate = new Date(today);
+      futureDate.setDate(today.getDate() + 7);
 
-      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
-      return paymentStatus === paymentStatusFilter;
-    });
-  }, [invoices, paymentStatusFilter]);
+      filtered = filtered.filter(invoice => {
+        if (invoice.status !== 'issued') return false;
+        const dueDate = new Date(invoice.dueDate);
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+      });
+    }
+
+    return filtered;
+  }, [invoices, paymentStatusFilter, activeCardFilter]);
 
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
@@ -284,6 +318,104 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const getTotalAmount = () => {
     return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
+  };
+
+  // Dashboard metric calculations
+  const getOutstandingAmount = () => {
+    return invoices
+      .filter(invoice => {
+        if (invoice.status !== 'issued') return false;
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
+      })
+      .reduce((sum, invoice) => {
+        const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
+        return sum + (invoice.total - paidAmount);
+      }, 0);
+  };
+
+  const getOverdueMetrics = () => {
+    const overdueInvoices = invoices.filter(invoice => {
+      if (invoice.status !== 'issued') return false;
+      const dueDate = new Date(invoice.dueDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+      return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+    });
+
+    const amount = overdueInvoices.reduce((sum, invoice) => {
+      const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
+      return sum + (invoice.total - paidAmount);
+    }, 0);
+
+    return { count: overdueInvoices.length, amount };
+  };
+
+  const getDueSoonMetrics = (days = 7) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + days);
+
+    const dueSoonInvoices = invoices.filter(invoice => {
+      if (invoice.status !== 'issued') return false;
+      const dueDate = new Date(invoice.dueDate);
+      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+      return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+    });
+
+    const amount = dueSoonInvoices.reduce((sum, invoice) => {
+      const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
+      return sum + (invoice.total - paidAmount);
+    }, 0);
+
+    return { count: dueSoonInvoices.length, amount };
+  };
+
+  const getPaidAmount = () => {
+    return invoices
+      .filter(invoice => {
+        if (invoice.status !== 'issued') return false;
+        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        return paymentStatus === 'fully_paid';
+      })
+      .reduce((sum, invoice) => sum + invoice.total, 0);
+  };
+
+  // Handle dashboard card clicks to filter invoices
+  const handleCardClick = (filterType) => {
+    if (activeCardFilter === filterType) {
+      // Click again to clear filter
+      setActiveCardFilter(null);
+      setPaymentStatusFilter('all');
+      setStatusFilter('all');
+    } else {
+      setActiveCardFilter(filterType);
+      setCurrentPage(1);
+
+      switch(filterType) {
+        case 'outstanding':
+          setStatusFilter('issued');
+          setPaymentStatusFilter('all'); // Will be filtered client-side to show unpaid + partially_paid
+          break;
+        case 'overdue':
+          // Overdue requires custom logic, we'll handle via paymentStatusFilter
+          setStatusFilter('issued');
+          setPaymentStatusFilter('all'); // Custom filter needed
+          break;
+        case 'paid':
+          setStatusFilter('issued');
+          setPaymentStatusFilter('fully_paid');
+          break;
+        case 'due_soon':
+          setStatusFilter('issued');
+          setPaymentStatusFilter('all'); // Custom filter needed
+          break;
+        default:
+          break;
+      }
+    }
   };
 
   const handleDownloadPDF = async (invoice) => {
@@ -578,45 +710,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     );
   };
 
-  if (filteredInvoices.length === 0 && !loading) {
-    return (
-      <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
-        }`}
-      >
-        <div
-          className={`text-center p-12 rounded-2xl border ${
-            isDarkMode
-              ? "bg-[#1E2328] border-[#37474F]"
-              : "bg-white border-[#E0E0E0]"
-          }`}
-        >
-          <h2
-            className={`text-2xl font-semibold mb-4 ${
-              isDarkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            📄 No Invoices Yet
-          </h2>
-          <p
-            className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-          >
-            {searchTerm || statusFilter !== "all"
-              ? "No invoices match your search criteria"
-              : "Create your first invoice to get started"}
-          </p>
-          <Link
-            to="/create-invoice"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            Create Invoice
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
@@ -702,93 +795,172 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Financial Dashboard Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-          <div
-            className={`text-center border rounded-2xl shadow-sm ${
-              isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-[#E0E0E0]"
+          {/* Outstanding Amount Card */}
+          <button
+            onClick={() => handleCardClick('outstanding')}
+            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+              activeCardFilter === 'outstanding'
+                ? isDarkMode
+                  ? "bg-orange-900/30 border-orange-600 ring-2 ring-orange-600"
+                  : "bg-orange-50 border-orange-500 ring-2 ring-orange-500"
+                : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-orange-600/50"
+                : "bg-white border-[#E0E0E0] hover:border-orange-500/50"
             }`}
           >
-            <div className="py-4">
-              <div className="text-2xl font-bold text-teal-600">
-                {pagination ? pagination.total : invoices.length}
+            <div className="py-4 px-3">
+              <div className="text-xs uppercase tracking-wide mb-1 text-orange-600 font-semibold">
+                Outstanding
               </div>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Total Invoices
-              </p>
-            </div>
-          </div>
-          <div
-            className={`text-center border rounded-2xl shadow-sm ${
-              isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-[#E0E0E0]"
-            }`}
-          >
-            <div className="py-4">
-              <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(getTotalAmount())}
-              </div>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Page Value
-              </p>
-            </div>
-          </div>
-          <div
-            className={`text-center border rounded-2xl shadow-sm ${
-              isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-[#E0E0E0]"
-            }`}
-          >
-            <div className="py-4">
-              <div className="text-2xl font-bold text-blue-600">
-                {pagination ? pagination.current_page : 1}
-              </div>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Current Page
-              </p>
-            </div>
-          </div>
-          <div
-            className={`text-center border rounded-2xl shadow-sm ${
-              isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-[#E0E0E0]"
-            }`}
-          >
-            <div className="py-4">
               <div className="text-2xl font-bold text-orange-600">
-                {pagination ? pagination.total_pages : 1}
+                {formatCurrency(getOutstandingAmount())}
               </div>
               <p
-                className={`text-sm ${
+                className={`text-xs mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                Total Pages
+                Click to filter
               </p>
             </div>
-          </div>
+          </button>
+
+          {/* Overdue Card */}
+          <button
+            onClick={() => handleCardClick('overdue')}
+            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+              activeCardFilter === 'overdue'
+                ? isDarkMode
+                  ? "bg-red-900/30 border-red-600 ring-2 ring-red-600"
+                  : "bg-red-50 border-red-500 ring-2 ring-red-500"
+                : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-red-600/50"
+                : "bg-white border-[#E0E0E0] hover:border-red-500/50"
+            }`}
+          >
+            <div className="py-4 px-3">
+              <div className="text-xs uppercase tracking-wide mb-1 text-red-600 font-semibold flex items-center justify-center gap-1">
+                <AlertCircle size={14} />
+                Overdue
+              </div>
+              <div className="text-2xl font-bold text-red-600">
+                {formatCurrency(getOverdueMetrics().amount)}
+              </div>
+              <p
+                className={`text-xs mt-1 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {getOverdueMetrics().count} invoice{getOverdueMetrics().count !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </button>
+
+          {/* Due Soon Card */}
+          <button
+            onClick={() => handleCardClick('due_soon')}
+            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+              activeCardFilter === 'due_soon'
+                ? isDarkMode
+                  ? "bg-yellow-900/30 border-yellow-600 ring-2 ring-yellow-600"
+                  : "bg-yellow-50 border-yellow-500 ring-2 ring-yellow-500"
+                : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-yellow-600/50"
+                : "bg-white border-[#E0E0E0] hover:border-yellow-500/50"
+            }`}
+          >
+            <div className="py-4 px-3">
+              <div className="text-xs uppercase tracking-wide mb-1 text-yellow-600 font-semibold flex items-center justify-center gap-1">
+                <Bell size={14} />
+                Due in 7 Days
+              </div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {formatCurrency(getDueSoonMetrics(7).amount)}
+              </div>
+              <p
+                className={`text-xs mt-1 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {getDueSoonMetrics(7).count} invoice{getDueSoonMetrics(7).count !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </button>
+
+          {/* Paid Amount Card */}
+          <button
+            onClick={() => handleCardClick('paid')}
+            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+              activeCardFilter === 'paid'
+                ? isDarkMode
+                  ? "bg-green-900/30 border-green-600 ring-2 ring-green-600"
+                  : "bg-green-50 border-green-500 ring-2 ring-green-500"
+                : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-green-600/50"
+                : "bg-white border-[#E0E0E0] hover:border-green-500/50"
+            }`}
+          >
+            <div className="py-4 px-3">
+              <div className="text-xs uppercase tracking-wide mb-1 text-green-600 font-semibold flex items-center justify-center gap-1">
+                <CheckCircle size={14} />
+                Paid
+              </div>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(getPaidAmount())}
+              </div>
+              <p
+                className={`text-xs mt-1 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Click to filter
+              </p>
+            </div>
+          </button>
         </div>
+
+        {/* Active Filter Banner */}
+        {activeCardFilter && (
+          <div className={`flex items-center justify-between px-4 py-3 mb-6 rounded-lg border ${
+            isDarkMode
+              ? "bg-teal-900/20 border-teal-600/50"
+              : "bg-teal-50 border-teal-200"
+          }`}>
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium ${
+                isDarkMode ? "text-teal-300" : "text-teal-700"
+              }`}>
+                Showing: {
+                  activeCardFilter === 'outstanding' ? 'Outstanding Invoices' :
+                  activeCardFilter === 'overdue' ? 'Overdue Invoices' :
+                  activeCardFilter === 'due_soon' ? 'Invoices Due in 7 Days' :
+                  activeCardFilter === 'paid' ? 'Paid Invoices' : ''
+                }
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setActiveCardFilter(null);
+                setPaymentStatusFilter('all');
+                setStatusFilter('all');
+              }}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                isDarkMode
+                  ? "bg-teal-800 text-teal-100 hover:bg-teal-700"
+                  : "bg-teal-600 text-white hover:bg-teal-700"
+              }`}
+            >
+              <X size={16} />
+              Clear Filter
+            </button>
+          </div>
+        )}
 
         {/* Filters Section */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
-          <div className="flex-grow min-w-[300px] relative">
+          <div className="flex-grow flex-shrink min-w-[200px] max-w-[350px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search
                 size={20}
@@ -824,7 +996,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <span className="text-sm font-medium">Show Deleted</span>
             </label>
           </div>
-          <div className="min-w-[150px] relative">
+          <div className="min-w-[170px] relative">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -848,7 +1020,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               />
             </div>
           </div>
-          <div className="min-w-[150px] relative">
+          <div className="min-w-[170px] relative">
             <select
               value={paymentStatusFilter}
               onChange={(e) => setPaymentStatusFilter(e.target.value)}
@@ -870,7 +1042,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               />
             </div>
           </div>
-          <div className="min-w-[120px] relative">
+          <div className="min-w-[150px] relative">
             <select
               value={pageSize}
               onChange={handlePageSizeChange}
@@ -955,7 +1127,60 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {filteredInvoices.map((invoice) => {
+              {filteredInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center justify-center gap-4">
+                      <div className={`text-6xl ${isDarkMode ? 'opacity-50' : 'opacity-30'}`}>
+                        📄
+                      </div>
+                      <div>
+                        <h3 className={`text-lg font-semibold mb-2 ${
+                          isDarkMode ? "text-white" : "text-gray-900"
+                        }`}>
+                          No Invoices Found
+                        </h3>
+                        <p className={`text-sm mb-4 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        }`}>
+                          {activeCardFilter
+                            ? "No invoices match the selected filter. Try a different filter or clear it."
+                            : searchTerm || statusFilter !== "all" || paymentStatusFilter !== "all"
+                            ? "No invoices match your search criteria. Try adjusting your filters."
+                            : "Create your first invoice to get started"}
+                        </p>
+                        {activeCardFilter && (
+                          <button
+                            onClick={() => {
+                              setActiveCardFilter(null);
+                              setPaymentStatusFilter('all');
+                              setStatusFilter('all');
+                            }}
+                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                              isDarkMode
+                                ? "bg-teal-800 text-teal-100 hover:bg-teal-700"
+                                : "bg-teal-600 text-white hover:bg-teal-700"
+                            }`}
+                          >
+                            <X size={16} />
+                            Clear Dashboard Filter
+                          </button>
+                        )}
+                        {!activeCardFilter && !searchTerm && statusFilter === "all" && paymentStatusFilter === "all" && (
+                          <Link
+                            to="/create-invoice"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+                          >
+                            <Plus size={16} />
+                            Create Invoice
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredInvoices.map((invoice) => {
                 const isDeleted = invoice.deleted_at || invoice.deletedAt;
                 return (
                 <tr
@@ -1182,7 +1407,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                 </tr>
               );
-              })}
+              })
+              )}
             </tbody>
           </table>
         </div>
