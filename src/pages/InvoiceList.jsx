@@ -18,7 +18,7 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { generateInvoicePDF } from "../utils/pdfGenerator";
+import { generateInvoicePDF } from "../utils/pdfGenerator"; // Only used for bulk download
 import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI } from "../services/api";
@@ -193,24 +193,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
   const handleDownloadPDF = async (invoice) => {
-    if (downloadingIds.has(invoice.id)) return;
-
-    setDownloadingIds((prev) => new Set(prev).add(invoice.id));
-
     try {
-      // Fetch complete invoice details including items before generating PDF
+      // Fetch complete invoice details and show preview modal
       const fullInvoice = await invoiceService.getInvoice(invoice.id);
-      await generateInvoicePDF(fullInvoice, company);
-      notificationService.success("PDF downloaded successfully!");
+      setPreviewInvoice(fullInvoice);
+      setShowPreviewModal(true);
     } catch (error) {
-      console.error("PDF generation error:", error);
-      notificationService.error(error.message || "Failed to download PDF");
-    } finally {
-      setDownloadingIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(invoice.id);
-        return newSet;
-      });
+      console.error("Error loading invoice:", error);
+      notificationService.error("Failed to load invoice for preview");
     }
   };
 
@@ -462,38 +452,34 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   return (
     <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
+      className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
         isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
       }`}
     >
       {/* Invoice Preview Modal */}
       {showPreviewModal && previewInvoice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <InvoicePreview
-              invoice={previewInvoice}
-              company={company}
-              onClose={() => {
-                setShowPreviewModal(false);
-                setPreviewInvoice(null);
-              }}
-            />
-          </div>
-        </div>
+        <InvoicePreview
+          invoice={previewInvoice}
+          company={company}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewInvoice(null);
+          }}
+        />
       )}
 
       {/* Delivery Note Modal */}
       <DeliveryNoteModal />
 
       <div
-        className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
+        className={`p-6 rounded-2xl border overflow-hidden ${
           isDarkMode
             ? "bg-[#1E2328] border-[#37474F]"
             : "bg-white border-[#E0E0E0]"
         }`}
       >
         {/* Header Section */}
-        <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
+        <div className="flex justify-between items-start mb-6">
           <div>
             <h1
               className={`text-2xl font-semibold mb-2 ${
@@ -535,7 +521,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-4 gap-6 mb-6">
           <div
             className={`text-center border rounded-2xl shadow-sm ${
               isDarkMode
@@ -861,7 +847,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                             ? "text-green-400 hover:text-green-300"
                             : "hover:bg-gray-100 text-green-600"
                         }`}
-                        title="Download PDF"
+                        title="Preview & Download PDF"
                         onClick={() => handleDownloadPDF(invoice)}
                         disabled={downloadingIds.has(invoice.id)}
                       >

@@ -44,149 +44,97 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
   );
   const handleDownloadPDF = async () => {
     try {
-      const { jsPDF } = await import("jspdf");
       const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
 
-      const element = document.getElementById("invoice-preview");
-      if (!element) return;
-
-      // Ensure any images (like logo) are loaded before rendering
-      const waitForImages = async (container) => {
-        const imgs = Array.from(container.querySelectorAll("img"));
-        if (imgs.length === 0) return;
-        await Promise.all(
-          imgs.map(
-            (img) =>
-              new Promise((resolve) => {
-                if (img.complete && img.naturalWidth !== 0) return resolve();
-                try {
-                  img.crossOrigin = img.crossOrigin || "anonymous";
-                } catch (_) {}
-                img.addEventListener("load", resolve, { once: true });
-                img.addEventListener("error", resolve, { once: true });
-              })
-          )
-        );
-      };
-
-      // Store original styles
-      const originalStyles = element.style.cssText;
-
-      // Apply light mode styles temporarily for PDF generation
-      element.style.cssText = `
-        ${originalStyles}
-        background-color: #ffffff !important;
-        color: #000000 !important;
-      `;
-
-      // Apply light mode styles to all child elements
-      const allElements = element.querySelectorAll("*");
-      const originalElementStyles = [];
-
-      allElements.forEach((el, index) => {
-        originalElementStyles[index] = el.style.cssText;
-        // Keep original white text for TAX INVOICE banner and table headers
-        const isHeaderArea =
-          el.closest("thead") ||
-          el.classList.contains("bg-teal-600") ||
-          el.classList.contains("text-white");
-        if (!isHeaderArea) {
-          el.style.cssText = `${el.style.cssText}; color: #000000 !important;`;
-        }
-      });
-
-      await waitForImages(element);
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-
-      // Render each logical page node separately to avoid slicing bugs
-      const pageNodes = Array.from(
-        element.querySelectorAll('[data-invoice-page="true"]')
-      );
-      const headerEl = element.querySelector(
-        '[data-invoice-global-top="true"]'
-      );
-      const Mx = 15; // mm side margin per business docs
-      const My = 15; // mm top/bottom margin per business docs
-      if (pageNodes.length > 0) {
-        for (let i = 0; i < pageNodes.length; i++) {
-          let targetNode = pageNodes[i];
-          let pageCanvas;
-          if (i === 0 && headerEl) {
-            // Compose first page: header + first page content in a temporary container
-            const temp = document.createElement("div");
-            temp.style.cssText =
-              "position:absolute; left:-9999px; top:-9999px; background:#ffffff;";
-            temp.style.width = `${
-              targetNode.clientWidth || element.clientWidth
-            }px`;
-            temp.appendChild(headerEl.cloneNode(true));
-            temp.appendChild(targetNode.cloneNode(true));
-            document.body.appendChild(temp);
-            pageCanvas = await html2canvas(temp, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: "#ffffff",
-            });
-            document.body.removeChild(temp);
-          } else {
-            pageCanvas = await html2canvas(targetNode, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: "#ffffff",
-            });
-          }
-          const img = pageCanvas.toDataURL("image/png");
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const aspect = pageCanvas.height / pageCanvas.width;
-          // Scale to fit inside margins
-          let drawWidth = pageWidth - 2 * Mx;
-          let drawHeight = drawWidth * aspect;
-          const maxHeight = pageHeight - 2 * My;
-          if (drawHeight > maxHeight) {
-            drawHeight = maxHeight;
-            drawWidth = drawHeight / aspect;
-          }
-          const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2; // center within margins
-          const y = My; // top-align within margin
-          if (i > 0) pdf.addPage();
-          pdf.addImage(img, "PNG", x, y, drawWidth, drawHeight);
-        }
-      } else {
-        // Fallback: single canvas of full element
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-        });
-        const fullImg = canvas.toDataURL("image/png");
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const aspect = canvas.height / canvas.width;
-        let drawWidth = pageWidth - 2 * Mx;
-        let drawHeight = drawWidth * aspect;
-        const maxHeight = pageHeight - 2 * My;
-        if (drawHeight > maxHeight) {
-          drawHeight = maxHeight;
-          drawWidth = drawHeight / aspect;
-        }
-        const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2;
-        const y = My;
-        pdf.addImage(fullImg, "PNG", x, y, drawWidth, drawHeight);
+      // Show loading indicator
+      const button = document.querySelector('button[onclick*="handleDownloadPDF"]') || 
+                    document.querySelector('button:has(svg)');
+      const originalText = button?.textContent;
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Generating PDF...';
       }
 
-      // Restore original styles
-      element.style.cssText = originalStyles;
-      allElements.forEach((el, index) => {
-        el.style.cssText = originalElementStyles[index];
+      // Find the invoice preview element
+      const element = document.querySelector('[data-invoice-content="true"]');
+      if (!element) {
+        alert("Invoice preview not found");
+        return;
+      }
+
+      // Wait for content to settle, especially on mobile
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // Mobile-optimized canvas generation
+      const isMobile = window.innerWidth < 768;
+      const canvas = await html2canvas(element, {
+        scale: isMobile ? 2 : 3, // Lower scale on mobile for performance
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        foreignObjectRendering: true, // Better for mobile browsers
       });
-      pdf.save(`${invoice.invoiceNumber}.pdf`);
+
+      // Create PDF with proper A4 dimensions
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Calculate image dimensions to fit A4 with margins
+      const margin = 10;
+      const maxWidth = pdfWidth - (2 * margin);
+      const maxHeight = pdfHeight - (2 * margin);
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const imgRatio = canvas.height / canvas.width;
+      
+      let imgWidth = maxWidth;
+      let imgHeight = imgWidth * imgRatio;
+
+      // If height exceeds page, scale down
+      if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+        imgWidth = imgHeight / imgRatio;
+      }
+
+      // Center the image
+      const x = (pdfWidth - imgWidth) / 2;
+      const y = (pdfHeight - imgHeight) / 2;
+
+      pdf.addImage(imgData, "JPEG", x, y, imgWidth, imgHeight);
+      
+      // Mobile-friendly save
+      const fileName = `${invoice.invoiceNumber || 'invoice'}.pdf`;
+      if (isMobile) {
+        // On mobile, try to trigger download
+        pdf.save(fileName);
+      } else {
+        pdf.save(fileName);
+      }
+
+      // Success feedback
+      if (isMobile) {
+        alert("PDF generated successfully! Check your downloads folder.");
+      }
+
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Error generating PDF. Please try again.");
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      // Restore button
+      const button = document.querySelector('button[disabled]');
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText || 'Download PDF';
+      }
     }
   };
 
@@ -254,53 +202,58 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
   }, [invoice.items, isDarkMode]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-50">
       <div
-        className={`rounded-xl w-full max-w-6xl max-h-[90vh] overflow-auto ${
+        className={`rounded-xl w-full h-full max-w-6xl overflow-auto ${
           isDarkMode ? "bg-[#1E2328]" : "bg-white"
         }`}
       >
         <div
-          className={`p-6 border-b flex justify-between items-center ${
+          className={`p-3 border-b ${
             isDarkMode ? "border-[#37474F]" : "border-gray-200"
           }`}
         >
-          <h2
-            className={`text-xl font-semibold ${
-              isDarkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Invoice Preview
-          </h2>
-          <div className="flex gap-3">
-            <button
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-            >
-              <Download size={18} />
-              Download PDF
-            </button>
-            <button
-              onClick={onClose}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                  : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+          {/* Mobile: Stack vertically on small screens */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <h2
+              className={`text-lg font-semibold ${
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              <X size={18} />
-              Close
-            </button>
+              Invoice Preview
+            </h2>
+            <div className="flex gap-2 justify-center sm:justify-end">
+              <button
+                onClick={handleDownloadPDF}
+                className="flex items-center gap-1 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+              >
+                <Download size={16} className="flex-shrink-0" />
+                <span>PDF</span>
+              </button>
+              <button
+                onClick={onClose}
+                className={`flex items-center gap-1 px-4 py-2 border rounded-lg transition-colors text-sm font-medium ${
+                  isDarkMode
+                    ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                    : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                }`}
+              >
+                <X size={16} className="flex-shrink-0" />
+                <span>Close</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div>
+        <div className="overflow-auto">
           <div
             id="invoice-preview"
-            className={`px-12 py-6 ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
+            data-invoice-content="true"
+            className={`px-3 py-4 ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
             style={{
               fontFamily: "Calibri, Arial, sans-serif",
-              fontSize: "11pt",
+              fontSize: "10pt",
+              minWidth: "320px", // Ensure minimum width for mobile
             }}
           >
             {/* Hidden measurement container */}

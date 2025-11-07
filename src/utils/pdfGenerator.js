@@ -18,8 +18,8 @@ export const generateInvoicePDF = async (invoice, company) => {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
 
-  // Base margins (mm) — ultra minimal for maximum content space
-  const M = { top: 8, bottom: 5, left: 10, right: 10 };
+  // Base margins (mm) — adequate spacing for A4 layout
+  const M = { top: 15, bottom: 15, left: 15, right: 15 };
   const page = {
     w: pdf.internal.pageSize.getWidth(),
     h: pdf.internal.pageSize.getHeight(),
@@ -27,7 +27,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   // Fonts
   const setBody = () => {
-    pdf.setFont("helvetica", "");
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(11);
   };
   const setBold = () => {
@@ -37,10 +37,10 @@ export const generateInvoicePDF = async (invoice, company) => {
   const gray = (v = 140) => pdf.setTextColor(v);
   const black = () => pdf.setTextColor(0);
 
-  const textWidth = (txt, fontSize = 11, fontStyle = "") => {
+  const textWidth = (txt, fontSize = 11, fontStyle = "normal") => {
     const prevSize = pdf.getFontSize();
     const prev = pdf.getFont();
-    pdf.setFont("helvetica", fontStyle || "");
+    pdf.setFont("helvetica", fontStyle || "normal");
     pdf.setFontSize(fontSize);
     const w = pdf.getTextDimensions(txt).w;
     pdf.setFont(prev.fontName, prev.fontStyle);
@@ -51,11 +51,11 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   const measureHeader = (isFirstPage = true) => {
     if (isFirstPage) {
-      const companyNameH = 4;
-      const taxInvoiceH = 5;
-      const customerInfoH = 8;
-      const invoiceInfoH = 6;
-      const spacing = 2;
+      const companyNameH = 6;
+      const taxInvoiceH = 8;
+      const customerInfoH = 20; // Increased for customer details
+      const invoiceInfoH = 15;  // Increased for invoice details
+      const spacing = 5;
       return (
         companyNameH +
         taxInvoiceH +
@@ -63,7 +63,7 @@ export const generateInvoicePDF = async (invoice, company) => {
         spacing
       );
     } else {
-      return 8;
+      return 12;
     }
   };
 
@@ -77,18 +77,18 @@ export const generateInvoicePDF = async (invoice, company) => {
       const compName =
         company?.name || "Ultimate Steels Building Materials Trading";
       pdf.text(compName, M.left, y);
-      y += 4;
+      y += 6; // Increased spacing
 
       pdf.setFillColor(0, 128, 128);
-      pdf.rect(M.left, y, page.w - M.left - M.right, 5, "F");
+      pdf.rect(M.left, y, page.w - M.left - M.right, 6, "F");
       setBold();
       pdf.setTextColor(255);
-      const titleWidth = textWidth("TAX INVOICE", 10, "bold");
+      const titleWidth = textWidth("TAX INVOICE", 12, "bold");
       const centerX = M.left + (page.w - M.left - M.right) / 2 - titleWidth / 2;
-      pdf.setFontSize(10);
-      pdf.text("TAX INVOICE", centerX, y + 3.5);
+      pdf.setFontSize(12);
+      pdf.text("TAX INVOICE", centerX, y + 4);
       pdf.setFontSize(11);
-      y += 6;
+      y += 8; // Increased spacing
 
       setBody();
       black();
@@ -98,20 +98,21 @@ export const generateInvoicePDF = async (invoice, company) => {
       const cust = invoice.customer || {};
       // Show invoice date above Bill To in DMY format
       pdf.text(`INVOICE Date : ${formatDateDMY(invoice.date || new Date())}`, leftColX, y);
-      y += 4;
+      y += 5; // Increased spacing
       pdf.text(`Bill To: ${titleCase(cust.name || "")}`, leftColX, y);
 
       const invNo = `Invoice #: ${invoice.invoiceNumber || ""}`;
       pdf.text(invNo, rightColX, y);
-      y += 4;
+      y += 5; // Increased spacing
       if (invoice.modeOfPayment) {
         pdf.text(`Payment Mode: ${invoice.modeOfPayment}`, rightColX, y);
-        y += 4;
+        y += 5; // Increased spacing
       }
       if (invoice.chequeNumber) {
         pdf.text(`Cheque No: ${invoice.chequeNumber}`, rightColX, y);
-        y += 4;
+        y += 5; // Increased spacing
       }
+      y += 5; // Extra spacing after customer info
     } else {
       setBody();
       black();
@@ -138,7 +139,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   };
 
   const measureFooter = (isLastPage = false) => {
-    return isLastPage ? 25 : 20;
+    return isLastPage ? 35 : 25; // Increased footer space
   };
 
   const drawFooter = (pageIdx, pageCount, customFooterY = null) => {
@@ -217,9 +218,9 @@ export const generateInvoicePDF = async (invoice, company) => {
       const it = items[idx];
       const descW = col.desc - 4;
       const descLines = split(it.name || "", descW);
-      const baseHeight = 4;
-      const lineHeight = 3;
-      const padding = 1;
+      const baseHeight = 6; // Increased base height
+      const lineHeight = 4; // Increased line height
+      const padding = 2; // Increased padding
       const rowH =
         baseHeight + Math.max(0, descLines.length - 1) * lineHeight + padding;
 
@@ -314,9 +315,18 @@ export const generateInvoicePDF = async (invoice, company) => {
   setBold();
   black();
   const lastPageMeta = pagesMeta[totalPages - 1];
-  const totalsY = lastPageMeta
+  let totalsY = lastPageMeta
     ? lastPageMeta.lastItemY + 2
     : page.h - M.bottom - measureFooter(true) - 3;
+  
+  // Ensure totalsY is a valid number within page bounds
+  if (isNaN(totalsY) || totalsY < M.top + 20) {
+    totalsY = page.h - M.bottom - measureFooter(true) - 20;
+  }
+  if (totalsY > page.h - M.bottom - 10) {
+    totalsY = page.h - M.bottom - 10;
+  }
+  
   pdf.setDrawColor(200);
   pdf.line(M.left, totalsY - 2, page.w - M.right, totalsY - 2);
   setBody();
@@ -368,24 +378,24 @@ export const generateInvoicePDF = async (invoice, company) => {
     { align: "right" }
   );
 
-  let currentY = totalsY + 8;
+  let currentY = totalsY + 12; // Increased spacing after totals
   setBody();
   black();
 
   if (invoice.notes) {
     pdf.text("Notes:", M.left, currentY);
-    currentY += 3;
+    currentY += 4; // Increased spacing
     const notesLines = split(invoice.notes, page.w - M.left - M.right - 10);
     notesLines.forEach((line) => {
       pdf.text(line, M.left, currentY);
-      currentY += 3;
+      currentY += 4; // Increased line spacing
     });
-    currentY += 1;
+    currentY += 3; // Increased section spacing
   }
 
   if (invoice.terms) {
     pdf.text("Payment as per payment terms:", M.left, currentY);
-    currentY += 3;
+    currentY += 4; // Increased spacing
     
     // First split by manual line breaks (\n), then by width
     const manualLines = invoice.terms.split('\n');
@@ -395,16 +405,16 @@ export const generateInvoicePDF = async (invoice, company) => {
         const termsLines = split(manualLine, page.w - M.left - M.right - 10);
         termsLines.forEach((line) => {
           pdf.text(line, M.left, currentY);
-          currentY += 3;
+          currentY += 4; // Increased line spacing
         });
       } else {
         // Empty line - just add spacing
-        currentY += 3;
+        currentY += 4; // Increased empty line spacing
       }
     });
   }
 
-  const finalContentY = currentY + 2;
+  const finalContentY = currentY + 5; // Increased final spacing
 
   pdf.setPage(totalPages);
   drawFooter(totalPages, totalPages, finalContentY);
