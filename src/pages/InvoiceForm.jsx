@@ -2483,19 +2483,7 @@ const InvoiceForm = ({ onSave }) => {
                 <p className="text-sm mb-4">
                   You are about to change this invoice to <strong>Final Tax Invoice</strong> (Paid status).
                 </p>
-                <div className={`text-sm p-3 rounded ${
-                  isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"
-                }`}>
-                  <p className="font-medium mb-2">⚠️ This action will:</p>
-                  <ul className="list-disc list-inside space-y-1 ml-2">
-                    <li>Mark the invoice as legally binding</li>
-                    <li>Deduct inventory when you save</li>
-                    <li>Record revenue in accounts</li>
-                    <li>Generate official tax invoice number (INV-)</li>
-                    <li><strong>Cannot be reversed</strong> (requires credit note)</li>
-                  </ul>
-                </div>
-                <p className="text-sm mt-4">
+                <p className="text-sm">
                   <strong>Have you received payment?</strong> Only proceed if payment has been confirmed.
                 </p>
               </div>
