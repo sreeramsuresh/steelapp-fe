@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -26,6 +27,7 @@ import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
 import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
+import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
+  const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -227,6 +230,28 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     );
   };
 
+  const getReminderIndicator = (invoice) => {
+    const reminderInfo = getInvoiceReminderInfo(invoice);
+    if (!reminderInfo || !reminderInfo.shouldShowReminder) return null;
+
+    const { config, daysUntilDue } = reminderInfo;
+    const daysMessage = formatDaysMessage(daysUntilDue);
+
+    const className = isDarkMode
+      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
+      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
+
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
+        title={`${config.label}: ${daysMessage}`}
+      >
+        <span>{config.icon}</span>
+        <span>{daysMessage}</span>
+      </span>
+    );
+  };
+
   const getTotalAmount = () => {
     return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
   };
@@ -246,6 +271,39 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       notificationService.error(error.message || "Failed to download PDF");
     } finally {
       setDownloadingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(invoice.id);
+        return newSet;
+      });
+    }
+  };
+
+  const handleSendReminder = async (invoice) => {
+    if (sendingReminderIds.has(invoice.id)) return;
+
+    const reminderInfo = getInvoiceReminderInfo(invoice);
+    if (!reminderInfo || !reminderInfo.shouldShowReminder) {
+      notificationService.error('No reminder needed for this invoice');
+      return;
+    }
+
+    setSendingReminderIds((prev) => new Set(prev).add(invoice.id));
+
+    try {
+      // Fetch complete invoice details
+      const fullInvoice = await invoiceService.getInvoice(invoice.id);
+      const result = await generatePaymentReminder(fullInvoice, company);
+
+      if (result.success) {
+        notificationService.success(`Payment reminder generated successfully! (${reminderInfo.config.label})`);
+      } else {
+        notificationService.error(result.error || 'Failed to generate reminder');
+      }
+    } catch (error) {
+      console.error("Reminder generation error:", error);
+      notificationService.error(error.message || "Failed to generate payment reminder");
+    } finally {
+      setSendingReminderIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(invoice.id);
         return newSet;
@@ -889,6 +947,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     <div className="flex flex-col gap-2">
                       {getStatusBadge(invoice.status)}
                       {getPaymentStatusBadge(invoice)}
+                      {getReminderIndicator(invoice)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -936,6 +995,27 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           <Download size={16} />
                         )}
                       </button>
+                      )}
+                      {/* Payment Reminder Button */}
+                      {getInvoiceReminderInfo(invoice)?.shouldShowReminder && (
+                        <button
+                          className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
+                            sendingReminderIds.has(invoice.id)
+                              ? "opacity-50 cursor-not-allowed"
+                              : isDarkMode
+                              ? "text-yellow-400 hover:text-yellow-300"
+                              : "hover:bg-yellow-50 text-yellow-600"
+                          }`}
+                          title={`Send payment reminder (${getInvoiceReminderInfo(invoice)?.config.label})`}
+                          onClick={() => handleSendReminder(invoice)}
+                          disabled={sendingReminderIds.has(invoice.id)}
+                        >
+                          {sendingReminderIds.has(invoice.id) ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                          ) : (
+                            <Bell size={16} />
+                          )}
+                        </button>
                       )}
                       {invoice.status === "issued" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
                         <button

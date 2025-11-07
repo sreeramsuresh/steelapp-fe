@@ -58,6 +58,7 @@ import {
   calculatePaymentStatus,
   getLastPaymentDate
 } from "../utils/paymentUtils";
+import { getInvoiceReminderInfo, formatDaysMessage } from "../utils/reminderUtils";
 
 // Custom Tailwind Components
 const Button = ({
@@ -1504,6 +1505,44 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </div>
 
+          {/* Payment Reminder Alert */}
+          {(() => {
+            const reminderInfo = getInvoiceReminderInfo(invoice);
+            if (!reminderInfo || !reminderInfo.shouldShowReminder) return null;
+
+            const { config, daysUntilDue, balanceDue, isOverdue } = reminderInfo;
+            const daysMessage = formatDaysMessage(daysUntilDue);
+
+            return (
+              <Alert
+                variant={isOverdue ? "danger" : "warning"}
+                className="mt-6"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{config.icon}</span>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-lg mb-2">
+                      {config.label}: {daysMessage}
+                    </h4>
+                    <p className="text-sm mb-3">
+                      This invoice {isOverdue ? 'is overdue' : 'will be due soon'}.
+                      Outstanding balance: <strong>{formatCurrency(balanceDue)}</strong>
+                    </p>
+                    <div className="text-xs opacity-90">
+                      <p><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
+                      <p><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
+                      {isOverdue && (
+                        <p className="mt-2 font-semibold">
+                          ⚡ Action Required: Consider sending a payment reminder to the customer.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Alert>
+            );
+          })()}
+
           <div className="pt-8">
             {/* Edit Invoice Warning */}
             {id && (
@@ -2550,6 +2589,8 @@ const InvoiceForm = ({ onSave }) => {
                 {/* Payment Ledger */}
                 <PaymentLedger
                   payments={invoice.payments || []}
+                  invoice={invoice}
+                  company={company}
                   onAddPayment={handleAddPayment}
                   onEditPayment={handleEditPayment}
                   onDeletePayment={handleDeletePayment}

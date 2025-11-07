@@ -16,6 +16,13 @@ import {
   formatDateDMY,
   calculateDiscountedTRN,
 } from "../utils/invoiceUtils";
+import {
+  calculateTotalPaid,
+  calculateBalanceDue,
+  calculatePaymentStatus,
+  getPaymentStatusConfig,
+  formatPaymentDisplay
+} from "../utils/paymentUtils";
 
 const InvoicePreview = ({ invoice, company, onClose }) => {
   const { isDarkMode } = useTheme();
@@ -2004,6 +2011,201 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               </div>
                             </div>
                           </div>
+
+                          {/* Payment Summary Section - Only for issued invoices with payments */}
+                          {invoice.status === 'issued' && invoice.payments && invoice.payments.length > 0 && (
+                            <div className="mt-6 pt-6 border-t" style={{ borderColor: isDarkMode ? '#37474F' : '#e5e7eb' }}>
+                              {/* Payment Summary Heading */}
+                              <h3
+                                className={`font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '14pt' }}
+                              >
+                                Payment Summary
+                              </h3>
+
+                              {/* Payment Totals Box */}
+                              <div
+                                className={`border rounded-lg mb-4 ${
+                                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                                }`}
+                              >
+                                <div className="p-4">
+                                  <div className="flex justify-between items-center gap-6">
+                                    {/* Totals */}
+                                    <div className="flex-1 space-y-2">
+                                      <div className="flex justify-between">
+                                        <span
+                                          className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          Invoice Total:
+                                        </span>
+                                        <span
+                                          className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          {formatCurrency(computedTotal)}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span
+                                          className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          Total Paid:
+                                        </span>
+                                        <span
+                                          className="font-semibold text-green-600"
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          {formatCurrency(calculateTotalPaid(invoice.payments))}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span
+                                          className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          Balance Due:
+                                        </span>
+                                        <span
+                                          className={`font-semibold ${
+                                            calculateBalanceDue(computedTotal, invoice.payments) > 0
+                                              ? 'text-red-600'
+                                              : 'text-green-600'
+                                          }`}
+                                          style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '11pt' }}
+                                        >
+                                          {formatCurrency(calculateBalanceDue(computedTotal, invoice.payments))}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Payment Status Badge */}
+                                    <div className="flex-shrink-0">
+                                      {(() => {
+                                        const paymentStatus = calculatePaymentStatus(computedTotal, invoice.payments);
+                                        const statusConfig = getPaymentStatusConfig(paymentStatus);
+                                        return (
+                                          <div
+                                            className={`px-4 py-2 rounded-full text-center min-w-[140px] ${
+                                              isDarkMode ? statusConfig.bgDark : statusConfig.bgLight
+                                            }`}
+                                          >
+                                            <div
+                                              className={`text-xs font-bold uppercase tracking-wide ${
+                                                isDarkMode ? statusConfig.textDark : statusConfig.textLight
+                                              }`}
+                                              style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                            >
+                                              {statusConfig.label}
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Payment History Table */}
+                              <h4
+                                className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '12pt' }}
+                              >
+                                Payment History
+                              </h4>
+                              <div
+                                className={`border rounded-lg overflow-hidden ${
+                                  isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+                                }`}
+                              >
+                                <table className="w-full">
+                                  <thead className="bg-teal-600">
+                                    <tr>
+                                      <th
+                                        className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                        style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                      >
+                                        #
+                                      </th>
+                                      <th
+                                        className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                        style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                      >
+                                        Date
+                                      </th>
+                                      <th
+                                        className="px-3 py-2 text-right text-xs font-bold text-white uppercase tracking-wider"
+                                        style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                      >
+                                        Amount
+                                      </th>
+                                      <th
+                                        className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                        style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                      >
+                                        Mode
+                                      </th>
+                                      <th
+                                        className="px-3 py-2 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                        style={{ fontFamily: 'Calibri, Arial, sans-serif' }}
+                                      >
+                                        Reference
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                                    {[...invoice.payments].sort((a, b) => new Date(b.date) - new Date(a.date)).map((payment, index, sortedArray) => {
+                                      const formatted = formatPaymentDisplay(payment);
+                                      return (
+                                        <tr key={payment.id}>
+                                          <td
+                                            className={`px-3 py-2 text-center ${
+                                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                                            }`}
+                                            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}
+                                          >
+                                            {sortedArray.length - index}
+                                          </td>
+                                          <td
+                                            className={`px-3 py-2 ${
+                                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                            }`}
+                                            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}
+                                          >
+                                            {formatted.formattedDate}
+                                          </td>
+                                          <td
+                                            className="px-3 py-2 text-right font-semibold text-green-600"
+                                            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}
+                                          >
+                                            {formatted.formattedAmount}
+                                          </td>
+                                          <td
+                                            className={`px-3 py-2 ${
+                                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                            }`}
+                                            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}
+                                          >
+                                            {formatted.modeLabel}
+                                          </td>
+                                          <td
+                                            className={`px-3 py-2 ${
+                                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                                            }`}
+                                            style={{ fontFamily: 'Calibri, Arial, sans-serif', fontSize: '10pt' }}
+                                          >
+                                            {payment.reference_number || '-'}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>

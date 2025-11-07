@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Trash2, Edit2, Plus } from 'lucide-react';
+import { Trash2, Edit2, Plus, Download } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { getPaymentModeConfig, formatPaymentDisplay } from '../utils/paymentUtils';
+import { generatePaymentReceipt } from '../utils/paymentReceiptGenerator';
 
-const PaymentLedger = ({ payments = [], onAddPayment, onEditPayment, onDeletePayment }) => {
+const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPayment, onDeletePayment }) => {
   const { isDarkMode } = useTheme();
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
 
   const handleDeleteClick = (paymentId) => {
     setDeleteConfirmId(paymentId);
@@ -19,6 +21,29 @@ const PaymentLedger = ({ payments = [], onAddPayment, onEditPayment, onDeletePay
 
   const handleCancelDelete = () => {
     setDeleteConfirmId(null);
+  };
+
+  const handleDownloadReceipt = async (payment, paymentIndex) => {
+    if (!invoice || !company) {
+      alert('Unable to generate receipt. Missing invoice or company information.');
+      return;
+    }
+
+    setDownloadingReceiptId(payment.id);
+    try {
+      const result = await generatePaymentReceipt(payment, invoice, company, paymentIndex);
+      if (result.success) {
+        // Success - PDF will be automatically downloaded
+        console.log(`Receipt downloaded: ${result.fileName}`);
+      } else {
+        alert(`Error generating receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceiptId(null);
+    }
   };
 
   // Sort payments by date (newest first)
@@ -229,6 +254,20 @@ const PaymentLedger = ({ payments = [], onAddPayment, onEditPayment, onDeletePay
                         </div>
                       ) : (
                         <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => handleDownloadReceipt(payment, sortedPayments.length - index)}
+                            disabled={downloadingReceiptId === payment.id}
+                            className={`p-1.5 rounded transition-colors ${
+                              downloadingReceiptId === payment.id
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode
+                                ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
+                                : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                            }`}
+                            title="Download payment receipt"
+                          >
+                            <Download size={16} />
+                          </button>
                           <button
                             onClick={() => onEditPayment(payment)}
                             className={`p-1.5 rounded transition-colors ${
