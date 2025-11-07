@@ -1568,12 +1568,15 @@ const InvoiceForm = ({ onSave }) => {
                     <Select
                       label="Invoice Status"
                       value={invoice.status || "draft"}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
                         setInvoice((prev) => ({
                           ...prev,
-                          status: e.target.value,
-                        }))
-                      }
+                          status: newStatus,
+                          // Update invoice number prefix only in CREATE mode
+                          invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber
+                        }));
+                      }}
                     >
                       <option value="draft">Draft Invoice</option>
                       <option value="proforma">Proforma Invoice</option>
