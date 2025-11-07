@@ -25,6 +25,7 @@ import { deliveryNotesAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
+import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
@@ -134,6 +136,23 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setCurrentPage(1);
   }, [searchParams]);
 
+  // Client-side payment status filtering
+  const filteredInvoices = React.useMemo(() => {
+    if (paymentStatusFilter === 'all') {
+      return invoices;
+    }
+
+    return invoices.filter((invoice) => {
+      // Only apply payment filter to issued invoices
+      if (invoice.status !== 'issued') {
+        return true; // Show non-issued invoices regardless of payment filter
+      }
+
+      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+      return paymentStatus === paymentStatusFilter;
+    });
+  }, [invoices, paymentStatusFilter]);
+
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
   };
@@ -182,6 +201,26 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return (
       <span
         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
+  const getPaymentStatusBadge = (invoice) => {
+    // Only show payment badge for issued invoices
+    if (invoice.status !== 'issued') return null;
+
+    const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+    const config = getPaymentStatusConfig(paymentStatus);
+
+    const className = isDarkMode
+      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
+      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
+
+    return (
+      <span
+        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
       >
         {config.label}
       </span>
@@ -421,7 +460,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     );
   };
 
-  if (invoices.length === 0 && !loading) {
+  if (filteredInvoices.length === 0 && !loading) {
     return (
       <div
         className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
@@ -663,6 +702,28 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               />
             </div>
           </div>
+          <div className="min-w-[150px] relative">
+            <select
+              value={paymentStatusFilter}
+              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              }`}
+            >
+              <option value="all">All Payments</option>
+              <option value="unpaid">Unpaid</option>
+              <option value="partially_paid">Partially Paid</option>
+              <option value="fully_paid">Fully Paid</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <ChevronDown
+                size={20}
+                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+              />
+            </div>
+          </div>
           <div className="min-w-[120px] relative">
             <select
               value={pageSize}
@@ -749,7 +810,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {invoices.map((invoice) => (
+              {filteredInvoices.map((invoice) => (
                 <tr
                   key={invoice.id}
                   className={`hover:${
@@ -825,7 +886,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(invoice.status)}
+                    <div className="flex flex-col gap-2">
+                      {getStatusBadge(invoice.status)}
+                      {getPaymentStatusBadge(invoice)}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
