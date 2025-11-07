@@ -149,7 +149,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         className: isDarkMode
           ? "bg-gray-900/30 text-gray-300 border-gray-600"
           : "bg-gray-100 text-gray-800 border-gray-300",
-        label: "DRAFT",
+        label: "DRAFT INVOICE",
       },
       proforma: {
         className: isDarkMode
@@ -650,7 +650,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               }`}
             >
               <option value="all">All Status</option>
-              <option value="draft">Draft</option>
+              <option value="draft">Draft Invoice</option>
               <option value="proforma">Proforma Invoice</option>
               <option value="sent">Sent</option>
               <option value="paid">Paid</option>
