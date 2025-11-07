@@ -50,10 +50,7 @@ const QuotationForm = () => {
     terms_and_conditions: "",
     items: [],
     subtotal: 0,
-    gst_amount: 0,
-    cgst_amount: 0,
-    sgst_amount: 0,
-    igst_amount: 0,
+    vat_amount: 0,
     total_quantity: 0,
     total_weight: 0,
     other_charges: 0,
@@ -181,10 +178,7 @@ const QuotationForm = () => {
         discount: 0,
         discount_type: "amount",
         taxable_amount: 0,
-        gst_rate: 5,
-        cgst: 0,
-        sgst: 0,
-        igst: 0,
+        vat_rate: 5,
         amount: 0,
         net_amount: 0
       }]
@@ -228,7 +222,7 @@ const QuotationForm = () => {
     const quantity = parseFloat(item.quantity) || 0;
     const rate = parseFloat(item.rate) || 0;
     const discount = parseFloat(item.discount) || 0;
-    const gstRate = parseFloat(item.gst_rate) || 0;
+    const vatRate = parseFloat(item.vat_rate) || 0;
 
     const grossAmount = quantity * rate;
     const discountAmount = item.discount_type === 'percentage' 
@@ -236,17 +230,12 @@ const QuotationForm = () => {
       : discount;
     const taxableAmount = grossAmount - discountAmount;
     
-    const gstAmount = taxableAmount * gstRate / 100;
-    const cgst = gstAmount / 2;
-    const sgst = gstAmount / 2;
-    const netAmount = taxableAmount + gstAmount;
+    const vatAmountItem = taxableAmount * vatRate / 100;
+    const netAmount = taxableAmount + vatAmountItem;
 
     newItems[index] = {
       ...item,
       taxable_amount: taxableAmount,
-      cgst: cgst,
-      sgst: sgst,
-      igst: 0, // Using CGST+SGST for local transactions
       amount: taxableAmount,
       net_amount: netAmount
     };
@@ -262,21 +251,19 @@ const QuotationForm = () => {
     
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     const totalQuantity = items.reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0);
-    const cgstAmount = items.reduce((sum, item) => sum + (parseFloat(item.cgst) || 0), 0);
-    const sgstAmount = items.reduce((sum, item) => sum + (parseFloat(item.sgst) || 0), 0);
-    const igstAmount = items.reduce((sum, item) => sum + (parseFloat(item.igst) || 0), 0);
-    const gstAmount = cgstAmount + sgstAmount + igstAmount;
+    const vatAmount = items.reduce((sum, item) => {
+      const rate = parseFloat(item.vat_rate) || 0;
+      const taxable = parseFloat(item.taxable_amount) || 0;
+      return sum + (taxable * rate / 100);
+    }, 0);
     const otherCharges = parseFloat(formData.other_charges) || 0;
-    const total = subtotal + gstAmount + otherCharges;
+    const total = subtotal + vatAmount + otherCharges;
 
     setFormData(prev => ({
       ...prev,
       subtotal,
       total_quantity: totalQuantity,
-      cgst_amount: cgstAmount,
-      sgst_amount: sgstAmount,
-      igst_amount: igstAmount,
-      gst_amount: gstAmount,
+      vat_amount: vatAmount,
       total
     }));
   };
@@ -312,9 +299,9 @@ const QuotationForm = () => {
         const qty = parseFloat(it.quantity) || 0;
         const rate = parseFloat(it.rate) || 0;
         const discount = parseFloat(it.discount) || 0;
-        const gstRate = parseFloat(it.gst_rate) || 0;
+        const vatRate = parseFloat(it.vat_rate) || 0;
         const amount = parseFloat(it.amount) || (qty * rate);
-        const netAmount = parseFloat(it.net_amount) || amount + ((amount * gstRate) / 100);
+        const netAmount = parseFloat(it.net_amount) || amount + ((amount * vatRate) / 100);
         const specFallback = [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
         const specification = (it.specification && String(it.specification).trim()) || specFallback || '';
         return {
@@ -330,10 +317,7 @@ const QuotationForm = () => {
           discount: isNaN(discount) ? 0 : discount,
           discount_type: it.discount_type || 'amount',
           taxable_amount: parseFloat(it.taxable_amount) || amount,
-          gst_rate: gstRate,
-          cgst: parseFloat(it.cgst) || 0,
-          sgst: parseFloat(it.sgst) || 0,
-          igst: parseFloat(it.igst) || 0,
+          vat_rate: vatRate,
           amount: amount,
           net_amount: netAmount,
         };
@@ -352,14 +336,11 @@ const QuotationForm = () => {
       dataToSubmit.notes = formData.notes || '';
       dataToSubmit.terms_and_conditions = formData.terms_and_conditions || '';
       dataToSubmit.subtotal = parseFloat(formData.subtotal) || sanitizedItems.reduce((s,i)=>s+(i.amount||0),0);
-      dataToSubmit.cgst_amount = parseFloat(formData.cgst_amount) || 0;
-      dataToSubmit.sgst_amount = parseFloat(formData.sgst_amount) || 0;
-      dataToSubmit.igst_amount = parseFloat(formData.igst_amount) || 0;
-      dataToSubmit.gst_amount = parseFloat(formData.gst_amount) || 0;
+      dataToSubmit.vat_amount = parseFloat(formData.vat_amount) || 0;
       dataToSubmit.other_charges = parseFloat(formData.other_charges) || 0;
       dataToSubmit.total_quantity = parseFloat(formData.total_quantity) || sanitizedItems.reduce((s,i)=>s+(i.quantity||0),0);
       dataToSubmit.total_weight = parseFloat(formData.total_weight) || 0;
-      dataToSubmit.total = parseFloat(formData.total) || (dataToSubmit.subtotal + dataToSubmit.gst_amount + dataToSubmit.other_charges);
+      dataToSubmit.total = parseFloat(formData.total) || (dataToSubmit.subtotal + dataToSubmit.vat_amount + dataToSubmit.other_charges);
       dataToSubmit.status = formData.status || 'draft';
       // Default currency if backend expects it
       dataToSubmit.currency = formData.currency || 'AED';
@@ -849,12 +830,12 @@ const QuotationForm = () => {
                       <label className={`block text-sm font-medium mb-1 ${
                         isDarkMode ? 'text-gray-300' : 'text-gray-700'
                       }`}>
-                        GST (%)
+                        VAT (%)
                       </label>
                       <input
                         type="number"
-                        value={item.gst_rate}
-                        onChange={(e) => updateItem(index, 'gst_rate', e.target.value)}
+                        value={item.vat_rate}
+                        onChange={(e) => updateItem(index, 'vat_rate', e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                           isDarkMode 
                             ? 'bg-gray-800 border-gray-600 text-white' 
@@ -1065,29 +1046,11 @@ const QuotationForm = () => {
                 </span>
               </div>
 
-              {formData.cgst_amount > 0 && (
+              {formData.vat_amount > 0 && (
                 <div className="flex justify-between">
-                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>CGST:</span>
+                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>VAT:</span>
                   <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                    {formatCurrency(formData.cgst_amount)}
-                  </span>
-                </div>
-              )}
-
-              {formData.sgst_amount > 0 && (
-                <div className="flex justify-between">
-                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>SGST:</span>
-                  <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                    {formatCurrency(formData.sgst_amount)}
-                  </span>
-                </div>
-              )}
-
-              {formData.igst_amount > 0 && (
-                <div className="flex justify-between">
-                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>IGST:</span>
-                  <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                    {formatCurrency(formData.igst_amount)}
+                    {formatCurrency(formData.vat_amount)}
                   </span>
                 </div>
               )}

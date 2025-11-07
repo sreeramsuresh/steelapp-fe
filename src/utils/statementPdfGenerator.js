@@ -74,7 +74,7 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">TRN: ${safe(comp.vatNumber || comp.gstNumber)}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">TRN: ${safe(comp.vatNumber)}</p>
         </div>
       </div>
 

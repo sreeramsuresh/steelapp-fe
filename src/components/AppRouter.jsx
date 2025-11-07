@@ -34,6 +34,22 @@ import Receivables from "../pages/Receivables";
 import CustomerPerspective from "../pages/CustomerPerspective";
 import ProtectedRoute from "./ProtectedRoute";
 
+// Import/Export Components
+import ImportExportDashboard from "../pages/ImportExportDashboard";
+import ImportOrderForm from "../pages/ImportOrderForm";
+import ImportOrderDetails from "../pages/ImportOrderDetails";
+import ExportOrderForm from "../pages/ExportOrderForm";
+import ExportOrderDetails from "../pages/ExportOrderDetails";
+
+// Finance Components
+import FinanceDashboard from "../pages/FinanceDashboard";
+
+// Business Components
+import BusinessDashboard from "../pages/BusinessDashboard";
+
+// Reports Components
+import ReportsDashboard from "../pages/ReportsDashboard";
+
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
@@ -119,46 +135,19 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         <Route
-          path="/customers"
+          path="/business"
           element={
             <ProtectedRoute user={user} requiredPermission="customers.read">
-              <CustomerManagement />
+              <BusinessDashboard />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/products"
-          element={
-            <ProtectedRoute user={user} requiredPermission="products.read">
-              <SteelProducts />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/calculator"
-          element={
-            <ProtectedRoute user={user}>
-              <PriceCalculator />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/analytics"
+          path="/reports"
           element={
             <ProtectedRoute user={user} requiredPermission="analytics.read">
-              <SalesAnalytics />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/trends"
-          element={
-            <ProtectedRoute user={user} requiredPermission="analytics.read">
-              <RevenueTrends />
+              <ReportsDashboard />
             </ProtectedRoute>
           }
         />
@@ -175,18 +164,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         
 
         <Route
-          path="/payables"
+          path="/finance"
           element={
             <ProtectedRoute user={user} requiredPermission="payables.read">
-              <Payables />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/receivables"
-          element={
-            <ProtectedRoute user={user} requiredPermission="payables.read">
-              <Receivables />
+              <FinanceDashboard />
             </ProtectedRoute>
           }
         />
@@ -353,6 +334,74 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="quotations.update">
               <QuotationForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Import/Export Routes */}
+        
+        {/* Main Import/Export Dashboard with Tabs */}
+        <Route
+          path="/import-export"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.read">
+              <ImportExportDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Import Order Forms & Details */}
+        <Route
+          path="/import-orders/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.create">
+              <ImportOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/import-orders/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.read">
+              <ImportOrderDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/import-orders/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.update">
+              <ImportOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Export Order Forms & Details */}
+        <Route
+          path="/export-orders/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="export_orders.create">
+              <ExportOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/export-orders/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="export_orders.read">
+              <ExportOrderDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/export-orders/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="export_orders.update">
+              <ExportOrderForm />
             </ProtectedRoute>
           }
         />

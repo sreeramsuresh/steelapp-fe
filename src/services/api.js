@@ -256,6 +256,16 @@ export const purchaseOrdersAPI = {
     return apiClient.get("/purchase-orders/number/next");
   },
 
+  // Get warehouses
+  getWarehouses: () => {
+    return apiClient.get("/warehouses");
+  },
+
+  // Seed warehouses
+  seedWarehouses: () => {
+    return apiClient.post("/warehouses/seed");
+  },
+
   // Generate and download PDF
   downloadPDF: async (id) => {
     const { apiService } = await import("./axiosApi");
@@ -481,6 +491,9 @@ export const quotationsAPI = {
 };
 
 // Suppliers API methods
+// Export apiClient as api for import/export services
+export const api = apiClient;
+
 export const suppliersAPI = {
   // Get all suppliers with pagination and filters
   getAll: (params = {}) => {

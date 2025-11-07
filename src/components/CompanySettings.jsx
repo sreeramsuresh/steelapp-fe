@@ -348,7 +348,7 @@ const CompanySettings = () => {
     phone: '',
     email: '',
     website: '',
-    gstNumber: '',
+    vatNumber: '',
     logo: null,
     bankDetails: {
       bankName: '',
@@ -679,7 +679,7 @@ const CompanySettings = () => {
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
-        vat_number: companyProfile.gstNumber,
+        vat_number: companyProfile.vatNumber,
         logo_url: newLogoUrl,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
@@ -725,7 +725,7 @@ const CompanySettings = () => {
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
-        vat_number: companyProfile.gstNumber,
+        vat_number: companyProfile.vatNumber,
         logo_url: null,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',

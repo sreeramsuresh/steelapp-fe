@@ -42,10 +42,6 @@ export const createSteelItem = () => ({
   taxableAmount: 0,
   amount: 0,
   vatRate: 5, // TRN Rate
-  cvat: 0,
-  svat: 0,
-  ivat: 0,
-  cess: 0,
   netAmount: 0,
   serialNumber: ''
 });
@@ -72,10 +68,6 @@ export const createInvoice = () => ({
   items: [createSteelItem()],
   subtotal: 0,
   vatAmount: 0, // VAT Amount
-  cvatAmount: 0,
-  svatAmount: 0,
-  ivatAmount: 0,
-  cessAmount: 0,
   totalQuantity: 0,
   totalWeight: 0,
   packingCharges: 0,

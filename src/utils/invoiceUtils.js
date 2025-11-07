@@ -109,6 +109,24 @@ export const generatePONumber = () => {
   return `PO-${yearMonth}-0001`;
 };
 
+export const generateQuotationNumber = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number comes from backend API
+  return `QT-${yearMonth}-0001`;
+};
+
+export const generateDeliveryNoteNumber = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const yearMonth = `${year}${month}`;
+  // Placeholder counter - real number comes from backend API
+  return `DN-${yearMonth}-0001`;
+};
+
 export const formatCurrency = (amount) => {
   // Handle NaN, null, undefined, or non-numeric values
   const numericAmount = parseFloat(amount);

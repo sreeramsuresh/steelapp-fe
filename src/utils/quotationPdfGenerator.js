@@ -58,7 +58,7 @@ const createQuotationElement = (q, company) => {
   const hasItemDiscount = items.some((it) => (parseFloat(it.discount) || 0) > 0);
 
   const subtotal = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
-  const gstAmount = items.reduce((s, it) => s + calculateTRN((parseFloat(it.amount) || 0), (parseFloat(it.gst_rate) || 0)), 0);
+  const gstAmount = items.reduce((s, it) => s + calculateTRN((parseFloat(it.amount) || 0), (parseFloat(it.vat_rate) || 0)), 0);
   const total = subtotal + gstAmount + (parseFloat(q.other_charges) || 0);
 
   el.innerHTML = `
@@ -74,7 +74,7 @@ const createQuotationElement = (q, company) => {
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">TRN: ${safe(comp.vatNumber || comp.gstNumber)}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">TRN: ${safe(comp.vatNumber)}</p>
         </div>
       </div>
 
@@ -106,15 +106,15 @@ const createQuotationElement = (q, company) => {
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Rate</th>
             ${hasItemDiscount ? '<th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Discount</th>' : ''}
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Amount</th>
-            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">GST %</th>
-            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">GST Amount</th>
+            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">VAT %</th>
+            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">VAT Amount</th>
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Total</th>
           </tr>
         </thead>
         <tbody>
           ${items.map((it) => {
             const amountNum = parseFloat(it.amount) || 0;
-            const gstRateNum = parseFloat(it.gst_rate) || 0;
+            const gstRateNum = parseFloat(it.vat_rate) || 0;
             const gstAmt = calculateTRN(amountNum, gstRateNum);
             const totalWithTax = amountNum + gstAmt;
             const spec = (it.specification && String(it.specification).trim()) || [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
@@ -147,7 +147,7 @@ const createQuotationElement = (q, company) => {
           <span>${formatCurrency(subtotal)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; padding:8px 0;">
-          <span>GST Amount:</span>
+          <span>VAT Amount:</span>
           <span>${formatCurrency(gstAmount)}</span>
         </div>
         ${(parseFloat(q.other_charges)||0) ? `

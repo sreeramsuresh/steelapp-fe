@@ -155,7 +155,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         className: isDarkMode
           ? "bg-blue-900/30 text-blue-300 border-blue-600"
           : "bg-blue-100 text-blue-800 border-blue-300",
-        label: "PROFORMA",
+        label: "PROFORMA INVOICE",
       },
       sent: {
         className: isDarkMode
@@ -506,19 +506,32 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               Manage and track all your invoices
             </p>
           </div>
-          {invoices.length > 0 && (
-            <button
-              onClick={handleBulkDownload}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-transparent ${
-                isDarkMode
-                  ? "text-white hover:text-gray-300"
-                  : "hover:bg-gray-100 text-gray-800"
-              }`}
-            >
-              <FileDown size={18} />
-              Download Page PDFs
-            </button>
-          )}
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            {authService.hasPermission('invoices', 'create') && (
+              <Link
+                to="/create-invoice"
+                className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+              >
+                <Plus size={18} />
+                Create Invoice
+              </Link>
+            )}
+            {invoices.length > 0 && (
+              <button
+                onClick={handleBulkDownload}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-transparent ${
+                  isDarkMode
+                    ? "text-white hover:text-gray-300"
+                    : "hover:bg-gray-100 text-gray-800"
+                }`}
+              >
+                <FileDown size={18} />
+                Download Page PDFs
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -638,6 +651,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             >
               <option value="all">All Status</option>
               <option value="draft">Draft</option>
+              <option value="proforma">Proforma Invoice</option>
               <option value="sent">Sent</option>
               <option value="paid">Paid</option>
               <option value="overdue">Overdue</option>

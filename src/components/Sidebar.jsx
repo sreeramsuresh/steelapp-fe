@@ -15,7 +15,18 @@ import {
   Move,
   Truck,
   ShoppingCart,
-  Quote
+  Quote,
+  Ship,
+  Globe,
+  FileCheck,
+  Anchor,
+  CreditCard,
+  DollarSign,
+  Scroll,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Award,
+  MapPin
 } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -42,17 +53,10 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       section: 'Finance',
       items: [
         {
-          name: 'Receivables',
-          path: '/receivables',
+          name: 'Finance Dashboard',
+          path: '/finance',
           icon: Banknote,
-          description: 'Customer invoices & receipts',
-          requiredPermission: 'payables.read'
-        },
-        {
-          name: 'Payables',
-          path: '/payables',
-          icon: Banknote,
-          description: 'Vendor PO payments',
+          description: 'Manage payables and receivables',
           requiredPermission: 'payables.read'
         }
       ]
@@ -61,17 +65,10 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       section: 'Invoices',
       items: [
         {
-          name: 'Create Invoice',
-          path: '/create-invoice',
-          icon: Plus,
-          description: 'Create new invoice',
-          requiredPermission: 'invoices.create'
-        },
-        {
           name: 'All Invoices',
           path: '/invoices',
           icon: ListIcon,
-          description: 'View all invoices',
+          description: 'View and manage invoices',
           badge: invoiceCount,
           requiredPermission: 'invoices_all.read'
         }
@@ -110,33 +107,30 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: ShoppingCart,
           description: 'Manage purchase orders',
           requiredPermission: 'purchase_orders.read'
-        },
-        
+        }
+      ]
+    },
+    {
+      section: 'Trade Operations',
+      items: [
+        {
+          name: 'Import / Export',
+          path: '/import-export',
+          icon: Ship,
+          description: 'Manage international trade operations',
+          requiredPermission: 'import_orders.read'
+        }
       ]
     },
     {
       section: 'Business',
       items: [
         {
-          name: 'Customers',
-          path: '/customers',
+          name: 'Business Management',
+          path: '/business',
           icon: Users,
-          description: 'Manage customers',
+          description: 'Manage customers, products, and pricing',
           requiredPermission: 'customers.read'
-        },
-        {
-          name: 'Steel Products',
-          path: '/products',
-          icon: Package,
-          description: 'Manage steel inventory',
-          requiredPermission: 'products.read'
-        },
-        
-        {
-          name: 'Price Calculator',
-          path: '/calculator',
-          icon: Calculator,
-          description: 'Steel price calculator'
         }
       ]
     },
@@ -144,17 +138,10 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       section: 'Reports',
       items: [
         {
-          name: 'Sales Analytics',
-          path: '/analytics',
+          name: 'Reports & Analytics',
+          path: '/reports',
           icon: BarChart3,
-          description: 'View sales reports',
-          requiredPermission: 'analytics.read'
-        },
-        {
-          name: 'Revenue Trends',
-          path: '/trends',
-          icon: TrendingUp,
-          description: 'Revenue analytics',
+          description: 'Business insights and performance analytics',
           requiredPermission: 'analytics.read'
         }
       ]

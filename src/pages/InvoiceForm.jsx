@@ -6,7 +6,7 @@ import React, {
   memo,
   useRef,
 } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Plus,
   Trash2,
@@ -17,6 +17,7 @@ import {
   X,
   AlertTriangle,
   Info,
+  ArrowLeft,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -567,6 +568,7 @@ const LoadingSpinner = ({ size = "md" }) => {
 
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
   // Debounce timeout refs for charges fields
@@ -611,21 +613,38 @@ const InvoiceForm = ({ onSave }) => {
   const withStatusPrefix = (num, status) => {
     const desired =
       status === "draft" ? "DFT" : status === "proforma" ? "PFM" : "INV";
-    if (!num || typeof num !== "string")
-      return `${desired}-${generateInvoiceNumber()
-        .split("-")
-        .slice(1)
-        .join("-")}`;
-    const dashIdx = num.indexOf("-");
-    if (dashIdx === -1) {
-      // No dash, prepend desired prefix
-      // Avoid duplicate desired prefix
-      const cleaned = num.replace(/^(INV|DFT|PFM)/, "").replace(/^-/, "");
-      return `${desired}-${
-        cleaned || generateInvoiceNumber().split("-").slice(1).join("-")
-      }`;
+    
+    if (!num || typeof num !== "string") {
+      // Generate the base number format YYYYMM-NNNN from backend API
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      return `${desired}-${year}${month}-0001`;
     }
-    return `${desired}${num.slice(dashIdx)}`;
+    
+    // Handle numbers that already have the correct format: PREFIX-YYYYMM-NNNN
+    const formatMatch = num.match(/^(DFT|PFM|INV)-(\d{6}-\d{4})$/);
+    if (formatMatch) {
+      // Replace the prefix but keep the YYYYMM-NNNN part
+      return `${desired}-${formatMatch[2]}`;
+    }
+    
+    // Handle legacy format or partial numbers - try to extract meaningful parts
+    const parts = num.split('-');
+    if (parts.length >= 2) {
+      // If it looks like YYYYMM-NNNN format, use it
+      const datePart = parts[parts.length - 2];
+      const numberPart = parts[parts.length - 1];
+      if (/^\d{6}$/.test(datePart) && /^\d{4}$/.test(numberPart)) {
+        return `${desired}-${datePart}-${numberPart}`;
+      }
+    }
+    
+    // Fallback: generate new format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    return `${desired}-${year}${month}-0001`;
   };
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
@@ -845,7 +864,7 @@ const InvoiceForm = ({ onSave }) => {
             name: selectedCustomer.name,
             email: selectedCustomer.email || "",
             phone: selectedCustomer.phone || "",
-            // Prefer uploaded TRN if present; fallback to legacy vat_number
+            // Use TRN number from customer data
             vatNumber: selectedCustomer.trn_number || selectedCustomer.vat_number || "",
             address: {
               street: selectedCustomer.address?.street || "",
@@ -903,6 +922,7 @@ const InvoiceForm = ({ onSave }) => {
           thickness: getThickness(product),
           // unit removed from invoice UI
           rate: product.selling_price || 0,
+          vatRate: newItems[index].vatRate || 5, // Preserve existing VAT rate or default to 5%
           amount: calculateItemAmount(
             newItems[index].quantity,
             product.selling_price || 0
@@ -1208,20 +1228,38 @@ const InvoiceForm = ({ onSave }) => {
         <Card className="p-4 sm:p-6">
           {/* Header */}
           <div
-            className={`sticky top-0 z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
+            className={`sticky top-0 z-10 flex flex-col gap-4 mb-6 pb-4 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
               isDarkMode
                 ? "bg-gray-800 border-gray-600"
                 : "bg-white border-gray-200"
             }`}
           >
-            <h1
-              className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-0 ${
-                isDarkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {id ? "Edit Invoice" : "Create Invoice"}
-            </h1>
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/invoices")}
+                className={`p-2 rounded-lg border transition-colors ${
+                  isDarkMode 
+                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h1
+                  className={`text-xl sm:text-2xl font-bold ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {id ? "📝 Edit Invoice" : "📄 Create Invoice"}
+                </h1>
+                <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {id ? 'Update invoice details' : 'Create a new invoice for your customer'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -1270,6 +1308,7 @@ const InvoiceForm = ({ onSave }) => {
                   ? "Saving..."
                   : "Save Invoice"}
               </Button>
+              </div>
             </div>
           </div>
 
@@ -1349,7 +1388,7 @@ const InvoiceForm = ({ onSave }) => {
                       }
                     >
                       <option value="draft">Draft</option>
-                      <option value="proforma">Proforma</option>
+                      <option value="proforma">Proforma Invoice</option>
                       <option value="paid">Paid (Tax Invoice)</option>
                       <option value="overdue">Overdue</option>
                     </Select>
@@ -1656,7 +1695,7 @@ const InvoiceForm = ({ onSave }) => {
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                        style={{ width: "50%" }}
+                        style={{ width: "40%" }}
                       >
                         Product
                       </th>
@@ -1664,7 +1703,7 @@ const InvoiceForm = ({ onSave }) => {
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                        style={{ width: "12%" }}
+                        style={{ width: "10%" }}
                       >
                         Qty
                       </th>
@@ -1672,9 +1711,17 @@ const InvoiceForm = ({ onSave }) => {
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                        style={{ width: "14%" }}
+                        style={{ width: "12%" }}
                       >
                         Rate
+                      </th>
+                      <th
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                          isDarkMode ? "text-gray-100" : "text-gray-700"
+                        }`}
+                        style={{ width: "10%" }}
+                      >
+                        VAT %
                       </th>
                       <th
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
@@ -1829,6 +1876,26 @@ const InvoiceForm = ({ onSave }) => {
                             }
                             min="0"
                             step="0.01"
+                            className="w-full text-right"
+                          />
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <Input
+                            type="number"
+                            value={item.vatRate || ""}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "vatRate",
+                                e.target.value === ""
+                                  ? ""
+                                  : parseFloat(e.target.value) || ""
+                              )
+                            }
+                            min="0"
+                            max="15"
+                            step="0.01"
+                            placeholder="5.00"
                             className="w-full text-right"
                           />
                         </td>
@@ -1999,7 +2066,24 @@ const InvoiceForm = ({ onSave }) => {
                           min="0"
                           step="0.01"
                         />
-                        {/* Removed VAT % field */}
+                        <Input
+                          label="VAT %"
+                          type="number"
+                          value={item.vatRate || ""}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "vatRate",
+                              e.target.value === ""
+                                ? ""
+                                : parseFloat(e.target.value) || ""
+                            )
+                          }
+                          min="0"
+                          max="15"
+                          step="0.01"
+                          placeholder="5.00"
+                        />
                       </div>
 
                       <div

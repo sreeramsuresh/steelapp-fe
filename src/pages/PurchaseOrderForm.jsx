@@ -18,6 +18,167 @@ import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
 import { supplierService } from "../services/supplierService";
 import { notificationService } from "../services/notificationService";
+import { PAYMENT_METHODS } from "../services/payablesService";
+
+// Payment Form Component
+const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }) => {
+  const [formData, setFormData] = useState({
+    payment_date: new Date().toISOString().slice(0, 10),
+    amount: '',
+    payment_method: PAYMENT_METHODS[0],
+    reference_number: '',
+    notes: ''
+  });
+
+  const maxAmount = totalAmount - paidAmount;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const amount = parseFloat(formData.amount);
+    
+    if (!amount || amount <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+    
+    if (amount > maxAmount) {
+      alert(`Amount cannot exceed outstanding balance of ${formatCurrency(maxAmount)}`);
+      return;
+    }
+    
+    onSubmit(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className={`w-full max-w-md p-6 rounded-xl shadow-xl ${
+        isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
+      }`}>
+        <h3 className="text-lg font-semibold mb-4">Add Payment</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Payment Date
+            </label>
+            <input
+              type="date"
+              value={formData.payment_date}
+              onChange={(e) => setFormData({...formData, payment_date: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+              required
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Amount (Max: {formatCurrency(maxAmount)})
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={formData.amount}
+              onChange={(e) => setFormData({...formData, amount: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+              placeholder="0.00"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Payment Method
+            </label>
+            <select
+              value={formData.payment_method}
+              onChange={(e) => setFormData({...formData, payment_method: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              {PAYMENT_METHODS.map(method => (
+                <option key={method} value={method}>{method}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Reference Number
+            </label>
+            <input
+              type="text"
+              value={formData.reference_number}
+              onChange={(e) => setFormData({...formData, reference_number: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+              placeholder="Transaction reference, cheque number, etc."
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Notes
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+              rows={2}
+              placeholder="Additional notes about this payment"
+            />
+          </div>
+          
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={onCancel}
+              className={`px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              Add Payment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const Autocomplete = ({
   options = [],
@@ -267,6 +428,8 @@ const PurchaseOrderForm = () => {
     total: 0,
     notes: "",
     terms: "",
+    paymentTerms: "Net 30",
+    dueDate: "",
     currency: 'AED',
     supplierContactName: '',
     supplierContactEmail: '',
@@ -280,7 +443,73 @@ const PurchaseOrderForm = () => {
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [searchInputs, setSearchInputs] = useState({});
+  const [payments, setPayments] = useState([]);
+  const [paymentStatus, setPaymentStatus] = useState('unpaid');
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   
+  // Payment calculation functions
+  const updatePaymentStatus = (paymentList, total) => {
+    const totalPaid = paymentList.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const outstanding = Math.max(0, total - totalPaid);
+    
+    let status = 'unpaid';
+    if (outstanding === 0 && total > 0) status = 'paid';
+    else if (outstanding < total && outstanding > 0) status = 'partially_paid';
+    
+    setPaymentStatus(status);
+    return { totalPaid, outstanding, status };
+  };
+
+  const handleAddPayment = (paymentData) => {
+    const newPayment = {
+      id: Date.now().toString(),
+      ...paymentData,
+      created_at: new Date().toISOString(),
+      voided: false
+    };
+    
+    const updatedPayments = [...payments, newPayment];
+    setPayments(updatedPayments);
+    updatePaymentStatus(updatedPayments, purchaseOrder.total);
+    setShowPaymentForm(false);
+  };
+
+  const handleVoidPayment = (paymentId) => {
+    const updatedPayments = payments.map(p => 
+      p.id === paymentId ? { ...p, voided: true, voided_at: new Date().toISOString() } : p
+    );
+    setPayments(updatedPayments);
+    updatePaymentStatus(updatedPayments, purchaseOrder.total);
+  };
+
+  const calculateDueDate = (poDate, terms) => {
+    if (!poDate || !terms) return '';
+    const date = new Date(poDate);
+    const match = terms.match(/(\d+)/);
+    if (match) {
+      date.setDate(date.getDate() + parseInt(match[1]));
+      return date.toISOString().slice(0, 10);
+    }
+    return '';
+  };
+
+  // Auto-calculate due date when PO date or payment terms change
+  useEffect(() => {
+    if (purchaseOrder.poDate && purchaseOrder.paymentTerms) {
+      const calculatedDueDate = calculateDueDate(purchaseOrder.poDate, purchaseOrder.paymentTerms);
+      if (calculatedDueDate && calculatedDueDate !== purchaseOrder.dueDate) {
+        handleInputChange('dueDate', calculatedDueDate);
+      }
+    }
+  }, [purchaseOrder.poDate, purchaseOrder.paymentTerms]);
+
+  // Update payment status when total changes
+  useEffect(() => {
+    if (payments.length > 0) {
+      updatePaymentStatus(payments, purchaseOrder.total);
+    }
+  }, [purchaseOrder.total]);
+
   // Normalize date value for <input type="date">
   const toDateInput = (d) => {
     if (!d) return '';
@@ -357,11 +586,19 @@ const PurchaseOrderForm = () => {
             amount: it.amount || 0,
           })) : prev.items,
           subtotal: data.subtotal || 0,
-          vatAmount: data.gst_amount || 0,
+          vatAmount: data.vat_amount || data.tax_amount || 0,
           total: data.total || 0,
           notes: data.notes || '',
           terms: data.terms || '',
+          paymentTerms: data.payment_terms || prev.paymentTerms,
+          dueDate: toDateInput(data.due_date) || '',
         }));
+        
+        // Load existing payments
+        if (data.payments && Array.isArray(data.payments)) {
+          setPayments(data.payments);
+          updatePaymentStatus(data.payments, data.total || 0);
+        }
         
         // Set warehouse if available
         if (data.warehouse_id) {
@@ -396,16 +633,36 @@ const PurchaseOrderForm = () => {
 
   const fetchWarehouses = async () => {
     try {
-      // Sample warehouse data matching the warehouse management component
-      const sampleWarehouses = [
-        { id: 1, name: 'Main Warehouse', city: 'Sharjah', isActive: true },
-        { id: 2, name: 'Dubai Branch Warehouse', city: 'Dubai', isActive: true },
-        { id: 3, name: 'Abu Dhabi Warehouse', city: 'Abu Dhabi', isActive: true }
-      ];
-      setWarehouses(sampleWarehouses.filter(w => w.isActive));
+      // Try to fetch real warehouses from API first
+      const response = await purchaseOrdersAPI.getWarehouses();
+      const apiWarehouses = response?.warehouses || response?.data || response;
+      
+      if (apiWarehouses && Array.isArray(apiWarehouses) && apiWarehouses.length > 0) {
+        setWarehouses(apiWarehouses.filter(w => w.is_active !== false));
+        return;
+      }
     } catch (error) {
-      console.warn('Failed to fetch warehouses:', error);
+      console.warn('Failed to fetch warehouses from API:', error);
+      
+      // Try to seed warehouses if they don't exist
+      try {
+        console.log('Attempting to seed warehouses...');
+        await purchaseOrdersAPI.seedWarehouses();
+        notificationService.success('Warehouses initialized successfully. Please try again.');
+        return;
+      } catch (seedError) {
+        console.warn('Failed to seed warehouses:', seedError);
+      }
     }
+    
+    // Fallback to sample warehouse data if API fails
+    const sampleWarehouses = [
+      { id: 'WH-MAIN', name: 'Main Warehouse', city: 'Sharjah', isActive: true },
+      { id: 'WH-DBX', name: 'Dubai Branch Warehouse', city: 'Dubai', isActive: true },
+      { id: 'WH-AUH', name: 'Abu Dhabi Warehouse', city: 'Abu Dhabi', isActive: true }
+    ];
+    setWarehouses(sampleWarehouses.filter(w => w.isActive));
+    notificationService.warning('Using offline warehouse data. Some features may not work properly.');
   };
 
   // Get next PO number from server (only for new purchase orders)
@@ -697,7 +954,10 @@ const PurchaseOrderForm = () => {
       }
 
       // Get warehouse details
-      const selectedWarehouseDetails = warehouses.find(w => w.id.toString() === selectedWarehouse);
+      const selectedWarehouseDetails = warehouses.find(w => w.id?.toString() === selectedWarehouse);
+      
+      // If using sample data, remove warehouse_id to avoid FK constraint error
+      const useApiWarehouse = selectedWarehouseDetails?.id && !selectedWarehouseDetails.id.toString().startsWith('WH-');
 
       // Transform data to match backend expectations (snake_case)
   const transformedData = {
@@ -711,17 +971,32 @@ const PurchaseOrderForm = () => {
     status: poData.status,
         stock_status: poData.stockStatus,
         currency: poData.currency || 'AED',
-        payment_terms: poData.terms || null,
+        payment_terms: poData.paymentTerms || poData.terms || null,
+        due_date: poData.dueDate || null,
         supplier_contact_name: poData.supplierContactName || null,
         supplier_contact_email: poData.supplierContactEmail || null,
         supplier_contact_phone: poData.supplierContactPhone || null,
-        warehouse_id: selectedWarehouse,
+        // Only include warehouse_id if it's a real warehouse from API
+        ...(useApiWarehouse ? { warehouse_id: parseInt(selectedWarehouse) } : {}),
         warehouse_name: selectedWarehouseDetails ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})` : '',
         notes: poData.notes || null,
         terms: poData.terms || null,
         subtotal: parseFloat(poData.subtotal) || 0,
-        gst_amount: parseFloat(poData.vatAmount) || 0,
+        vat_amount: parseFloat(poData.vatAmount) || 0,
         total: parseFloat(poData.total) || 0,
+        // Include payment data
+        payments: payments.map(payment => ({
+          id: payment.id,
+          payment_date: payment.payment_date,
+          amount: parseFloat(payment.amount) || 0,
+          payment_method: payment.payment_method,
+          reference_number: payment.reference_number || null,
+          notes: payment.notes || null,
+          voided: payment.voided || false,
+          voided_at: payment.voided_at || null,
+          created_at: payment.created_at
+        })),
+        payment_status: paymentStatus,
         // Transform items array
         items: poData.items.map(item => ({
           product_type: item.productType || item.name || '',
@@ -802,7 +1077,15 @@ const PurchaseOrderForm = () => {
       console.log('Detailed error:', errorData);
       console.log('Error messages:', errorData?.errors);
       
-      setErrors({ submit: errorMessage });
+      // Handle specific warehouse foreign key error
+      if (errorData?.message && errorData.message.includes('Warehouse with ID')) {
+        notificationService.error(
+          'Database setup required: Warehouses not initialized. ' +
+          'Please start PostgreSQL service and refresh the page to auto-initialize warehouses.'
+        );
+      } else {
+        setErrors({ submit: errorMessage });
+      }
     } finally {
       setLoading(false);
     }
@@ -1451,6 +1734,170 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
 
+          {/* Payment Details */}
+          <div className={`p-6 rounded-xl border mt-6 ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                💰 Payment Details
+              </h2>
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                paymentStatus === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {paymentStatus === 'paid' ? 'Fully Paid' :
+                 paymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+              </div>
+            </div>
+            
+            {/* Payment Terms and Due Date */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Payment Terms
+                </label>
+                <select
+                  value={purchaseOrder.paymentTerms}
+                  onChange={(e) => handleInputChange("paymentTerms", e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  <option value="Net 7">Net 7 days</option>
+                  <option value="Net 15">Net 15 days</option>
+                  <option value="Net 30">Net 30 days</option>
+                  <option value="Net 60">Net 60 days</option>
+                  <option value="Net 90">Net 90 days</option>
+                  <option value="Due on Receipt">Due on Receipt</option>
+                  <option value="Advance Payment">Advance Payment</option>
+                  <option value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</option>
+                  <option value="Custom">Custom Terms</option>
+                </select>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Due Date
+                </label>
+                <input
+                  type="date"
+                  value={purchaseOrder.dueDate}
+                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Payment Actions
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentForm(true)}
+                  className="w-full px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <Plus size={16} />
+                  Add Payment
+                </button>
+              </div>
+            </div>
+            
+            {/* Payment Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Amount</div>
+                <div className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {formatCurrency(purchaseOrder.total)}
+                </div>
+              </div>
+              <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Paid Amount</div>
+                <div className="text-lg font-semibold text-green-600">
+                  {formatCurrency(payments.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0))}
+                </div>
+              </div>
+              <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Outstanding</div>
+                <div className="text-lg font-semibold text-red-600">
+                  {formatCurrency(Math.max(0, purchaseOrder.total - payments.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)))}
+                </div>
+              </div>
+              <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Payment Progress</div>
+                <div className="w-full bg-gray-300 rounded-full h-2 mt-1">
+                  <div 
+                    className="bg-teal-600 h-2 rounded-full transition-all duration-300" 
+                    style={{
+                      width: `${Math.min(100, (payments.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0) / purchaseOrder.total) * 100)}%`
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Payment History */}
+            {payments.length > 0 && (
+              <div>
+                <h3 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Payment History ({payments.filter(p => !p.voided).length} payments)
+                </h3>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {payments.map((payment) => (
+                    <div 
+                      key={payment.id} 
+                      className={`p-3 rounded-lg border flex justify-between items-center ${
+                        payment.voided 
+                          ? `opacity-60 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-300'}` 
+                          : isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div>
+                        <div className={`font-medium ${payment.voided ? 'line-through' : ''} ${
+                          isDarkMode ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {formatCurrency(payment.amount)} 
+                          {payment.voided && <span className="text-red-500 ml-2">(VOIDED)</span>}
+                        </div>
+                        <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {payment.payment_method} • {payment.payment_date} 
+                          {payment.reference_number && ` • Ref: ${payment.reference_number}`}
+                        </div>
+                        {payment.notes && (
+                          <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                            {payment.notes}
+                          </div>
+                        )}
+                      </div>
+                      {!payment.voided && (
+                        <button
+                          type="button"
+                          onClick={() => handleVoidPayment(payment.id)}
+                          className="text-red-500 hover:text-red-700 text-sm underline"
+                        >
+                          Void
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {payments.length === 0 && (
+              <div className={`text-center py-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <AlertCircle size={24} className="mx-auto mb-2 opacity-50" />
+                <p>No payments recorded yet</p>
+                <p className="text-sm">Click "Add Payment" to record advance payments or deposits</p>
+              </div>
+            )}
+          </div>
+
           {/* Notes and Terms */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className={`p-6 rounded-xl border ${
@@ -1493,6 +1940,17 @@ const PurchaseOrderForm = () => {
           </div>
         </div>
       </div>
+      
+      {/* Payment Form Modal */}
+      {showPaymentForm && (
+        <PaymentForm
+          onSubmit={handleAddPayment}
+          onCancel={() => setShowPaymentForm(false)}
+          totalAmount={purchaseOrder.total}
+          paidAmount={payments.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)}
+          isDarkMode={isDarkMode}
+        />
+      )}
     </div>
   );
 };
