@@ -784,13 +784,31 @@ const InvoiceForm = ({ onSave }) => {
         const list = res?.warehouses || res?.data?.warehouses || [];
         const active = list.filter((w) => w.is_active !== false);
         setWarehouses(active);
+
+        // Set default warehouse (Sharjah or first warehouse) for new invoices
+        if (!id && active.length > 0 && !invoice.warehouseId) {
+          // Try to find Sharjah warehouse, otherwise use first one
+          const sharjahWarehouse = active.find(w =>
+            w.city?.toLowerCase().includes('sharjah') ||
+            w.name?.toLowerCase().includes('sharjah')
+          );
+          const defaultWarehouse = sharjahWarehouse || active[0];
+
+          setInvoice((prev) => ({
+            ...prev,
+            warehouseId: defaultWarehouse.id.toString(),
+            warehouseName: defaultWarehouse.name || "",
+            warehouseCode: defaultWarehouse.code || "",
+            warehouseCity: defaultWarehouse.city || "",
+          }));
+        }
       } catch (err) {
         console.warn("Failed to fetch warehouses:", err);
         setWarehouses([]);
       }
     };
     fetchWarehouses();
-  }, []);
+  }, [id, invoice.warehouseId]);
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(

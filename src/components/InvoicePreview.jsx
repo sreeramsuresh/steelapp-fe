@@ -797,7 +797,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse:</div>
                       {invoice.warehouseName && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseName}</div>}
                       {invoice.warehouseCode && (
-                        <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>WAREHOUSE NO:{invoice.warehouseCode}</div>
+                        <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse No: {invoice.warehouseCode}</div>
                       )}
                       {invoice.warehouseCity && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseCity}</div>}
                     </div>
@@ -1297,7 +1297,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse:</div>
                                 {invoice.warehouseName && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseName}</div>}
                                 {invoice.warehouseCode && (
-                                  <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>WAREHOUSE NO:{invoice.warehouseCode}</div>
+                                  <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse No: {invoice.warehouseCode}</div>
                                 )}
                                 {invoice.warehouseCity && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseCity}</div>}
                               </div>

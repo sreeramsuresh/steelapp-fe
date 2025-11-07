@@ -621,7 +621,7 @@ const createInvoiceElement = (invoice, company) => {
                 ? `<div style="margin: 4px 0 !important; font-size: 13pt;">
                     <strong>Warehouse:</strong><br/>
                     ${safe(invoice.warehouseName || '')}<br/>
-                    ${invoice.warehouseCode ? `WAREHOUSE NO:${safe(invoice.warehouseCode)}` : ''}${invoice.warehouseCity ? '<br/>' : ''}
+                    ${invoice.warehouseCode ? `Warehouse No: ${safe(invoice.warehouseCode)}` : ''}${invoice.warehouseCity ? '<br/>' : ''}
                     ${safe(invoice.warehouseCity || '')}
                   </div>`
                 : ''
