@@ -609,6 +609,11 @@ const InvoiceForm = ({ onSave }) => {
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
 
+  // Status transition management
+  const [originalStatus, setOriginalStatus] = useState(null);
+  const [showStatusConfirmDialog, setShowStatusConfirmDialog] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState(null);
+
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
     const desired =
@@ -646,6 +651,49 @@ const InvoiceForm = ({ onSave }) => {
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     return `${desired}-${year}${month}-0001`;
   };
+
+  /**
+   * ⚠️ INVOICE STATUS TRANSITION RULES ⚠️
+   *
+   * ALLOWED TRANSITIONS:
+   * - draft → proforma (convert draft to quote)
+   * - draft → paid (direct finalization)
+   * - proforma → paid (convert quote to final invoice after payment)
+   *
+   * FORBIDDEN TRANSITIONS:
+   * - paid → draft (cannot un-finalize)
+   * - paid → proforma (cannot un-finalize)
+   * - Any backward movement from paid status
+   *
+   * INVENTORY IMPACT BY STATUS:
+   * - draft: NO inventory impact (work in progress)
+   * - proforma: NO inventory impact (quote only, no commitment)
+   * - paid (Final Tax Invoice): YES - inventory deducted, revenue recorded
+   *
+   * Backend should enforce inventory deduction ONLY when status changes to 'paid'
+   */
+  const ALLOWED_STATUS_TRANSITIONS = {
+    'draft': ['proforma', 'paid'],
+    'proforma': ['paid'],
+    'paid': [] // Final Tax Invoice cannot be changed (requires credit note)
+  };
+
+  const isValidStatusTransition = (fromStatus, toStatus) => {
+    if (fromStatus === toStatus) return true;
+    const allowedTargets = ALLOWED_STATUS_TRANSITIONS[fromStatus] || [];
+    return allowedTargets.includes(toStatus);
+  };
+
+  const needsConfirmation = (fromStatus, toStatus) => {
+    // Require confirmation when moving to 'paid' (Final Tax Invoice)
+    return toStatus === 'paid' && fromStatus !== 'paid';
+  };
+
+  const canEditInvoice = (status) => {
+    // Cannot edit Final Tax Invoice (paid status) - requires credit note
+    return status !== 'paid';
+  };
+
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
     newInvoice.invoiceNumber = withStatusPrefix(
@@ -799,6 +847,13 @@ const InvoiceForm = ({ onSave }) => {
       }));
     }
   }, [nextInvoiceData, id]);
+
+  // Track original status when invoice is loaded/changed
+  useEffect(() => {
+    if (invoice.status && !originalStatus) {
+      setOriginalStatus(invoice.status);
+    }
+  }, [invoice.status, originalStatus]);
 
   useEffect(() => {
     if (existingInvoice && id) {
@@ -1093,6 +1148,58 @@ const InvoiceForm = ({ onSave }) => {
     }));
   }, []);
 
+  // Status change handler with validation and confirmation
+  const handleStatusChange = (newStatus) => {
+    const currentStatus = invoice.status || 'draft';
+
+    // Check if transition is valid
+    if (!isValidStatusTransition(currentStatus, newStatus)) {
+      notificationService.error(
+        `Cannot change from ${currentStatus.toUpperCase()} to ${newStatus.toUpperCase()}. ` +
+        `Final Tax Invoice cannot be changed back to Draft or Proforma.`
+      );
+      return;
+    }
+
+    // Check if confirmation is needed (moving to Final Tax Invoice)
+    if (needsConfirmation(currentStatus, newStatus)) {
+      setPendingStatusChange(newStatus);
+      setShowStatusConfirmDialog(true);
+      return;
+    }
+
+    // Apply status change directly
+    applyStatusChange(newStatus);
+  };
+
+  const applyStatusChange = (newStatus) => {
+    setInvoice((prev) => ({
+      ...prev,
+      status: newStatus,
+      invoiceNumber: withStatusPrefix(prev.invoiceNumber, newStatus),
+    }));
+
+    // Show notification about inventory impact
+    if (newStatus === 'paid') {
+      notificationService.info(
+        'Status changed to Final Tax Invoice. Inventory will be deducted when you save.'
+      );
+    }
+  };
+
+  const handleConfirmStatusChange = () => {
+    if (pendingStatusChange) {
+      applyStatusChange(pendingStatusChange);
+      setPendingStatusChange(null);
+    }
+    setShowStatusConfirmDialog(false);
+  };
+
+  const handleCancelStatusChange = () => {
+    setPendingStatusChange(null);
+    setShowStatusConfirmDialog(false);
+  };
+
   const handleSave = async () => {
     try {
       // Convert empty string values to numbers before saving
@@ -1296,8 +1403,9 @@ const InvoiceForm = ({ onSave }) => {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={savingInvoice || updatingInvoice}
+                disabled={savingInvoice || updatingInvoice || (id && invoice.status === 'paid')}
                 className="w-full sm:w-auto"
+                title={id && invoice.status === 'paid' ? 'Final Tax Invoice cannot be edited. Create a credit note to reverse.' : ''}
               >
                 {savingInvoice || updatingInvoice ? (
                   <LoadingSpinner size="sm" />
@@ -1306,7 +1414,7 @@ const InvoiceForm = ({ onSave }) => {
                 )}
                 {savingInvoice || updatingInvoice
                   ? "Saving..."
-                  : "Save Invoice"}
+                  : (id && invoice.status === 'paid' ? "Cannot Edit Final Invoice" : "Save Invoice")}
               </Button>
               </div>
             </div>
@@ -1376,21 +1484,18 @@ const InvoiceForm = ({ onSave }) => {
                     <Select
                       label="Invoice Status"
                       value={invoice.status || "draft"}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          status: e.target.value,
-                          invoiceNumber: withStatusPrefix(
-                            prev.invoiceNumber,
-                            e.target.value
-                          ),
-                        }))
-                      }
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      disabled={!canEditInvoice(invoice.status)}
                     >
                       <option value="draft">Draft Invoice</option>
                       <option value="proforma">Proforma Invoice</option>
                       <option value="paid">Final Tax Invoice</option>
                     </Select>
+                    {invoice.status === 'paid' && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                        ⚠️ Final Tax Invoice cannot be edited. Create a credit note to reverse.
+                      </p>
+                    )}
                     <Select
                       label="Payment Mode"
                       value={invoice.modeOfPayment || ""}
@@ -1553,6 +1658,26 @@ const InvoiceForm = ({ onSave }) => {
                         )}
                       </div>
                     </div>
+                  )}
+
+                  {/* Final Tax Invoice Warning */}
+                  {invoice.status === 'paid' && (
+                    <Alert variant="warning">
+                      <div>
+                        <h4 className="font-medium mb-1 flex items-center">
+                          <AlertTriangle size={18} className="mr-2" />
+                          Final Tax Invoice - Editing Restricted
+                        </h4>
+                        <p className="text-sm mb-2">
+                          This is a <strong>Final Tax Invoice</strong> with legal and tax implications.
+                          Editing is restricted to maintain audit trails and comply with regulations.
+                        </p>
+                        <p className="text-sm">
+                          ℹ️ To make changes: Create a <strong>Credit Note</strong> to reverse this invoice,
+                          then create a new invoice with the correct details.
+                        </p>
+                      </div>
+                    </Alert>
                   )}
 
                   {/* Trade License Status Alert */}
@@ -2340,6 +2465,62 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         </Card>
       </div>
+
+      {/* Status Change Confirmation Dialog */}
+      {showStatusConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <div className="flex items-start mb-4">
+              <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Confirm Status Change to Final Tax Invoice
+                </h3>
+                <p className="text-sm mb-4">
+                  You are about to change this invoice to <strong>Final Tax Invoice</strong> (Paid status).
+                </p>
+                <div className={`text-sm p-3 rounded ${
+                  isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"
+                }`}>
+                  <p className="font-medium mb-2">⚠️ This action will:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Mark the invoice as legally binding</li>
+                    <li>Deduct inventory when you save</li>
+                    <li>Record revenue in accounts</li>
+                    <li>Generate official tax invoice number (INV-)</li>
+                    <li><strong>Cannot be reversed</strong> (requires credit note)</li>
+                  </ul>
+                </div>
+                <p className="text-sm mt-4">
+                  <strong>Have you received payment?</strong> Only proceed if payment has been confirmed.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={handleCancelStatusChange}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmStatusChange}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Yes, Confirm Payment Received
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
