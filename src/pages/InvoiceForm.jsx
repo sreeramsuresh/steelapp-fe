@@ -1166,13 +1166,17 @@ const InvoiceForm = ({ onSave }) => {
   const handleStatusChange = (newStatus) => {
     const currentStatus = invoice.status || 'draft';
 
-    // Check if transition is valid
-    if (!isValidStatusTransition(currentStatus, newStatus)) {
-      notificationService.error(
-        `Cannot change from ${currentStatus.toUpperCase()} to ${newStatus.toUpperCase()}. ` +
-        `Final Tax Invoice cannot be changed back to Draft or Proforma.`
-      );
-      return;
+    // For new invoices (no id), allow any status selection freely
+    // Only apply transition validation for existing invoices
+    if (id) {
+      // Check if transition is valid for existing invoices
+      if (!isValidStatusTransition(currentStatus, newStatus)) {
+        notificationService.error(
+          `Cannot change from ${currentStatus.toUpperCase()} to ${newStatus.toUpperCase()}. ` +
+          `Final Tax Invoice cannot be changed back to Draft or Proforma.`
+        );
+        return;
+      }
     }
 
     // Check if confirmation is needed (moving to Final Tax Invoice)
