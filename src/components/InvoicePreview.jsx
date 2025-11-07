@@ -375,8 +375,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 </div>
                 <div className="w-full bg-teal-600 text-white flex justify-center mb-4 py-2">
                   <h2 className="text-lg font-bold tracking-wide">
-                    {invoice.status === 'draft' ? 'DRAFT INVOICE' :
-                     invoice.status === 'proforma' ? 'PROFORMA INVOICE' :
+                    {invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
+                     invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
                      'TAX INVOICE'}
                   </h2>
                 </div>
@@ -640,8 +640,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                   className="text-xl font-bold tracking-wide text-white"
                   style={{ fontFamily: "Calibri, Arial, sans-serif" }}
                 >
-                  {invoice.status === 'draft' ? 'DRAFT INVOICE' :
-                   invoice.status === 'proforma' ? 'PROFORMA INVOICE' :
+                  {invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
+                   invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
                    'TAX INVOICE'}
                 </h2>
               </div>
@@ -1123,8 +1123,8 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                             className="text-xl font-bold tracking-wide text-white"
                             style={{ fontFamily: "Calibri, Arial, sans-serif" }}
                           >
-                            {invoice.status === 'draft' ? 'DRAFT INVOICE' :
-                             invoice.status === 'proforma' ? 'PROFORMA INVOICE' :
+                            {invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
+                             invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
                              'TAX INVOICE'}
                           </h2>
                         </div>

@@ -83,10 +83,13 @@ export const generateInvoicePDF = async (invoice, company) => {
       pdf.rect(M.left, y, page.w - M.left - M.right, 5, "F");
       setBold();
       pdf.setTextColor(255);
-      const titleWidth = textWidth("TAX INVOICE", 10, "bold");
+      const invoiceTitle = invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
+                           invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
+                           'TAX INVOICE';
+      const titleWidth = textWidth(invoiceTitle, 10, "bold");
       const centerX = M.left + (page.w - M.left - M.right) / 2 - titleWidth / 2;
       pdf.setFontSize(10);
-      pdf.text("TAX INVOICE", centerX, y + 3.5);
+      pdf.text(invoiceTitle, centerX, y + 3.5);
       pdf.setFontSize(11);
       y += 6;
 
@@ -545,7 +548,11 @@ const createInvoiceElement = (invoice, company) => {
       </div>
       
       <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 8px 0 !important; padding: 10px 0 !important;">
-        <h2 style="font-size: 16px; font-weight: 700; color: #ffffff;">TAX INVOICE</h2>
+        <h2 style="font-size: 16px; font-weight: 700; color: #ffffff;">${
+          invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
+          invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
+          'TAX INVOICE'
+        }</h2>
       </div>
       
       <div style="display: flex; justify-content: space-between; gap: 15px;">
