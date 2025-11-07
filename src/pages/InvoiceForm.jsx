@@ -588,6 +588,7 @@ const InvoiceForm = ({ onSave }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [newProductData, setNewProductData] = useState({
     name: "",
@@ -1256,6 +1257,13 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const performSave = async () => {
+    // Prevent double-saves
+    if (isSaving) {
+      console.log('Save already in progress, skipping duplicate save');
+      return;
+    }
+
+    setIsSaving(true);
     try {
       // Convert empty string values to numbers before saving
       const processedInvoice = {
@@ -1307,6 +1315,8 @@ const InvoiceForm = ({ onSave }) => {
     } catch (error) {
       console.error("Error saving invoice:", error);
       notificationService.error("Failed to save invoice. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1443,7 +1453,7 @@ const InvoiceForm = ({ onSave }) => {
         onClose={() => setShowPreview(false)}
         invoiceId={id}
         onSave={performSave}
-        isSaving={savingInvoice || updatingInvoice}
+        isSaving={savingInvoice || updatingInvoice || isSaving}
       />
     );
   }
@@ -1554,15 +1564,15 @@ const InvoiceForm = ({ onSave }) => {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={savingInvoice || updatingInvoice || (id && invoice.status === 'issued')}
+                disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
                 className="w-full sm:w-auto"
               >
-                {savingInvoice || updatingInvoice ? (
+                {savingInvoice || updatingInvoice || isSaving ? (
                   <LoadingSpinner size="sm" />
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {savingInvoice || updatingInvoice ? "Saving..." : "Save Invoice"}
+                {savingInvoice || updatingInvoice || isSaving ? "Saving..." : "Save Invoice"}
               </Button>
               </div>
             </div>
