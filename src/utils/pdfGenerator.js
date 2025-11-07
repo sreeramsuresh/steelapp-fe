@@ -15,7 +15,6 @@ import sealImage from "../assets/Seal.png";
 
 // Measurement‑based pagination generator
 export const generateInvoicePDF = async (invoice, company) => {
-  console.log('🔍 DEBUG: generateInvoicePDF called - Starting PDF generation with 13pt fonts');
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
 
@@ -30,12 +29,10 @@ export const generateInvoicePDF = async (invoice, company) => {
   const setBody = () => {
     pdf.setFont("helvetica", "");
     pdf.setFontSize(13);
-    console.log('🔍 DEBUG: setBody() called - font size set to 13');
   };
   const setBold = () => {
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    console.log('🔍 DEBUG: setBold() called - font size set to 13');
   };
   const gray = (v = 140) => pdf.setTextColor(v);
   const black = () => pdf.setTextColor(0);
