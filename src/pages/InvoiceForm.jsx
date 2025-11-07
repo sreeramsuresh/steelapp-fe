@@ -627,6 +627,10 @@ const InvoiceForm = ({ onSave }) => {
   // Save confirmation for Final Tax Invoice (new invoices only)
   const [showSaveConfirmDialog, setShowSaveConfirmDialog] = useState(false);
 
+  // Success modal after creating invoice
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
+
   // Payment tracking management
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
@@ -1260,12 +1264,16 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleSave = async () => {
+    console.log('🔍 handleSave called - id:', id, 'status:', invoice.status);
+
     // For new invoices with Final Tax Invoice status, show confirmation first
     if (!id && invoice.status === 'issued') {
+      console.log('✅ Showing Final Tax Invoice confirmation dialog');
       setShowSaveConfirmDialog(true);
       return;
     }
 
+    console.log('⏩ Proceeding directly to performSave (no confirmation needed)');
     // Otherwise proceed with save directly
     await performSave();
   };
@@ -1375,17 +1383,22 @@ const InvoiceForm = ({ onSave }) => {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
-        notificationService.success("Invoice created successfully!");
+
+        // Store the created invoice ID for success modal
+        setCreatedInvoiceId(newInvoice.id);
+
+        // Show success modal with options
+        setShowSuccessModal(true);
 
         // Trigger PDF button highlight animation for 3 seconds
         setPdfButtonHighlight(true);
         setTimeout(() => setPdfButtonHighlight(false), 3000);
 
-        // Navigate to invoice list after successful creation
-        // Delay slightly so user sees success message
-        setTimeout(() => {
-          navigate('/invoices');
-        }, 1500);
+        // OLD AUTO-NAVIGATION CODE (commented for easy revert):
+        // notificationService.success("Invoice created successfully!");
+        // setTimeout(() => {
+        //   navigate('/invoices');
+        // }, 1500);
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
@@ -1428,9 +1441,61 @@ const InvoiceForm = ({ onSave }) => {
     setShowSaveConfirmDialog(false);
   };
 
+  // Handle actions from success modal
+  const handleSuccessDownloadPDF = async () => {
+    setShowSuccessModal(false);
+
+    // Wait a moment for modal to close, then trigger PDF download
+    setTimeout(async () => {
+      await handleDownloadPDF();
+
+      // After PDF download, navigate to invoice list
+      setTimeout(() => {
+        notificationService.success("Invoice created successfully! PDF downloaded.");
+        navigate('/invoices');
+      }, 500); // Small delay to allow PDF download to complete
+    }, 300);
+  };
+
+  const handleSuccessGoToList = () => {
+    setShowSuccessModal(false);
+    notificationService.success("Invoice created successfully!");
+    navigate('/invoices');
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+
+    // Navigate to edit mode to prevent duplicate creation
+    // User can continue viewing/editing the invoice
+    if (createdInvoiceId) {
+      navigate(`/edit/${createdInvoiceId}`);
+      notificationService.success("Invoice created successfully! Now in edit mode.");
+    }
+  };
+
+  // Handle ESC key to close success modal
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape' && showSuccessModal) {
+        handleSuccessModalClose();
+      }
+    };
+
+    if (showSuccessModal) {
+      document.addEventListener('keydown', handleEscKey);
+      return () => {
+        document.removeEventListener('keydown', handleEscKey);
+      };
+    }
+  }, [showSuccessModal, createdInvoiceId]);
+
   const handleDownloadPDF = async () => {
+    // Use either the route ID or the newly created invoice ID
+    const invoiceId = id || createdInvoiceId;
+
     // Require invoice to be saved first
-    if (!id) {
+    if (!invoiceId) {
       notificationService.warning('Please save the invoice first before downloading PDF');
       return;
     }
@@ -1633,33 +1698,6 @@ const InvoiceForm = ({ onSave }) => {
               >
                 <Eye className="h-4 w-4" />
                 Preview
-              </Button>
-              <Button
-                variant={id && !isGeneratingPDF ? "default" : "outline"}
-                onClick={handleDownloadPDF}
-                disabled={!id || isGeneratingPDF}
-                className={`w-full sm:w-auto transition-all duration-500 ${
-                  id && !isGeneratingPDF
-                    ? 'bg-teal-600 hover:bg-teal-700 text-white border-teal-600'
-                    : ''
-                } ${
-                  pdfButtonHighlight
-                    ? 'ring-4 ring-teal-400 ring-offset-2 shadow-2xl shadow-teal-500/50 scale-105 animate-pulse'
-                    : ''
-                }`}
-                title={!id ? "Save invoice first to download PDF" : "Download invoice as PDF"}
-                aria-label={!id ? "Download PDF - Save invoice first" : "Download invoice as PDF"}
-              >
-                {(isGeneratingPDF || (loadingCompany && pdfPending)) ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-                {isGeneratingPDF
-                  ? "Generating..."
-                  : loadingCompany
-                    ? (pdfPending ? "Loading company…" : "Download PDF")
-                    : "Download PDF"}
               </Button>
               <Button
                 onClick={handleSave}
@@ -2891,6 +2929,77 @@ const InvoiceForm = ({ onSave }) => {
                 Yes, Create Final Tax Invoice
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal - Invoice Created */}
+      {showSuccessModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={handleSuccessModalClose}
+        >
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl relative ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={handleSuccessModalClose}
+              className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
+                isDarkMode
+                  ? "hover:bg-gray-700 text-gray-400 hover:text-white"
+                  : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+              }`}
+              aria-label="Close"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex items-start mb-4">
+              <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-full p-3 mr-4">
+                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-2 text-green-600 dark:text-green-400">
+                  Invoice Created Successfully!
+                </h3>
+                <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Your Final Tax Invoice has been created and saved.
+                </p>
+                <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+                  What would you like to do next?
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-6">
+              <button
+                onClick={handleSuccessDownloadPDF}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+              >
+                <Download size={20} />
+                Download PDF
+              </button>
+              <button
+                onClick={handleSuccessGoToList}
+                className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                }`}
+              >
+                Go to Invoice List
+              </button>
+            </div>
+
+            <p className={`text-xs mt-4 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Press ESC or click outside to continue editing the invoice
+            </p>
           </div>
         </div>
       )}
