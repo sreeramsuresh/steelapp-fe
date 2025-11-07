@@ -223,6 +223,12 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
       // Then download the PDF
       await handleDownloadPDF();
 
+      // Close preview after successful save and download
+      // Parent component will handle navigation to invoice list
+      if (onClose) {
+        setTimeout(() => onClose(), 500);
+      }
+
     } catch (error) {
       console.error("Error saving and downloading:", error);
       alert("Failed to save invoice. Please try again.");

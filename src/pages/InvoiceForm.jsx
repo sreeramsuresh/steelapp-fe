@@ -1297,6 +1297,12 @@ const InvoiceForm = ({ onSave }) => {
         // Trigger PDF button highlight animation for 3 seconds
         setPdfButtonHighlight(true);
         setTimeout(() => setPdfButtonHighlight(false), 3000);
+
+        // Navigate to invoice list after successful creation
+        // Delay slightly so user sees success message
+        setTimeout(() => {
+          navigate('/invoices');
+        }, 1500);
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
