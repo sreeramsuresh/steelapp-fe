@@ -38,6 +38,7 @@ import {
   calculateTotal,
   formatCurrency,
   formatDateForInput,
+  formatDateDMY,
   titleCase,
   normalizeLLC,
   calculateDiscountedTRN,
@@ -1353,6 +1354,7 @@ const InvoiceForm = ({ onSave }) => {
   }
 
   if (loadingInvoice) {
+
     return (
       <div
         className={`h-full flex items-center justify-center ${
@@ -1489,7 +1491,7 @@ const InvoiceForm = ({ onSave }) => {
                     </p>
                     <div className="text-xs opacity-90">
                       <p><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
-                      <p><strong>Due Date:</strong> {formatDate(invoice.dueDate)}</p>
+                      <p><strong>Due Date:</strong> {formatDateDMY(invoice.dueDate)}</p>
                       {isOverdue && (
                         <p className="mt-2 font-semibold">
                           ⚡ Action Required: Consider sending a payment reminder to the customer.
