@@ -1342,6 +1342,11 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [pdfPending, loadingCompany, company, invoice]);
 
+  console.log('=== RENDER START ===');
+  console.log('Invoice status:', invoice.status);
+  console.log('Has id?', id);
+  console.log('Show preview?', showPreview);
+
   if (showPreview) {
     return (
       <InvoicePreview
@@ -1566,12 +1571,21 @@ const InvoiceForm = ({ onSave }) => {
                     <Select
                       label="Invoice Status"
                       value={invoice.status || "draft"}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          status: e.target.value,
-                        }))
-                      }
+                      onChange={(e) => {
+                        console.log('=== STATUS DROPDOWN CHANGED ===');
+                        console.log('New status:', e.target.value);
+                        console.log('Current invoice:', invoice);
+                        console.log('Has id?', id);
+                        setInvoice((prev) => {
+                          const newState = {
+                            ...prev,
+                            status: e.target.value,
+                          };
+                          console.log('New invoice state:', newState);
+                          return newState;
+                        });
+                        console.log('State update complete');
+                      }}
                       disabled={!canEditInvoice(invoice.status)}
                     >
                       <option value="draft">Draft Invoice</option>
@@ -1579,9 +1593,12 @@ const InvoiceForm = ({ onSave }) => {
                       <option value="issued">Final Tax Invoice</option>
                     </Select>
                     {invoice.status === 'issued' && (
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        ⚠️ Final Tax Invoice cannot be edited. Create a credit note to reverse.
-                      </p>
+                      <>
+                        {console.log('Rendering warning text for issued status')}
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                          ⚠️ Final Tax Invoice cannot be edited. Create a credit note to reverse.
+                        </p>
+                      </>
                     )}
                     <Select
                       label="Payment Mode"
@@ -1749,22 +1766,25 @@ const InvoiceForm = ({ onSave }) => {
 
                   {/* Final Tax Invoice Warning */}
                   {invoice.status === 'issued' && (
-                    <Alert variant="warning">
-                      <div>
-                        <h4 className="font-medium mb-1 flex items-center">
-                          <AlertTriangle size={18} className="mr-2" />
-                          Final Tax Invoice - Editing Restricted
-                        </h4>
-                        <p className="text-sm mb-2">
-                          This is a <strong>Final Tax Invoice</strong> with legal and tax implications.
-                          Editing is restricted to maintain audit trails and comply with regulations.
-                        </p>
-                        <p className="text-sm">
-                          ℹ️ To make changes: Create a <strong>Credit Note</strong> to reverse this invoice,
-                          then create a new invoice with the correct details.
-                        </p>
-                      </div>
-                    </Alert>
+                    <>
+                      {console.log('Rendering Alert component for issued status')}
+                      <Alert variant="warning">
+                        <div>
+                          <h4 className="font-medium mb-1 flex items-center">
+                            <AlertTriangle size={18} className="mr-2" />
+                            Final Tax Invoice - Editing Restricted
+                          </h4>
+                          <p className="text-sm mb-2">
+                            This is a <strong>Final Tax Invoice</strong> with legal and tax implications.
+                            Editing is restricted to maintain audit trails and comply with regulations.
+                          </p>
+                          <p className="text-sm">
+                            ℹ️ To make changes: Create a <strong>Credit Note</strong> to reverse this invoice,
+                            then create a new invoice with the correct details.
+                          </p>
+                        </div>
+                      </Alert>
+                    </>
                   )}
 
                   {/* Trade License Status Alert */}
