@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   Home,
-  FileText, 
-  Plus, 
-  List as ListIcon, 
-  Settings, 
-  BarChart3, 
-  Users, 
+  FileText,
+  Plus,
+  List as ListIcon,
+  Settings,
+  BarChart3,
+  Users,
   Package,
   Calculator,
   TrendingUp,
@@ -26,7 +26,8 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   Award,
-  MapPin
+  MapPin,
+  RotateCcw
 } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -50,7 +51,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
       ]
     },
     {
-      section: 'Finance',
+      section: 'Finance / Accounts Receivable',
       items: [
         {
           name: 'Finance Dashboard',
@@ -58,19 +59,21 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: Banknote,
           description: 'Manage payables and receivables',
           requiredPermission: 'payables.read'
-        }
-      ]
-    },
-    {
-      section: 'Invoices',
-      items: [
+        },
         {
-          name: 'All Invoices',
+          name: 'Invoices',
           path: '/invoices',
-          icon: ListIcon,
+          icon: FileText,
           description: 'View and manage invoices',
           badge: invoiceCount,
           requiredPermission: 'invoices_all.read'
+        },
+        {
+          name: 'Credit Notes',
+          path: '/credit-notes',
+          icon: RotateCcw,
+          description: 'Manage returns & refunds',
+          requiredPermission: 'invoices.read'
         }
       ]
     },

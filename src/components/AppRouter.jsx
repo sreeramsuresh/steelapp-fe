@@ -29,6 +29,8 @@ import AccountStatementForm from "../pages/AccountStatementForm";
 import AccountStatementDetails from "../pages/AccountStatementDetails";
 import QuotationList from "../pages/QuotationList";
 import QuotationForm from "../pages/QuotationForm";
+import CreditNoteList from "../pages/CreditNoteList";
+import CreditNoteForm from "../pages/CreditNoteForm";
 import Payables from "../pages/Payables";
 import Receivables from "../pages/Receivables";
 import CustomerPerspective from "../pages/CustomerPerspective";
@@ -130,6 +132,34 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="invoices_all.read">
               <InvoiceList />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Credit Notes Routes */}
+        <Route
+          path="/credit-notes"
+          element={
+            <ProtectedRoute user={user} requiredPermission="invoices.read">
+              <CreditNoteList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/credit-notes/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="invoices.create">
+              <CreditNoteForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/credit-notes/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="invoices.update">
+              <CreditNoteForm />
             </ProtectedRoute>
           }
         />
