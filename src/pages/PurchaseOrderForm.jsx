@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   formatCurrency,
@@ -192,6 +192,7 @@ const Autocomplete = ({
   renderOption,
   noOptionsText = "No options",
   className = "",
+  error = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -337,10 +338,10 @@ const Autocomplete = ({
         placeholder={placeholder}
         disabled={disabled}
         className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-          isDarkMode 
-            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+          isDarkMode
+            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
             : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        } ${error ? 'border-red-500' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
       {isOpen && (
         <div
@@ -446,6 +447,10 @@ const PurchaseOrderForm = () => {
   const [payments, setPayments] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+
+  // Validation state - MANDATORY for all forms
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [invalidFields, setInvalidFields] = useState(new Set());
   
   // Payment calculation functions
   const updatePaymentStatus = (paymentList, total) => {
@@ -918,40 +923,76 @@ const PurchaseOrderForm = () => {
   };
 
   const handleSubmit = async (status = "draft") => {
+    // STEP 1: Validate all required fields
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    const poData = { ...purchaseOrder, status };
+
+    // Supplier validation
+    if (!poData.supplierName || poData.supplierName.trim() === '') {
+      errors.push('Supplier name is required');
+      invalidFieldsSet.add('supplierName');
+    }
+
+    // Warehouse validation
+    if (!selectedWarehouse) {
+      errors.push('Please select a destination warehouse');
+      invalidFieldsSet.add('warehouse');
+    }
+
+    // Items validation
+    if (!poData.items || poData.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      let hasValidItem = false;
+      poData.items.forEach((item, index) => {
+        if (!item.name || item.name.trim() === '') {
+          errors.push(`Item ${index + 1}: Product name is required`);
+          invalidFieldsSet.add(`item.${index}.name`);
+        } else if (item.quantity > 0) {
+          hasValidItem = true;
+        }
+
+        if (!item.quantity || item.quantity <= 0) {
+          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.quantity`);
+        }
+
+        if (!item.rate || item.rate <= 0) {
+          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.rate`);
+        }
+      });
+
+      if (!hasValidItem) {
+        errors.push('At least one item must have a valid quantity');
+      }
+    }
+
+    // If errors exist, show them and STOP
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setInvalidFields(invalidFieldsSet);
+
+      // Auto-scroll to error alert
+      setTimeout(() => {
+        const errorAlert = document.getElementById('validation-errors-alert');
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      return; // STOP - do not proceed with save
+    }
+
+    // STEP 2: Clear any previous errors
+    setValidationErrors([]);
+    setInvalidFields(new Set());
+
+    // STEP 3: Proceed with save operation
     setLoading(true);
     try {
-      const poData = { ...purchaseOrder, status };
-      
-      // Basic validation
-      if (!poData.supplierName) {
-        notificationService.warning('Supplier name is required');
-        setLoading(false);
-        return;
-      }
-      
-      if (!poData.items || poData.items.length === 0) {
-        notificationService.warning('At least one item is required');
-        setLoading(false);
-        return;
-      }
-      
-      // Validate that at least one item has required fields
-      const validItems = poData.items.filter(item => 
-        (item.productType || item.name) && item.quantity > 0
-      );
-      
-      if (validItems.length === 0) {
-        notificationService.warning('At least one item must have a product type and quantity greater than 0');
-        setLoading(false);
-        return;
-      }
-      
-      // Validate warehouse selection
-      if (!selectedWarehouse) {
-        notificationService.warning('Please select a destination warehouse');
-        setLoading(false);
-        return;
-      }
 
       // Get warehouse details
       const selectedWarehouseDetails = warehouses.find(w => w.id?.toString() === selectedWarehouse);
@@ -1139,6 +1180,45 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
 
+          {/* Validation Errors Alert - MANDATORY */}
+          {validationErrors.length > 0 && (
+            <div
+              id="validation-errors-alert"
+              className={`mt-6 p-4 rounded-lg border-2 ${
+                isDarkMode
+                  ? "bg-red-900/20 border-red-600 text-red-200"
+                  : "bg-red-50 border-red-500 text-red-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+                <div className="flex-1">
+                  <h4 className="font-bold text-lg mb-2">
+                    Please fix the following errors:
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => {
+                      setValidationErrors([]);
+                      setInvalidFields(new Set());
+                    }}
+                    className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                      isDarkMode
+                        ? "bg-red-800 hover:bg-red-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
             {/* PO Details */}
             <div className={`p-6 rounded-xl border ${
@@ -1277,10 +1357,10 @@ const PurchaseOrderForm = () => {
                     onChange={(e) => handleInputChange("supplierName", e.target.value)}
                     required
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                      isDarkMode 
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                    }`}
+                    } ${invalidFields.has('supplierName') ? 'border-red-500' : ''}`}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1433,10 +1513,10 @@ const PurchaseOrderForm = () => {
                     value={selectedWarehouse}
                     onChange={(e) => setSelectedWarehouse(e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                      isDarkMode 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
                         : 'bg-white border-gray-300 text-gray-900'
-                    }`}
+                    } ${invalidFields.has('warehouse') ? 'border-red-500' : ''}`}
                   >
                     <option value="">Select Destination Warehouse</option>
                     {warehouses.map((warehouse) => (
@@ -1565,6 +1645,7 @@ const PurchaseOrderForm = () => {
                             }}
                             placeholder="Search products..."
                             disabled={loading}
+                            error={invalidFields.has(`item.${index}.name`)}
                             renderOption={(option) => (
                               <div>
                                 <div className="font-medium">{option.name}</div>
@@ -1658,10 +1739,10 @@ const PurchaseOrderForm = () => {
                           value={item.quantity}
                           onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
                           className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                            isDarkMode 
-                              ? 'bg-gray-800 border-gray-600 text-white' 
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white'
                               : 'bg-white border-gray-300 text-gray-900'
-                          }`}
+                          } ${invalidFields.has(`item.${index}.quantity`) ? 'border-red-500' : ''}`}
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -1670,10 +1751,10 @@ const PurchaseOrderForm = () => {
                           value={item.rate}
                           onChange={(e) => handleItemChange(index, "rate", e.target.value)}
                           className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                            isDarkMode 
-                              ? 'bg-gray-800 border-gray-600 text-white' 
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white'
                               : 'bg-white border-gray-300 text-gray-900'
-                          }`}
+                          } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
                         />
                       </td>
                       <td className="px-4 py-3">
