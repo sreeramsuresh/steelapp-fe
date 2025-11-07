@@ -860,13 +860,6 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [nextInvoiceData, id]);
 
-  // Track original status when invoice is loaded/changed
-  useEffect(() => {
-    if (invoice.status && !originalStatus) {
-      setOriginalStatus(invoice.status);
-    }
-  }, [invoice.status, originalStatus]);
-
   useEffect(() => {
     if (existingInvoice && id) {
       setInvoice(existingInvoice);
