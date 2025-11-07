@@ -587,6 +587,7 @@ const InvoiceForm = ({ onSave }) => {
 
   const [showPreview, setShowPreview] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [newProductData, setNewProductData] = useState({
     name: "",
@@ -1292,6 +1293,10 @@ const InvoiceForm = ({ onSave }) => {
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
         notificationService.success("Invoice created successfully!");
+
+        // Trigger PDF button highlight animation for 3 seconds
+        setPdfButtonHighlight(true);
+        setTimeout(() => setPdfButtonHighlight(false), 3000);
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
@@ -1309,6 +1314,12 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleDownloadPDF = async () => {
+    // Require invoice to be saved first
+    if (!id) {
+      notificationService.warning('Please save the invoice first before downloading PDF');
+      return;
+    }
+
     // If company details still loading, set a pending flag and retry when ready
     if (loadingCompany) {
       setPdfPending(true);
@@ -1506,10 +1517,20 @@ const InvoiceForm = ({ onSave }) => {
                 Preview
               </Button>
               <Button
-                variant="outline"
+                variant={id && !isGeneratingPDF ? "default" : "outline"}
                 onClick={handleDownloadPDF}
-                disabled={isGeneratingPDF}
-                className="w-full sm:w-auto"
+                disabled={!id || isGeneratingPDF}
+                className={`w-full sm:w-auto transition-all duration-500 ${
+                  id && !isGeneratingPDF
+                    ? 'bg-teal-600 hover:bg-teal-700 text-white border-teal-600'
+                    : ''
+                } ${
+                  pdfButtonHighlight
+                    ? 'ring-4 ring-teal-400 ring-offset-2 shadow-2xl shadow-teal-500/50 scale-105 animate-pulse'
+                    : ''
+                }`}
+                title={!id ? "Save invoice first to download PDF" : "Download invoice as PDF"}
+                aria-label={!id ? "Download PDF - Save invoice first" : "Download invoice as PDF"}
               >
                 {(isGeneratingPDF || (loadingCompany && pdfPending)) ? (
                   <LoadingSpinner size="sm" />
