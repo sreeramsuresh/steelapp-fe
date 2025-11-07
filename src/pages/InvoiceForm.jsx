@@ -2611,7 +2611,7 @@ const InvoiceForm = ({ onSave }) => {
             </div>
 
             {/* Payment Tracking Section - Only show for issued invoices */}
-            {invoice.status === 'issued' && (
+            {invoice.status === 'issued' && id && (
               <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
                 <h2
                   className={`text-xl font-bold mb-4 ${
