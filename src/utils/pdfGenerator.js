@@ -15,6 +15,7 @@ import sealImage from "../assets/Seal.png";
 
 // Measurement‑based pagination generator
 export const generateInvoicePDF = async (invoice, company) => {
+  console.log('🔍 DEBUG: generateInvoicePDF called - Starting PDF generation with 13pt fonts');
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
 
@@ -28,16 +29,18 @@ export const generateInvoicePDF = async (invoice, company) => {
   // Fonts
   const setBody = () => {
     pdf.setFont("helvetica", "");
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
+    console.log('🔍 DEBUG: setBody() called - font size set to 13');
   };
   const setBold = () => {
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
+    console.log('🔍 DEBUG: setBold() called - font size set to 13');
   };
   const gray = (v = 140) => pdf.setTextColor(v);
   const black = () => pdf.setTextColor(0);
 
-  const textWidth = (txt, fontSize = 14, fontStyle = "") => {
+  const textWidth = (txt, fontSize = 13, fontStyle = "") => {
     const prevSize = pdf.getFontSize();
     const prev = pdf.getFont();
     pdf.setFont("helvetica", fontStyle || "");
@@ -86,10 +89,10 @@ export const generateInvoicePDF = async (invoice, company) => {
       const invoiceTitle = invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
                            invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
                            'TAX INVOICE';
-      pdf.setFontSize(14);
+      pdf.setFontSize(13);
       // Center the text using page center (simpler and more accurate)
       pdf.text(invoiceTitle, page.w / 2, y + 3.5, { align: 'center' });
-      pdf.setFontSize(14);
+      pdf.setFontSize(13);
       y += 6;
 
       setBody();
@@ -156,11 +159,11 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     setBody();
     gray(80);
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
     pdf.text("Ultimate Steels", M.left + 2, yTop + 11);
     pdf.text("Building Materials", M.left + 2, yTop + 15);
     pdf.text("Trading LLC", M.left + 2, yTop + 19);
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
 
     black();
     setBold();
@@ -176,10 +179,10 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     setBody();
     gray(80);
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
     pdf.text("ULTIMATE STEELS", page.w - M.right - 60, yTop + 20);
     pdf.text("BUILDING MATERIALS TRADING", page.w - M.right - 75, yTop + 23);
-    pdf.setFontSize(14);
+    pdf.setFontSize(13);
 
     setBody();
     gray(120);
@@ -423,7 +426,7 @@ const createInvoiceElement = (invoice, company) => {
     padding: 12mm 20mm;
     background: white;
     font-family: Calibri, Arial, sans-serif;
-    font-size: 14pt;
+    font-size: 13pt;
     line-height: 1.2;
     color: #1e293b;
     position: absolute;
@@ -473,7 +476,7 @@ const createInvoiceElement = (invoice, company) => {
       /* Only add back necessary spacing explicitly */
       p, td, span, li, div {
         font-family: Calibri, Arial, sans-serif;
-        font-size: 14pt;
+        font-size: 13pt;
         line-height: 1.2;
       }
       
@@ -519,20 +522,20 @@ const createInvoiceElement = (invoice, company) => {
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px !important;">
         <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height: 35px; width: auto;" />
         <div>
-          <p style="font-weight: bold; font-size: 14pt;">Ultimate Steels Building Materials Trading</p>
+          <p style="font-weight: bold; font-size: 13pt;">Ultimate Steels Building Materials Trading</p>
         </div>
       </div>
       
       <div style="margin-bottom: 12px !important;">
-        <p style="margin: 1px 0 !important; font-size: 14pt;">${safe(
+        <p style="margin: 1px 0 !important; font-size: 13pt;">${safe(
           compAddr.street
         )}</p>
-        <p style="margin: 1px 0 !important; font-size: 14pt;">${safe(
+        <p style="margin: 1px 0 !important; font-size: 13pt;">${safe(
           compAddr.city
         )}${compAddr.city && compAddr.country ? ", " : ""}${safe(
     compAddr.country
   )}</p>
-        <p style="margin: 1px 0 !important; font-size: 14pt;">Ph: ${
+        <p style="margin: 1px 0 !important; font-size: 13pt;">Ph: ${
           comp.phone
             ? comp.phone
                 .split(",")
@@ -540,10 +543,10 @@ const createInvoiceElement = (invoice, company) => {
                 .join(" | ")
             : ""
         }</p>
-        <p style="margin: 1px 0 !important; font-size: 14pt;">Email: ${safe(
+        <p style="margin: 1px 0 !important; font-size: 13pt;">Email: ${safe(
           comp.email
         )}</p>
-        <p style="margin: 1px 0 !important; font-weight: bold; font-size: 14pt;">VAT Reg No: 104858252000003</p>
+        <p style="margin: 1px 0 !important; font-weight: bold; font-size: 13pt;">VAT Reg No: 104858252000003</p>
       </div>
       
       <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 8px 0 !important; padding: 10px 0 !important;">
@@ -556,69 +559,69 @@ const createInvoiceElement = (invoice, company) => {
       
       <div style="display: flex; justify-content: space-between; gap: 15px;">
         <div style="flex: 0 0 45%;">
-          <div style="margin: 0 0 6px 0 !important; font-size: 14pt; color: #0f172a;">
+          <div style="margin: 0 0 6px 0 !important; font-size: 13pt; color: #0f172a;">
             <strong>INVOICE Date :</strong> ${formatDateDMY(invoice.date)}
           </div>
-          <h3 style="margin: 0 0 2px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 14pt;">Bill To:</h3>
+          <h3 style="margin: 0 0 2px 0 !important; color: #ffffff; background-color: #009999; padding: 5px 8px !important; font-weight: bold; font-size: 13pt;">Bill To:</h3>
           <div>
-            <p style="margin: 1px 0 !important; font-weight: 600; font-size: 14pt;">${titleCase(
+            <p style="margin: 1px 0 !important; font-weight: 600; font-size: 13pt;">${titleCase(
               safe(cust.name)
             )}</p>
-            <p style="margin: 1px 0 !important; font-size: 14pt;">${safe(
+            <p style="margin: 1px 0 !important; font-size: 13pt;">${safe(
               custAddr.street
             )}</p>
-            <p style="margin: 1px 0 !important; font-size: 14pt;">${safe(
+            <p style="margin: 1px 0 !important; font-size: 13pt;">${safe(
               custAddr.city
             )}${custAddr.city && custAddr.country ? ", " : ""}${safe(
     custAddr.country
   )}</p>
             ${
               cust.vatNumber
-                ? `<p style="margin: 1px 0 !important; font-size: 14pt;">TRN: ${safe(
+                ? `<p style="margin: 1px 0 !important; font-size: 13pt;">TRN: ${safe(
                     cust.vatNumber
                   )}</p>`
                 : ""
             }
-            <p style="margin: 1px 0 !important; font-size: 14pt;">Phone: ${safe(
+            <p style="margin: 1px 0 !important; font-size: 13pt;">Phone: ${safe(
               cust.phone
             )}</p>
-            <p style="margin: 1px 0 !important; font-size: 14pt;">Email: ${safe(
+            <p style="margin: 1px 0 !important; font-size: 13pt;">Email: ${safe(
               cust.email
             )}</p>
           </div>
         </div>
         <div style="flex: 0 0 45%;">
           <div>
-            <p style="margin: 2px 0 !important; font-size: 14pt;"><strong>Invoice #:</strong> ${safe(
+            <p style="margin: 2px 0 !important; font-size: 13pt;"><strong>Invoice #:</strong> ${safe(
               invoice.invoiceNumber
             )}</p>
             ${
               invoice.customerPurchaseOrderNumber
-                ? `<p style="margin: 2px 0 !important; font-size: 14pt;"><strong>Customer PO #:</strong> ${safe(
+                ? `<p style="margin: 2px 0 !important; font-size: 13pt;"><strong>Customer PO #:</strong> ${safe(
                     invoice.customerPurchaseOrderNumber
                   )}</p>`
                 : ""
             }
             ${
               invoice.customerPurchaseOrderDate
-                ? `<p style="margin: 2px 0 !important; font-size: 14pt;"><strong>Customer PO Date:</strong> ${formatDate(
+                ? `<p style="margin: 2px 0 !important; font-size: 13pt;"><strong>Customer PO Date:</strong> ${formatDate(
                     invoice.customerPurchaseOrderDate
                   )}</p>`
                 : ""
             }
             ${
               invoice.modeOfPayment
-                ? `<p style="margin: 2px 0 !important; font-size: 14pt;"><strong>Payment Mode:</strong> ${safe(invoice.modeOfPayment)}</p>`
+                ? `<p style="margin: 2px 0 !important; font-size: 13pt;"><strong>Payment Mode:</strong> ${safe(invoice.modeOfPayment)}</p>`
                 : ''
             }
             ${
               invoice.chequeNumber
-                ? `<p style=\"margin: 2px 0 !important; font-size: 14pt;\"><strong>Cheque No:</strong> ${safe(invoice.chequeNumber)}</p>`
+                ? `<p style=\"margin: 2px 0 !important; font-size: 13pt;\"><strong>Cheque No:</strong> ${safe(invoice.chequeNumber)}</p>`
                 : ''
             }
             ${
               invoice.warehouseName || invoice.warehouseCode || invoice.warehouseCity
-                ? `<div style="margin: 4px 0 !important; font-size: 14pt;">
+                ? `<div style="margin: 4px 0 !important; font-size: 13pt;">
                     <strong>Warehouse:</strong><br/>
                     ${safe(invoice.warehouseName || '')}<br/>
                     ${invoice.warehouseCode ? `WAREHOUSE NO:${safe(invoice.warehouseCode)}` : ''}${invoice.warehouseCity ? '<br/>' : ''}
@@ -646,15 +649,15 @@ const createInvoiceElement = (invoice, company) => {
           <div class="item-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: ${
             i === items.length - 1 ? "none" : "1px solid #f1f5f9"
           };">
-            <div style="flex: 0 0 30px; font-size: 14pt;">${i + 1}.</div>
-            <div style="flex: 1; font-weight: 600; font-size: 14pt; color: #0f172a; padding-right: 10px !important;">${productLine}</div>
-            <div style="flex: 0 0 60px; text-align: right; font-size: 14pt;">${safe(
+            <div style="flex: 0 0 30px; font-size: 13pt;">${i + 1}.</div>
+            <div style="flex: 1; font-weight: 600; font-size: 13pt; color: #0f172a; padding-right: 10px !important;">${productLine}</div>
+            <div style="flex: 0 0 60px; text-align: right; font-size: 13pt;">${safe(
               item.quantity
             )}</div>
-            <div style="flex: 0 0 80px; text-align: right; font-size: 14pt;">${formatNumber(
+            <div style="flex: 0 0 80px; text-align: right; font-size: 13pt;">${formatNumber(
               item.rate || 0
             )}</div>
-            <div style="flex: 0 0 100px; text-align: right; font-size: 14pt; font-weight: 600;">${formatNumber(
+            <div style="flex: 0 0 100px; text-align: right; font-size: 13pt; font-weight: 600;">${formatNumber(
               totalWithTRN
             )}</div>
           </div>
@@ -681,7 +684,7 @@ const createInvoiceElement = (invoice, company) => {
             <span>VAT Amount (AED):</span>
             <span>${formatNumber(trnAmountVal)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 2px 0 !important; border-top: 1px solid #e2e8f0; margin-top: 2px !important; font-weight: 600; font-size: 14pt;">
+          <div style="display: flex; justify-content: space-between; padding: 2px 0 !important; border-top: 1px solid #e2e8f0; margin-top: 2px !important; font-weight: 600; font-size: 13pt;">
             <span><strong>Total Amount (AED):</strong></span>
             <span><strong>${formatNumber(totalVal)}</strong></span>
           </div>
@@ -696,8 +699,8 @@ const createInvoiceElement = (invoice, company) => {
             invoice.notes
               ? `
             <div style="margin-bottom: 3px !important;">
-              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 14pt;">Notes:</h4>
-              <p style="color: #64748b; font-size: 14pt; white-space: pre-line;">${invoice.notes}</p>
+              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 13pt;">Notes:</h4>
+              <p style="color: #64748b; font-size: 13pt; white-space: pre-line;">${invoice.notes}</p>
             </div>
           `
               : ""
@@ -706,8 +709,8 @@ const createInvoiceElement = (invoice, company) => {
             invoice.terms
               ? `
             <div style="margin-bottom: 3px !important;">
-              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 14pt;">Payment as per payment terms:</h4>
-              <p style="color: #64748b; font-size: 14pt; white-space: pre-line;">${invoice.terms}</p>
+              <h4 style="margin: 0 0 2px 0 !important; color: #1e293b; font-size: 13pt;">Payment as per payment terms:</h4>
+              <p style="color: #64748b; font-size: 13pt; white-space: pre-line;">${invoice.terms}</p>
             </div>
           `
               : ""
@@ -724,17 +727,17 @@ const createInvoiceElement = (invoice, company) => {
         <div style="display: flex; align-items: center; gap: 10px;">
           <img src="${sealImage}" alt="Company Seal" crossorigin="anonymous" style="height: 65px; width: auto;" />
           <div>
-            <p style="font-size: 14pt; color: #666;">Company Seal</p>
-            <p style="margin: 1px 0 !important; font-size: 14pt; color: #666;">Ultimate Steels</p>
-            <p style="margin: 1px 0 !important; font-size: 14pt; color: #666;">Building Materials Trading</p>
+            <p style="font-size: 13pt; color: #666;">Company Seal</p>
+            <p style="margin: 1px 0 !important; font-size: 13pt; color: #666;">Ultimate Steels</p>
+            <p style="margin: 1px 0 !important; font-size: 13pt; color: #666;">Building Materials Trading</p>
           </div>
         </div>
         
         <div style="text-align: center; min-width: 180px;">
-          <p style="font-size: 14pt;">Authorized Signatory</p>
+          <p style="font-size: 13pt;">Authorized Signatory</p>
           <div style="border-bottom: 1px solid #000; margin: 20px 0 6px 0 !important;"></div>
-          <p style="font-weight: 600; font-size: 14pt;">ULTIMATE STEELS</p>
-          <p style="margin: 1px 0 !important; font-weight: 600; font-size: 14pt;">BUILDING MATERIALS TRADING</p>
+          <p style="font-weight: 600; font-size: 13pt;">ULTIMATE STEELS</p>
+          <p style="margin: 1px 0 !important; font-weight: 600; font-size: 13pt;">BUILDING MATERIALS TRADING</p>
         </div>
       </div>
     </div>

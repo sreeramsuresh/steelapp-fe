@@ -307,7 +307,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
             className={`px-12 py-6 ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
             style={{
               fontFamily: "Calibri, Arial, sans-serif",
-              fontSize: "11pt",
+              fontSize: "13pt",
             }}
           >
             {/* Hidden measurement container */}
@@ -503,7 +503,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>{titleCase("Bank Account Name")}:</strong>{" "}
@@ -515,7 +515,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {titleCase(normalizeLLC("Building Materials Trading"))}
@@ -526,7 +526,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       Account No: 019101641144
@@ -537,7 +537,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       IBAN: AE490330000019101641144
@@ -555,7 +555,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {normalizeLLC(
@@ -568,7 +568,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {company.address?.street}
@@ -579,7 +579,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {company.address?.city}
@@ -596,7 +596,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       Ph:{" "}
@@ -613,7 +613,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       Email: {company.email}
@@ -652,7 +652,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                 <div className="flex-none w-2/5 min-w-0">
                   <div
                     className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "11pt", marginBottom: "2px" }}
+                    style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt", marginBottom: "2px" }}
                   >
                     <strong>INVOICE Date :</strong> {formatDateDMY(invoice.date)}
                   </div>
@@ -674,7 +674,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {titleCase(normalizeLLC(invoice.customer.name))}
@@ -685,7 +685,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {invoice.customer.address?.street}
@@ -696,7 +696,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       {invoice.customer.address?.city}
@@ -713,7 +713,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                         }`}
                         style={{
                           fontFamily: "Calibri, Arial, sans-serif",
-                          fontSize: "11pt",
+                          fontSize: "13pt",
                         }}
                       >
                         TRN: {invoice.customer.vatNumber}
@@ -725,7 +725,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       Phone: {invoice.customer.phone}
@@ -736,7 +736,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       Email: {invoice.customer.email}
@@ -753,7 +753,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     }`}
                     style={{
                       fontFamily: "Calibri, Arial, sans-serif",
-                      fontSize: "11pt",
+                      fontSize: "13pt",
                     }}
                   >
                     <strong>Invoice #:</strong> {invoice.invoiceNumber}
@@ -765,7 +765,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>Payment Mode:</strong>
@@ -781,7 +781,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>Cheque No:</strong> {invoice.chequeNumber}
@@ -809,7 +809,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>Delivery Note:</strong> {invoice.deliveryNote}
@@ -822,7 +822,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>Customer PO #:</strong>{" "}
@@ -836,7 +836,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                       }`}
                       style={{
                         fontFamily: "Calibri, Arial, sans-serif",
-                        fontSize: "11pt",
+                        fontSize: "13pt",
                       }}
                     >
                       <strong>Customer PO Date:</strong>{" "}
@@ -983,7 +983,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>
@@ -997,7 +997,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 {titleCase(
@@ -1010,7 +1010,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 Account No: 019101641144
@@ -1021,7 +1021,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 IBAN: AE490330000019101641144
@@ -1037,7 +1037,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 {normalizeLLC(
@@ -1050,7 +1050,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 {company.address?.street}
@@ -1061,7 +1061,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 {company.address?.city}
@@ -1079,7 +1079,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 Ph:{" "}
@@ -1096,7 +1096,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 Email: {company.email}
@@ -1135,7 +1135,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                           <div className="flex-none w-2/5 min-w-0">
                             <div
                               className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                              style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "11pt", marginBottom: "6px" }}
+                              style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt", marginBottom: "6px" }}
                             >
                               <strong>INVOICE Date :</strong> {formatDateDMY(invoice.date)}
                             </div>
@@ -1156,7 +1156,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               {titleCase(normalizeLLC(invoice.customer.name))}
@@ -1167,7 +1167,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               {invoice.customer.address?.street}
@@ -1178,7 +1178,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               {invoice.customer.address?.city}
@@ -1195,7 +1195,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 TRN: {invoice.customer.vatNumber}
@@ -1207,7 +1207,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               Phone: {invoice.customer.phone}
@@ -1218,7 +1218,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               Email: {invoice.customer.email}
@@ -1244,7 +1244,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             >
                               <strong>Invoice #:</strong>{" "}
@@ -1256,7 +1256,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               }`}
                               style={{
                                 fontFamily: "Calibri, Arial, sans-serif",
-                                fontSize: "11pt",
+                                fontSize: "13pt",
                               }}
                             ></p>
                             <div className="flex items-center gap-2 justify-start mt-2">
@@ -1266,7 +1266,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>Payment Mode:</strong>
@@ -1282,7 +1282,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>Cheque No:</strong> {invoice.chequeNumber}
@@ -1309,7 +1309,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>Delivery Note:</strong>{" "}
@@ -1323,7 +1323,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>Customer PO #:</strong>{" "}
@@ -1337,7 +1337,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                 }`}
                                 style={{
                                   fontFamily: "Calibri, Arial, sans-serif",
-                                  fontSize: "11pt",
+                                  fontSize: "13pt",
                                 }}
                               >
                                 <strong>Customer PO Date:</strong>{" "}
@@ -1477,7 +1477,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {index +
@@ -1498,7 +1498,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       <div
@@ -1525,7 +1525,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                         style={{
                                           fontFamily:
                                             "Calibri, Arial, sans-serif",
-                                          fontSize: "11pt",
+                                          fontSize: "13pt",
                                         }}
                                       >
                                         {item.description || "-"}
@@ -1540,7 +1540,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {item.quantity}
@@ -1554,7 +1554,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {formatNumber(item.rate)}
@@ -1569,7 +1569,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                         style={{
                                           fontFamily:
                                             "Calibri, Arial, sans-serif",
-                                          fontSize: "11pt",
+                                          fontSize: "13pt",
                                         }}
                                       >
                                         {item.discount > 0
@@ -1590,7 +1590,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {formatNumber(item.amount)}
@@ -1604,7 +1604,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {item.vatRate}%
@@ -1618,7 +1618,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {formatNumber(vatAmount)}
@@ -1632,7 +1632,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                       style={{
                                         fontFamily:
                                           "Calibri, Arial, sans-serif",
-                                        fontSize: "11pt",
+                                        fontSize: "13pt",
                                       }}
                                     >
                                       {formatNumber(totalWithTRN)}
@@ -1666,7 +1666,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                     }`}
                                     style={{
                                       fontFamily: "Calibri, Arial, sans-serif",
-                                      fontSize: "11pt",
+                                      fontSize: "13pt",
                                     }}
                                   >
                                     Subtotal (AED):
@@ -1679,7 +1679,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                     }`}
                                     style={{
                                       fontFamily: "Calibri, Arial, sans-serif",
-                                      fontSize: "11pt",
+                                      fontSize: "13pt",
                                     }}
                                   >
                                     {formatNumber(computedSubtotal)}
@@ -1867,7 +1867,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                     }`}
                                     style={{
                                       fontFamily: "Calibri, Arial, sans-serif",
-                                      fontSize: "11pt",
+                                      fontSize: "13pt",
                                     }}
                                   >
                                     VAT (AED):
@@ -1880,7 +1880,7 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                                     }`}
                                     style={{
                                       fontFamily: "Calibri, Arial, sans-serif",
-                                      fontSize: "11pt",
+                                      fontSize: "13pt",
                                     }}
                                   >
                                     {formatNumber(computedVatAmount)}
