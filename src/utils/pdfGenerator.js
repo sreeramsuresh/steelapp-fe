@@ -86,10 +86,9 @@ export const generateInvoicePDF = async (invoice, company) => {
       const invoiceTitle = invoice.status === 'draft' ? 'DRAFT TAX INVOICE' :
                            invoice.status === 'proforma' ? 'PROFORMA TAX INVOICE' :
                            'TAX INVOICE';
-      const titleWidth = textWidth(invoiceTitle, 10, "bold");
-      const centerX = M.left + (page.w - M.left - M.right) / 2 - titleWidth / 2;
       pdf.setFontSize(10);
-      pdf.text(invoiceTitle, centerX, y + 3.5);
+      // Center the text using page center (simpler and more accurate)
+      pdf.text(invoiceTitle, page.w / 2, y + 3.5, { align: 'center' });
       pdf.setFontSize(11);
       y += 6;
 
