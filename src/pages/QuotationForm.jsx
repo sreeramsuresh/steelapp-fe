@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { 
-  Save, 
-  Plus, 
-  Trash2, 
-  ArrowLeft, 
-  User, 
+import {
+  Save,
+  Plus,
+  Trash2,
+  ArrowLeft,
+  User,
   Calendar,
   Clock,
   FileText,
@@ -13,7 +13,8 @@ import {
   Package,
   AlertCircle,
   CheckCircle,
-  X
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { quotationsAPI, customersAPI, productsAPI } from "../services/api";
@@ -63,6 +64,10 @@ const QuotationForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Validation state - MANDATORY for all forms
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [invalidFields, setInvalidFields] = useState(new Set());
 
   // Fetch initial data
   useEffect(() => {
@@ -274,23 +279,71 @@ const QuotationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.quotation_number.trim()) {
-      setError("Quotation number is required");
-      return;
+
+    // STEP 1: Validate all required fields
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    // Quotation number validation
+    if (!formData.quotation_number || formData.quotation_number.trim() === '') {
+      errors.push('Quotation number is required');
+      invalidFieldsSet.add('quotation_number');
     }
 
-    if (!formData.customer_details.name.trim()) {
-      setError("Customer name is required");
-      return;
+    // Customer validation
+    if (!formData.customer_details.name || formData.customer_details.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
     }
 
-    if (formData.items.length === 0) {
-      setError("At least one item is required");
-      return;
+    // Date validation
+    if (!formData.quotation_date) {
+      errors.push('Quotation date is required');
+      invalidFieldsSet.add('quotation_date');
     }
 
-    try {
+    // Items validation
+    if (!formData.items || formData.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      formData.items.forEach((item, index) => {
+        if (!item.name || item.name.trim() === '') {
+          errors.push(`Item ${index + 1}: Product name is required`);
+          invalidFieldsSet.add(`item.${index}.name`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.quantity`);
+        }
+        if (!item.rate || item.rate <= 0) {
+          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.rate`);
+        }
+      });
+    }
+
+    // If errors exist, show them and STOP
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setInvalidFields(invalidFieldsSet);
+
+      // Auto-scroll to error alert
+      setTimeout(() => {
+        const errorAlert = document.getElementById('validation-errors-alert');
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      return; // STOP - do not proceed with save
+    }
+
+    // STEP 2: Clear any previous errors
+    setValidationErrors([]);
+    setInvalidFields(new Set());
+
+    // STEP 3: Proceed with save operation
+    try{
       setLoading(true);
       setError("");
 
@@ -1104,14 +1157,53 @@ const QuotationForm = () => {
           </div>
         </div>
 
+        {/* Validation Errors Alert - MANDATORY */}
+        {validationErrors.length > 0 && (
+          <div
+            id="validation-errors-alert"
+            className={`mt-6 p-4 rounded-lg border-2 ${
+              isDarkMode
+                ? "bg-red-900/20 border-red-600 text-red-200"
+                : "bg-red-50 border-red-500 text-red-800"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+              <div className="flex-1">
+                <h4 className="font-bold text-lg mb-2">
+                  Please fix the following errors:
+                </h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => {
+                    setValidationErrors([]);
+                    setInvalidFields(new Set());
+                  }}
+                  className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                    isDarkMode
+                      ? "bg-red-800 hover:bg-red-700 text-white"
+                      : "bg-red-600 hover:bg-red-700 text-white"
+                  }`}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="flex justify-end gap-4">
           <button
             type="button"
             onClick={() => navigate("/quotations")}
             className={`px-6 py-2 border rounded-lg transition-colors ${
-              isDarkMode 
-                ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+              isDarkMode
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >

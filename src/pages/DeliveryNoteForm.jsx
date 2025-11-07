@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle } from 'lucide-react';
+import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
@@ -18,6 +18,10 @@ const DeliveryNoteForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Validation state - MANDATORY for all forms
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [invalidFields, setInvalidFields] = useState(new Set());
 
   // Form data
   const [formData, setFormData] = useState({
@@ -187,30 +191,79 @@ const DeliveryNoteForm = () => {
   };
 
   const handleSubmit = async () => {
+    // STEP 1: Validate all required fields
+    const errors = [];
+    const invalidFieldsSet = new Set();
+
+    // Delivery note number validation
+    if (!formData.delivery_note_number || formData.delivery_note_number.trim() === '') {
+      errors.push('Delivery note number is required');
+      invalidFieldsSet.add('delivery_note_number');
+    }
+
+    // Invoice selection validation
+    if (!formData.invoice_id) {
+      errors.push('Please select an invoice');
+      invalidFieldsSet.add('invoice_id');
+    }
+
+    // Delivery date validation
+    if (!formData.delivery_date) {
+      errors.push('Delivery date is required');
+      invalidFieldsSet.add('delivery_date');
+    }
+
+    // Vehicle number validation (optional but recommended)
+    if (!formData.vehicle_number || formData.vehicle_number.trim() === '') {
+      errors.push('Vehicle number is required');
+      invalidFieldsSet.add('vehicle_number');
+    }
+
+    // Driver name validation (optional but recommended)
+    if (!formData.driver_name || formData.driver_name.trim() === '') {
+      errors.push('Driver name is required');
+      invalidFieldsSet.add('driver_name');
+    }
+
+    // Items validation
+    if (!formData.items || formData.items.length === 0) {
+      errors.push('At least one item is required');
+    } else {
+      formData.items.forEach((item, index) => {
+        if (!item.delivered_quantity || item.delivered_quantity <= 0) {
+          errors.push(`Item ${index + 1}: Delivered quantity must be greater than 0`);
+          invalidFieldsSet.add(`item.${index}.delivered_quantity`);
+        }
+        if (item.delivered_quantity > item.ordered_quantity) {
+          errors.push(`Item ${index + 1}: Delivered quantity cannot exceed ordered quantity (${item.ordered_quantity})`);
+          invalidFieldsSet.add(`item.${index}.delivered_quantity`);
+        }
+      });
+    }
+
+    // If errors exist, show them and STOP
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setInvalidFields(invalidFieldsSet);
+
+      // Auto-scroll to error alert
+      setTimeout(() => {
+        const errorAlert = document.getElementById('validation-errors-alert');
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      return; // STOP - do not proceed with save
+    }
+
+    // STEP 2: Clear any previous errors
+    setValidationErrors([]);
+    setInvalidFields(new Set());
+
+    // STEP 3: Proceed with save operation
     try {
       setLoading(true);
-
-      // Validate required fields
-      if (!formData.delivery_note_number || !formData.invoice_id || !formData.delivery_date) {
-        setError('Please fill in all required fields');
-        return;
-      }
-
-      if (formData.items.length === 0) {
-        setError('Please add at least one item');
-        return;
-      }
-
-      // Validate delivery quantities
-      const invalidItems = formData.items.filter(item => 
-        item.delivered_quantity <= 0 || 
-        item.delivered_quantity > item.ordered_quantity
-      );
-
-      if (invalidItems.length > 0) {
-        setError('Please check delivery quantities. They must be greater than 0 and not exceed ordered quantities.');
-        return;
-      }
 
       const submitData = {
         ...formData,
@@ -517,6 +570,45 @@ const DeliveryNoteForm = () => {
               }`}
             />
           </div>
+
+          {/* Validation Errors Alert - MANDATORY */}
+          {validationErrors.length > 0 && (
+            <div
+              id="validation-errors-alert"
+              className={`mb-6 p-4 rounded-lg border-2 ${
+                isDarkMode
+                  ? "bg-red-900/20 border-red-600 text-red-200"
+                  : "bg-red-50 border-red-500 text-red-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+                <div className="flex-1">
+                  <h4 className="font-bold text-lg mb-2">
+                    Please fix the following errors:
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => {
+                      setValidationErrors([]);
+                      setInvalidFields(new Set());
+                    }}
+                    className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                      isDarkMode
+                        ? "bg-red-800 hover:bg-red-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}
