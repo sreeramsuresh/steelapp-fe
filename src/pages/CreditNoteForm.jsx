@@ -14,7 +14,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
 import { notificationService } from '../services/notificationService';
-import { formatCurrency, formatDateForInput } from '../utils/helpers';
+import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
 
 const RETURN_REASONS = [
   { value: 'defective', label: 'Defective Product' },

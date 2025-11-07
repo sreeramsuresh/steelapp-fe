@@ -1,3 +1,4 @@
+// Updated: Credit Notes moved to Finance section
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -57,7 +58,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Finance Dashboard',
           path: '/finance',
           icon: Banknote,
-          description: 'Manage payables and receivables',
+          description: 'Manage receivables, payables, and credit notes',
           requiredPermission: 'payables.read'
         },
         {
@@ -67,13 +68,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           description: 'View and manage invoices',
           badge: invoiceCount,
           requiredPermission: 'invoices_all.read'
-        },
-        {
-          name: 'Credit Notes',
-          path: '/credit-notes',
-          icon: RotateCcw,
-          description: 'Manage returns & refunds',
-          requiredPermission: 'invoices.read'
         }
       ]
     },

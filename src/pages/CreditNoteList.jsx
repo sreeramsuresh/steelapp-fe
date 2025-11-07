@@ -15,7 +15,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
 import { notificationService } from '../services/notificationService';
-import { formatCurrency, formatDate } from '../utils/helpers';
+import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 
 const STATUS_COLORS = {
   draft: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Draft' },

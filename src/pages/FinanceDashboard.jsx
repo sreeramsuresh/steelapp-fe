@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { 
+import {
   Banknote,
   TrendingUp,
   TrendingDown,
-  BarChart3
+  BarChart3,
+  RotateCcw
 } from 'lucide-react';
 
 import Payables from './Payables';
 import Receivables from './Receivables';
+import CreditNoteList from './CreditNoteList';
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -26,6 +28,12 @@ const FinanceDashboard = () => {
       label: 'Payables',
       icon: TrendingDown,
       component: Payables
+    },
+    {
+      id: 'credit-notes',
+      label: 'Credit Notes',
+      icon: RotateCcw,
+      component: CreditNoteList
     }
   ];
 
@@ -47,7 +55,7 @@ const FinanceDashboard = () => {
                 Finance Dashboard
               </h1>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Manage your payables and receivables
+                Manage your receivables, payables, and credit notes
               </p>
             </div>
           </div>
