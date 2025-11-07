@@ -85,7 +85,12 @@ const transformInvoiceFromServer = (serverData) => {
     // Audit trail fields for cancel and recreate
     recreated_from: serverData.recreated_from,
     original_id: serverData.original_id,
-    new_invoice_id: serverData.new_invoice_id
+    new_invoice_id: serverData.new_invoice_id,
+    // Soft delete fields
+    deletedAt: serverData.deleted_at,
+    deletionReason: serverData.deletion_reason,
+    deletionReasonCode: serverData.deletion_reason_code,
+    deletedByUserId: serverData.deleted_by_user_id
   };
 };
 
@@ -128,8 +133,14 @@ export const invoiceService = {
     return transformInvoiceFromServer(response);
   },
 
-  async deleteInvoice(id) {
-    return apiClient.delete(`/invoices/${id}`);
+  async deleteInvoice(id, deletionData = {}) {
+    // Soft delete with reason for audit trail
+    return apiClient.delete(`/invoices/${id}`, deletionData);
+  },
+
+  async restoreInvoice(id) {
+    // Restore soft-deleted invoice
+    return apiClient.patch(`/invoices/${id}/restore`, {});
   },
 
   async updateInvoiceStatus(id, status) {

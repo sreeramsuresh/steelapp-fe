@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Bell,
+  RotateCcw,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -26,6 +27,7 @@ import { deliveryNotesAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
+import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
 import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
 
@@ -43,6 +45,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [showDeleted, setShowDeleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
@@ -54,6 +57,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [searchParams] = useSearchParams();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewInvoice, setPreviewInvoice] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
 
   const company = createCompany();
 
@@ -84,6 +89,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         limit: pageSize,
         search: searchTerm || undefined,
         status: statusFilter === "all" ? undefined : statusFilter,
+        include_deleted: showDeleted ? 'true' : undefined,
         ...params,
       };
 
@@ -130,7 +136,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, showDeleted]);
 
   // Initialize search from URL param and keep in sync
   useEffect(() => {
@@ -389,14 +395,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
-  const handleDeleteInvoice = async (invoice) => {
-    const number = invoice.invoice_number || invoice.invoiceNumber || invoice.id;
-    const confirmed = window.confirm(`Delete invoice ${number}? This action cannot be undone.`);
-    if (!confirmed) return;
+  const handleDeleteInvoice = (invoice) => {
+    // Open modal to collect deletion reason
+    setInvoiceToDelete(invoice);
+    setShowDeleteModal(true);
+  };
 
+  const handleConfirmDelete = async (deleteData) => {
     try {
-      await invoiceService.deleteInvoice(invoice.id);
-      notificationService.deleteSuccess('Invoice');
+      await invoiceService.deleteInvoice(deleteData.invoiceId, {
+        reason: deleteData.reason,
+        reasonCode: deleteData.reasonCode
+      });
+      notificationService.success('Invoice deleted successfully (soft delete with audit trail)');
+
+      // Close modal
+      setShowDeleteModal(false);
+      setInvoiceToDelete(null);
+
+      // Refresh invoice list
       // If the last item on the page was deleted, optionally go back one page
       const remaining = (invoices?.length || 1) - 1;
       if (remaining === 0 && pagination && currentPage > 1) {
@@ -405,7 +422,26 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         await fetchInvoices();
       }
     } catch (error) {
-      notificationService.deleteError('Invoice', error);
+      console.error('Error deleting invoice:', error);
+      notificationService.error(error?.response?.data?.error || 'Failed to delete invoice');
+      throw error; // Re-throw so modal can handle loading state
+    }
+  };
+
+  const handleRestoreInvoice = async (invoice) => {
+    const number = invoice.invoice_number || invoice.invoiceNumber || invoice.id;
+    const confirmed = window.confirm(
+      `Restore invoice ${number}?\n\nThis will undelete the invoice and make it active again.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await invoiceService.restoreInvoice(invoice.id);
+      notificationService.success('Invoice restored successfully');
+      await fetchInvoices();
+    } catch (error) {
+      console.error('Error restoring invoice:', error);
+      notificationService.error(error?.response?.data?.error || 'Failed to restore invoice');
     }
   };
 
@@ -579,6 +615,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         </div>
       )}
 
+      {/* Delete Invoice Modal */}
+      <DeleteInvoiceModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setInvoiceToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        invoice={invoiceToDelete}
+      />
+
       {/* Delivery Note Modal */}
       <DeliveryNoteModal />
 
@@ -736,6 +783,23 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               }`}
             />
           </div>
+          <div className="flex items-center gap-2">
+            <label
+              className={`flex items-center gap-2 cursor-pointer px-4 py-3 border rounded-lg transition-colors duration-200 ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
+                  : "bg-white border-gray-300 text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={showDeleted}
+                onChange={(e) => setShowDeleted(e.target.checked)}
+                className="text-teal-600 focus:ring-teal-500 rounded"
+              />
+              <span className="text-sm font-medium">Show Deleted</span>
+            </label>
+          </div>
           <div className="min-w-[150px] relative">
             <select
               value={statusFilter}
@@ -868,17 +932,35 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {filteredInvoices.map((invoice) => (
+              {filteredInvoices.map((invoice) => {
+                const isDeleted = invoice.deleted_at || invoice.deletedAt;
+                return (
                 <tr
                   key={invoice.id}
                   className={`hover:${
                     isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"
-                  } transition-colors`}
+                  } transition-colors ${
+                    isDeleted
+                      ? isDarkMode
+                        ? 'bg-red-900/10 opacity-60'
+                        : 'bg-red-50/50 opacity-70'
+                      : ''
+                  }`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm font-semibold text-teal-600`}>
+                    <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
                       {invoice.invoiceNumber}
                     </div>
+                    {isDeleted && (
+                      <div
+                        className={`text-xs mt-1 ${
+                          isDarkMode ? "text-red-400" : "text-red-600"
+                        }`}
+                        title={`Deleted: ${invoice.deletion_reason || invoice.deletionReason || 'No reason provided'}`}
+                      >
+                        🗑️ DELETED
+                      </div>
+                    )}
                     {invoice.recreated_from && (
                       <div
                         className={`text-xs mt-1 ${
@@ -952,7 +1034,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
-                      {authService.hasPermission('invoices', 'update') && (
+                      {authService.hasPermission('invoices', 'update') && !isDeleted && (
                         <Link
                         to={`/edit/${invoice.id}`}
                         className={`p-2 rounded transition-colors ${
@@ -1046,7 +1128,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           <Truck size={16} />
                         </button>
                       )}
-                      {authService.hasPermission('invoices', 'delete') && (
+                      {authService.hasPermission('invoices', 'delete') && !isDeleted && (
                       <button
                         className={`p-2 rounded transition-colors bg-transparent ${
                           isDarkMode
@@ -1059,10 +1141,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         <Trash2 size={16} />
                       </button>
                       )}
+                      {/* Restore button for deleted invoices */}
+                      {isDeleted && authService.hasPermission('invoices', 'update') && (
+                      <button
+                        className={`p-2 rounded transition-colors bg-transparent ${
+                          isDarkMode
+                            ? "text-green-400 hover:text-green-300"
+                            : "hover:bg-gray-100 text-green-600"
+                        }`}
+                        title="Restore Invoice"
+                        onClick={() => handleRestoreInvoice(invoice)}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      )}
                     </div>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>

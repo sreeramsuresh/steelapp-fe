@@ -883,9 +883,17 @@ const InvoiceForm = ({ onSave }) => {
 
   useEffect(() => {
     if (existingInvoice && id) {
+      // Check if invoice is deleted - prevent editing
+      if (existingInvoice.deletedAt) {
+        notificationService.error(
+          `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || 'No reason provided'}`
+        );
+        navigate('/invoices');
+        return;
+      }
       setInvoice(existingInvoice);
     }
-  }, [existingInvoice, id]);
+  }, [existingInvoice, id, navigate]);
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
