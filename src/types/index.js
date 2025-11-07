@@ -82,7 +82,13 @@ export const createInvoice = () => ({
   total: 0,
   status: 'draft',
   notes: '',
-  terms: 'Kindly check the product before unloading. If any complaint arises, contact us immediately.\nNo items will be returned without prior authorisation'
+  terms: 'Kindly check the product before unloading. If any complaint arises, contact us immediately.\nNo items will be returned without prior authorisation',
+  // Payment tracking fields
+  payments: [], // Array of payment objects
+  payment_status: 'unpaid', // unpaid, partially_paid, fully_paid
+  total_paid: 0, // Calculated from payments array
+  balance_due: 0, // total - total_paid
+  last_payment_date: null // Date of most recent payment
 });
 
 export const createCompany = () => ({

@@ -49,6 +49,15 @@ import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { useApiData, useApi } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
+import PaymentSummary from "../components/PaymentSummary";
+import PaymentLedger from "../components/PaymentLedger";
+import AddPaymentModal from "../components/AddPaymentModal";
+import {
+  calculateTotalPaid,
+  calculateBalanceDue,
+  calculatePaymentStatus,
+  getLastPaymentDate
+} from "../utils/paymentUtils";
 
 // Custom Tailwind Components
 const Button = ({
@@ -613,6 +622,10 @@ const InvoiceForm = ({ onSave }) => {
   const [originalStatus, setOriginalStatus] = useState(null);
   const [showStatusConfirmDialog, setShowStatusConfirmDialog] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState(null);
+
+  // Payment tracking management
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [editingPayment, setEditingPayment] = useState(null);
 
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
@@ -1198,6 +1211,77 @@ const InvoiceForm = ({ onSave }) => {
   const handleCancelStatusChange = () => {
     setPendingStatusChange(null);
     setShowStatusConfirmDialog(false);
+  };
+
+  // Payment management handlers
+  const handleAddPayment = () => {
+    setEditingPayment(null);
+    setShowPaymentModal(true);
+  };
+
+  const handleEditPayment = (payment) => {
+    setEditingPayment(payment);
+    setShowPaymentModal(true);
+  };
+
+  const handleSavePayment = (paymentData) => {
+    setInvoice((prev) => {
+      let updatedPayments;
+
+      if (editingPayment) {
+        // Update existing payment
+        updatedPayments = prev.payments.map((p) =>
+          p.id === paymentData.id ? paymentData : p
+        );
+      } else {
+        // Add new payment
+        updatedPayments = [...prev.payments, paymentData];
+      }
+
+      // Recalculate payment fields
+      const totalPaid = calculateTotalPaid(updatedPayments);
+      const balanceDue = calculateBalanceDue(prev.total, updatedPayments);
+      const paymentStatus = calculatePaymentStatus(prev.total, updatedPayments);
+      const lastPaymentDate = getLastPaymentDate(updatedPayments);
+
+      return {
+        ...prev,
+        payments: updatedPayments,
+        total_paid: totalPaid,
+        balance_due: balanceDue,
+        payment_status: paymentStatus,
+        last_payment_date: lastPaymentDate
+      };
+    });
+
+    setShowPaymentModal(false);
+    setEditingPayment(null);
+    notificationService.success(
+      editingPayment ? 'Payment updated successfully!' : 'Payment added successfully!'
+    );
+  };
+
+  const handleDeletePayment = (paymentId) => {
+    setInvoice((prev) => {
+      const updatedPayments = prev.payments.filter((p) => p.id !== paymentId);
+
+      // Recalculate payment fields
+      const totalPaid = calculateTotalPaid(updatedPayments);
+      const balanceDue = calculateBalanceDue(prev.total, updatedPayments);
+      const paymentStatus = calculatePaymentStatus(prev.total, updatedPayments);
+      const lastPaymentDate = getLastPaymentDate(updatedPayments);
+
+      return {
+        ...prev,
+        payments: updatedPayments,
+        total_paid: totalPaid,
+        balance_due: balanceDue,
+        payment_status: paymentStatus,
+        last_payment_date: lastPaymentDate
+      };
+    });
+
+    notificationService.success('Payment deleted successfully!');
   };
 
   const handleSave = async () => {
@@ -2444,6 +2528,35 @@ const InvoiceForm = ({ onSave }) => {
               </Card>
             </div>
 
+            {/* Payment Tracking Section - Only show for issued invoices */}
+            {invoice.status === 'issued' && (
+              <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
+                <h2
+                  className={`text-xl font-bold mb-4 ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  💰 Payment Tracking
+                </h2>
+
+                {/* Payment Summary */}
+                <div className="mb-6">
+                  <PaymentSummary
+                    invoiceTotal={computedTotal}
+                    payments={invoice.payments || []}
+                  />
+                </div>
+
+                {/* Payment Ledger */}
+                <PaymentLedger
+                  payments={invoice.payments || []}
+                  onAddPayment={handleAddPayment}
+                  onEditPayment={handleEditPayment}
+                  onDeletePayment={handleDeletePayment}
+                />
+              </Card>
+            )}
+
             {/* Terms & Conditions */}
             <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
               <h2
@@ -2510,6 +2623,19 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         </div>
       )}
+
+      {/* Add/Edit Payment Modal */}
+      <AddPaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setEditingPayment(null);
+        }}
+        onSave={handleSavePayment}
+        invoiceTotal={computedTotal}
+        existingPayments={invoice.payments || []}
+        editingPayment={editingPayment}
+      />
     </div>
   );
 };
