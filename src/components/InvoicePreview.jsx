@@ -793,13 +793,13 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                     invoice.warehouseCode ||
                     invoice.warehouseCity
                   ) && (
-                    <div className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`} style={{ marginTop: 6 }}>
-                      <div className="font-semibold">Warehouse:</div>
-                      {invoice.warehouseName && <div>{invoice.warehouseName}</div>}
+                    <div className={`space-y-0 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`} style={{ marginTop: 6, lineHeight: 1.15 }}>
+                      <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse:</div>
+                      {invoice.warehouseName && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseName}</div>}
                       {invoice.warehouseCode && (
-                        <div>WAREHOUSE NO:{invoice.warehouseCode}</div>
+                        <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>WAREHOUSE NO:{invoice.warehouseCode}</div>
                       )}
-                      {invoice.warehouseCity && <div>{invoice.warehouseCity}</div>}
+                      {invoice.warehouseCity && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseCity}</div>}
                     </div>
                   )}
                   {invoice.deliveryNote && (
@@ -1293,13 +1293,13 @@ const InvoicePreview = ({ invoice, company, onClose }) => {
                               invoice.warehouseCode ||
                               invoice.warehouseCity
                             ) && (
-                              <div className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`} style={{ marginTop: 6 }}>
-                                <div className="font-semibold">Warehouse:</div>
-                                {invoice.warehouseName && <div>{invoice.warehouseName}</div>}
+                              <div className={`space-y-0 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`} style={{ marginTop: 6, lineHeight: 1.15 }}>
+                                <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse:</div>
+                                {invoice.warehouseName && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseName}</div>}
                                 {invoice.warehouseCode && (
-                                  <div>WAREHOUSE NO:{invoice.warehouseCode}</div>
+                                  <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>WAREHOUSE NO:{invoice.warehouseCode}</div>
                                 )}
-                                {invoice.warehouseCity && <div>{invoice.warehouseCity}</div>}
+                                {invoice.warehouseCity && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseCity}</div>}
                               </div>
                             )}
                             {invoice.deliveryNote && (
