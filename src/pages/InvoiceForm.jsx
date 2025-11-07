@@ -2636,14 +2636,21 @@ const InvoiceForm = ({ onSave }) => {
               <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
               <div>
                 <h3 className="text-lg font-semibold mb-2">
-                  Confirm Status Change to Final Tax Invoice
+                  Select Final Tax Invoice Status?
                 </h3>
                 <p className="text-sm mb-4">
-                  You are about to finalize this invoice as an official <strong>Tax Invoice</strong>.
+                  You are selecting <strong>Final Tax Invoice</strong> status for this invoice.
                 </p>
-                <p className="text-sm">
-                  Ready to proceed? Once finalized, this invoice cannot be edited.
-                  You can track payments separately after issuance.
+                <p className="text-sm mb-2">
+                  <strong>Important:</strong> When you save this invoice:
+                </p>
+                <ul className="text-sm list-disc list-inside space-y-1 ml-2">
+                  <li>Inventory will be deducted from stock</li>
+                  <li>Invoice cannot be edited after saving (requires credit note)</li>
+                  <li>Payments can be tracked separately after saving</li>
+                </ul>
+                <p className="text-sm mt-3 text-yellow-600 dark:text-yellow-400">
+                  Note: This only sets the status. Click "Save Invoice" button to actually create the invoice.
                 </p>
               </div>
             </div>
@@ -2662,7 +2669,7 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleConfirmStatusChange}
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
-                Yes, Issue Tax Invoice
+                Confirm Selection
               </button>
             </div>
           </div>
