@@ -1466,10 +1466,10 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </div>
 
-          {/* Payment Reminder Alert */}
+          {/* Payment Reminder Alert - Only show for existing invoices */}
           {(() => {
             const reminderInfo = getInvoiceReminderInfo(invoice);
-            if (!reminderInfo || !reminderInfo.shouldShowReminder) return null;
+            if (!reminderInfo || !reminderInfo.shouldShowReminder || !id) return null;
 
             const { config, daysUntilDue, balanceDue, isOverdue } = reminderInfo;
             const daysMessage = formatDaysMessage(daysUntilDue);
