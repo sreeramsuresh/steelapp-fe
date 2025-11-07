@@ -1526,20 +1526,37 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleSave}
                 disabled={savingInvoice || updatingInvoice || (id && invoice.status === 'issued')}
                 className="w-full sm:w-auto"
-                title={id && invoice.status === 'issued' ? 'Final Tax Invoice cannot be edited. Create a credit note to reverse.' : ''}
               >
                 {savingInvoice || updatingInvoice ? (
                   <LoadingSpinner size="sm" />
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {savingInvoice || updatingInvoice
-                  ? "Saving..."
-                  : (id && invoice.status === 'issued' ? "Cannot Edit Final Invoice" : "Save Invoice")}
+                {savingInvoice || updatingInvoice ? "Saving..." : "Save Invoice"}
               </Button>
               </div>
             </div>
           </div>
+
+          {/* Final Tax Invoice Lock Warning - Only show when editing a Final Tax Invoice */}
+          {id && invoice.status === 'issued' && (
+            <Alert variant="info" className="mt-6">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">🔒</span>
+                <div className="flex-1">
+                  <h4 className="font-bold text-lg mb-2">
+                    Final Tax Invoice is Locked
+                  </h4>
+                  <p className="text-sm mb-2">
+                    This invoice has been finalized and cannot be edited to maintain compliance and audit integrity.
+                  </p>
+                  <p className="text-xs opacity-90">
+                    <strong>Note:</strong> To correct this invoice, create a credit note or issue a new invoice instead.
+                  </p>
+                </div>
+              </div>
+            </Alert>
+          )}
 
           {/* Payment Reminder Alert - Only show for existing invoices */}
           {(() => {
