@@ -203,9 +203,9 @@ const CircularProgress = ({ size = 20, className = '' }) => {
   );
 };
 
-const TextField = ({ label, value, onChange, placeholder, multiline, rows, startAdornment, endAdornment, error, helperText, disabled = false, type = 'text', className = '' }) => {
+const TextField = ({ label, value, onChange, placeholder, multiline, rows, startAdornment, endAdornment, error, helperText, disabled = false, readOnly = false, type = 'text', className = '' }) => {
   const { isDarkMode } = useTheme();
-  
+
   return (
     <div className="space-y-1">
       {label && (
@@ -226,13 +226,14 @@ const TextField = ({ label, value, onChange, placeholder, multiline, rows, start
             placeholder={placeholder}
             rows={rows || 3}
             disabled={disabled}
+            readOnly={readOnly}
             className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error ? 'border-red-500' : (isDarkMode ? 'border-gray-600' : 'border-gray-300')
             } ${
-              isDarkMode 
-                ? 'bg-gray-800 text-white placeholder-gray-400' 
+              isDarkMode
+                ? 'bg-gray-800 text-white placeholder-gray-400'
                 : 'bg-white text-gray-900 placeholder-gray-500'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${readOnly ? 'opacity-50 cursor-default' : ''} ${className}`}
           />
         ) : (
           <input
@@ -241,13 +242,14 @@ const TextField = ({ label, value, onChange, placeholder, multiline, rows, start
             onChange={onChange}
             placeholder={placeholder}
             disabled={disabled}
+            readOnly={readOnly}
             className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error ? 'border-red-500' : (isDarkMode ? 'border-gray-600' : 'border-gray-300')
             } ${
-              isDarkMode 
-                ? 'bg-gray-800 text-white placeholder-gray-400' 
+              isDarkMode
+                ? 'bg-gray-800 text-white placeholder-gray-400'
                 : 'bg-white text-gray-900 placeholder-gray-500'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${readOnly ? 'opacity-50 cursor-default' : ''} ${className}`}
           />
         )}
         {endAdornment && (
