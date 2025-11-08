@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Phone, Calendar, Clock, User, Trash2, Edit2, Plus } from 'lucide-react';
+import { X, Phone, Calendar, Trash2, Edit2, Plus } from 'lucide-react';
 import { formatDateTime } from '../utils/invoiceUtils';
 
 const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -23,21 +22,18 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const fetchReminders = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(`/api/invoices/${invoice.id}/payment-reminders`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch payment reminders');
+      if (response.ok) {
+        const data = await response.json();
+        setReminders(data);
       }
-
-      const data = await response.json();
-      setReminders(data);
     } catch (err) {
-      setError(err.message);
+      // Silently fail - just show empty list
     } finally {
       setLoading(false);
     }
@@ -47,13 +43,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
     e.preventDefault();
 
     if (!formData.notes.trim()) {
-      setError('Please enter notes about the conversation');
       return;
     }
 
     try {
-      setError(null);
-
       if (editingId) {
         // Update existing reminder
         const response = await fetch(`/api/invoices/payment-reminders/${editingId}`, {
@@ -65,12 +58,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           body: JSON.stringify(formData)
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to update payment reminder');
+        if (response.ok) {
+          const updatedReminder = await response.json();
+          setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
         }
-
-        const updatedReminder = await response.json();
-        setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
       } else {
         // Create new reminder
         const response = await fetch(`/api/invoices/${invoice.id}/payment-reminders`, {
@@ -82,15 +73,13 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           body: JSON.stringify(formData)
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to save payment reminder');
-        }
+        if (response.ok) {
+          const newReminder = await response.json();
+          setReminders([newReminder, ...reminders]);
 
-        const newReminder = await response.json();
-        setReminders([newReminder, ...reminders]);
-
-        if (onSave) {
-          onSave(newReminder);
+          if (onSave) {
+            onSave(newReminder);
+          }
         }
       }
 
@@ -102,7 +91,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
       setIsAdding(false);
       setEditingId(null);
     } catch (err) {
-      setError(err.message);
+      // Silently fail
     }
   };
 
@@ -116,7 +105,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   };
 
   const handleDelete = async (reminderId) => {
-    if (!window.confirm('Are you sure you want to delete this reminder?')) {
+    if (!window.confirm('Delete this note?')) {
       return;
     }
 
@@ -128,13 +117,11 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete payment reminder');
+      if (response.ok) {
+        setReminders(reminders.filter(r => r.id !== reminderId));
       }
-
-      setReminders(reminders.filter(r => r.id !== reminderId));
     } catch (err) {
-      setError(err.message);
+      // Silently fail
     }
   };
 
@@ -145,7 +132,6 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
       contact_date: new Date().toISOString().slice(0, 16),
       notes: ''
     });
-    setError(null);
   };
 
   if (!isOpen) return null;
@@ -164,7 +150,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                 </h2>
               </div>
               <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                Invoice: {invoice?.invoiceNumber}
+                Invoice: {invoice?.invoiceNumber} | Customer: {invoice?.customer?.name || 'N/A'}
               </p>
             </div>
             <button
@@ -178,12 +164,6 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
 
         {/* Content - Scrollable */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded text-red-700 dark:text-red-300 text-sm">
-              {error}
-            </div>
-          )}
-
           {/* Add New Button */}
           {!isAdding && (
             <button
@@ -228,10 +208,14 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     placeholder="Document what was discussed with the customer regarding pending payment..."
-                    rows={4}
+                    rows={10}
+                    maxLength={1000}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600 focus:border-transparent resize-none"
                     required
                   />
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {formData.notes.length}/1000 characters (approx. 10 lines)
+                  </div>
                 </div>
               </div>
 
@@ -257,7 +241,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           {/* Reminders List */}
           {loading ? (
             <div className="text-center py-8 text-yellow-700 dark:text-yellow-300">
-              Loading reminders...
+              Loading...
             </div>
           ) : reminders.length === 0 ? (
             <div className="text-center py-8 text-yellow-700 dark:text-yellow-300">
@@ -297,16 +281,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                     </div>
                   </div>
 
-                  <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mb-2">
+                  <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
                     {reminder.notes}
                   </p>
-
-                  {reminder.username && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <User size={12} />
-                      <span>By: {reminder.username}</span>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
