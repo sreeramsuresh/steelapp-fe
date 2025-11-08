@@ -25,7 +25,7 @@ const BusinessDashboard = () => {
     },
     {
       id: 'products',
-      label: 'Steel Products',
+      label: 'Products',
       icon: Package,
       component: SteelProducts
     },
