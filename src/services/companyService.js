@@ -1,4 +1,31 @@
 import { apiClient } from './api';
+import { tokenUtils } from './axiosApi';
+
+// Simple, direct upload function like Google uses for profile pictures
+const uploadFile = async (endpoint, fieldName, file) => {
+  const formData = new FormData();
+  formData.append(fieldName, file);
+
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+  const token = tokenUtils.getToken();
+
+  const response = await fetch(`${baseURL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      // Don't set Content-Type - let browser set it with boundary
+    },
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || error.message || 'Upload failed');
+  }
+
+  return response.json();
+};
 
 export const companyService = {
   async getCompany() {
@@ -14,16 +41,7 @@ export const companyService = {
   },
 
   async uploadLogo(file) {
-    const formData = new FormData();
-    formData.append('logo', file);
-    
-    return apiClient.request('/company/upload-logo', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Don't set Content-Type, let browser set it with boundary
-      }
-    });
+    return uploadFile('/company/upload-logo', 'logo', file);
   },
 
   async deleteLogo(filename) {
@@ -35,19 +53,18 @@ export const companyService = {
   },
 
   async uploadBrandmark(file) {
-    const formData = new FormData();
-    formData.append('brandmark', file);
-
-    return apiClient.request('/company/upload-brandmark', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Don't set Content-Type, let browser set it with boundary
-      }
-    });
+    return uploadFile('/company/upload-brandmark', 'brandmark', file);
   },
 
   async deleteBrandmark(filename) {
     return apiClient.delete(`/company/brandmark/${filename}`);
+  },
+
+  async uploadSeal(file) {
+    return uploadFile('/company/upload-seal', 'seal', file);
+  },
+
+  async deleteSeal(filename) {
+    return apiClient.delete(`/company/seal/${filename}`);
   }
 };

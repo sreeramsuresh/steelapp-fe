@@ -337,8 +337,12 @@ const CompanySettings = () => {
   const { execute: updateCompany, loading: updatingCompany } = useApi(companyService.updateCompany);
   const { execute: uploadLogo, loading: uploadingLogo } = useApi(companyService.uploadLogo);
   const { execute: deleteLogo } = useApi(companyService.deleteLogo);
-  const { execute: uploadBrandmark, loading: uploadingBrandmark } = useApi(companyService.uploadBrandmark);
   const { execute: deleteBrandmark } = useApi(companyService.deleteBrandmark);
+  const { execute: deleteSeal } = useApi(companyService.deleteSeal);
+
+  // Upload functions called directly, not through useApi hook
+  const [uploadingBrandmark, setUploadingBrandmark] = useState(false);
+  const [uploadingSeal, setUploadingSeal] = useState(false);
   const { execute: createTemplate, loading: creatingTemplate } = useApi(templateService.createTemplate);
   const { execute: updateTemplate, loading: updatingTemplate } = useApi(templateService.updateTemplate);
   
@@ -570,6 +574,8 @@ const CompanySettings = () => {
         vat_number: '104858252000003',
         logo_url: companyProfile.logo_url || null,
         brandmark_url: companyProfile.brandmark_url || null,
+        pdf_logo_url: companyProfile.pdf_logo_url || null,
+        pdf_seal_url: companyProfile.pdf_seal_url || null,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -625,12 +631,9 @@ const CompanySettings = () => {
   const saveUsers = () => {};
 
   const handleLogoUpload = async (event) => {
-    console.log('handleLogoUpload called', event);
     const file = event.target.files[0];
-    console.log('Selected file:', file);
-    
+
     if (!file) {
-      console.log('No file selected');
       return;
     }
 
@@ -641,37 +644,31 @@ const CompanySettings = () => {
       return;
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      notificationService.warning('File size must be less than 5MB');
+    // Validate file size (50KB limit)
+    if (file.size > 50 * 1024) {
+      notificationService.warning(`File size must be less than 50KB. Your file is ${(file.size / 1024).toFixed(2)}KB`);
       return;
     }
 
     try {
-      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       const response = await uploadLogo(file);
-      console.log('Full upload response:', response);
-      console.log('Response keys:', Object.keys(response || {}));
-      
+
       // Handle different possible response structures
       let logoUrl = response?.logoUrl || response?.logo_url || response?.url || response?.path;
-      
+
       if (!logoUrl) {
         console.error('No logo URL found in response. Response structure:', response);
         throw new Error('Invalid response from server - no logo URL received');
       }
-      
+
       // Update company profile with new logo URL
-      // Transform localhost URLs to production URLs for deployment
       let newLogoUrl = logoUrl;
       if (logoUrl.includes('localhost:5000')) {
-        // In production, replace localhost with the proper domain/CDN
         const baseUrl = import.meta.env.VITE_API_BASE_URL.replace('/api', '');
         newLogoUrl = logoUrl.replace('http://localhost:5000', baseUrl);
       }
-      console.log('Setting new logo URL:', newLogoUrl);
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
-      
+
       // Save to database
       const companyData = {
         name: companyProfile.name,
@@ -684,6 +681,9 @@ const CompanySettings = () => {
         email: companyProfile.email,
         vat_number: companyProfile.vatNumber,
         logo_url: newLogoUrl,
+        pdf_logo_url: companyProfile.useLogoInPdf ? newLogoUrl : companyProfile.pdf_logo_url,
+        brandmark_url: companyProfile.brandmark_url,
+        pdf_seal_url: companyProfile.pdf_seal_url,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -691,7 +691,7 @@ const CompanySettings = () => {
         }
       };
       await updateCompany(companyData);
-      
+
       notificationService.success('Logo uploaded successfully!');
       refetchCompany();
     } catch (error) {
@@ -767,7 +767,8 @@ const CompanySettings = () => {
     }
 
     try {
-      const response = await uploadBrandmark(file);
+      setUploadingBrandmark(true);
+      const response = await companyService.uploadBrandmark(file);
 
       // Handle different possible response structures
       let brandmarkUrl = response?.brandmarkUrl || response?.brandmark_url || response?.url || response?.path;
@@ -777,15 +778,17 @@ const CompanySettings = () => {
         throw new Error('Invalid response from server - no brandmark URL received');
       }
 
-      // Update company profile with new brandmark URL
-      let newBrandmarkUrl = brandmarkUrl;
-      if (brandmarkUrl.includes('localhost:5000')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace('/api', '');
-        newBrandmarkUrl = brandmarkUrl.replace('http://localhost:5000', baseUrl);
-      }
-      setCompanyProfile(prev => ({ ...prev, brandmark_url: newBrandmarkUrl }));
+      console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
 
-      // Save to database
+      // Save only the relative path to database (not the full URL)
+      const relativeBrandmarkUrl = brandmarkUrl.startsWith('/uploads/') ? brandmarkUrl : brandmarkUrl.replace(/^https?:\/\/[^\/]+/, '');
+
+      console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
+
+      // Update company profile immediately with relative path
+      setCompanyProfile(prev => ({ ...prev, brandmark_url: relativeBrandmarkUrl }));
+
+      // Save to database (store relative path only)
       const companyData = {
         name: companyProfile.name,
         address: {
@@ -797,7 +800,7 @@ const CompanySettings = () => {
         email: companyProfile.email,
         vat_number: companyProfile.vatNumber,
         logo_url: companyProfile.logo_url,
-        brandmark_url: newBrandmarkUrl,
+        brandmark_url: relativeBrandmarkUrl,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -810,7 +813,9 @@ const CompanySettings = () => {
       refetchCompany();
     } catch (error) {
       console.error('Error uploading brandmark:', error);
-      notificationService.error('Failed to upload brandmark. Please try again.');
+      notificationService.error(`Failed to upload brandmark: ${error.message}`);
+    } finally {
+      setUploadingBrandmark(false);
     }
   };
 
@@ -845,6 +850,8 @@ const CompanySettings = () => {
         vat_number: companyProfile.vatNumber,
         logo_url: companyProfile.logo_url,
         brandmark_url: null,
+        pdf_logo_url: companyProfile.pdf_logo_url,
+        pdf_seal_url: companyProfile.pdf_seal_url,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -858,6 +865,140 @@ const CompanySettings = () => {
     } catch (error) {
       console.error('Error deleting brandmark:', error);
       notificationService.error('Failed to delete brandmark. Please try again.');
+    }
+  };
+
+  const handleSealUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      notificationService.warning('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (50KB limit)
+    if (file.size > 50 * 1024) {
+      notificationService.warning(`File size must be less than 50KB. Your file is ${(file.size / 1024).toFixed(2)}KB`);
+      return;
+    }
+
+    try {
+      console.log('[Seal Upload] Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+      setUploadingSeal(true);
+      const response = await companyService.uploadSeal(file);
+      console.log('[Seal Upload] Response received:', response);
+
+      // Handle different possible response structures
+      let sealUrl = response?.sealUrl || response?.seal_url || response?.url || response?.path;
+
+      if (!sealUrl) {
+        console.error('No seal URL found in response. Response structure:', response);
+        throw new Error('Invalid response from server - no seal URL received');
+      }
+
+      console.log('[Seal Upload] Seal URL from server:', sealUrl);
+
+      // Save only the relative path to database (not the full URL)
+      // This ensures consistency when fetching from database later
+      const relativeSealUrl = sealUrl.startsWith('/uploads/') ? sealUrl : sealUrl.replace(/^https?:\/\/[^\/]+/, '');
+
+      console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
+
+      // Update company profile immediately with relative path
+      setCompanyProfile(prev => ({ ...prev, pdf_seal_url: relativeSealUrl }));
+
+      // Save to database (store relative path only)
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.vatNumber,
+        logo_url: companyProfile.logo_url,
+        brandmark_url: companyProfile.brandmark_url,
+        pdf_logo_url: companyProfile.pdf_logo_url,
+        pdf_seal_url: relativeSealUrl,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
+      };
+      await updateCompany(companyData);
+
+      notificationService.success('Company seal uploaded successfully!');
+      refetchCompany();
+    } catch (error) {
+      console.error('=== SEAL UPLOAD ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response status:', error.response?.status);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response headers:', error.response?.headers);
+      console.error('Request config:', error.config);
+      console.error('========================');
+      notificationService.error(`Failed to upload seal: ${error.message}`);
+    } finally {
+      setUploadingSeal(false);
+    }
+  };
+
+  const handleSealDelete = async () => {
+    if (!companyProfile.pdf_seal_url) return;
+
+    if (!window.confirm('Are you sure you want to delete the company seal?')) {
+      return;
+    }
+
+    try {
+      // Extract filename from URL
+      const filename = companyProfile.pdf_seal_url.split('/').pop();
+
+      if (filename && filename.startsWith('company-logo-')) {
+        await deleteSeal(filename);
+      }
+
+      // Update company profile
+      setCompanyProfile(prev => ({ ...prev, pdf_seal_url: null }));
+
+      // Save to database
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.vatNumber,
+        logo_url: companyProfile.logo_url,
+        brandmark_url: companyProfile.brandmark_url,
+        pdf_logo_url: companyProfile.pdf_logo_url,
+        pdf_seal_url: null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
+      };
+      await updateCompany(companyData);
+
+      notificationService.success('Company seal deleted successfully!');
+      refetchCompany();
+    } catch (error) {
+      console.error('Error deleting seal:', error);
+      notificationService.error('Failed to delete seal. Please try again.');
     }
   };
 
@@ -1227,14 +1368,20 @@ const CompanySettings = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Logo Section */}
+          {/* Logo, Brandmark, and Seal Section - Side by Side */}
           <SettingsCard>
             <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Company Logo
+              <h4 className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Company Images
               </h4>
-              
-              <div className="flex space-x-6 items-start">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Logo Section */}
+                <div className="flex flex-col">
+                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Company Logo
+                  </h5>
+                  <div className="flex flex-col space-y-4">
                 <LogoContainer>
                   {uploadingLogo ? (
                     <div className="flex flex-col items-center justify-center space-y-2">
@@ -1279,8 +1426,8 @@ const CompanySettings = () => {
                     </div>
                   )}
                 </LogoContainer>
-                
-                <div className="space-y-3">
+
+                <div className="space-y-2">
                   <input
                     type="file"
                     id="logo-upload"
@@ -1292,87 +1439,181 @@ const CompanySettings = () => {
                     <Button
                       as="span"
                       variant="outline"
-                      startIcon={uploadingLogo ? <Upload size={16} className="animate-spin" /> : <Upload size={16} />}
+                      size="sm"
+                      startIcon={uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
                       disabled={uploadingLogo}
                     >
-                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                      {uploadingLogo ? 'Uploading...' : 'Upload'}
                     </Button>
                   </label>
                   <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                    Max: 50KB
                   </p>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={companyProfile.useLogoInPdf || false}
+                      onChange={(e) => {
+                        const useInPdf = e.target.checked;
+                        setCompanyProfile(prev => ({
+                          ...prev,
+                          useLogoInPdf: useInPdf,
+                          pdf_logo_url: useInPdf ? prev.logo_url : null
+                        }));
+                      }}
+                      className="mr-2"
+                    />
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Use in PDFs
+                    </span>
+                  </label>
                 </div>
               </div>
             </div>
-          </SettingsCard>
 
-          {/* Brandmark Section */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Company Brandmark
-              </h4>
+                {/* Brandmark Section */}
+                <div className="flex flex-col">
+                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Company Brandmark
+                  </h5>
+                  <div className="flex flex-col space-y-4">
+                    <LogoContainer>
+                      {uploadingBrandmark ? (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                        </div>
+                      ) : companyProfile.brandmark_url ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={`${companyProfile.brandmark_url.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.brandmark_url : companyProfile.brandmark_url}?t=${Date.now()}`}
+                            alt="Company Brandmark"
+                            className="w-full h-full object-contain rounded-lg"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              if (e.target.src.includes('?t=')) {
+                                const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
+                                e.target.src = companyProfile.brandmark_url.startsWith('/') ? baseUrl + companyProfile.brandmark_url : companyProfile.brandmark_url;
+                              } else {
+                                setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
+                              }
+                            }}
+                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                          />
+                          <button
+                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                            onClick={handleBrandmarkDelete}
+                            title="Delete brandmark"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Brandmark</span>
+                        </div>
+                      )}
+                    </LogoContainer>
 
-              <div className="flex space-x-6 items-start">
-                <LogoContainer>
-                  {uploadingBrandmark ? (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
-                    </div>
-                  ) : companyProfile.brandmark_url ? (
-                    <div className="relative w-full h-full">
-                      <img
-                        src={`${companyProfile.brandmark_url}?t=${Date.now()}`}
-                        alt="Company Brandmark"
-                        className="w-full h-full object-contain rounded-lg"
-                        crossOrigin="anonymous"
-                        onError={(e) => {
-                          if (e.target.src.includes('?t=')) {
-                            e.target.src = companyProfile.brandmark_url;
-                          } else {
-                            setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
-                          }
-                        }}
-                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        id="brandmark-upload"
+                        accept="image/*"
+                        onChange={handleBrandmarkUpload}
+                        className="hidden"
                       />
-                      <button
-                        className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                        onClick={handleBrandmarkDelete}
-                        title="Delete brandmark"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <label htmlFor="brandmark-upload" className="cursor-pointer">
+                        <Button
+                          as="span"
+                          variant="outline"
+                          size="sm"
+                          startIcon={uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                          disabled={uploadingBrandmark}
+                        >
+                          {uploadingBrandmark ? 'Uploading...' : 'Upload'}
+                        </Button>
+                      </label>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Max: 50KB
+                      </p>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Brandmark</span>
-                    </div>
-                  )}
-                </LogoContainer>
+                  </div>
+                </div>
 
-                <div className="space-y-3">
-                  <input
-                    type="file"
-                    id="brandmark-upload"
-                    accept="image/*"
-                    onChange={handleBrandmarkUpload}
-                    className="hidden"
-                  />
-                  <label htmlFor="brandmark-upload" className="cursor-pointer">
-                    <Button
-                      as="span"
-                      variant="outline"
-                      startIcon={uploadingBrandmark ? <Upload size={16} className="animate-spin" /> : <Upload size={16} />}
-                      disabled={uploadingBrandmark}
-                    >
-                      {uploadingBrandmark ? 'Uploading...' : 'Upload Brandmark'}
-                    </Button>
-                  </label>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Supported formats: JPEG, PNG, GIF, WebP. Max size: 50KB
-                  </p>
+                {/* Seal Section */}
+                <div className="flex flex-col">
+                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Company Seal
+                  </h5>
+                  <div className="flex flex-col space-y-4">
+                    <LogoContainer>
+                      {uploadingSeal ? (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                        </div>
+                      ) : companyProfile.pdf_seal_url ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={`${companyProfile.pdf_seal_url.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.pdf_seal_url : companyProfile.pdf_seal_url}?t=${Date.now()}`}
+                            alt="Company Seal"
+                            className="w-full h-full object-contain rounded-lg"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              if (e.target.src.includes('?t=')) {
+                                const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
+                                e.target.src = companyProfile.pdf_seal_url.startsWith('/') ? baseUrl + companyProfile.pdf_seal_url : companyProfile.pdf_seal_url;
+                              } else {
+                                setCompanyProfile(prev => ({ ...prev, pdf_seal_url: null }));
+                              }
+                            }}
+                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                          />
+                          <button
+                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                            onClick={handleSealDelete}
+                            title="Delete seal"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Seal</span>
+                        </div>
+                      )}
+                    </LogoContainer>
+
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        id="seal-upload"
+                        accept="image/*"
+                        onChange={handleSealUpload}
+                        className="hidden"
+                      />
+                      <label htmlFor="seal-upload" className="cursor-pointer">
+                        <Button
+                          as="span"
+                          variant="outline"
+                          size="sm"
+                          startIcon={uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                          disabled={uploadingSeal}
+                        >
+                          {uploadingSeal ? 'Uploading...' : 'Upload'}
+                        </Button>
+                      </label>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Max: 50KB
+                      </p>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        For PDFs
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

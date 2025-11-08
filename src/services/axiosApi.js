@@ -52,12 +52,22 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - adds Bearer token
+// Request interceptor - adds Bearer token and handles FormData
 api.interceptors.request.use((config) => {
   const accessToken = Cookies.get("accessToken");
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
+
+  // For FormData, let the browser set the Content-Type with boundary
+  if (config.data instanceof FormData) {
+    console.log('[axios interceptor] Detected FormData, deleting Content-Type header');
+    console.log('[axios interceptor] Request URL:', config.url);
+    console.log('[axios interceptor] Headers before deletion:', config.headers);
+    delete config.headers['Content-Type'];
+    console.log('[axios interceptor] Headers after deletion:', config.headers);
+  }
+
   return config;
 });
 
@@ -167,13 +177,10 @@ export const apiService = {
   },
 
   upload: async (url, formData, config = {}) => {
-    const response = await api.post(url, formData, {
-      ...config,
-      headers: {
-        ...config.headers,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    // Don't set Content-Type header - let the request interceptor handle it
+    // The interceptor will detect FormData and delete the header so the browser
+    // can set it automatically with the correct boundary
+    const response = await api.post(url, formData, config);
     return response.data;
   },
 
