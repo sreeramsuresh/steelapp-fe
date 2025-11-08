@@ -64,6 +64,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [activeCardFilter, setActiveCardFilter] = useState(null);
   const [showStatementModal, setShowStatementModal] = useState(false);
   const [statementCustomer, setStatementCustomer] = useState(null);
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState(new Set());
 
   const company = createCompany();
 
@@ -174,6 +175,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   }, [searchParams]);
 
+  // Clear selections when filters or search changes (Gmail behavior)
+  useEffect(() => {
+    setSelectedInvoiceIds(new Set());
+  }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted, activeCardFilter]);
+
   // Client-side payment status and card filtering
   const filteredInvoices = React.useMemo(() => {
     let filtered = invoices;
@@ -223,6 +229,31 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     return filtered;
   }, [invoices, paymentStatusFilter, activeCardFilter]);
+
+  // Selection handlers
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      const newSelected = new Set(filteredInvoices.map(inv => inv.id));
+      setSelectedInvoiceIds(newSelected);
+    } else {
+      setSelectedInvoiceIds(new Set());
+    }
+  };
+
+  const handleSelectInvoice = (invoiceId) => {
+    const newSelected = new Set(selectedInvoiceIds);
+    if (newSelected.has(invoiceId)) {
+      newSelected.delete(invoiceId);
+    } else {
+      newSelected.add(invoiceId);
+    }
+    setSelectedInvoiceIds(newSelected);
+  };
+
+  const isAllSelected = filteredInvoices.length > 0 &&
+    filteredInvoices.every(inv => selectedInvoiceIds.has(inv.id));
+
+  const isSomeSelected = filteredInvoices.some(inv => selectedInvoiceIds.has(inv.id)) && !isAllSelected;
 
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
@@ -492,18 +523,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     // Optionally refresh invoices or navigate to statement
   };
 
-  const handleBulkDownload = async () => {
-    if (invoices.length === 0) return;
+  const handleBulkDownload = async (selectedIds = null) => {
+    // Determine which invoices to download
+    const invoicesToDownload = selectedIds
+      ? filteredInvoices.filter(inv => selectedIds.has(inv.id))
+      : filteredInvoices;
 
-    const confirmed = window.confirm(
-      `Download PDFs for all ${invoices.length} invoices on this page?`
-    );
+    if (invoicesToDownload.length === 0) return;
+
+    const message = selectedIds
+      ? `Download PDFs for ${invoicesToDownload.length} selected invoice${invoicesToDownload.length !== 1 ? 's' : ''}?`
+      : `Download PDFs for all ${invoicesToDownload.length} invoice${invoicesToDownload.length !== 1 ? 's' : ''} on this page?`;
+
+    const confirmed = window.confirm(message);
     if (!confirmed) return;
 
     let successCount = 0;
     let failCount = 0;
 
-    for (const invoice of invoices) {
+    for (const invoice of invoicesToDownload) {
       try {
         // Fetch complete invoice details including items before generating PDF
         const fullInvoice = await invoiceService.getInvoice(invoice.id);
@@ -517,13 +555,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     }
 
+    // Clear selection after bulk download
+    if (selectedIds) {
+      setSelectedInvoiceIds(new Set());
+    }
+
     if (failCount === 0) {
       notificationService.success(
-        `Downloaded ${successCount} invoice PDFs successfully!`
+        `Downloaded ${successCount} invoice PDF${successCount !== 1 ? 's' : ''} successfully!`
       );
     } else {
       notificationService.warning(
-        `Downloaded ${successCount} PDFs. ${failCount} failed.`
+        `Downloaded ${successCount} PDF${successCount !== 1 ? 's' : ''}. ${failCount} failed.`
       );
     }
   };
@@ -798,9 +841,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 Create Invoice
               </Link>
             )}
-            {invoices.length > 0 && (
+            {filteredInvoices.length > 0 && selectedInvoiceIds.size === 0 && (
               <button
-                onClick={handleBulkDownload}
+                onClick={() => handleBulkDownload()}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-transparent ${
                   isDarkMode
                     ? "text-white hover:text-gray-300"
@@ -1085,11 +1128,70 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           </div>
         </div>
 
+        {/* Bulk Actions Toolbar */}
+        {selectedInvoiceIds.size > 0 && (
+          <div className={`flex items-center justify-between px-4 py-3 mb-6 rounded-lg border ${
+            isDarkMode
+              ? "bg-teal-900/20 border-teal-600/50"
+              : "bg-teal-50 border-teal-200"
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className={`text-sm font-medium ${
+                isDarkMode ? "text-teal-300" : "text-teal-700"
+              }`}>
+                {selectedInvoiceIds.size} invoice{selectedInvoiceIds.size !== 1 ? 's' : ''} selected
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleBulkDownload(selectedInvoiceIds)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isDarkMode
+                    ? "bg-teal-700 text-white hover:bg-teal-600"
+                    : "bg-teal-600 text-white hover:bg-teal-700"
+                }`}
+              >
+                <Download size={16} />
+                Download Selected
+              </button>
+              <button
+                onClick={() => setSelectedInvoiceIds(new Set())}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isDarkMode
+                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <X size={16} />
+                Deselect All
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Invoices Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
               <tr>
+                <th
+                  className={`px-4 py-3 text-left ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={input => {
+                      if (input) {
+                        input.indeterminate = isSomeSelected;
+                      }
+                    }}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+                    title={isAllSelected ? "Deselect all" : "Select all"}
+                  />
+                </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
                     isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -1148,7 +1250,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             >
               {filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-16 text-center">
+                  <td colSpan="8" className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center justify-center gap-4">
                       <div className={`text-6xl ${isDarkMode ? 'opacity-50' : 'opacity-30'}`}>
                         📄
@@ -1201,6 +1303,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               ) : (
                 filteredInvoices.map((invoice) => {
                 const isDeleted = invoice.deleted_at || invoice.deletedAt;
+                const isSelected = selectedInvoiceIds.has(invoice.id);
                 return (
                 <tr
                   key={invoice.id}
@@ -1211,9 +1314,22 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       ? isDarkMode
                         ? 'bg-red-900/10 opacity-60'
                         : 'bg-red-50/50 opacity-70'
+                      : isSelected
+                      ? isDarkMode
+                        ? 'bg-teal-900/20'
+                        : 'bg-teal-50'
                       : ''
                   }`}
                 >
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleSelectInvoice(invoice.id)}
+                      className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
                       {invoice.invoiceNumber}
