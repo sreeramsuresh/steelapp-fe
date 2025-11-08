@@ -21,7 +21,6 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { generateInvoicePDF } from "../utils/pdfGenerator";
 import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI } from "../services/api";
@@ -459,12 +458,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setDownloadingIds((prev) => new Set(prev).add(invoice.id));
 
     try {
-      // Fetch complete invoice details including items before generating PDF
-      const fullInvoice = await invoiceService.getInvoice(invoice.id);
-      await generateInvoicePDF(fullInvoice, company);
+      // Use the backend PDF endpoint instead of regenerating
+      const { apiClient } = await import("../services/api");
+      const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${invoice.invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
       notificationService.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error("PDF generation error:", error);
+      console.error("PDF download error:", error);
       notificationService.error(error.message || "Failed to download PDF");
     } finally {
       setDownloadingIds((prev) => {
@@ -529,7 +541,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       ? filteredInvoices.filter(inv => selectedIds.has(inv.id))
       : filteredInvoices;
 
-    if (invoicesToDownload.length === 0) return;
+    if (invoicesToDownload.length === 0) {
+      notificationService.error('No invoices selected for download');
+      return;
+    }
 
     const message = selectedIds
       ? `Download PDFs for ${invoicesToDownload.length} selected invoice${invoicesToDownload.length !== 1 ? 's' : ''}?`
@@ -541,11 +556,26 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     let successCount = 0;
     let failCount = 0;
 
+    // Import apiClient for PDF downloads
+    const { apiClient } = await import("../services/api");
+
     for (const invoice of invoicesToDownload) {
       try {
-        // Fetch complete invoice details including items before generating PDF
-        const fullInvoice = await invoiceService.getInvoice(invoice.id);
-        await generateInvoicePDF(fullInvoice, company);
+        // Use backend PDF endpoint
+        const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
+          responseType: 'blob'
+        });
+
+        // Create download link
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${invoice.invoiceNumber}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
         successCount++;
         // Add a small delay between downloads
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1130,18 +1160,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
         {/* Bulk Actions Toolbar */}
         {selectedInvoiceIds.size > 0 && (
-          <div className={`flex items-center justify-between px-4 py-3 mb-6 rounded-lg border ${
+          <div className={`flex items-center justify-end px-4 py-3 mb-6 rounded-lg border ${
             isDarkMode
               ? "bg-teal-900/20 border-teal-600/50"
               : "bg-teal-50 border-teal-200"
           }`}>
-            <div className="flex items-center gap-3">
-              <span className={`text-sm font-medium ${
-                isDarkMode ? "text-teal-300" : "text-teal-700"
-              }`}>
-                {selectedInvoiceIds.size} invoice{selectedInvoiceIds.size !== 1 ? 's' : ''} selected
-              </span>
-            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleBulkDownload(selectedInvoiceIds)}
@@ -1189,7 +1212,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     }}
                     onChange={handleSelectAll}
                     className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
-                    title={isAllSelected ? "Deselect all" : "Select all"}
                   />
                 </th>
                 <th

@@ -292,6 +292,7 @@ export const generateInvoicePDF = async (invoice, company) => {
       lastIndex: index,
       isFirstPage,
       footerY: footerY,
+      lastItemY: res.lastItemY,
       actualContentHeight: res.actualContentHeight,
     });
 
