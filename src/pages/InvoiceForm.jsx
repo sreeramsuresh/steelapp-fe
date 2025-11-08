@@ -2061,6 +2061,46 @@ const InvoiceForm = ({ onSave }) => {
                     </Select>
                   </div>
 
+                  {/* Currency and Exchange Rate */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Select
+                      label="Currency"
+                      value={invoice.currency || "AED"}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          currency: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="AED">AED (UAE Dirham)</option>
+                      <option value="USD">USD (US Dollar)</option>
+                      <option value="EUR">EUR (Euro)</option>
+                      <option value="GBP">GBP (British Pound)</option>
+                      <option value="SAR">SAR (Saudi Riyal)</option>
+                      <option value="QAR">QAR (Qatari Riyal)</option>
+                      <option value="OMR">OMR (Omani Rial)</option>
+                      <option value="BHD">BHD (Bahraini Dinar)</option>
+                      <option value="KWD">KWD (Kuwaiti Dinar)</option>
+                    </Select>
+                    {invoice.currency && invoice.currency !== 'AED' && (
+                      <Input
+                        label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
+                        type="number"
+                        value={invoice.exchangeRate || ''}
+                        onChange={(e) =>
+                          setInvoice((prev) => ({
+                            ...prev,
+                            exchangeRate: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., 3.67 for USD"
+                        step="0.000001"
+                        min="0"
+                      />
+                    )}
+                  </div>
+
                   {/* Customer Purchase Order Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input

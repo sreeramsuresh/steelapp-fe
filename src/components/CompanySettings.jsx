@@ -34,6 +34,7 @@ import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
+import vatRateService from '../services/vatRateService';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -411,11 +412,11 @@ const CompanySettings = () => {
     dueDays: ''
   });
 
-  const [taxSettings, setTaxSettings] = useState([]);
+  const [vatRates, setVatRates] = useState([]);
   const [users, setUsers] = useState([]);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState({ open: false, user: null });
-  const [showAddTaxModal, setShowAddTaxModal] = useState(false);
+  const [showAddVatModal, setShowAddVatModal] = useState(false);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
@@ -435,7 +436,7 @@ const CompanySettings = () => {
     }
   });
 
-  const [newTax, setNewTax] = useState({
+  const [newVatRate, setNewVatRate] = useState({
     name: '',
     rate: '',
     type: 'percentage',
@@ -518,20 +519,25 @@ const CompanySettings = () => {
       });
     }
 
-    // Load tax settings (local fallback)
-    const savedTaxSettings = localStorage.getItem('steel-app-tax-settings');
-
-    if (savedTaxSettings) {
-      setTaxSettings(JSON.parse(savedTaxSettings));
-    } else {
-      // Default tax settings for UAE
-      const defaultTaxes = [
-        { id: '1', name: 'TRN', rate: 5, type: 'percentage', description: 'UAE Tax Registration Number', active: true },
-        { id: '2', name: 'Zero TRN', rate: 0, type: 'percentage', description: 'Zero-rated TRN for eligible items', active: false },
-        { id: '3', name: 'Exempt TRN', rate: 0, type: 'percentage', description: 'TRN-exempt items', active: false }
-      ];
-      setTaxSettings(defaultTaxes);
-    }
+    // Load VAT rates from database
+    (async () => {
+      try {
+        const rates = await vatRateService.getAll();
+        // Transform database format to match component format
+        const transformedRates = rates.map(rate => ({
+          id: String(rate.id),
+          name: rate.name,
+          rate: Number(rate.rate),
+          type: rate.type,
+          description: rate.description,
+          active: rate.is_active
+        }));
+        setVatRates(transformedRates);
+      } catch (error) {
+        console.error('Error loading VAT rates:', error);
+        notificationService.error('Failed to load VAT rates');
+      }
+    })();
 
     // Load users from backend (admin only)
     (async () => {
@@ -626,9 +632,10 @@ const CompanySettings = () => {
     }
   };
 
-  const saveTaxSettings = () => {
-    localStorage.setItem('steel-app-tax-settings', JSON.stringify(taxSettings));
-  };
+  // No longer needed - using database directly
+  // const saveVatRates = () => {
+  //   localStorage.setItem('steel-app-vat-rates', JSON.stringify(vatRates));
+  // };
 
   const saveUsers = () => {};
 
@@ -1046,39 +1053,73 @@ const CompanySettings = () => {
     }
   };
 
-  const handleAddTax = () => {
-    const tax = {
-      ...newTax,
-      id: Date.now().toString(),
-      rate: newTax.rate === '' ? 0 : Number(newTax.rate)
-    };
-    const updatedTaxes = [...taxSettings, tax];
-    setTaxSettings(updatedTaxes);
-    saveTaxSettings();
-    setNewTax({
-      name: '',
-      rate: '',
-      type: 'percentage',
-      description: '',
-      active: true
-    });
-    setShowAddTaxModal(false);
+  const handleAddVatRate = async () => {
+    try {
+      const vatRateData = {
+        name: newVatRate.name,
+        rate: newVatRate.rate === '' ? 0 : Number(newVatRate.rate),
+        type: newVatRate.type,
+        description: newVatRate.description,
+        is_active: newVatRate.active
+      };
+
+      const createdRate = await vatRateService.create(vatRateData);
+
+      // Transform and add to local state
+      const transformedRate = {
+        id: String(createdRate.id),
+        name: createdRate.name,
+        rate: Number(createdRate.rate),
+        type: createdRate.type,
+        description: createdRate.description,
+        active: createdRate.is_active
+      };
+
+      setVatRates([...vatRates, transformedRate]);
+      setNewVatRate({
+        name: '',
+        rate: '',
+        type: 'percentage',
+        description: '',
+        active: true
+      });
+      setShowAddVatModal(false);
+      notificationService.success('VAT rate added successfully!');
+    } catch (error) {
+      console.error('Error adding VAT rate:', error);
+      notificationService.error('Failed to add VAT rate');
+    }
   };
 
-  const toggleTaxActive = (taxId) => {
-    const updatedTaxes = taxSettings.map(tax =>
-      tax.id === taxId ? { ...tax, active: !tax.active } : tax
-    );
-    setTaxSettings(updatedTaxes);
-    saveTaxSettings();
+  const toggleVatRateActive = async (vatRateId) => {
+    try {
+      const updatedRate = await vatRateService.toggle(vatRateId);
+
+      // Update local state
+      const updatedVatRates = vatRates.map(vatRate =>
+        vatRate.id === vatRateId ? { ...vatRate, active: updatedRate.is_active } : vatRate
+      );
+      setVatRates(updatedVatRates);
+      notificationService.success(`VAT rate ${updatedRate.is_active ? 'activated' : 'deactivated'}!`);
+    } catch (error) {
+      console.error('Error toggling VAT rate:', error);
+      notificationService.error('Failed to toggle VAT rate');
+    }
   };
 
-  const deleteTax = (taxId) => {
-    if (window.confirm('Are you sure you want to delete this tax setting?')) {
-      const updatedTaxes = taxSettings.filter(tax => tax.id !== taxId);
-      setTaxSettings(updatedTaxes);
-      saveTaxSettings();
-      notificationService.success('Tax setting deleted successfully!');
+  const deleteVatRate = async (vatRateId) => {
+    if (window.confirm('Are you sure you want to delete this VAT rate?')) {
+      try {
+        await vatRateService.delete(vatRateId);
+
+        // Update local state
+        const updatedVatRates = vatRates.filter(vatRate => vatRate.id !== vatRateId);
+        setVatRates(updatedVatRates);
+        notificationService.success('VAT rate deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting VAT rate:', error);
+        notificationService.error('Failed to delete VAT rate');
+      }
     }
   };
 
@@ -1703,11 +1744,11 @@ const CompanySettings = () => {
             </div>
           </SettingsCard>
 
-          {/* Tax Information */}
+          {/* VAT Registration */}
           <SettingsCard>
             <div className="p-6">
               <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Tax Information
+                VAT Registration
               </h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1882,74 +1923,97 @@ const CompanySettings = () => {
     </SettingsPaper>
   );
 
-  const renderTaxSettings = () => (
+  const renderVatSettings = () => (
     <div className={`rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Tax Settings
+            VAT Rates Configuration
           </h3>
           <Button
-            onClick={() => setShowAddTaxModal(true)}
+            onClick={() => setShowAddVatModal(true)}
             startIcon={<Plus size={16} />}
           >
-            Add Tax
+            Add VAT Rate
           </Button>
         </div>
 
+        {/* UAE VAT Compliance Info Banner */}
+        <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+          isDarkMode
+            ? 'bg-blue-900/20 border-blue-500 text-blue-300'
+            : 'bg-blue-50 border-blue-500 text-blue-800'
+        }`}>
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <h4 className="font-semibold mb-2">UAE Federal Tax Authority (FTA) VAT Compliance</h4>
+              <ul className="text-sm space-y-1 list-disc list-inside">
+                <li><strong>Standard Rated (5%):</strong> Default rate for most goods and services in UAE</li>
+                <li><strong>Zero Rated (0%):</strong> Exports, international transport, specified medicines & education</li>
+                <li><strong>Exempt:</strong> Financial services, residential properties, bare land (no input tax recovery)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
-          {taxSettings.map(tax => (
-            <div 
-              key={tax.id} 
+          {vatRates.map(vatRate => (
+            <div
+              key={vatRate.id}
               className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
                 isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
-              } ${tax.active ? 'opacity-100' : 'opacity-60'}`}
+              } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {tax.name}
+                      {vatRate.name}
                     </h4>
                     <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                      isDarkMode 
-                        ? 'text-teal-400 border-teal-600 bg-teal-900/20' 
+                      isDarkMode
+                        ? 'text-teal-400 border-teal-600 bg-teal-900/20'
                         : 'text-teal-600 border-teal-300 bg-teal-50'
                     }`}>
-                      {tax.rate}%
+                      {vatRate.rate}%
                     </span>
                     <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                      isDarkMode 
-                        ? 'text-gray-400 border-gray-600 bg-gray-800' 
+                      isDarkMode
+                        ? 'text-gray-400 border-gray-600 bg-gray-800'
                         : 'text-gray-600 border-gray-300 bg-gray-50'
                     }`}>
-                      {tax.type}
+                      {vatRate.type}
                     </span>
                   </div>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {tax.description}
+                    {vatRate.description}
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-3 ml-4">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={tax.active}
-                      onChange={() => toggleTaxActive(tax.id)}
+                      checked={vatRate.active}
+                      onChange={() => toggleVatRateActive(vatRate.id)}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
                   </label>
                   <span className={`text-sm font-medium ${
-                    tax.active 
-                      ? 'text-green-500' 
+                    vatRate.active
+                      ? 'text-green-500'
                       : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                   }`}>
-                    {tax.active ? 'Active' : 'Inactive'}
+                    {vatRate.active ? 'Active' : 'Inactive'}
                   </span>
                   <button
-                    onClick={() => deleteTax(tax.id)}
+                    onClick={() => deleteVatRate(vatRate.id)}
                     className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                   >
                     <Trash2 size={16} />
@@ -1961,17 +2025,17 @@ const CompanySettings = () => {
         </div>
       </div>
 
-      {/* Add Tax Modal */}
-      {showAddTaxModal && (
+      {/* Add VAT Rate Modal */}
+      {showAddVatModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
             <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
                 <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Add Tax Setting
+                  Add VAT Rate
                 </h3>
                 <button
-                  onClick={() => setShowAddTaxModal(false)}
+                  onClick={() => setShowAddVatModal(false)}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
@@ -1980,26 +2044,26 @@ const CompanySettings = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Tax Name"
-                  value={newTax.name}
-                  onChange={(e) => setNewTax({...newTax, name: e.target.value})}
-                  placeholder="Enter tax name (e.g., TRN)"
+                  label="VAT Rate Name"
+                  value={newVatRate.name}
+                  onChange={(e) => setNewVatRate({...newVatRate, name: e.target.value})}
+                  placeholder="e.g., Standard Rated, Zero Rated"
                 />
                 <Input
-                  label="Tax Rate (%)"
+                  label="VAT Percentage (%)"
                   type="number"
-                  value={newTax.rate || ''}
-                  onChange={(e) => setNewTax({...newTax, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  placeholder="Enter tax rate"
+                  value={newVatRate.rate || ''}
+                  onChange={(e) => setNewVatRate({...newVatRate, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                  placeholder="Enter VAT rate (0, 5, etc.)"
                 />
                 <Select
                   label="Type"
-                  value={newTax.type}
-                  onChange={(e) => setNewTax({...newTax, type: e.target.value})}
+                  value={newVatRate.type}
+                  onChange={(e) => setNewVatRate({...newVatRate, type: e.target.value})}
                   options={[
                     { value: 'percentage', label: 'Percentage' },
                     { value: 'fixed', label: 'Fixed Amount' }
@@ -2008,26 +2072,26 @@ const CompanySettings = () => {
                 <div className="md:col-span-2">
                   <Input
                     label="Description"
-                    value={newTax.description}
-                    onChange={(e) => setNewTax({...newTax, description: e.target.value})}
-                    placeholder="Enter tax description"
+                    value={newVatRate.description}
+                    onChange={(e) => setNewVatRate({...newVatRate, description: e.target.value})}
+                    placeholder="Describe when this VAT rate applies"
                   />
                 </div>
               </div>
             </div>
-            
+
             <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button
                 variant="outline"
-                onClick={() => setShowAddTaxModal(false)}
+                onClick={() => setShowAddVatModal(false)}
               >
                 Cancel
               </Button>
               <Button
-                onClick={handleAddTax}
+                onClick={handleAddVatRate}
                 startIcon={<Save size={20} />}
               >
-                Add Tax
+                Add VAT Rate
               </Button>
             </div>
           </div>
@@ -2486,7 +2550,7 @@ const CompanySettings = () => {
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
     { id: 'templates', label: 'Invoice Templates', icon: FileText },
-    { id: 'tax', label: 'Tax Settings', icon: Calculator },
+    { id: 'tax', label: 'VAT Rates', icon: Calculator },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
   ];
 
@@ -2545,7 +2609,7 @@ const CompanySettings = () => {
       <div className="mt-6">
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'templates' && renderInvoiceTemplates()}
-        {activeTab === 'tax' && renderTaxSettings()}
+        {activeTab === 'tax' && renderVatSettings()}
         {isAdmin && activeTab === 'users' && renderUserManagement()}
       </div>
     </div>
