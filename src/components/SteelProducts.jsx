@@ -779,7 +779,7 @@ const SteelProducts = () => {
           <div className="flex items-center gap-3 mb-2">
             <Package size={28} className="text-teal-600" />
             <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              🏗️ Steel Products
+              🏗️ Stainless Steel Products
             </h1>
           </div>
           <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
