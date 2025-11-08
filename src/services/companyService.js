@@ -32,5 +32,22 @@ export const companyService = {
 
   async cleanupLogos() {
     return apiClient.post('/company/cleanup-logos');
+  },
+
+  async uploadBrandmark(file) {
+    const formData = new FormData();
+    formData.append('brandmark', file);
+
+    return apiClient.request('/company/upload-brandmark', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Don't set Content-Type, let browser set it with boundary
+      }
+    });
+  },
+
+  async deleteBrandmark(filename) {
+    return apiClient.delete(`/company/brandmark/${filename}`);
   }
 };

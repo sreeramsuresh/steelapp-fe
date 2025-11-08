@@ -337,6 +337,8 @@ const CompanySettings = () => {
   const { execute: updateCompany, loading: updatingCompany } = useApi(companyService.updateCompany);
   const { execute: uploadLogo, loading: uploadingLogo } = useApi(companyService.uploadLogo);
   const { execute: deleteLogo } = useApi(companyService.deleteLogo);
+  const { execute: uploadBrandmark, loading: uploadingBrandmark } = useApi(companyService.uploadBrandmark);
+  const { execute: deleteBrandmark } = useApi(companyService.deleteBrandmark);
   const { execute: createTemplate, loading: creatingTemplate } = useApi(templateService.createTemplate);
   const { execute: updateTemplate, loading: updatingTemplate } = useApi(templateService.updateTemplate);
   
@@ -567,6 +569,7 @@ const CompanySettings = () => {
         website: companyProfile.website || '',
         vat_number: '104858252000003',
         logo_url: companyProfile.logo_url || null,
+        brandmark_url: companyProfile.brandmark_url || null,
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
@@ -707,14 +710,14 @@ const CompanySettings = () => {
     try {
       // Extract filename from URL
       const filename = companyProfile.logo_url.split('/').pop();
-      
+
       if (filename && filename.startsWith('company-logo-')) {
         await deleteLogo(filename);
       }
-      
+
       // Update company profile
       setCompanyProfile(prev => ({ ...prev, logo_url: null }));
-      
+
       // Save to database
       const companyData = {
         name: companyProfile.name,
@@ -734,12 +737,127 @@ const CompanySettings = () => {
         }
       };
       await updateCompany(companyData);
-      
+
       notificationService.success('Logo deleted successfully!');
       refetchCompany();
     } catch (error) {
       console.error('Error deleting logo:', error);
       notificationService.error('Failed to delete logo. Please try again.');
+    }
+  };
+
+  const handleBrandmarkUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      notificationService.warning('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (50KB limit)
+    if (file.size > 50 * 1024) {
+      notificationService.warning(`File size must be less than 50KB. Your file is ${(file.size / 1024).toFixed(2)}KB`);
+      return;
+    }
+
+    try {
+      const response = await uploadBrandmark(file);
+
+      // Handle different possible response structures
+      let brandmarkUrl = response?.brandmarkUrl || response?.brandmark_url || response?.url || response?.path;
+
+      if (!brandmarkUrl) {
+        console.error('No brandmark URL found in response. Response structure:', response);
+        throw new Error('Invalid response from server - no brandmark URL received');
+      }
+
+      // Update company profile with new brandmark URL
+      let newBrandmarkUrl = brandmarkUrl;
+      if (brandmarkUrl.includes('localhost:5000')) {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace('/api', '');
+        newBrandmarkUrl = brandmarkUrl.replace('http://localhost:5000', baseUrl);
+      }
+      setCompanyProfile(prev => ({ ...prev, brandmark_url: newBrandmarkUrl }));
+
+      // Save to database
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.vatNumber,
+        logo_url: companyProfile.logo_url,
+        brandmark_url: newBrandmarkUrl,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
+      };
+      await updateCompany(companyData);
+
+      notificationService.success('Brandmark uploaded successfully!');
+      refetchCompany();
+    } catch (error) {
+      console.error('Error uploading brandmark:', error);
+      notificationService.error('Failed to upload brandmark. Please try again.');
+    }
+  };
+
+  const handleBrandmarkDelete = async () => {
+    if (!companyProfile.brandmark_url) return;
+
+    if (!window.confirm('Are you sure you want to delete the company brandmark?')) {
+      return;
+    }
+
+    try {
+      // Extract filename from URL
+      const filename = companyProfile.brandmark_url.split('/').pop();
+
+      if (filename && filename.startsWith('company-logo-')) {
+        await deleteBrandmark(filename);
+      }
+
+      // Update company profile
+      setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
+
+      // Save to database
+      const companyData = {
+        name: companyProfile.name,
+        address: {
+          street: companyProfile.address,
+          city: companyProfile.city,
+          country: companyProfile.country
+        },
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+        vat_number: companyProfile.vatNumber,
+        logo_url: companyProfile.logo_url,
+        brandmark_url: null,
+        bankDetails: companyProfile.bankDetails || {
+          bankName: '',
+          accountNumber: '',
+          iban: ''
+        }
+      };
+      await updateCompany(companyData);
+
+      notificationService.success('Brandmark deleted successfully!');
+      refetchCompany();
+    } catch (error) {
+      console.error('Error deleting brandmark:', error);
+      notificationService.error('Failed to delete brandmark. Please try again.');
     }
   };
 
@@ -1182,6 +1300,78 @@ const CompanySettings = () => {
                   </label>
                   <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
+          </SettingsCard>
+
+          {/* Brandmark Section */}
+          <SettingsCard>
+            <div className="p-6">
+              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Company Brandmark
+              </h4>
+
+              <div className="flex space-x-6 items-start">
+                <LogoContainer>
+                  {uploadingBrandmark ? (
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                    </div>
+                  ) : companyProfile.brandmark_url ? (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={`${companyProfile.brandmark_url}?t=${Date.now()}`}
+                        alt="Company Brandmark"
+                        className="w-full h-full object-contain rounded-lg"
+                        crossOrigin="anonymous"
+                        onError={(e) => {
+                          if (e.target.src.includes('?t=')) {
+                            e.target.src = companyProfile.brandmark_url;
+                          } else {
+                            setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
+                          }
+                        }}
+                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                      />
+                      <button
+                        className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                        onClick={handleBrandmarkDelete}
+                        title="Delete brandmark"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Brandmark</span>
+                    </div>
+                  )}
+                </LogoContainer>
+
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    id="brandmark-upload"
+                    accept="image/*"
+                    onChange={handleBrandmarkUpload}
+                    className="hidden"
+                  />
+                  <label htmlFor="brandmark-upload" className="cursor-pointer">
+                    <Button
+                      as="span"
+                      variant="outline"
+                      startIcon={uploadingBrandmark ? <Upload size={16} className="animate-spin" /> : <Upload size={16} />}
+                      disabled={uploadingBrandmark}
+                    >
+                      {uploadingBrandmark ? 'Uploading...' : 'Upload Brandmark'}
+                    </Button>
+                  </label>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Supported formats: JPEG, PNG, GIF, WebP. Max size: 50KB
                   </p>
                 </div>
               </div>
