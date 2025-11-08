@@ -43,11 +43,11 @@ import {
   normalizeLLC,
   calculateDiscountedTRN,
 } from "../utils/invoiceUtils";
-import { generateInvoicePDF } from "../utils/pdfGenerator";
 import InvoicePreview from "../components/InvoicePreview";
 import { invoiceService, companyService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
+import { invoicesAPI } from "../services/api";
 import { useApiData, useApi } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
 import PaymentSummary from "../components/PaymentSummary";
@@ -1637,74 +1637,12 @@ const InvoiceForm = ({ onSave }) => {
     setIsGeneratingPDF(true);
 
     try {
-      // Use preview window to generate PDF (has correct 13pt fonts)
-      setShowPreview(true);
-
-      // Wait for preview to render
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const { jsPDF } = await import("jspdf");
-      const html2canvas = (await import("html2canvas")).default;
-
-      const element = document.getElementById("invoice-preview");
-      if (!element) {
-        throw new Error('Invoice preview not found');
-      }
-
-      // Wait for images to load
-      const imgs = Array.from(element.querySelectorAll('img'));
-      await Promise.all(
-        imgs.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete && img.naturalWidth !== 0) return resolve();
-              try {
-                img.crossOrigin = 'anonymous';
-              } catch (_) {}
-              img.addEventListener('load', resolve, { once: true });
-              img.addEventListener('error', resolve, { once: true });
-            })
-        )
-      );
-
-      // Capture with html2canvas
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
-
-      pdf.addImage(
-        imgData,
-        'PNG',
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
-
-      pdf.save(`${invoice.invoiceNumber || 'invoice'}.pdf`);
-
-      // Close preview after PDF is generated
-      setShowPreview(false);
-
-      notificationService.success("PDF generated successfully!");
+      // Use backend API to generate searchable text PDF with proper fonts and margins
+      await invoicesAPI.downloadPDF(invoiceId);
+      notificationService.success("PDF downloaded successfully!");
     } catch (error) {
       console.error('PDF generation error:', error);
       notificationService.error(`PDF generation failed: ${error.message}`);
-      setShowPreview(false);
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -1715,26 +1653,10 @@ const InvoiceForm = ({ onSave }) => {
   useEffect(() => {
     if (pdfPending && !loadingCompany) {
       setPdfPending(false);
-      // Use real company now available
-      (async () => {
-        setIsGeneratingPDF(true);
-        try {
-          await generateInvoicePDF(invoice, company || {
-            name: 'Your Company',
-            address: { street: '', city: '', country: 'UAE' },
-            phone: '',
-            email: '',
-            vat_number: '',
-          });
-          notificationService.success('PDF generated successfully!');
-        } catch (err) {
-          notificationService.error(`PDF generation failed: ${err.message}`);
-        } finally {
-          setIsGeneratingPDF(false);
-        }
-      })();
+      // Retry PDF download now that company details are loaded
+      handleDownloadPDF();
     }
-  }, [pdfPending, loadingCompany, company, invoice]);
+  }, [pdfPending, loadingCompany]);
 
   if (showPreview) {
     return (
