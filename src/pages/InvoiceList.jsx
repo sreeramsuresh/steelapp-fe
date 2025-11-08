@@ -17,6 +17,7 @@ import {
   Bell,
   RotateCcw,
   FileText,
+  Phone,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -29,6 +30,7 @@ import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import GenerateStatementModal from "../components/GenerateStatementModal";
+import PaymentReminderModal from "../components/PaymentReminderModal";
 import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
 import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
 
@@ -64,6 +66,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [showStatementModal, setShowStatementModal] = useState(false);
   const [statementCustomer, setStatementCustomer] = useState(null);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState(new Set());
+  const [showPaymentReminderModal, setShowPaymentReminderModal] = useState(false);
+  const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
 
   const company = createCompany();
 
@@ -533,6 +537,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const handleStatementGenerated = (statement) => {
     notificationService.success('Statement generated successfully!');
     // Optionally refresh invoices or navigate to statement
+  };
+
+  const handleOpenPaymentReminder = (invoice) => {
+    setPaymentReminderInvoice(invoice);
+    setShowPaymentReminderModal(true);
+  };
+
+  const handleClosePaymentReminder = () => {
+    setShowPaymentReminderModal(false);
+    setPaymentReminderInvoice(null);
+  };
+
+  const handlePaymentReminderSaved = (reminder) => {
+    notificationService.success('Payment reminder note saved successfully!');
   };
 
   const handleBulkDownload = async (selectedIds = null) => {
@@ -1439,7 +1457,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
-                      {authService.hasPermission('invoices', 'update') && !isDeleted && (
+                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status !== 'issued' && (
                         <Link
                         to={`/edit/${invoice.id}`}
                         className={`p-2 rounded transition-colors ${
@@ -1502,6 +1520,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           ) : (
                             <Bell size={16} />
                           )}
+                        </button>
+                      )}
+                      {/* Payment Reminder Phone Call Note Button */}
+                      {!isDeleted && (
+                        <button
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode
+                              ? "text-orange-400 hover:text-orange-300"
+                              : "hover:bg-orange-50 text-orange-600"
+                          }`}
+                          title="Payment Reminder - Phone Call Notes"
+                          onClick={() => handleOpenPaymentReminder(invoice)}
+                        >
+                          <Phone size={16} />
                         </button>
                       )}
                       {/* Generate Statement Button */}
@@ -1657,6 +1689,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         onClose={() => setShowStatementModal(false)}
         customer={statementCustomer}
         onGenerated={handleStatementGenerated}
+      />
+
+      {/* Payment Reminder Modal */}
+      <PaymentReminderModal
+        isOpen={showPaymentReminderModal}
+        onClose={handleClosePaymentReminder}
+        invoice={paymentReminderInvoice}
+        onSave={handlePaymentReminderSaved}
       />
     </div>
   );

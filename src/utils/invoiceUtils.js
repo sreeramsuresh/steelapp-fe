@@ -146,6 +146,20 @@ export const formatDate = (date) => {
   });
 };
 
+export const formatDateTime = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d)) return '';
+  return new Intl.DateTimeFormat('en-AE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).format(d);
+};
+
 // Format as DD/MM/YYYY (e.g., 04/06/2025)
 export const formatDateDMY = (date) => {
   if (!date) return '';
