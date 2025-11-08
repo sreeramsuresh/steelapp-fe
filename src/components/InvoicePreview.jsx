@@ -73,6 +73,45 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     Math.max(0, computedSubtotal - computedDiscount) + additionalCharges,
     computedVatAmount
   );
+  // Download PDF from backend (better method - text-based, smaller size)
+  const handleDownloadPDFFromBackend = async () => {
+    if (!invoiceId) {
+      console.warn('Invoice not saved yet, falling back to client-side PDF generation');
+      return handleDownloadPDF();
+    }
+
+    setIsDownloading(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/invoices/${invoiceId}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${invoice.invoiceNumber || 'invoice'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Backend PDF generation failed, falling back to client-side:', error);
+      // Fallback to client-side generation
+      await handleDownloadPDF();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Client-side PDF generation (fallback method - image-based, larger size)
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
     try {
@@ -160,7 +199,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             temp.appendChild(targetNode.cloneNode(true));
             document.body.appendChild(temp);
             pageCanvas = await html2canvas(temp, {
-              scale: 2,
+              scale: 1.5,
               useCORS: true,
               allowTaint: true,
               backgroundColor: "#ffffff",
@@ -168,13 +207,13 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             document.body.removeChild(temp);
           } else {
             pageCanvas = await html2canvas(targetNode, {
-              scale: 2,
+              scale: 1.5,
               useCORS: true,
               allowTaint: true,
               backgroundColor: "#ffffff",
             });
           }
-          const img = pageCanvas.toDataURL("image/png");
+          const img = pageCanvas.toDataURL("image/jpeg", 0.92);
           const pageHeight = pdf.internal.pageSize.getHeight();
           const aspect = pageCanvas.height / pageCanvas.width;
           // Scale to fit inside margins
@@ -188,17 +227,17 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2; // center within margins
           const y = My; // top-align within margin
           if (i > 0) pdf.addPage();
-          pdf.addImage(img, "PNG", x, y, drawWidth, drawHeight);
+          pdf.addImage(img, "JPEG", x, y, drawWidth, drawHeight);
         }
       } else {
         // Fallback: single canvas of full element
         const canvas = await html2canvas(element, {
-          scale: 2,
+          scale: 1.5,
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
         });
-        const fullImg = canvas.toDataURL("image/png");
+        const fullImg = canvas.toDataURL("image/jpeg", 0.92);
         const pageHeight = pdf.internal.pageSize.getHeight();
         const aspect = canvas.height / canvas.width;
         let drawWidth = pageWidth - 2 * Mx;
@@ -210,7 +249,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
         }
         const x = Mx + (pageWidth - 2 * Mx - drawWidth) / 2;
         const y = My;
-        pdf.addImage(fullImg, "PNG", x, y, drawWidth, drawHeight);
+        pdf.addImage(fullImg, "JPEG", x, y, drawWidth, drawHeight);
       }
 
       // Restore original styles
@@ -243,8 +282,8 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
       // Wait a moment for the save to complete and state to update
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Then download the PDF
-      await handleDownloadPDF();
+      // Then download the PDF using backend method (better quality, smaller size)
+      await handleDownloadPDFFromBackend();
 
       // Close preview after successful save and download
       // Parent component will handle navigation to invoice list
@@ -362,7 +401,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           </h2>
           <div className="flex gap-3">
             <button
-              onClick={invoiceId ? handleDownloadPDF : handleSaveAndDownload}
+              onClick={invoiceId ? handleDownloadPDFFromBackend : handleSaveAndDownload}
               disabled={isSaving || isDownloading || (!invoiceId && !canSave)}
               className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
                 (isSaving || isDownloading || (!invoiceId && !canSave)) ? 'opacity-50 cursor-not-allowed' : ''
@@ -533,7 +572,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                   <div className="text-center min-w-48">
                     <p className="text-sm mb-6">Authorized Signatory</p>
                     <div className="border-b border-black mb-2 h-10 w-48" />
-                    <p className="text-sm font-bold">ULTIMATE STEELS</p>
+                    <p className="text-sm font-bold">{company?.name?.toUpperCase() || 'ULTIMATE STEELS'}</p>
                   </div>
                 </div>
               </div>
@@ -725,7 +764,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                         fontWeight: "bold",
                       }}
                     >
-                      VAT Reg No: 104858252000003
+                      VAT Reg No: {company?.vat_number || company?.trn_number || '104858252000003'}
                     </p>
                   </div>
                 </div>
@@ -891,7 +930,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                     invoice.warehouseCity
                   ) && (
                     <div className={`space-y-0 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`} style={{ marginTop: 6, lineHeight: 1.15 }}>
-                      <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse:</div>
+                      <div className="font-semibold" style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Place of Supply (Warehouse):</div>
                       {invoice.warehouseName && <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>{invoice.warehouseName}</div>}
                       {invoice.warehouseCode && (
                         <div style={{ fontFamily: "Calibri, Arial, sans-serif", fontSize: "13pt" }}>Warehouse No: {invoice.warehouseCode}</div>
@@ -2393,6 +2432,40 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                                   </p>
                                 </div>
                               )}
+                              {invoice.taxNotes && (
+                                <div
+                                  style={{
+                                    border: `1px solid ${
+                                      isDarkMode ? "#37474F" : "#e5e7eb"
+                                    }`,
+                                    borderRadius: "8px",
+                                    backgroundColor: isDarkMode
+                                      ? "#1E2328"
+                                      : "#ffffff",
+                                    padding: "8px",
+                                  }}
+                                >
+                                  <h3
+                                    style={{
+                                      fontSize: "12px",
+                                      fontWeight: "bold",
+                                      marginBottom: "4px",
+                                      color: isDarkMode ? "#ffffff" : "#000000",
+                                    }}
+                                  >
+                                    VAT Tax Notes:
+                                  </h3>
+                                  <p
+                                    style={{
+                                      fontSize: "11px",
+                                      color: isDarkMode ? "#d1d5db" : "#374151",
+                                      whiteSpace: "pre-line",
+                                    }}
+                                  >
+                                    {invoice.taxNotes}
+                                  </p>
+                                </div>
+                              )}
                               {invoice.terms && (
                                 <div
                                   style={{
@@ -2449,7 +2522,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                             }}
                           >
                             <img
-                              src={seal}
+                              src={company?.seal_url || seal}
                               alt="Company Seal"
                               crossOrigin="anonymous"
                               style={{
@@ -2486,7 +2559,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                                   color: isDarkMode ? "#ffffff" : "#000000",
                                 }}
                               >
-                                {normalizeLLC("ULTIMATE STEELS")}
+                                {company?.name?.toUpperCase() || 'ULTIMATE STEELS'}
                               </p>
                               <p
                                 style={{
@@ -2494,7 +2567,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                                   color: isDarkMode ? "#9ca3af" : "#6b7280",
                                 }}
                               >
-                                {normalizeLLC("BUILDING MATERIALS")}
+                                BUILDING MATERIALS
                               </p>
                             </div>
                           </div>
@@ -2769,7 +2842,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
             {/* Notes and Terms */}
             {(!invoice.items || invoice.items.length === 0) &&
-              (invoice.notes || invoice.terms) && (
+              (invoice.notes || invoice.taxNotes || invoice.terms) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   {invoice.notes && (
                     <div>
@@ -2795,6 +2868,35 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                             style={{ whiteSpace: 'pre-line' }}
                           >
                             {invoice.notes}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {invoice.taxNotes && (
+                    <div>
+                      <div
+                        className={`border rounded-lg ${
+                          isDarkMode
+                            ? "border-[#37474F] bg-[#1E2328]"
+                            : "border-gray-200 bg-white"
+                        }`}
+                      >
+                        <div className="p-6">
+                          <h3
+                            className={`text-lg font-bold mb-4 ${
+                              isDarkMode ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            VAT Tax Notes:
+                          </h3>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
+                            }`}
+                            style={{ whiteSpace: 'pre-line' }}
+                          >
+                            {invoice.taxNotes}
                           </p>
                         </div>
                       </div>

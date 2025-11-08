@@ -1099,6 +1099,15 @@ const InvoiceForm = ({ onSave }) => {
         [field]: value,
       };
 
+      // Auto-update VAT rate based on supply type
+      if (field === "supplyType") {
+        if (value === "standard") {
+          newItems[index].vatRate = 5;
+        } else if (value === "zero_rated" || value === "exempt") {
+          newItems[index].vatRate = 0;
+        }
+      }
+
       if (field === "quantity" || field === "rate") {
         newItems[index].amount = calculateItemAmount(
           newItems[index].quantity,
@@ -2331,7 +2340,15 @@ const InvoiceForm = ({ onSave }) => {
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                        style={{ width: "10%" }}
+                        style={{ width: "12%" }}
+                      >
+                        Supply Type
+                      </th>
+                      <th
+                        className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                          isDarkMode ? "text-gray-100" : "text-gray-700"
+                        }`}
+                        style={{ width: "8%" }}
                       >
                         VAT %
                       </th>
@@ -2339,7 +2356,7 @@ const InvoiceForm = ({ onSave }) => {
                         className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                           isDarkMode ? "text-gray-100" : "text-gray-700"
                         }`}
-                        style={{ width: "16%" }}
+                        style={{ width: "14%" }}
                       >
                         Amount
                       </th>
@@ -2493,6 +2510,23 @@ const InvoiceForm = ({ onSave }) => {
                             className="w-full text-right"
                             error={invalidFields.has(`item.${index}.rate`)}
                           />
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <select
+                            value={item.supplyType || "standard"}
+                            onChange={(e) =>
+                              handleItemChange(index, "supplyType", e.target.value)
+                            }
+                            className={`w-full px-2 py-1 border rounded text-xs ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600 text-white"
+                                : "bg-white border-gray-300 text-gray-900"
+                            }`}
+                          >
+                            <option value="standard">Standard (5%)</option>
+                            <option value="zero_rated">Zero-Rated (0%)</option>
+                            <option value="exempt">Exempt</option>
+                          </select>
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <Input
@@ -2684,6 +2718,26 @@ const InvoiceForm = ({ onSave }) => {
                           step="0.01"
                           error={invalidFields.has(`item.${index}.rate`)}
                         />
+                        <div>
+                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            Supply Type
+                          </label>
+                          <select
+                            value={item.supplyType || "standard"}
+                            onChange={(e) =>
+                              handleItemChange(index, "supplyType", e.target.value)
+                            }
+                            className={`w-full px-3 py-2 border rounded ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600 text-white"
+                                : "bg-white border-gray-300 text-gray-900"
+                            }`}
+                          >
+                            <option value="standard">Standard (5%)</option>
+                            <option value="zero_rated">Zero-Rated (0%)</option>
+                            <option value="exempt">Exempt</option>
+                          </select>
+                        </div>
                         <Input
                           label="VAT %"
                           type="number"
@@ -2732,25 +2786,9 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             </Card>
 
-            {/* Summary and Notes */}
+            {/* Invoice Summary */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  📝 Notes
-                </h2>
-                <Textarea
-                  value={invoice.notes}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder="Additional notes..."
-                  rows="4"
-                />
-              </Card>
+              <div></div> {/* Empty column for layout */}
 
               <Card className="p-4 sm:p-6">
                 <h2
@@ -2935,6 +2973,48 @@ const InvoiceForm = ({ onSave }) => {
                     )}
                   </div>
                 </div>
+              </Card>
+            </div>
+
+            {/* Notes and Tax Notes */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+              <Card className="p-4 sm:p-6">
+                <h2
+                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  📝 Notes
+                </h2>
+                <Textarea
+                  value={invoice.notes}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  placeholder="Additional notes..."
+                  rows="4"
+                />
+              </Card>
+
+              <Card className="p-4 sm:p-6">
+                <h2
+                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  📋 VAT Tax Notes
+                </h2>
+                <Textarea
+                  value={invoice.taxNotes || ""}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
+                  }
+                  placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
+                  rows="4"
+                />
+                <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Required when items are zero-rated or exempt from VAT
+                </p>
               </Card>
             </div>
 
