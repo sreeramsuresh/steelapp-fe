@@ -276,24 +276,67 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   currentY = Math.max(currentY, rightY) + 8;
 
-  // ==================== TABLE SECTION ====================
+  // ==================== CURRENCY INFO (UAE VAT Compliance) ====================
+  if (invoice.currency && invoice.currency !== 'AED') {
+    const currencyBoxHeight = 18;
+
+    // Light blue background box
+    pdf.setFillColor(239, 246, 255); // bg-blue-50
+    pdf.rect(margin, currentY, pageWidth - 2 * margin, currencyBoxHeight, "F");
+
+    // Thick left border (blue-500)
+    pdf.setDrawColor(59, 130, 246);
+    pdf.setLineWidth(2);
+    pdf.line(margin, currentY, margin, currentY + currencyBoxHeight);
+
+    // Reset line width for other elements
+    pdf.setLineWidth(0.3);
+
+    pdf.setFontSize(9);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(30, 58, 138); // text-blue-900
+    pdf.text("Currency Information:", margin + 3, currentY + 5);
+
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(30, 64, 175); // text-blue-800
+
+    pdf.text(`Currency: ${invoice.currency}`, margin + 3, currentY + 9);
+    pdf.text(`Exchange Rate: 1 ${invoice.currency} = ${formatNumber(invoice.exchangeRate || 1)} AED`, margin + 50, currentY + 9);
+    const totalForeign = (invoice.total || 0) / (invoice.exchangeRate || 1);
+    pdf.text(`Total (${invoice.currency}): ${formatNumber(totalForeign)}`, margin + 3, currentY + 13);
+    pdf.text(`Total (AED): AED ${formatNumber(invoice.total || 0)}`, margin + 50, currentY + 13);
+
+    // Reset text color
+    setTextPrimary();
+
+    currentY += currencyBoxHeight + 5;
+  }
+
+  // ==================== TABLE SECTION (UAE VAT Compliant) ====================
   const tableStartY = currentY;
 
-  // Table column configuration
+  // Table column configuration - Updated for UAE VAT compliance
+  // Matches preview proportions: 4%, 24%, 12%, 8%, 6%, 10%, 10%, 6%, 10%, 10%
+  const tableWidth = pageWidth - 2 * margin;
   const colWidths = {
-    sr: 12,
-    description: 70,
-    quantity: 20,
-    unitPrice: 25,
-    taxes: 20,
-    price: 28
+    sr: tableWidth * 0.04,           // 4% - Sr. No
+    description: tableWidth * 0.24,  // 24% - Description
+    spec: tableWidth * 0.12,         // 12% - Specification
+    hsn: tableWidth * 0.08,          // 8% - HSN Code
+    quantity: tableWidth * 0.06,     // 6% - Quantity
+    unitPrice: tableWidth * 0.10,    // 10% - Unit Price
+    netAmt: tableWidth * 0.10,       // 10% - Net Amount
+    vatRate: tableWidth * 0.06,      // 6% - VAT %
+    vatAmt: tableWidth * 0.10,       // 10% - VAT Amount
+    total: tableWidth * 0.10         // 10% - Total with VAT
   };
 
   // Table header with blue background
-  pdf.setFillColor(...primaryBlue);
+  pdf.setFillColor(...primaryColor);
   pdf.rect(margin, currentY, pageWidth - 2 * margin, 8, "F");
 
-  pdf.setFontSize(9);
+  pdf.setFontSize(8);
   pdf.setFont("helvetica", "bold");
   pdf.setTextColor(255, 255, 255);
 
@@ -302,13 +345,21 @@ export const generateInvoicePDF = async (invoice, company) => {
   colX += colWidths.sr;
   pdf.text("Description", colX, currentY + 5.5);
   colX += colWidths.description;
-  pdf.text("Quantity", colX, currentY + 5.5, { align: "center" });
+  pdf.text("Specification", colX, currentY + 5.5);
+  colX += colWidths.spec;
+  pdf.text("HSN", colX, currentY + 5.5);
+  colX += colWidths.hsn;
+  pdf.text("Qty", colX + colWidths.quantity / 2, currentY + 5.5, { align: "center" });
   colX += colWidths.quantity;
-  pdf.text("Unit Price", colX, currentY + 5.5, { align: "center" });
+  pdf.text("Unit Price", colX + colWidths.unitPrice / 2, currentY + 5.5, { align: "center" });
   colX += colWidths.unitPrice;
-  pdf.text("VAT", colX, currentY + 5.5, { align: "center" });
-  colX += colWidths.taxes;
-  pdf.text("Price", colX + colWidths.price - 2, currentY + 5.5, { align: "right" });
+  pdf.text("Net Amt", colX + colWidths.netAmt - 2, currentY + 5.5, { align: "right" });
+  colX += colWidths.netAmt;
+  pdf.text("VAT%", colX + colWidths.vatRate / 2, currentY + 5.5, { align: "center" });
+  colX += colWidths.vatRate;
+  pdf.text("VAT Amt", colX + colWidths.vatAmt - 2, currentY + 5.5, { align: "right" });
+  colX += colWidths.vatAmt;
+  pdf.text("Total", colX + colWidths.total - 2, currentY + 5.5, { align: "right" });
 
   currentY += 8;
 
@@ -334,6 +385,9 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     colX = margin + 2;
 
+    pdf.setFontSize(8);
+    setTextPrimary();
+
     // Sr. number
     pdf.text(String(index + 1), colX, currentY + 5);
     colX += colWidths.sr;
@@ -341,27 +395,49 @@ export const generateInvoicePDF = async (invoice, company) => {
     // Description
     const desc = item.name || "";
     const descLines = pdf.splitTextToSize(desc, colWidths.description - 4);
+    pdf.setFont("helvetica", "bold");
     pdf.text(descLines[0] || "", colX, currentY + 5);
+    pdf.setFont("helvetica", "normal");
     colX += colWidths.description;
+
+    // Specification
+    const spec = item.specification || item.size || "-";
+    const specLines = pdf.splitTextToSize(spec, colWidths.spec - 4);
+    pdf.text(specLines[0] || "-", colX, currentY + 5);
+    colX += colWidths.spec;
+
+    // HSN Code
+    pdf.text(item.hsnCode || "-", colX, currentY + 5);
+    colX += colWidths.hsn;
 
     // Quantity
     pdf.text(String(item.quantity || 0), colX + colWidths.quantity / 2, currentY + 5, { align: "center" });
     colX += colWidths.quantity;
 
     // Unit Price
-    pdf.text(formatNumber(item.rate || 0), colX + colWidths.unitPrice / 2, currentY + 5, { align: "center" });
+    pdf.text(formatNumber(item.rate || 0), colX + colWidths.unitPrice - 2, currentY + 5, { align: "right" });
     colX += colWidths.unitPrice;
 
-    // Taxes (VAT Rate %)
-    const vatRate = item.vatRate || 0;
-    pdf.text(vatRate > 0 ? `${vatRate}%` : "", colX + colWidths.taxes / 2, currentY + 5, { align: "center" });
-    colX += colWidths.taxes;
-
-    // Price (amount including VAT)
+    // Net Amount (excluding VAT)
     const amountNum = parseFloat(item.amount) || 0;
+    pdf.text(formatNumber(amountNum), colX + colWidths.netAmt - 2, currentY + 5, { align: "right" });
+    colX += colWidths.netAmt;
+
+    // VAT Rate %
+    const vatRate = item.vatRate || 0;
+    pdf.text(vatRate > 0 ? `${vatRate}%` : "0%", colX + colWidths.vatRate / 2, currentY + 5, { align: "center" });
+    colX += colWidths.vatRate;
+
+    // VAT Amount
     const vatAmount = calculateTRN(amountNum, vatRate);
+    pdf.text(formatNumber(vatAmount), colX + colWidths.vatAmt - 2, currentY + 5, { align: "right" });
+    colX += colWidths.vatAmt;
+
+    // Total (including VAT)
     const totalWithVAT = amountNum + vatAmount;
-    pdf.text(formatNumber(totalWithVAT), colX + colWidths.price - 2, currentY + 5, { align: "right" });
+    pdf.setFont("helvetica", "bold");
+    pdf.text(formatNumber(totalWithVAT), colX + colWidths.total - 2, currentY + 5, { align: "right" });
+    pdf.setFont("helvetica", "normal");
 
     currentY += rowHeight;
   });
@@ -511,12 +587,47 @@ export const generateInvoicePDF = async (invoice, company) => {
     currentY += 5;
   }
 
-  // Additional remarks
-  if (invoice.warehouseName || invoice.warehouseCode) {
-    const warehouseInfo = [invoice.warehouseName, invoice.warehouseCode].filter(Boolean).join(" - ");
-    pdf.text("\u2022 Warehouse: ", margin, currentY);
-    pdf.text(warehouseInfo, margin + 22, currentY);
+  // Place of Supply (Warehouse) - UAE VAT Compliance
+  if (invoice.warehouseName || invoice.warehouseCode || invoice.warehouseCity) {
+    const warehouseInfo = [invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(", ");
+    pdf.text("\u2022 Place of Supply (Warehouse): ", margin, currentY);
+    pdf.text(warehouseInfo, margin + 45, currentY);
     currentY += 5;
+  }
+
+  currentY += 2;
+
+  // Tax Notes Section - UAE VAT Compliance (highlighted)
+  if (invoice.taxNotes) {
+    const taxNotesLines = pdf.splitTextToSize(invoice.taxNotes, pageWidth - 2 * margin - 8);
+    const taxNotesHeight = Math.max(14, 6 + (taxNotesLines.length * 4));
+
+    // Light yellow background box (bg-yellow-50)
+    pdf.setFillColor(254, 252, 232);
+    pdf.rect(margin, currentY, pageWidth - 2 * margin, taxNotesHeight, "F");
+
+    // Thick left border (border-yellow-500)
+    pdf.setDrawColor(234, 179, 8);
+    pdf.setLineWidth(2);
+    pdf.line(margin, currentY, margin, currentY + taxNotesHeight);
+
+    // Reset line width
+    pdf.setLineWidth(0.3);
+
+    pdf.setFontSize(9);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(113, 63, 18); // text-yellow-900
+    pdf.text("Tax Notes:", margin + 3, currentY + 5);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdf.setTextColor(133, 77, 14); // text-yellow-800
+    pdf.text(taxNotesLines, margin + 3, currentY + 10);
+
+    // Reset text color
+    setTextPrimary();
+
+    currentY += taxNotesHeight + 3;
   }
 
   currentY += 8;

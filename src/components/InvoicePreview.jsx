@@ -300,17 +300,34 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
               </div>
             </div>
 
-            {/* TABLE SECTION */}
+            {/* CURRENCY & EXCHANGE RATE SECTION (UAE VAT Compliance) */}
+            {invoice.currency && invoice.currency !== 'AED' && (
+              <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-sm">
+                <div className="font-semibold text-blue-900 mb-1">Currency Information:</div>
+                <div className="text-blue-800 space-y-1">
+                  <div><span className="font-semibold">Currency:</span> {invoice.currency}</div>
+                  <div><span className="font-semibold">Exchange Rate:</span> 1 {invoice.currency} = {formatNumber(invoice.exchangeRate || 1)} AED</div>
+                  <div><span className="font-semibold">Total ({invoice.currency}):</span> {formatNumber(computedTotal / (invoice.exchangeRate || 1))}</div>
+                  <div><span className="font-semibold">Total (AED):</span> AED {formatNumber(computedTotal)}</div>
+                </div>
+              </div>
+            )}
+
+            {/* TABLE SECTION - UAE VAT Compliant */}
             <div className="mb-6">
-              <table className="w-full border-collapse">
+              <table className="w-full border-collapse" style={{ fontSize: '11px' }}>
                 <thead>
                   <tr className="text-white" style={{ backgroundColor: primaryColor }}>
-                    <th className="px-2 py-2 text-left text-sm font-bold">Sr.</th>
-                    <th className="px-2 py-2 text-left text-sm font-bold">Description</th>
-                    <th className="px-2 py-2 text-center text-sm font-bold">Quantity</th>
-                    <th className="px-2 py-2 text-center text-sm font-bold">Unit Price</th>
-                    <th className="px-2 py-2 text-center text-sm font-bold">VAT</th>
-                    <th className="px-2 py-2 text-right text-sm font-bold">Price</th>
+                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '4%' }}>Sr.</th>
+                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '24%' }}>Description</th>
+                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '12%' }}>Specification</th>
+                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '8%' }}>HSN</th>
+                    <th className="px-2 py-2 text-center text-xs font-bold" style={{ width: '6%' }}>Qty</th>
+                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Unit Price</th>
+                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Net Amt</th>
+                    <th className="px-2 py-2 text-center text-xs font-bold" style={{ width: '6%' }}>VAT%</th>
+                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>VAT Amt</th>
+                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -322,18 +339,22 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
                     return (
                       <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                        <td className="px-2 py-2 text-sm">{index + 1}</td>
-                        <td className="px-2 py-2 text-sm font-medium">{item.name || ""}</td>
-                        <td className="px-2 py-2 text-sm text-center">{item.quantity || 0}</td>
-                        <td className="px-2 py-2 text-sm text-center">{formatNumber(item.rate || 0)}</td>
-                        <td className="px-2 py-2 text-sm text-center">{vatRate > 0 ? `${vatRate}%` : ""}</td>
-                        <td className="px-2 py-2 text-sm text-right font-medium">AED {formatNumber(totalWithVAT)}</td>
+                        <td className="px-2 py-2 text-xs">{index + 1}</td>
+                        <td className="px-2 py-2 text-xs font-medium">{item.name || ""}</td>
+                        <td className="px-2 py-2 text-xs">{item.specification || item.size || "-"}</td>
+                        <td className="px-2 py-2 text-xs">{item.hsnCode || "-"}</td>
+                        <td className="px-2 py-2 text-xs text-center">{item.quantity || 0}</td>
+                        <td className="px-2 py-2 text-xs text-right">{formatNumber(item.rate || 0)}</td>
+                        <td className="px-2 py-2 text-xs text-right">{formatNumber(amountNum)}</td>
+                        <td className="px-2 py-2 text-xs text-center">{vatRate > 0 ? `${vatRate}%` : "0%"}</td>
+                        <td className="px-2 py-2 text-xs text-right">{formatNumber(vatAmount)}</td>
+                        <td className="px-2 py-2 text-xs text-right font-medium">{formatNumber(totalWithVAT)}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-              <div className="border-t border-gray-300 mt-2"></div>
+              <div className="border-t-2 border-gray-300 mt-1"></div>
             </div>
 
             {/* TOTALS SECTION */}
@@ -406,10 +427,18 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
               {(invoice.warehouseName || invoice.warehouseCode) && (
                 <p>
                   <span className="mr-1">•</span>
-                  <span className="font-semibold">Warehouse:</span> {[invoice.warehouseName, invoice.warehouseCode].filter(Boolean).join(" - ")}
+                  <span className="font-semibold">Place of Supply (Warehouse):</span> {[invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(", ")}
                 </p>
               )}
             </div>
+
+            {/* TAX NOTES SECTION (UAE VAT Compliance) */}
+            {invoice.taxNotes && (
+              <div className="mb-6 p-3 bg-yellow-50 border-l-4 border-yellow-500">
+                <h4 className="text-sm font-bold text-yellow-900 mb-2">Tax Notes:</h4>
+                <div className="text-sm text-yellow-800 whitespace-pre-wrap">{invoice.taxNotes}</div>
+              </div>
+            )}
 
             {/* SIGNATURE AND SEAL SECTION */}
             <div className="flex justify-between items-start mb-6">
