@@ -135,6 +135,27 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.line(margin, currentY, pageWidth - margin, currentY);
   currentY += 8;
 
+  // ==================== INVOICE TITLE BANNER ====================
+  // Determine invoice title based on status
+  const invoiceTitle = invoice.status === 'draft' ? 'DRAFT INVOICE' :
+                       invoice.status === 'proforma' ? 'PROFORMA INVOICE' :
+                       'TAX INVOICE';
+
+  // Draw title banner with same height and style as Invoice No box (7mm height)
+  const titleBannerHeight = 7;
+  pdf.setFillColor(...primaryColor);
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, titleBannerHeight, "F");
+
+  // Add centered title text
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(255, 255, 255);
+  const titleWidth = pdf.getTextWidth(invoiceTitle);
+  const titleX = (pageWidth - titleWidth) / 2;
+  pdf.text(invoiceTitle, titleX, currentY + 5);
+
+  currentY += titleBannerHeight + 6;
+
   // ==================== INVOICE TO & INVOICE INFO SECTION ====================
   const leftColX = margin;
   const rightColX = pageWidth / 2 + 5;

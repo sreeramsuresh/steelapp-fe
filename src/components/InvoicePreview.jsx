@@ -241,6 +241,15 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             {/* Horizontal Line */}
             <div className="border-t-2 mb-6" style={{ borderColor: primaryColor }}></div>
 
+            {/* INVOICE TITLE */}
+            <div className="mb-6">
+              <div className="text-white px-3 py-1.5 text-center font-bold text-base" style={{ backgroundColor: primaryColor }}>
+                {invoice.status === 'draft' && 'DRAFT INVOICE'}
+                {invoice.status === 'proforma' && 'PROFORMA INVOICE'}
+                {(!invoice.status || (invoice.status !== 'draft' && invoice.status !== 'proforma')) && 'TAX INVOICE'}
+              </div>
+            </div>
+
             {/* INVOICE TO & INFO SECTION */}
             <div className="grid grid-cols-2 gap-6 mb-6">
               {/* Left - Invoice To */}
