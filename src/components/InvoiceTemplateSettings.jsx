@@ -1,0 +1,1003 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Palette,
+  Layout,
+  Type,
+  Eye,
+  Settings,
+  RotateCcw,
+  Save,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  CheckCircle,
+  Upload,
+  Download
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { getDefaultTemplateSettings, validateTemplateSettings, mergeTemplateSettings } from '../constants/defaultTemplateSettings';
+import { generateConfigurablePDF } from '../utils/configurablePdfGenerator';
+
+const InvoiceTemplateSettings = ({ company, onSave }) => {
+  const { isDarkMode } = useTheme();
+
+  // Template settings state
+  const [settings, setSettings] = useState(getDefaultTemplateSettings());
+  const [originalSettings, setOriginalSettings] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+
+  // UI state
+  const [activeSection, setActiveSection] = useState('basic');
+  const [expandedSections, setExpandedSections] = useState({
+    colors: false,
+    layout: false,
+    typography: false,
+    branding: false,
+    visibility: false,
+    table: false,
+    formatting: false
+  });
+
+  // Load settings from company
+  useEffect(() => {
+    if (company?.settings?.invoice_template) {
+      const mergedSettings = mergeTemplateSettings(company.settings.invoice_template);
+      setSettings(mergedSettings);
+      setOriginalSettings(mergedSettings);
+    } else {
+      const defaults = getDefaultTemplateSettings();
+      setSettings(defaults);
+      setOriginalSettings(defaults);
+    }
+  }, [company]);
+
+  // Check for changes
+  useEffect(() => {
+    if (originalSettings) {
+      const changed = JSON.stringify(settings) !== JSON.stringify(originalSettings);
+      setHasChanges(changed);
+    }
+  }, [settings, originalSettings]);
+
+  // Update setting
+  const updateSetting = (path, value) => {
+    setSettings(prev => {
+      const newSettings = JSON.parse(JSON.stringify(prev));
+      const keys = path.split('.');
+      let current = newSettings;
+
+      for (let i = 0; i < keys.length - 1; i++) {
+        current = current[keys[i]];
+      }
+
+      current[keys[keys.length - 1]] = value;
+      return newSettings;
+    });
+  };
+
+  // Reset to defaults
+  const handleResetToDefaults = () => {
+    if (window.confirm('Are you sure you want to reset all template settings to defaults? This cannot be undone.')) {
+      const defaults = getDefaultTemplateSettings();
+      setSettings(defaults);
+      setValidationErrors([]);
+    }
+  };
+
+  // Save settings
+  const handleSave = async () => {
+    // Validate
+    const validation = validateTemplateSettings(settings);
+    if (!validation.valid) {
+      setValidationErrors(validation.errors);
+      alert('Please fix validation errors before saving.');
+      return;
+    }
+
+    setValidationErrors([]);
+    setIsSaving(true);
+
+    try {
+      await onSave({ invoice_template: settings });
+      setOriginalSettings(settings);
+      setHasChanges(false);
+      alert('Template settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving template settings:', error);
+      alert('Failed to save template settings. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Preview PDF
+  const handlePreview = async () => {
+    setIsPreviewing(true);
+    try {
+      // Create a sample invoice
+      const sampleInvoice = {
+        invoiceNumber: 'INV-2025-01-001',
+        date: new Date(),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        customer: {
+          name: 'Sample Customer LLC',
+          email: 'customer@example.com',
+          phone: '+971 50 123 4567',
+          vatNumber: '100123456700003',
+          address: {
+            street: '123 Business Street',
+            city: 'Dubai',
+            country: 'UAE'
+          }
+        },
+        items: [
+          {
+            name: 'Stainless Steel Sheet 304 - 4x8',
+            quantity: 10,
+            rate: 850,
+            amount: 8500,
+            vatRate: 5
+          },
+          {
+            name: 'Stainless Steel Pipe 316L - 2 inch',
+            quantity: 25,
+            rate: 120,
+            amount: 3000,
+            vatRate: 5
+          }
+        ],
+        notes: 'Thank you for your business!',
+        terms: 'Payment due within 30 days',
+        warehouseName: 'Main Warehouse',
+        warehouseCode: 'WH-001'
+      };
+
+      // Create temporary company object with current settings
+      const tempCompany = {
+        ...company,
+        settings: {
+          ...company?.settings,
+          invoice_template: settings
+        }
+      };
+
+      await generateConfigurablePDF(sampleInvoice, tempCompany);
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      alert('Failed to generate preview. Please check your settings.');
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
+  // Toggle section
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Color input component
+  const ColorInput = ({ label, value, onChange, description }) => (
+    <div className="mb-4">
+      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {label}
+      </label>
+      {description && (
+        <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
+      )}
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-20 rounded cursor-pointer"
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`flex-1 px-3 py-2 border rounded-lg ${
+            isDarkMode
+              ? 'bg-gray-700 border-gray-600 text-white'
+              : 'bg-white border-gray-300 text-gray-900'
+          }`}
+          placeholder="#000000"
+        />
+      </div>
+    </div>
+  );
+
+  // Number input component
+  const NumberInput = ({ label, value, onChange, min, max, step = 1, unit = '', description }) => (
+    <div className="mb-4">
+      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {label}
+      </label>
+      {description && (
+        <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
+      )}
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          min={min}
+          max={max}
+          step={step}
+          className={`flex-1 px-3 py-2 border rounded-lg ${
+            isDarkMode
+              ? 'bg-gray-700 border-gray-600 text-white'
+              : 'bg-white border-gray-300 text-gray-900'
+          }`}
+        />
+        {unit && <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>{unit}</span>}
+      </div>
+    </div>
+  );
+
+  // Checkbox component
+  const CheckboxInput = ({ label, checked, onChange, description }) => (
+    <div className="mb-3">
+      <label className="flex items-start gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="mt-1 h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+        />
+        <div>
+          <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {label}
+          </span>
+          {description && (
+            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
+          )}
+        </div>
+      </label>
+    </div>
+  );
+
+  // Section header component
+  const SectionHeader = ({ title, icon: Icon, expanded, onToggle }) => (
+    <button
+      onClick={onToggle}
+      className={`w-full flex items-center justify-between p-4 rounded-lg transition-colors ${
+        isDarkMode
+          ? 'bg-gray-700 hover:bg-gray-600'
+          : 'bg-gray-100 hover:bg-gray-200'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <Icon size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+        <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          {title}
+        </span>
+      </div>
+      {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+    </button>
+  );
+
+  return (
+    <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Invoice Template Customization
+        </h2>
+        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Customize your invoice template appearance and layout. Changes will apply to all future PDFs.
+        </p>
+      </div>
+
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <div>
+              <h4 className="font-semibold text-red-800 mb-1">Validation Errors:</h4>
+              <ul className="text-sm text-red-700 list-disc list-inside">
+                {validationErrors.map((error, i) => (
+                  <li key={i}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <button
+          onClick={handlePreview}
+          disabled={isPreviewing}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        >
+          {isPreviewing ? (
+            <>
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Eye size={18} />
+              Preview PDF
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={handleSave}
+          disabled={!hasChanges || isSaving}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isSaving ? (
+            <>
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save size={18} />
+              Save Changes {hasChanges && '(*)'}
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={handleResetToDefaults}
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+        >
+          <RotateCcw size={18} />
+          Reset to Defaults
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 border-b border-gray-300 dark:border-gray-600">
+        <button
+          onClick={() => setActiveSection('basic')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeSection === 'basic'
+              ? isDarkMode
+                ? 'text-teal-400 border-b-2 border-teal-400'
+                : 'text-teal-600 border-b-2 border-teal-600'
+              : isDarkMode
+              ? 'text-gray-400 hover:text-gray-300'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Basic Settings
+        </button>
+        <button
+          onClick={() => setActiveSection('advanced')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeSection === 'advanced'
+              ? isDarkMode
+                ? 'text-teal-400 border-b-2 border-teal-400'
+                : 'text-teal-600 border-b-2 border-teal-600'
+              : isDarkMode
+              ? 'text-gray-400 hover:text-gray-300'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Advanced Settings
+        </button>
+      </div>
+
+      {/* BASIC SETTINGS TAB */}
+      {activeSection === 'basic' && (
+        <div className="space-y-6">
+          {/* Primary Color */}
+          <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Primary Color
+            </h3>
+            <ColorInput
+              label="Primary Color"
+              value={settings.colors.primary}
+              onChange={(val) => updateSetting('colors.primary', val)}
+              description="Main color for headers, lines, and accents"
+            />
+          </div>
+
+          {/* Logo & Branding */}
+          <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Logo & Branding
+            </h3>
+            <CheckboxInput
+              label="Show Company Logo"
+              checked={settings.branding.showLogo}
+              onChange={(val) => updateSetting('branding.showLogo', val)}
+              description="Display company logo on invoice"
+            />
+            <CheckboxInput
+              label="Show Company Seal/Stamp"
+              checked={settings.branding.showSeal}
+              onChange={(val) => updateSetting('branding.showSeal', val)}
+              description="Display company seal in footer"
+            />
+            <CheckboxInput
+              label="Show Company Name in Header"
+              checked={settings.branding.companyNameInHeader}
+              onChange={(val) => updateSetting('branding.companyNameInHeader', val)}
+            />
+            <CheckboxInput
+              label="Show VAT Registration Number"
+              checked={settings.branding.showVATNumber}
+              onChange={(val) => updateSetting('branding.showVATNumber', val)}
+            />
+          </div>
+
+          {/* Basic Visibility */}
+          <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Show/Hide Sections
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CheckboxInput
+                label="Payment History"
+                checked={settings.visibility.showPaymentHistory}
+                onChange={(val) => updateSetting('visibility.showPaymentHistory', val)}
+              />
+              <CheckboxInput
+                label="Notes"
+                checked={settings.visibility.showNotes}
+                onChange={(val) => updateSetting('visibility.showNotes', val)}
+              />
+              <CheckboxInput
+                label="Payment Terms"
+                checked={settings.visibility.showTerms}
+                onChange={(val) => updateSetting('visibility.showTerms', val)}
+              />
+              <CheckboxInput
+                label="Warehouse Information"
+                checked={settings.visibility.showWarehouse}
+                onChange={(val) => updateSetting('visibility.showWarehouse', val)}
+              />
+              <CheckboxInput
+                label="Signature Section"
+                checked={settings.visibility.showSignature}
+                onChange={(val) => updateSetting('visibility.showSignature', val)}
+              />
+              <CheckboxInput
+                label="Page Numbers"
+                checked={settings.visibility.showPageNumbers}
+                onChange={(val) => updateSetting('visibility.showPageNumbers', val)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADVANCED SETTINGS TAB */}
+      {activeSection === 'advanced' && (
+        <div className="space-y-4">
+          {/* Warning Banner */}
+          <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <h4 className="font-semibold text-yellow-800 mb-1">Advanced Settings</h4>
+                <p className="text-sm text-yellow-700">
+                  These settings control the detailed appearance of your invoices. Incorrect values may cause layout issues.
+                  Use the "Preview PDF" button to test your changes before saving.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Colors Section */}
+          <div>
+            <SectionHeader
+              title="Colors"
+              icon={Palette}
+              expanded={expandedSections.colors}
+              onToggle={() => toggleSection('colors')}
+            />
+            {expandedSections.colors && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ColorInput
+                    label="Primary Color"
+                    value={settings.colors.primary}
+                    onChange={(val) => updateSetting('colors.primary', val)}
+                    description="Headers, lines, accents"
+                  />
+                  <ColorInput
+                    label="Text Primary"
+                    value={settings.colors.textPrimary}
+                    onChange={(val) => updateSetting('colors.textPrimary', val)}
+                    description="Main body text"
+                  />
+                  <ColorInput
+                    label="Text Secondary"
+                    value={settings.colors.textSecondary}
+                    onChange={(val) => updateSetting('colors.textSecondary', val)}
+                    description="Secondary labels"
+                  />
+                  <ColorInput
+                    label="Text Light"
+                    value={settings.colors.textLight}
+                    onChange={(val) => updateSetting('colors.textLight', val)}
+                    description="Footnotes, hints"
+                  />
+                  <ColorInput
+                    label="Table Even Row"
+                    value={settings.colors.tableBgEven}
+                    onChange={(val) => updateSetting('colors.tableBgEven', val)}
+                    description="Alternating row color"
+                  />
+                  <ColorInput
+                    label="Border Color"
+                    value={settings.colors.borderColor}
+                    onChange={(val) => updateSetting('colors.borderColor', val)}
+                    description="Table and section borders"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Layout Section */}
+          <div>
+            <SectionHeader
+              title="Layout & Spacing"
+              icon={Layout}
+              expanded={expandedSections.layout}
+              onToggle={() => toggleSection('layout')}
+            />
+            {expandedSections.layout && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <NumberInput
+                    label="Margin Top"
+                    value={settings.layout.marginTop}
+                    onChange={(val) => updateSetting('layout.marginTop', val)}
+                    min={5}
+                    max={50}
+                    unit="mm"
+                  />
+                  <NumberInput
+                    label="Margin Bottom"
+                    value={settings.layout.marginBottom}
+                    onChange={(val) => updateSetting('layout.marginBottom', val)}
+                    min={5}
+                    max={50}
+                    unit="mm"
+                  />
+                  <NumberInput
+                    label="Margin Left"
+                    value={settings.layout.marginLeft}
+                    onChange={(val) => updateSetting('layout.marginLeft', val)}
+                    min={5}
+                    max={50}
+                    unit="mm"
+                  />
+                  <NumberInput
+                    label="Margin Right"
+                    value={settings.layout.marginRight}
+                    onChange={(val) => updateSetting('layout.marginRight', val)}
+                    min={5}
+                    max={50}
+                    unit="mm"
+                  />
+                  <NumberInput
+                    label="Line Spacing"
+                    value={settings.layout.lineSpacing}
+                    onChange={(val) => updateSetting('layout.lineSpacing', val)}
+                    min={2}
+                    max={10}
+                    unit="mm"
+                    description="Space between lines"
+                  />
+                  <NumberInput
+                    label="Section Spacing"
+                    value={settings.layout.sectionSpacing}
+                    onChange={(val) => updateSetting('layout.sectionSpacing', val)}
+                    min={4}
+                    max={20}
+                    unit="mm"
+                    description="Space between sections"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Typography Section */}
+          <div>
+            <SectionHeader
+              title="Typography"
+              icon={Type}
+              expanded={expandedSections.typography}
+              onToggle={() => toggleSection('typography')}
+            />
+            {expandedSections.typography && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="mb-4">
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Font Family
+                  </label>
+                  <select
+                    value={settings.typography.fontFamily}
+                    onChange={(e) => updateSetting('typography.fontFamily', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="helvetica">Helvetica</option>
+                    <option value="times">Times</option>
+                    <option value="courier">Courier</option>
+                  </select>
+                </div>
+
+                <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Font Sizes (in points)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <NumberInput
+                    label="Extra Large (Company Name)"
+                    value={settings.typography.fontSize.xlarge}
+                    onChange={(val) => updateSetting('typography.fontSize.xlarge', val)}
+                    min={10}
+                    max={24}
+                    unit="pt"
+                  />
+                  <NumberInput
+                    label="Large (Headings)"
+                    value={settings.typography.fontSize.large}
+                    onChange={(val) => updateSetting('typography.fontSize.large', val)}
+                    min={9}
+                    max={18}
+                    unit="pt"
+                  />
+                  <NumberInput
+                    label="Medium (Body Text)"
+                    value={settings.typography.fontSize.medium}
+                    onChange={(val) => updateSetting('typography.fontSize.medium', val)}
+                    min={7}
+                    max={14}
+                    unit="pt"
+                  />
+                  <NumberInput
+                    label="Base (Default)"
+                    value={settings.typography.fontSize.base}
+                    onChange={(val) => updateSetting('typography.fontSize.base', val)}
+                    min={7}
+                    max={14}
+                    unit="pt"
+                  />
+                  <NumberInput
+                    label="Small (Footer)"
+                    value={settings.typography.fontSize.small}
+                    onChange={(val) => updateSetting('typography.fontSize.small', val)}
+                    min={6}
+                    max={12}
+                    unit="pt"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Visibility Section */}
+          <div>
+            <SectionHeader
+              title="Visibility Controls"
+              icon={Eye}
+              expanded={expandedSections.visibility}
+              onToggle={() => toggleSection('visibility')}
+            />
+            {expandedSections.visibility && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Company Information
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <CheckboxInput
+                        label="Company Address"
+                        checked={settings.visibility.showCompanyAddress}
+                        onChange={(val) => updateSetting('visibility.showCompanyAddress', val)}
+                      />
+                      <CheckboxInput
+                        label="Company Phone"
+                        checked={settings.visibility.showCompanyPhone}
+                        onChange={(val) => updateSetting('visibility.showCompanyPhone', val)}
+                      />
+                      <CheckboxInput
+                        label="Company Email"
+                        checked={settings.visibility.showCompanyEmail}
+                        onChange={(val) => updateSetting('visibility.showCompanyEmail', val)}
+                      />
+                      <CheckboxInput
+                        label="Company Website"
+                        checked={settings.visibility.showCompanyWebsite}
+                        onChange={(val) => updateSetting('visibility.showCompanyWebsite', val)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Invoice Details
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <CheckboxInput
+                        label="Invoice Date"
+                        checked={settings.visibility.showInvoiceDate}
+                        onChange={(val) => updateSetting('visibility.showInvoiceDate', val)}
+                      />
+                      <CheckboxInput
+                        label="Due Date"
+                        checked={settings.visibility.showDueDate}
+                        onChange={(val) => updateSetting('visibility.showDueDate', val)}
+                      />
+                      <CheckboxInput
+                        label="Customer PO Number"
+                        checked={settings.visibility.showCustomerPO}
+                        onChange={(val) => updateSetting('visibility.showCustomerPO', val)}
+                      />
+                      <CheckboxInput
+                        label="Customer PO Date"
+                        checked={settings.visibility.showCustomerPODate}
+                        onChange={(val) => updateSetting('visibility.showCustomerPODate', val)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Table Columns
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <CheckboxInput
+                        label="Serial Number"
+                        checked={settings.visibility.showItemNumber}
+                        onChange={(val) => updateSetting('visibility.showItemNumber', val)}
+                      />
+                      <CheckboxInput
+                        label="Description"
+                        checked={settings.visibility.showDescription}
+                        onChange={(val) => updateSetting('visibility.showDescription', val)}
+                      />
+                      <CheckboxInput
+                        label="Quantity"
+                        checked={settings.visibility.showQuantity}
+                        onChange={(val) => updateSetting('visibility.showQuantity', val)}
+                      />
+                      <CheckboxInput
+                        label="Unit Price"
+                        checked={settings.visibility.showUnitPrice}
+                        onChange={(val) => updateSetting('visibility.showUnitPrice', val)}
+                      />
+                      <CheckboxInput
+                        label="VAT %"
+                        checked={settings.visibility.showVAT}
+                        onChange={(val) => updateSetting('visibility.showVAT', val)}
+                      />
+                      <CheckboxInput
+                        label="Price"
+                        checked={settings.visibility.showPrice}
+                        onChange={(val) => updateSetting('visibility.showPrice', val)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Summary Section
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <CheckboxInput
+                        label="Subtotal"
+                        checked={settings.visibility.showSubtotal}
+                        onChange={(val) => updateSetting('visibility.showSubtotal', val)}
+                      />
+                      <CheckboxInput
+                        label="Discount"
+                        checked={settings.visibility.showDiscount}
+                        onChange={(val) => updateSetting('visibility.showDiscount', val)}
+                      />
+                      <CheckboxInput
+                        label="VAT Amount"
+                        checked={settings.visibility.showVATAmount}
+                        onChange={(val) => updateSetting('visibility.showVATAmount', val)}
+                      />
+                      <CheckboxInput
+                        label="Total"
+                        checked={settings.visibility.showTotal}
+                        onChange={(val) => updateSetting('visibility.showTotal', val)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Table Configuration */}
+          <div>
+            <SectionHeader
+              title="Table Configuration"
+              icon={Settings}
+              expanded={expandedSections.table}
+              onToggle={() => toggleSection('table')}
+            />
+            {expandedSections.table && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <ColorInput
+                  label="Table Header Background"
+                  value={settings.table.headerBgColor}
+                  onChange={(val) => updateSetting('table.headerBgColor', val)}
+                  description="Color of table header row"
+                />
+                <ColorInput
+                  label="Table Header Text"
+                  value={settings.table.headerTextColor}
+                  onChange={(val) => updateSetting('table.headerTextColor', val)}
+                  description="Text color in table header"
+                />
+                <CheckboxInput
+                  label="Show Alternating Row Colors"
+                  checked={settings.table.showAlternatingRows}
+                  onChange={(val) => updateSetting('table.showAlternatingRows', val)}
+                />
+                <NumberInput
+                  label="Row Height"
+                  value={settings.table.rowHeight}
+                  onChange={(val) => updateSetting('table.rowHeight', val)}
+                  min={5}
+                  max={15}
+                  unit="mm"
+                />
+
+                <h4 className={`text-sm font-semibold mt-4 mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Column Widths (% - must total 100%)
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <NumberInput
+                    label="Serial No."
+                    value={settings.table.columnWidths.sno}
+                    onChange={(val) => updateSetting('table.columnWidths.sno', val)}
+                    min={5}
+                    max={15}
+                    unit="%"
+                  />
+                  <NumberInput
+                    label="Description"
+                    value={settings.table.columnWidths.description}
+                    onChange={(val) => updateSetting('table.columnWidths.description', val)}
+                    min={30}
+                    max={60}
+                    unit="%"
+                  />
+                  <NumberInput
+                    label="Quantity"
+                    value={settings.table.columnWidths.quantity}
+                    onChange={(val) => updateSetting('table.columnWidths.quantity', val)}
+                    min={8}
+                    max={15}
+                    unit="%"
+                  />
+                  <NumberInput
+                    label="Unit Price"
+                    value={settings.table.columnWidths.unitPrice}
+                    onChange={(val) => updateSetting('table.columnWidths.unitPrice', val)}
+                    min={10}
+                    max={20}
+                    unit="%"
+                  />
+                  <NumberInput
+                    label="VAT"
+                    value={settings.table.columnWidths.vat}
+                    onChange={(val) => updateSetting('table.columnWidths.vat', val)}
+                    min={8}
+                    max={15}
+                    unit="%"
+                  />
+                  <NumberInput
+                    label="Price"
+                    value={settings.table.columnWidths.price}
+                    onChange={(val) => updateSetting('table.columnWidths.price', val)}
+                    min={12}
+                    max={20}
+                    unit="%"
+                  />
+                </div>
+                <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Total: {Object.values(settings.table.columnWidths).reduce((a, b) => a + b, 0)}%
+                  {Object.values(settings.table.columnWidths).reduce((a, b) => a + b, 0) !== 100 && (
+                    <span className="text-red-500 ml-2">(Warning: Should total 100%)</span>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Formatting */}
+          <div>
+            <SectionHeader
+              title="Number & Date Formatting"
+              icon={Settings}
+              expanded={expandedSections.formatting}
+              onToggle={() => toggleSection('formatting')}
+            />
+            {expandedSections.formatting && (
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="mb-4">
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Currency Symbol
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.formatting.currencySymbol}
+                    onChange={(e) => updateSetting('formatting.currencySymbol', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                    placeholder="AED"
+                  />
+                </div>
+
+                <NumberInput
+                  label="Decimal Places"
+                  value={settings.formatting.decimalPlaces}
+                  onChange={(val) => updateSetting('formatting.decimalPlaces', val)}
+                  min={0}
+                  max={4}
+                  description="Number of decimal places for amounts"
+                />
+
+                <div className="mb-4">
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Date Format
+                  </label>
+                  <select
+                    value={settings.formatting.dateFormat}
+                    onChange={(e) => updateSetting('formatting.dateFormat', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="DD-MM-YYYY">DD-MM-YYYY (09-01-2025)</option>
+                    <option value="MM-DD-YYYY">MM-DD-YYYY (01-09-2025)</option>
+                    <option value="YYYY-MM-DD">YYYY-MM-DD (2025-01-09)</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Save Changes Reminder */}
+      {hasChanges && (
+        <div className="mt-6 p-4 bg-blue-100 border border-blue-400 rounded-lg">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="text-blue-600" size={20} />
+            <p className="text-sm text-blue-800 font-medium">
+              You have unsaved changes. Click "Save Changes" to apply them, or "Reset to Defaults" to discard.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default InvoiceTemplateSettings;

@@ -524,18 +524,24 @@ const CompanySettings = () => {
       try {
         const rates = await vatRateService.getAll();
         // Transform database format to match component format
-        const transformedRates = rates.map(rate => ({
-          id: String(rate.id),
-          name: rate.name,
-          rate: Number(rate.rate),
-          type: rate.type,
-          description: rate.description,
-          active: rate.is_active
-        }));
-        setVatRates(transformedRates);
+        if (rates && Array.isArray(rates)) {
+          const transformedRates = rates.map(rate => ({
+            id: String(rate.id),
+            name: rate.name,
+            rate: Number(rate.rate),
+            type: rate.type,
+            description: rate.description,
+            active: rate.is_active
+          }));
+          setVatRates(transformedRates);
+        } else {
+          console.warn('VAT rates response is not an array:', rates);
+          setVatRates([]);
+        }
       } catch (error) {
         console.error('Error loading VAT rates:', error);
         notificationService.error('Failed to load VAT rates');
+        setVatRates([]);
       }
     })();
 
@@ -1962,66 +1968,86 @@ const CompanySettings = () => {
         </div>
 
         <div className="space-y-4">
-          {vatRates.map(vatRate => (
-            <div
-              key={vatRate.id}
-              className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
-                isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
-              } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {vatRate.name}
-                    </h4>
-                    <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                      isDarkMode
-                        ? 'text-teal-400 border-teal-600 bg-teal-900/20'
-                        : 'text-teal-600 border-teal-300 bg-teal-50'
-                    }`}>
-                      {vatRate.rate}%
-                    </span>
-                    <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                      isDarkMode
-                        ? 'text-gray-400 border-gray-600 bg-gray-800'
-                        : 'text-gray-600 border-gray-300 bg-gray-50'
-                    }`}>
-                      {vatRate.type}
-                    </span>
+          {vatRates.length === 0 ? (
+            <div className={`text-center py-12 rounded-lg border-2 border-dashed ${
+              isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-300 bg-gray-50'
+            }`}>
+              <Calculator size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+              <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                No VAT Rates Configured
+              </h4>
+              <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Get started by adding your first VAT rate. Common rates in UAE are 5% (Standard) and 0% (Zero Rated).
+              </p>
+              <Button
+                onClick={() => setShowAddVatModal(true)}
+                startIcon={<Plus size={16} />}
+              >
+                Add Your First VAT Rate
+              </Button>
+            </div>
+          ) : (
+            vatRates.map(vatRate => (
+              <div
+                key={vatRate.id}
+                className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                  isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
+                } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {vatRate.name}
+                      </h4>
+                      <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                        isDarkMode
+                          ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                          : 'text-teal-600 border-teal-300 bg-teal-50'
+                      }`}>
+                        {vatRate.rate}%
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                        isDarkMode
+                          ? 'text-gray-400 border-gray-600 bg-gray-800'
+                          : 'text-gray-600 border-gray-300 bg-gray-50'
+                      }`}>
+                        {vatRate.type}
+                      </span>
+                    </div>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {vatRate.description}
+                    </p>
                   </div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {vatRate.description}
-                  </p>
-                </div>
 
-                <div className="flex items-center gap-3 ml-4">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={vatRate.active}
-                      onChange={() => toggleVatRateActive(vatRate.id)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
-                  </label>
-                  <span className={`text-sm font-medium ${
-                    vatRate.active
-                      ? 'text-green-500'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                  }`}>
-                    {vatRate.active ? 'Active' : 'Inactive'}
-                  </span>
-                  <button
-                    onClick={() => deleteVatRate(vatRate.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-3 ml-4">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={vatRate.active}
+                        onChange={() => toggleVatRateActive(vatRate.id)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
+                    </label>
+                    <span className={`text-sm font-medium ${
+                      vatRate.active
+                        ? 'text-green-500'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    }`}>
+                      {vatRate.active ? 'Active' : 'Inactive'}
+                    </span>
+                    <button
+                      onClick={() => deleteVatRate(vatRate.id)}
+                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

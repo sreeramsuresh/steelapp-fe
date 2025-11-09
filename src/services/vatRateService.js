@@ -5,7 +5,26 @@ const vatRateService = {
   async getAll() {
     try {
       const response = await api.get('/vat-rates');
-      return response.data;
+      // Handle different response formats
+      const data = response.data;
+
+      // If data is wrapped in a 'rates' or 'data' property
+      if (data && data.rates && Array.isArray(data.rates)) {
+        return data.rates;
+      }
+
+      // If data is already an array
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      // If data is wrapped in 'data' property
+      if (data && data.data && Array.isArray(data.data)) {
+        return data.data;
+      }
+
+      console.warn('VAT rates API returned unexpected format:', data);
+      return [];
     } catch (error) {
       console.error('Error fetching VAT rates:', error);
       throw error;
