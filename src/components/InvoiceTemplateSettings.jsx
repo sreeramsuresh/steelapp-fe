@@ -62,6 +62,20 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
     }
   }, [settings, originalSettings]);
 
+  // Warn user before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Chrome requires returnValue to be set
+        return ''; // Some browsers require a return value
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
+
   // Update setting
   const updateSetting = (path, value) => {
     setSettings(prev => {
@@ -74,8 +88,24 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
       }
 
       current[keys[keys.length - 1]] = value;
+
+      // Auto-sync: When primary color changes, update table header background color to match
+      if (path === 'colors.primary') {
+        newSettings.table.headerBgColor = value;
+      }
+
       return newSettings;
     });
+  };
+
+  // Discard changes and revert to saved settings
+  const handleDiscardChanges = () => {
+    if (window.confirm('Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.')) {
+      if (originalSettings) {
+        setSettings(JSON.parse(JSON.stringify(originalSettings)));
+        setValidationErrors([]);
+      }
+    }
   };
 
   // Reset to defaults
@@ -117,9 +147,15 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
   const handlePreview = async () => {
     setIsPreviewing(true);
     try {
+      // Generate test invoice number: TestINV-YYYYMM-001
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const testInvoiceNumber = `TestINV-${year}${month}-001`;
+
       // Create a sample invoice
       const sampleInvoice = {
-        invoiceNumber: 'INV-2025-01-001',
+        invoiceNumber: testInvoiceNumber,
         date: new Date(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         customer: {
@@ -164,7 +200,8 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
         }
       };
 
-      await generateConfigurablePDF(sampleInvoice, tempCompany);
+      // Generate PDF with preview watermark
+      await generateConfigurablePDF(sampleInvoice, tempCompany, { isPreview: true });
     } catch (error) {
       console.error('Error generating preview:', error);
       alert('Failed to generate preview. Please check your settings.');
@@ -312,7 +349,7 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap gap-3 mb-3">
         <button
           onClick={handlePreview}
           disabled={isPreviewing}
@@ -350,6 +387,19 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
         </button>
 
         <button
+          onClick={handleDiscardChanges}
+          disabled={!hasChanges}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            isDarkMode
+              ? 'bg-gray-700 text-white hover:bg-gray-600'
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          }`}
+        >
+          <X size={18} />
+          Discard Changes
+        </button>
+
+        <button
           onClick={handleResetToDefaults}
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
         >
@@ -357,6 +407,44 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
           Reset to Defaults
         </button>
       </div>
+
+      {/* Unsaved Changes Warning - Prominent Position */}
+      {hasChanges && (
+        <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+          isDarkMode
+            ? 'bg-yellow-900/20 border-yellow-500 border'
+            : 'bg-yellow-50 border-yellow-400 border'
+        }`}>
+          <div className="flex items-start gap-3">
+            <AlertTriangle className={`flex-shrink-0 mt-0.5 ${
+              isDarkMode ? 'text-yellow-400' : 'text-yellow-600'
+            }`} size={20} />
+            <div className="flex-1">
+              <p className={`text-sm font-semibold mb-1 ${
+                isDarkMode ? 'text-yellow-300' : 'text-yellow-800'
+              }`}>
+                You have unsaved changes
+              </p>
+              <p className={`text-xs ${
+                isDarkMode ? 'text-yellow-400/80' : 'text-yellow-700'
+              }`}>
+                Click "Save Changes" to apply your modifications, or "Reset to Defaults" to discard them.
+              </p>
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                isDarkMode
+                  ? 'bg-yellow-600 text-white hover:bg-yellow-500'
+                  : 'bg-yellow-600 text-white hover:bg-yellow-700'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isSaving ? 'Saving...' : 'Save Now'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-gray-300 dark:border-gray-600">
@@ -981,18 +1069,6 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Save Changes Reminder */}
-      {hasChanges && (
-        <div className="mt-6 p-4 bg-blue-100 border border-blue-400 rounded-lg">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="text-blue-600" size={20} />
-            <p className="text-sm text-blue-800 font-medium">
-              You have unsaved changes. Click "Save Changes" to apply them, or "Reset to Defaults" to discard.
-            </p>
           </div>
         </div>
       )}

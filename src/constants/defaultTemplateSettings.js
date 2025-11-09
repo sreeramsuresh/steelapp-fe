@@ -12,8 +12,8 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
 
   // === COLORS ===
   colors: {
-    primary: "#5B6DB5",        // Main blue color for headers, lines (rgb: 91, 109, 181)
-    secondary: "#008080",      // Teal for accents (not currently used in default)
+    primary: "#008080",        // Main teal color for headers, lines (rgb: 0, 128, 128)
+    secondary: "#0d9488",      // Lighter teal for accents (teal-600: rgb: 13, 148, 136)
     textPrimary: "#000000",    // Black for main text
     textSecondary: "#404040",  // Dark gray for secondary text (rgb: 64, 64, 64)
     textLight: "#808080",      // Light gray for labels (rgb: 128, 128, 128)
@@ -104,7 +104,7 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
 
   // === TABLE CONFIGURATION ===
   table: {
-    headerBgColor: "#5B6DB5",  // Table header background (uses primary color)
+    headerBgColor: "#008080",  // Table header background (matches primary color)
     headerTextColor: "#FFFFFF", // Table header text color (white)
     showAlternatingRows: true,  // Alternate row colors
     rowHeight: 7,              // Default row height in mm
@@ -212,7 +212,15 @@ export const mergeTemplateSettings = (userSettings) => {
     return target;
   };
 
-  return deepMerge(merged, userSettings);
+  const result = deepMerge(merged, userSettings);
+
+  // Auto-sync: Ensure table header background matches primary color
+  // This handles backward compatibility for old settings with mismatched colors
+  if (result.colors?.primary && result.table) {
+    result.table.headerBgColor = result.colors.primary;
+  }
+
+  return result;
 };
 
 /**

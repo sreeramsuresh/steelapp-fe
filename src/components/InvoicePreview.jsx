@@ -1,6 +1,6 @@
 import React from "react";
-import logoCompany from "../assets/logocompany.png";
-import sealImage from "../assets/Seal.png";
+import defaultLogo from "../assets/logocompany.png";
+import defaultSeal from "../assets/Seal.png";
 import { X, Download } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -13,13 +13,19 @@ import {
   formatDateDMY,
   calculateDiscountedTRN,
 } from "../utils/invoiceUtils";
+import { DEFAULT_TEMPLATE_SETTINGS } from "../constants/defaultTemplateSettings";
 
 const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
   const { isDarkMode } = useTheme();
   const [isDownloading, setIsDownloading] = React.useState(false);
 
-  // Check if form has required fields for new invoices
+  // Get template colors from company settings or use defaults
+  const templateSettings = company?.settings?.invoice_template || DEFAULT_TEMPLATE_SETTINGS;
+  const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
+
+  // Check if form has required fields based on invoice status
   const checkFormValidity = () => {
+    // Existing invoices can always be viewed/updated
     if (invoiceId) return true;
 
     const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== '';
@@ -32,10 +38,45 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     const hasDate = !!invoice.date;
     const hasDueDate = !!invoice.dueDate;
 
+    const isComplete = hasCustomer && hasItems && hasValidItems && hasDate && hasDueDate;
+
+    // Business rules by status:
+    // - draft: Allow save with incomplete data (work in progress)
+    // - proforma: Require complete data (sent to customers as quote)
+    // - issued: Require complete data (final legal invoice)
+    const status = invoice.status || 'draft';
+
+    if (status === 'draft') {
+      // Drafts can be saved incomplete, but we'll block PDF download separately
+      return true;
+    }
+
+    // Proforma and issued invoices must be complete
+    return isComplete;
+  };
+
+  // Separate validation for PDF download - always require complete data
+  const canDownloadPDF = () => {
+    if (invoiceId) return true; // Existing invoices can be downloaded
+
+    const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== '';
+    const hasItems = invoice.items && invoice.items.length > 0;
+    const hasValidItems = hasItems && invoice.items.every(item =>
+      item.name && item.name.trim() !== '' &&
+      item.quantity > 0 &&
+      item.rate > 0
+    );
+    const hasDate = !!invoice.date;
+    const hasDueDate = !!invoice.dueDate;
+
+    // PDF download always requires complete data, even for drafts
     return hasCustomer && hasItems && hasValidItems && hasDate && hasDueDate;
   };
 
-  const canSave = checkFormValidity();
+  // Use the isFormValid prop if explicitly passed (from parent), otherwise use internal validation
+  // This ensures the save button is properly disabled when parent says form is invalid
+  const canSave = isFormValid !== undefined ? isFormValid : checkFormValidity();
+  const canDownload = canDownloadPDF();
 
   // Compute summary values
   const computedSubtotal = calculateSubtotal(invoice.items || []);
@@ -116,6 +157,10 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
   const custAddr = cust.address || {};
   const compAddr = company?.address || {};
 
+  // Use company logo from settings or fall back to default
+  const companyLogo = company?.logo_url || company?.pdf_logo_url || defaultLogo;
+  const companySeal = company?.seal_url || defaultSeal;  // Add seal support if available
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col`}>
@@ -127,8 +172,13 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           <div className="flex gap-2">
             <button
               onClick={handleDownloadPDFFromBackend}
-              disabled={isDownloading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={isDownloading || !canDownload}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                canDownload
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title={!canDownload ? "Please fill in all required fields before downloading PDF" : ""}
             >
               <Download size={18} />
               {isDownloading ? "Downloading..." : "Download PDF"}
@@ -184,12 +234,12 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
               {/* Logo - Right */}
               <div>
-                <img src={logoCompany} alt="Company Logo" className="h-12 w-auto" />
+                <img src={companyLogo} alt="Company Logo" className="h-12 w-auto" />
               </div>
             </div>
 
             {/* Horizontal Line */}
-            <div className="border-t-2 border-blue-600 mb-6"></div>
+            <div className="border-t-2 mb-6" style={{ borderColor: primaryColor }}></div>
 
             {/* INVOICE TO & INFO SECTION */}
             <div className="grid grid-cols-2 gap-6 mb-6">
@@ -209,8 +259,8 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
               </div>
 
               {/* Right - Invoice Info Box */}
-              <div className="border border-blue-600">
-                <div className="bg-blue-600 text-white px-3 py-1.5 flex justify-between items-center">
+              <div className="border" style={{ borderColor: primaryColor }}>
+                <div className="text-white px-3 py-1.5 flex justify-between items-center" style={{ backgroundColor: primaryColor }}>
                   <span className="font-bold">Invoice No:</span>
                   <span className="font-bold">{invoice.invoiceNumber || ""}</span>
                 </div>
@@ -245,7 +295,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             <div className="mb-6">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-blue-600 text-white">
+                  <tr className="text-white" style={{ backgroundColor: primaryColor }}>
                     <th className="px-2 py-2 text-left text-sm font-bold">Sr.</th>
                     <th className="px-2 py-2 text-left text-sm font-bold">Description</th>
                     <th className="px-2 py-2 text-center text-sm font-bold">Quantity</th>
@@ -307,7 +357,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                 <h3 className="text-base font-bold text-gray-900 mb-2">Payment History</h3>
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="bg-blue-600 text-white">
+                    <tr className="text-white" style={{ backgroundColor: primaryColor }}>
                       <th className="px-2 py-2 text-left text-sm font-bold">Sr.</th>
                       <th className="px-2 py-2 text-left text-sm font-bold">Date</th>
                       <th className="px-2 py-2 text-left text-sm font-bold">Method</th>
@@ -356,7 +406,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             <div className="flex justify-between items-start mb-6">
               {/* Company Seal - Left */}
               <div className="flex items-start gap-3">
-                <img src={sealImage} alt="Company Seal" className="w-16 h-16 object-contain" />
+                <img src={companySeal} alt="Company Seal" className="w-16 h-16 object-contain" />
                 <div className="text-xs text-gray-600">
                   <p className="font-medium">Company Seal</p>
                   <p className="mt-1">Ultimate Steels</p>
@@ -375,7 +425,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             </div>
 
             {/* Bottom Footer Line */}
-            <div className="border-t-2 border-blue-600 pt-2">
+            <div className="border-t-2 pt-2" style={{ borderColor: primaryColor }}>
               <p className="text-center text-xs text-gray-600">
                 Phone: {company?.phone || "+971 XXX XXX"} | Email: {company?.email || "info@example.com"} | Website: www.ultimatesteels.com
               </p>
@@ -385,11 +435,35 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
         </div>
 
         {/* Validation Warning */}
-        {!canSave && (
+        {(!canSave || !canDownload) && (
           <div className="px-6 py-3 bg-yellow-50 border-t border-yellow-200">
-            <p className="text-sm text-yellow-800">
-              ⚠️ Please fill in all required fields: Customer, Items (with name, quantity, and rate), Invoice Date, and Due Date.
-            </p>
+            {!canDownload && invoice.status === 'draft' ? (
+              // Warning for drafts - can save but not download
+              <>
+                <p className="text-sm text-yellow-800 font-medium">
+                  ⚠️ Draft can be saved, but PDF download requires all fields:
+                </p>
+                <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
+                  <li>Customer name</li>
+                  <li>At least one item (with name, quantity, and rate)</li>
+                  <li>Invoice Date</li>
+                  <li>Due Date</li>
+                </ul>
+              </>
+            ) : (
+              // Warning for proforma/issued - need all fields to save or download
+              <>
+                <p className="text-sm text-yellow-800 font-medium">
+                  ⚠️ Please fill in all required fields before saving or downloading:
+                </p>
+                <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
+                  <li>Customer name</li>
+                  <li>At least one item (with name, quantity, and rate)</li>
+                  <li>Invoice Date</li>
+                  <li>Due Date</li>
+                </ul>
+              </>
+            )}
           </div>
         )}
       </div>

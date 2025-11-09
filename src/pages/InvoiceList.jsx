@@ -31,12 +31,15 @@ import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import GenerateStatementModal from "../components/GenerateStatementModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
 import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   // Set theme for notification service
   React.useEffect(() => {
@@ -456,8 +459,51 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
+  // Validate if invoice is complete enough for PDF download
+  const validateInvoiceForDownload = (invoice) => {
+    const hasCustomer = invoice.customer_name && invoice.customer_name.trim() !== '';
+    const hasItems = invoice.items && invoice.items.length > 0;
+    const hasValidItems = hasItems && invoice.items.every(item =>
+      item.name && item.name.trim() !== '' &&
+      item.quantity > 0 &&
+      item.rate > 0
+    );
+    const hasDate = !!invoice.invoice_date;
+    const hasDueDate = !!invoice.due_date;
+
+    return {
+      isValid: hasCustomer && hasItems && hasValidItems && hasDate && hasDueDate,
+      missing: {
+        customer: !hasCustomer,
+        items: !hasItems || !hasValidItems,
+        date: !hasDate,
+        dueDate: !hasDueDate
+      }
+    };
+  };
+
   const handleDownloadPDF = async (invoice) => {
     if (downloadingIds.has(invoice.id)) return;
+
+    // Validate invoice completeness
+    const validation = validateInvoiceForDownload(invoice);
+
+    if (!validation.isValid) {
+      const missingFields = [];
+      if (validation.missing.customer) missingFields.push('Customer');
+      if (validation.missing.items) missingFields.push('Items (with name, quantity, and rate)');
+      if (validation.missing.date) missingFields.push('Invoice Date');
+      if (validation.missing.dueDate) missingFields.push('Due Date');
+
+      const statusLabel = invoice.status === 'draft' ? 'Draft' :
+                         invoice.status === 'proforma' ? 'Proforma' : 'Invoice';
+
+      notificationService.warning(
+        `${statusLabel} is incomplete. Missing: ${missingFields.join(', ')}. Please edit and complete all required fields before downloading PDF.`,
+        { duration: 6000 }
+      );
+      return;
+    }
 
     setDownloadingIds((prev) => new Set(prev).add(invoice.id));
 
@@ -564,12 +610,49 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       return;
     }
 
-    const message = selectedIds
-      ? `Download PDFs for ${invoicesToDownload.length} selected invoice${invoicesToDownload.length !== 1 ? 's' : ''}?`
-      : `Download PDFs for all ${invoicesToDownload.length} invoice${invoicesToDownload.length !== 1 ? 's' : ''} on this page?`;
+    // Validate all invoices first and separate complete from incomplete
+    const validInvoices = [];
+    const invalidInvoices = [];
 
-    const confirmed = window.confirm(message);
-    if (!confirmed) return;
+    invoicesToDownload.forEach(invoice => {
+      const validation = validateInvoiceForDownload(invoice);
+      if (validation.isValid) {
+        validInvoices.push(invoice);
+      } else {
+        invalidInvoices.push(invoice);
+      }
+    });
+
+    // If there are invalid invoices, show warning
+    if (invalidInvoices.length > 0) {
+      const invalidNumbers = invalidInvoices.map(inv => inv.invoiceNumber).join(', ');
+
+      if (invalidInvoices.length === invoicesToDownload.length) {
+        const message = `All selected invoices are incomplete and cannot be downloaded. Please edit and complete them first: ${invalidNumbers}`;
+        notificationService.warning(message, { duration: 8000 });
+        return;
+      }
+
+      const confirmed = await confirm({
+        title: 'Some Invoices Incomplete',
+        message: `${invalidInvoices.length} incomplete invoice${invalidInvoices.length > 1 ? 's' : ''} will be skipped: ${invalidNumbers}\n\nProceed with downloading ${validInvoices.length} complete invoice${validInvoices.length > 1 ? 's' : ''}?`,
+        confirmText: `Download ${validInvoices.length}`,
+        variant: 'warning'
+      });
+      if (!confirmed) return;
+    } else {
+      const message = selectedIds
+        ? `Download PDFs for ${validInvoices.length} selected invoice${validInvoices.length !== 1 ? 's' : ''}?`
+        : `Download PDFs for all ${validInvoices.length} invoice${validInvoices.length !== 1 ? 's' : ''} on this page?`;
+
+      const confirmed = await confirm({
+        title: 'Download PDFs',
+        message: message,
+        confirmText: 'Download',
+        variant: 'info'
+      });
+      if (!confirmed) return;
+    }
 
     let successCount = 0;
     let failCount = 0;
@@ -577,7 +660,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     // Import apiClient for PDF downloads
     const { apiClient } = await import("../services/api");
 
-    for (const invoice of invoicesToDownload) {
+    for (const invoice of validInvoices) {
       try {
         // Use backend PDF endpoint
         const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
@@ -621,10 +704,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handleCreateDeliveryNote = async (invoice) => {
     try {
-      const confirmed = window.confirm(
-        `Create a delivery note for Invoice #${invoice.invoice_number || invoice.invoiceNumber}?`+
-        `\nNote: Only one delivery note is allowed per invoice.`
-      );
+      const confirmed = await confirm({
+        title: 'Create Delivery Note',
+        message: `Create a delivery note for Invoice #${invoice.invoice_number || invoice.invoiceNumber}?\n\nNote: Only one delivery note is allowed per invoice.`,
+        confirmText: 'Create',
+        variant: 'info'
+      });
       if (!confirmed) return;
       // Create delivery note using axios client (auth + baseURL + refresh)
       const { apiClient } = await import("../services/api");
@@ -696,9 +781,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handleRestoreInvoice = async (invoice) => {
     const number = invoice.invoice_number || invoice.invoiceNumber || invoice.id;
-    const confirmed = window.confirm(
-      `Restore invoice ${number}?\n\nThis will undelete the invoice and make it active again.`
-    );
+    const confirmed = await confirm({
+      title: 'Restore Invoice',
+      message: `Restore invoice ${number}?\n\nThis will undelete the invoice and make it active again.`,
+      confirmText: 'Restore',
+      variant: 'info'
+    });
     if (!confirmed) return;
 
     try {
@@ -1482,24 +1570,39 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         <Eye size={16} />
                       </button>
                       {authService.hasPermission('invoices', 'read') && (
-                      <button
-                        className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
-                          downloadingIds.has(invoice.id)
-                            ? "opacity-50 cursor-not-allowed"
-                            : isDarkMode
-                            ? "text-green-400 hover:text-green-300"
-                            : "hover:bg-gray-100 text-green-600"
-                        }`}
-                        title="Download PDF"
-                        onClick={() => handleDownloadPDF(invoice)}
-                        disabled={downloadingIds.has(invoice.id)}
-                      >
-                        {downloadingIds.has(invoice.id) ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                        ) : (
-                          <Download size={16} />
+                      <div className="relative">
+                        <button
+                          className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
+                            downloadingIds.has(invoice.id)
+                              ? "opacity-50 cursor-not-allowed"
+                              : !validateInvoiceForDownload(invoice).isValid
+                              ? isDarkMode
+                                ? "text-orange-400 hover:text-orange-300"
+                                : "hover:bg-orange-50 text-orange-600"
+                              : isDarkMode
+                              ? "text-green-400 hover:text-green-300"
+                              : "hover:bg-gray-100 text-green-600"
+                          }`}
+                          title={
+                            !validateInvoiceForDownload(invoice).isValid
+                              ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
+                              : "Download PDF"
+                          }
+                          onClick={() => handleDownloadPDF(invoice)}
+                          disabled={downloadingIds.has(invoice.id)}
+                        >
+                          {downloadingIds.has(invoice.id) ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                          ) : (
+                            <Download size={16} />
+                          )}
+                        </button>
+                        {!validateInvoiceForDownload(invoice).isValid && (
+                          <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+                            isDarkMode ? 'bg-orange-400' : 'bg-orange-500'
+                          }`} title="Incomplete"></div>
                         )}
-                      </button>
+                      </div>
                       )}
                       {/* Payment Reminder Button */}
                       {getInvoiceReminderInfo(invoice)?.shouldShowReminder && (
@@ -1697,6 +1800,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         onClose={handleClosePaymentReminder}
         invoice={paymentReminderInvoice}
         onSave={handlePaymentReminderSaved}
+      />
+
+      {/* Professional Confirmation Dialog */}
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </div>
   );

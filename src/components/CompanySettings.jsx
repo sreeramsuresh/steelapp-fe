@@ -35,6 +35,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
+import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -1812,121 +1813,29 @@ const CompanySettings = () => {
   );
 
   const renderInvoiceTemplates = () => (
-    <SettingsPaper>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Invoice Templates
-          </h3>
-          <Button
-            variant="primary"
-            startIcon={(creatingTemplate || updatingTemplate) ? <CircularProgress size={16} /> : <Save size={16} />}
-            onClick={saveInvoiceSettings}
-            disabled={creatingTemplate || updatingTemplate}
-          >
-            {creatingTemplate || updatingTemplate ? 'Saving...' : 'Save Settings'}
-          </Button>
-        </div>
+    <InvoiceTemplateSettings
+      company={companyProfile}
+      onSave={async (templateSettings) => {
+        try {
+          // Save template settings to company.settings.invoice_template
+          const updatedProfile = {
+            ...companyProfile,
+            settings: {
+              ...companyProfile.settings,
+              invoice_template: templateSettings
+            }
+          };
 
-        <div className="space-y-6">
-          {/* Customization Options */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Customization
-              </h4>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <div className="space-y-2">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                      Primary Color
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="color"
-                        value={invoiceSettings.primaryColor}
-                        onChange={(e) => setInvoiceSettings({...invoiceSettings, primaryColor: e.target.value})}
-                        className="w-10 h-10 border-0 rounded-lg cursor-pointer"
-                      />
-                      <span className={`text-sm font-mono ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {invoiceSettings.primaryColor}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <TextField
-                  label="Due Days"
-                  type="number"
-                  value={invoiceSettings.dueDays || ''}
-                  onChange={(e) => setInvoiceSettings({...invoiceSettings, dueDays: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  placeholder="Default due days"
-                />
-                <div className="md:col-span-2">
-                  <TextField
-                    label="Invoice Number Format"
-                    value={invoiceSettings.invoiceNumberFormat}
-                    onChange={(e) => setInvoiceSettings({...invoiceSettings, invoiceNumberFormat: e.target.value})}
-                    placeholder="e.g., INV-{YYYY}-{MM}-{###}"
-                    helperText="Use {YYYY} for year, {MM} for month, {###} for number"
-                  />
-                </div>
-              </div>
-            </div>
-          </SettingsCard>
-
-          {/* Display Options */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Display Options
-              </h4>
-              
-              <div className="space-y-3">
-                <Checkbox
-                  checked={invoiceSettings.showLogo}
-                  onChange={(e) => setInvoiceSettings({...invoiceSettings, showLogo: e.target.checked})}
-                  label="Show company logo"
-                />
-                <Checkbox
-                  checked={invoiceSettings.showBankDetails}
-                  onChange={(e) => setInvoiceSettings({...invoiceSettings, showBankDetails: e.target.checked})}
-                  label="Show bank details"
-                />
-              </div>
-            </div>
-          </SettingsCard>
-
-          {/* Default Text */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Default Text
-              </h4>
-              
-              <div className="space-y-4">
-                <TextField
-                  label="Footer Text"
-                  multiline
-                  rows={3}
-                  value={invoiceSettings.footer}
-                  onChange={(e) => setInvoiceSettings({...invoiceSettings, footer: e.target.value})}
-                  placeholder="Enter footer text"
-                />
-                <TextField
-                  label="Payment as per payment terms"
-                  multiline
-                  rows={4}
-                  value={invoiceSettings.terms}
-                  onChange={(e) => setInvoiceSettings({...invoiceSettings, terms: e.target.value})}
-                  placeholder="Enter payment terms"
-                />
-              </div>
-            </div>
-          </SettingsCard>
-        </div>
-      </div>
-    </SettingsPaper>
+          await companyService.updateCompany(updatedProfile);
+          setCompanyProfile(updatedProfile);
+          notificationService.success('Invoice template settings saved successfully!');
+        } catch (error) {
+          console.error('Error saving template settings:', error);
+          notificationService.error('Failed to save template settings');
+          throw error;
+        }
+      }}
+    />
   );
 
   const renderVatSettings = () => (

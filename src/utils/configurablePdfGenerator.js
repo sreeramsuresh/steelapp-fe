@@ -31,10 +31,14 @@ const hexToRgb = (hex) => {
  * Fully configurable PDF generator based on template settings
  * Reads settings from company.settings.invoice_template
  * Falls back to defaults if not configured
+ * @param {Object} invoice - Invoice data
+ * @param {Object} company - Company data
+ * @param {Object} options - Options { isPreview: boolean }
  */
-export const generateConfigurablePDF = async (invoice, company) => {
+export const generateConfigurablePDF = async (invoice, company, options = {}) => {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
+  const { isPreview = false } = options;
 
   // Get template settings (merge company settings with defaults)
   const settings = mergeTemplateSettings(company?.settings?.invoice_template || {});
@@ -594,6 +598,31 @@ export const generateConfigurablePDF = async (invoice, company) => {
   // Page number
   if (visibility.showPageNumbers) {
     pdf.text(`${labels.page} 1 / 1`, pageWidth / 2, footerY + 8, { align: "center" });
+  }
+
+  // Add watermark for preview/test invoices
+  if (isPreview) {
+    // Save current graphics state
+    pdf.saveGraphicsState();
+
+    // Set watermark properties
+    pdf.setFontSize(70);
+    pdf.setFont(typography.fontFamily, 'bold');
+    pdf.setTextColor(200, 200, 200); // Light gray
+    pdf.setGState(new pdf.GState({ opacity: 0.15 })); // 15% opacity
+
+    // Calculate center position and rotate
+    const centerX = pageWidth / 2;
+    const centerY = pageHeight / 2;
+
+    // Rotate 45 degrees and add watermark text
+    pdf.text('TEST SAMPLE', centerX, centerY, {
+      align: 'center',
+      angle: 45
+    });
+
+    // Restore graphics state
+    pdf.restoreGraphicsState();
   }
 
   // Save the PDF
