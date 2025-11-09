@@ -46,6 +46,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   // Color scheme from settings
   const primaryColor = hexToRgb(colors.primary);
+  const primaryBlue = hexToRgb(colors.primary); // Alias for primaryColor
   const textPrimaryColor = hexToRgb(colors.textPrimary);
   const textSecondaryColor = hexToRgb(colors.textSecondary);
   const textLightColor = hexToRgb(colors.textLight);
@@ -55,6 +56,8 @@ export const generateInvoicePDF = async (invoice, company) => {
   const setTextSecondary = () => pdf.setTextColor(...textSecondaryColor);
   const setTextLight = () => pdf.setTextColor(...textLightColor);
   const setPrimaryColor = () => pdf.setTextColor(...primaryColor);
+  const setBlack = () => pdf.setTextColor(0, 0, 0);
+  const setDarkGray = () => pdf.setTextColor(80, 80, 80);
 
   let currentY = layout.marginTop;
 
@@ -317,18 +320,15 @@ export const generateInvoicePDF = async (invoice, company) => {
   const tableStartY = currentY;
 
   // Table column configuration - Updated for UAE VAT compliance
-  // Matches preview proportions: 4%, 24%, 12%, 8%, 6%, 10%, 10%, 6%, 10%, 10%
+  // Matches preview proportions: 4%, 44%, 6%, 10%, 10%, 16%, 10%
   const tableWidth = pageWidth - 2 * margin;
   const colWidths = {
     sr: tableWidth * 0.04,           // 4% - Sr. No
-    description: tableWidth * 0.24,  // 24% - Description
-    spec: tableWidth * 0.12,         // 12% - Specification
-    hsn: tableWidth * 0.08,          // 8% - HSN Code
+    description: tableWidth * 0.44,  // 44% - Description
     quantity: tableWidth * 0.06,     // 6% - Quantity
     unitPrice: tableWidth * 0.10,    // 10% - Unit Price
     netAmt: tableWidth * 0.10,       // 10% - Net Amount
-    vatRate: tableWidth * 0.06,      // 6% - VAT %
-    vatAmt: tableWidth * 0.10,       // 10% - VAT Amount
+    vat: tableWidth * 0.16,          // 16% - VAT (combined amount and rate)
     total: tableWidth * 0.10         // 10% - Total with VAT
   };
 
@@ -345,20 +345,14 @@ export const generateInvoicePDF = async (invoice, company) => {
   colX += colWidths.sr;
   pdf.text("Description", colX, currentY + 5.5);
   colX += colWidths.description;
-  pdf.text("Specification", colX, currentY + 5.5);
-  colX += colWidths.spec;
-  pdf.text("HSN", colX, currentY + 5.5);
-  colX += colWidths.hsn;
   pdf.text("Qty", colX + colWidths.quantity / 2, currentY + 5.5, { align: "center" });
   colX += colWidths.quantity;
   pdf.text("Unit Price", colX + colWidths.unitPrice / 2, currentY + 5.5, { align: "center" });
   colX += colWidths.unitPrice;
   pdf.text("Net Amt", colX + colWidths.netAmt - 2, currentY + 5.5, { align: "right" });
   colX += colWidths.netAmt;
-  pdf.text("VAT%", colX + colWidths.vatRate / 2, currentY + 5.5, { align: "center" });
-  colX += colWidths.vatRate;
-  pdf.text("VAT Amt", colX + colWidths.vatAmt - 2, currentY + 5.5, { align: "right" });
-  colX += colWidths.vatAmt;
+  pdf.text("VAT", colX + colWidths.vat - 2, currentY + 5.5, { align: "right" });
+  colX += colWidths.vat;
   pdf.text("Total", colX + colWidths.total - 2, currentY + 5.5, { align: "right" });
 
   currentY += 8;
@@ -400,16 +394,6 @@ export const generateInvoicePDF = async (invoice, company) => {
     pdf.setFont("helvetica", "normal");
     colX += colWidths.description;
 
-    // Specification
-    const spec = item.specification || item.size || "-";
-    const specLines = pdf.splitTextToSize(spec, colWidths.spec - 4);
-    pdf.text(specLines[0] || "-", colX, currentY + 5);
-    colX += colWidths.spec;
-
-    // HSN Code
-    pdf.text(item.hsnCode || "-", colX, currentY + 5);
-    colX += colWidths.hsn;
-
     // Quantity
     pdf.text(String(item.quantity || 0), colX + colWidths.quantity / 2, currentY + 5, { align: "center" });
     colX += colWidths.quantity;
@@ -423,15 +407,12 @@ export const generateInvoicePDF = async (invoice, company) => {
     pdf.text(formatNumber(amountNum), colX + colWidths.netAmt - 2, currentY + 5, { align: "right" });
     colX += colWidths.netAmt;
 
-    // VAT Rate %
+    // VAT (combined amount and rate)
     const vatRate = item.vatRate || 0;
-    pdf.text(vatRate > 0 ? `${vatRate}%` : "0%", colX + colWidths.vatRate / 2, currentY + 5, { align: "center" });
-    colX += colWidths.vatRate;
-
-    // VAT Amount
     const vatAmount = calculateTRN(amountNum, vatRate);
-    pdf.text(formatNumber(vatAmount), colX + colWidths.vatAmt - 2, currentY + 5, { align: "right" });
-    colX += colWidths.vatAmt;
+    const vatText = `${formatNumber(vatAmount)} (${vatRate > 0 ? `${vatRate}%` : "0%"})`;
+    pdf.text(vatText, colX + colWidths.vat - 2, currentY + 5, { align: "right" });
+    colX += colWidths.vat;
 
     // Total (including VAT)
     const totalWithVAT = amountNum + vatAmount;

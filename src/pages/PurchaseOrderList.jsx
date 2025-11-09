@@ -21,7 +21,6 @@ import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { purchaseOrdersAPI } from "../services/api";
 import { companyService } from "../services";
 import { useApiData } from "../hooks/useApi";
-import { generatePurchaseOrderPDF } from "../utils/poPdfGenerator";
 import { notificationService } from "../services/notificationService";
 
 const PurchaseOrderList = () => {
@@ -168,18 +167,12 @@ const PurchaseOrderList = () => {
 
   const handleDownloadPDF = async (id) => {
     try {
-      // Try client-side generator to match invoice style
-      const po = await purchaseOrdersAPI.getById(id);
-      await generatePurchaseOrderPDF(po, company || {});
+      // Use backend PDF generation only (per PDF_WORKFLOW.md)
+      await purchaseOrdersAPI.downloadPDF(id);
       setSuccess('PDF downloaded successfully');
     } catch (err) {
-      console.warn('Client PO PDF failed, falling back to backend:', err);
-      try {
-        await purchaseOrdersAPI.downloadPDF(id);
-        setSuccess('PDF downloaded successfully');
-      } catch (err2) {
-        setError('Failed to download PDF');
-      }
+      console.error('Error downloading PDF:', err);
+      setError('Failed to download PDF');
     }
   };
 

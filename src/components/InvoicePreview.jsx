@@ -55,22 +55,10 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     return isComplete;
   };
 
-  // Separate validation for PDF download - always require complete data
+  // Separate validation for PDF download - requires saved invoice (per PDF_WORKFLOW.md)
   const canDownloadPDF = () => {
-    if (invoiceId) return true; // Existing invoices can be downloaded
-
-    const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== '';
-    const hasItems = invoice.items && invoice.items.length > 0;
-    const hasValidItems = hasItems && invoice.items.every(item =>
-      item.name && item.name.trim() !== '' &&
-      item.quantity > 0 &&
-      item.rate > 0
-    );
-    const hasDate = !!invoice.date;
-    const hasDueDate = !!invoice.dueDate;
-
-    // PDF download always requires complete data, even for drafts
-    return hasCustomer && hasItems && hasValidItems && hasDate && hasDueDate;
+    // PDF download requires invoice to be saved first (backend generates all PDFs)
+    return !!invoiceId;
   };
 
   // Use the isFormValid prop if explicitly passed (from parent), otherwise use internal validation
@@ -102,11 +90,11 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     computedVatAmount
   );
 
-  // Download PDF from backend
-  const handleDownloadPDFFromBackend = async () => {
+  // Download PDF from backend - all PDFs must be generated server-side (per PDF_WORKFLOW.md)
+  const handleDownloadPDF = async () => {
     if (!invoiceId) {
-      console.warn('Invoice not saved yet, falling back to client-side PDF generation');
-      return handleDownloadPDF();
+      alert('Please save the invoice before downloading PDF');
+      return;
     }
 
     setIsDownloading(true);
@@ -139,20 +127,6 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     }
   };
 
-  // Client-side PDF generation fallback
-  const handleDownloadPDF = async () => {
-    setIsDownloading(true);
-    try {
-      const { generateInvoicePDF } = await import("../utils/pdfGenerator");
-      await generateInvoicePDF(invoice, company);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   const cust = invoice.customer || {};
   const custAddr = cust.address || {};
   const compAddr = company?.address || {};
@@ -171,14 +145,14 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           </h2>
           <div className="flex gap-2">
             <button
-              onClick={handleDownloadPDFFromBackend}
+              onClick={handleDownloadPDF}
               disabled={isDownloading || !canDownload}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 canDownload
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'bg-gray-400 text-gray-200 cursor-not-allowed'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={!canDownload ? "Please fill in all required fields before downloading PDF" : ""}
+              title={!canDownload ? "Please save the invoice before downloading PDF" : ""}
             >
               <Download size={18} />
               {isDownloading ? "Downloading..." : "Download PDF"}
@@ -319,14 +293,11 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                 <thead>
                   <tr className="text-white" style={{ backgroundColor: primaryColor }}>
                     <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '4%' }}>Sr.</th>
-                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '24%' }}>Description</th>
-                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '12%' }}>Specification</th>
-                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '8%' }}>HSN</th>
+                    <th className="px-2 py-2 text-left text-xs font-bold" style={{ width: '44%' }}>Description</th>
                     <th className="px-2 py-2 text-center text-xs font-bold" style={{ width: '6%' }}>Qty</th>
                     <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Unit Price</th>
                     <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Net Amt</th>
-                    <th className="px-2 py-2 text-center text-xs font-bold" style={{ width: '6%' }}>VAT%</th>
-                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>VAT Amt</th>
+                    <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '16%' }}>VAT</th>
                     <th className="px-2 py-2 text-right text-xs font-bold" style={{ width: '10%' }}>Total</th>
                   </tr>
                 </thead>
@@ -341,13 +312,10 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                       <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                         <td className="px-2 py-2 text-xs">{index + 1}</td>
                         <td className="px-2 py-2 text-xs font-medium">{item.name || ""}</td>
-                        <td className="px-2 py-2 text-xs">{item.specification || item.size || "-"}</td>
-                        <td className="px-2 py-2 text-xs">{item.hsnCode || "-"}</td>
                         <td className="px-2 py-2 text-xs text-center">{item.quantity || 0}</td>
                         <td className="px-2 py-2 text-xs text-right">{formatNumber(item.rate || 0)}</td>
                         <td className="px-2 py-2 text-xs text-right">{formatNumber(amountNum)}</td>
-                        <td className="px-2 py-2 text-xs text-center">{vatRate > 0 ? `${vatRate}%` : "0%"}</td>
-                        <td className="px-2 py-2 text-xs text-right">{formatNumber(vatAmount)}</td>
+                        <td className="px-2 py-2 text-xs text-right">{formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : "0%"})</td>
                         <td className="px-2 py-2 text-xs text-right font-medium">{formatNumber(totalWithVAT)}</td>
                       </tr>
                     );
@@ -475,11 +443,16 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
         {/* Validation Warning */}
         {(!canSave || !canDownload) && (
           <div className="px-6 py-3 bg-yellow-50 border-t border-yellow-200">
-            {!canDownload && invoice.status === 'draft' ? (
-              // Warning for drafts - can save but not download
+            {!canDownload ? (
+              // Warning for PDF download - requires saving first
+              <p className="text-sm text-yellow-800 font-medium">
+                ℹ️ Please save the invoice before downloading PDF
+              </p>
+            ) : !canSave ? (
+              // Warning for proforma/issued - need all fields to save
               <>
                 <p className="text-sm text-yellow-800 font-medium">
-                  ⚠️ Draft can be saved, but PDF download requires all fields:
+                  ⚠️ Please fill in all required fields before saving:
                 </p>
                 <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
                   <li>Customer name</li>
@@ -488,20 +461,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                   <li>Due Date</li>
                 </ul>
               </>
-            ) : (
-              // Warning for proforma/issued - need all fields to save or download
-              <>
-                <p className="text-sm text-yellow-800 font-medium">
-                  ⚠️ Please fill in all required fields before saving or downloading:
-                </p>
-                <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
-                  <li>Customer name</li>
-                  <li>At least one item (with name, quantity, and rate)</li>
-                  <li>Invoice Date</li>
-                  <li>Due Date</li>
-                </ul>
-              </>
-            )}
+            ) : null}
           </div>
         )}
       </div>

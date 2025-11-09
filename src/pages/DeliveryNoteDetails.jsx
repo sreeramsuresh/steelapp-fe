@@ -6,7 +6,6 @@ import { deliveryNotesAPI } from '../services/api';
 import { formatDate } from '../utils/invoiceUtils';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
-import { generateDeliveryNotePDF } from '../utils/deliveryNotePdfGenerator';
 
 const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
@@ -52,20 +51,12 @@ const DeliveryNoteDetails = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      if (deliveryNote) {
-        await generateDeliveryNotePDF(deliveryNote, company || {});
-        setSuccess('PDF downloaded successfully');
-        return;
-      }
-      throw new Error('No delivery note data');
+      // Use backend PDF generation only (per PDF_WORKFLOW.md)
+      await deliveryNotesAPI.downloadPDF(id);
+      setSuccess('PDF downloaded successfully');
     } catch (err) {
-      console.warn('Client DN PDF failed, falling back:', err);
-      try {
-        await deliveryNotesAPI.downloadPDF(id);
-        setSuccess('PDF downloaded successfully');
-      } catch (err2) {
-        setError('Failed to download PDF: ' + err2.message);
-      }
+      console.error('Error downloading PDF:', err);
+      setError('Failed to download PDF: ' + err.message);
     }
   };
 
