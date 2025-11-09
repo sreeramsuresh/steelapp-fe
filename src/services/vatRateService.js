@@ -4,9 +4,8 @@ const vatRateService = {
   // Get all VAT rates for the authenticated user's company
   async getAll() {
     try {
-      const response = await api.get('/vat-rates');
+      const data = await api.get('/vat-rates');
       // Handle different response formats
-      const data = response.data;
 
       // If data is wrapped in a 'rates' or 'data' property
       if (data && data.rates && Array.isArray(data.rates)) {
@@ -34,8 +33,7 @@ const vatRateService = {
   // Get a single VAT rate by ID
   async getById(id) {
     try {
-      const response = await api.get(`/vat-rates/${id}`);
-      return response.data;
+      return await api.get(`/vat-rates/${id}`);
     } catch (error) {
       console.error(`Error fetching VAT rate ${id}:`, error);
       throw error;
@@ -45,8 +43,7 @@ const vatRateService = {
   // Create a new VAT rate
   async create(vatRateData) {
     try {
-      const response = await api.post('/vat-rates', vatRateData);
-      return response.data;
+      return await api.post('/vat-rates', vatRateData);
     } catch (error) {
       console.error('Error creating VAT rate:', error);
       throw error;
@@ -56,8 +53,7 @@ const vatRateService = {
   // Update a VAT rate
   async update(id, vatRateData) {
     try {
-      const response = await api.put(`/vat-rates/${id}`, vatRateData);
-      return response.data;
+      return await api.put(`/vat-rates/${id}`, vatRateData);
     } catch (error) {
       console.error(`Error updating VAT rate ${id}:`, error);
       throw error;
@@ -67,8 +63,7 @@ const vatRateService = {
   // Toggle VAT rate active status
   async toggle(id) {
     try {
-      const response = await api.patch(`/vat-rates/${id}/toggle`);
-      return response.data;
+      return await api.patch(`/vat-rates/${id}/toggle`);
     } catch (error) {
       console.error(`Error toggling VAT rate ${id}:`, error);
       throw error;
@@ -78,8 +73,7 @@ const vatRateService = {
   // Delete a VAT rate
   async delete(id) {
     try {
-      const response = await api.delete(`/vat-rates/${id}`);
-      return response.data;
+      return await api.delete(`/vat-rates/${id}`);
     } catch (error) {
       console.error(`Error deleting VAT rate ${id}:`, error);
       throw error;
