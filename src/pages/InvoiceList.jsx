@@ -977,19 +977,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 Create Invoice
               </Link>
             )}
-            {filteredInvoices.length > 0 && selectedInvoiceIds.size === 0 && (
-              <button
-                onClick={() => handleBulkDownload()}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-transparent ${
-                  isDarkMode
-                    ? "text-white hover:text-gray-300"
-                    : "hover:bg-gray-100 text-gray-800"
-                }`}
-              >
-                <FileDown size={18} />
-                Download Page PDFs
-              </button>
-            )}
           </div>
         </div>
 

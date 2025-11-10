@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, FileText, Download, Save, AlertCircle } from 'lucide-react';
+import { X, Calendar, FileText, Download, AlertCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { accountStatementsAPI } from '../services/api';
 import { formatDate } from '../utils/invoiceUtils';
@@ -9,8 +9,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     start_date: '',
-    end_date: '',
-    save_to_system: false
+    end_date: ''
   });
   const [error, setError] = useState('');
 
@@ -24,8 +23,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
       setFormData({
         start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        save_to_system: false
+        end_date: endDate.toISOString().split('T')[0]
       });
       setError('');
     }
@@ -62,21 +60,14 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
         notes: `Generated on ${formatDate(new Date())}`
       };
 
-      if (formData.save_to_system) {
-        // Create and save the statement
-        const response = await accountStatementsAPI.create(statementData);
-        // Download the PDF
-        await accountStatementsAPI.downloadPDF(response.id);
-        onGenerated && onGenerated(response);
-      } else {
-        // Generate on-the-fly without saving
-        await accountStatementsAPI.generateOnTheFly(statementData);
-      }
+      // Always generate and save statement (best practice)
+      await accountStatementsAPI.generateOnTheFly(statementData);
+      onGenerated && onGenerated();
 
       onClose();
     } catch (err) {
       console.error('Error generating statement:', err);
-      setError(err.response?.data?.error || 'Failed to generate statement');
+      setError(err.response?.data?.error || err.response?.data?.details || 'Failed to generate statement');
     } finally {
       setLoading(false);
     }
@@ -224,26 +215,19 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
             </div>
           </div>
 
-          {/* Save Option */}
+          {/* Info message */}
           <div className={`flex items-start gap-3 p-4 rounded-lg border ${
-            isDarkMode ? 'border-gray-600 bg-gray-800/50' : 'border-gray-200 bg-gray-50'
+            isDarkMode ? 'border-teal-700 bg-teal-900/20' : 'border-teal-200 bg-teal-50'
           }`}>
-            <input
-              type="checkbox"
-              id="save_to_system"
-              name="save_to_system"
-              checked={formData.save_to_system}
-              onChange={handleChange}
-              className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-            />
-            <label htmlFor="save_to_system" className="flex-1 cursor-pointer">
-              <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                Save to system
+            <FileText className={`h-5 w-5 flex-shrink-0 mt-0.5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+            <div className="flex-1">
+              <div className={`text-sm font-medium ${isDarkMode ? 'text-teal-300' : 'text-teal-900'}`}>
+                Statement will be saved automatically
               </div>
-              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Keep a record of this statement for future reference
+              <div className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}>
+                A record will be kept in the system with naming format: ST-YYYYMM-NNNN
               </div>
-            </label>
+            </div>
           </div>
         </div>
 
@@ -280,8 +264,8 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
               </>
             ) : (
               <>
-                {formData.save_to_system ? <Save className="h-4 w-4" /> : <Download className="h-4 w-4" />}
-                <span>{formData.save_to_system ? 'Generate & Save' : 'Generate & Download'}</span>
+                <Download className="h-4 w-4" />
+                <span>Generate & Download</span>
               </>
             )}
           </button>

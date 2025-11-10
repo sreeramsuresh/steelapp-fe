@@ -1,7 +1,7 @@
 import React from "react";
 import defaultLogo from "../assets/logocompany.png";
 import defaultSeal from "../assets/Seal.png";
-import { X, Download } from "lucide-react";
+import { X } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   formatDate,
@@ -17,7 +17,6 @@ import { DEFAULT_TEMPLATE_SETTINGS } from "../constants/defaultTemplateSettings"
 
 const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
   const { isDarkMode } = useTheme();
-  const [isDownloading, setIsDownloading] = React.useState(false);
 
   // Get template colors from company settings or use defaults
   const templateSettings = company?.settings?.invoice_template || DEFAULT_TEMPLATE_SETTINGS;
@@ -55,16 +54,9 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     return isComplete;
   };
 
-  // Separate validation for PDF download - requires saved invoice (per PDF_WORKFLOW.md)
-  const canDownloadPDF = () => {
-    // PDF download requires invoice to be saved first (backend generates all PDFs)
-    return !!invoiceId;
-  };
-
   // Use the isFormValid prop if explicitly passed (from parent), otherwise use internal validation
   // This ensures the save button is properly disabled when parent says form is invalid
   const canSave = isFormValid !== undefined ? isFormValid : checkFormValidity();
-  const canDownload = canDownloadPDF();
 
   // Compute summary values
   const computedSubtotal = calculateSubtotal(invoice.items || []);
@@ -90,43 +82,6 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     computedVatAmount
   );
 
-  // Download PDF from backend - all PDFs must be generated server-side (per PDF_WORKFLOW.md)
-  const handleDownloadPDF = async () => {
-    if (!invoiceId) {
-      alert('Please save the invoice before downloading PDF');
-      return;
-    }
-
-    setIsDownloading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/invoices/${invoiceId}/pdf`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${invoice.invoiceNumber || 'invoice'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   const cust = invoice.customer || {};
   const custAddr = cust.address || {};
   const compAddr = company?.address || {};
@@ -144,19 +99,6 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             Invoice Preview
           </h2>
           <div className="flex gap-2">
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isDownloading || !canDownload}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                canDownload
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={!canDownload ? "Please save the invoice before downloading PDF" : ""}
-            >
-              <Download size={18} />
-              {isDownloading ? "Downloading..." : "Download PDF"}
-            </button>
             {onSave && (
               <button
                 onClick={onSave}
@@ -186,7 +128,13 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
         {/* Invoice Preview Content - Scrollable */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="bg-white shadow-lg" style={{ maxWidth: '210mm', margin: '0 auto', padding: '15mm' }}>
+          <div className="bg-white shadow-lg" style={{
+            width: '210mm',
+            minHeight: '297mm',
+            margin: '0 auto',
+            padding: '15mm',
+            boxSizing: 'border-box'
+          }}>
 
             {/* HEADER SECTION */}
             <div className="flex justify-between items-start mb-4">
@@ -412,7 +360,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             <div className="flex justify-between items-start mb-6">
               {/* Company Seal - Left */}
               <div className="flex items-start gap-3">
-                <img src={companySeal} alt="Company Seal" className="w-16 h-16 object-contain" />
+                <img src={companySeal} alt="Company Seal" className="w-32 h-32 object-contain" />
                 <div className="text-xs text-gray-600">
                   <p className="font-medium">Company Seal</p>
                   <p className="mt-1">Ultimate Steels</p>
@@ -441,27 +389,17 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
         </div>
 
         {/* Validation Warning */}
-        {(!canSave || !canDownload) && (
+        {!canSave && (
           <div className="px-6 py-3 bg-yellow-50 border-t border-yellow-200">
-            {!canDownload ? (
-              // Warning for PDF download - requires saving first
-              <p className="text-sm text-yellow-800 font-medium">
-                ℹ️ Please save the invoice before downloading PDF
-              </p>
-            ) : !canSave ? (
-              // Warning for proforma/issued - need all fields to save
-              <>
-                <p className="text-sm text-yellow-800 font-medium">
-                  ⚠️ Please fill in all required fields before saving:
-                </p>
-                <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
-                  <li>Customer name</li>
-                  <li>At least one item (with name, quantity, and rate)</li>
-                  <li>Invoice Date</li>
-                  <li>Due Date</li>
-                </ul>
-              </>
-            ) : null}
+            <p className="text-sm text-yellow-800 font-medium">
+              ⚠️ Please fill in all required fields before saving:
+            </p>
+            <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
+              <li>Customer name</li>
+              <li>At least one item (with name, quantity, and rate)</li>
+              <li>Invoice Date</li>
+              <li>Due Date</li>
+            </ul>
           </div>
         )}
       </div>

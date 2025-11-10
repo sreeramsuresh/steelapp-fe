@@ -1276,6 +1276,12 @@ const InvoiceForm = ({ onSave }) => {
   const handleSave = async () => {
     console.log('🔍 handleSave called - id:', id, 'status:', invoice.status);
 
+    // Prevent double-click / rapid clicks at entry point
+    if (isSaving) {
+      console.log('⏸️  Save already in progress, ignoring click');
+      return;
+    }
+
     // For new invoices with Final Tax Invoice status, show confirmation first
     if (!id && invoice.status === 'issued') {
       console.log('✅ Showing Final Tax Invoice confirmation dialog');
@@ -1503,9 +1509,22 @@ const InvoiceForm = ({ onSave }) => {
         );
         if (onSave) onSave(updatedInvoice);
 
-        notificationService.success(
-          "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
-        );
+        // Navigate to the new invoice ID (backend creates new invoice using cancel-and-recreate)
+        // The backend returns: { id: oldId, new_invoice_id: actualNewId }
+        // We need to navigate to the NEW invoice to continue editing
+        if (updatedInvoice.new_invoice_id && updatedInvoice.new_invoice_id !== parseInt(id)) {
+          notificationService.success(
+            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
+          );
+          // Navigate to new invoice ID after a short delay to allow state to update
+          setTimeout(() => {
+            navigate(`/edit/${updatedInvoice.new_invoice_id}`, { replace: true });
+          }, 500);
+        } else {
+          notificationService.success(
+            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
+          );
+        }
       } else {
         // Create new invoice
         const newInvoice = await saveInvoice(processedInvoice);
@@ -1513,6 +1532,9 @@ const InvoiceForm = ({ onSave }) => {
 
         // Store the created invoice ID for success modal
         setCreatedInvoiceId(newInvoice.id);
+
+        // Close preview modal if it's open
+        setShowPreview(false);
 
         // Show success modal with options
         setShowSuccessModal(true);
@@ -1539,6 +1561,13 @@ const InvoiceForm = ({ onSave }) => {
         errorMessage = error.response.data.message;
       } else if (error?.message) {
         errorMessage = error.message;
+      }
+
+      // Check for duplicate invoice number error (from database unique constraint)
+      if (errorMessage.toLowerCase().includes('duplicate') ||
+          errorMessage.toLowerCase().includes('unique_invoice_number') ||
+          (error?.response?.status === 409)) {
+        errorMessage = `Invoice number ${invoice.invoiceNumber} already exists. This may be due to a duplicate submission. Please refresh the page and try again with a new invoice number.`;
       }
 
       // Show detailed validation errors if available
@@ -1601,11 +1630,15 @@ const InvoiceForm = ({ onSave }) => {
     }
   };
 
-  // Handle ESC key to close success modal
+  // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === 'Escape' && showSuccessModal) {
-        handleSuccessModalClose();
+        // Only allow ESC to close for Draft and Proforma invoices
+        const isFinalTaxInvoice = invoice.status === 'issued';
+        if (!isFinalTaxInvoice) {
+          handleSuccessModalClose();
+        }
       }
     };
 
@@ -1615,7 +1648,7 @@ const InvoiceForm = ({ onSave }) => {
         document.removeEventListener('keydown', handleEscKey);
       };
     }
-  }, [showSuccessModal, createdInvoiceId]);
+  }, [showSuccessModal, createdInvoiceId, invoice.status]);
 
   const handleDownloadPDF = async () => {
     // Use either the route ID or the newly created invoice ID
@@ -1744,7 +1777,7 @@ const InvoiceForm = ({ onSave }) => {
               <Button
                 onClick={handleSave}
                 disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
-                className="w-full sm:w-auto"
+                className={`w-full sm:w-auto ${(savingInvoice || updatingInvoice || isSaving) ? 'pointer-events-none opacity-60' : ''}`}
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
                   <LoadingSpinner size="sm" />
@@ -3087,75 +3120,89 @@ const InvoiceForm = ({ onSave }) => {
       )}
 
       {/* Success Modal - Invoice Created */}
-      {showSuccessModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={handleSuccessModalClose}
-        >
+      {showSuccessModal && (() => {
+        // Check if this is a Final Tax Invoice (cannot be edited after creation)
+        const isFinalTaxInvoice = invoice.status === 'issued';
+        const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
+
+        return (
           <div
-            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl relative ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-            }`}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            onClick={canContinueEditing ? handleSuccessModalClose : undefined}
           >
-            {/* Close button */}
-            <button
-              onClick={handleSuccessModalClose}
-              className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
-                isDarkMode
-                  ? "hover:bg-gray-700 text-gray-400 hover:text-white"
-                  : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+            <div
+              className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl relative ${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
               }`}
-              aria-label="Close"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={20} />
-            </button>
+              {/* Close button - only show for Draft/Proforma */}
+              {canContinueEditing && (
+                <button
+                  onClick={handleSuccessModalClose}
+                  className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
+                    isDarkMode
+                      ? "hover:bg-gray-700 text-gray-400 hover:text-white"
+                      : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                  }`}
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              )}
 
-            <div className="flex items-start mb-4">
-              <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-full p-3 mr-4">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+              <div className="flex items-start mb-4">
+                <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-full p-3 mr-4">
+                  <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2 text-green-600 dark:text-green-400">
+                    Invoice Created Successfully!
+                  </h3>
+                  <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                    {isFinalTaxInvoice
+                      ? "Your Final Tax Invoice has been created and saved."
+                      : `Your ${invoice.status === 'proforma' ? 'Proforma Invoice' : 'Draft'} has been created and saved.`
+                    }
+                  </p>
+                  <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+                    What would you like to do next?
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2 text-green-600 dark:text-green-400">
-                  Invoice Created Successfully!
-                </h3>
-                <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  Your Final Tax Invoice has been created and saved.
-                </p>
-                <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
-                  What would you like to do next?
-                </p>
+
+              <div className="flex flex-col gap-3 mt-6">
+                <button
+                  onClick={handleSuccessDownloadPDF}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                >
+                  <Download size={20} />
+                  Download PDF
+                </button>
+                <button
+                  onClick={handleSuccessGoToList}
+                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
+                    isDarkMode
+                      ? "bg-gray-700 hover:bg-gray-600 text-white"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                  }`}
+                >
+                  Go to Invoice List
+                </button>
               </div>
-            </div>
 
-            <div className="flex flex-col gap-3 mt-6">
-              <button
-                onClick={handleSuccessDownloadPDF}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
-              >
-                <Download size={20} />
-                Download PDF
-              </button>
-              <button
-                onClick={handleSuccessGoToList}
-                className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
-                  isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
-                }`}
-              >
-                Go to Invoice List
-              </button>
+              {/* Continue editing hint - only show for Draft/Proforma */}
+              {canContinueEditing && (
+                <p className={`text-xs mt-4 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Press ESC or click outside to continue editing the invoice
+                </p>
+              )}
             </div>
-
-            <p className={`text-xs mt-4 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              Press ESC or click outside to continue editing the invoice
-            </p>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Add/Edit Payment Modal */}
       <AddPaymentModal
