@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
-import { formatCurrency, formatDate, normalizeLLC, titleCase, formatDateDMY } from './invoiceUtils';
-import { calculatePaymentStatus, calculateTotalPaid, calculateBalanceDue } from './paymentUtils';
+import { formatCurrency, normalizeLLC, titleCase, formatDateDMY } from './invoiceUtils';
+import { calculatePaymentStatus, calculateBalanceDue } from './paymentUtils';
 
 /**
  * Reminder types based on days until/past due date
@@ -334,7 +334,7 @@ export const generatePaymentReminder = async (invoice, company) => {
     const margin = 20;
     let yPos = margin;
 
-    const { type, config, daysUntilDue, balanceDue } = reminderInfo;
+    const { type, daysUntilDue } = reminderInfo;
     const letterContent = getReminderLetterContent(type, invoice, daysUntilDue);
 
     // Header - Company Details

@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, calculateTotal } from './invoiceUtils';
+import { formatCurrency, formatDate } from './invoiceUtils';
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 
