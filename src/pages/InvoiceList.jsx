@@ -24,12 +24,11 @@ import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
-import { deliveryNotesAPI } from "../services/api";
+import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
-import GenerateStatementModal from "../components/GenerateStatementModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useConfirm } from "../hooks/useConfirm";
@@ -66,8 +65,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [activeCardFilter, setActiveCardFilter] = useState(null);
-  const [showStatementModal, setShowStatementModal] = useState(false);
-  const [statementCustomer, setStatementCustomer] = useState(null);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState(new Set());
   const [showPaymentReminderModal, setShowPaymentReminderModal] = useState(false);
   const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
@@ -570,19 +567,33 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
-  const handleGenerateStatement = (invoice) => {
-    setStatementCustomer({
-      id: invoice.customer.id || invoice.customer_id,
-      name: invoice.customer.name || invoice.customer_name,
-      email: invoice.customer.email || invoice.customer_email,
-      company: invoice.customer.company
-    });
-    setShowStatementModal(true);
-  };
+  const handleGenerateStatement = async (invoice) => {
+    try {
+      const customerId = invoice.customer?.id || invoice.customer_id;
 
-  const handleStatementGenerated = (statement) => {
-    notificationService.success('Statement generated successfully!');
-    // Optionally refresh invoices or navigate to statement
+      // Check if customer has any statements
+      const response = await accountStatementsAPI.getAll({
+        customer_id: customerId,
+        limit: 1,
+        page: 1
+      });
+
+      if (response.account_statements && response.account_statements.length > 0) {
+        // Customer has statements - download the latest one
+        const latestStatement = response.account_statements[0];
+        await accountStatementsAPI.downloadPDF(latestStatement.id);
+        notificationService.success(`Downloaded statement: ${latestStatement.statement_number}`);
+      } else {
+        // No statements found
+        notificationService.warning(
+          'No statements found for this customer. Please go to Statement of Accounts section to generate one first.',
+          { duration: 5000 }
+        );
+      }
+    } catch (error) {
+      console.error('Error checking statements:', error);
+      notificationService.error('Failed to check customer statements');
+    }
   };
 
   const handleOpenPaymentReminder = (invoice) => {
@@ -1772,14 +1783,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           </div>
         )}
       </div>
-
-      {/* Generate Statement Modal */}
-      <GenerateStatementModal
-        isOpen={showStatementModal}
-        onClose={() => setShowStatementModal(false)}
-        customer={statementCustomer}
-        onGenerated={handleStatementGenerated}
-      />
 
       {/* Payment Reminder Modal */}
       <PaymentReminderModal

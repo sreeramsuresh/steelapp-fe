@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Eye, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { FileText, Plus, Eye, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { accountStatementsAPI } from '../services/api';
+import { accountStatementsAPI, customersAPI } from '../services/api';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import GenerateStatementModal from '../components/GenerateStatementModal';
 
 const AccountStatementList = () => {
   const navigate = useNavigate();
@@ -17,6 +18,13 @@ const AccountStatementList = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, number: '' });
+
+  // Customer selection modal
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   // Fetch account statements
   const fetchStatements = async () => {
@@ -44,6 +52,40 @@ const AccountStatementList = () => {
   useEffect(() => {
     fetchStatements();
   }, [page, searchTerm, customerFilter]);
+
+  // Fetch customers for selection
+  const fetchCustomers = async () => {
+    try {
+      const response = await customersAPI.getAll({ limit: 1000, search: customerSearchTerm });
+      setCustomers(response.customers || []);
+    } catch (err) {
+      console.error('Error fetching customers:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (showCustomerModal) {
+      fetchCustomers();
+    }
+  }, [showCustomerModal, customerSearchTerm]);
+
+  const handleGenerateClick = () => {
+    setShowCustomerModal(true);
+  };
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+    setShowCustomerModal(false);
+    setShowGenerateModal(true);
+  };
+
+  const handleStatementGenerated = () => {
+    setSuccess('Statement generated successfully!');
+    setShowGenerateModal(false);
+    setSelectedCustomer(null);
+    // Refresh the statements list
+    fetchStatements();
+  };
 
   const handleDownloadPDF = async (id) => {
     try {
@@ -100,23 +142,43 @@ const AccountStatementList = () => {
       <div className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
         isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
       }`}>
+        {/* Success/Error Messages */}
+        {success && (
+          <div className="mb-4 flex items-center gap-3 p-4 rounded-lg border bg-green-50 border-green-200 text-green-800">
+            <CheckCircle className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">{success}</span>
+            <button onClick={() => setSuccess('')} className="ml-auto">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 flex items-center gap-3 p-4 rounded-lg border bg-red-50 border-red-200 text-red-800">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">{error}</span>
+            <button onClick={() => setError('')} className="ml-auto">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {/* Header Section */}
         <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              📊 Account Statements
+              📊 Statement of Accounts
             </h1>
             <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Generate and manage customer account statements
+              Generate customer statements and track account balances
             </p>
           </div>
-          <Link
-            to="/account-statements/new"
+          <button
+            onClick={handleGenerateClick}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Plus size={18} />
-            New Statement
-          </Link>
+            Generate Statement
+          </button>
         </div>
 
         {/* Stats Cards */}
@@ -138,7 +200,7 @@ const AccountStatementList = () => {
           }`}>
             <div className="py-4">
               <div className="text-2xl font-bold text-orange-600">
-                {formatCurrency(statements.reduce((sum, stmt) => sum + stmt.total_invoiced, 0))}
+                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.total_invoices || 0), 0))}
               </div>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Invoiced
@@ -150,7 +212,7 @@ const AccountStatementList = () => {
           }`}>
             <div className="py-4">
               <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(statements.reduce((sum, stmt) => sum + stmt.total_paid, 0))}
+                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.total_payments || 0), 0))}
               </div>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Paid
@@ -246,17 +308,17 @@ const AccountStatementList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {formatDate(statement.start_date)} - {formatDate(statement.end_date)}
+                        {formatDate(statement.from_date)} - {formatDate(statement.to_date)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {formatCurrency(statement.total_invoiced)}
+                        {formatCurrency(statement.total_invoices)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {formatCurrency(statement.total_paid)}
+                        {formatCurrency(statement.total_payments)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -401,23 +463,110 @@ const AccountStatementList = () => {
         </div>
       )}
 
-      {success && (
-        <div className="fixed top-4 right-4 z-50">
-          <div className={`p-4 rounded-lg border shadow-lg ${
-            isDarkMode ? 'bg-green-900/20 border-green-700 text-green-300' : 'bg-green-50 border-green-200 text-green-800'
+      {/* Customer Selection Modal */}
+      {showCustomerModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+          <div className={`relative w-full max-w-2xl mx-4 rounded-xl shadow-2xl max-h-[80vh] flex flex-col ${
+            isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
           }`}>
-            <div className="flex items-center gap-2">
-              <CheckCircle size={20} />
-              <span>{success}</span>
-              <button 
-                onClick={() => setSuccess('')}
-                className={`ml-2 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-700'}`}
+            {/* Header */}
+            <div className={`flex items-center justify-between p-6 border-b ${
+              isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-teal-600 rounded-lg">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Select Customer
+                  </h2>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Choose a customer to generate statement
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCustomerModal(false)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                }`}
               >
-                <X size={16} />
+                <X className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
               </button>
+            </div>
+
+            {/* Search */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="relative">
+                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`} />
+                <input
+                  type="text"
+                  placeholder="Search customers..."
+                  value={customerSearchTerm}
+                  onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Customer List */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-2">
+                {customers.length === 0 ? (
+                  <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    No customers found
+                  </div>
+                ) : (
+                  customers.map((customer) => (
+                    <button
+                      key={customer.id}
+                      onClick={() => handleCustomerSelect(customer)}
+                      className={`w-full text-left p-4 rounded-lg border transition-all ${
+                        isDarkMode
+                          ? 'border-gray-700 hover:border-teal-600 hover:bg-gray-800'
+                          : 'border-gray-200 hover:border-teal-600 hover:bg-teal-50'
+                      }`}
+                    >
+                      <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {customer.name}
+                      </div>
+                      {customer.company && (
+                        <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {customer.company}
+                        </div>
+                      )}
+                      {customer.email && (
+                        <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {customer.email}
+                        </div>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Generate Statement Modal */}
+      {showGenerateModal && selectedCustomer && (
+        <GenerateStatementModal
+          isOpen={showGenerateModal}
+          onClose={() => {
+            setShowGenerateModal(false);
+            setSelectedCustomer(null);
+          }}
+          customer={selectedCustomer}
+          onGenerated={handleStatementGenerated}
+        />
       )}
     </div>
   );

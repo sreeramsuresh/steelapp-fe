@@ -156,7 +156,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
 
               {/* Logo - Right */}
               <div>
-                <img src={companyLogo} alt="Company Logo" className="h-12 w-auto" />
+                <img src={companyLogo} alt="Company Logo" className="h-24 w-auto" />
               </div>
             </div>
 
@@ -359,13 +359,10 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
             {/* SIGNATURE AND SEAL SECTION */}
             <div className="flex justify-between items-start mb-6">
               {/* Company Seal - Left */}
-              <div className="flex items-start gap-3">
+              <div className="flex flex-col items-center gap-2">
                 <img src={companySeal} alt="Company Seal" className="w-32 h-32 object-contain" />
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 text-center">
                   <p className="font-medium">Company Seal</p>
-                  <p className="mt-1">Ultimate Steels</p>
-                  <p>Building Materials</p>
-                  <p>Trading LLC</p>
                 </div>
               </div>
 
