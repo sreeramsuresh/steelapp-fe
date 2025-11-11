@@ -17,9 +17,13 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { getDefaultTemplateSettings, validateTemplateSettings, mergeTemplateSettings } from '../constants/defaultTemplateSettings';
 import { generateConfigurablePDF } from '../utils/configurablePdfGenerator';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
+import { notificationService } from '../services/notificationService';
 
 const InvoiceTemplateSettings = ({ company, onSave }) => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   // Template settings state
   const [settings, setSettings] = useState(getDefaultTemplateSettings());
@@ -99,22 +103,36 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
   };
 
   // Discard changes and revert to saved settings
-  const handleDiscardChanges = () => {
-    if (window.confirm('Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.')) {
-      if (originalSettings) {
-        setSettings(JSON.parse(JSON.stringify(originalSettings)));
-        setValidationErrors([]);
-      }
+  const handleDiscardChanges = async () => {
+    const confirmed = await confirm({
+      title: 'Discard Changes?',
+      message: 'Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.',
+      confirmText: 'Discard',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
+
+    if (originalSettings) {
+      setSettings(JSON.parse(JSON.stringify(originalSettings)));
+      setValidationErrors([]);
     }
   };
 
   // Reset to defaults
-  const handleResetToDefaults = () => {
-    if (window.confirm('Are you sure you want to reset all template settings to defaults? This cannot be undone.')) {
-      const defaults = getDefaultTemplateSettings();
-      setSettings(defaults);
-      setValidationErrors([]);
-    }
+  const handleResetToDefaults = async () => {
+    const confirmed = await confirm({
+      title: 'Reset to Defaults?',
+      message: 'Are you sure you want to reset all template settings to defaults? This cannot be undone.',
+      confirmText: 'Reset',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
+
+    const defaults = getDefaultTemplateSettings();
+    setSettings(defaults);
+    setValidationErrors([]);
   };
 
   // Save settings
@@ -123,7 +141,7 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
     const validation = validateTemplateSettings(settings);
     if (!validation.valid) {
       setValidationErrors(validation.errors);
-      alert('Please fix validation errors before saving.');
+      notificationService.error('Please fix validation errors before saving.');
       return;
     }
 
@@ -134,10 +152,10 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
       await onSave({ invoice_template: settings });
       setOriginalSettings(settings);
       setHasChanges(false);
-      alert('Template settings saved successfully!');
+      notificationService.success('Template settings saved successfully!');
     } catch (error) {
       console.error('Error saving template settings:', error);
-      alert('Failed to save template settings. Please try again.');
+      notificationService.error('Failed to save template settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -204,7 +222,7 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
       await generateConfigurablePDF(sampleInvoice, tempCompany, { isPreview: true });
     } catch (error) {
       console.error('Error generating preview:', error);
-      alert('Failed to generate preview. Please check your settings.');
+      notificationService.error('Failed to generate preview. Please check your settings.');
     } finally {
       setIsPreviewing(false);
     }
@@ -1072,6 +1090,17 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

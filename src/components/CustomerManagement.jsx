@@ -8,6 +8,8 @@ import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 import { 
   FaUsers, 
   FaPlus, 
@@ -34,7 +36,8 @@ import CustomerUpload from './CustomerUpload';
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
-  
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
+
   // Set notification service theme
   useEffect(() => {
     notificationService.setTheme(isDarkMode);
@@ -199,14 +202,21 @@ const CustomerManagement = () => {
 
   const handleDeleteCustomer = async (customerId) => {
     // Repurposed as Archive for safety
-    if (window.confirm('Archive this customer? You can restore later from the backend.')) {
-      try {
-        await archiveCustomer(customerId);
-        refetchCustomers();
-        notificationService.success('Customer archived successfully');
-      } catch (error) {
-        notificationService.apiError('Archive customer', error);
-      }
+    const confirmed = await confirm({
+      title: 'Archive Customer?',
+      message: 'Archive this customer? You can restore later from the backend.',
+      confirmText: 'Archive',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await archiveCustomer(customerId);
+      refetchCustomers();
+      notificationService.success('Customer archived successfully');
+    } catch (error) {
+      notificationService.apiError('Archive customer', error);
     }
   };
 
@@ -256,7 +266,15 @@ const CustomerManagement = () => {
   };
 
   const handleDeleteSupplier = async (id) => {
-    if (!window.confirm('Delete this supplier?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Supplier?',
+      message: 'Are you sure you want to delete this supplier? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
     try { await deleteSupplier(id); refetchSuppliers(); notificationService.deleteSuccess('Supplier'); }
     catch (e) { notificationService.deleteError('Supplier', e); }
   };
@@ -1497,6 +1515,17 @@ const CustomerManagement = () => {
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

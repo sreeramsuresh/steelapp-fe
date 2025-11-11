@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2, 
+import {
+  Package,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
   Tag,
   AlertTriangle,
   CheckCircle,
@@ -26,6 +26,9 @@ import InventoryList from './InventoryList';
 import StockMovement from './StockMovement';
 import WarehouseManagement from './WarehouseManagement';
 import ProductUpload from './ProductUpload';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
+import { notificationService } from '../services/notificationService';
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', ...props }) => {
@@ -166,6 +169,7 @@ const StockProgressBar = ({ value, stockStatus }) => {
 
 const SteelProducts = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [activeTab, setActiveTab] = useState('catalog');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -299,7 +303,7 @@ const SteelProducts = () => {
       const isPipeOrTube = /pipe/i.test(newProduct.category || '');
       if (isPipeOrTube) {
         if (!newProduct.sizeInch || !newProduct.od || !newProduct.length) {
-          alert('For Pipe/Tube, Size (inch), OD, and Length are required.');
+          notificationService.error('For Pipe/Tube, Size (inch), OD, and Length are required.');
           return;
         }
       }
@@ -346,8 +350,10 @@ const SteelProducts = () => {
       });
       setShowAddModal(false);
       refetchProducts();
+      notificationService.success('Product added successfully');
     } catch (error) {
       console.error('Error adding product:', error);
+      notificationService.error('Failed to add product');
     }
   };
 
@@ -426,29 +432,38 @@ const SteelProducts = () => {
       setTimeout(() => {
         console.log('📊 Products data after state update:', productsData);
         console.log('🔍 Current products array after state update:', products);
-        
+
         // Find the specific product to see if it updated
         const updatedProductInState = products.find(p => p.id === selectedProduct.id);
         console.log('🎯 Updated product in state:', updatedProductInState);
       }, 100);
-      
-      alert('Product updated successfully!');
+
+      notificationService.success('Product updated successfully!');
       setShowEditModal(false);
       setSelectedProduct(null);
     } catch (error) {
       console.error('❌ Error updating product:', error);
-      alert(`Failed to update product: ${error.message || 'Unknown error'}`);
+      notificationService.error(`Failed to update product: ${error.message || 'Unknown error'}`);
     }
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct(productId);
-        refetchProducts();
-      } catch (error) {
-        console.error('Error deleting product:', error);
-      }
+    const confirmed = await confirm({
+      title: 'Delete Product?',
+      message: 'Are you sure you want to delete this product? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await deleteProduct(productId);
+      refetchProducts();
+      notificationService.success('Product deleted successfully');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      notificationService.error('Failed to delete product');
     }
   };
 
@@ -511,7 +526,7 @@ const SteelProducts = () => {
               await productService.downloadProducts();
             } catch (error) {
               console.error('Error downloading products:', error);
-              alert('Failed to download products');
+              notificationService.error('Failed to download products');
             }
           }}
           variant="outline"
@@ -1531,13 +1546,24 @@ const SteelProducts = () => {
         )}
 
         {/* Product Upload Modal */}
-        <ProductUpload 
+        <ProductUpload
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onUploadComplete={() => {
             refetchProducts();
             setShowUploadModal(false);
           }}
+        />
+
+        <ConfirmDialog
+          open={dialogState.open}
+          title={dialogState.title}
+          message={dialogState.message}
+          variant={dialogState.variant}
+          confirmText={dialogState.confirmText}
+          cancelText={dialogState.cancelText}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
         />
       </div>
     </div>

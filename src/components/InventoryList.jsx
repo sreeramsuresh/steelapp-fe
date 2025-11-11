@@ -27,9 +27,12 @@ import {
   FINISHES,
 } from "../types";
 import InventoryUpload from "./InventoryUpload";
+import ConfirmDialog from "./ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 const InventoryList = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -176,16 +179,21 @@ const InventoryList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (
-      window.confirm("Are you sure you want to delete this inventory item?")
-    ) {
-      try {
-        await inventoryService.deleteItem(id);
-        await fetchInventory();
-      } catch (error) {
-        console.error("Error deleting inventory item:", error);
-        setError("Failed to delete inventory item");
-      }
+    const confirmed = await confirm({
+      title: 'Delete Inventory Item?',
+      message: 'Are you sure you want to delete this inventory item? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await inventoryService.deleteItem(id);
+      await fetchInventory();
+    } catch (error) {
+      console.error("Error deleting inventory item:", error);
+      setError("Failed to delete inventory item");
     }
   };
 
@@ -975,6 +983,17 @@ const InventoryList = () => {
             }}
           />
         )}
+
+        <ConfirmDialog
+          open={dialogState.open}
+          title={dialogState.title}
+          message={dialogState.message}
+          variant={dialogState.variant}
+          confirmText={dialogState.confirmText}
+          cancelText={dialogState.cancelText}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
       </div>
     </div>
   );
