@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Settings,
   Building,
   FileText,
@@ -25,7 +25,8 @@ import {
   AlertCircle,
   Camera,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Printer
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -447,6 +448,20 @@ const CompanySettings = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  // Printing settings state
+  const [printingSettings, setPrintingSettings] = useState({
+    receipt_size: 'A5',
+    print_on_paper_size: 'A4',
+    receipt_printer: 'default',
+    invoice_printer: 'default',
+    receipt_copies: 1,
+    invoice_copies: 1,
+    auto_print_receipts: false,
+    auto_print_invoices: false
+  });
+
+  const [savingPrintingSettings, setSavingPrintingSettings] = useState(false);
+
   // Formatters
   const formatDateTime = (value) => {
     if (!value) return 'Never';
@@ -566,7 +581,37 @@ const CompanySettings = () => {
         setUsers([]);
       }
     })();
+
+    // Load printing settings
+    (async () => {
+      try {
+        const settings = await apiService.get('/company/printing-settings');
+        if (settings) {
+          setPrintingSettings(settings);
+        }
+      } catch (error) {
+        console.error('Error loading printing settings:', error);
+        // Use defaults if error
+      }
+    })();
   }, [templatesData]);
+
+  // Fetch printing settings when printing tab is active
+  useEffect(() => {
+    if (activeTab === 'printing') {
+      (async () => {
+        try {
+          const settings = await apiService.get('/company/printing-settings');
+          if (settings) {
+            setPrintingSettings(settings);
+          }
+        } catch (error) {
+          console.error('Error loading printing settings:', error);
+          notificationService.error('Failed to load printing settings');
+        }
+      })();
+    }
+  }, [activeTab]);
 
   const saveCompanyProfile = async () => {
     try {
@@ -645,6 +690,35 @@ const CompanySettings = () => {
   // };
 
   const saveUsers = () => {};
+
+  const savePrintingSettings = async () => {
+    try {
+      setSavingPrintingSettings(true);
+
+      await apiService.put('/company/printing-settings', printingSettings);
+
+      notificationService.success('Printing settings saved successfully');
+    } catch (error) {
+      console.error('Error saving printing settings:', error);
+      notificationService.error('Failed to save printing settings');
+    } finally {
+      setSavingPrintingSettings(false);
+    }
+  };
+
+  const resetPrintingSettings = () => {
+    setPrintingSettings({
+      receipt_size: 'A5',
+      print_on_paper_size: 'A4',
+      receipt_printer: 'default',
+      invoice_printer: 'default',
+      receipt_copies: 1,
+      invoice_copies: 1,
+      auto_print_receipts: false,
+      auto_print_invoices: false
+    });
+    notificationService.info('Settings reset to defaults');
+  };
 
   const handleLogoUpload = async (event) => {
     const file = event.target.files[0];
@@ -2481,10 +2555,237 @@ const CompanySettings = () => {
     </SettingsPaper>
   );
 
+  // Printing & Documents Settings
+  const renderPrintingSettings = () => (
+    <SettingsPaper>
+      <SectionHeader icon={Printer} title="Printing & Document Settings" />
+
+      {/* Receipt Settings */}
+      <SectionCard title="Payment Receipt Settings">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Receipt Size */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Receipt Size
+            </label>
+            <select
+              value={printingSettings.receipt_size}
+              onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="A5">A5 (148mm × 210mm) - Recommended</option>
+              <option value="A6">A6 (105mm × 148mm) - Compact</option>
+              <option value="A4">A4 (210mm × 297mm) - Full Page</option>
+            </select>
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Select the size for payment receipt PDFs
+            </p>
+          </div>
+
+          {/* Print On Paper Size */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Print On Paper Size
+            </label>
+            <select
+              value={printingSettings.print_on_paper_size}
+              onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="A4">A4 (210mm × 297mm)</option>
+              <option value="A5">A5 (148mm × 210mm)</option>
+              <option value="A6">A6 (105mm × 148mm)</option>
+            </select>
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Physical paper size loaded in printer
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-800 dark:text-blue-300">
+              <strong>Example:</strong> If Receipt Size = A5 and Print On = A4, the receipt will be A5 size centered on A4 paper.
+              This is the most economical setting for standard printers.
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Printer Selection */}
+      <SectionCard title="Printer Settings">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Receipt Printer */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Receipt Printer
+            </label>
+            <select
+              value={printingSettings.receipt_printer}
+              onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="default">Default Printer</option>
+              <option value="receipt_printer">Receipt Printer (if available)</option>
+              <option value="pdf_only">Save as PDF Only (No Print)</option>
+            </select>
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Printer for payment receipts
+            </p>
+          </div>
+
+          {/* Invoice Printer */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Invoice Printer
+            </label>
+            <select
+              value={printingSettings.invoice_printer}
+              onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="default">Default Printer</option>
+              <option value="main_printer">Main Office Printer</option>
+              <option value="pdf_only">Save as PDF Only (No Print)</option>
+            </select>
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Printer for invoices and documents
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={20} className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-yellow-800 dark:text-yellow-300">
+              <strong>Note:</strong> Printer selection works when using the browser's print dialog.
+              For automatic printing, configure your browser's default printer settings.
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Document Copies */}
+      <SectionCard title="Document Copies">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Receipt Copies */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Receipt Copies
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={printingSettings.receipt_copies}
+              onChange={(e) => setPrintingSettings({...printingSettings, receipt_copies: parseInt(e.target.value) || 1})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            />
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Number of copies to print
+            </p>
+          </div>
+
+          {/* Invoice Copies */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Invoice Copies
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={printingSettings.invoice_copies}
+              onChange={(e) => setPrintingSettings({...printingSettings, invoice_copies: parseInt(e.target.value) || 1})}
+              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            />
+            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Number of copies to print
+            </p>
+          </div>
+
+          {/* Auto Print */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Auto Print
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={printingSettings.auto_print_receipts}
+                  onChange={(e) => setPrintingSettings({...printingSettings, auto_print_receipts: e.target.checked})}
+                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Auto print receipts
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={printingSettings.auto_print_invoices}
+                  onChange={(e) => setPrintingSettings({...printingSettings, auto_print_invoices: e.target.checked})}
+                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Auto print invoices
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Save Button */}
+      <div className="flex justify-end gap-3 mt-6">
+        <Button
+          variant="outline"
+          onClick={resetPrintingSettings}
+        >
+          Reset to Defaults
+        </Button>
+        <Button
+          startIcon={<Save size={20} />}
+          onClick={savePrintingSettings}
+          disabled={savingPrintingSettings}
+        >
+          {savingPrintingSettings ? 'Saving...' : 'Save Printing Settings'}
+        </Button>
+      </div>
+    </SettingsPaper>
+  );
+
   const isAdmin = authService.hasRole('admin');
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
     { id: 'templates', label: 'Invoice Templates', icon: FileText },
+    { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
   ];
@@ -2544,6 +2845,7 @@ const CompanySettings = () => {
       <div className="mt-6">
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'templates' && renderInvoiceTemplates()}
+        {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
         {isAdmin && activeTab === 'users' && renderUserManagement()}
       </div>
