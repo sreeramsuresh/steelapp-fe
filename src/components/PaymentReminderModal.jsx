@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { X, Phone, Calendar, Trash2, Edit2, Plus } from 'lucide-react';
 import { formatDateTime } from '../utils/invoiceUtils';
+import { apiService, tokenUtils } from '../services/axiosApi';
+import ConfirmDialog from './ConfirmDialog';
+import { notificationService } from '../services/notificationService';
+
+// Helper function to get first name from full name
+const getFirstName = (name) => {
+  if (!name) return 'N/A';
+
+  const parts = name.trim().split(' ').filter(p => p.length > 0);
+
+  if (parts.length === 0) return 'N/A';
+
+  // Return first name only, capitalized
+  return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+};
 
 const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
   const [formData, setFormData] = useState({
     contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
     notes: ''
   });
+
+  // Get current user info
+  useEffect(() => {
+    const user = tokenUtils.getUser() || JSON.parse(localStorage.getItem('steel-app-user') || 'null');
+    setCurrentUser(user);
+  }, []);
 
   // Fetch existing reminders when modal opens
   useEffect(() => {
@@ -22,18 +44,11 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const fetchReminders = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/invoices/${invoice.id}/payment-reminders`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setReminders(data);
-      }
+      const data = await apiService.get(`/invoices/${invoice.id}/payment-reminders`);
+      setReminders(data);
     } catch (err) {
       // Silently fail - just show empty list
+      console.error('Failed to fetch reminders:', err);
     } finally {
       setLoading(false);
     }
@@ -42,56 +57,66 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log('=== SAVE BUTTON CLICKED ===');
+    console.log('Form data:', formData);
+    console.log('Invoice ID:', invoice?.id);
+    console.log('Token exists:', !!localStorage.getItem('token'));
+
     if (!formData.notes.trim()) {
+      console.log('ERROR: Notes are empty');
       return;
     }
 
     try {
       if (editingId) {
         // Update existing reminder
-        const response = await fetch(`/api/invoices/payment-reminders/${editingId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(formData)
-        });
+        console.log('Updating reminder:', editingId);
+        const updatedReminder = await apiService.put(`/invoices/payment-reminders/${editingId}`, formData);
 
-        if (response.ok) {
-          const updatedReminder = await response.json();
-          setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
-        }
+        setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
+
+        // Reset form
+        console.log('Resetting form after update...');
+        setFormData({
+          contact_date: new Date().toISOString().slice(0, 16),
+          notes: ''
+        });
+        setEditingId(null);
+        notificationService.success('Note updated successfully');
+        console.log('=== UPDATE COMPLETED SUCCESSFULLY ===');
       } else {
         // Create new reminder
-        const response = await fetch(`/api/invoices/${invoice.id}/payment-reminders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(formData)
+        const url = `/invoices/${invoice.id}/payment-reminders`;
+        console.log('Making POST request to:', url);
+        console.log('Request body:', JSON.stringify(formData));
+
+        const newReminder = await apiService.post(url, formData);
+        console.log('New reminder received:', newReminder);
+
+        // Add new reminder to the TOP of the list
+        setReminders([newReminder, ...reminders]);
+
+        // Reset form
+        console.log('Resetting form...');
+        setFormData({
+          contact_date: new Date().toISOString().slice(0, 16),
+          notes: ''
         });
+        setEditingId(null);
 
-        if (response.ok) {
-          const newReminder = await response.json();
-          setReminders([newReminder, ...reminders]);
+        // Refresh the list to ensure we have latest data
+        console.log('Refreshing list...');
+        await fetchReminders();
 
-          if (onSave) {
-            onSave(newReminder);
-          }
+        if (onSave) {
+          onSave(newReminder);
         }
+        notificationService.success('Note saved successfully');
+        console.log('=== SAVE COMPLETED SUCCESSFULLY ===');
       }
-
-      // Reset form
-      setFormData({
-        contact_date: new Date().toISOString().slice(0, 16),
-        notes: ''
-      });
-      setIsAdding(false);
-      setEditingId(null);
     } catch (err) {
-      // Silently fail
+      console.error('Error saving reminder:', err);
+      notificationService.error(`Error saving note: ${err.message}`);
     }
   };
 
@@ -101,32 +126,34 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
       contact_date: new Date(reminder.contact_date).toISOString().slice(0, 16),
       notes: reminder.notes
     });
-    setIsAdding(true);
   };
 
-  const handleDelete = async (reminderId) => {
-    if (!window.confirm('Delete this note?')) {
-      return;
-    }
+  const handleDelete = (reminderId) => {
+    // Show custom confirmation dialog
+    setDeleteConfirmId(reminderId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
 
     try {
-      const response = await fetch(`/api/invoices/payment-reminders/${reminderId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        setReminders(reminders.filter(r => r.id !== reminderId));
-      }
+      await apiService.delete(`/invoices/payment-reminders/${deleteConfirmId}`);
+      setReminders(reminders.filter(r => r.id !== deleteConfirmId));
+      notificationService.success('Note deleted successfully');
+      console.log('Note deleted successfully');
+      setDeleteConfirmId(null); // Close confirmation dialog
     } catch (err) {
-      // Silently fail
+      console.error('Failed to delete note:', err);
+      notificationService.error(`Error deleting note: ${err.message}`);
+      setDeleteConfirmId(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
   };
 
   const handleCancel = () => {
-    setIsAdding(false);
     setEditingId(null);
     setFormData({
       contact_date: new Date().toISOString().slice(0, 16),
@@ -138,7 +165,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-yellow-300 dark:border-yellow-700">
+      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-yellow-300 dark:border-yellow-700 relative">
         {/* Header - Sticky Note Style */}
         <div className="bg-yellow-200 dark:bg-yellow-800/40 px-6 py-4 border-b-2 border-yellow-300 dark:border-yellow-700">
           <div className="flex justify-between items-start">
@@ -162,22 +189,71 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           </div>
         </div>
 
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          open={deleteConfirmId !== null}
+          title="Delete this note?"
+          message="This action cannot be undone."
+          variant="danger"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+
         {/* Content - Scrollable */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
-          {/* Add New Button */}
-          {!isAdding && (
-            <button
-              onClick={() => setIsAdding(true)}
-              className="w-full mb-4 px-4 py-3 bg-yellow-300 dark:bg-yellow-700 text-yellow-900 dark:text-yellow-100 rounded-lg hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2 font-medium shadow-md"
-            >
-              <Plus size={20} />
-              Add New Payment Call Note
-            </button>
+          {/* Saved Notes List - TOP (Max 3 visible, rest scroll) */}
+          {loading ? (
+            <div className="text-center py-4 text-yellow-700 dark:text-yellow-300 mb-6">
+              Loading...
+            </div>
+          ) : reminders.length > 0 && (
+            <div className="mb-6 max-h-[280px] overflow-y-auto space-y-3 pr-2">
+              {reminders.map((reminder) => (
+                <div
+                  key={reminder.id}
+                  className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md border-l-4 border-yellow-400 dark:border-yellow-600 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Calendar size={14} />
+                      <span className="font-medium">
+                        {formatDateTime(reminder.contact_date)}
+                      </span>
+                      {/* User First Name */}
+                      <span className="ml-2 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-semibold">
+                        {getFirstName(currentUser?.name)}
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleEdit(reminder)}
+                        className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(reminder.id)}
+                        className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-800 dark:text-gray-200 text-sm">
+                    {reminder.notes}
+                  </p>
+                </div>
+              ))}
+            </div>
           )}
 
-          {/* Add/Edit Form */}
-          {isAdding && (
-            <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border-2 border-yellow-400 dark:border-yellow-600">
+          {/* Form - Always Visible - BOTTOM */}
+          <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border-2 border-yellow-400 dark:border-yellow-600">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                 {editingId ? <Edit2 size={18} /> : <Plus size={18} />}
                 {editingId ? 'Edit Call Note' : 'New Call Note'}
@@ -202,19 +278,19 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Conversation Notes
+                    Notes
                   </label>
                   <textarea
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Document what was discussed with the customer regarding pending payment..."
-                    rows={10}
-                    maxLength={1000}
+                    placeholder="Quick note..."
+                    rows={2}
+                    maxLength={40}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600 focus:border-transparent resize-none"
                     required
                   />
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {formData.notes.length}/1000 characters (approx. 10 lines)
+                    {formData.notes.length}/40 characters
                   </div>
                 </div>
               </div>
@@ -236,58 +312,6 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                 </button>
               </div>
             </form>
-          )}
-
-          {/* Reminders List */}
-          {loading ? (
-            <div className="text-center py-8 text-yellow-700 dark:text-yellow-300">
-              Loading...
-            </div>
-          ) : reminders.length === 0 ? (
-            <div className="text-center py-8 text-yellow-700 dark:text-yellow-300">
-              <Phone className="mx-auto mb-2 opacity-50" size={48} />
-              <p className="font-medium">No payment reminder calls recorded yet</p>
-              <p className="text-sm mt-1">Click "Add New" to document your first call</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {reminders.map((reminder) => (
-                <div
-                  key={reminder.id}
-                  className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md border-l-4 border-yellow-400 dark:border-yellow-600 hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <Calendar size={14} />
-                      <span className="font-medium">
-                        {formatDateTime(reminder.contact_date)}
-                      </span>
-                    </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleEdit(reminder)}
-                        className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(reminder.id)}
-                        className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                    {reminder.notes}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Footer */}

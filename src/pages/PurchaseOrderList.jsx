@@ -22,6 +22,8 @@ import { purchaseOrdersAPI } from "../services/api";
 import { companyService } from "../services";
 import { useApiData } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate();
@@ -34,6 +36,7 @@ const PurchaseOrderList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   const getStatusBadge = (status = "draft") => {
     const statusConfig = {
@@ -177,13 +180,20 @@ const PurchaseOrderList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this purchase order?')) {
+    const confirmed = await confirm({
+      title: 'Delete Purchase Order?',
+      message: 'Are you sure you want to delete this purchase order? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (confirmed) {
       try {
         await purchaseOrdersAPI.delete(id);
-        setSuccess('Purchase order deleted successfully');
+        notificationService.success('Purchase order deleted successfully');
         fetchPurchaseOrders();
       } catch (err) {
-        setError('Failed to delete purchase order');
+        notificationService.error('Failed to delete purchase order');
       }
     }
   };
@@ -480,6 +490,18 @@ const PurchaseOrderList = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

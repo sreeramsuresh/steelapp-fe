@@ -19,9 +19,12 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { apiClient } from '../services/api';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 const WarehouseManagement = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -162,24 +165,31 @@ const WarehouseManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this warehouse?')) {
-      try {
-        // Make API call to delete warehouse
-        await apiClient.delete(`/warehouses/${id}`);
-        
-        // Remove from local state immediately for better UX
-        setWarehouses(prev => prev.filter(w => w.id !== id));
-        notificationService.success('Warehouse deleted successfully');
-      } catch (error) {
-        console.error('Error deleting warehouse:', error);
-        if (error.response?.data?.error) {
-          notificationService.error(error.response.data.error);
-        } else {
-          notificationService.error('Failed to delete warehouse');
-        }
-        // Refresh the list in case of error to ensure consistency
-        fetchWarehouses();
+    const confirmed = await confirm({
+      title: 'Delete Warehouse?',
+      message: 'Are you sure you want to delete this warehouse? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      // Make API call to delete warehouse
+      await apiClient.delete(`/warehouses/${id}`);
+
+      // Remove from local state immediately for better UX
+      setWarehouses(prev => prev.filter(w => w.id !== id));
+      notificationService.success('Warehouse deleted successfully');
+    } catch (error) {
+      console.error('Error deleting warehouse:', error);
+      if (error.response?.data?.error) {
+        notificationService.error(error.response.data.error);
+      } else {
+        notificationService.error('Failed to delete warehouse');
       }
+      // Refresh the list in case of error to ensure consistency
+      fetchWarehouses();
     }
   };
 
@@ -664,6 +674,17 @@ const WarehouseManagement = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

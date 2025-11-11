@@ -20,10 +20,13 @@ import { purchaseOrdersAPI } from '../services/api';
 import { purchaseOrderSyncService } from '../services/purchaseOrderSyncService';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
 import { notificationService } from '../services/notificationService';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 
 const StockMovement = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -146,14 +149,21 @@ const StockMovement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this stock movement?')) {
-      try {
-        await stockMovementService.deleteMovement(id);
-        await fetchMovements();
-      } catch (error) {
-        console.error('Error deleting stock movement:', error);
-        setError('Failed to delete stock movement');
-      }
+    const confirmed = await confirm({
+      title: 'Delete Stock Movement?',
+      message: 'Are you sure you want to delete this stock movement? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await stockMovementService.deleteMovement(id);
+      await fetchMovements();
+    } catch (error) {
+      console.error('Error deleting stock movement:', error);
+      setError('Failed to delete stock movement');
     }
   };
 
@@ -665,6 +675,17 @@ const StockMovement = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

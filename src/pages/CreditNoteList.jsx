@@ -16,6 +16,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
 import { notificationService } from '../services/notificationService';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 const STATUS_COLORS = {
   draft: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Draft' },
@@ -29,6 +31,7 @@ const STATUS_COLORS = {
 const CreditNoteList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   const [creditNotes, setCreditNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +66,14 @@ const CreditNoteList = () => {
   };
 
   const handleDelete = async (creditNote) => {
-    if (!window.confirm(`Delete credit note ${creditNote.creditNoteNumber}? This action cannot be undone.`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Delete Credit Note?',
+      message: `Are you sure you want to delete credit note ${creditNote.creditNoteNumber}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
 
     try {
       await creditNoteService.deleteCreditNote(creditNote.id);
@@ -297,6 +305,17 @@ const CreditNoteList = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

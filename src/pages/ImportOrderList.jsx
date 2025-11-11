@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, Filter, Download, Eye, Edit, Trash2 } from 'lucide-react';
 import { importOrderService } from '../services/importOrderService';
 import { useTheme } from '../contexts/ThemeContext';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 const ImportOrderList = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -74,13 +77,20 @@ const ImportOrderList = () => {
 
   // Handle delete
   const handleDelete = async (orderId) => {
-    if (window.confirm('Are you sure you want to delete this import order?')) {
-      try {
-        await importOrderService.deleteImportOrder(orderId);
-        loadOrders(pagination.current_page);
-      } catch (err) {
-        setError(err.message);
-      }
+    const confirmed = await confirm({
+      title: 'Delete Import Order?',
+      message: 'Are you sure you want to delete this import order? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await importOrderService.deleteImportOrder(orderId);
+      loadOrders(pagination.current_page);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -310,6 +320,17 @@ const ImportOrderList = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

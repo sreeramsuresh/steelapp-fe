@@ -1,9 +1,11 @@
 import { apiClient } from './api';
+import { tokenUtils } from './axiosApi';
 
 class AuthService {
   constructor() {
     this.TOKEN_KEY = 'steel-app-token';
     this.USER_KEY = 'steel-app-user';
+    this.REFRESH_TOKEN_KEY = 'steel-app-refresh-token';
   }
 
   // Register new user
@@ -21,12 +23,15 @@ class AuthService {
   // Login user
   async login(email, password) {
     const response = await apiClient.post('/auth/login', { email, password });
-    
+
     if (response.token) {
       this.setToken(response.token);
+      if (response.refreshToken) {
+        this.setRefreshToken(response.refreshToken);
+      }
       this.setUser(response.user);
     }
-    
+
     return response;
   }
 
@@ -58,31 +63,64 @@ class AuthService {
 
   // Token management
   setToken(token) {
+    // Store in localStorage for backward compatibility
     localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem('token', token); // Also store as 'token' for components using it
+
+    // Store in cookies for automatic refresh interceptor
+    tokenUtils.setToken(token);
+
     this.updateApiHeaders();
   }
 
+  setRefreshToken(refreshToken) {
+    // Store in localStorage for backup
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+
+    // Store in cookies for automatic refresh interceptor
+    tokenUtils.setRefreshToken(refreshToken);
+  }
+
   getToken() {
-    return localStorage.getItem(this.TOKEN_KEY);
+    // Try cookies first (used by interceptor), then localStorage (backward compatibility)
+    return tokenUtils.getToken() || localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getRefreshToken() {
+    return tokenUtils.getRefreshToken() || localStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
   removeToken() {
+    // Remove from both localStorage and cookies
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('token');
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    tokenUtils.removeTokens();
     this.updateApiHeaders();
   }
 
   // User data management
   setUser(user) {
+    // Store in localStorage for backward compatibility
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+
+    // Also store in sessionStorage for automatic refresh interceptor
+    tokenUtils.setUser(user);
   }
 
   getUser() {
+    // Try sessionStorage first (used by interceptor), then localStorage (backward compatibility)
+    const sessionUser = tokenUtils.getUser();
+    if (sessionUser) return sessionUser;
+
     const userData = localStorage.getItem(this.USER_KEY);
     return userData ? JSON.parse(userData) : null;
   }
 
   removeUser() {
+    // Remove from both localStorage and sessionStorage
     localStorage.removeItem(this.USER_KEY);
+    tokenUtils.removeUser();
   }
 
   // Authentication status
