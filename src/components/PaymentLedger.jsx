@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Trash2, Edit2, Plus, Download, CheckCircle } from 'lucide-react';
+import { Trash2, Edit2, Plus, Download, CheckCircle, Printer } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { getPaymentModeConfig, formatPaymentDisplay, calculateTotalPaid, calculateBalanceDue } from '../utils/paymentUtils';
-import { generatePaymentReceipt } from '../utils/paymentReceiptGenerator';
+import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 
 const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPayment, onDeletePayment }) => {
   const { isDarkMode } = useTheme();
