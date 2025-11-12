@@ -18,6 +18,8 @@ import {
   AlertTriangle,
   Info,
   ArrowLeft,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -47,6 +49,7 @@ import InvoicePreview from "../components/InvoicePreview";
 import { invoiceService, companyService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
+import { pinnedProductsService } from "../services/pinnedProductsService";
 import { invoicesAPI } from "../services/api";
 import { useApiData, useApi } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
@@ -905,6 +908,50 @@ const InvoiceForm = ({ onSave }) => {
   const { execute: createProduct, loading: creatingProduct } = useApi(
     productService.createProduct
   );
+
+  // Pinned products state
+  const [pinnedProductIds, setPinnedProductIds] = useState([]);
+  const { data: pinnedData, refetch: refetchPinned } = useApiData(
+    () => pinnedProductsService.getPinnedProducts(),
+    []
+  );
+
+  // Update pinned products when data loads
+  useEffect(() => {
+    if (pinnedData?.pinnedProducts) {
+      setPinnedProductIds(pinnedData.pinnedProducts);
+    }
+  }, [pinnedData]);
+
+  // Handle pin/unpin
+  const handleTogglePin = async (e, productId) => {
+    e.stopPropagation(); // Prevent adding item to invoice
+    try {
+      if (pinnedProductIds.includes(productId)) {
+        await pinnedProductsService.unpinProduct(productId);
+        setPinnedProductIds(prev => prev.filter(id => id !== productId));
+        notificationService.success('Product unpinned');
+      } else {
+        if (pinnedProductIds.length >= 10) {
+          notificationService.error('Maximum 10 products can be pinned');
+          return;
+        }
+        await pinnedProductsService.pinProduct(productId);
+        setPinnedProductIds(prev => [...prev, productId]);
+        notificationService.success('Product pinned');
+      }
+    } catch (error) {
+      notificationService.error(error.message || 'Failed to update pin');
+    }
+  };
+
+  // Get sorted products: pinned first, then top sold
+  const sortedProducts = useMemo(() => {
+    const allProducts = productsData?.products || [];
+    const pinned = allProducts.filter(p => pinnedProductIds.includes(p.id));
+    const unpinned = allProducts.filter(p => !pinnedProductIds.includes(p.id));
+    return [...pinned, ...unpinned].slice(0, 10);
+  }, [productsData, pinnedProductIds]);
 
   // Date helpers for constraints
   const invoiceDateObj = useMemo(() => {

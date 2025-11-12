@@ -20,11 +20,12 @@ export const generateReceiptNumber = (invoiceNumber, paymentIndex) => {
  */
 export const generatePaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
   try {
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    // A5 size: 148mm x 210mm (half of A4)
+    const pdf = new jsPDF('p', 'mm', 'a5');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const margin = 20;
+    const margin = 15;
     let yPos = margin;
 
     // Helper function to add text
@@ -310,11 +311,12 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
  */
 export const printPaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
   try {
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    // A5 size: 148mm x 210mm (half of A4)
+    const pdf = new jsPDF('p', 'mm', 'a5');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const margin = 20;
+    const margin = 15;
     let yPos = margin;
 
     // Helper function to add text

@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2 } from 'lucide-react';
+import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2, Printer } from 'lucide-react';
 import { payablesService, PAYMENT_MODES } from '../services/payablesService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
+import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 
 const Pill = ({ color = 'gray', children }) => {
   const colors = {
@@ -168,6 +169,8 @@ const Receivables = () => {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(new Set());
   const [drawer, setDrawer] = useState({ open: false, item: null });
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+  const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const page = Number(filters.page || 1);
   const size = Number(filters.size || 10);
 
@@ -261,6 +264,66 @@ const Receivables = () => {
     const amt = Number(inv.outstanding || 0);
     if (amt <= 0) return;
     await handleAddPayment({ amount: amt, method: 'Other', reference_no: 'Auto-Paid', notes: 'Mark as Paid', payment_date: new Date().toISOString().slice(0,10) });
+  };
+
+  const handleDownloadReceipt = async (payment, paymentIndex) => {
+    const inv = drawer.item;
+    if (!inv) {
+      alert('Unable to generate receipt. Missing invoice information.');
+      return;
+    }
+
+    // Get company info from localStorage or API
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setDownloadingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
+        total: inv.invoice_amount || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || {}
+      };
+      const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error generating receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePrintReceipt = async (payment, paymentIndex) => {
+    const inv = drawer.item;
+    if (!inv) {
+      alert('Unable to print receipt. Missing invoice information.');
+      return;
+    }
+
+    // Get company info from localStorage or API
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setPrintingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
+        total: inv.invoice_amount || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || {}
+      };
+      const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error printing receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      alert('Failed to print receipt. Please try again.');
+    } finally {
+      setPrintingReceiptId(null);
+    }
   };
 
   const exportInvoices = async () => {
