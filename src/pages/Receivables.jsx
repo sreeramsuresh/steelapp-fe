@@ -498,14 +498,19 @@ const Receivables = () => {
               </div>
 
               {/* Add Payment */}
-              {canManage ? (
+              {canManage && drawer.item.outstanding > 0 ? (
                 <AddPaymentForm outstanding={drawer.item.outstanding || 0} onSave={handleAddPayment} />
+              ) : drawer.item.outstanding === 0 ? (
+                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
+                  <CheckCircle size={18} />
+                  <span className="font-medium">Invoice Fully Paid</span>
+                </div>
               ) : (
                 <div className="text-sm opacity-70">You don't have permission to add payments.</div>
               )}
 
               {/* Quick Actions */}
-              {canManage && (
+              {canManage && drawer.item.outstanding > 0 && (
                 <div className="flex flex-wrap gap-2">
                   <button className="px-3 py-2 rounded border" onClick={handleMarkPaid}><CheckCircle size={16} className="inline mr-1"/>Mark as Paid</button>
                   <button className="px-3 py-2 rounded border" onClick={handleVoidLast}><Trash2 size={16} className="inline mr-1"/>Void last</button>

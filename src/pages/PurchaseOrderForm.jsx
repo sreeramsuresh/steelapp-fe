@@ -18,14 +18,14 @@ import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
 import { supplierService } from "../services/supplierService";
 import { notificationService } from "../services/notificationService";
-import { PAYMENT_METHODS } from "../services/payablesService";
+import { PAYMENT_MODES } from "../services/payablesService";
 
 // Payment Form Component
 const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }) => {
   const [formData, setFormData] = useState({
     payment_date: new Date().toISOString().slice(0, 10),
     amount: '',
-    payment_method: PAYMENT_METHODS[0],
+    payment_method: 'cash',
     reference_number: '',
     notes: ''
   });
@@ -106,13 +106,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
               value={formData.payment_method}
               onChange={(e) => setFormData({...formData, payment_method: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
-                isDarkMode 
-                  ? 'bg-gray-800 border-gray-600 text-white' 
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
                   : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
-              {PAYMENT_METHODS.map(method => (
-                <option key={method} value={method}>{method}</option>
+              {Object.values(PAYMENT_MODES).map(mode => (
+                <option key={mode.value} value={mode.value}>{mode.icon} {mode.label}</option>
               ))}
             </select>
           </div>

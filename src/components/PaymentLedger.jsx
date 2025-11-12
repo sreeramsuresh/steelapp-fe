@@ -7,7 +7,7 @@ import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentRec
 
 const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPayment, onDeletePayment }) => {
   const { isDarkMode } = useTheme();
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [selectedForDelete, setSelectedForDelete] = useState(new Set());
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
@@ -17,17 +17,27 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
   const balanceDue = calculateBalanceDue(invoiceTotal, payments);
   const isFullyPaid = balanceDue <= 0;
 
-  const handleDeleteClick = (paymentId) => {
-    setDeleteConfirmId(paymentId);
+  const handleCheckboxChange = (paymentId) => {
+    setSelectedForDelete(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(paymentId)) {
+        newSet.delete(paymentId);
+      } else {
+        newSet.add(paymentId);
+      }
+      return newSet;
+    });
   };
 
-  const handleConfirmDelete = (paymentId) => {
-    onDeletePayment(paymentId);
-    setDeleteConfirmId(null);
-  };
+  const handleDeleteSelected = () => {
+    if (selectedForDelete.size === 0) return;
 
-  const handleCancelDelete = () => {
-    setDeleteConfirmId(null);
+    if (window.confirm(`Are you sure you want to delete ${selectedForDelete.size} payment(s)?`)) {
+      selectedForDelete.forEach(paymentId => {
+        onDeletePayment(paymentId);
+      });
+      setSelectedForDelete(new Set());
+    }
   };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
@@ -101,20 +111,31 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
           >
             📝 Payment History
           </h3>
-          {isFullyPaid ? (
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium">
-              <CheckCircle size={18} />
-              Fully Paid
-            </div>
-          ) : (
-            <button
-              onClick={onAddPayment}
-              className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
-            >
-              <Plus size={18} />
-              Add Payment
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {selectedForDelete.size > 0 && (
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <Trash2 size={18} />
+                Delete Selected ({selectedForDelete.size})
+              </button>
+            )}
+            {isFullyPaid ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium">
+                <CheckCircle size={18} />
+                Fully Paid
+              </div>
+            ) : (
+              <button
+                onClick={onAddPayment}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <Plus size={18} />
+                Add Payment
+              </button>
+            )}
+          </div>
         </div>
         {!isFullyPaid && balanceDue > 0 && (
           <div className={`text-sm px-4 py-2 rounded-lg ${
@@ -148,6 +169,24 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
               }`}
             >
               <tr>
+                <th
+                  className={`px-4 py-3 text-center text-xs font-semibold uppercase ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedForDelete.size === sortedPayments.length && sortedPayments.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedForDelete(new Set(sortedPayments.map(p => p.id)));
+                      } else {
+                        setSelectedForDelete(new Set());
+                      }
+                    }}
+                    className="w-4 h-4 rounded cursor-pointer"
+                  />
+                </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
@@ -203,7 +242,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
               {sortedPayments.map((payment, index) => {
                 const formatted = formatPaymentDisplay(payment);
                 const modeConfig = getPaymentModeConfig(payment.payment_mode);
-                const isDeleting = deleteConfirmId === payment.id;
+                const isSelected = selectedForDelete.has(payment.id);
 
                 return (
                   <tr
@@ -212,8 +251,18 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                       isDarkMode
                         ? 'border-gray-700 hover:bg-gray-700/50'
                         : 'border-gray-200 hover:bg-gray-50'
-                    } ${isDeleting ? 'bg-red-50 dark:bg-red-900/20' : ''}`}
+                    } ${isSelected ? 'bg-red-50 dark:bg-red-900/20' : ''}`}
                   >
+                    {/* Checkbox */}
+                    <td className="px-4 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleCheckboxChange(payment.id)}
+                        className="w-4 h-4 rounded cursor-pointer"
+                      />
+                    </td>
+
                     {/* Serial Number */}
                     <td
                       className={`px-4 py-3 text-sm ${
@@ -280,61 +329,50 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
 
                     {/* Actions */}
                     <td className="px-4 py-3">
-                      {isDeleting ? (
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => handleConfirmDelete(payment.id)}
-                            className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={handleCancelDelete}
-                            className={`px-2 py-1 text-xs rounded transition-colors ${
-                              isDarkMode
-                                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                            }`}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => handleDownloadReceipt(payment, sortedPayments.length - index)}
-                            disabled={downloadingReceiptId === payment.id}
-                            className={`p-1.5 rounded transition-colors ${
-                              downloadingReceiptId === payment.id
-                                ? 'opacity-50 cursor-not-allowed'
-                                : isDarkMode
-                                ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
-                                : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
-                            }`}
-                            title="Download payment receipt"
-                          >
-                            <Download size={16} />
-                          </button>
-                          <button
-                            onClick={() => onEditPayment(payment)}
-                            className={`p-1.5 rounded transition-colors ${
-                              isDarkMode
-                                ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
-                                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                            }`}
-                            title="Edit payment"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(payment.id)}
-                            className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
-                            title="Delete payment"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handlePrintReceipt(payment, sortedPayments.length - index)}
+                          disabled={printingReceiptId === payment.id}
+                          className={`p-1.5 rounded transition-colors ${
+                            printingReceiptId === payment.id
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isDarkMode
+                              ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
+                              : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                          }`}
+                          title="Print payment receipt"
+                        >
+                          <Printer size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadReceipt(payment, sortedPayments.length - index)}
+                          disabled={downloadingReceiptId === payment.id}
+                          className={`p-1.5 rounded transition-colors ${
+                            downloadingReceiptId === payment.id
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isDarkMode
+                              ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
+                              : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                          }`}
+                          title="Download payment receipt"
+                        >
+                          <Download size={16} />
+                        </button>
+                        <button
+                          onClick={() => onEditPayment(payment)}
+                          disabled={isFullyPaid}
+                          className={`p-1.5 rounded transition-colors ${
+                            isFullyPaid
+                              ? 'opacity-50 cursor-not-allowed text-gray-400'
+                              : isDarkMode
+                              ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
+                              : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                          }`}
+                          title={isFullyPaid ? 'Cannot edit - invoice fully paid' : 'Edit payment'}
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

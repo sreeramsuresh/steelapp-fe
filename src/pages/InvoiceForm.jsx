@@ -2431,57 +2431,44 @@ const InvoiceForm = ({ onSave }) => {
                 </Button>
               </div>
 
-              {/* Quick Add Speed Buttons - Demo */}
+              {/* Quick Add Speed Buttons - Top 10 Products */}
               <div className="mb-4">
                 <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Quick Add (Popular Items)
+                  Quick Add (Top 10 Products)
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => {
-                      const newItem = createSteelItem();
-                      newItem.grade = "304";
-                      newItem.productType = "Sheet";
-                      newItem.finish = "HL";
-                      newItem.thickness = "1mm";
-                      newItem.unit = "kg";
-                      newItem.rate = 12.5;
-                      newItem.name = generateProductName(newItem);
-                      setInvoice((prev) => ({
-                        ...prev,
-                        items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
-                      }));
-                    }}
-                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all duration-200 hover:scale-105 hover:shadow-md ${
-                      isDarkMode
-                        ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
-                        : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
-                    }`}
-                  >
-                    Sheet GR304 HL 1mm
-                  </button>
-                  <button
-                    onClick={() => {
-                      const newItem = createSteelItem();
-                      newItem.grade = "316";
-                      newItem.productType = "Pol Pipe";
-                      newItem.size = "2";
-                      newItem.unit = "kg";
-                      newItem.rate = 15.8;
-                      newItem.name = generateProductName(newItem);
-                      setInvoice((prev) => ({
-                        ...prev,
-                        items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
-                      }));
-                    }}
-                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all duration-200 hover:scale-105 hover:shadow-md ${
-                      isDarkMode
-                        ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
-                        : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
-                    }`}
-                  >
-                    Pol Pipe GR316 2"
-                  </button>
+                  {(productsData?.products || []).slice(0, 10).map((product) => (
+                    <button
+                      key={product.id}
+                      onClick={() => {
+                        const newItem = createSteelItem();
+                        newItem.productId = product.id;
+                        newItem.name = product.full_name || product.name;
+                        newItem.unit = product.unit || "kg";
+                        newItem.rate = parseFloat(product.price) || 0;
+                        newItem.hsnCode = product.hsn_code || "";
+                        newItem.gstRate = parseFloat(product.gst_rate) || 5;
+                        // Copy product specifications
+                        newItem.grade = product.grade || "";
+                        newItem.productType = product.category || "";
+                        newItem.finish = product.finish || "";
+                        newItem.thickness = product.thickness || "";
+                        newItem.size = product.size || "";
+                        setInvoice((prev) => ({
+                          ...prev,
+                          items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
+                        }));
+                      }}
+                      className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 hover:shadow-md whitespace-nowrap ${
+                        isDarkMode
+                          ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
+                          : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                      }`}
+                      style={{ maxWidth: 'fit-content' }}
+                    >
+                      {product.full_name || product.name}
+                    </button>
+                  ))}
                 </div>
               </div>
 
