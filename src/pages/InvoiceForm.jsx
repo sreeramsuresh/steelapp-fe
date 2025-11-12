@@ -246,8 +246,30 @@ const Select = ({ label, children, error, className = "", required = false, vali
   );
 };
 
-const Textarea = ({ label, error, className = "", ...props }) => {
+const Textarea = ({ label, error, className = "", autoGrow = false, ...props }) => {
   const { isDarkMode } = useTheme();
+  const textareaRef = useRef(null);
+
+  const adjustHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea && autoGrow) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+      // Set the height to match content, with a minimum of one line
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 44)}px`;
+    }
+  }, [autoGrow]);
+
+  useEffect(() => {
+    adjustHeight();
+  }, [props.value, adjustHeight]);
+
+  const handleChange = (e) => {
+    if (props.onChange) {
+      props.onChange(e);
+    }
+    adjustHeight();
+  };
 
   return (
     <div className="space-y-1">
@@ -261,12 +283,15 @@ const Textarea = ({ label, error, className = "", ...props }) => {
         </label>
       )}
       <textarea
-        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+        ref={textareaRef}
+        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 resize-none ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
-        } ${error ? "border-red-500" : ""} ${className}`}
+        } ${error ? "border-red-500" : ""} ${autoGrow ? "overflow-hidden" : ""} ${className}`}
         {...props}
+        onChange={handleChange}
+        rows={autoGrow ? 1 : props.rows}
       />
       {error && (
         <p
@@ -3068,7 +3093,7 @@ const InvoiceForm = ({ onSave }) => {
                       setInvoice((prev) => ({ ...prev, notes: e.target.value }))
                     }
                     placeholder="Additional notes for the customer..."
-                    rows="3"
+                    autoGrow={true}
                     className="text-base min-h-[44px]"
                   />
                 </div>
@@ -3086,7 +3111,7 @@ const InvoiceForm = ({ onSave }) => {
                       setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
                     }
                     placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
-                    rows="3"
+                    autoGrow={true}
                     className="text-base min-h-[44px]"
                   />
                   <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>

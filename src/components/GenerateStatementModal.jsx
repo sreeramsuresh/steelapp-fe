@@ -100,13 +100,19 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
             <div className="p-2 bg-teal-600 rounded-lg">
               <FileText className="h-6 w-6 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Generate Statement of Accounts
               </h2>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {customer?.name || 'Select customer'}
-              </p>
+              <div className={`mt-2 px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? 'bg-teal-900/30 border-teal-600/50'
+                  : 'bg-teal-50 border-teal-300'
+              }`}>
+                <p className={`text-base font-semibold ${isDarkMode ? 'text-teal-300' : 'text-teal-800'}`}>
+                  {customer?.name || 'Select customer'}
+                </p>
+              </div>
             </div>
           </div>
           <button

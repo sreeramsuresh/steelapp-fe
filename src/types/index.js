@@ -81,6 +81,8 @@ export const createInvoice = () => ({
   totalInWords: '',
   total: 0,
   status: 'draft',
+  currency: 'AED', // Default currency
+  exchangeRate: 1, // Default exchange rate for AED
   notes: '',
   terms: 'Kindly check the product before unloading. If any complaint arises, contact us immediately.\nNo items will be returned without prior authorisation',
   // Payment tracking fields
