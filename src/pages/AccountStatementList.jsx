@@ -6,7 +6,7 @@ import { accountStatementsAPI, customersAPI } from '../services/api';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import GenerateStatementModal from '../components/GenerateStatementModal';
 
-const AccountStatementList = () => {
+const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [statements, setStatements] = useState([]);
@@ -25,6 +25,7 @@ const AccountStatementList = () => {
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [hasProcessedPreSelection, setHasProcessedPreSelection] = useState(false);
 
   // Fetch account statements
   const fetchStatements = async () => {
@@ -68,6 +69,25 @@ const AccountStatementList = () => {
       fetchCustomers();
     }
   }, [showCustomerModal, customerSearchTerm]);
+
+  // Handle pre-selected customer from Invoice List
+  useEffect(() => {
+    if (preSelectedCustomerId && preSelectedCustomerName && !hasProcessedPreSelection) {
+      // Auto-select the customer and open generate modal
+      setSelectedCustomer({
+        id: parseInt(preSelectedCustomerId),
+        name: preSelectedCustomerName
+      });
+      setShowGenerateModal(true);
+      setHasProcessedPreSelection(true);
+
+      // Clean up URL params after processing
+      const url = new URL(window.location.href);
+      url.searchParams.delete('customerId');
+      url.searchParams.delete('customerName');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [preSelectedCustomerId, preSelectedCustomerName, hasProcessedPreSelection]);
 
   const handleGenerateClick = () => {
     setShowCustomerModal(true);

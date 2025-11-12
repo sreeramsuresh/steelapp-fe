@@ -567,33 +567,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
-  const handleGenerateStatement = async (invoice) => {
-    try {
-      const customerId = invoice.customer?.id || invoice.customer_id;
+  const handleGenerateStatement = (invoice) => {
+    const customerId = invoice.customer?.id || invoice.customer_id;
+    const customerName = invoice.customer?.name || invoice.customer_name;
 
-      // Check if customer has any statements
-      const response = await accountStatementsAPI.getAll({
-        customer_id: customerId,
-        limit: 1,
-        page: 1
-      });
-
-      if (response.account_statements && response.account_statements.length > 0) {
-        // Customer has statements - download the latest one
-        const latestStatement = response.account_statements[0];
-        await accountStatementsAPI.downloadPDF(latestStatement.id);
-        notificationService.success(`Downloaded statement: ${latestStatement.statement_number}`);
-      } else {
-        // No statements found
-        notificationService.warning(
-          'No statements found for this customer. Please go to Statement of Accounts section to generate one first.',
-          { duration: 5000 }
-        );
-      }
-    } catch (error) {
-      console.error('Error checking statements:', error);
-      notificationService.error('Failed to check customer statements');
-    }
+    // Navigate to Finance Dashboard with customer pre-selected for SOA generation
+    navigate(`/finance?tab=statements&customerId=${customerId}&customerName=${encodeURIComponent(customerName)}`);
   };
 
   const handleOpenPaymentReminder = (invoice) => {

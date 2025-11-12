@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   Banknote,
@@ -16,7 +17,16 @@ import AccountStatementList from './AccountStatementList';
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('receivables');
+
+  // Auto-open statements tab if navigated from invoice list
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'statements') {
+      setActiveTab('statements');
+    }
+  }, [searchParams]);
 
   const tabs = [
     {
@@ -97,7 +107,12 @@ const FinanceDashboard = () => {
 
       {/* Tab Content */}
       <div className="flex-1">
-        {ActiveComponent && <ActiveComponent />}
+        {ActiveComponent && (
+          <ActiveComponent
+            preSelectedCustomerId={searchParams.get('customerId')}
+            preSelectedCustomerName={searchParams.get('customerName')}
+          />
+        )}
       </div>
     </div>
   );

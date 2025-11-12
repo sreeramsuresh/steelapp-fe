@@ -125,8 +125,31 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", ...props }) => {
+const Input = ({ label, error, className = "", required = false, validationState = null, ...props }) => {
   const { isDarkMode } = useTheme();
+
+  // Determine border and background color based on validation state
+  const getValidationClasses = () => {
+    if (error || validationState === 'invalid') {
+      return isDarkMode
+        ? 'border-red-500 bg-red-900/10'
+        : 'border-red-500 bg-red-50';
+    }
+    if (validationState === 'valid') {
+      return isDarkMode
+        ? 'border-green-500 bg-green-900/10'
+        : 'border-green-500 bg-green-50';
+    }
+    if (required && validationState === null) {
+      // Untouched required field - show subtle indication
+      return isDarkMode
+        ? 'border-yellow-600/50 bg-yellow-900/5'
+        : 'border-yellow-400/50 bg-yellow-50/30';
+    }
+    return isDarkMode
+      ? 'border-gray-600 bg-gray-800'
+      : 'border-gray-300 bg-white';
+  };
 
   return (
     <div className="space-y-1">
@@ -134,17 +157,17 @@ const Input = ({ label, error, className = "", ...props }) => {
         <label
           className={`block text-sm font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
-          }`}
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
           {label}
         </label>
       )}
       <input
-        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+        className={`w-full px-3 py-2 border-2 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
           isDarkMode
-            ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
-            : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
-        } ${error ? "border-red-500" : ""} ${className}`}
+            ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
+            : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
+        } ${getValidationClasses()} ${className}`}
         {...props}
       />
       {error && (
@@ -158,8 +181,31 @@ const Input = ({ label, error, className = "", ...props }) => {
   );
 };
 
-const Select = ({ label, children, error, className = "", ...props }) => {
+const Select = ({ label, children, error, className = "", required = false, validationState = null, ...props }) => {
   const { isDarkMode } = useTheme();
+
+  // Determine border and background color based on validation state
+  const getValidationClasses = () => {
+    if (error || validationState === 'invalid') {
+      return isDarkMode
+        ? 'border-red-500 bg-red-900/10'
+        : 'border-red-500 bg-red-50';
+    }
+    if (validationState === 'valid') {
+      return isDarkMode
+        ? 'border-green-500 bg-green-900/10'
+        : 'border-green-500 bg-green-50';
+    }
+    if (required && validationState === null) {
+      // Untouched required field - show subtle indication
+      return isDarkMode
+        ? 'border-yellow-600/50 bg-yellow-900/5'
+        : 'border-yellow-400/50 bg-yellow-50/30';
+    }
+    return isDarkMode
+      ? 'border-gray-600 bg-gray-800'
+      : 'border-gray-300 bg-white';
+  };
 
   return (
     <div className="space-y-1">
@@ -167,18 +213,18 @@ const Select = ({ label, children, error, className = "", ...props }) => {
         <label
           className={`block text-sm font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
-          }`}
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
           {label}
         </label>
       )}
       <div className="relative">
         <select
-          className={`w-full pl-3 pr-9 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
+          className={`w-full pl-3 pr-9 py-2 border-2 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
             isDarkMode
-              ? "border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500"
-              : "border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
-          } ${error ? "border-red-500" : ""} ${className}`}
+              ? "text-white disabled:bg-gray-700 disabled:text-gray-500"
+              : "text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
+          } ${getValidationClasses()} ${className}`}
           {...props}
         >
           {children}
@@ -640,6 +686,49 @@ const InvoiceForm = ({ onSave }) => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
 
+  // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
+  const [fieldValidation, setFieldValidation] = useState({});
+
+  // Validate individual field in real-time
+  const validateField = useCallback((fieldName, value) => {
+    let isValid = false;
+
+    switch(fieldName) {
+      case 'customer':
+        isValid = value && value.id && value.name;
+        break;
+      case 'dueDate':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'status':
+        isValid = value && ['draft', 'proforma', 'issued'].includes(value);
+        break;
+      case 'paymentMode':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'warehouse':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'currency':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'items':
+        isValid = Array.isArray(value) && value.length > 0 && value.every(item =>
+          item.name && item.quantity > 0 && item.rate > 0
+        );
+        break;
+      default:
+        isValid = true;
+    }
+
+    setFieldValidation(prev => ({
+      ...prev,
+      [fieldName]: isValid ? 'valid' : 'invalid'
+    }));
+
+    return isValid;
+  }, []);
+
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
     const desired =
@@ -906,6 +995,19 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [existingInvoice, id, navigate]);
 
+  // Validate fields on load and when invoice changes
+  useEffect(() => {
+    if (invoice) {
+      validateField('customer', invoice.customer);
+      validateField('dueDate', invoice.dueDate);
+      validateField('status', invoice.status);
+      validateField('paymentMode', invoice.modeOfPayment);
+      validateField('warehouse', invoice.warehouseId);
+      validateField('currency', invoice.currency);
+      validateField('items', invoice.items);
+    }
+  }, [invoice.customer.id, invoice.dueDate, invoice.status, invoice.modeOfPayment, invoice.warehouseId, invoice.currency, invoice.items.length, validateField]);
+
   const checkTradeLicenseStatus = async (customerId) => {
     try {
       // Use axios-based client to benefit from auth + baseURL
@@ -977,9 +1079,12 @@ const InvoiceForm = ({ onSave }) => {
 
         // Check trade license status
         checkTradeLicenseStatus(customerId);
+
+        // Validate customer field
+        validateField('customer', { id: selectedCustomer.id, name: selectedCustomer.name });
       }
     },
-    [customersData]
+    [customersData, validateField]
   );
 
   const handleProductSelect = useCallback((index, product) => {
@@ -1724,52 +1829,56 @@ const InvoiceForm = ({ onSave }) => {
   }
 
   return (
-    <div
-      className={`h-full p-4 overflow-auto ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-50"
-      }`}
-    >
-      <div className="max-w-none">
-        <Card className="p-4 sm:p-6">
-          {/* Header */}
-          <div
-            className={`sticky top-0 z-10 flex flex-col gap-4 mb-6 pb-4 p-4 -m-4 sm:-m-6 sm:p-6 rounded-t-2xl border-b ${
-              isDarkMode
-                ? "bg-gray-800 border-gray-600"
-                : "bg-white border-gray-200"
-            }`}
-          >
-            <div className="flex items-center gap-4">
+    <>
+      <div
+        className={`min-h-screen pb-32 md:pb-6 ${
+          isDarkMode ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
+        {/* Sticky Header - Mobile & Desktop */}
+      <header
+        className={`sticky top-0 z-20 border-b ${
+          isDarkMode
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
+        } shadow-sm`}
+      >
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate("/invoices")}
-                className={`p-2 rounded-lg border transition-colors ${
-                  isDarkMode 
-                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  isDarkMode
+                    ? "text-gray-300 hover:bg-gray-700"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
+                aria-label="Back to invoices"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
                 <h1
-                  className={`text-xl sm:text-2xl font-bold ${
+                  className={`text-lg md:text-xl font-bold ${
                     isDarkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {id ? "📝 Edit Invoice" : "📄 Create Invoice"}
+                  {id ? "Edit Invoice" : "New Invoice"}
                 </h1>
-                <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {id ? 'Update invoice details' : 'Create a new invoice for your customer'}
+                <p
+                  className={`text-xs md:text-sm ${
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  {invoice.invoiceNumber || "Invoice #"}
                 </p>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="hidden md:flex gap-2">
               <Button
                 variant="outline"
                 onClick={handlePreviewClick}
                 disabled={loadingCompany}
-                className="w-full sm:w-auto"
               >
                 <Eye className="h-4 w-4" />
                 Preview
@@ -1777,20 +1886,22 @@ const InvoiceForm = ({ onSave }) => {
               <Button
                 onClick={handleSave}
                 disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
-                className={`w-full sm:w-auto ${(savingInvoice || updatingInvoice || isSaving) ? 'pointer-events-none opacity-60' : ''}`}
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
                   <LoadingSpinner size="sm" />
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {savingInvoice || updatingInvoice || isSaving ? "Saving..." : "Save Invoice"}
+                {savingInvoice || updatingInvoice || isSaving ? "Saving..." : "Save"}
               </Button>
-              </div>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Validation Errors Alert */}
+      {/* Main Content - Single Column Layout */}
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Validation Errors Alert */}
           {validationErrors.length > 0 && (
             <div
               id="validation-errors-alert"
@@ -1887,10 +1998,9 @@ const InvoiceForm = ({ onSave }) => {
             );
           })()}
 
-          <div className="pt-8">
-            {/* Edit Invoice Warning */}
-            {id && (
-              <Alert variant="warning" className="mb-6">
+        {/* Edit Invoice Warning */}
+        {id && (
+          <Alert variant="warning">
                 <div>
                   <h4 className="font-medium mb-2">Invoice Editing Policy</h4>
                   <p className="text-sm">
@@ -1907,201 +2017,27 @@ const InvoiceForm = ({ onSave }) => {
               </Alert>
             )}
 
-            {/* Form Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-              {/* Invoice Details */}
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  📄 Invoice Details
-                </h2>
-                <div className="space-y-4">
-                  <Input
-                    label="Invoice Number"
-                    value={invoice.invoiceNumber}
-                    readOnly
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Date"
-                      type="date"
-                      value={formatDateForInput(invoice.date)}
-                      readOnly
-                      error={invalidFields.has('date')}
-                    />
-                    <Input
-                      label="Due Date"
-                      type="date"
-                      value={formatDateForInput(invoice.dueDate)}
-                      min={dueMinStr}
-                      max={dueMaxStr}
-                      error={invalidFields.has('dueDate')}
-                      onChange={(e) =>
-                        setInvoice((prev) => {
-                          let v = e.target.value;
-                          if (v && v < dueMinStr) v = dueMinStr;
-                          if (v && v > dueMaxStr) v = dueMaxStr;
-                          return { ...prev, dueDate: v };
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Select
-                      label="Invoice Status"
-                      value={invoice.status || "draft"}
-                      onChange={(e) => {
-                        const newStatus = e.target.value;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          status: newStatus,
-                          // Update invoice number prefix only in CREATE mode
-                          invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber
-                        }));
-                      }}
-                    >
-                      <option value="draft">Draft Invoice</option>
-                      <option value="proforma">Proforma Invoice</option>
-                      <option value="issued">Final Tax Invoice</option>
-                    </Select>
-                    <Select
-                      label="Payment Mode"
-                      value={invoice.modeOfPayment || ""}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          modeOfPayment: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="">Select payment mode</option>
-                      {PAYMENT_MODES.map((mode) => (
-                        <option key={mode} value={mode}>
-                          {mode}
-                        </option>
-                      ))}
-                    </Select>
-                    {(invoice.modeOfPayment === 'Cheque' || invoice.modeOfPayment === 'CDC' || invoice.modeOfPayment === 'PDC') && (
-                      <Input
-                        label="Cheque Number (optional)"
-                        value={invoice.chequeNumber || ''}
-                        onChange={(e) => setInvoice(prev => ({ ...prev, chequeNumber: e.target.value }))}
-                        placeholder="Enter cheque reference number"
-                      />
-                    )}
-                    <Select
-                      label="Warehouse"
-                      value={invoice.warehouseId || ""}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        const w = warehouses.find((wh) => wh.id.toString() === id);
-                        setInvoice((prev) => ({
-                          ...prev,
-                          warehouseId: id,
-                          warehouseName: w ? w.name : "",
-                          warehouseCode: w ? w.code : "",
-                          warehouseCity: w ? w.city : "",
-                        }));
-                      }}
-                    >
-                      <option value="">Select warehouse</option>
-                      {warehouses.map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.name} - {w.city}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-
-                  {/* Currency and Exchange Rate */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Select
-                      label="Currency"
-                      value={invoice.currency || "AED"}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          currency: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="AED">AED (UAE Dirham)</option>
-                      <option value="USD">USD (US Dollar)</option>
-                      <option value="EUR">EUR (Euro)</option>
-                      <option value="GBP">GBP (British Pound)</option>
-                      <option value="SAR">SAR (Saudi Riyal)</option>
-                      <option value="QAR">QAR (Qatari Riyal)</option>
-                      <option value="OMR">OMR (Omani Rial)</option>
-                      <option value="BHD">BHD (Bahraini Dinar)</option>
-                      <option value="KWD">KWD (Kuwaiti Dinar)</option>
-                    </Select>
-                    {invoice.currency && invoice.currency !== 'AED' && (
-                      <Input
-                        label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
-                        type="number"
-                        value={invoice.exchangeRate || ''}
-                        onChange={(e) =>
-                          setInvoice((prev) => ({
-                            ...prev,
-                            exchangeRate: e.target.value,
-                          }))
-                        }
-                        placeholder="e.g., 3.67 for USD"
-                        step="0.000001"
-                        min="0"
-                      />
-                    )}
-                  </div>
-
-                  {/* Customer Purchase Order Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Customer PO Number (Optional)"
-                      value={invoice.customerPurchaseOrderNumber || ""}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          customerPurchaseOrderNumber: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter customer PO number"
-                    />
-                    <Input
-                      label="Customer PO Date (Optional)"
-                      type="date"
-                      value={invoice.customerPurchaseOrderDate || ""}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          customerPurchaseOrderDate: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-
-                  {/* Delivery notes are created separately from invoice save */}
-                </div>
-              </Card>
-
-              {/* Customer Details */}
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  👤 Customer Details
-                </h2>
-                <div className="space-y-4">
+            {/* Single Column Form - Mobile Friendly */}
+            <Card className={`p-4 md:p-6 ${
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            }`}>
+              {/* Customer Selection - Priority #1 */}
+              <div className="mb-6">
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                  Customer Information
+                </h3>
+                  {/* Customer Selector - Priority #1 Field */}
                   <Select
                     label="Select Customer"
                     value={invoice.customer.id || ""}
                     onChange={(e) => handleCustomerSelect(e.target.value)}
                     disabled={loadingCustomers}
+                    required={true}
+                    validationState={fieldValidation.customer}
                     error={invalidFields.has('customer.name')}
+                    className="text-base min-h-[44px]"
                   >
                     <option value="">Select a customer</option>
                     {(customersData?.customers || []).map((customer) => (
@@ -2214,92 +2150,240 @@ const InvoiceForm = ({ onSave }) => {
                     </div>
                   )}
                 </div>
-              </Card>
-            </div>
 
-            {/* Transport & Delivery Details (disabled for Phase 1) */}
-            {false && (
-              <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  🚚 Transport & Delivery Details
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Despatched Through"
-                    value={invoice.despatchedThrough || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        despatchedThrough: e.target.value,
-                      }))
-                    }
-                    placeholder="Transport company/agent"
-                  />
-                  <Input
-                    label="Destination"
-                    value={invoice.destination || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        destination: e.target.value,
-                      }))
-                    }
-                    placeholder="Delivery destination"
-                  />
-                  <Select
-                    label="Terms of Delivery"
-                    value={invoice.termsOfDelivery || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        termsOfDelivery: e.target.value,
-                      }))
-                    }
-                  >
-                    <option value="">Select delivery terms</option>
-                    {DELIVERY_TERMS.map((term) => (
-                      <option key={term} value={term}>
-                        {term}
-                      </option>
-                    ))}
-                  </Select>
-                  <Input
-                    label="Other Reference"
-                    value={invoice.otherReference || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        otherReference: e.target.value,
-                      }))
-                    }
-                    placeholder="Additional reference"
-                  />
+              {/* Invoice Details Section */}
+              <div className="border-t pt-6 mt-6" style={{
+                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)'
+              }}>
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                  Invoice Details
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Invoice Number - Read Only */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Input
+                      label="Invoice Number"
+                      value={invoice.invoiceNumber}
+                      readOnly
+                      className="text-base bg-gray-50"
+                    />
+                    <Input
+                      label="Date"
+                      type="date"
+                      value={formatDateForInput(invoice.date)}
+                      readOnly
+                      error={invalidFields.has('date')}
+                      className="text-base"
+                    />
+                    <Input
+                      label="Due Date"
+                      type="date"
+                      value={formatDateForInput(invoice.dueDate)}
+                      min={dueMinStr}
+                      max={dueMaxStr}
+                      required={true}
+                      validationState={fieldValidation.dueDate}
+                      error={invalidFields.has('dueDate')}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        let validatedValue = v;
+                        if (v && v < dueMinStr) validatedValue = dueMinStr;
+                        if (v && v > dueMaxStr) validatedValue = dueMaxStr;
+                        setInvoice((prev) => ({ ...prev, dueDate: validatedValue }));
+                        validateField('dueDate', validatedValue);
+                      }}
+                      className="text-base min-h-[44px]"
+                    />
+                  </div>
+
+                  {/* Status and Payment */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Select
+                      label="Invoice Status"
+                      value={invoice.status || "draft"}
+                      required={true}
+                      validationState={fieldValidation.status}
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          status: newStatus,
+                          invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber
+                        }));
+                        validateField('status', newStatus);
+                      }}
+                      className="text-base min-h-[44px]"
+                    >
+                      <option value="draft">Draft Invoice</option>
+                      <option value="proforma">Proforma Invoice</option>
+                      <option value="issued">Final Tax Invoice</option>
+                    </Select>
+                    <Select
+                      label="Payment Mode"
+                      value={invoice.modeOfPayment || ""}
+                      required={true}
+                      validationState={fieldValidation.paymentMode}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          modeOfPayment: value,
+                        }));
+                        validateField('paymentMode', value);
+                      }}
+                      className="text-base min-h-[44px]"
+                    >
+                      <option value="">Select payment mode</option>
+                      {PAYMENT_MODES.map((mode) => (
+                        <option key={mode} value={mode}>
+                          {mode}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  {/* Cheque Number - Conditional */}
+                  {(invoice.modeOfPayment === 'Cheque' || invoice.modeOfPayment === 'CDC' || invoice.modeOfPayment === 'PDC') && (
+                    <Input
+                      label="Cheque Number"
+                      value={invoice.chequeNumber || ''}
+                      onChange={(e) => setInvoice(prev => ({ ...prev, chequeNumber: e.target.value }))}
+                      placeholder="Enter cheque reference number"
+                      className="text-base min-h-[44px]"
+                    />
+                  )}
+
+                  {/* Warehouse and Currency */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Select
+                      label="Warehouse"
+                      value={invoice.warehouseId || ""}
+                      required={true}
+                      validationState={fieldValidation.warehouse}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        const w = warehouses.find((wh) => wh.id.toString() === id);
+                        setInvoice((prev) => ({
+                          ...prev,
+                          warehouseId: id,
+                          warehouseName: w ? w.name : "",
+                          warehouseCode: w ? w.code : "",
+                          warehouseCity: w ? w.city : "",
+                        }));
+                        validateField('warehouse', id);
+                      }}
+                      className="text-base min-h-[44px]"
+                    >
+                      <option value="">Select warehouse</option>
+                      {warehouses.map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.name} - {w.city}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      label="Currency"
+                      value={invoice.currency || "AED"}
+                      required={true}
+                      validationState={fieldValidation.currency}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          currency: value,
+                        }));
+                        validateField('currency', value);
+                      }}
+                      className="text-base min-h-[44px]"
+                    >
+                      <option value="AED">AED (UAE Dirham)</option>
+                      <option value="USD">USD (US Dollar)</option>
+                      <option value="EUR">EUR (Euro)</option>
+                      <option value="GBP">GBP (British Pound)</option>
+                      <option value="SAR">SAR (Saudi Riyal)</option>
+                      <option value="QAR">QAR (Qatari Riyal)</option>
+                      <option value="OMR">OMR (Omani Rial)</option>
+                      <option value="BHD">BHD (Bahraini Dinar)</option>
+                      <option value="KWD">KWD (Kuwaiti Dinar)</option>
+                    </Select>
+                  </div>
+
+                  {/* Exchange Rate - Conditional */}
+                  {invoice.currency && invoice.currency !== 'AED' && (
+                    <Input
+                      label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
+                      type="number"
+                      value={invoice.exchangeRate || ''}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          exchangeRate: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., 3.67 for USD"
+                      step="0.000001"
+                      min="0"
+                      inputMode="decimal"
+                      className="text-base min-h-[44px]"
+                    />
+                  )}
+
+                  {/* Customer PO Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      label="Customer PO Number"
+                      value={invoice.customerPurchaseOrderNumber || ""}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          customerPurchaseOrderNumber: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter customer PO number"
+                      className="text-base min-h-[44px]"
+                    />
+                    <Input
+                      label="Customer PO Date"
+                      type="date"
+                      value={invoice.customerPurchaseOrderDate || ""}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          customerPurchaseOrderDate: e.target.value,
+                        }))
+                      }
+                      className="text-base min-h-[44px]"
+                    />
+                  </div>
                 </div>
-              </Card>
-            )}
+              </div>
+            </Card>
 
-            {/* Items Section */}
-            <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-0 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
+
+            {/* Items Section - Responsive */}
+            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className={`text-xs font-semibold uppercase tracking-wide ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                  Line Items
+                </h3>
+                <Button
+                  onClick={addItem}
+                  size="sm"
+                  className="min-h-[44px]"
                 >
-                  🏗️ Stainless Steel Items
-                </h2>
-                <Button onClick={addItem} className="w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
-                  Add Item
+                  <span className="hidden sm:inline">Add Item</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </div>
 
-              {/* Items Table - Desktop */}
-              <div className="hidden xl:block overflow-x-auto">
+              {/* Items Table - Desktop & Tablet */}
+              <div className="hidden md:block overflow-x-auto">
                 <table
                   className={`min-w-full table-fixed divide-y ${
                     isDarkMode ? "divide-gray-600" : "divide-gray-200"
@@ -2568,7 +2652,7 @@ const InvoiceForm = ({ onSave }) => {
               </div>
 
               {/* Items Cards - Mobile */}
-              <div className="xl:hidden space-y-4">
+              <div className="md:hidden space-y-4">
                 {deferredItems.slice(0, 10).map((item, index) => {
                   const tooltip = [
                     item.name ? `Name: ${item.name}` : '',
@@ -2781,18 +2865,15 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             </Card>
 
-            {/* Invoice Summary */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-              <div></div> {/* Empty column for layout */}
+            {/* Invoice Summary - Single Column */}
+            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
+                Summary & Totals
+              </h3>
+              <div className="max-w-lg ml-auto">
 
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  💰 Invoice Summary
-                </h2>
                 <div className="space-y-4">
                   <div
                     className={`flex justify-between items-center ${
@@ -2968,50 +3049,52 @@ const InvoiceForm = ({ onSave }) => {
                     )}
                   </div>
                 </div>
-              </Card>
-            </div>
+              </div>
+            </Card>
 
-            {/* Notes and Tax Notes */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  📝 Notes
-                </h2>
-                <Textarea
-                  value={invoice.notes}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder="Additional notes..."
-                  rows="4"
-                />
-              </Card>
+            {/* Notes - Single Column */}
+            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <div className="space-y-6">
+                {/* Invoice Notes */}
+                <div>
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    Notes
+                  </h3>
+                  <Textarea
+                    value={invoice.notes}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, notes: e.target.value }))
+                    }
+                    placeholder="Additional notes for the customer..."
+                    rows="3"
+                    className="text-base min-h-[44px]"
+                  />
+                </div>
 
-              <Card className="p-4 sm:p-6">
-                <h2
-                  className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  📋 VAT Tax Notes
-                </h2>
-                <Textarea
-                  value={invoice.taxNotes || ""}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
-                  }
-                  placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
-                  rows="4"
-                />
-                <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Required when items are zero-rated or exempt from VAT
-                </p>
-              </Card>
-            </div>
+                {/* VAT Tax Notes */}
+                <div>
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    VAT Tax Notes
+                  </h3>
+                  <Textarea
+                    value={invoice.taxNotes || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
+                    }
+                    placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
+                    rows="3"
+                    className="text-base min-h-[44px]"
+                  />
+                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Required when items are zero-rated or exempt from VAT
+                  </p>
+                </div>
+              </div>
+            </Card>
 
             {/* Payment Tracking Section - Show for Final Tax Invoices (issued status) */}
             {invoice.status === 'issued' && (
@@ -3044,29 +3127,71 @@ const InvoiceForm = ({ onSave }) => {
               </Card>
             )}
 
-            {/* Terms & Conditions */}
-            <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
-              <h2
-                className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                📋 Payment as per payment terms
-              </h2>
+            {/* Payment Terms */}
+            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
+                Payment Terms & Conditions
+              </h3>
               <Textarea
                 value={invoice.terms}
                 onChange={(e) =>
                   setInvoice((prev) => ({ ...prev, terms: e.target.value }))
                 }
-                placeholder="Payment terms and conditions..."
+                placeholder="Enter payment terms and conditions..."
                 rows="3"
+                className="text-base min-h-[44px]"
               />
             </Card>
-          </div>
-        </Card>
-      </div>
+          </main>
 
-      {/* Save Confirmation Dialog (for Final Tax Invoice) */}
+          {/* Sticky Mobile Footer - Actions & Total */}
+          <div className={`md:hidden fixed bottom-0 left-0 right-0 z-20 border-t shadow-2xl ${
+            isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          }`} style={{paddingBottom: "env(safe-area-inset-bottom)"}}>
+            <div className="px-4 py-3">
+              {/* Total Display */}
+              <div className="flex justify-between items-center mb-3">
+                <span className={`text-sm font-medium ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}>
+                  Total Amount
+                </span>
+                <span className="text-xl font-bold text-teal-500">
+                  {formatCurrency(computedTotal)}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handlePreviewClick}
+                  disabled={loadingCompany}
+                  className="flex-1 min-h-[48px]"
+                >
+                  <Eye className="h-4 w-4" />
+                  Preview
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
+                  className="flex-1 min-h-[48px]"
+                >
+                  {savingInvoice || updatingInvoice || isSaving ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {savingInvoice || updatingInvoice || isSaving ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Confirmation Dialog (for Final Tax Invoice) */}
       {showSaveConfirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
@@ -3119,7 +3244,7 @@ const InvoiceForm = ({ onSave }) => {
         </div>
       )}
 
-      {/* Success Modal - Invoice Created */}
+        {/* Success Modal - Invoice Created */}
       {showSuccessModal && (() => {
         // Check if this is a Final Tax Invoice (cannot be edited after creation)
         const isFinalTaxInvoice = invoice.status === 'issued';
@@ -3204,19 +3329,19 @@ const InvoiceForm = ({ onSave }) => {
         );
       })()}
 
-      {/* Add/Edit Payment Modal */}
-      <AddPaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setEditingPayment(null);
-        }}
-        onSave={handleSavePayment}
-        invoiceTotal={computedTotal}
-        existingPayments={invoice.payments || []}
-        editingPayment={editingPayment}
-      />
-    </div>
+        {/* Add/Edit Payment Modal */}
+        <AddPaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setEditingPayment(null);
+          }}
+          onSave={handleSavePayment}
+          invoiceTotal={computedTotal}
+          existingPayments={invoice.payments || []}
+          editingPayment={editingPayment}
+        />
+    </>
   );
 };
 
