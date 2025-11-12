@@ -9,6 +9,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
   const { isDarkMode } = useTheme();
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+  const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
   // Calculate payment status
   const invoiceTotal = invoice?.total || 0;
@@ -49,6 +50,29 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
       alert('Failed to generate receipt. Please try again.');
     } finally {
       setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePrintReceipt = async (payment, paymentIndex) => {
+    if (!invoice || !company) {
+      alert('Unable to print receipt. Missing invoice or company information.');
+      return;
+    }
+
+    setPrintingReceiptId(payment.id);
+    try {
+      const result = await printPaymentReceipt(payment, invoice, company, paymentIndex);
+      if (result.success) {
+        // Success - PDF will be opened in new tab with print dialog
+        console.log(`Receipt opened for printing: ${result.receiptNumber}`);
+      } else {
+        alert(`Error printing receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      alert('Failed to print receipt. Please try again.');
+    } finally {
+      setPrintingReceiptId(null);
     }
   };
 
