@@ -140,13 +140,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: BarChart3,
           description: 'Business insights and performance analytics',
           requiredPermission: 'analytics.read'
-        },
-        {
-          name: 'Statement of Accounts',
-          path: '/account-statements',
-          icon: FileText,
-          description: 'Generate and view customer account statements',
-          requiredPermission: 'account_statements.read'
         }
       ]
     },

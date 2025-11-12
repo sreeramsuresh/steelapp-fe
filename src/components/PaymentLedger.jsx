@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import { Trash2, Edit2, Plus, Download } from 'lucide-react';
+import { Trash2, Edit2, Plus, Download, CheckCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../utils/invoiceUtils';
-import { getPaymentModeConfig, formatPaymentDisplay } from '../utils/paymentUtils';
+import { getPaymentModeConfig, formatPaymentDisplay, calculateTotalPaid, calculateBalanceDue } from '../utils/paymentUtils';
 import { generatePaymentReceipt } from '../utils/paymentReceiptGenerator';
 
 const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPayment, onDeletePayment }) => {
   const { isDarkMode } = useTheme();
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+
+  // Calculate payment status
+  const invoiceTotal = invoice?.total || 0;
+  const totalPaid = calculateTotalPaid(payments);
+  const balanceDue = calculateBalanceDue(invoiceTotal, payments);
+  const isFullyPaid = balanceDue <= 0;
 
   const handleDeleteClick = (paymentId) => {
     setDeleteConfirmId(paymentId);
@@ -59,24 +65,41 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
     >
       {/* Header */}
       <div
-        className={`p-4 border-b flex justify-between items-center ${
+        className={`p-4 border-b ${
           isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
-        <h3
-          className={`text-lg font-semibold ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          }`}
-        >
-          📝 Payment History
-        </h3>
-        <button
-          onClick={onAddPayment}
-          className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
-        >
-          <Plus size={18} />
-          Add Payment
-        </button>
+        <div className="flex justify-between items-center mb-3">
+          <h3
+            className={`text-lg font-semibold ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}
+          >
+            📝 Payment History
+          </h3>
+          {isFullyPaid ? (
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium">
+              <CheckCircle size={18} />
+              Fully Paid
+            </div>
+          ) : (
+            <button
+              onClick={onAddPayment}
+              className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <Plus size={18} />
+              Add Payment
+            </button>
+          )}
+        </div>
+        {!isFullyPaid && balanceDue > 0 && (
+          <div className={`text-sm px-4 py-2 rounded-lg ${
+            isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-700'
+          }`}>
+            <span className="font-medium">Remaining Balance:</span>{' '}
+            <span className="font-bold">{formatCurrency(balanceDue)}</span>
+          </div>
+        )}
       </div>
 
       {/* Payment Table */}

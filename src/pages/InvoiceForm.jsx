@@ -655,6 +655,30 @@ const InvoiceForm = ({ onSave }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
+  // Helper function to generate auto-concatenated product name
+  const generateProductName = useCallback((item) => {
+    const parts = [];
+    // Commodity is not available in steel item, we'll use a default "SS" if not set
+    // Category/Product Type
+    if (item.productType) parts.push(item.productType);
+    // Grade with GR prefix
+    if (item.grade) {
+      const g = String(item.grade).trim();
+      const m = g.match(/^gr\s*(.+)$/i);
+      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+    }
+    // Finish
+    if (item.finish) parts.push(item.finish);
+    // Size (add " for pipes/tubes)
+    const isPipeOrTube = /pipe|tube/i.test(item.productType || '');
+    if (item.size) {
+      parts.push(isPipeOrTube ? `${item.size}"` : item.size);
+    }
+    // Thickness
+    if (item.thickness) parts.push(item.thickness);
+    return parts.join(' ');
+  }, []);
+
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
 
@@ -1373,7 +1397,7 @@ const InvoiceForm = ({ onSave }) => {
       };
     });
 
-    setShowPaymentModal(false);
+    // Modal will close itself via onClose(), just clean up editing state
     setEditingPayment(null);
     notificationService.success(
       editingPayment ? 'Payment updated successfully!' : 'Payment added successfully!'
@@ -2405,6 +2429,60 @@ const InvoiceForm = ({ onSave }) => {
                   <span className="hidden sm:inline">Add Item</span>
                   <span className="sm:hidden">Add</span>
                 </Button>
+              </div>
+
+              {/* Quick Add Speed Buttons - Demo */}
+              <div className="mb-4">
+                <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Quick Add (Popular Items)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      const newItem = createSteelItem();
+                      newItem.grade = "304";
+                      newItem.productType = "Sheet";
+                      newItem.finish = "HL";
+                      newItem.thickness = "1mm";
+                      newItem.unit = "kg";
+                      newItem.rate = 12.5;
+                      newItem.name = generateProductName(newItem);
+                      setInvoice((prev) => ({
+                        ...prev,
+                        items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
+                      }));
+                    }}
+                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                      isDarkMode
+                        ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
+                        : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                    }`}
+                  >
+                    Sheet GR304 HL 1mm
+                  </button>
+                  <button
+                    onClick={() => {
+                      const newItem = createSteelItem();
+                      newItem.grade = "316";
+                      newItem.productType = "Pol Pipe";
+                      newItem.size = "2";
+                      newItem.unit = "kg";
+                      newItem.rate = 15.8;
+                      newItem.name = generateProductName(newItem);
+                      setInvoice((prev) => ({
+                        ...prev,
+                        items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
+                      }));
+                    }}
+                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                      isDarkMode
+                        ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
+                        : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                    }`}
+                  >
+                    Pol Pipe GR316 2"
+                  </button>
+                </div>
               </div>
 
               {/* Items Table - Desktop & Tablet */}

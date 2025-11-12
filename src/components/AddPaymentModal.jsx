@@ -52,22 +52,15 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
       return;
     }
 
+    // Save the payment
     onSave({
       ...payment,
       amount: parseFloat(payment.amount),
       created_at: editingPayment?.created_at || new Date().toISOString()
     });
 
-    // Reset form
-    setPayment({
-      id: generatePaymentId(),
-      date: formatDateForInput(new Date()),
-      amount: '',
-      payment_mode: 'cash',
-      reference_number: '',
-      notes: ''
-    });
-    setErrors([]);
+    // Close modal immediately after successful save
+    onClose();
   };
 
   const modeConfig = PAYMENT_MODES[payment.payment_mode] || PAYMENT_MODES.cash;
@@ -104,11 +97,18 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'
           }`}
         >
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Balance Due:</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              {formatCurrency(balanceDue)}
-            </span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Balance Due:</span>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                {formatCurrency(balanceDue)}
+              </span>
+            </div>
+            {!editingPayment && (
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Maximum amount you can enter: <span className="font-semibold">{formatCurrency(balanceDue)}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -179,6 +179,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               }
               placeholder="0.00"
               min="0"
+              max={!editingPayment ? balanceDue : undefined}
               step="0.01"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
@@ -186,6 +187,11 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                   : 'bg-white border-gray-300 text-gray-900'
               }`}
             />
+            {!editingPayment && parseFloat(payment.amount) > balanceDue && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                Amount cannot exceed balance due ({formatCurrency(balanceDue)})
+              </p>
+            )}
           </div>
 
           {/* Payment Mode */}
