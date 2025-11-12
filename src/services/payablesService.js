@@ -1,9 +1,10 @@
 import { apiClient } from './api';
 import { apiService } from './axiosApi';
 import { uuid } from '../utils/uuid';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
 
-// Payment method options specific to recording payments (not invoice creation modes)
-export const PAYMENT_METHODS = ['Cash','Cheque','Bank Transfer','UPI','NEFT','RTGS','Other'];
+// Re-export PAYMENT_MODES for convenience
+export { PAYMENT_MODES };
 
 // Helpers
 const LS_KEYS = { inv: 'payables:inv:payments', po: 'payables:po:payments' };

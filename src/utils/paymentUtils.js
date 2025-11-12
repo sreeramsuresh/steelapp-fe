@@ -5,7 +5,7 @@
  * Supports unlimited installments with different payment modes
  */
 
-// Payment mode configuration
+// Payment mode configuration (UAE Standard Business Practices)
 export const PAYMENT_MODES = {
   cash: {
     value: 'cash',
@@ -19,13 +19,31 @@ export const PAYMENT_MODES = {
     label: 'Cheque',
     icon: '🧾',
     requiresRef: true,
+    refLabel: 'Cheque Number',
     color: 'blue'
+  },
+  pdc: {
+    value: 'pdc',
+    label: 'PDC (Post-Dated Cheque)',
+    icon: '📅',
+    requiresRef: true,
+    refLabel: 'PDC Number',
+    color: 'orange'
+  },
+  bank_transfer: {
+    value: 'bank_transfer',
+    label: 'Bank Transfer',
+    icon: '🏦',
+    requiresRef: true,
+    refLabel: 'Transaction/Reference Number',
+    color: 'teal'
   },
   credit_card: {
     value: 'credit_card',
     label: 'Credit Card',
     icon: '💳',
     requiresRef: true,
+    refLabel: 'Transaction ID',
     color: 'purple'
   },
   debit_card: {
@@ -33,27 +51,39 @@ export const PAYMENT_MODES = {
     label: 'Debit Card',
     icon: '💳',
     requiresRef: true,
+    refLabel: 'Transaction ID',
     color: 'indigo'
-  },
-  bank_transfer: {
-    value: 'bank_transfer',
-    label: 'Bank Transfer',
-    icon: '🏦',
-    requiresRef: true,
-    color: 'teal'
   },
   online: {
     value: 'online',
-    label: 'Online Payment',
+    label: 'Online Payment Gateway',
     icon: '🌐',
     requiresRef: true,
+    refLabel: 'Transaction ID',
     color: 'cyan'
+  },
+  wire_transfer: {
+    value: 'wire_transfer',
+    label: 'Wire Transfer (International)',
+    icon: '🌍',
+    requiresRef: true,
+    refLabel: 'Swift/Reference Number',
+    color: 'blue'
+  },
+  mobile_wallet: {
+    value: 'mobile_wallet',
+    label: 'Mobile Wallet (Apple Pay/Google Pay)',
+    icon: '📱',
+    requiresRef: true,
+    refLabel: 'Transaction ID',
+    color: 'green'
   },
   other: {
     value: 'other',
     label: 'Other',
     icon: '📝',
     requiresRef: false,
+    refLabel: 'Reference',
     color: 'gray'
   }
 };

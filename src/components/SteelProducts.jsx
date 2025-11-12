@@ -562,7 +562,7 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.name}
+                      {product.full_name || product.name}
                     </h3>
                     <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {categories.find(c => c.value === product.category)?.label}

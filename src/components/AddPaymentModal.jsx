@@ -233,13 +233,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
-              Reference Number
+              {modeConfig.refLabel || 'Reference Number'}
               {modeConfig.requiresRef && (
                 <span className="text-red-500"> *</span>
               )}
-              <span className="text-xs text-gray-500 ml-2">
-                (Cheque #, Transaction ID, etc.)
-              </span>
             </label>
             <input
               type="text"
@@ -252,9 +249,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               }
               placeholder={
                 modeConfig.requiresRef
-                  ? `Enter ${modeConfig.label} reference`
+                  ? `Enter ${modeConfig.refLabel || 'reference number'}`
                   : 'Optional'
               }
+              required={modeConfig.requiresRef}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
                   ? 'bg-gray-700 border-gray-600 text-white'

@@ -26,7 +26,8 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
-  Printer
+  Printer,
+  Tag
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -37,6 +38,7 @@ import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
+import ProductNamingSettings from './ProductNamingSettings';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -2785,6 +2787,7 @@ const CompanySettings = () => {
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
     { id: 'templates', label: 'Invoice Templates', icon: FileText },
+    { id: 'product-naming', label: 'Product Naming', icon: Tag },
     { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
@@ -2845,6 +2848,7 @@ const CompanySettings = () => {
       <div className="mt-6">
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'templates' && renderInvoiceTemplates()}
+        {activeTab === 'product-naming' && <ProductNamingSettings companyId={companyData?.id} />}
         {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
         {isAdmin && activeTab === 'users' && renderUserManagement()}

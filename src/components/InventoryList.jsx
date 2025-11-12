@@ -242,7 +242,7 @@ const InventoryList = () => {
     setFormData((prev) => ({
       ...prev,
       productId: product.id,
-      productName: product.name,
+      productName: product.full_name || product.name,
     }));
     setProductQuery("");
     setProductOptions([]);

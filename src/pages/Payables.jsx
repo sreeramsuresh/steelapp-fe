@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
-import { payablesService, PAYMENT_METHODS } from '../services/payablesService';
+import { payablesService, PAYMENT_MODES } from '../services/payablesService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
@@ -479,32 +479,69 @@ const InvoicesTab = ({ canManage }) => {
 const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0,10));
   const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState(PAYMENT_METHODS[0]);
+  const [method, setMethod] = useState('cash');
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
-  const canSave = Number(amount) > 0 && Number(amount) <= Number(outstanding || 0);
+
+  // Get current payment mode config
+  const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
+
+  // Validation: amount must be > 0, <= outstanding, and reference required for non-cash
+  const canSave =
+    Number(amount) > 0 &&
+    Number(amount) <= Number(outstanding || 0) &&
+    (!modeConfig.requiresRef || (reference && reference.trim() !== ''));
+
+  const handleSave = () => {
+    if (!canSave) return;
+    onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
+    // Clear form after successful save
+    setDate(new Date().toISOString().slice(0,10));
+    setAmount('');
+    setMethod('cash');
+    setReference('');
+    setNotes('');
+  };
+
   return (
     <div className="p-3 rounded border">
       <div className="font-semibold mb-2">Add Payment</div>
+      {outstanding > 0 && (
+        <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
+          <span className="font-medium">Outstanding Balance:</span> {formatCurrency(outstanding)}
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
           <div className="text-xs opacity-70 mb-1">Payment Date</div>
           <input type="date" className="px-2 py-2 rounded border w-full" value={date} onChange={e=>setDate(e.target.value)} />
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">Amount</div>
-          <input type="number" step="0.01" className="px-2 py-2 rounded border w-full" value={amount} onChange={e=>setAmount(numberInput(e.target.value))} />
-          {Number(amount) > Number(outstanding) && <div className="text-xs text-red-600 mt-1">Cannot exceed outstanding</div>}
+          <div className="text-xs opacity-70 mb-1">Amount (max: {formatCurrency(outstanding)})</div>
+          <input type="number" step="0.01" max={outstanding} className="px-2 py-2 rounded border w-full" value={amount} onChange={e=>setAmount(numberInput(e.target.value))} />
+          {Number(amount) > Number(outstanding) && <div className="text-xs text-red-600 mt-1">Amount cannot exceed outstanding balance</div>}
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">Method</div>
-          <select className="px-2 py-2 rounded border w-full" value={method} onChange={e=>setMethod(e.target.value)}>
-            {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
+          <div className="text-xs opacity-70 mb-1">Payment Method</div>
+          <select className="px-2 py-2 rounded border w-full" value={method} onChange={e=>{setMethod(e.target.value); setReference('');}}>
+            {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
           </select>
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">Reference #</div>
-          <input className="px-2 py-2 rounded border w-full" value={reference} onChange={e=>setReference(e.target.value)} />
+          <div className="text-xs opacity-70 mb-1">
+            {modeConfig.refLabel || 'Reference #'}
+            {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
+          </div>
+          <input
+            className="px-2 py-2 rounded border w-full"
+            value={reference}
+            onChange={e=>setReference(e.target.value)}
+            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || 'reference'}` : 'Optional'}
+            required={modeConfig.requiresRef}
+          />
+          {modeConfig.requiresRef && (!reference || reference.trim() === '') && (
+            <div className="text-xs text-red-600 mt-1">Reference is required for {modeConfig.label}</div>
+          )}
         </div>
         <div className="sm:col-span-2">
           <div className="text-xs opacity-70 mb-1">Notes</div>
@@ -512,7 +549,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
         </div>
       </div>
       <div className="mt-3 flex justify-end">
-        <button disabled={!canSave} onClick={()=>onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date })} className={`px-3 py-2 rounded ${canSave ? 'bg-teal-600 text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Save Payment</button>
+        <button disabled={!canSave} onClick={handleSave} className={`px-3 py-2 rounded ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Save Payment</button>
       </div>
     </div>
   );
