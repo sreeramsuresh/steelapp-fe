@@ -481,7 +481,39 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setFontSize(10);
   pdf.text("TOTAL", totalsX, currentY);
   pdf.text(`AED ${formatNumber(totalVal)}`, pageWidth - margin, currentY, { align: "right" });
-  currentY += 10;
+  currentY += 8;
+
+  // ==================== ADVANCE PAYMENT & BALANCE DUE ====================
+  const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
+  if (advanceAmount > 0) {
+    // Draw separator line
+    pdf.setLineWidth(0.2);
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(totalsX, currentY, pageWidth - margin, currentY);
+    currentY += 4;
+
+    // Show advance received
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(220, 38, 38); // Red color for deduction
+    pdf.text("Less: Advance Received", totalsX, currentY);
+    pdf.text(`- AED ${formatNumber(advanceAmount)}`, pageWidth - margin, currentY, { align: "right" });
+    currentY += 6;
+
+    // Calculate and show balance due
+    const balanceDue = Math.max(0, totalVal - advanceAmount);
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(...primaryColor);
+    pdf.line(totalsX, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+    pdf.setTextColor(...textPrimaryColor);
+    pdf.text("Balance Due", totalsX, currentY);
+    pdf.text(`AED ${formatNumber(balanceDue)}`, pageWidth - margin, currentY, { align: "right" });
+    currentY += 10;
+  }
 
   // ==================== PAYMENT HISTORY SECTION (Optional) ====================
   // Only show if there are payments

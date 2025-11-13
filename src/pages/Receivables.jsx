@@ -99,26 +99,31 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   };
 
   return (
-    <div className="p-3 rounded border">
-      <div className="font-semibold mb-2">Add Payment</div>
+    <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
+      <div className="font-semibold mb-3 text-teal-900 flex items-center gap-2">
+        <Banknote size={18} />
+        Record Payment Details
+      </div>
       {outstanding > 0 && (
         <>
-          <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded flex justify-between items-center">
-            <span className="font-medium">Outstanding Balance:</span>
+          <div className="mb-3 px-3 py-2 bg-blue-100 text-blue-800 text-sm rounded-lg flex justify-between items-center border border-blue-200">
+            <span className="font-semibold">Outstanding Balance:</span>
             <button
               type="button"
               onClick={() => setAmount(outstanding.toString())}
-              className="font-bold text-blue-700 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group"
+              className="font-bold text-blue-800 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group px-2 py-1 rounded hover:bg-blue-200"
               title="Click to apply this amount to payment"
             >
               {formatCurrency(outstanding)}
               <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                ✓
+                ✓ Apply
               </span>
             </button>
           </div>
-          <div className="mb-2 text-xs text-gray-600">
-            💡 <strong>Tip:</strong> Click the balance amount above to auto-fill
+          <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="text-xs text-amber-800">
+              <strong>📋 Note:</strong> All payment details are required for proper accounting records. Click the balance amount above to auto-fill the payment amount.
+            </div>
           </div>
         </>
       )}
@@ -159,8 +164,10 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
           <textarea className="px-2 py-2 rounded border w-full" rows={2} value={notes} onChange={e=>setNotes(e.target.value)} />
         </div>
       </div>
-      <div className="mt-3 flex justify-end">
-        <button disabled={!canSave} onClick={handleSave} className={`px-3 py-2 rounded ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Save Payment</button>
+      <div className="mt-4 flex justify-end">
+        <button disabled={!canSave} onClick={handleSave} className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>
+          💾 Save Payment
+        </button>
       </div>
     </div>
   );
@@ -275,12 +282,6 @@ const Receivables = () => {
     try { await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); } catch(e){ /* ignore */ }
   };
 
-  const handleMarkPaid = async () => {
-    const inv = drawer.item; if (!inv) return;
-    const amt = Number(inv.outstanding || 0);
-    if (amt <= 0) return;
-    await handleAddPayment({ amount: amt, method: 'Other', reference_no: 'Auto-Paid', notes: 'Mark as Paid', payment_date: new Date().toISOString().slice(0,10) });
-  };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
     const inv = drawer.item;
@@ -516,10 +517,6 @@ const Receivables = () => {
           <div className={`flex items-center justify-between px-4 py-2 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className="text-sm">{selected.size} selected</div>
             <div className="flex gap-2">
-              <button className={`px-3 py-2 rounded border ${canManage ? '' : 'text-gray-400 cursor-not-allowed'}`} disabled={!canManage} onClick={()=>{
-                setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, received: (i.received||0)+(i.outstanding||0), outstanding: 0, status:'paid', payments: [...(i.payments||[]), { id: uuid(), amount: i.outstanding||0, method:'Other', payment_date: new Date().toISOString().slice(0,10) }] } : i));
-                setSelected(new Set());
-              }}><CheckCircle size={16} className="inline mr-1"/>Mark as Paid</button>
               <button className="px-3 py-2 rounded border" onClick={()=>exportInvoices()}><Download size={16} className="inline mr-1"/>Export</button>
             </div>
           </div>
@@ -569,6 +566,7 @@ const Receivables = () => {
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
                             <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                            {p.receipt_number && <div className="text-xs mt-1 text-teal-600 font-semibold">Receipt: {p.receipt_number}</div>}
                           </div>
                           <div className="text-right flex items-center gap-2">
                             <div>
@@ -625,9 +623,8 @@ const Receivables = () => {
               )}
 
               {/* Quick Actions */}
-              {canManage && drawer.item.outstanding > 0 && (
+              {canManage && drawer.item.outstanding > 0 && drawer.item.payments && drawer.item.payments.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  <button className="px-3 py-2 rounded border" onClick={handleMarkPaid}><CheckCircle size={16} className="inline mr-1"/>Mark as Paid</button>
                   <button className="px-3 py-2 rounded border" onClick={handleVoidLast}><Trash2 size={16} className="inline mr-1"/>Void last</button>
                 </div>
               )}

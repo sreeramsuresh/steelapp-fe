@@ -423,6 +423,38 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFontSize(typography.fontSize.large);
     pdf.text(labels.total, totalsX, currentY);
     pdf.text(`${currencySymbol} ${formatNumber(totalVal)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
+    currentY += 8;
+  }
+
+  // ==================== ADVANCE PAYMENT & BALANCE DUE ====================
+  const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
+  if (advanceAmount > 0) {
+    // Draw separator line
+    pdf.setLineWidth(0.2);
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(totalsX, currentY, pageWidth - layout.marginRight, currentY);
+    currentY += 4;
+
+    // Show advance received
+    pdf.setFont(typography.fontFamily, "normal");
+    pdf.setFontSize(typography.fontSize.base);
+    pdf.setTextColor(220, 38, 38); // Red color for deduction
+    pdf.text("Less: Advance Received", totalsX, currentY);
+    pdf.text(`- ${currencySymbol} ${formatNumber(advanceAmount)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
+    currentY += 6;
+
+    // Calculate and show balance due
+    const balanceDue = Math.max(0, totalVal - advanceAmount);
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(...primaryRgb);
+    pdf.line(totalsX, currentY, pageWidth - layout.marginRight, currentY);
+    currentY += 5;
+
+    pdf.setFont(typography.fontFamily, "bold");
+    pdf.setFontSize(typography.fontSize.xlarge);
+    setTextPrimary();
+    pdf.text("Balance Due", totalsX, currentY);
+    pdf.text(`${currencySymbol} ${formatNumber(balanceDue)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
     currentY += 10;
   }
 

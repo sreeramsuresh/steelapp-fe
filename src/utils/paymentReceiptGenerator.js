@@ -3,12 +3,152 @@ import { formatCurrency, formatDate, normalizeLLC, titleCase, formatDateDMY } fr
 import { formatPaymentDisplay, getPaymentModeConfig } from './paymentUtils';
 
 /**
- * Generates a unique receipt number for a payment
- * Format: RCP-[InvoiceNumber]-[PaymentNumber]
+ * Generates or retrieves receipt number for a payment
+ * Format: RCP-YYYY-NNNN (Year + Sequential Number)
+ * Best Practice: Globally unique across entire system
+ *
+ * @param {Object} payment - Payment object that may contain receipt_number
+ * @param {number} paymentIndex - Index for fallback generation (1-based)
+ * @returns {string} Receipt number in format RCP-YYYY-NNNN
  */
-export const generateReceiptNumber = (invoiceNumber, paymentIndex) => {
-  const paddedIndex = String(paymentIndex).padStart(3, '0');
-  return `RCP-${invoiceNumber}-${paddedIndex}`;
+export const generateReceiptNumber = (payment, paymentIndex = 1) => {
+  // Priority 1: Use existing receipt number from database
+  if (payment && payment.receipt_number) {
+    return payment.receipt_number;
+  }
+
+  // Priority 2: Generate fallback with current year + index
+  // This should rarely be used - backend should always generate receipt numbers
+  const year = new Date().getFullYear();
+  const paddedIndex = String(paymentIndex).padStart(4, '0');
+  return `RCP-${year}-${paddedIndex}`;
+};
+
+/**
+ * Helper function to add payment history table to PDF
+ */
+const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, pageWidth) => {
+  const allPayments = (invoice.payments || []).filter(p => !p.voided).sort((a, b) => new Date(a.payment_date) - new Date(b.payment_date));
+
+  if (allPayments.length === 0) {
+    return yPos;
+  }
+
+  pdf.setFontSize(11);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Complete Payment History', margin, yPos);
+  yPos += 8;
+
+  // Table headers
+  pdf.setFontSize(9);
+  pdf.setFont('helvetica', 'bold');
+
+  // Adjusted column positions for better spacing
+  // Receipt No (30mm) | Date (25mm) | Method (28mm) | Ref No (40mm) | Amount (remaining)
+  const colX = {
+    receiptNo: margin,
+    date: margin + 28,
+    method: margin + 55,
+    refNo: margin + 85,
+    amount: pageWidth - margin - 32  // Increased space from right edge
+  };
+
+  pdf.text('Receipt No', colX.receiptNo, yPos);
+  pdf.text('Date', colX.date, yPos);
+  pdf.text('Method', colX.method, yPos);
+  pdf.text('Ref No', colX.refNo, yPos);
+  pdf.text('Amount', colX.amount, yPos, { align: 'right' });
+  yPos += 5;
+
+  // Header underline
+  pdf.setLineWidth(0.3);
+  pdf.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 5;
+
+  // Table rows
+  pdf.setFont('helvetica', 'normal');
+  allPayments.forEach((pmt, idx) => {
+    // Use the receipt number from the payment object (from database)
+    const receiptNum = generateReceiptNumber(pmt, idx + 1);
+    const isCurrentPayment = pmt.id === currentPayment.id;
+
+    // Highlight current payment
+    if (isCurrentPayment) {
+      pdf.setFillColor(240, 240, 240);
+      pdf.rect(margin - 2, yPos - 4, pageWidth - 2 * margin + 4, 6, 'F');
+      pdf.setFont('helvetica', 'bold');
+    }
+
+    pdf.text(receiptNum, colX.receiptNo, yPos);
+
+    // Format date properly - handle different date formats
+    let dateStr = 'N/A';
+    try {
+      if (pmt.payment_date) {
+        dateStr = formatDateDMY(pmt.payment_date);
+      }
+    } catch (e) {
+      console.error('Date formatting error:', e);
+      dateStr = 'Invalid';
+    }
+    pdf.text(dateStr, colX.date, yPos);
+
+    const pmtFormatted = formatPaymentDisplay(pmt);
+    const methodText = pmtFormatted.modeLabel.length > 10 ? pmtFormatted.modeLabel.substring(0, 8) + '..' : pmtFormatted.modeLabel;
+    pdf.text(methodText, colX.method, yPos);
+
+    // Allow more space for reference numbers (up to 20 characters)
+    const refText = (pmt.reference_number || '-').substring(0, 20);
+    pdf.text(refText, colX.refNo, yPos);
+    pdf.text(formatCurrency(pmt.amount), colX.amount, yPos, { align: 'right' });
+
+    if (isCurrentPayment) {
+      pdf.setFont('helvetica', 'normal');
+    }
+
+    yPos += 6;
+  });
+
+  // Bottom line
+  pdf.setLineWidth(0.3);
+  pdf.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 3;
+
+  // Note about highlighted row
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica', 'italic');
+  pdf.text('(Highlighted row indicates this receipt\'s payment)', margin, yPos);
+  yPos += 10;
+
+  return yPos;
+};
+
+/**
+ * Helper function to add status badge
+ */
+const addStatusBadge = (pdf, balanceDue, yPos, margin, pageWidth) => {
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'bold');
+
+  if (balanceDue <= 0) {
+    // FULLY PAID badge
+    pdf.setDrawColor(34, 197, 94); // green border
+    pdf.setLineWidth(1);
+    pdf.rect(pageWidth - margin - 50, yPos - 6, 50, 10);
+    pdf.setTextColor(34, 197, 94); // green text
+    pdf.text('FULLY PAID', pageWidth - margin - 25, yPos, { align: 'center' });
+    pdf.setTextColor(0, 0, 0); // reset to black
+  } else {
+    // OUTSTANDING badge
+    pdf.setDrawColor(239, 68, 68); // red border
+    pdf.setLineWidth(1);
+    pdf.rect(pageWidth - margin - 60, yPos - 6, 60, 10);
+    pdf.setTextColor(239, 68, 68); // red text
+    pdf.text('OUTSTANDING', pageWidth - margin - 30, yPos, { align: 'center' });
+    pdf.setTextColor(0, 0, 0); // reset to black
+  }
+
+  return yPos + 10;
 };
 
 /**
@@ -40,8 +180,8 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     pdf.text('PAYMENT RECEIPT', pageWidth / 2, yPos, { align: 'center' });
     yPos += 10;
 
-    // Receipt Number and Date
-    const receiptNumber = generateReceiptNumber(invoice.invoiceNumber, paymentIndex);
+    // Receipt Number and Date - use payment object for proper receipt number from database
+    const receiptNumber = generateReceiptNumber(payment, paymentIndex);
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     const receiptDate = new Date();
@@ -132,10 +272,10 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
-    // ========== PAYMENT DETAILS SECTION ==========
+    // ========== CURRENT PAYMENT DETAILS SECTION ==========
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Payment Details', margin, yPos);
+    pdf.text('Current Payment Received', margin, yPos);
     yPos += 8;
 
     // Format payment data
@@ -214,6 +354,15 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
+    // ========== PAYMENT HISTORY TABLE ==========
+    yPos = addPaymentHistoryTable(pdf, invoice, payment, yPos, margin, pageWidth);
+    yPos += 5;
+
+    // Separator line
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 12;
+
     // ========== INVOICE SUMMARY ==========
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
@@ -222,7 +371,7 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
 
     // Calculate totals
     const invoiceTotal = invoice.total || 0;
-    const totalPaid = (invoice.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const totalPaid = (invoice.payments || []).filter(p => !p.voided).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
     const balanceDue = Math.max(0, invoiceTotal - totalPaid);
 
     pdf.setFontSize(10);
@@ -250,17 +399,21 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     pdf.text('Balance Due:', margin, yPos);
     pdf.setFont('helvetica', 'normal');
     pdf.text(formatCurrency(balanceDue), margin + summaryLabelWidth, yPos);
-    yPos += 15;
+
+    // Add status badge on the right
+    yPos = addStatusBadge(pdf, balanceDue, yPos, margin, pageWidth);
+    yPos += 10;
 
     // ========== FOOTER SECTION ==========
-    // Thank you message
-    const footerStartY = pageHeight - 60;
+    // Ensure we have enough space for footer (need at least 50mm from bottom)
+    const footerStartY = pageHeight - 55;
     yPos = Math.max(yPos, footerStartY);
 
+    // Thank you message
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'italic');
     pdf.text('Thank you for your payment!', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 20;
+    yPos += 15;
 
     // Signature section
     pdf.setFont('helvetica', 'normal');
@@ -278,12 +431,17 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     yPos += 4;
     pdf.setFont('helvetica', 'bold');
     pdf.text(normalizeLLC(company?.name || 'ULTIMATE STEELS'), sigLineX + (sigLineLength / 2), yPos, { align: 'center' });
+    yPos += 10;
 
-    // Bottom disclaimer
+    // Bottom disclaimer - positioned relative to signature, not absolute
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
-    pdf.text('This is a computer-generated receipt and does not require a physical signature.',
-      pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+    // Split long text into multiple lines if needed
+    const disclaimerText = 'This is a computer-generated receipt and does not require a physical signature.';
+    const maxWidth = pageWidth - 2 * margin;
+    const disclaimerLines = pdf.splitTextToSize(disclaimerText, maxWidth);
+    pdf.text(disclaimerLines, pageWidth / 2, yPos, { align: 'center' });
 
     // Save the PDF
     const fileName = `Payment_Receipt_${receiptNumber}.pdf`;
@@ -325,8 +483,8 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     pdf.text('PAYMENT RECEIPT', pageWidth / 2, yPos, { align: 'center' });
     yPos += 10;
 
-    // Receipt Number and Date
-    const receiptNumber = generateReceiptNumber(invoice.invoiceNumber, paymentIndex);
+    // Receipt Number and Date - use payment object for proper receipt number from database
+    const receiptNumber = generateReceiptNumber(payment, paymentIndex);
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     const receiptDate = new Date();
@@ -417,10 +575,10 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
-    // ========== PAYMENT DETAILS SECTION ==========
+    // ========== CURRENT PAYMENT DETAILS SECTION ==========
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Payment Details', margin, yPos);
+    pdf.text('Current Payment Received', margin, yPos);
     yPos += 8;
 
     // Format payment data
@@ -499,6 +657,15 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
+    // ========== PAYMENT HISTORY TABLE ==========
+    yPos = addPaymentHistoryTable(pdf, invoice, payment, yPos, margin, pageWidth);
+    yPos += 5;
+
+    // Separator line
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 12;
+
     // ========== INVOICE SUMMARY ==========
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
@@ -507,7 +674,7 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
 
     // Calculate totals
     const invoiceTotal = invoice.total || 0;
-    const totalPaid = (invoice.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const totalPaid = (invoice.payments || []).filter(p => !p.voided).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
     const balanceDue = Math.max(0, invoiceTotal - totalPaid);
 
     pdf.setFontSize(10);
@@ -535,17 +702,21 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     pdf.text('Balance Due:', margin, yPos);
     pdf.setFont('helvetica', 'normal');
     pdf.text(formatCurrency(balanceDue), margin + summaryLabelWidth, yPos);
-    yPos += 15;
+
+    // Add status badge on the right
+    yPos = addStatusBadge(pdf, balanceDue, yPos, margin, pageWidth);
+    yPos += 10;
 
     // ========== FOOTER SECTION ==========
-    // Thank you message
-    const footerStartY = pageHeight - 60;
+    // Ensure we have enough space for footer (need at least 50mm from bottom)
+    const footerStartY = pageHeight - 55;
     yPos = Math.max(yPos, footerStartY);
 
+    // Thank you message
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'italic');
     pdf.text('Thank you for your payment!', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 20;
+    yPos += 15;
 
     // Signature section
     pdf.setFont('helvetica', 'normal');
@@ -563,12 +734,17 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     yPos += 4;
     pdf.setFont('helvetica', 'bold');
     pdf.text(normalizeLLC(company?.name || 'ULTIMATE STEELS'), sigLineX + (sigLineLength / 2), yPos, { align: 'center' });
+    yPos += 10;
 
-    // Bottom disclaimer
+    // Bottom disclaimer - positioned relative to signature, not absolute
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
-    pdf.text('This is a computer-generated receipt and does not require a physical signature.',
-      pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+    // Split long text into multiple lines if needed
+    const disclaimerText = 'This is a computer-generated receipt and does not require a physical signature.';
+    const maxWidth = pageWidth - 2 * margin;
+    const disclaimerLines = pdf.splitTextToSize(disclaimerText, maxWidth);
+    pdf.text(disclaimerLines, pageWidth / 2, yPos, { align: 'center' });
 
     // Open print dialog instead of saving
     pdf.autoPrint();

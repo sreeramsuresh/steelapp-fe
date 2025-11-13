@@ -18,6 +18,28 @@ import { DEFAULT_TEMPLATE_SETTINGS } from "../constants/defaultTemplateSettings"
 const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
   const { isDarkMode } = useTheme();
 
+  // Handle save with error handling
+  const handleSave = async () => {
+    if (!onSave) return;
+
+    try {
+      await onSave();
+      // If save is successful and this is a new invoice, close preview
+      // (Update invoices stay open for user to see the result)
+      if (!invoiceId) {
+        onClose();
+      }
+    } catch (error) {
+      // If validation fails, close preview to show user the form with errors
+      if (error.message === 'VALIDATION_FAILED') {
+        onClose();
+      } else {
+        console.error('Save error:', error);
+        // For other errors, keep preview open so user can see the invoice
+      }
+    }
+  };
+
   // Get template colors from company settings or use defaults
   const templateSettings = company?.settings?.invoice_template || DEFAULT_TEMPLATE_SETTINGS;
   const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
@@ -82,6 +104,10 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     computedVatAmount
   );
 
+  // Calculate advance and balance due
+  const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
+  const balanceDue = Math.max(0, computedTotal - advanceAmount);
+
   const cust = invoice.customer || {};
   const custAddr = cust.address || {};
   const compAddr = company?.address || {};
@@ -101,7 +127,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
           <div className="flex gap-2">
             {onSave && (
               <button
-                onClick={onSave}
+                onClick={handleSave}
                 disabled={isSaving || !canSave}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   canSave
@@ -294,6 +320,18 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                   <span>TOTAL</span>
                   <span>AED {formatNumber(computedTotal)}</span>
                 </div>
+                {advanceAmount > 0 && (
+                  <>
+                    <div className="flex justify-between text-red-600">
+                      <span>Less: Advance Received</span>
+                      <span>- AED {formatNumber(advanceAmount)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t-2 pt-2" style={{ borderColor: primaryColor }}>
+                      <span>Balance Due</span>
+                      <span>AED {formatNumber(balanceDue)}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

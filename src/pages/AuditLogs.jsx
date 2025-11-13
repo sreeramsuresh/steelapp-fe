@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '../context/ThemeContext';
-import { apiClient } from '../utils/axiosApi';
+import { useTheme } from '../contexts/ThemeContext';
+import { apiService } from '../services/axiosApi';
 import {
   FileText,
   Filter,
@@ -61,7 +61,7 @@ const AuditLogs = () => {
         ...(filters.endDate && { end_date: filters.endDate })
       };
 
-      const response = await apiClient.get('/audit-logs', { params });
+      const response = await apiService.get('/audit-logs', { params });
 
       setLogs(response.logs || []);
       setTotalPages(response.pagination?.totalPages || 1);
@@ -77,7 +77,7 @@ const AuditLogs = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await apiClient.get('/audit-logs/stats');
+      const response = await apiService.get('/audit-logs/stats');
       setStats(response);
     } catch (err) {
       console.error('Error fetching stats:', err);

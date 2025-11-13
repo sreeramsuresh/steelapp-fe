@@ -18,6 +18,8 @@ import {
   RotateCcw,
   FileText,
   Phone,
+  DollarSign,
+  Banknote,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -26,6 +28,7 @@ import { createCompany } from "../types";
 import { invoiceService } from "../services/invoiceService";
 import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
+import { payablesService, PAYMENT_MODES } from "../services/payablesService";
 import { authService } from "../services/axiosAuthService";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
@@ -68,6 +71,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState(new Set());
   const [showPaymentReminderModal, setShowPaymentReminderModal] = useState(false);
   const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
+  const [showRecordPaymentDrawer, setShowRecordPaymentDrawer] = useState(false);
+  const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
 
   const company = createCompany();
 
@@ -587,6 +592,143 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handlePaymentReminderSaved = (reminder) => {
     notificationService.success('Payment reminder note saved successfully!');
+  };
+
+  const handleRecordPayment = async (invoice) => {
+    try {
+      // Fetch complete invoice details with payments
+      const fullInvoice = await invoiceService.getInvoice(invoice.id);
+
+      // Transform to match Receivables format
+      const transformedInvoice = {
+        id: fullInvoice.id,
+        invoice_no: fullInvoice.invoice_number || fullInvoice.invoiceNumber,
+        invoiceNumber: fullInvoice.invoice_number || fullInvoice.invoiceNumber,
+        customer: fullInvoice.customer,
+        invoice_date: fullInvoice.date,
+        date: fullInvoice.date,
+        due_date: fullInvoice.dueDate,
+        dueDate: fullInvoice.dueDate,
+        currency: fullInvoice.currency || 'AED',
+        invoice_amount: fullInvoice.total,
+        received: (fullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        outstanding: fullInvoice.total - (fullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        status: calculatePaymentStatus(fullInvoice.total, fullInvoice.payments || []),
+        payments: fullInvoice.payments || []
+      };
+
+      setPaymentDrawerInvoice(transformedInvoice);
+      setShowRecordPaymentDrawer(true);
+    } catch (error) {
+      console.error('Error loading invoice details:', error);
+      notificationService.error('Failed to load invoice details');
+    }
+  };
+
+  const handleCloseRecordPaymentDrawer = () => {
+    setShowRecordPaymentDrawer(false);
+    setPaymentDrawerInvoice(null);
+  };
+
+  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+    const inv = paymentDrawerInvoice;
+    if (!inv) return;
+    const outstanding = Number(inv.outstanding || 0);
+    if (!(Number(amount) > 0)) {
+      notificationService.error('Amount must be greater than 0');
+      return;
+    }
+    if (Number(amount) > outstanding) {
+      notificationService.error('Amount exceeds outstanding balance');
+      return;
+    }
+
+    try {
+      const { uuid } = await import('../utils/uuid');
+      const newPayment = {
+        id: uuid(),
+        payment_date: payment_date || new Date().toISOString().slice(0,10),
+        amount: Number(amount),
+        method,
+        reference_no,
+        notes,
+        created_at: new Date().toISOString(),
+      };
+
+      // Save to backend first
+      await payablesService.addInvoicePayment(inv.id, newPayment);
+
+      notificationService.success('Payment recorded successfully!');
+
+      // Refresh invoice list to get updated data from backend
+      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
+
+      // Fetch updated invoice details and refresh drawer
+      const updatedFullInvoice = await invoiceService.getInvoice(inv.id);
+      const transformedInvoice = {
+        id: updatedFullInvoice.id,
+        invoice_no: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
+        invoiceNumber: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
+        customer: updatedFullInvoice.customer,
+        invoice_date: updatedFullInvoice.date,
+        date: updatedFullInvoice.date,
+        due_date: updatedFullInvoice.dueDate,
+        dueDate: updatedFullInvoice.dueDate,
+        currency: updatedFullInvoice.currency || 'AED',
+        invoice_amount: updatedFullInvoice.total,
+        received: (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        outstanding: updatedFullInvoice.total - (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        status: calculatePaymentStatus(updatedFullInvoice.total, updatedFullInvoice.payments || []),
+        payments: updatedFullInvoice.payments || []
+      };
+
+      setPaymentDrawerInvoice(transformedInvoice);
+    } catch (error) {
+      console.error('Error recording payment:', error);
+      notificationService.error(error?.response?.data?.error || 'Failed to record payment');
+    }
+  };
+
+  const handleVoidLastPayment = async () => {
+    const inv = paymentDrawerInvoice;
+    if (!inv) return;
+    const payments = (inv.payments || []).filter(p => !p.voided);
+    if (payments.length === 0) return;
+
+    const last = payments[payments.length - 1];
+
+    try {
+      await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
+
+      notificationService.success('Payment voided successfully');
+
+      // Refresh invoice list to get updated data from backend
+      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
+
+      // Fetch updated invoice details and refresh drawer
+      const updatedFullInvoice = await invoiceService.getInvoice(inv.id);
+      const transformedInvoice = {
+        id: updatedFullInvoice.id,
+        invoice_no: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
+        invoiceNumber: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
+        customer: updatedFullInvoice.customer,
+        invoice_date: updatedFullInvoice.date,
+        date: updatedFullInvoice.date,
+        due_date: updatedFullInvoice.dueDate,
+        dueDate: updatedFullInvoice.dueDate,
+        currency: updatedFullInvoice.currency || 'AED',
+        invoice_amount: updatedFullInvoice.total,
+        received: (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        outstanding: updatedFullInvoice.total - (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
+        status: calculatePaymentStatus(updatedFullInvoice.total, updatedFullInvoice.payments || []),
+        payments: updatedFullInvoice.payments || []
+      };
+
+      setPaymentDrawerInvoice(transformedInvoice);
+    } catch(error) {
+      console.error('Error voiding payment:', error);
+      notificationService.error('Failed to void payment');
+    }
   };
 
   const handleBulkDownload = async (selectedIds = null) => {
@@ -1581,6 +1723,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         )}
                       </div>
                       )}
+                      {/* Record Payment Button */}
+                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status === 'issued' && (
+                        <button
+                          className={`p-2 rounded transition-colors bg-transparent ${
+                            isDarkMode
+                              ? "text-emerald-400 hover:text-emerald-300"
+                              : "hover:bg-emerald-50 text-emerald-600"
+                          }`}
+                          title="Record Payment"
+                          onClick={() => handleRecordPayment(invoice)}
+                        >
+                          <Banknote size={16} />
+                        </button>
+                      )}
                       {/* Payment Reminder Button */}
                       {getInvoiceReminderInfo(invoice)?.shouldShowReminder && (
                         <button
@@ -1771,6 +1927,132 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         onSave={handlePaymentReminderSaved}
       />
 
+      {/* Record Payment Drawer - Exact replica from Receivables */}
+      {showRecordPaymentDrawer && paymentDrawerInvoice && (
+        <div className="fixed inset-0 z-[1100] flex">
+          <div className="flex-1 bg-black/30" onClick={handleCloseRecordPaymentDrawer}></div>
+          <div className={`w-full max-w-md h-full overflow-auto ${
+            isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
+          } shadow-xl`}>
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-lg">
+                  {paymentDrawerInvoice.invoice_no || paymentDrawerInvoice.invoiceNumber}
+                </div>
+                <div className="text-sm opacity-70">
+                  {paymentDrawerInvoice.customer?.name || ''}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
+                  paymentDrawerInvoice.status === 'fully_paid'
+                    ? 'bg-green-100 text-green-800 border-green-300'
+                    : paymentDrawerInvoice.status === 'partially_paid'
+                    ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                    : 'bg-red-100 text-red-800 border-red-300'
+                }`}>
+                  {paymentDrawerInvoice.status === 'fully_paid' ? 'Paid' :
+                   paymentDrawerInvoice.status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                </span>
+                <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
+                  <X size={18}/>
+                </button>
+              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="opacity-70">Invoice Date</div>
+                  <div>{formatDate(paymentDrawerInvoice.invoice_date || paymentDrawerInvoice.date)}</div>
+                </div>
+                <div>
+                  <div className="opacity-70">Due Date</div>
+                  <div>{formatDate(paymentDrawerInvoice.due_date || paymentDrawerInvoice.dueDate)}</div>
+                </div>
+                <div>
+                  <div className="opacity-70">Currency</div>
+                  <div>{paymentDrawerInvoice.currency || 'AED'}</div>
+                </div>
+                <div>
+                  <div className="opacity-70">Invoice Amount</div>
+                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.invoice_amount || 0)}</div>
+                </div>
+                <div>
+                  <div className="opacity-70">Received</div>
+                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.received || 0)}</div>
+                </div>
+                <div>
+                  <div className="opacity-70">Outstanding</div>
+                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.outstanding || 0)}</div>
+                </div>
+              </div>
+
+              {/* Payments Timeline */}
+              <div>
+                <div className="font-semibold mb-2">Payments</div>
+                <div className="space-y-2">
+                  {(paymentDrawerInvoice.payments || []).length === 0 && (
+                    <div className="text-sm opacity-70">No payments recorded yet.</div>
+                  )}
+                  {(paymentDrawerInvoice.payments || []).map((p, idx) => {
+                    const paymentIndex = (paymentDrawerInvoice.payments || []).length - idx;
+                    return (
+                      <div key={p.id || idx} className={`p-2 rounded border ${
+                        p.voided ? 'opacity-60 line-through' : ''
+                      }`}>
+                        <div className="flex justify-between items-start text-sm">
+                          <div className="flex-1">
+                            <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
+                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                            {p.receipt_number && (
+                              <div className="text-xs mt-1 text-teal-600 font-semibold">
+                                Receipt: {p.receipt_number}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div>{formatDate(p.payment_date)}</div>
+                            {p.voided && <div className="text-xs text-red-600">Voided</div>}
+                          </div>
+                        </div>
+                        {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Add Payment Form */}
+              {paymentDrawerInvoice.outstanding > 0 ? (
+                <AddPaymentForm
+                  outstanding={paymentDrawerInvoice.outstanding || 0}
+                  onSave={handleAddPayment}
+                />
+              ) : (
+                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
+                  <CheckCircle size={18} />
+                  <span className="font-medium">Invoice Fully Paid</span>
+                </div>
+              )}
+
+              {/* Quick Actions */}
+              {paymentDrawerInvoice.outstanding > 0 &&
+               paymentDrawerInvoice.payments &&
+               paymentDrawerInvoice.payments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="px-3 py-2 rounded border"
+                    onClick={handleVoidLastPayment}
+                  >
+                    <Trash2 size={16} className="inline mr-1"/>Void last
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Professional Confirmation Dialog */}
       <ConfirmDialog
         open={dialogState.open}
@@ -1782,6 +2064,108 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+    </div>
+  );
+};
+
+// Payment Form Component - Exact replica from Receivables
+const AddPaymentForm = ({ outstanding = 0, onSave }) => {
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0,10));
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState('cash');
+  const [reference, setReference] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
+  const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
+
+  const canSave =
+    Number(amount) > 0 &&
+    Number(amount) <= Number(outstanding || 0) &&
+    (!modeConfig.requiresRef || (reference && reference.trim() !== ''));
+
+  const handleSave = () => {
+    if (!canSave) return;
+    onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
+    // Clear form after successful save
+    setDate(new Date().toISOString().slice(0,10));
+    setAmount('');
+    setMethod('cash');
+    setReference('');
+    setNotes('');
+  };
+
+  return (
+    <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
+      <div className="font-semibold mb-3 text-teal-900 flex items-center gap-2">
+        <Banknote size={18} />
+        Record Payment Details
+      </div>
+      {outstanding > 0 && (
+        <>
+          <div className="mb-3 px-3 py-2 bg-blue-100 text-blue-800 text-sm rounded-lg flex justify-between items-center border border-blue-200">
+            <span className="font-semibold">Outstanding Balance:</span>
+            <button
+              type="button"
+              onClick={() => setAmount(outstanding.toString())}
+              className="font-bold text-blue-800 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group px-2 py-1 rounded hover:bg-blue-200"
+              title="Click to apply this amount to payment"
+            >
+              {formatCurrency(outstanding)}
+              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                ✓ Apply
+              </span>
+            </button>
+          </div>
+          <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="text-xs text-amber-800">
+              <strong>📋 Note:</strong> All payment details are required for proper accounting records. Click the balance amount above to auto-fill the payment amount.
+            </div>
+          </div>
+        </>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <div className="text-xs opacity-70 mb-1">Payment Date</div>
+          <input type="date" className="px-2 py-2 rounded border w-full" value={date} onChange={e=>setDate(e.target.value)} />
+        </div>
+        <div>
+          <div className="text-xs opacity-70 mb-1">Amount (max: {formatCurrency(outstanding)})</div>
+          <input type="number" step="0.01" max={outstanding} className="px-2 py-2 rounded border w-full" value={amount} onChange={e=>setAmount(numberInput(e.target.value))} />
+          {Number(amount) > Number(outstanding) && <div className="text-xs text-red-600 mt-1">Amount cannot exceed outstanding balance</div>}
+        </div>
+        <div>
+          <div className="text-xs opacity-70 mb-1">Payment Method</div>
+          <select className="px-2 py-2 rounded border w-full" value={method} onChange={e=>{setMethod(e.target.value); setReference('');}}>
+            {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <div className="text-xs opacity-70 mb-1">
+            {modeConfig.refLabel || 'Reference #'}
+            {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
+          </div>
+          <input
+            className="px-2 py-2 rounded border w-full"
+            value={reference}
+            onChange={e=>setReference(e.target.value)}
+            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || 'reference'}` : 'Optional'}
+            required={modeConfig.requiresRef}
+          />
+          {modeConfig.requiresRef && (!reference || reference.trim() === '') && (
+            <div className="text-xs text-red-600 mt-1">Reference is required for {modeConfig.label}</div>
+          )}
+        </div>
+        <div className="sm:col-span-2">
+          <div className="text-xs opacity-70 mb-1">Notes</div>
+          <textarea className="px-2 py-2 rounded border w-full" rows={2} value={notes} onChange={e=>setNotes(e.target.value)} />
+        </div>
+      </div>
+      <div className="mt-4 flex justify-end">
+        <button disabled={!canSave} onClick={handleSave} className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>
+          💾 Save Payment
+        </button>
+      </div>
     </div>
   );
 };

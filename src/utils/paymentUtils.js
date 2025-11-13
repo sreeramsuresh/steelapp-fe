@@ -171,9 +171,30 @@ export const calculatePaymentStatus = (invoiceTotal, payments = []) => {
 
 /**
  * Get payment mode configuration
+ * Handles various field names and formats (method, payment_method, payment_mode)
  */
 export const getPaymentModeConfig = (modeValue) => {
-  return PAYMENT_MODES[modeValue] || PAYMENT_MODES.other;
+  if (!modeValue) return PAYMENT_MODES.other;
+
+  // Convert to lowercase and replace spaces with underscores
+  const normalizedValue = String(modeValue).toLowerCase().trim().replace(/\s+/g, '_');
+
+  // Direct match
+  if (PAYMENT_MODES[normalizedValue]) {
+    return PAYMENT_MODES[normalizedValue];
+  }
+
+  // Try to match by label (case-insensitive)
+  const modeByLabel = Object.values(PAYMENT_MODES).find(
+    mode => mode.label.toLowerCase() === String(modeValue).toLowerCase().trim()
+  );
+
+  if (modeByLabel) {
+    return modeByLabel;
+  }
+
+  // Default to 'other' if no match found
+  return PAYMENT_MODES.other;
 };
 
 /**
@@ -222,9 +243,33 @@ export const validatePayment = (payment, invoiceTotal, existingPayments = []) =>
 
 /**
  * Format payment for display
+ * Handles various field name variations from different sources
  */
 export const formatPaymentDisplay = (payment) => {
-  const modeConfig = getPaymentModeConfig(payment.payment_mode);
+  // Handle different payment method field names
+  const methodValue = payment.payment_method || payment.payment_mode || payment.method;
+  const modeConfig = getPaymentModeConfig(methodValue);
+
+  // Handle different date field names and formats
+  const dateValue = payment.payment_date || payment.date;
+  let formattedDate = 'N/A';
+
+  try {
+    if (dateValue) {
+      const dateObj = new Date(dateValue);
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toLocaleDateString('en-AE', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Date formatting error:', e);
+    formattedDate = 'Invalid Date';
+  }
+
   return {
     ...payment,
     modeLabel: modeConfig.label,
@@ -233,11 +278,7 @@ export const formatPaymentDisplay = (payment) => {
       style: 'currency',
       currency: 'AED',
     }).format(payment.amount || 0),
-    formattedDate: new Date(payment.date).toLocaleDateString('en-AE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
+    formattedDate
   };
 };
 
