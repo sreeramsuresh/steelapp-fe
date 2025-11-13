@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle, Printer } from 'lucide-react';
 import { payablesService, PAYMENT_MODES } from '../services/payablesService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
 import { notificationService } from '../services/notificationService';
+import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 
 const TabButton = ({ active, onClick, children }) => {
   return (
@@ -104,6 +105,8 @@ const InvoicesTab = ({ canManage }) => {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(new Set());
   const [drawer, setDrawer] = useState({ open: false, item: null });
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+  const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const page = Number(filters.page || 1);
   const size = Number(filters.size || 10);
 
@@ -196,6 +199,64 @@ const InvoicesTab = ({ canManage }) => {
     const amt = Number(inv.outstanding || 0);
     if (amt <= 0) return;
     await handleAddPayment({ amount: amt, method: 'Other', reference_no: 'Auto-Paid', notes: 'Mark as Paid', payment_date: new Date().toISOString().slice(0,10) });
+  };
+
+  const handleDownloadReceipt = async (payment, paymentIndex) => {
+    const inv = drawer.item;
+    if (!inv) {
+      alert('Unable to generate receipt. Missing invoice information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setDownloadingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
+        total: inv.invoice_amount || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || {}
+      };
+      const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error generating receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePrintReceipt = async (payment, paymentIndex) => {
+    const inv = drawer.item;
+    if (!inv) {
+      alert('Unable to print receipt. Missing invoice information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setPrintingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
+        total: inv.invoice_amount || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || {}
+      };
+      const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error printing receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      alert('Failed to print receipt. Please try again.');
+    } finally {
+      setPrintingReceiptId(null);
+    }
   };
 
   const exportInvoices = async () => {
@@ -411,21 +472,57 @@ const InvoicesTab = ({ canManage }) => {
                   {(drawer.item.payments || []).length === 0 && (
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
-                  {(drawer.item.payments || []).map((p, idx) => (
-                    <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                          <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                  {(drawer.item.payments || []).map((p, idx) => {
+                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const isDownloading = downloadingReceiptId === p.id;
+                    const isPrinting = printingReceiptId === p.id;
+
+                    return (
+                      <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
+                        <div className="flex justify-between items-start text-sm">
+                          <div className="flex-1">
+                            <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
+                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                          </div>
+                          <div className="text-right flex items-center gap-2">
+                            <div>
+                              <div>{formatDate(p.payment_date)}</div>
+                              {p.voided && <div className="text-xs text-red-600">Voided</div>}
+                            </div>
+                            {!p.voided && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handlePrintReceipt(p, paymentIndex)}
+                                  disabled={isPrinting}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isPrinting
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                                  }`}
+                                  title="Print payment receipt"
+                                >
+                                  <Printer size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadReceipt(p, paymentIndex)}
+                                  disabled={isDownloading}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isDownloading
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                                  }`}
+                                  title="Download payment receipt"
+                                >
+                                  <Download size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div>{formatDate(p.payment_date)}</div>
-                          {p.voided && <div className="text-xs text-red-600">Voided</div>}
-                        </div>
+                        {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
                       </div>
-                      {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -512,9 +609,25 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
     <div className="p-3 rounded border">
       <div className="font-semibold mb-2">Add Payment</div>
       {outstanding > 0 && (
-        <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
-          <span className="font-medium">Outstanding Balance:</span> {formatCurrency(outstanding)}
-        </div>
+        <>
+          <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded flex justify-between items-center">
+            <span className="font-medium">Outstanding Balance:</span>
+            <button
+              type="button"
+              onClick={() => setAmount(outstanding.toString())}
+              className="font-bold text-blue-700 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group"
+              title="Click to apply this amount to payment"
+            >
+              {formatCurrency(outstanding)}
+              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                ✓
+              </span>
+            </button>
+          </div>
+          <div className="mb-2 text-xs text-gray-600">
+            💡 <strong>Tip:</strong> Click the balance amount above to auto-fill
+          </div>
+        </>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
@@ -568,6 +681,8 @@ const POTab = ({ canManage }) => {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [drawer, setDrawer] = useState({ open: false, item: null });
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+  const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -626,6 +741,64 @@ const POTab = ({ canManage }) => {
   const handleMarkPaid = async () => {
     const po = drawer.item; if (!po) return; const amt = Number(po.balance||0); if (amt<=0) return;
     await handleAddPayment({ amount: amt, method:'Other', reference_no:'Auto-Paid', notes:'Mark as Fully Paid', payment_date: new Date().toISOString().slice(0,10) });
+  };
+
+  const handleDownloadReceipt = async (payment, paymentIndex) => {
+    const po = drawer.item;
+    if (!po) {
+      alert('Unable to generate receipt. Missing PO information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setDownloadingReceiptId(payment.id);
+    try {
+      const poData = {
+        invoiceNumber: po.po_no || po.poNumber,
+        total: po.po_value || 0,
+        payments: po.payments || [],
+        customer: po.vendor || {}
+      };
+      const result = await generatePaymentReceipt(payment, poData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error generating receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePrintReceipt = async (payment, paymentIndex) => {
+    const po = drawer.item;
+    if (!po) {
+      alert('Unable to print receipt. Missing PO information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setPrintingReceiptId(payment.id);
+    try {
+      const poData = {
+        invoiceNumber: po.po_no || po.poNumber,
+        total: po.po_value || 0,
+        payments: po.payments || [],
+        customer: po.vendor || {}
+      };
+      const result = await printPaymentReceipt(payment, poData, companyInfo, paymentIndex);
+      if (!result.success) {
+        alert(`Error printing receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      alert('Failed to print receipt. Please try again.');
+    } finally {
+      setPrintingReceiptId(null);
+    }
   };
 
   const exportPOs = async () => {
@@ -824,21 +997,57 @@ const POTab = ({ canManage }) => {
                   {(drawer.item.payments || []).length === 0 && (
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
-                  {(drawer.item.payments || []).map((p, idx) => (
-                    <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                          <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                  {(drawer.item.payments || []).map((p, idx) => {
+                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const isDownloading = downloadingReceiptId === p.id;
+                    const isPrinting = printingReceiptId === p.id;
+
+                    return (
+                      <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
+                        <div className="flex justify-between items-start text-sm">
+                          <div className="flex-1">
+                            <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
+                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                          </div>
+                          <div className="text-right flex items-center gap-2">
+                            <div>
+                              <div>{formatDate(p.payment_date)}</div>
+                              {p.voided && <div className="text-xs text-red-600">Voided</div>}
+                            </div>
+                            {!p.voided && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handlePrintReceipt(p, paymentIndex)}
+                                  disabled={isPrinting}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isPrinting
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                                  }`}
+                                  title="Print payment receipt"
+                                >
+                                  <Printer size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadReceipt(p, paymentIndex)}
+                                  disabled={isDownloading}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isDownloading
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                                  }`}
+                                  title="Download payment receipt"
+                                >
+                                  <Download size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div>{formatDate(p.payment_date)}</div>
-                          {p.voided && <div className="text-xs text-red-600">Voided</div>}
-                        </div>
+                        {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
                       </div>
-                      {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

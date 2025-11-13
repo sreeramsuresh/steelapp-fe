@@ -100,13 +100,28 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Balance Due:</span>
-              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              <button
+                type="button"
+                onClick={() => setPayment((prev) => ({ ...prev, amount: balanceDue.toString() }))}
+                disabled={editingPayment}
+                className={`text-lg font-bold transition-all group ${
+                  !editingPayment
+                    ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer hover:scale-105'
+                    : 'text-blue-600 dark:text-blue-400 cursor-default'
+                }`}
+                title={!editingPayment ? "Click to apply this amount to payment" : ""}
+              >
                 {formatCurrency(balanceDue)}
-              </span>
+                {!editingPayment && (
+                  <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    ✓
+                  </span>
+                )}
+              </button>
             </div>
             {!editingPayment && (
               <div className="text-xs text-gray-600 dark:text-gray-400">
-                Maximum amount you can enter: <span className="font-semibold">{formatCurrency(balanceDue)}</span>
+                💡 <strong>Tip:</strong> Click the balance amount above to auto-fill the payment field
               </div>
             )}
           </div>

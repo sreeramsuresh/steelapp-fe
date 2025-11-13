@@ -89,63 +89,72 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
       </div>
     </div>
 
-    <div style="width:100%; background-color:#009999; color:#ffffff; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
-      <h2 style="margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; color:#ffffff;">STATEMENT OF ACCOUNT</h2>
+    <div style="width:100%; border-top:2px solid #000; border-bottom:2px solid #000; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
+      <h2 style="margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; color:#000;">ACCOUNT STATEMENT</h2>
     </div>
 
     <div style="margin-bottom:20px; display:flex; gap:16px;">
-      <div style="flex:1; padding:12px; border:1px solid #e2e8f0; border-radius:8px;">
-        <div style="font-size:12px; color:#64748b;">Total Invoiced</div>
-        <div style="font-size:16px; font-weight:700; color:#0f172a;">${formatCurrency(totalInvoiced)}</div>
+      <div style="flex:1; padding:12px; border:1px solid #000;">
+        <div style="font-size:11px; color:#000; font-weight:600;">Opening Balance:</div>
+        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(items[0]?.opening_balance || 0)}</div>
       </div>
-      <div style="flex:1; padding:12px; border:1px solid #e2e8f0; border-radius:8px;">
-        <div style="font-size:12px; color:#64748b;">Total Received</div>
-        <div style="font-size:16px; font-weight:700; color:#0f172a;">${formatCurrency(totalReceived)}</div>
+      <div style="flex:1; padding:12px; border:1px solid #000;">
+        <div style="font-size:11px; color:#000; font-weight:600;">Total Invoiced:</div>
+        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(totalInvoiced)}</div>
       </div>
-      <div style="flex:1; padding:12px; border:1px solid #e2e8f0; border-radius:8px;">
-        <div style="font-size:12px; color:#64748b;">Total Outstanding</div>
-        <div style="font-size:16px; font-weight:700; color:#0f172a;">${formatCurrency(totalOutstanding)}</div>
+      <div style="flex:1; padding:12px; border:1px solid #000;">
+        <div style="font-size:11px; color:#000; font-weight:600;">Total Paid:</div>
+        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(totalReceived)}</div>
+      </div>
+      <div style="flex:1; padding:12px; border:1px solid #000;">
+        <div style="font-size:11px; color:#000; font-weight:600;">Closing Balance:</div>
+        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(totalOutstanding)}</div>
       </div>
     </div>
 
     <div style="margin-bottom:30px;">
-      <table style="width:100%; border-collapse:collapse; font-size:11px;">
+      <table style="width:100%; border-collapse:collapse; font-size:10px;">
         <thead>
-          <tr style="background-color:#009999; color:#ffffff;">
-            <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Invoice #</th>
-            <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Invoice Date</th>
-            <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Due Date</th>
-            <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Currency</th>
-            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Invoice Amount</th>
-            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Received</th>
-            <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Outstanding</th>
-            <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Status</th>
+          <tr style="background-color:#f5f5f5; color:#000;">
+            <th style="padding:8px 6px; text-align:left; border:1px solid #000; font-weight:600;">Date</th>
+            <th style="padding:8px 6px; text-align:left; border:1px solid #000; font-weight:600;">Type</th>
+            <th style="padding:8px 6px; text-align:left; border:1px solid #000; font-weight:600;">Reference</th>
+            <th style="padding:8px 6px; text-align:left; border:1px solid #000; font-weight:600;">Description</th>
+            <th style="padding:8px 6px; text-align:right; border:1px solid #000; font-weight:600;">Debit</th>
+            <th style="padding:8px 6px; text-align:right; border:1px solid #000; font-weight:600;">Credit</th>
+            <th style="padding:8px 6px; text-align:right; border:1px solid #000; font-weight:600;">Balance</th>
           </tr>
         </thead>
         <tbody>
-          ${items.map((r) => `
-            <tr>
-              <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(r.invoice_no || r.invoiceNumber)}</td>
-              <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${formatDate(r.invoice_date || r.date)}</td>
-              <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${formatDate(r.due_date || r.dueDate)}</td>
-              <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(r.currency || 'AED')}</td>
-              <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(r.invoice_amount || 0)}</td>
-              <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(r.received || 0)}</td>
-              <td style="padding:8px; text-align:right; border:1px solid #e2e8f0; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>
-              <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(r.status)}</td>
+          ${items.map((r, idx) => {
+            const debit = parseFloat(r.invoice_amount) || 0;
+            const credit = parseFloat(r.received) || 0;
+            return `
+            <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ''}>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoice_date || r.date)}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? 'Invoice' : 'Payment'}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.invoice_no || r.invoiceNumber)}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || 'Invoice ' + (r.invoice_no || r.invoiceNumber))}</td>
+              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${debit > 0 ? formatCurrency(debit) : '-'}</td>
+              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${credit > 0 ? formatCurrency(credit) : '-'}</td>
+              <td style="padding:6px; text-align:right; border:1px solid #ccc; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>
             </tr>
-          `).join('')}
+          `;
+          }).join('')}
         </tbody>
       </table>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; margin-top:50px;">
-      <div style="display:flex; align-items:flex-end; gap:20px;">
-        <img src="${sealImage}" alt="Company Seal" crossorigin="anonymous" style="height: 160px; width:auto; object-fit:contain; opacity:0.95;" />
-        <div style="text-align:center; min-width:200px;">
-          <p style="margin:0;">Authorized Signatory</p>
-          <div style="border-bottom:1px solid #000; margin:40px 0 10px 0;"></div>
-          <p style="margin:0; font-weight:600;">${safe(comp.name) || 'Company'}</p>
+    <div style="margin-top:60px; border-top:1px solid #ccc; padding-top:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+        <div style="flex:1;">
+          <p style="margin:0; font-size:10px; color:#666;">Generated on ${formatDate(new Date())}</p>
+          <p style="margin:4px 0 0 0; font-size:9px; color:#999;">This is a computer-generated statement and does not require a signature.</p>
+        </div>
+        <div style="text-align:center; min-width:180px;">
+          <div style="border-bottom:1px solid #000; margin:0 0 8px 0; width:150px; margin-left:auto;"></div>
+          <p style="margin:0; font-size:10px; font-weight:600;">Authorized Signatory</p>
+          <p style="margin:2px 0 0 0; font-size:10px; font-weight:600;">${safe(comp.name) || 'Company'}</p>
         </div>
       </div>
     </div>

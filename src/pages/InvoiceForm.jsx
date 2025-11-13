@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   Pin,
   PinOff,
+  Settings,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -128,11 +129,18 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", required = false, validationState = null, ...props }) => {
+const Input = ({ label, error, className = "", required = false, validationState = null, showValidation = true, ...props }) => {
   const { isDarkMode } = useTheme();
 
   // Determine border and background color based on validation state
   const getValidationClasses = () => {
+    // If validation highlighting is disabled, show default styles
+    if (!showValidation) {
+      return isDarkMode
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
+    }
+
     if (error || validationState === 'invalid') {
       return isDarkMode
         ? 'border-red-500 bg-red-900/10'
@@ -184,11 +192,18 @@ const Input = ({ label, error, className = "", required = false, validationState
   );
 };
 
-const Select = ({ label, children, error, className = "", required = false, validationState = null, ...props }) => {
+const Select = ({ label, children, error, className = "", required = false, validationState = null, showValidation = true, ...props }) => {
   const { isDarkMode } = useTheme();
 
   // Determine border and background color based on validation state
   const getValidationClasses = () => {
+    // If validation highlighting is disabled, show default styles
+    if (!showValidation) {
+      return isDarkMode
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
+    }
+
     if (error || validationState === 'invalid') {
       return isDarkMode
         ? 'border-red-500 bg-red-900/10'
@@ -653,6 +668,104 @@ const LoadingSpinner = ({ size = "md" }) => {
   );
 };
 
+// Form Settings Panel Component
+const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
+  const { isDarkMode } = useTheme();
+  const panelRef = useRef(null);
+
+  // Close panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const ToggleSwitch = ({ enabled, onChange, label, description }) => (
+    <div className="flex items-start justify-between py-3">
+      <div className="flex-1 pr-4">
+        <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+          {label}
+        </p>
+        <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          {description}
+        </p>
+      </div>
+      <button
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+          enabled
+            ? 'bg-teal-600'
+            : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+        }`}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+            enabled ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  );
+
+  return (
+    <div
+      ref={panelRef}
+      className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
+        isDarkMode
+          ? 'bg-gray-800 border-gray-600'
+          : 'bg-white border-gray-200'
+      }`}
+    >
+      {/* Header */}
+      <div className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+        <div className="flex items-center justify-between">
+          <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+            Form Settings
+          </h3>
+          <button
+            onClick={onClose}
+            className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Settings */}
+      <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
+        <ToggleSwitch
+          enabled={preferences.showValidationHighlighting}
+          onChange={() => onPreferenceChange('showValidationHighlighting', !preferences.showValidationHighlighting)}
+          label="Field Validation Highlighting"
+          description="Show red/green borders for invalid/valid fields"
+        />
+        <ToggleSwitch
+          enabled={preferences.showSpeedButtons}
+          onChange={() => onPreferenceChange('showSpeedButtons', !preferences.showSpeedButtons)}
+          label="Quick Add Speed Buttons"
+          description="Show pinned & top products for quick adding"
+        />
+      </div>
+
+      {/* Footer note */}
+      <div className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+        Settings are saved automatically
+      </div>
+    </div>
+  );
+};
+
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -733,6 +846,21 @@ const InvoiceForm = ({ onSave }) => {
   // Payment tracking management
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
+
+  // Form preferences state (with localStorage persistence)
+  const [showFormSettings, setShowFormSettings] = useState(false);
+  const [formPreferences, setFormPreferences] = useState(() => {
+    const saved = localStorage.getItem('invoiceFormPreferences');
+    return saved ? JSON.parse(saved) : {
+      showValidationHighlighting: true,
+      showSpeedButtons: true
+    };
+  });
+
+  // Save preferences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('invoiceFormPreferences', JSON.stringify(formPreferences));
+  }, [formPreferences]);
 
   // Form validation state
   const [validationErrors, setValidationErrors] = useState([]);
@@ -930,7 +1058,6 @@ const InvoiceForm = ({ onSave }) => {
       if (pinnedProductIds.includes(productId)) {
         await pinnedProductsService.unpinProduct(productId);
         setPinnedProductIds(prev => prev.filter(id => id !== productId));
-        notificationService.success('Product unpinned');
       } else {
         if (pinnedProductIds.length >= 10) {
           notificationService.error('Maximum 10 products can be pinned');
@@ -938,7 +1065,6 @@ const InvoiceForm = ({ onSave }) => {
         }
         await pinnedProductsService.pinProduct(productId);
         setPinnedProductIds(prev => [...prev, productId]);
-        notificationService.success('Product pinned');
       }
     } catch (error) {
       notificationService.error(error.message || 'Failed to update pin');
@@ -1970,7 +2096,34 @@ const InvoiceForm = ({ onSave }) => {
                 </p>
               </div>
             </div>
-            <div className="hidden md:flex gap-2">
+            <div className="hidden md:flex gap-2 items-center relative">
+              {/* Settings Icon */}
+              <button
+                onClick={() => setShowFormSettings(!showFormSettings)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode
+                    ? "text-gray-300 hover:bg-gray-700"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Form settings"
+                title="Form Settings"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+
+              {/* Settings Panel */}
+              <FormSettingsPanel
+                isOpen={showFormSettings}
+                onClose={() => setShowFormSettings(false)}
+                preferences={formPreferences}
+                onPreferenceChange={(key, value) => {
+                  setFormPreferences(prev => ({
+                    ...prev,
+                    [key]: value
+                  }));
+                }}
+              />
+
               <Button
                 variant="outline"
                 onClick={handlePreviewClick}
@@ -2132,6 +2285,7 @@ const InvoiceForm = ({ onSave }) => {
                     disabled={loadingCustomers}
                     required={true}
                     validationState={fieldValidation.customer}
+                    showValidation={formPreferences.showValidationHighlighting}
                     error={invalidFields.has('customer.name')}
                     className="text-base min-h-[44px]"
                   >
@@ -2282,6 +2436,7 @@ const InvoiceForm = ({ onSave }) => {
                       max={dueMaxStr}
                       required={true}
                       validationState={fieldValidation.dueDate}
+                      showValidation={formPreferences.showValidationHighlighting}
                       error={invalidFields.has('dueDate')}
                       onChange={(e) => {
                         const v = e.target.value;
@@ -2302,6 +2457,7 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.status || "draft"}
                       required={true}
                       validationState={fieldValidation.status}
+                      showValidation={formPreferences.showValidationHighlighting}
                       onChange={(e) => {
                         const newStatus = e.target.value;
                         setInvoice((prev) => ({
@@ -2322,6 +2478,7 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.modeOfPayment || ""}
                       required={true}
                       validationState={fieldValidation.paymentMode}
+                      showValidation={formPreferences.showValidationHighlighting}
                       onChange={(e) => {
                         const value = e.target.value;
                         setInvoice((prev) => ({
@@ -2359,6 +2516,7 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.warehouseId || ""}
                       required={true}
                       validationState={fieldValidation.warehouse}
+                      showValidation={formPreferences.showValidationHighlighting}
                       onChange={(e) => {
                         const id = e.target.value;
                         const w = warehouses.find((wh) => wh.id.toString() === id);
@@ -2385,6 +2543,7 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.currency || "AED"}
                       required={true}
                       validationState={fieldValidation.currency}
+                      showValidation={formPreferences.showValidationHighlighting}
                       onChange={(e) => {
                         const value = e.target.value;
                         setInvoice((prev) => ({
@@ -2461,14 +2620,85 @@ const InvoiceForm = ({ onSave }) => {
 
             {/* Items Section - Responsive */}
             <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-              <div className="flex justify-between items-center mb-6">
+              <div className="mb-4">
                 <h3 className={`text-xs font-semibold uppercase tracking-wide ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}>
                   Line Items
                 </h3>
+              </div>
+
+              {/* Quick Add Speed Buttons - Pinned & Top Products */}
+              {formPreferences.showSpeedButtons && (
+              <div className="mb-4">
+                <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Quick Add (Pinned & Top Products)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {sortedProducts.map((product) => {
+                    const isPinned = pinnedProductIds.includes(product.id);
+                    return (
+                      <div key={product.id} className="relative group">
+                        <button
+                          onClick={() => {
+                            const newItem = createSteelItem();
+                            newItem.productId = product.id;
+                            newItem.name = product.full_name || product.name;
+                            newItem.unit = product.unit || "kg";
+                            newItem.rate = parseFloat(product.price) || 0;
+                            newItem.hsnCode = product.hsn_code || "";
+                            newItem.gstRate = parseFloat(product.gst_rate) || 5;
+                            // Copy product specifications
+                            newItem.grade = product.grade || "";
+                            newItem.productType = product.category || "";
+                            newItem.finish = product.finish || "";
+                            newItem.thickness = product.thickness || "";
+                            newItem.size = product.size || "";
+                            setInvoice((prev) => ({
+                              ...prev,
+                              items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
+                            }));
+                          }}
+                          className={`px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
+                            isPinned
+                              ? isDarkMode
+                                ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
+                                : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
+                              : isDarkMode
+                              ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
+                              : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
+                          }`}
+                          style={{ maxWidth: 'fit-content' }}
+                        >
+                          {product.full_name || product.name}
+                        </button>
+                        <button
+                          onClick={(e) => handleTogglePin(e, product.id)}
+                          className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
+                            isPinned
+                              ? isDarkMode
+                                ? "text-teal-300 hover:text-teal-200"
+                                : "text-teal-700 hover:text-teal-800"
+                              : isDarkMode
+                              ? "text-gray-400 hover:text-teal-400"
+                              : "text-gray-500 hover:text-teal-600"
+                          }`}
+                          title={isPinned ? "Unpin product" : "Pin product"}
+                        >
+                          {isPinned ? <Pin size={14} fill="currentColor" /> : <Pin size={14} />}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              )}
+
+              {/* Add Item Button */}
+              <div className="mb-4">
                 <Button
                   onClick={addItem}
+                  variant="primary"
                   size="sm"
                   className="min-h-[44px]"
                 >
@@ -2476,47 +2706,6 @@ const InvoiceForm = ({ onSave }) => {
                   <span className="hidden sm:inline">Add Item</span>
                   <span className="sm:hidden">Add</span>
                 </Button>
-              </div>
-
-              {/* Quick Add Speed Buttons - Top 10 Products */}
-              <div className="mb-4">
-                <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Quick Add (Top 10 Products)
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {(productsData?.products || []).slice(0, 10).map((product) => (
-                    <button
-                      key={product.id}
-                      onClick={() => {
-                        const newItem = createSteelItem();
-                        newItem.productId = product.id;
-                        newItem.name = product.full_name || product.name;
-                        newItem.unit = product.unit || "kg";
-                        newItem.rate = parseFloat(product.price) || 0;
-                        newItem.hsnCode = product.hsn_code || "";
-                        newItem.gstRate = parseFloat(product.gst_rate) || 5;
-                        // Copy product specifications
-                        newItem.grade = product.grade || "";
-                        newItem.productType = product.category || "";
-                        newItem.finish = product.finish || "";
-                        newItem.thickness = product.thickness || "";
-                        newItem.size = product.size || "";
-                        setInvoice((prev) => ({
-                          ...prev,
-                          items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
-                        }));
-                      }}
-                      className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 hover:shadow-md whitespace-nowrap ${
-                        isDarkMode
-                          ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40"
-                          : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100"
-                      }`}
-                      style={{ maxWidth: 'fit-content' }}
-                    >
-                      {product.full_name || product.name}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Items Table - Desktop & Tablet */}

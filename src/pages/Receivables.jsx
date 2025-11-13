@@ -102,9 +102,25 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
     <div className="p-3 rounded border">
       <div className="font-semibold mb-2">Add Payment</div>
       {outstanding > 0 && (
-        <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
-          <span className="font-medium">Outstanding Balance:</span> {formatCurrency(outstanding)}
-        </div>
+        <>
+          <div className="mb-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded flex justify-between items-center">
+            <span className="font-medium">Outstanding Balance:</span>
+            <button
+              type="button"
+              onClick={() => setAmount(outstanding.toString())}
+              className="font-bold text-blue-700 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group"
+              title="Click to apply this amount to payment"
+            >
+              {formatCurrency(outstanding)}
+              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                ✓
+              </span>
+            </button>
+          </div>
+          <div className="mb-2 text-xs text-gray-600">
+            💡 <strong>Tip:</strong> Click the balance amount above to auto-fill
+          </div>
+        </>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
@@ -542,21 +558,57 @@ const Receivables = () => {
                   {(drawer.item.payments || []).length === 0 && (
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
-                  {(drawer.item.payments || []).map((p, idx) => (
-                    <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                          <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                  {(drawer.item.payments || []).map((p, idx) => {
+                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const isDownloading = downloadingReceiptId === p.id;
+                    const isPrinting = printingReceiptId === p.id;
+
+                    return (
+                      <div key={p.id || idx} className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}>
+                        <div className="flex justify-between items-start text-sm">
+                          <div className="flex-1">
+                            <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
+                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                          </div>
+                          <div className="text-right flex items-center gap-2">
+                            <div>
+                              <div>{formatDate(p.payment_date)}</div>
+                              {p.voided && <div className="text-xs text-red-600">Voided</div>}
+                            </div>
+                            {!p.voided && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handlePrintReceipt(p, paymentIndex)}
+                                  disabled={isPrinting}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isPrinting
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                                  }`}
+                                  title="Print payment receipt"
+                                >
+                                  <Printer size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadReceipt(p, paymentIndex)}
+                                  disabled={isDownloading}
+                                  className={`p-1.5 rounded transition-colors ${
+                                    isDownloading
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                                  }`}
+                                  title="Download payment receipt"
+                                >
+                                  <Download size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div>{formatDate(p.payment_date)}</div>
-                          {p.voided && <div className="text-xs text-red-600">Voided</div>}
-                        </div>
+                        {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
                       </div>
-                      {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

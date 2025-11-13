@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, DollarSign } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Banknote, Receipt, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { accountStatementsAPI } from '../services/api';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
@@ -187,7 +187,7 @@ const AccountStatementDetails = () => {
             isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <div className="flex items-center gap-3">
-              <DollarSign className="text-blue-500" size={24} />
+              <Banknote className="text-blue-500" size={24} />
               <div>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Opening Balance
@@ -219,7 +219,7 @@ const AccountStatementDetails = () => {
             isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <div className="flex items-center gap-3">
-              <DollarSign className="text-green-500" size={24} />
+              <Receipt className="text-green-500" size={24} />
               <div>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Total Paid
@@ -235,7 +235,11 @@ const AccountStatementDetails = () => {
             isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <div className="flex items-center gap-3">
-              <DollarSign className={statement.closing_balance > 0 ? 'text-red-500' : 'text-green-500'} size={24} />
+              {statement.closing_balance > 0 ? (
+                <TrendingUp className="text-red-500" size={24} />
+              ) : (
+                <TrendingDown className="text-green-500" size={24} />
+              )}
               <div>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Closing Balance

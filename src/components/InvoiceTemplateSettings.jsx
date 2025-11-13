@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Upload,
-  Download
+  Download,
+  X
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { getDefaultTemplateSettings, validateTemplateSettings, mergeTemplateSettings } from '../constants/defaultTemplateSettings';
