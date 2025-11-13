@@ -30,6 +30,7 @@ import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { payablesService, PAYMENT_MODES } from "../services/payablesService";
 import { authService } from "../services/axiosAuthService";
+import { uuid } from "../utils/uuid";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
@@ -111,27 +112,27 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         (key) => queryParams[key] === undefined && delete queryParams[key]
       );
 
-      const response = await invoiceService.getInvoices(queryParams, signal);
+      // Use payablesService to get invoices WITH payment data (like Receivables does)
+      const response = await payablesService.getInvoices(queryParams);
 
       // Check if request was aborted
       if (signal?.aborted) {
         return;
       }
 
-      if (response.invoices) {
-        setInvoices(response.invoices);
+      // payablesService returns { items, aggregates }
+      const invoicesData = response.items || response.invoices || response;
+      setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
+
+      // Set pagination if available
+      if (response.pagination) {
         setPagination(response.pagination);
-
-        // Process delivery note status from invoice data
-        processDeliveryNoteStatus(response.invoices);
       } else {
-        // Fallback for non-paginated response
-        setInvoices(response);
         setPagination(null);
-
-        // Process delivery note status from invoice data
-        processDeliveryNoteStatus(response);
       }
+
+      // Process delivery note status from invoice data
+      processDeliveryNoteStatus(invoicesData);
     } catch (error) {
       // Ignore abort errors
       if (error.name === 'AbortError' || error.message === 'canceled') {
@@ -321,7 +322,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     // Only show payment badge for issued invoices
     if (invoice.status !== 'issued') return null;
 
-    const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+    // Calculate payment status from outstanding balance (payablesService provides this)
+    let paymentStatus = 'unpaid';
+    if (invoice.outstanding !== undefined) {
+      // Use data from payablesService
+      const outstanding = Number(invoice.outstanding || 0);
+      const total = Number(invoice.invoice_amount || invoice.total || 0);
+      if (outstanding === 0 && total > 0) paymentStatus = 'fully_paid';
+      else if (outstanding > 0 && outstanding < total) paymentStatus = 'partially_paid';
+      else paymentStatus = 'unpaid';
+    } else {
+      // Fallback to calculating from payments
+      paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+    }
+
     const config = getPaymentStatusConfig(paymentStatus);
 
     const className = isDarkMode
@@ -596,28 +610,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handleRecordPayment = async (invoice) => {
     try {
-      // Fetch complete invoice details with payments
-      const fullInvoice = await invoiceService.getInvoice(invoice.id);
+      // Use payablesService to get invoice with correct payment data and outstanding balance
+      const invoiceData = await payablesService.getInvoice(invoice.id);
 
-      // Transform to match Receivables format
-      const transformedInvoice = {
-        id: fullInvoice.id,
-        invoice_no: fullInvoice.invoice_number || fullInvoice.invoiceNumber,
-        invoiceNumber: fullInvoice.invoice_number || fullInvoice.invoiceNumber,
-        customer: fullInvoice.customer,
-        invoice_date: fullInvoice.date,
-        date: fullInvoice.date,
-        due_date: fullInvoice.dueDate,
-        dueDate: fullInvoice.dueDate,
-        currency: fullInvoice.currency || 'AED',
-        invoice_amount: fullInvoice.total,
-        received: (fullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        outstanding: fullInvoice.total - (fullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        status: calculatePaymentStatus(fullInvoice.total, fullInvoice.payments || []),
-        payments: fullInvoice.payments || []
-      };
-
-      setPaymentDrawerInvoice(transformedInvoice);
+      setPaymentDrawerInvoice(invoiceData);
       setShowRecordPaymentDrawer(true);
     } catch (error) {
       console.error('Error loading invoice details:', error);
@@ -643,49 +639,58 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       return;
     }
 
-    try {
-      const { uuid } = await import('../utils/uuid');
-      const newPayment = {
-        id: uuid(),
-        payment_date: payment_date || new Date().toISOString().slice(0,10),
-        amount: Number(amount),
-        method,
-        reference_no,
-        notes,
-        created_at: new Date().toISOString(),
-      };
+    // Optimistic UI update (like Receivables does)
+    const newPayment = {
+      id: uuid(),
+      payment_date: payment_date || new Date().toISOString().slice(0,10),
+      amount: Number(amount),
+      method,
+      reference_no,
+      notes,
+      created_at: new Date().toISOString(),
+    };
 
-      // Save to backend first
-      await payablesService.addInvoicePayment(inv.id, newPayment);
+    const updatedPayments = [...(inv.payments || []), newPayment];
+    const received = (inv.received || 0) + newPayment.amount;
+    const newOutstanding = Math.max(0, +(outstanding - newPayment.amount).toFixed(2));
+    let status = inv.status;
+    if (newOutstanding === 0) status = 'paid';
+    else if (newOutstanding < (inv.invoice_amount || 0)) status = 'partially_paid';
+
+    const updatedInv = {
+      ...inv,
+      payments: updatedPayments,
+      received,
+      outstanding: newOutstanding,
+      status
+    };
+
+    // Update drawer immediately
+    setPaymentDrawerInvoice(updatedInv);
+
+    try {
+      // Save to backend using invoiceService (correct endpoint)
+      await invoiceService.addInvoicePayment(inv.id, newPayment);
 
       notificationService.success('Payment recorded successfully!');
 
       // Refresh invoice list to get updated data from backend
-      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
+      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted, null);
 
-      // Fetch updated invoice details and refresh drawer
-      const updatedFullInvoice = await invoiceService.getInvoice(inv.id);
-      const transformedInvoice = {
-        id: updatedFullInvoice.id,
-        invoice_no: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
-        invoiceNumber: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
-        customer: updatedFullInvoice.customer,
-        invoice_date: updatedFullInvoice.date,
-        date: updatedFullInvoice.date,
-        due_date: updatedFullInvoice.dueDate,
-        dueDate: updatedFullInvoice.dueDate,
-        currency: updatedFullInvoice.currency || 'AED',
-        invoice_amount: updatedFullInvoice.total,
-        received: (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        outstanding: updatedFullInvoice.total - (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        status: calculatePaymentStatus(updatedFullInvoice.total, updatedFullInvoice.payments || []),
-        payments: updatedFullInvoice.payments || []
-      };
-
-      setPaymentDrawerInvoice(transformedInvoice);
+      // Fetch fresh drawer data to show backend-generated receipt number
+      const freshData = await payablesService.getInvoice(inv.id);
+      setPaymentDrawerInvoice(freshData);
     } catch (error) {
       console.error('Error recording payment:', error);
       notificationService.error(error?.response?.data?.error || 'Failed to record payment');
+
+      // Reload drawer on error to get correct state
+      try {
+        const freshData = await payablesService.getInvoice(inv.id);
+        setPaymentDrawerInvoice(freshData);
+      } catch (e) {
+        console.error('Error reloading invoice:', e);
+      }
     }
   };
 
@@ -697,37 +702,44 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     const last = payments[payments.length - 1];
 
+    // Optimistic UI update
+    const updatedPayments = inv.payments.map(p =>
+      p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p
+    );
+    const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
+    const outstanding = Math.max(0, +((inv.invoice_amount || 0) - received).toFixed(2));
+    let status = 'unpaid';
+    if (outstanding === 0) status = 'paid';
+    else if (outstanding < (inv.invoice_amount || 0)) status = 'partially_paid';
+
+    const updatedInv = {
+      ...inv,
+      payments: updatedPayments,
+      received,
+      outstanding,
+      status
+    };
+
+    setPaymentDrawerInvoice(updatedInv);
+
     try {
-      await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
+      await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
 
       notificationService.success('Payment voided successfully');
 
-      // Refresh invoice list to get updated data from backend
-      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
-
-      // Fetch updated invoice details and refresh drawer
-      const updatedFullInvoice = await invoiceService.getInvoice(inv.id);
-      const transformedInvoice = {
-        id: updatedFullInvoice.id,
-        invoice_no: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
-        invoiceNumber: updatedFullInvoice.invoice_number || updatedFullInvoice.invoiceNumber,
-        customer: updatedFullInvoice.customer,
-        invoice_date: updatedFullInvoice.date,
-        date: updatedFullInvoice.date,
-        due_date: updatedFullInvoice.dueDate,
-        dueDate: updatedFullInvoice.dueDate,
-        currency: updatedFullInvoice.currency || 'AED',
-        invoice_amount: updatedFullInvoice.total,
-        received: (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        outstanding: updatedFullInvoice.total - (updatedFullInvoice.payments || []).reduce((sum, p) => sum + p.amount, 0),
-        status: calculatePaymentStatus(updatedFullInvoice.total, updatedFullInvoice.payments || []),
-        payments: updatedFullInvoice.payments || []
-      };
-
-      setPaymentDrawerInvoice(transformedInvoice);
-    } catch(error) {
+      // Refresh invoice list
+      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted, null);
+    } catch (error) {
       console.error('Error voiding payment:', error);
       notificationService.error('Failed to void payment');
+
+      // Reload drawer on error
+      try {
+        const freshData = await payablesService.getInvoice(inv.id);
+        setPaymentDrawerInvoice(freshData);
+      } catch (e) {
+        console.error('Error reloading invoice:', e);
+      }
     }
   };
 
@@ -1723,8 +1735,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         )}
                       </div>
                       )}
-                      {/* Record Payment Button */}
-                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status === 'issued' && (
+                      {/* Record Payment Button - Only show for unpaid/partially paid invoices */}
+                      {authService.hasPermission('invoices', 'update') &&
+                       !isDeleted &&
+                       invoice.status === 'issued' &&
+                       invoice.payment_status !== 'fully_paid' &&
+                       (invoice.balance_due === undefined || invoice.balance_due > 0) && (
                         <button
                           className={`p-2 rounded transition-colors bg-transparent ${
                             isDarkMode

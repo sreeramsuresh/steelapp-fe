@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2, Printer } from 'lucide-react';
 import { payablesService, PAYMENT_MODES } from '../services/payablesService';
+import { invoiceService } from '../services/invoiceService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
@@ -262,7 +263,7 @@ const Receivables = () => {
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
     try {
-      await payablesService.addInvoicePayment(inv.id, newPayment);
+      await invoiceService.addInvoicePayment(inv.id, newPayment);
     } catch (e) { /* ignore */ }
   };
 
@@ -279,7 +280,7 @@ const Receivables = () => {
     const updatedInv = { ...updated, received, outstanding, status };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
-    try { await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); } catch(e){ /* ignore */ }
+    try { await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); } catch(e){ /* ignore */ }
   };
 
 

@@ -195,5 +195,14 @@ export const invoiceService = {
 
   async getInvoicesByStatus(status) {
     return apiClient.get('/invoices', { status });
+  },
+
+  async addInvoicePayment(id, payload) {
+    // payload: { payment_date, amount, method, reference_no, notes, attachment_url }
+    return apiClient.post(`/invoices/${id}/payments`, payload);
+  },
+
+  async voidInvoicePayment(invoiceId, paymentId, reason) {
+    return apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
   }
 };
