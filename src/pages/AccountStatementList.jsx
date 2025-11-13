@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Eye, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Users } from 'lucide-react';
+import { FileText, Plus, Eye, Download, Archive, Search, ChevronDown, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { accountStatementsAPI, customersAPI } from '../services/api';
@@ -119,11 +119,13 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
   const handleDelete = async () => {
     try {
       await accountStatementsAPI.delete(deleteDialog.id);
-      setSuccess('Account statement deleted successfully');
+      setSuccess('Account statement archived successfully');
       setDeleteDialog({ open: false, id: null, number: '' });
       fetchStatements();
     } catch (err) {
-      setError('Failed to delete account statement');
+      console.error('Archive error:', err);
+      setError(err.response?.data?.error || 'Failed to archive account statement');
+      setDeleteDialog({ open: false, id: null, number: '' });
     }
   };
 
@@ -366,16 +368,16 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                         </button>
                         <button
                           className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                            isDarkMode ? 'hover:bg-gray-700 text-orange-400' : 'hover:bg-gray-100 text-orange-600'
                           }`}
                           onClick={() => setDeleteDialog({
                             open: true,
                             id: statement.id,
                             number: statement.statement_number
                           })}
-                          title="Delete"
+                          title="Archive Statement"
                         >
-                          <Trash2 size={18} />
+                          <Archive size={18} />
                         </button>
                       </div>
                     </td>
@@ -430,13 +432,15 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               isDarkMode ? 'border-gray-700' : 'border-gray-200'
             }`}>
               <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Delete Account Statement
+                Archive Account Statement
               </h3>
             </div>
             <div className="p-6">
               <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                Are you sure you want to delete statement <strong>{deleteDialog.number}</strong>?
-                This action cannot be undone.
+                Are you sure you want to archive statement <strong>{deleteDialog.number}</strong>?
+              </p>
+              <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                ℹ️ The statement will be archived (not permanently deleted) to maintain audit trail and comply with financial record retention requirements.
               </p>
             </div>
             <div className={`p-6 border-t flex justify-end gap-3 ${
@@ -454,9 +458,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
               >
-                Delete
+                Archive
               </button>
             </div>
           </div>

@@ -521,8 +521,8 @@ const CompanySettings = () => {
     { id: 'viewer', name: 'Viewer', description: 'Read-only access' }
   ];
 
+  // Load invoice settings when templates data changes
   useEffect(() => {
-    // Load invoice settings from database
     if (templatesData && templatesData.length > 0) {
       const defaultTemplate = templatesData.find(t => t.is_default) || templatesData[0];
       setInvoiceSettings({
@@ -536,8 +536,10 @@ const CompanySettings = () => {
         dueDays: defaultTemplate.default_due_days
       });
     }
+  }, [templatesData?.length, templatesData?.[0]?.id]); // Only re-run when data actually changes
 
-    // Load VAT rates from database
+  // Load VAT rates once on mount
+  useEffect(() => {
     (async () => {
       try {
         const rates = await vatRateService.getAll();
@@ -562,8 +564,10 @@ const CompanySettings = () => {
         setVatRates([]);
       }
     })();
+  }, []); // Run once on mount
 
-    // Load users from backend (admin only)
+  // Load users once on mount (admin only)
+  useEffect(() => {
     (async () => {
       try {
         const remoteUsers = await userAdminAPI.list();
@@ -583,8 +587,10 @@ const CompanySettings = () => {
         setUsers([]);
       }
     })();
+  }, []); // Run once on mount
 
-    // Load printing settings
+  // Load printing settings once on mount
+  useEffect(() => {
     (async () => {
       try {
         const settings = await apiService.get('/company/printing-settings');
@@ -596,7 +602,7 @@ const CompanySettings = () => {
         // Use defaults if error
       }
     })();
-  }, [templatesData]);
+  }, []); // Run once on mount
 
   // Fetch printing settings when printing tab is active
   useEffect(() => {
@@ -2558,9 +2564,23 @@ const CompanySettings = () => {
   );
 
   // Printing & Documents Settings
-  const renderPrintingSettings = () => (
-    <SettingsPaper>
-      <SectionHeader icon={Printer} title="Printing & Document Settings" />
+  const renderPrintingSettings = () => {
+    // Guard: Ensure printingSettings is loaded
+    if (!printingSettings || Object.keys(printingSettings).length === 0) {
+      return (
+        <SettingsPaper>
+          <div className="p-6 text-center">
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Loading printing settings...
+            </p>
+          </div>
+        </SettingsPaper>
+      );
+    }
+
+    return (
+      <SettingsPaper>
+        <SectionHeader icon={Printer} title="Printing & Document Settings" />
 
       {/* Receipt Settings */}
       <SectionCard title="Payment Receipt Settings">
@@ -2781,7 +2801,8 @@ const CompanySettings = () => {
         </Button>
       </div>
     </SettingsPaper>
-  );
+    );
+  };
 
   const isAdmin = authService.hasRole('admin');
   const tabs = [

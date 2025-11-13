@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Palette,
   Layout,
@@ -22,7 +22,46 @@ import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { notificationService } from '../services/notificationService';
 
-const InvoiceTemplateSettings = ({ company, onSave }) => {
+// Error Boundary for graceful error handling
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('InvoiceTemplateSettings Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 rounded-lg bg-red-50 border border-red-200">
+          <h2 className="text-xl font-bold text-red-800 mb-2">
+            Something went wrong
+          </h2>
+          <p className="text-red-600 mb-4">
+            Failed to load invoice template settings. Please refresh the page or contact support.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   const { isDarkMode } = useTheme();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
@@ -52,12 +91,13 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
       const mergedSettings = mergeTemplateSettings(company.settings.invoice_template);
       setSettings(mergedSettings);
       setOriginalSettings(mergedSettings);
-    } else {
+    } else if (company && !originalSettings) {
+      // Only set defaults if we have company data and haven't set original settings yet
       const defaults = getDefaultTemplateSettings();
       setSettings(defaults);
       setOriginalSettings(defaults);
     }
-  }, [company]);
+  }, [company?.id, company?.settings?.invoice_template]); // Only re-run when company ID or template changes
 
   // Check for changes
   useEffect(() => {
@@ -82,7 +122,7 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
   }, [hasChanges]);
 
   // Update setting
-  const updateSetting = (path, value) => {
+  const updateSetting = useCallback((path, value) => {
     setSettings(prev => {
       const newSettings = JSON.parse(JSON.stringify(prev));
       const keys = path.split('.');
@@ -101,7 +141,7 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
 
       return newSettings;
     });
-  };
+  }, []);
 
   // Discard changes and revert to saved settings
   const handleDiscardChanges = async () => {
@@ -1105,5 +1145,12 @@ const InvoiceTemplateSettings = ({ company, onSave }) => {
     </div>
   );
 };
+
+// Wrap component with Error Boundary
+const InvoiceTemplateSettings = (props) => (
+  <ErrorBoundary>
+    <InvoiceTemplateSettingsComponent {...props} />
+  </ErrorBoundary>
+);
 
 export default InvoiceTemplateSettings;

@@ -49,6 +49,9 @@ import FinanceDashboard from "../pages/FinanceDashboard";
 // Business Components
 import BusinessDashboard from "../pages/BusinessDashboard";
 
+// Admin Components
+import AuditLogs from "../pages/AuditLogs";
+
 // Reports Components
 import ReportsDashboard from "../pages/ReportsDashboard";
 
@@ -191,7 +194,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        
+        <Route
+          path="/audit-logs"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <AuditLogs />
+            </ProtectedRoute>
+          }
+        />
+
+
 
         <Route
           path="/finance"

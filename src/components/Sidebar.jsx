@@ -28,11 +28,13 @@ import {
   ArrowUpFromLine,
   Award,
   MapPin,
-  RotateCcw
+  RotateCcw,
+  Shield
 } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
+import { isFeatureEnabled } from '../config/features';
 
 
 const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
@@ -152,7 +154,15 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: Settings,
           description: 'Configure company details',
           requiredRole: 'admin'
-        }
+        },
+        // Audit Logs - conditionally shown based on feature flag
+        ...(isFeatureEnabled('AUDIT_LOGS') ? [{
+          name: 'Audit Logs',
+          path: '/audit-logs',
+          icon: Shield,
+          description: 'View system activity logs',
+          requiredRole: 'admin'
+        }] : [])
       ]
     }
   ];
