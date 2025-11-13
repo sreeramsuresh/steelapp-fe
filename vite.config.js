@@ -11,13 +11,13 @@ export default defineConfig({
     proxy: {
       // Proxy API calls to backend to avoid CORS/CORB and HTML responses
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       // Also proxy static uploads to serve images from same origin
       "/uploads": {
-        target: "http://localhost:5000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
