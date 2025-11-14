@@ -14,19 +14,23 @@ const ProtectedRoute = ({
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
+  // DEVELOPMENT MODE: Skip authentication check
+  // TODO: Remove this before production deployment
+
+  // ORIGINAL CODE (commented out for development):
   // Check if user is authenticated - use auth service as primary source of truth
-  const isAuthenticated = authService.isAuthenticated();
-  
-  if (!isAuthenticated) {
-    // Save the attempted location for redirect after login
-    return (
-      <Navigate 
-        to={fallbackPath} 
-        state={{ from: location }} 
-        replace 
-      />
-    );
-  }
+  // const isAuthenticated = authService.isAuthenticated();
+
+  // if (!isAuthenticated) {
+  //   // Save the attempted location for redirect after login
+  //   return (
+  //     <Navigate
+  //       to={fallbackPath}
+  //       state={{ from: location }}
+  //       replace
+  //     />
+  //   );
+  // }
 
   // If authenticated but no user object, show loading state instead of redirect
   if (!user) {

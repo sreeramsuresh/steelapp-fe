@@ -67,42 +67,19 @@ export const payablesService = {
   // Invoices (Customer Receivables)
   async getInvoices(params = {}) {
     try {
-      // Prefer backend if available
+      // Backend provides complete payment data - just return it
       const response = await apiClient.get('/payables/invoices', params);
       const list = response.items || response.invoices || response;
       const aggregates = response.aggregates || {};
-      const items = (Array.isArray(list) ? list : []).map((inv) => {
-        // Merge in any locally stored payments if backend doesn't include them
-        const local = ls.get('inv', inv.id);
-        const payments = Array.isArray(inv.payments) && inv.payments.length ? inv.payments : local;
-        const merged = { ...inv, payments };
-        const derived = computeInvoiceDerived(merged);
-        return { ...merged, ...derived };
-      });
+
+      // Backend now provides: received, outstanding, status, payments array
+      // No need for recalculation or localStorage fallback
+      const items = Array.isArray(list) ? list : [];
+
       return { items, aggregates };
     } catch (e) {
-      // Fallback: derive from /invoices and assume no payments
-      try {
-        const res = await apiClient.get('/invoices', params);
-        const invoices = res.invoices || res;
-        const items = (Array.isArray(invoices) ? invoices : []).map((serverData) => {
-          const inv = {
-            id: serverData.id,
-            invoice_no: serverData.invoice_number || serverData.invoiceNo || serverData.invoiceNumber,
-            customer: serverData.customer_details || serverData.customer,
-            invoice_date: serverData.invoice_date || serverData.date,
-            due_date: serverData.due_date || serverData.dueDate,
-            currency: serverData.currency || 'AED',
-            invoice_amount: serverData.total,
-            payments: ls.get('inv', serverData.id),
-          };
-          const derived = computeInvoiceDerived(inv);
-          return { ...inv, ...derived };
-        });
-        return { items, aggregates: {} };
-      } catch (e2) {
-        return { items: [], aggregates: {} };
-      }
+      console.error('Error fetching invoices:', e);
+      return { items: [], aggregates: {} };
     }
   },
 
@@ -146,37 +123,19 @@ export const payablesService = {
   // POs (Vendor Payables)
   async getPOs(params = {}) {
     try {
+      // Backend provides complete payment data - just return it
       const response = await apiClient.get('/payables/pos', params);
       const list = response.items || response.pos || response;
       const aggregates = response.aggregates || {};
-      const items = (Array.isArray(list) ? list : []).map((po) => {
-        const local = ls.get('po', po.id);
-        const payments = Array.isArray(po.payments) && po.payments.length ? po.payments : local;
-        const merged = { ...po, payments };
-        return { ...merged, ...computePODerived(merged) };
-      });
+
+      // Backend now provides: paid, balance, status, payments array
+      // No need for recalculation or localStorage fallback
+      const items = Array.isArray(list) ? list : [];
+
       return { items, aggregates };
     } catch (e) {
-      try {
-        const res = await apiClient.get('/purchase-orders', params);
-        const pos = res.purchase_orders || res.items || res;
-        const items = (Array.isArray(pos) ? pos : []).map((serverData) => {
-          const po = {
-            id: serverData.id,
-            po_no: serverData.po_number || serverData.po_no,
-            vendor: serverData.vendor || serverData.seller,
-            po_date: serverData.po_date || serverData.date,
-            due_date: serverData.due_date || serverData.dueDate,
-            currency: serverData.currency || 'AED',
-            po_value: serverData.total || serverData.po_value,
-            payments: ls.get('po', serverData.id),
-          };
-          return { ...po, ...computePODerived(po) };
-        });
-        return { items, aggregates: {} };
-      } catch (e2) {
-        return { items: [], aggregates: {} };
-      }
+      console.error('Error fetching POs:', e);
+      return { items: [], aggregates: {} };
     }
   },
 

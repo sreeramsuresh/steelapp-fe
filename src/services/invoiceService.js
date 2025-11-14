@@ -49,8 +49,8 @@ const transformInvoiceFromServer = (serverData) => {
     dueDate: serverData.due_date,
     modeOfPayment: serverData.mode_of_payment || '',
     chequeNumber: serverData.cheque_number || '',
-    customer: typeof serverData.customer_details === 'string' 
-      ? JSON.parse(serverData.customer_details) 
+    customer: typeof serverData.customer_details === 'string'
+      ? JSON.parse(serverData.customer_details)
       : serverData.customer_details || {},
     subtotal: serverData.subtotal || 0,
     vatAmount: serverData.vat_amount || 0,
@@ -99,7 +99,13 @@ const transformInvoiceFromServer = (serverData) => {
     deletedAt: serverData.deleted_at,
     deletionReason: serverData.deletion_reason,
     deletionReasonCode: serverData.deletion_reason_code,
-    deletedByUserId: serverData.deleted_by_user_id
+    deletedByUserId: serverData.deleted_by_user_id,
+    // Payment data (from backend aggregation - GOLD STANDARD)
+    // Backend calculates these, frontend just displays
+    received: serverData.received !== undefined ? Number(serverData.received) : 0,
+    outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
+    paymentStatus: serverData.payment_status || 'unpaid',
+    payments: serverData.payments || []
   };
 };
 

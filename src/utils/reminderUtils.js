@@ -143,19 +143,19 @@ export const getInvoiceReminderInfo = (invoice) => {
   // Only issued invoices need reminders
   if (invoice.status !== 'issued') return null;
 
-  // Calculate payment status
-  const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+  // Use backend payment status if available (gold standard), otherwise calculate
+  const paymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
 
   // Only unpaid or partially paid invoices need reminders
-  if (paymentStatus === 'fully_paid') return null;
+  if (paymentStatus === 'fully_paid' || paymentStatus === 'paid') return null;
 
   // Calculate days until due
   const daysUntilDue = calculateDaysUntilDue(invoice.dueDate);
   const reminderType = getReminderType(daysUntilDue);
   const config = REMINDER_CONFIG[reminderType];
 
-  // Get balance due
-  const balanceDue = calculateBalanceDue(invoice.total, invoice.payments || []);
+  // Use backend outstanding if available (gold standard), otherwise calculate balance due
+  const balanceDue = invoice.outstanding !== undefined ? invoice.outstanding : calculateBalanceDue(invoice.total, invoice.payments || []);
 
   return {
     type: reminderType,
@@ -185,6 +185,118 @@ export const formatDaysMessage = (daysUntilDue) => {
   return overdueDays === 1
     ? '1 day overdue'
     : `${overdueDays} days overdue`;
+};
+
+/**
+ * Get promise indicator configuration for an invoice
+ * Shows customer's promised payment date separately from invoice due date
+ * @param {Object} invoice - Invoice object
+ * @param {Object} latestReminder - Latest payment reminder with promised_date
+ * @returns {Object|null} - Promise info or null if no promise
+ */
+export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
+  // Only show for issued invoices
+  if (invoice.status !== 'issued') return null;
+
+  // Only show if reminder has a promised_date
+  if (!latestReminder || !latestReminder.promised_date) return null;
+
+  // Use backend payment status if available (gold standard), otherwise calculate
+  const paymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
+
+  // Only unpaid or partially paid invoices need promise indicators
+  if (paymentStatus === 'fully_paid' || paymentStatus === 'paid') return null;
+
+  // Calculate days until promised date
+  const daysUntilPromised = calculateDaysUntilDue(latestReminder.promised_date);
+
+  // Determine visual style based on promise timing
+  let config;
+  if (daysUntilPromised >= 7) {
+    // Promise is 7+ days away
+    config = {
+      label: 'Customer Promised',
+      icon: '💬',
+      tone: 'neutral',
+      bgLight: 'bg-blue-50',
+      bgDark: 'bg-blue-900/20',
+      textLight: 'text-blue-700',
+      textDark: 'text-blue-300',
+      borderLight: 'border-blue-200',
+      borderDark: 'border-blue-800'
+    };
+  } else if (daysUntilPromised >= 1) {
+    // Promise is 1-6 days away
+    config = {
+      label: 'Customer Promised',
+      icon: '💬',
+      tone: 'soon',
+      bgLight: 'bg-purple-50',
+      bgDark: 'bg-purple-900/20',
+      textLight: 'text-purple-700',
+      textDark: 'text-purple-300',
+      borderLight: 'border-purple-200',
+      borderDark: 'border-purple-800'
+    };
+  } else if (daysUntilPromised === 0) {
+    // Promise is today
+    config = {
+      label: 'Customer Promised Today',
+      icon: '💬',
+      tone: 'today',
+      bgLight: 'bg-indigo-50',
+      bgDark: 'bg-indigo-900/20',
+      textLight: 'text-indigo-700',
+      textDark: 'text-indigo-300',
+      borderLight: 'border-indigo-200',
+      borderDark: 'border-indigo-800'
+    };
+  } else {
+    // Promise is overdue (customer broke promise)
+    config = {
+      label: 'Promise Broken',
+      icon: '💬',
+      tone: 'broken',
+      bgLight: 'bg-red-50',
+      bgDark: 'bg-red-900/20',
+      textLight: 'text-red-700',
+      textDark: 'text-red-300',
+      borderLight: 'border-red-200',
+      borderDark: 'border-red-800'
+    };
+  }
+
+  // Get balance due
+  const balanceDue = calculateBalanceDue(invoice.total, invoice.payments || []);
+
+  return {
+    config,
+    daysUntilPromised,
+    isPromiseBroken: daysUntilPromised < 0,
+    promisedAmount: latestReminder.promised_amount,
+    promisedDate: latestReminder.promised_date,
+    balanceDue,
+    shouldShowPromise: true
+  };
+};
+
+/**
+ * Format promise message for display
+ * @param {number} daysUntilPromised - Days until promised date
+ * @returns {string} - Formatted message
+ */
+export const formatPromiseMessage = (daysUntilPromised) => {
+  if (daysUntilPromised === 0) return 'Promised Today';
+  if (daysUntilPromised > 0) {
+    return daysUntilPromised === 1
+      ? 'Promised in 1 day'
+      : `Promised in ${daysUntilPromised} days`;
+  }
+
+  const overdueDays = Math.abs(daysUntilPromised);
+  return overdueDays === 1
+    ? 'Promise 1 day late'
+    : `Promise ${overdueDays} days late`;
 };
 
 /**

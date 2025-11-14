@@ -2929,7 +2929,7 @@ const InvoiceForm = ({ onSave }) => {
                                 "rate",
                                 e.target.value === ""
                                   ? ""
-                                  : parseFloat(e.target.value) || ""
+                                  : parseFloat(e.target.value)
                               )
                             }
                             min="0"
@@ -2965,7 +2965,7 @@ const InvoiceForm = ({ onSave }) => {
                                 "vatRate",
                                 e.target.value === ""
                                   ? ""
-                                  : parseFloat(e.target.value) || ""
+                                  : parseFloat(e.target.value)
                               )
                             }
                             min="0"
@@ -3138,7 +3138,7 @@ const InvoiceForm = ({ onSave }) => {
                               "rate",
                               e.target.value === ""
                                 ? ""
-                                : parseFloat(e.target.value) || ""
+                                : parseFloat(e.target.value)
                             )
                           }
                           min="0"
@@ -3175,7 +3175,7 @@ const InvoiceForm = ({ onSave }) => {
                               "vatRate",
                               e.target.value === ""
                                 ? ""
-                                : parseFloat(e.target.value) || ""
+                                : parseFloat(e.target.value)
                             )
                           }
                           min="0"

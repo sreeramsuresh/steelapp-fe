@@ -25,8 +25,15 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
   const [formData, setFormData] = useState({
     contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
-    notes: ''
+    notes: '',
+    promised_amount: '',
+    promised_date: ''
   });
+
+  // Draggable state
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Get current user info
   useEffect(() => {
@@ -54,6 +61,50 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
     }
   };
 
+  // Drag handlers
+  const handleMouseDown = (e) => {
+    // Only allow dragging from header area
+    if (e.target.closest('.drag-handle')) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Reset position when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [isOpen]);
+
+  // Add/remove mouse event listeners
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,7 +130,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         console.log('Resetting form after update...');
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
-          notes: ''
+          notes: '',
+          promised_amount: '',
+          promised_date: ''
         });
         setEditingId(null);
         notificationService.success('Note updated successfully');
@@ -100,7 +153,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         console.log('Resetting form...');
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
-          notes: ''
+          notes: '',
+          promised_amount: '',
+          promised_date: ''
         });
         setEditingId(null);
 
@@ -124,7 +179,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
     setEditingId(reminder.id);
     setFormData({
       contact_date: new Date(reminder.contact_date).toISOString().slice(0, 16),
-      notes: reminder.notes
+      notes: reminder.notes,
+      promised_amount: reminder.promised_amount || '',
+      promised_date: reminder.promised_date || ''
     });
   };
 
@@ -157,17 +214,27 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
     setEditingId(null);
     setFormData({
       contact_date: new Date().toISOString().slice(0, 16),
-      notes: ''
+      notes: '',
+      promised_amount: '',
+      promised_date: ''
     });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-yellow-300 dark:border-yellow-700 relative">
-        {/* Header - Sticky Note Style */}
-        <div className="bg-yellow-200 dark:bg-yellow-800/40 px-6 py-4 border-b-2 border-yellow-300 dark:border-yellow-700">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 p-4">
+      <div
+        className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-yellow-300 dark:border-yellow-700 absolute top-1/2 left-1/2"
+        style={{
+          transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`,
+          cursor: isDragging ? 'grabbing' : 'default',
+          userSelect: isDragging ? 'none' : 'auto'
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        {/* Header - Sticky Note Style - Draggable */}
+        <div className="drag-handle bg-yellow-200 dark:bg-yellow-800/40 px-6 py-4 border-b-2 border-yellow-300 dark:border-yellow-700 cursor-move">
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2">
@@ -182,6 +249,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
             </div>
             <button
               onClick={onClose}
+              onMouseDown={(e) => e.stopPropagation()}
               className="text-yellow-700 dark:text-yellow-300 hover:text-yellow-900 dark:hover:text-yellow-100 transition-colors"
             >
               <X size={24} />
@@ -202,7 +270,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         />
 
         {/* Content - Scrollable */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
+        <div
+          className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           {/* Saved Notes List - TOP (Max 3 visible, rest scroll) */}
           {loading ? (
             <div className="text-center py-4 text-yellow-700 dark:text-yellow-300 mb-6">
@@ -247,6 +318,34 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                   <p className="text-gray-800 dark:text-gray-200 text-sm">
                     {reminder.notes}
                   </p>
+
+                  {/* Show promised payment info if available */}
+                  {(reminder.promised_amount || reminder.promised_date) && (
+                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
+                      {reminder.promised_amount && (
+                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <span>💰</span>
+                          <span className="font-semibold">Promised Amount:</span>
+                          <span className="text-green-600 dark:text-green-400 font-bold">
+                            AED {parseFloat(reminder.promised_amount).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {reminder.promised_date && (
+                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <span>📅</span>
+                          <span className="font-semibold">Promised Date:</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-bold">
+                            {new Date(reminder.promised_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -293,6 +392,40 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                     {formData.notes.length}/40 characters
                   </div>
                 </div>
+
+                {/* Promised Amount (Optional) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                    <span>💰</span>
+                    Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.promised_amount}
+                    onChange={(e) => setFormData({ ...formData, promised_amount: e.target.value })}
+                    placeholder="e.g., 5000"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Promised Payment Date (Important) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                    <span>📅</span>
+                    When Will Customer Pay? <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.promised_date}
+                    onChange={(e) => setFormData({ ...formData, promised_date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600 focus:border-transparent"
+                  />
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Leave empty if no specific date promised
+                  </div>
+                </div>
               </div>
 
               {/* Form Actions */}
@@ -315,7 +448,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         </div>
 
         {/* Footer */}
-        <div className="bg-yellow-200 dark:bg-yellow-800/40 px-6 py-3 border-t-2 border-yellow-300 dark:border-yellow-700">
+        <div
+          className="bg-yellow-200 dark:bg-yellow-800/40 px-6 py-3 border-t-2 border-yellow-300 dark:border-yellow-700"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <button
             onClick={onClose}
             className="w-full px-4 py-2 bg-yellow-600 dark:bg-yellow-700 text-white rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-800 transition-colors font-medium shadow"

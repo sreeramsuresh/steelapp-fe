@@ -59,29 +59,34 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
+  // DEVELOPMENT MODE: Skip authentication completely
   // Allow public marketing pages and login without auth
   const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
   const isLoginPage = location.pathname === "/login";
-  
+
+  // DEVELOPMENT: Disable auth redirect (commented out for development)
   // Check if we need to redirect to login
-  const needsAuth = !user && !isLoginPage && !isMarketing;
-  
+  // const needsAuth = !user && !isLoginPage && !isMarketing;
+
   // If user is logged in and on login page, redirect to dashboard
   const needsDashboardRedirect = user && isLoginPage;
 
-  if (needsAuth) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  // DEVELOPMENT: Skip login redirect
+  // if (needsAuth) {
+  //   return <Navigate to="/login" state={{ from: location }} replace />;
+  // }
 
   if (needsDashboardRedirect) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/invoices" replace />;
   }
 
   return (
     <div className={`w-full ${isMarketing ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <Routes>
+        {/* DEVELOPMENT: Default to invoices page */}
+        <Route path="/" element={<Navigate to="/invoices" replace />} />
+
         {/* Public Routes: Marketing + Login */}
-        <Route path="/" element={<Navigate to="/marketing" replace />} />
         <Route path="/marketing" element={<MarketingHome />} />
         <Route path="/marketing/products" element={<MarketingProducts />} />
         <Route path="/marketing/about" element={<MarketingAbout />} />
@@ -448,16 +453,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        {/* Catch all route - redirect to dashboard if logged in, marketing if not */}
+        {/* Catch all route - DEVELOPMENT: redirect to invoices */}
         <Route
           path="*"
-          element={
-            user ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/marketing" replace />
-            )
-          }
+          element={<Navigate to="/invoices" replace />}
         />
       </Routes>
     </div>

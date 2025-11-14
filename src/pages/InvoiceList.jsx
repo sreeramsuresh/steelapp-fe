@@ -30,14 +30,15 @@ import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { payablesService, PAYMENT_MODES } from "../services/payablesService";
 import { authService } from "../services/axiosAuthService";
+import { apiClient } from "../services/api";
 import { uuid } from "../utils/uuid";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useConfirm } from "../hooks/useConfirm";
-import { calculatePaymentStatus, getPaymentStatusConfig } from "../utils/paymentUtils";
-import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage } from "../utils/reminderUtils";
+import { getPaymentStatusConfig } from "../utils/paymentUtils";
+import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage, getPromiseIndicatorInfo, formatPromiseMessage } from "../utils/reminderUtils";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -74,6 +75,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
   const [showRecordPaymentDrawer, setShowRecordPaymentDrawer] = useState(false);
   const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
+  const [invoiceReminders, setInvoiceReminders] = useState({}); // Store latest reminder per invoice
 
   const company = createCompany();
 
@@ -112,16 +114,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         (key) => queryParams[key] === undefined && delete queryParams[key]
       );
 
-      // Use payablesService to get invoices WITH payment data (like Receivables does)
-      const response = await payablesService.getInvoices(queryParams);
+      // Use invoiceService to get ALL invoices (including draft and proforma)
+      const response = await invoiceService.getInvoices(queryParams, signal);
 
       // Check if request was aborted
       if (signal?.aborted) {
         return;
       }
 
-      // payablesService returns { items, aggregates }
-      const invoicesData = response.items || response.invoices || response;
+      // invoiceService returns { invoices, pagination }
+      const invoicesData = response.invoices || response;
       setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
 
       // Set pagination if available
@@ -148,6 +150,46 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     }
   }, []);
+
+  // Fetch latest reminder for invoices with promised_date
+  const fetchInvoiceReminders = React.useCallback(async (invoiceIds) => {
+    try {
+      // Fetch reminders for all invoices in parallel
+      const reminderPromises = invoiceIds.map(async (id) => {
+        try {
+          const reminders = await apiClient.get(`/invoices/${id}/payment-reminders`);
+          // Get the most recent reminder with a promised_date
+          const latestWithPromise = reminders.find(r => r.promised_date);
+          return { invoiceId: id, reminder: latestWithPromise || null };
+        } catch (error) {
+          console.error(`Failed to fetch reminder for invoice ${id}:`, error);
+          return { invoiceId: id, reminder: null };
+        }
+      });
+
+      const results = await Promise.all(reminderPromises);
+
+      // Build reminders map
+      const remindersMap = {};
+      results.forEach(({ invoiceId, reminder }) => {
+        if (reminder) {
+          remindersMap[invoiceId] = reminder;
+        }
+      });
+
+      setInvoiceReminders(remindersMap);
+    } catch (error) {
+      console.error('Error fetching reminders:', error);
+    }
+  }, []);
+
+  // Fetch reminders when invoices change
+  useEffect(() => {
+    if (invoices.length > 0) {
+      const invoiceIds = invoices.map(inv => inv.id);
+      fetchInvoiceReminders(invoiceIds);
+    }
+  }, [invoices, fetchInvoiceReminders]);
 
   // Consolidated effect with debouncing and request cancellation
   useEffect(() => {
@@ -190,6 +232,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted, activeCardFilter]);
 
   // Client-side payment status and card filtering
+  // GOLD STANDARD: Use backend-provided payment status instead of calculating
   const filteredInvoices = React.useMemo(() => {
     let filtered = invoices;
 
@@ -201,7 +244,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           return true; // Show non-issued invoices regardless of payment filter
         }
 
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        // Use backend-provided payment status (GOLD STANDARD)
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === paymentStatusFilter;
       });
     }
@@ -210,7 +254,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     if (activeCardFilter === 'outstanding') {
       filtered = filtered.filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        // Use backend-provided payment status
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       });
     } else if (activeCardFilter === 'overdue') {
@@ -219,7 +264,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         const dueDate = new Date(invoice.dueDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        // Use backend-provided payment status
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     } else if (activeCardFilter === 'due_soon') {
@@ -231,7 +277,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       filtered = filtered.filter(invoice => {
         if (invoice.status !== 'issued') return false;
         const dueDate = new Date(invoice.dueDate);
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        // Use backend-provided payment status
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     }
@@ -322,19 +369,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     // Only show payment badge for issued invoices
     if (invoice.status !== 'issued') return null;
 
-    // Calculate payment status from outstanding balance (payablesService provides this)
-    let paymentStatus = 'unpaid';
-    if (invoice.outstanding !== undefined) {
-      // Use data from payablesService
-      const outstanding = Number(invoice.outstanding || 0);
-      const total = Number(invoice.invoice_amount || invoice.total || 0);
-      if (outstanding === 0 && total > 0) paymentStatus = 'fully_paid';
-      else if (outstanding > 0 && outstanding < total) paymentStatus = 'partially_paid';
-      else paymentStatus = 'unpaid';
-    } else {
-      // Fallback to calculating from payments
-      paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
-    }
+    // GOLD STANDARD: Use backend-provided payment status directly
+    // Backend calculates this consistently using invoiceHelpers.js
+    const paymentStatus = invoice.paymentStatus || 'unpaid';
 
     const config = getPaymentStatusConfig(paymentStatus);
 
@@ -373,21 +410,48 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     );
   };
 
+  const getPromiseIndicator = (invoice) => {
+    // Get latest reminder for this invoice
+    const latestReminder = invoiceReminders[invoice.id];
+    if (!latestReminder) return null;
+
+    const promiseInfo = getPromiseIndicatorInfo(invoice, latestReminder);
+    if (!promiseInfo || !promiseInfo.shouldShowPromise) return null;
+
+    const { config, daysUntilPromised } = promiseInfo;
+    const promiseMessage = formatPromiseMessage(daysUntilPromised);
+
+    const className = isDarkMode
+      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
+      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
+
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
+        title={`${config.label}: ${promiseMessage}`}
+      >
+        <span>{config.icon}</span>
+        <span>{promiseMessage}</span>
+      </span>
+    );
+  };
+
   const getTotalAmount = () => {
     return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
   };
 
   // Dashboard metric calculations
+  // GOLD STANDARD: Use backend-provided payment data (no client-side calculation)
   const getOutstandingAmount = () => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       })
       .reduce((sum, invoice) => {
-        const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
-        return sum + (invoice.total - paidAmount);
+        // Use backend-calculated outstanding amount
+        return sum + Number(invoice.outstanding || 0);
       }, 0);
   };
 
@@ -397,13 +461,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       const dueDate = new Date(invoice.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+      const paymentStatus = invoice.paymentStatus || 'unpaid';
       return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
     const amount = overdueInvoices.reduce((sum, invoice) => {
-      const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
-      return sum + (invoice.total - paidAmount);
+      // Use backend-calculated outstanding amount
+      return sum + Number(invoice.outstanding || 0);
     }, 0);
 
     return { count: overdueInvoices.length, amount };
@@ -418,13 +482,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const dueSoonInvoices = invoices.filter(invoice => {
       if (invoice.status !== 'issued') return false;
       const dueDate = new Date(invoice.dueDate);
-      const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
+      const paymentStatus = invoice.paymentStatus || 'unpaid';
       return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
     const amount = dueSoonInvoices.reduce((sum, invoice) => {
-      const paidAmount = (invoice.payments || []).reduce((total, p) => total + p.amount, 0);
-      return sum + (invoice.total - paidAmount);
+      // Use backend-calculated outstanding amount
+      return sum + Number(invoice.outstanding || 0);
     }, 0);
 
     return { count: dueSoonInvoices.length, amount };
@@ -434,8 +498,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = calculatePaymentStatus(invoice.total, invoice.payments || []);
-        return paymentStatus === 'fully_paid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        return paymentStatus === 'fully_paid' || paymentStatus === 'paid';
       })
       .reduce((sum, invoice) => sum + invoice.total, 0);
   };
@@ -606,6 +670,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handlePaymentReminderSaved = (reminder) => {
     notificationService.success('Payment reminder note saved successfully!');
+    // Refresh reminders to show updated promise indicator
+    if (invoices.length > 0) {
+      const invoiceIds = invoices.map(inv => inv.id);
+      fetchInvoiceReminders(invoiceIds);
+    }
   };
 
   const handleRecordPayment = async (invoice) => {
@@ -1672,6 +1741,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       {getStatusBadge(invoice.status)}
                       {getPaymentStatusBadge(invoice)}
                       {getReminderIndicator(invoice)}
+                      {getPromiseIndicator(invoice)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
