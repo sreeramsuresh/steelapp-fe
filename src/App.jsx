@@ -152,27 +152,14 @@ function App() {
 
     const initializeApp = async () => {
       try {
-        // DEVELOPMENT MODE: Bypass authentication with mock user
-        // TODO: Remove this before production deployment
-        if (mounted) {
-          setUser({
-            id: 1,
-            name: 'Dev User',
-            email: 'dev@ultimatesteels.com',
-            role: 'admin',
-            permissions: ['*'] // All permissions
-          });
-        }
-
-        // ORIGINAL CODE (commented out for development):
         // Exact GigLabz behavior: do not proactively verify/refresh on load.
         // Just hydrate user from storage if tokens exist; rely on interceptor (403) to refresh.
-        // if (authService.isAuthenticated()) {
-        //   const storedUser = authService.getUser();
-        //   if (storedUser && mounted) setUser(storedUser);
-        // } else if (mounted) {
-        //   setUser(null);
-        // }
+        if (authService.isAuthenticated()) {
+          const storedUser = authService.getUser();
+          if (storedUser && mounted) setUser(storedUser);
+        } else if (mounted) {
+          setUser(null);
+        }
       } catch (error) {
         if (mounted) console.error('Failed to initialize app:', error);
       } finally {

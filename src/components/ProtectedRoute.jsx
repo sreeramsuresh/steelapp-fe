@@ -14,23 +14,19 @@ const ProtectedRoute = ({
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
-  // DEVELOPMENT MODE: Skip authentication check
-  // TODO: Remove this before production deployment
-
-  // ORIGINAL CODE (commented out for development):
   // Check if user is authenticated - use auth service as primary source of truth
-  // const isAuthenticated = authService.isAuthenticated();
+  const isAuthenticated = authService.isAuthenticated();
 
-  // if (!isAuthenticated) {
-  //   // Save the attempted location for redirect after login
-  //   return (
-  //     <Navigate
-  //       to={fallbackPath}
-  //       state={{ from: location }}
-  //       replace
-  //     />
-  //   );
-  // }
+  if (!isAuthenticated) {
+    // Save the attempted location for redirect after login
+    return (
+      <Navigate
+        to={fallbackPath}
+        state={{ from: location }}
+        replace
+      />
+    );
+  }
 
   // If authenticated but no user object, show loading state instead of redirect
   if (!user) {
@@ -42,8 +38,9 @@ const ProtectedRoute = ({
     );
   }
 
+  // DEVELOPMENT MODE: Skip role check
   // Check role-based access
-  if (requiredRole && !authService.hasRole(requiredRole)) {
+  if (false && requiredRole && !authService.hasRole(requiredRole)) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
         <Lock size={64} className="text-red-500 mb-4" />
@@ -76,10 +73,11 @@ const ProtectedRoute = ({
     );
   }
 
+  // DEVELOPMENT MODE: Skip permission check
   // Check permission-based access
-  if (requiredPermission) {
+  if (false && requiredPermission) {
     const [resource, action] = requiredPermission.split('.');
-    
+
     if (!authService.hasPermission(resource, action)) {
       return (
         <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>

@@ -110,9 +110,9 @@ const Button = ({
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base",
+    sm: "px-2.5 py-1 text-xs",
+    md: "px-3 py-1.5 text-sm",
+    lg: "px-4 py-2 text-sm",
   };
 
   return (
@@ -163,10 +163,10 @@ const Input = ({ label, error, className = "", required = false, validationState
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {label && (
         <label
-          className={`block text-sm font-medium ${
+          className={`block text-xs font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
@@ -174,7 +174,7 @@ const Input = ({ label, error, className = "", required = false, validationState
         </label>
       )}
       <input
-        className={`w-full px-3 py-2 border-2 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 ${
+        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
             ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
@@ -183,7 +183,7 @@ const Input = ({ label, error, className = "", required = false, validationState
       />
       {error && (
         <p
-          className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -226,10 +226,10 @@ const Select = ({ label, children, error, className = "", required = false, vali
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {label && (
         <label
-          className={`block text-sm font-medium ${
+          className={`block text-xs font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
@@ -238,7 +238,7 @@ const Select = ({ label, children, error, className = "", required = false, vali
       )}
       <div className="relative">
         <select
-          className={`w-full pl-3 pr-9 py-2 border-2 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 appearance-none ${
+          className={`w-full pl-2 pr-8 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none ${
             isDarkMode
               ? "text-white disabled:bg-gray-700 disabled:text-gray-500"
               : "text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
@@ -248,14 +248,14 @@ const Select = ({ label, children, error, className = "", required = false, vali
           {children}
         </select>
         <ChevronDown
-          className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${
+          className={`absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
             isDarkMode ? "text-gray-400" : "text-gray-500"
           }`}
         />
       </div>
       {error && (
         <p
-          className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -887,7 +887,13 @@ const InvoiceForm = ({ onSave }) => {
         isValid = value && value.trim() !== '';
         break;
       case 'warehouse':
-        isValid = value && value.trim() !== '';
+        // Warehouse is optional for drafts, required for issued/proforma
+        const invoiceStatus = invoice?.status || 'draft';
+        if (invoiceStatus === 'draft') {
+          isValid = true; // Optional for drafts
+        } else {
+          isValid = value && String(value).trim() !== '';
+        }
         break;
       case 'currency':
         isValid = value && value.trim() !== '';
@@ -1130,7 +1136,7 @@ const InvoiceForm = ({ onSave }) => {
       }
     };
     fetchWarehouses();
-  }, [id, invoice.warehouseId]);
+  }, [id]); // Removed invoice.warehouseId to prevent unnecessary re-runs
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(
@@ -1744,6 +1750,17 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
+    // Filter out blank items before validation
+    const nonBlankItems = (invoice.items || []).filter(item => {
+      // An item is considered blank if name is empty AND either quantity or rate is 0/empty
+      const hasName = item.name && item.name.trim() !== '';
+      const hasQuantity = item.quantity && Number(item.quantity) > 0;
+      const hasRate = item.rate && Number(item.rate) > 0;
+
+      // Keep the item only if it has a name or has been filled with data
+      return hasName || hasQuantity || hasRate;
+    });
+
     // Validate required fields before saving
     const errors = [];
     const invalidFieldsSet = new Set();
@@ -1754,12 +1771,12 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('customer.name');
     }
 
-    // Check if there are any items
-    if (!invoice.items || invoice.items.length === 0) {
+    // Check if there are any items after filtering blanks
+    if (!nonBlankItems || nonBlankItems.length === 0) {
       errors.push('At least one item is required');
     } else {
-      // Validate each item
-      invoice.items.forEach((item, index) => {
+      // Validate each non-blank item
+      nonBlankItems.forEach((item, index) => {
         if (!item.name || item.name.trim() === '') {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
@@ -1818,7 +1835,7 @@ const InvoiceForm = ({ onSave }) => {
             : Number(invoice.discountPercentage),
         advanceReceived:
           invoice.advanceReceived === "" ? 0 : Number(invoice.advanceReceived),
-        items: invoice.items.map((item) => ({
+        items: nonBlankItems.map((item) => ({
           ...item,
           quantity: item.quantity === "" ? 0 : Number(item.quantity),
           rate: item.rate === "" ? 0 : Number(item.rate),
@@ -2170,7 +2187,7 @@ const InvoiceForm = ({ onSave }) => {
       </header>
 
       {/* Main Content - Single Column Layout */}
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-6xl mx-auto px-4 py-4 space-y-4">
         {/* Validation Errors Alert */}
           {validationErrors.length > 0 && (
             <div
@@ -2288,11 +2305,11 @@ const InvoiceForm = ({ onSave }) => {
             )}
 
             {/* Single Column Form - Mobile Friendly */}
-            <Card className={`p-4 md:p-6 ${
+            <Card className={`p-3 md:p-4 ${
               isDarkMode ? "bg-gray-800" : "bg-white"
             }`}>
               {/* Customer Selection - Priority #1 */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}>
@@ -2434,7 +2451,7 @@ const InvoiceForm = ({ onSave }) => {
 
                 <div className="space-y-4">
                   {/* Invoice Number - Read Only */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <Input
                       label="Invoice Number"
                       value={invoice.invoiceNumber}
@@ -2473,7 +2490,7 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
 
                   {/* Status and Payment */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <Select
                       label="Invoice Status"
                       value={invoice.status || "draft"}
@@ -2532,11 +2549,11 @@ const InvoiceForm = ({ onSave }) => {
                   )}
 
                   {/* Warehouse and Currency */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <Select
                       label="Warehouse"
                       value={invoice.warehouseId || ""}
-                      required={true}
+                      required={invoice.status !== 'draft'}
                       validationState={fieldValidation.warehouse}
                       showValidation={formPreferences.showValidationHighlighting}
                       onChange={(e) => {
@@ -2609,7 +2626,7 @@ const InvoiceForm = ({ onSave }) => {
                   )}
 
                   {/* Customer PO Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <Input
                       label="Customer PO Number"
                       value={invoice.customerPurchaseOrderNumber || ""}
@@ -2641,7 +2658,7 @@ const InvoiceForm = ({ onSave }) => {
 
 
             {/* Items Section - Responsive */}
-            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <div className="mb-4">
                 <h3 className={`text-xs font-semibold uppercase tracking-wide ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -2678,7 +2695,7 @@ const InvoiceForm = ({ onSave }) => {
                             newItem.size = product.size || "";
                             setInvoice((prev) => ({
                               ...prev,
-                              items: [...prev.items.slice(0, -1), newItem, createSteelItem()]
+                              items: [...prev.items, newItem]
                             }));
                           }}
                           className={`px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
@@ -3076,7 +3093,7 @@ const InvoiceForm = ({ onSave }) => {
 
                       {/* Removed Grade, Finish, Size, Thickness fields */}
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <Input
                           label="Qty"
                           type="number"
@@ -3214,7 +3231,7 @@ const InvoiceForm = ({ onSave }) => {
             </Card>
 
             {/* Invoice Summary - Single Column */}
-            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}>
@@ -3401,8 +3418,8 @@ const InvoiceForm = ({ onSave }) => {
             </Card>
 
             {/* Notes - Single Column */}
-            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-              <div className="space-y-6">
+            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <div className="space-y-3">
                 {/* Invoice Notes */}
                 <div>
                   <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
@@ -3456,7 +3473,7 @@ const InvoiceForm = ({ onSave }) => {
                 </h2>
 
                 {/* Payment Summary */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <PaymentSummary
                     invoiceTotal={computedTotal}
                     payments={invoice.payments || []}
@@ -3476,7 +3493,7 @@ const InvoiceForm = ({ onSave }) => {
             )}
 
             {/* Payment Terms */}
-            <Card className={`p-4 md:p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}>

@@ -8,7 +8,9 @@ import {
   Plus,
   Trash2,
   Package,
-  FileText
+  FileText,
+  Search,
+  Loader2
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
@@ -92,6 +94,13 @@ const CreditNoteForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
 
+  // Autocomplete state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+
   // Load credit note if editing
   useEffect(() => {
     if (id) {
@@ -127,6 +136,62 @@ const CreditNoteForm = () => {
       console.error('Error loading next credit note number:', error);
     }
   };
+
+  // Search invoices with debouncing
+  const searchInvoices = async (query) => {
+    if (!query || query.trim().length === 0) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const response = await invoiceService.searchForCreditNote(query);
+      setSearchResults(response);
+      setShowDropdown(response.length > 0);
+    } catch (error) {
+      console.error('Error searching invoices:', error);
+      setSearchResults([]);
+      setShowDropdown(false);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle search input with debouncing
+  const handleSearchInput = (value) => {
+    setSearchQuery(value);
+
+    // Clear previous timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+
+    // Set new timer for 300ms debounce
+    const timer = setTimeout(() => {
+      searchInvoices(value);
+    }, 300);
+
+    setSearchDebounceTimer(timer);
+  };
+
+  // Handle invoice selection from dropdown
+  const handleInvoiceSelect = (invoice) => {
+    loadInvoiceForCreditNote(invoice.id);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowDropdown(false);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+      }
+    };
+  }, [searchDebounceTimer]);
 
   const loadInvoiceForCreditNote = async (invoiceId) => {
     try {
@@ -401,27 +466,84 @@ const CreditNoteForm = () => {
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Invoice Number <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Enter invoice number or ID"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      invalidFields.has('invoiceId')
-                        ? 'border-red-500'
-                        : isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        const value = e.target.value;
-                        if (value) {
-                          loadInvoiceForCreditNote(value);
-                        }
-                      }
-                    }}
-                  />
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className={`absolute left-3 top-3 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <input
+                        type="text"
+                        placeholder="Start typing invoice number or customer name..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearchInput(e.target.value)}
+                        onFocus={() => {
+                          if (searchResults.length > 0) {
+                            setShowDropdown(true);
+                          }
+                        }}
+                        className={`w-full pl-10 pr-10 py-2 rounded-lg border ${
+                          invalidFields.has('invoiceId')
+                            ? 'border-red-500'
+                            : isDarkMode
+                            ? 'border-gray-600 bg-gray-700 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
+                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      />
+                      {isSearching && (
+                        <Loader2 className={`absolute right-3 top-3 h-5 w-5 animate-spin ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      )}
+                    </div>
+
+                    {/* Autocomplete Dropdown */}
+                    {showDropdown && searchResults.length > 0 && (
+                      <div className={`absolute z-10 w-full mt-1 rounded-lg shadow-lg border max-h-96 overflow-y-auto ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                      }`}>
+                        {searchResults.map((invoice) => (
+                          <button
+                            key={invoice.id}
+                            type="button"
+                            onClick={() => handleInvoiceSelect(invoice)}
+                            className={`w-full px-4 py-3 text-left hover:bg-opacity-80 transition-colors border-b last:border-b-0 ${
+                              isDarkMode
+                                ? 'border-gray-700 hover:bg-gray-700'
+                                : 'border-gray-200 hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {invoice.invoice_number}
+                                </div>
+                                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  {invoice.customer_name}
+                                  {invoice.customer_email && (
+                                    <span className="ml-2">• {invoice.customer_email}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right ml-4">
+                                <div className={`font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                                  {formatCurrency(invoice.total)}
+                                </div>
+                                <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                                  {new Date(invoice.invoice_date).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {showDropdown && searchQuery.length > 0 && searchResults.length === 0 && !isSearching && (
+                      <div className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-300 text-gray-600'
+                      }`}>
+                        No issued invoices found matching "{searchQuery}"
+                      </div>
+                    )}
+                  </div>
                   <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Press Enter to load invoice
+                    Type to search invoices by number or customer name
                   </p>
                 </div>
               </div>

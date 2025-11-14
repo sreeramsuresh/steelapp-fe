@@ -47,7 +47,12 @@ const InvoiceItemsTable = ({
             const globalIndex = startingIndex + index;
 
             return (
-              <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+              <tr
+                key={index}
+                style={{
+                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F8F8F8'
+                }}
+              >
                 <td className="px-2 py-2 text-xs">{globalIndex + 1}</td>
                 <td className="px-2 py-2 text-xs font-medium">{item.name || ""}</td>
                 <td className="px-2 py-2 text-xs text-center">{item.quantity || 0}</td>

@@ -62,7 +62,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor }) => {
             <span>VAT</span>
             <span>AED {formatNumber(computedVatAmount)}</span>
           </div>
-          <div className="flex justify-between font-bold text-base border-t pt-2">
+          <div className="flex justify-between font-bold border-t pt-2">
             <span>TOTAL</span>
             <span>AED {formatNumber(computedTotal)}</span>
           </div>
@@ -72,7 +72,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor }) => {
                 <span>Less: Advance Received</span>
                 <span>- AED {formatNumber(advanceAmount)}</span>
               </div>
-              <div className="flex justify-between font-bold text-lg border-t-2 pt-2" style={{ borderColor: color }}>
+              <div className="flex justify-between font-bold border-t-2 pt-2" style={{ borderColor: color }}>
                 <span>Balance Due</span>
                 <span>AED {formatNumber(balanceDue)}</span>
               </div>

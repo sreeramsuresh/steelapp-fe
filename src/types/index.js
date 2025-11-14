@@ -65,7 +65,7 @@ export const createInvoice = () => ({
   customerPurchaseOrderNumber: '',
   customerPurchaseOrderDate: '',
   customer: createCustomer(),
-  items: [createSteelItem()],
+  items: [],
   subtotal: 0,
   vatAmount: 0, // VAT Amount
   totalQuantity: 0,

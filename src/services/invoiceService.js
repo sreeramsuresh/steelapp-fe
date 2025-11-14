@@ -20,6 +20,11 @@ const transformInvoiceForServer = (invoiceData) => {
     mode_of_payment: invoiceData.modeOfPayment || null,
     cheque_number: invoiceData.chequeNumber || null,
     advance_received: invoiceData.advanceReceived || 0,
+    // Warehouse data
+    warehouse_id: invoiceData.warehouseId || null,
+    warehouse_name: invoiceData.warehouseName || '',
+    warehouse_code: invoiceData.warehouseCode || '',
+    warehouse_city: invoiceData.warehouseCity || '',
     subtotal: invoiceData.subtotal,
     vat_amount: invoiceData.vatAmount,
     total: invoiceData.total,
@@ -186,6 +191,12 @@ export const invoiceService = {
       search: searchTerm,
       ...filters
     });
+  },
+
+  async searchForCreditNote(query) {
+    // Fast autocomplete search for invoices eligible for credit notes
+    const response = await apiClient.get('/invoices/search-for-credit-note', { q: query });
+    return response;
   },
 
   async getInvoicesByCustomer(customerId) {

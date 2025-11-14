@@ -19,7 +19,7 @@ import {
   FileText,
   Phone,
   DollarSign,
-  Banknote,
+  CircleDollarSign,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -498,8 +498,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
-        return paymentStatus === 'fully_paid' || paymentStatus === 'paid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
+        return paymentStatus === 'paid';
       })
       .reduce((sum, invoice) => sum + invoice.total, 0);
   };
@@ -527,7 +527,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           break;
         case 'paid':
           setStatusFilter('issued');
-          setPaymentStatusFilter('fully_paid');
+          setPaymentStatusFilter('paid');
           break;
         case 'due_soon':
           setStatusFilter('issued');
@@ -722,16 +722,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const updatedPayments = [...(inv.payments || []), newPayment];
     const received = (inv.received || 0) + newPayment.amount;
     const newOutstanding = Math.max(0, +(outstanding - newPayment.amount).toFixed(2));
-    let status = inv.status;
-    if (newOutstanding === 0) status = 'paid';
-    else if (newOutstanding < (inv.invoice_amount || 0)) status = 'partially_paid';
+
+    // Calculate payment_status (not invoice status)
+    let payment_status = 'unpaid';
+    if (newOutstanding === 0) payment_status = 'paid';
+    else if (newOutstanding < (inv.invoice_amount || 0)) payment_status = 'partially_paid';
 
     const updatedInv = {
       ...inv,
       payments: updatedPayments,
       received,
       outstanding: newOutstanding,
-      status
+      payment_status
     };
 
     // Update drawer immediately
@@ -1431,7 +1433,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <option value="all">All Payments</option>
               <option value="unpaid">Unpaid</option>
               <option value="partially_paid">Partially Paid</option>
-              <option value="fully_paid">Fully Paid</option>
+              <option value="paid">Fully Paid</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown
@@ -1745,44 +1747,44 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="flex gap-1 justify-end">
+                    <div className="flex gap-0.5 justify-end">
                       {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status !== 'issued' && (
                         <Link
                         to={`/edit/${invoice.id}`}
-                        className={`p-2 rounded transition-colors ${
+                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                           isDarkMode
-                            ? "text-blue-400 hover:text-blue-300"
-                            : "hover:bg-gray-100 text-blue-600"
+                            ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                            : "hover:bg-blue-50 text-blue-600 bg-white"
                         }`}
                         title="Edit Invoice"
                       >
-                        <Edit size={16} />
+                        <Edit size={18} />
                       </Link>
                       )}
                       <button
-                        className={`p-2 rounded transition-colors bg-transparent ${
+                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                           isDarkMode
-                            ? "text-cyan-400 hover:text-cyan-300"
-                            : "hover:bg-gray-100 text-cyan-600"
+                            ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
+                            : "hover:bg-cyan-50 text-cyan-600 bg-white"
                         }`}
                         title="View Invoice"
                         onClick={() => handleViewInvoice(invoice)}
                       >
-                        <Eye size={16} />
+                        <Eye size={18} />
                       </button>
                       {authService.hasPermission('invoices', 'read') && (
                       <div className="relative">
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                             downloadingIds.has(invoice.id)
-                              ? "opacity-50 cursor-not-allowed"
+                              ? "bg-transparent"
                               : !validateInvoiceForDownload(invoice).isValid
                               ? isDarkMode
-                                ? "text-orange-400 hover:text-orange-300"
-                                : "hover:bg-orange-50 text-orange-600"
+                                ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                : "hover:bg-orange-50 text-orange-600 bg-white"
                               : isDarkMode
-                              ? "text-green-400 hover:text-green-300"
-                              : "hover:bg-gray-100 text-green-600"
+                              ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-green-50 text-green-600 bg-white"
                           }`}
                           title={
                             !validateInvoiceForDownload(invoice).isValid
@@ -1795,7 +1797,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           {downloadingIds.has(invoice.id) ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                           ) : (
-                            <Download size={16} />
+                            <Download size={18} />
                           )}
                         </button>
                         {!validateInvoiceForDownload(invoice).isValid && (
@@ -1805,33 +1807,32 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         )}
                       </div>
                       )}
-                      {/* Record Payment Button - Only show for unpaid/partially paid invoices */}
+                      {/* Record Payment Button - Match Receivables: show for all unpaid invoices */}
                       {authService.hasPermission('invoices', 'update') &&
                        !isDeleted &&
-                       invoice.status === 'issued' &&
-                       invoice.payment_status !== 'fully_paid' &&
+                       invoice.payment_status !== 'paid' &&
                        (invoice.balance_due === undefined || invoice.balance_due > 0) && (
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                             isDarkMode
-                              ? "text-emerald-400 hover:text-emerald-300"
-                              : "hover:bg-emerald-50 text-emerald-600"
+                              ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-emerald-50 text-emerald-600 bg-white"
                           }`}
                           title="Record Payment"
                           onClick={() => handleRecordPayment(invoice)}
                         >
-                          <Banknote size={16} />
+                          <CircleDollarSign size={18} />
                         </button>
                       )}
                       {/* Payment Reminder Button */}
                       {getInvoiceReminderInfo(invoice)?.shouldShowReminder && (
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                             sendingReminderIds.has(invoice.id)
-                              ? "opacity-50 cursor-not-allowed"
+                              ? "bg-transparent"
                               : isDarkMode
-                              ? "text-yellow-400 hover:text-yellow-300"
-                              : "hover:bg-yellow-50 text-yellow-600"
+                              ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-yellow-50 text-yellow-600 bg-white"
                           }`}
                           title={`Send payment reminder (${getInvoiceReminderInfo(invoice)?.config.label})`}
                           onClick={() => handleSendReminder(invoice)}
@@ -1840,48 +1841,48 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           {sendingReminderIds.has(invoice.id) ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                           ) : (
-                            <Bell size={16} />
+                            <Bell size={18} />
                           )}
                         </button>
                       )}
                       {/* Payment Reminder Phone Call Note Button */}
                       {!isDeleted && (
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                             isDarkMode
-                              ? "text-orange-400 hover:text-orange-300"
-                              : "hover:bg-orange-50 text-orange-600"
+                              ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-orange-50 text-orange-600 bg-white"
                           }`}
                           title="Payment Reminder - Phone Call Notes"
                           onClick={() => handleOpenPaymentReminder(invoice)}
                         >
-                          <Phone size={16} />
+                          <Phone size={18} />
                         </button>
                       )}
                       {/* Generate Statement Button */}
                       {authService.hasPermission('customers', 'read') && (
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                             isDarkMode
-                              ? "text-purple-400 hover:text-purple-300"
-                              : "hover:bg-gray-100 text-purple-600"
+                              ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-purple-50 text-purple-600 bg-white"
                           }`}
                           title="Generate Statement of Accounts"
                           onClick={() => handleGenerateStatement(invoice)}
                         >
-                          <FileText size={16} />
+                          <FileText size={18} />
                         </button>
                       )}
                       {invoice.status === "issued" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
                         <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                             deliveryNoteStatus[invoice.id]?.hasNotes
                               ? isDarkMode
-                                ? "text-yellow-400 hover:text-yellow-300"
-                                : "hover:bg-gray-100 text-yellow-600"
+                                ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                : "hover:bg-yellow-50 text-yellow-600 bg-white"
                               : isDarkMode
-                              ? "text-green-400 hover:text-green-300"
-                              : "hover:bg-gray-100 text-green-600"
+                              ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-green-50 text-green-600 bg-white"
                           }`}
                           title={
                             deliveryNoteStatus[invoice.id]?.hasNotes
@@ -1898,34 +1899,34 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                               : handleCreateDeliveryNote(invoice)
                           }
                         >
-                          <Truck size={16} />
+                          <Truck size={18} />
                         </button>
                       )}
                       {authService.hasPermission('invoices', 'delete') && !isDeleted && (
                       <button
-                        className={`p-2 rounded transition-colors bg-transparent ${
+                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                           isDarkMode
-                            ? "text-red-400 hover:text-red-300"
-                            : "hover:bg-gray-100 text-red-600"
+                            ? "text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50"
+                            : "hover:bg-red-50 text-red-600 bg-white"
                         }`}
                         title="Delete Invoice"
                         onClick={() => handleDeleteInvoice(invoice)}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={18} />
                       </button>
                       )}
                       {/* Restore button for deleted invoices */}
                       {isDeleted && authService.hasPermission('invoices', 'update') && (
                       <button
-                        className={`p-2 rounded transition-colors bg-transparent ${
+                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                           isDarkMode
-                            ? "text-green-400 hover:text-green-300"
-                            : "hover:bg-gray-100 text-green-600"
+                            ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                            : "hover:bg-green-50 text-green-600 bg-white"
                         }`}
                         title="Restore Invoice"
                         onClick={() => handleRestoreInvoice(invoice)}
                       >
-                        <RotateCcw size={16} />
+                        <RotateCcw size={18} />
                       </button>
                       )}
                     </div>
@@ -2031,14 +2032,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                  paymentDrawerInvoice.status === 'fully_paid'
+                  paymentDrawerInvoice.payment_status === 'paid'
                     ? 'bg-green-100 text-green-800 border-green-300'
-                    : paymentDrawerInvoice.status === 'partially_paid'
+                    : paymentDrawerInvoice.payment_status === 'partially_paid'
                     ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
                     : 'bg-red-100 text-red-800 border-red-300'
                 }`}>
-                  {paymentDrawerInvoice.status === 'fully_paid' ? 'Paid' :
-                   paymentDrawerInvoice.status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                  {paymentDrawerInvoice.payment_status === 'paid' ? 'Paid' :
+                   paymentDrawerInvoice.payment_status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
                 </span>
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>
