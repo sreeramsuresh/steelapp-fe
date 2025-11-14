@@ -27,7 +27,13 @@ import {
   ChevronDown,
   ChevronUp,
   Printer,
-  Tag
+  Tag,
+  HelpCircle,
+  Clock,
+  Calendar,
+  UserCheck,
+  UserPlus,
+  History
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -37,8 +43,11 @@ import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
+import { apiClient as apiService } from '../services/api';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 import ProductNamingSettings from './ProductNamingSettings';
+import { roleService } from '../services/roleService';
+import RoleGuideModal from './RoleGuideModal';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -156,13 +165,43 @@ const SettingsPaper = ({ children, className = '' }) => {
 
 const SettingsCard = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
-  
+
   return (
     <div className={`rounded-lg border transition-all duration-300 ${
-      isDarkMode 
-        ? 'bg-gray-800 border-gray-700' 
+      isDarkMode
+        ? 'bg-gray-800 border-gray-700'
         : 'bg-white border-gray-200'
     } ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+const SectionHeader = ({ icon: Icon, title }) => {
+  const { isDarkMode } = useTheme();
+
+  return (
+    <div className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className="flex items-center gap-3">
+        {Icon && <Icon size={24} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />}
+        <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          {title}
+        </h3>
+      </div>
+    </div>
+  );
+};
+
+const SectionCard = ({ title, children }) => {
+  const { isDarkMode } = useTheme();
+
+  return (
+    <div className={`p-6 border-b last:border-b-0 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      {title && (
+        <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+          {title}
+        </h4>
+      )}
       {children}
     </div>
   );
@@ -440,6 +479,20 @@ const CompanySettings = () => {
     }
   });
 
+  // RBAC State
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [selectedUserRoles, setSelectedUserRoles] = useState([]);
+  const [showRoleGuideModal, setShowRoleGuideModal] = useState(false);
+  const [customPermissionModal, setCustomPermissionModal] = useState({ open: false, userId: null });
+  const [auditLogModal, setAuditLogModal] = useState({ open: false, userId: null, logs: [] });
+  const [isDirector, setIsDirector] = useState(false);
+  const [allPermissions, setAllPermissions] = useState({});
+  const [customPermission, setCustomPermission] = useState({
+    permission_key: '',
+    reason: '',
+    expires_at: null
+  });
+
   const [newVatRate, setNewVatRate] = useState({
     name: '',
     rate: '',
@@ -616,6 +669,33 @@ const CompanySettings = () => {
         } catch (error) {
           console.error('Error loading printing settings:', error);
           notificationService.error('Failed to load printing settings');
+        }
+      })();
+    }
+  }, [activeTab]);
+
+  // Load RBAC data (roles, permissions, check if director)
+  useEffect(() => {
+    if (activeTab === 'users') {
+      (async () => {
+        try {
+          // Fetch available roles
+          const roles = await roleService.getAvailableRoles();
+          setAvailableRoles(roles);
+
+          // Fetch all permissions
+          const permissions = await roleService.getAllPermissions();
+          setAllPermissions(permissions);
+
+          // Check if current user is Director
+          const currentUser = authService.getUser();
+          if (currentUser && currentUser.id) {
+            const userPermissions = await roleService.getUserPermissions(currentUser.id);
+            setIsDirector(userPermissions.is_director || false);
+          }
+        } catch (error) {
+          console.error('Error loading RBAC data:', error);
+          notificationService.error('Failed to load role configuration');
         }
       })();
     }
