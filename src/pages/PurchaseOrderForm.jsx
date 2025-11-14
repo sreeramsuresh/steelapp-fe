@@ -406,10 +406,23 @@ const PurchaseOrderForm = () => {
     supplierEmail: "",
     supplierPhone: "",
     supplierAddress: "",
+    supplierTRN: "", // Tax Registration Number (UAE requirement)
     poDate: new Date().toISOString().split("T")[0],
     expectedDeliveryDate: "",
     status: "draft",
     stockStatus: "retain", // Default to 'retain'
+    // Incoterms and delivery
+    incoterms: "", // FOB, CIF, EXW, etc.
+    // Buyer/Purchaser information
+    buyerName: "",
+    buyerEmail: "",
+    buyerPhone: "",
+    buyerDepartment: "",
+    // Approval workflow
+    approvalStatus: "pending", // pending/approved/rejected
+    approvedBy: "",
+    approvalDate: "",
+    approvalComments: "",
     items: [
       {
         productType: "",
@@ -419,17 +432,32 @@ const PurchaseOrderForm = () => {
         size: "",
         finish: "",
         specification: "", // Keep for backward compatibility
+        itemDescription: "", // Detailed description
+        hsnCode: "", // HSN/SAC code
+        unit: "kg", // Unit of Measure (kg, mt, pcs, sqm, etc.)
         quantity: 0,
         rate: 0,
+        discountType: "amount", // amount or percentage
+        discount: 0,
+        vatRate: 5, // Configurable VAT rate per item (default 5%)
         amount: 0,
       },
     ],
     subtotal: 0,
+    // Order-level discount
+    discountType: "amount", // amount or percentage
+    discountPercentage: 0,
+    discountAmount: 0,
+    // Additional charges
+    freightCharges: 0,
+    shippingCharges: 0,
+    handlingCharges: 0,
+    otherCharges: 0,
     vatAmount: 0,
     total: 0,
     notes: "",
-    terms: "",
-    paymentTerms: "Net 30",
+    terms: "", // General terms and conditions
+    paymentTerms: "Net 30", // Standardized payment terms
     dueDate: "",
     currency: 'AED',
     supplierContactName: '',
@@ -447,6 +475,7 @@ const PurchaseOrderForm = () => {
   const [payments, setPayments] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [expandedItems, setExpandedItems] = useState({});
 
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
@@ -846,15 +875,24 @@ const PurchaseOrderForm = () => {
       [field]: value,
     };
 
-    // Calculate amount when quantity or rate changes
-    if (field === "quantity" || field === "rate") {
-      const quantity =
-        field === "quantity"
-          ? parseFloat(value) || 0
-          : updatedItems[index].quantity;
-      const rate =
-        field === "rate" ? parseFloat(value) || 0 : updatedItems[index].rate;
-      updatedItems[index].amount = quantity * rate;
+    // Calculate amount when quantity, rate, discount, or VAT changes
+    if (field === "quantity" || field === "rate" || field === "discount" || field === "discountType" || field === "vatRate") {
+      const item = updatedItems[index];
+      const quantity = field === "quantity" ? (parseFloat(value) || 0) : item.quantity;
+      const rate = field === "rate" ? (parseFloat(value) || 0) : item.rate;
+      const discount = field === "discount" ? (parseFloat(value) || 0) : (item.discount || 0);
+      const discountType = field === "discountType" ? value : (item.discountType || "amount");
+
+      // Calculate gross amount
+      const grossAmount = quantity * rate;
+
+      // Apply item-level discount
+      const discountAmount = discountType === "percentage"
+        ? (grossAmount * discount / 100)
+        : discount;
+
+      // Net amount after discount (before VAT)
+      updatedItems[index].amount = grossAmount - discountAmount;
     }
 
     setPurchaseOrder((prev) => {
@@ -863,14 +901,35 @@ const PurchaseOrderForm = () => {
         items: updatedItems,
       };
 
-      // Recalculate totals
-      const subtotal = calculateSubtotal(updatedItems);
-      const vatAmount = subtotal * 0.05; // 5% TRN
-      const total = subtotal + vatAmount;
+      // Recalculate totals with order-level discount and charges
+      const itemsSubtotal = calculateSubtotal(updatedItems);
+
+      // Apply order-level discount
+      const orderDiscountAmount = prev.discountType === "percentage"
+        ? (itemsSubtotal * (prev.discountPercentage || 0) / 100)
+        : (prev.discountAmount || 0);
+
+      const subtotalAfterDiscount = itemsSubtotal - orderDiscountAmount;
+
+      // Calculate VAT per item (item-level VAT rates)
+      const vatAmount = updatedItems.reduce((sum, item) => {
+        const itemAmount = item.amount || 0;
+        const vatRate = item.vatRate || 0;
+        return sum + (itemAmount * vatRate / 100);
+      }, 0);
+
+      // Add all charges
+      const allCharges =
+        (parseFloat(prev.freightCharges) || 0) +
+        (parseFloat(prev.shippingCharges) || 0) +
+        (parseFloat(prev.handlingCharges) || 0) +
+        (parseFloat(prev.otherCharges) || 0);
+
+      const total = subtotalAfterDiscount + vatAmount + allCharges;
 
       return {
         ...newPO,
-        subtotal,
+        subtotal: itemsSubtotal,
         vatAmount,
         total,
       };
@@ -890,8 +949,14 @@ const PurchaseOrderForm = () => {
           size: "",
           finish: "",
           specification: "",
+          itemDescription: "",
+          hsnCode: "",
+          unit: "kg",
           quantity: 0,
           rate: 0,
+          discountType: "amount",
+          discount: 0,
+          vatRate: 5,
           amount: 0,
         },
       ],
@@ -1486,12 +1551,147 @@ const PurchaseOrderForm = () => {
                     value={purchaseOrder.supplierAddress}
                     onChange={(e) => handleInputChange("supplierAddress", e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                      isDarkMode 
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                     }`}
                   />
                 </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Tax Registration Number (TRN) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={purchaseOrder.supplierTRN}
+                    onChange={(e) => handleInputChange("supplierTRN", e.target.value)}
+                    required
+                    placeholder="e.g., 123456789012345"
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    } ${invalidFields.has('supplierTRN') ? 'border-red-500' : ''}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Buyer/Purchaser Information */}
+          <div className={`p-6 mt-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Buyer/Purchaser Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Buyer Name
+                </label>
+                <input
+                  type="text"
+                  value={purchaseOrder.buyerName}
+                  onChange={(e) => handleInputChange("buyerName", e.target.value)}
+                  placeholder="Name of person placing order"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Buyer Email
+                </label>
+                <input
+                  type="email"
+                  value={purchaseOrder.buyerEmail}
+                  onChange={(e) => handleInputChange("buyerEmail", e.target.value)}
+                  placeholder="buyer@company.com"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Buyer Phone
+                </label>
+                <input
+                  type="tel"
+                  value={purchaseOrder.buyerPhone}
+                  onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
+                  placeholder="+971 XX XXX XXXX"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Department
+                </label>
+                <input
+                  type="text"
+                  value={purchaseOrder.buyerDepartment}
+                  onChange={(e) => handleInputChange("buyerDepartment", e.target.value)}
+                  placeholder="e.g., Procurement, Operations"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Delivery Terms */}
+          <div className={`p-6 mt-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Delivery Terms
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Incoterms
+                </label>
+                <div className="relative">
+                  <select
+                    value={purchaseOrder.incoterms}
+                    onChange={(e) => handleInputChange("incoterms", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select Incoterm</option>
+                    <option value="FOB">FOB - Free on Board</option>
+                    <option value="CIF">CIF - Cost, Insurance & Freight</option>
+                    <option value="EXW">EXW - Ex Works</option>
+                    <option value="DDP">DDP - Delivered Duty Paid</option>
+                    <option value="DAP">DAP - Delivered at Place</option>
+                    <option value="FCA">FCA - Free Carrier</option>
+                    <option value="CPT">CPT - Carriage Paid To</option>
+                    <option value="CIP">CIP - Carriage and Insurance Paid To</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  International Commercial Terms for shipping responsibility
+                </p>
               </div>
             </div>
           </div>
@@ -1620,7 +1820,8 @@ const PurchaseOrderForm = () => {
                 </thead>
                 <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
                   {purchaseOrder.items.map((item, index) => (
-                    <tr key={index}>
+                    <React.Fragment key={index}>
+                    <tr>
                       <td className="px-4 py-3">
                         <div className="w-48">
                           <Autocomplete
@@ -1763,22 +1964,312 @@ const PurchaseOrderForm = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => removeItem(index)}
-                          disabled={purchaseOrder.items.length === 1}
-                          className={`p-2 rounded transition-colors ${
-                            purchaseOrder.items.length === 1
-                              ? 'opacity-50 cursor-not-allowed'
-                              : isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
-                          }`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setExpandedItems(prev => ({ ...prev, [index]: !prev[index] }))}
+                            className={`p-2 rounded transition-colors ${
+                              isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                            }`}
+                            title="More Details"
+                          >
+                            <ChevronDown
+                              size={16}
+                              className={`transition-transform ${expandedItems[index] ? 'rotate-180' : ''}`}
+                            />
+                          </button>
+                          <button
+                            onClick={() => removeItem(index)}
+                            disabled={purchaseOrder.items.length === 1}
+                            className={`p-2 rounded transition-colors ${
+                              purchaseOrder.items.length === 1
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
+                            }`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
+                    {expandedItems[index] && (
+                      <tr>
+                        <td colSpan="9" className={`px-4 py-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Item Description
+                              </label>
+                              <textarea
+                                rows={2}
+                                value={item.itemDescription}
+                                onChange={(e) => handleItemChange(index, "itemDescription", e.target.value)}
+                                placeholder="Detailed description of the item"
+                                className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                HSN/SAC Code
+                              </label>
+                              <input
+                                type="text"
+                                value={item.hsnCode}
+                                onChange={(e) => handleItemChange(index, "hsnCode", e.target.value)}
+                                placeholder="e.g., 72101100"
+                                className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Unit of Measure
+                              </label>
+                              <div className="relative">
+                                <select
+                                  value={item.unit}
+                                  onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                                    isDarkMode
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                  }`}
+                                >
+                                  <option value="kg">kg - Kilograms</option>
+                                  <option value="mt">mt - Metric Ton</option>
+                                  <option value="pcs">pcs - Pieces</option>
+                                  <option value="sqm">sqm - Square Meters</option>
+                                  <option value="sqft">sqft - Square Feet</option>
+                                  <option value="ltr">ltr - Liters</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                  <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Discount Type
+                              </label>
+                              <div className="relative">
+                                <select
+                                  value={item.discountType}
+                                  onChange={(e) => handleItemChange(index, "discountType", e.target.value)}
+                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                                    isDarkMode
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                  }`}
+                                >
+                                  <option value="amount">Amount</option>
+                                  <option value="percentage">Percentage</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                  <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Discount {item.discountType === 'percentage' ? '(%)' : `(${purchaseOrder.currency})`}
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={item.discount}
+                                onChange={(e) => handleItemChange(index, "discount", e.target.value)}
+                                placeholder="0.00"
+                                className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                VAT Rate (%)
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                value={item.vatRate}
+                                onChange={(e) => handleItemChange(index, "vatRate", e.target.value)}
+                                placeholder="5.00"
+                                className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+
+            {/* Additional Charges */}
+            <div className="mb-6">
+              <h3 className={`text-md font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Additional Charges
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Freight Charges
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={purchaseOrder.freightCharges}
+                    onChange={(e) => handleInputChange("freightCharges", e.target.value)}
+                    placeholder="0.00"
+                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Shipping Charges
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={purchaseOrder.shippingCharges}
+                    onChange={(e) => handleInputChange("shippingCharges", e.target.value)}
+                    placeholder="0.00"
+                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Handling Charges
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={purchaseOrder.handlingCharges}
+                    onChange={(e) => handleInputChange("handlingCharges", e.target.value)}
+                    placeholder="0.00"
+                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Other Charges
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={purchaseOrder.otherCharges}
+                    onChange={(e) => handleInputChange("otherCharges", e.target.value)}
+                    placeholder="0.00"
+                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+
+            {/* Order Discount */}
+            <div className="mb-6">
+              <h3 className={`text-md font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Order Discount
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Discount Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={purchaseOrder.discountType}
+                      onChange={(e) => handleInputChange("discountType", e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="amount">Amount</option>
+                      <option value="percentage">Percentage</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                    </div>
+                  </div>
+                </div>
+                {purchaseOrder.discountType === 'percentage' ? (
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Discount Percentage (%)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={purchaseOrder.discountPercentage}
+                      onChange={(e) => handleInputChange("discountPercentage", e.target.value)}
+                      placeholder="0.00"
+                      className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Discount Amount ({purchaseOrder.currency})
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={purchaseOrder.discountAmount}
+                      onChange={(e) => handleInputChange("discountAmount", e.target.value)}
+                      placeholder="0.00"
+                      className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
@@ -2019,9 +2510,90 @@ const PurchaseOrderForm = () => {
               />
             </div>
           </div>
+
+          {/* Approval Workflow */}
+          <div className={`p-6 rounded-xl border mt-6 ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Approval Workflow
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Approval Status
+                </label>
+                <div className="relative">
+                  <select
+                    value={purchaseOrder.approvalStatus}
+                    onChange={(e) => handleInputChange("approvalStatus", e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Approved By
+                </label>
+                <input
+                  type="text"
+                  value={purchaseOrder.approvedBy}
+                  onChange={(e) => handleInputChange("approvedBy", e.target.value)}
+                  placeholder="Name of approver"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Approval Date
+                </label>
+                <input
+                  type="date"
+                  value={purchaseOrder.approvalDate}
+                  onChange={(e) => handleInputChange("approvalDate", e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Approval Comments
+                </label>
+                <textarea
+                  rows={3}
+                  value={purchaseOrder.approvalComments}
+                  onChange={(e) => handleInputChange("approvalComments", e.target.value)}
+                  placeholder="Comments from approver..."
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
+
       {/* Payment Form Modal */}
       {showPaymentForm && (
         <PaymentForm

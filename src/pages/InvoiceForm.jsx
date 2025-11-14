@@ -1075,6 +1075,20 @@ const InvoiceForm = ({ onSave }) => {
     }
   };
 
+  // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
+  useEffect(() => {
+    refetchProducts();
+  }, []);
+
+  // Also refetch when window regains focus (user returns from product management)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchProducts();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetchProducts]);
+
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {
     const allProducts = productsData?.products || [];

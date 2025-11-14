@@ -20,6 +20,7 @@ import {
   Phone,
   DollarSign,
   CircleDollarSign,
+  FileMinus,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -1748,6 +1749,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-0.5 justify-end">
+                      {/* Edit button - only for non-issued invoices */}
                       {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status !== 'issued' && (
                         <Link
                         to={`/edit/${invoice.id}`}
@@ -1760,6 +1762,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       >
                         <Edit size={18} />
                       </Link>
+                      )}
+                      {/* Create Credit Note button - only for issued invoices */}
+                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status === 'issued' && (
+                        <button
+                        onClick={() => navigate(`/credit-notes/new?invoiceId=${invoice.id}`)}
+                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                          isDarkMode
+                            ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
+                            : "hover:bg-purple-50 text-purple-600 bg-white"
+                        }`}
+                        title="Create Credit Note"
+                      >
+                        <FileMinus size={18} />
+                      </button>
                       )}
                       <button
                         className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -10,7 +10,9 @@ import {
   Package,
   FileText,
   Search,
-  Loader2
+  Loader2,
+  Filter,
+  X
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
@@ -49,6 +51,7 @@ const REFUND_METHODS = [
 const CreditNoteForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -101,12 +104,22 @@ const CreditNoteForm = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
 
-  // Load credit note if editing
+  // Filter state
+  const [dateFilter, setDateFilter] = useState('all');
+  const [amountFilter, setAmountFilter] = useState('all');
+
+  // Load credit note if editing, or load invoice from query param
   useEffect(() => {
     if (id) {
       loadCreditNote();
     } else {
       loadNextCreditNoteNumber();
+
+      // Check for invoiceId query parameter (from invoice list navigation)
+      const invoiceIdParam = searchParams.get('invoiceId');
+      if (invoiceIdParam) {
+        loadInvoiceForCreditNote(invoiceIdParam);
+      }
     }
   }, [id]);
 
@@ -183,6 +196,38 @@ const CreditNoteForm = () => {
     setSearchResults([]);
     setShowDropdown(false);
   };
+
+  // Filter results based on date and amount
+  const filteredResults = useMemo(() => {
+    let results = searchResults;
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(dateFilter));
+      results = results.filter(inv =>
+        new Date(inv.invoice_date) >= daysAgo
+      );
+    }
+
+    // Amount filter
+    if (amountFilter !== 'all') {
+      results = results.filter(inv =>
+        inv.total >= parseInt(amountFilter)
+      );
+    }
+
+    return results;
+  }, [searchResults, dateFilter, amountFilter]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setDateFilter('all');
+    setAmountFilter('all');
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = dateFilter !== 'all' || amountFilter !== 'all';
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -492,12 +537,76 @@ const CreditNoteForm = () => {
                       )}
                     </div>
 
+                    {/* Filter Controls */}
+                    {searchResults.length > 0 && (
+                      <div className={`flex flex-wrap gap-2 mt-3 items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex items-center gap-1">
+                          <Filter size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Filters:</span>
+                        </div>
+
+                        {/* Date Filter */}
+                        <select
+                          value={dateFilter}
+                          onChange={(e) => setDateFilter(e.target.value)}
+                          className={`px-3 py-1.5 rounded-lg border ${
+                            isDarkMode
+                              ? 'border-gray-600 bg-gray-700 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        >
+                          <option value="all">All dates</option>
+                          <option value="7">Last 7 days</option>
+                          <option value="30">Last 30 days</option>
+                          <option value="90">Last 90 days</option>
+                        </select>
+
+                        {/* Amount Filter */}
+                        <select
+                          value={amountFilter}
+                          onChange={(e) => setAmountFilter(e.target.value)}
+                          className={`px-3 py-1.5 rounded-lg border ${
+                            isDarkMode
+                              ? 'border-gray-600 bg-gray-700 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        >
+                          <option value="all">All amounts</option>
+                          <option value="1000">Above AED 1,000</option>
+                          <option value="5000">Above AED 5,000</option>
+                          <option value="10000">Above AED 10,000</option>
+                        </select>
+
+                        {/* Clear Filters Button */}
+                        {hasActiveFilters && (
+                          <button
+                            type="button"
+                            onClick={clearFilters}
+                            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-colors ${
+                              isDarkMode
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                            }`}
+                            title="Clear all filters"
+                          >
+                            <X size={14} />
+                            Clear
+                          </button>
+                        )}
+
+                        {/* Results Count */}
+                        <span className={`ml-auto ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {filteredResults.length} of {searchResults.length} results
+                        </span>
+                      </div>
+                    )}
+
                     {/* Autocomplete Dropdown */}
-                    {showDropdown && searchResults.length > 0 && (
+                    {showDropdown && filteredResults.length > 0 && (
                       <div className={`absolute z-10 w-full mt-1 rounded-lg shadow-lg border max-h-96 overflow-y-auto ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
                       }`}>
-                        {searchResults.map((invoice) => (
+                        {filteredResults.map((invoice) => (
                           <button
                             key={invoice.id}
                             type="button"
@@ -534,11 +643,28 @@ const CreditNoteForm = () => {
                       </div>
                     )}
 
+                    {/* No search results message */}
                     {showDropdown && searchQuery.length > 0 && searchResults.length === 0 && !isSearching && (
                       <div className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
                         isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-300 text-gray-600'
                       }`}>
                         No issued invoices found matching "{searchQuery}"
+                      </div>
+                    )}
+
+                    {/* No filtered results message */}
+                    {showDropdown && searchResults.length > 0 && filteredResults.length === 0 && (
+                      <div className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-300 text-gray-600'
+                      }`}>
+                        No invoices match the selected filters. Try adjusting or{' '}
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          className={`underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                        >
+                          clearing filters
+                        </button>
                       </div>
                     )}
                   </div>
