@@ -4,6 +4,7 @@ import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
 import { supplierService } from '../services/supplierService';
+import pricelistService from '../services/pricelistService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -64,6 +65,12 @@ const CustomerManagement = () => {
     () => supplierService.getSuppliers(),
     []
   );
+
+  // Pricelists API hooks
+  const { data: pricelistsData, loading: loadingPricelists } = useApiData(
+    () => pricelistService.getAll({ include_items: false }),
+    []
+  );
   const { execute: createSupplier, loading: creatingSupplier } = useApi(supplierService.createSupplier);
   const { execute: updateSupplier, loading: updatingSupplier } = useApi(supplierService.updateSupplier);
   const { execute: deleteSupplier } = useApi(supplierService.deleteSupplier);
@@ -75,6 +82,7 @@ const CustomerManagement = () => {
   const { execute: addContactHistory } = useApi(customerService.addContactHistory);
   
   const customers = customersData?.customers || [];
+  const pricelists = pricelistsData?.data || [];
   const canDeleteCustomers = authService.hasPermission('customers','delete') || authService.hasRole('admin');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -105,7 +113,8 @@ const CustomerManagement = () => {
     vat_number: '',
     trn_number: '',
     trade_license_number: '',
-    trade_license_expiry: ''
+    trade_license_expiry: '',
+    pricelist_id: null
   });
 
   // TRN validation: UAE VAT TRN must start with "100" and be 15 digits.
@@ -168,7 +177,8 @@ const CustomerManagement = () => {
         vat_number: '',
         trn_number: '',
         trade_license_number: '',
-        trade_license_expiry: ''
+        trade_license_expiry: '',
+        pricelist_id: null
       });
       setShowAddModal(false);
       refetchCustomers();
@@ -961,6 +971,25 @@ const CustomerManagement = () => {
 
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Price List
+                  </label>
+                  <select
+                    value={newCustomer.pricelist_id || ''}
+                    onChange={(e) => setNewCustomer({...newCustomer, pricelist_id: e.target.value ? Number(e.target.value) : null})}
+                    className={inputClasses}
+                  >
+                    <option value="">-- Use Default Price List --</option>
+                    {pricelists.map((pricelist) => (
+                      <option key={pricelist.id} value={pricelist.id}>
+                        {pricelist.name} {pricelist.isDefault ? '(Default)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p className={`text-xs mt-1 ${textMuted}`}>Optional: Assign a specific price list for this customer</p>
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
                     Status
                   </label>
                   <select
@@ -1339,6 +1368,25 @@ const CustomerManagement = () => {
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, current_credit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     className={inputClasses}
                   />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Price List
+                  </label>
+                  <select
+                    value={selectedCustomer.pricelist_id || ''}
+                    onChange={(e) => setSelectedCustomer({...selectedCustomer, pricelist_id: e.target.value ? Number(e.target.value) : null})}
+                    className={inputClasses}
+                  >
+                    <option value="">-- Use Default Price List --</option>
+                    {pricelists.map((pricelist) => (
+                      <option key={pricelist.id} value={pricelist.id}>
+                        {pricelist.name} {pricelist.isDefault ? '(Default)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p className={`text-xs mt-1 ${textMuted}`}>Optional: Assign a specific price list for this customer</p>
                 </div>
 
                 <div>

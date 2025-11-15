@@ -54,6 +54,12 @@ import AuditLogs from "../pages/AuditLogs";
 
 // Reports Components
 import ReportsDashboard from "../pages/ReportsDashboard";
+import ProfitAnalysisReport from "../pages/ProfitAnalysisReport";
+import PriceHistoryReport from "../pages/PriceHistoryReport";
+
+// Price List Components
+import PriceListList from "../pages/PriceListList";
+import PriceListForm from "../pages/PriceListForm";
 
 // Commission Components
 import AgentCommissionDashboard from "../pages/AgentCommissionDashboard";
@@ -186,6 +192,61 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="analytics.read">
               <ReportsDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/profit-analysis"
+          element={
+            <ProtectedRoute user={user} requiredPermission="analytics.read">
+              <ProfitAnalysisReport />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/price-history"
+          element={
+            <ProtectedRoute user={user} requiredPermission="analytics.read">
+              <PriceHistoryReport />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Price List Routes */}
+        <Route
+          path="/pricelists"
+          element={
+            <ProtectedRoute user={user} requiredPermission="products.read">
+              <PriceListList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/pricelists/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="products.create">
+              <PriceListForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/pricelists/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="products.read">
+              <PriceListForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/pricelists/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="products.update">
+              <PriceListForm />
             </ProtectedRoute>
           }
         />

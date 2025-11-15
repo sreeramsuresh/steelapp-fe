@@ -452,10 +452,21 @@ const CreditNoteForm = () => {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors ${
+                saving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+              }`}
             >
-              <Save className="h-4 w-4" />
-              {saving ? 'Saving...' : 'Save Credit Note'}
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Save Credit Note
+                </>
+              )}
             </button>
           </div>
         </div>

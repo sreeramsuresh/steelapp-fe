@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   formatCurrency,
@@ -466,6 +466,7 @@ const PurchaseOrderForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState({});
   const [availableProducts, setAvailableProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -1056,7 +1057,7 @@ const PurchaseOrderForm = () => {
     setInvalidFields(new Set());
 
     // STEP 3: Proceed with save operation
-    setLoading(true);
+    setIsSaving(true);
     try {
 
       // Get warehouse details
@@ -1193,7 +1194,7 @@ const PurchaseOrderForm = () => {
         setErrors({ submit: errorMessage });
       }
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -1223,24 +1224,40 @@ const PurchaseOrderForm = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleSubmit("draft")}
-                disabled={loading}
-                className={`px-4 py-2 border rounded-lg transition-colors ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
+                disabled={isSaving}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
                     : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
-                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } ${isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
               >
-                Save Draft
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Draft'
+                )}
               </button>
               <button
                 onClick={() => handleSubmit("pending")}
-                disabled={loading}
+                disabled={isSaving}
                 className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                  isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
                 }`}
               >
-                <Save size={18} />
-                Submit PO
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    Submit PO
+                  </>
+                )}
               </button>
             </div>
           </div>

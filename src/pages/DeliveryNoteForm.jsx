@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
@@ -16,6 +16,7 @@ const DeliveryNoteForm = () => {
   const preSelectedInvoiceId = location.state?.selectedInvoiceId;
 
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -262,8 +263,9 @@ const DeliveryNoteForm = () => {
     setInvalidFields(new Set());
 
     // STEP 3: Proceed with save operation
+    setIsSaving(true);
+
     try {
-      setLoading(true);
 
       const submitData = {
         ...formData,
@@ -287,7 +289,7 @@ const DeliveryNoteForm = () => {
     } catch (err) {
       setError('Failed to save delivery note: ' + err.message);
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -612,13 +614,22 @@ const DeliveryNoteForm = () => {
 
           <button
             onClick={handleSubmit}
-            disabled={loading || !selectedInvoice}
+            disabled={isSaving || !selectedInvoice}
             className={`w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md mb-4 ${
-              (loading || !selectedInvoice) ? 'opacity-50 cursor-not-allowed' : ''
+              (isSaving || !selectedInvoice) ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
             }`}
           >
-            <Save size={20} />
-            {loading ? 'Saving...' : (isEdit ? 'Update Delivery Note' : 'Create Delivery Note')}
+            {isSaving ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={20} />
+                {isEdit ? 'Update Delivery Note' : 'Create Delivery Note'}
+              </>
+            )}
           </button>
         </div>
       </div>

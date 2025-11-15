@@ -16,7 +16,8 @@ import {
   X,
   AlertTriangle,
   Pin,
-  Settings
+  Settings,
+  Loader2
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { quotationsAPI, customersAPI, productsAPI } from "../services/api";
@@ -95,6 +96,7 @@ const QuotationForm = () => {
   const [products, setProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPreferences, setShowPreferences] = useState(false);
@@ -585,8 +587,9 @@ const QuotationForm = () => {
       return;
     }
 
+    setIsSaving(true);
+
     try {
-      setLoading(true);
       setError("");
 
       // Transform to backend format (snake_case)
@@ -671,7 +674,7 @@ const QuotationForm = () => {
         setError("Failed to save quotation");
       }
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -1510,18 +1513,23 @@ const QuotationForm = () => {
           </button>
           <button
             type="submit"
-            disabled={loading}
-            className="flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-50 text-sm md:text-base"
+            disabled={isSaving}
+            className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 text-sm md:text-base ${
+              isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+            }`}
           >
-            {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            {isSaving ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Saving...
+              </>
             ) : (
               <>
                 <Save size={14} className="md:hidden" />
                 <Save size={16} className="hidden md:block" />
+                {isEdit ? 'Update' : 'Create'}
               </>
             )}
-            {isEdit ? 'Update' : 'Create'}
           </button>
         </div>
       </form>

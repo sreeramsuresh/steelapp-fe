@@ -52,6 +52,7 @@ import { invoiceService, companyService, commissionService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { pinnedProductsService } from "../services/pinnedProductsService";
+import pricelistService from "../services/pricelistService";
 import { invoicesAPI } from "../services/api";
 import { useApiData, useApi } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
@@ -1054,6 +1055,10 @@ const InvoiceForm = ({ onSave }) => {
     []
   );
 
+  // Pricelist state
+  const [selectedPricelistId, setSelectedPricelistId] = useState(null);
+  const [pricelistName, setPricelistName] = useState(null);
+
   // Update pinned products when data loads
   useEffect(() => {
     if (pinnedData?.pinnedProducts) {
@@ -1301,7 +1306,7 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleCustomerSelect = useCallback(
-    (customerId) => {
+    async (customerId) => {
       const customers = customersData?.customers || [];
       const selectedCustomer = customers.find((c) => c.id == customerId);
 
@@ -1323,6 +1328,23 @@ const InvoiceForm = ({ onSave }) => {
             },
           },
         }));
+
+        // Fetch customer's pricelist
+        if (selectedCustomer.pricelist_id) {
+          try {
+            const response = await pricelistService.getById(selectedCustomer.pricelist_id);
+            setSelectedPricelistId(selectedCustomer.pricelist_id);
+            setPricelistName(response.data.name);
+          } catch (error) {
+            console.error('Error fetching pricelist:', error);
+            setSelectedPricelistId(null);
+            setPricelistName(null);
+          }
+        } else {
+          // Use default pricelist
+          setSelectedPricelistId(null);
+          setPricelistName('Default Price List');
+        }
 
         // Check trade license status
         checkTradeLicenseStatus(customerId);
@@ -1845,6 +1867,7 @@ const InvoiceForm = ({ onSave }) => {
         }
       }, 100);
 
+      setIsSaving(false); // Reset saving state on validation error
       return;
     }
 
@@ -2207,7 +2230,7 @@ const InvoiceForm = ({ onSave }) => {
                 disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
-                  <LoadingSpinner size="sm" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
@@ -3615,7 +3638,7 @@ const InvoiceForm = ({ onSave }) => {
                   className="flex-1 min-h-[48px]"
                 >
                   {savingInvoice || updatingInvoice || isSaving ? (
-                    <LoadingSpinner size="sm" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
@@ -3775,6 +3798,13 @@ const InvoiceForm = ({ onSave }) => {
           invoiceTotal={computedTotal}
           existingPayments={invoice.payments || []}
           editingPayment={editingPayment}
+        />
+
+        {/* Loading Overlay for Issued Invoice Saves */}
+        <LoadingOverlay
+          show={isSaving && invoice.status === 'issued'}
+          message="Saving invoice..."
+          detail="Updating inventory and generating records"
         />
     </>
   );
