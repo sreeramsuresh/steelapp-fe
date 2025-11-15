@@ -21,6 +21,7 @@ import {
   DollarSign,
   CircleDollarSign,
   FileMinus,
+  Award,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -33,6 +34,7 @@ import { payablesService, PAYMENT_MODES } from "../services/payablesService";
 import { authService } from "../services/axiosAuthService";
 import { apiClient } from "../services/api";
 import { uuid } from "../utils/uuid";
+import { commissionService } from "../services/commissionService";
 import InvoicePreview from "../components/InvoicePreview";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
@@ -61,6 +63,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [pageSize, setPageSize] = useState(20);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
   const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
+  const [calculatingCommissionIds, setCalculatingCommissionIds] = useState(new Set());
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -246,7 +249,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         }
 
         // Use backend-provided payment status (GOLD STANDARD)
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
         return paymentStatus === paymentStatusFilter;
       });
     }
@@ -256,7 +259,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       filtered = filtered.filter(invoice => {
         if (invoice.status !== 'issued') return false;
         // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       });
     } else if (activeCardFilter === 'overdue') {
@@ -266,7 +269,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
         return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     } else if (activeCardFilter === 'due_soon') {
@@ -279,7 +282,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         if (invoice.status !== 'issued') return false;
         const dueDate = new Date(invoice.dueDate);
         // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
         return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     }
@@ -372,7 +375,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     // GOLD STANDARD: Use backend-provided payment status directly
     // Backend calculates this consistently using invoiceHelpers.js
-    const paymentStatus = invoice.paymentStatus || 'unpaid';
+    const paymentStatus = invoice.payment_status || 'unpaid';
 
     const config = getPaymentStatusConfig(paymentStatus);
 
@@ -447,7 +450,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = invoice.payment_status || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       })
       .reduce((sum, invoice) => {
@@ -462,7 +465,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       const dueDate = new Date(invoice.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const paymentStatus = invoice.paymentStatus || 'unpaid';
+      const paymentStatus = invoice.payment_status || 'unpaid';
       return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -483,7 +486,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const dueSoonInvoices = invoices.filter(invoice => {
       if (invoice.status !== 'issued') return false;
       const dueDate = new Date(invoice.dueDate);
-      const paymentStatus = invoice.paymentStatus || 'unpaid';
+      const paymentStatus = invoice.payment_status || 'unpaid';
       return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -696,6 +699,37 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setPaymentDrawerInvoice(null);
   };
 
+  const handleCalculateCommission = async (invoice) => {
+    if (calculatingCommissionIds.has(invoice.id)) return;
+
+    if (!invoice.sales_agent_id) {
+      notificationService.warning('No sales agent assigned to this invoice');
+      return;
+    }
+
+    if (invoice.payment_status !== 'paid') {
+      notificationService.warning('Commission can only be calculated for fully paid invoices');
+      return;
+    }
+
+    setCalculatingCommissionIds((prev) => new Set(prev).add(invoice.id));
+
+    try {
+      await commissionService.calculateCommission(invoice.id);
+      notificationService.success('Commission calculated successfully');
+      // Optionally refresh invoice list to show updated commission status
+    } catch (error) {
+      console.error('Error calculating commission:', error);
+      notificationService.error(error.message || 'Failed to calculate commission');
+    } finally {
+      setCalculatingCommissionIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(invoice.id);
+        return newSet;
+      });
+    }
+  };
+
   const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
     const inv = paymentDrawerInvoice;
     if (!inv) return;
@@ -745,6 +779,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       await invoiceService.addInvoicePayment(inv.id, newPayment);
 
       notificationService.success('Payment recorded successfully!');
+
+      // Auto-calculate commission if invoice is now fully paid and has a sales agent
+      if (payment_status === 'paid' && inv.sales_agent_id) {
+        try {
+          await commissionService.calculateCommission(inv.id);
+          notificationService.success('Commission calculated automatically');
+        } catch (commError) {
+          console.error('Error auto-calculating commission:', commError);
+          // Don't show error to user - commission can be calculated manually later
+        }
+      }
 
       // Refresh invoice list to get updated data from backend
       await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted, null);
@@ -1838,6 +1883,29 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           onClick={() => handleRecordPayment(invoice)}
                         >
                           <CircleDollarSign size={18} />
+                        </button>
+                      )}
+                      {/* Calculate Commission Button - Show for paid invoices with sales agent */}
+                      {invoice.payment_status === 'paid' &&
+                       invoice.sales_agent_id &&
+                       !isDeleted && (
+                        <button
+                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                            calculatingCommissionIds.has(invoice.id)
+                              ? "bg-transparent"
+                              : isDarkMode
+                              ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                              : "hover:bg-blue-50 text-blue-600 bg-white"
+                          }`}
+                          title="Calculate Commission"
+                          onClick={() => handleCalculateCommission(invoice)}
+                          disabled={calculatingCommissionIds.has(invoice.id)}
+                        >
+                          {calculatingCommissionIds.has(invoice.id) ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                          ) : (
+                            <Award size={18} />
+                          )}
                         </button>
                       )}
                       {/* Payment Reminder Button */}

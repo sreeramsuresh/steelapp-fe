@@ -25,6 +25,11 @@ export const commissionService = {
     return response.data;
   },
 
+  async deletePlan(id) {
+    const response = await axiosApi.delete(`${API_BASE}/plans/${id}`);
+    return response.data;
+  },
+
   // Sales Agents
   async getAgents() {
     const response = await axiosApi.get(`${API_BASE}/agents`);
@@ -65,6 +70,15 @@ export const commissionService = {
       ...paymentData
     });
     return response.data;
+  },
+
+  // Bulk action aliases for better readability
+  async bulkApprove(transactionIds) {
+    return this.approveTransactions(transactionIds);
+  },
+
+  async bulkMarkPaid(transactionIds, paymentData = {}) {
+    return this.markTransactionsPaid(transactionIds, paymentData);
   },
 
   // Calculation

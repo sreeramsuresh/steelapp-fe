@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Check } from 'lucide-react';
+import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Check, Award } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
 
@@ -317,23 +317,38 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
                 </div>
                 
                 <div className="py-2">
-                  <button 
+                  <button
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
-                      isDarkMode 
-                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white' 
+                      isDarkMode
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white'
                         : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     <User size={18} />
                     <span className="text-sm font-medium">My Profile</span>
                   </button>
-                  
-                  <button 
+
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      navigate('/my-commissions');
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
+                      isDarkMode
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white'
+                        : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
+                    }`}
+                  >
+                    <Award size={18} />
+                    <span className="text-sm font-medium">My Commissions</span>
+                  </button>
+
+                  <button
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
-                      isDarkMode 
-                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white' 
+                      isDarkMode
+                        ? 'text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white'
                         : 'text-gray-800 bg-white hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >

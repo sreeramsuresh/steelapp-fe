@@ -10,16 +10,22 @@ import {
   AlertCircle,
   Award,
   FileText,
-  Settings
+  Settings,
+  Calculator
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
+import { notificationService } from '../services/notificationService';
+import SalesAgentsManagement from '../components/SalesAgentsManagement';
+import CommissionTransactions from '../components/CommissionTransactions';
+import CommissionPlans from '../components/CommissionPlans';
 
 const CommissionDashboard = () => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [calculatingBatch, setCalculatingBatch] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -34,6 +40,28 @@ const CommissionDashboard = () => {
       console.error('Error loading dashboard:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBatchCalculate = async () => {
+    if (calculatingBatch) return;
+
+    try {
+      setCalculatingBatch(true);
+      const response = await commissionService.batchCalculateCommissions();
+
+      if (response.success) {
+        notificationService.success(
+          `Successfully calculated commissions for ${response.data.processed} invoices`
+        );
+        // Reload dashboard to show new commission data
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error batch calculating commissions:', error);
+      notificationService.error(error.message || 'Failed to calculate commissions');
+    } finally {
+      setCalculatingBatch(false);
     }
   };
 
@@ -73,17 +101,36 @@ const CommissionDashboard = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={loadDashboardData}
-              className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-                isDarkMode
-                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              <Calendar className="h-4 w-4" />
-              <span>Refresh</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleBatchCalculate}
+                disabled={calculatingBatch}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {calculatingBatch ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Calculating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="h-4 w-4" />
+                    <span>Batch Calculate All</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={loadDashboardData}
+                className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                  isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                <Calendar className="h-4 w-4" />
+                <span>Refresh</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -359,42 +406,15 @@ const CommissionDashboard = () => {
         )}
 
         {activeTab === 'agents' && (
-          <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
-          } p-6`}>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              Sales Agents Management - Coming soon
-            </p>
-            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Use the API endpoint: GET /api/commissions/agents
-            </p>
-          </div>
+          <SalesAgentsManagement />
         )}
 
         {activeTab === 'transactions' && (
-          <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
-          } p-6`}>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              Commission Transactions - Coming soon
-            </p>
-            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Use the API endpoint: GET /api/commissions/transactions
-            </p>
-          </div>
+          <CommissionTransactions />
         )}
 
         {activeTab === 'settings' && (
-          <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
-          } p-6`}>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              Commission Plans & Settings - Coming soon
-            </p>
-            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Use the API endpoint: GET /api/commissions/plans
-            </p>
-          </div>
+          <CommissionPlans />
         )}
       </div>
     </div>

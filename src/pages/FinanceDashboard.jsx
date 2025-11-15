@@ -7,13 +7,15 @@ import {
   TrendingDown,
   BarChart3,
   RotateCcw,
-  FileText
+  FileText,
+  DollarSign
 } from 'lucide-react';
 
 import Payables from './Payables';
 import Receivables from './Receivables';
 import CreditNoteList from './CreditNoteList';
 import AccountStatementList from './AccountStatementList';
+import CommissionDashboard from './CommissionDashboard';
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -52,6 +54,12 @@ const FinanceDashboard = () => {
       label: 'Credit Notes',
       icon: RotateCcw,
       component: CreditNoteList
+    },
+    {
+      id: 'commissions',
+      label: 'Commissions',
+      icon: DollarSign,
+      component: CommissionDashboard
     }
   ];
 
@@ -73,7 +81,7 @@ const FinanceDashboard = () => {
                 Finance Dashboard
               </h1>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Manage receivables, payables, statements, and credit notes
+                Manage receivables, payables, statements, credit notes, and commissions
               </p>
             </div>
           </div>

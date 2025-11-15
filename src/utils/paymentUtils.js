@@ -112,6 +112,18 @@ export const PAYMENT_STATUS = {
     borderLight: 'border-yellow-300',
     borderDark: 'border-yellow-600'
   },
+  // Backend uses 'paid' - map it to fully_paid config
+  paid: {
+    value: 'paid',
+    label: 'FULLY PAID',
+    color: 'green',
+    bgLight: 'bg-green-100',
+    bgDark: 'bg-green-900/30',
+    textLight: 'text-green-800',
+    textDark: 'text-green-300',
+    borderLight: 'border-green-300',
+    borderDark: 'border-green-600'
+  },
   fully_paid: {
     value: 'fully_paid',
     label: 'FULLY PAID',
@@ -122,6 +134,18 @@ export const PAYMENT_STATUS = {
     textDark: 'text-green-300',
     borderLight: 'border-green-300',
     borderDark: 'border-green-600'
+  },
+  // Backend uses 'overdue' - add config for it
+  overdue: {
+    value: 'overdue',
+    label: 'OVERDUE',
+    color: 'red',
+    bgLight: 'bg-red-100',
+    bgDark: 'bg-red-900/30',
+    textLight: 'text-red-800',
+    textDark: 'text-red-300',
+    borderLight: 'border-red-300',
+    borderDark: 'border-red-600'
   },
   overpaid: {
     value: 'overpaid',

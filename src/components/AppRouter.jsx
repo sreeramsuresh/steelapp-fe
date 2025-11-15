@@ -56,7 +56,7 @@ import AuditLogs from "../pages/AuditLogs";
 import ReportsDashboard from "../pages/ReportsDashboard";
 
 // Commission Components
-import CommissionDashboard from "../pages/CommissionDashboard";
+import AgentCommissionDashboard from "../pages/AgentCommissionDashboard";
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
@@ -191,10 +191,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         <Route
-          path="/commissions"
+          path="/my-commissions"
           element={
-            <ProtectedRoute user={user} requiredPermission="analytics.read">
-              <CommissionDashboard />
+            <ProtectedRoute user={user}>
+              <AgentCommissionDashboard />
             </ProtectedRoute>
           }
         />

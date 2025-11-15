@@ -485,13 +485,23 @@ const CompanySettings = () => {
   const [showRoleGuideModal, setShowRoleGuideModal] = useState(false);
   const [customPermissionModal, setCustomPermissionModal] = useState({ open: false, userId: null });
   const [auditLogModal, setAuditLogModal] = useState({ open: false, userId: null, logs: [] });
+  const [viewPermissionsModal, setViewPermissionsModal] = useState({
+    open: false,
+    userId: null,
+    userName: '',
+    rolePermissions: [],
+    customGrants: [],
+    loading: false
+  });
   const [isDirector, setIsDirector] = useState(false);
   const [allPermissions, setAllPermissions] = useState({});
   const [customPermission, setCustomPermission] = useState({
-    permission_key: '',
+    permission_keys: [], // Changed to array for multiple selections
     reason: '',
     expires_at: null
   });
+  const [permissionSearch, setPermissionSearch] = useState('');
+  const [expandedModules, setExpandedModules] = useState({});
 
   const [newVatRate, setNewVatRate] = useState({
     name: '',
@@ -2244,14 +2254,14 @@ const CompanySettings = () => {
                     <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
                       isDarkMode ? 'bg-teal-600' : 'bg-teal-500'
                     }`}>
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <div>
                       <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {user.name}
+                        {user.name || 'Unnamed User'}
                       </h4>
                       <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {user.email}
+                        {user.email || 'No email'}
                       </p>
                       {/* Display Roles */}
                       <div className="flex flex-wrap gap-2 mt-2">
@@ -2291,6 +2301,39 @@ const CompanySettings = () => {
                       onChange={() => toggleUserStatus(user.id)}
                       label={user.status === 'active' ? 'Active' : 'Inactive'}
                     />
+                    <button
+                      onClick={async () => {
+                        try {
+                          setViewPermissionsModal({
+                            open: true,
+                            userId: user.id,
+                            userName: user.name,
+                            rolePermissions: [],
+                            customGrants: [],
+                            loading: true
+                          });
+
+                          const userPermissions = await roleService.getUserPermissions(user.id);
+
+                          setViewPermissionsModal(prev => ({
+                            ...prev,
+                            rolePermissions: userPermissions.roles || [],
+                            customGrants: userPermissions.customPermissions || [],
+                            loading: false
+                          }));
+                        } catch (error) {
+                          console.error('Error loading permissions:', error);
+                          notificationService.error('Failed to load permissions');
+                          setViewPermissionsModal(prev => ({ ...prev, loading: false }));
+                        }
+                      }}
+                      className={`p-2 rounded-lg transition-colors duration-200 ${
+                        isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                      }`}
+                      title="View All Permissions"
+                    >
+                      <Eye size={16} />
+                    </button>
                     <button
                       onClick={async () => {
                         try {
@@ -2338,15 +2381,17 @@ const CompanySettings = () => {
                           onClick={() => {
                             setCustomPermissionModal({ open: true, userId: user.id });
                             setCustomPermission({
-                              permission_key: '',
+                              permission_keys: [],
                               reason: '',
                               expires_at: null
                             });
+                            setPermissionSearch('');
+                            setExpandedModules({});
                           }}
                           className={`p-2 rounded-lg transition-colors duration-200 ${
                             isDarkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-yellow-600'
                           }`}
-                          title="Grant Custom Permission"
+                          title="Grant Custom Permissions"
                         >
                           <UserCheck size={16} />
                         </button>
@@ -2695,12 +2740,17 @@ const CompanySettings = () => {
       {/* Custom Permission Modal (Director Only) */}
       {customPermissionModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
-            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+          <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
+            <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Grant Custom Permission
-                </h3>
+                <div>
+                  <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Grant Custom Permissions
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Select multiple permissions to grant temporary access
+                  </p>
+                </div>
                 <button
                   onClick={() => setCustomPermissionModal({ open: false, userId: null })}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
@@ -2712,7 +2762,7 @@ const CompanySettings = () => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1">
               <div className={`mb-4 p-4 rounded-lg border-l-4 ${
                 isDarkMode
                   ? 'bg-yellow-900/20 border-yellow-500 text-yellow-300'
@@ -2722,36 +2772,157 @@ const CompanySettings = () => {
                   <Shield size={20} className="mt-0.5 mr-3 flex-shrink-0" />
                   <div className="text-sm">
                     <p className="font-semibold mb-1">Director Override</p>
-                    <p>You can grant any permission to any user temporarily. This is useful for one-time access or emergency situations.</p>
+                    <p>Grant one or more permissions to users temporarily. Use the search box to find permissions quickly, or select entire modules at once.</p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
+                {/* Selected Permissions Count */}
+                {customPermission.permission_keys.length > 0 && (
+                  <div className={`p-3 rounded-lg ${
+                    isDarkMode ? 'bg-teal-900/20 border border-teal-700/30' : 'bg-teal-50 border border-teal-200'
+                  }`}>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}>
+                      {customPermission.permission_keys.length} permission{customPermission.permission_keys.length !== 1 ? 's' : ''} selected
+                    </p>
+                  </div>
+                )}
+
+                {/* Search Box */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                    Permission
+                    Search Permissions
                   </label>
-                  <select
-                    value={customPermission.permission_key}
-                    onChange={(e) => setCustomPermission({...customPermission, permission_key: e.target.value})}
+                  <input
+                    type="text"
+                    value={permissionSearch}
+                    onChange={(e) => setPermissionSearch(e.target.value)}
+                    placeholder="Search by permission name or description..."
                     className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
                     }`}
-                  >
-                    <option value="">Select Permission...</option>
-                    {Object.entries(allPermissions).map(([module, permissions]) => (
-                      <optgroup key={module} label={module.toUpperCase()}>
-                        {permissions.map(perm => (
-                          <option key={perm.key} value={perm.key}>
-                            {perm.description}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                  />
+                </div>
+
+                {/* Permission Checklist */}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                    Select Permissions
+                  </label>
+                  <div className={`border rounded-lg max-h-64 overflow-y-auto ${
+                    isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white'
+                  }`}>
+                    {Object.keys(allPermissions).length === 0 ? (
+                      <div className="p-4 text-center">
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Loading permissions...
+                        </p>
+                      </div>
+                    ) : (
+                      Object.entries(allPermissions)
+                        .filter(([module, permissions]) => {
+                          if (!permissionSearch) return true;
+                          const search = permissionSearch.toLowerCase();
+                          return module.toLowerCase().includes(search) ||
+                                 permissions.some(p =>
+                                   p.description.toLowerCase().includes(search) ||
+                                   p.key.toLowerCase().includes(search)
+                                 );
+                        })
+                        .map(([module, permissions]) => {
+                          const filteredPerms = permissions.filter(p => {
+                            if (!permissionSearch) return true;
+                            const search = permissionSearch.toLowerCase();
+                            return p.description.toLowerCase().includes(search) ||
+                                   p.key.toLowerCase().includes(search);
+                          });
+
+                          if (filteredPerms.length === 0) return null;
+
+                          const isExpanded = expandedModules[module] !== false; // Default to expanded
+                          const modulePerms = filteredPerms.map(p => p.key);
+                          const allSelected = modulePerms.every(k => customPermission.permission_keys.includes(k));
+                          const someSelected = modulePerms.some(k => customPermission.permission_keys.includes(k));
+
+                          return (
+                            <div key={module} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}>
+                              {/* Module Header */}
+                              <div
+                                className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
+                                  isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                                }`}
+                                onClick={() => setExpandedModules(prev => ({ ...prev, [module]: !isExpanded }))}
+                              >
+                                <div className="flex items-center flex-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    ref={input => {
+                                      if (input) {
+                                        input.indeterminate = someSelected && !allSelected;
+                                      }
+                                    }}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      const newKeys = e.target.checked
+                                        ? [...new Set([...customPermission.permission_keys, ...modulePerms])]
+                                        : customPermission.permission_keys.filter(k => !modulePerms.includes(k));
+                                      setCustomPermission({ ...customPermission, permission_keys: newKeys });
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="mr-3 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                  />
+                                  <span className={`font-medium uppercase text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {module}
+                                  </span>
+                                  <span className={`ml-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    ({filteredPerms.length})
+                                  </span>
+                                </div>
+                                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                              </div>
+
+                              {/* Module Permissions */}
+                              {isExpanded && (
+                                <div className={`${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                                  {filteredPerms.map(perm => (
+                                    <label
+                                      key={perm.key}
+                                      className={`flex items-start p-3 pl-10 cursor-pointer transition-colors ${
+                                        isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={customPermission.permission_keys.includes(perm.key)}
+                                        onChange={(e) => {
+                                          const newKeys = e.target.checked
+                                            ? [...customPermission.permission_keys, perm.key]
+                                            : customPermission.permission_keys.filter(k => k !== perm.key);
+                                          setCustomPermission({ ...customPermission, permission_keys: newKeys });
+                                        }}
+                                        className="mt-0.5 mr-3 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                      />
+                                      <div className="flex-1">
+                                        <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                          {perm.description}
+                                        </div>
+                                        <div className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                                          {perm.key}
+                                        </div>
+                                      </div>
+                                    </label>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                    )}
+                  </div>
                 </div>
 
                 <TextField
@@ -2784,7 +2955,7 @@ const CompanySettings = () => {
               </div>
             </div>
 
-            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+            <div className={`p-6 border-t flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button
                 variant="outline"
                 onClick={() => setCustomPermissionModal({ open: false, userId: null })}
@@ -2794,28 +2965,48 @@ const CompanySettings = () => {
               <Button
                 onClick={async () => {
                   try {
-                    if (!customPermission.permission_key || !customPermission.reason) {
-                      notificationService.warning('Permission and reason are required');
+                    if (customPermission.permission_keys.length === 0 || !customPermission.reason) {
+                      notificationService.warning('Please select at least one permission and provide a reason');
                       return;
                     }
 
-                    await roleService.grantCustomPermission(
-                      customPermissionModal.userId,
-                      customPermission.permission_key,
-                      customPermission.reason,
-                      customPermission.expires_at || null
+                    // Grant all selected permissions
+                    const results = await Promise.allSettled(
+                      customPermission.permission_keys.map(permKey =>
+                        roleService.grantCustomPermission(
+                          customPermissionModal.userId,
+                          permKey,
+                          customPermission.reason,
+                          customPermission.expires_at || null
+                        )
+                      )
                     );
 
-                    notificationService.success('Custom permission granted successfully!');
+                    const succeeded = results.filter(r => r.status === 'fulfilled').length;
+                    const failed = results.filter(r => r.status === 'rejected').length;
+
+                    if (failed === 0) {
+                      notificationService.success(
+                        `Successfully granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}!`
+                      );
+                    } else if (succeeded > 0) {
+                      notificationService.warning(
+                        `Granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}, but ${failed} failed`
+                      );
+                    } else {
+                      notificationService.error('Failed to grant permissions');
+                    }
+
                     setCustomPermissionModal({ open: false, userId: null });
                   } catch (error) {
-                    console.error('Error granting permission:', error);
-                    notificationService.error(error.response?.data?.error || 'Failed to grant permission');
+                    console.error('Error granting permissions:', error);
+                    notificationService.error(error.response?.data?.error || 'Failed to grant permissions');
                   }
                 }}
                 startIcon={<Shield size={20} />}
+                disabled={customPermission.permission_keys.length === 0}
               >
-                Grant Permission
+                Grant {customPermission.permission_keys.length > 0 ? `${customPermission.permission_keys.length} ` : ''}Permission{customPermission.permission_keys.length !== 1 ? 's' : ''}
               </Button>
             </div>
           </div>
@@ -2894,6 +3085,186 @@ const CompanySettings = () => {
               <Button
                 variant="outline"
                 onClick={() => setAuditLogModal({ open: false, userId: null, logs: [] })}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View All Permissions Modal */}
+      {viewPermissionsModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
+            {/* Header */}
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    User Permissions
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {viewPermissionsModal.userName || 'User'} - Complete Permission Breakdown
+                  </p>
+                </div>
+                <button
+                  onClick={() => setViewPermissionsModal({ open: false, userId: null, userName: '', rolePermissions: [], customGrants: [], loading: false })}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {viewPermissionsModal.loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Permissions from Roles */}
+                  {viewPermissionsModal.rolePermissions.length > 0 && (
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <Shield className={`mr-2 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} size={20} />
+                        <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          From Assigned Roles
+                        </h4>
+                      </div>
+                      <div className="space-y-4">
+                        {viewPermissionsModal.rolePermissions.map((role, idx) => (
+                          <div
+                            key={idx}
+                            className={`rounded-lg border ${
+                              isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+                            } p-4`}
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {role.display_name}
+                              </h5>
+                              {role.is_director && (
+                                <span className={`px-2 py-1 text-xs rounded ${
+                                  isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
+                                }`}>
+                                  Director
+                                </span>
+                              )}
+                            </div>
+                            {role.description && (
+                              <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {role.description}
+                              </p>
+                            )}
+                            {role.permissions && role.permissions.length > 0 ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {role.permissions.map((perm, permIdx) => (
+                                  <div
+                                    key={permIdx}
+                                    className={`flex items-center text-sm ${
+                                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                  >
+                                    <CheckCircle size={14} className="mr-2 text-green-500 flex-shrink-0" />
+                                    <span className="truncate" title={perm.description}>
+                                      {perm.description || perm.permission_key}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className={`text-sm italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                No specific permissions defined (may have full access)
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom Permission Grants */}
+                  {viewPermissionsModal.customGrants && viewPermissionsModal.customGrants.length > 0 && (
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <UserCheck className={`mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`} size={20} />
+                        <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          Custom Permission Grants
+                        </h4>
+                      </div>
+                      <div className="space-y-3">
+                        {viewPermissionsModal.customGrants.map((grant, idx) => (
+                          <div
+                            key={idx}
+                            className={`rounded-lg border ${
+                              isDarkMode ? 'bg-yellow-900/10 border-yellow-700/30' : 'bg-yellow-50 border-yellow-200'
+                            } p-4`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center">
+                                  <CheckCircle size={14} className="mr-2 text-yellow-500" />
+                                  <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {grant.permission_key}
+                                  </span>
+                                </div>
+                                {grant.reason && (
+                                  <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <strong>Reason:</strong> {grant.reason}
+                                  </p>
+                                )}
+                                {grant.granted_by_name && (
+                                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <strong>Granted by:</strong> {grant.granted_by_name}
+                                  </p>
+                                )}
+                              </div>
+                              {grant.expires_at && (
+                                <div className="ml-4">
+                                  <span className={`inline-flex items-center px-2 py-1 text-xs rounded ${
+                                    new Date(grant.expires_at) < new Date()
+                                      ? isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700'
+                                      : isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
+                                  }`}>
+                                    <Clock size={12} className="mr-1" />
+                                    Expires: {new Date(grant.expires_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* No Permissions */}
+                  {viewPermissionsModal.rolePermissions.length === 0 &&
+                   (!viewPermissionsModal.customGrants || viewPermissionsModal.customGrants.length === 0) && (
+                    <div className="text-center py-12">
+                      <Shield size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                      <h4 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        No Permissions Assigned
+                      </h4>
+                      <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        This user has no roles or custom permissions assigned.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setViewPermissionsModal({ open: false, userId: null, userName: '', rolePermissions: [], customGrants: [], loading: false })}
               >
                 Close
               </Button>
