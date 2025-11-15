@@ -1,4 +1,5 @@
 import { formatCurrency, formatDate, calculateTRN } from './invoiceUtils';
+import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 
@@ -167,13 +168,13 @@ const createQuotationElement = (q, company) => {
         ${q.notes ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Notes:</h4>
-            <p style="margin:0; color:#64748b;">${q.notes}</p>
+            <p style="margin:0; color:#64748b;">${escapeHtml(q.notes)}</p>
           </div>
         ` : ''}
         ${q.terms_and_conditions ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Terms & Conditions:</h4>
-            <p style="margin:0; color:#64748b;">${q.terms_and_conditions.replace(/\n/g, '<br>')}</p>
+            <p style="margin:0; color:#64748b;">${escapeHtmlWithLineBreaks(q.terms_and_conditions)}</p>
           </div>
         ` : ''}
       </div>

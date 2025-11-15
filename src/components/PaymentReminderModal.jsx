@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Phone, Calendar, Trash2, Edit2, Plus } from 'lucide-react';
+import { X, Phone, Calendar, Trash2, Edit2, Plus, Loader2 } from 'lucide-react';
 import { formatDateTime } from '../utils/invoiceUtils';
 import { apiService, tokenUtils } from '../services/axiosApi';
 import ConfirmDialog from './ConfirmDialog';
@@ -20,6 +20,7 @@ const getFirstName = (name) => {
 const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
@@ -108,26 +109,20 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('=== SAVE BUTTON CLICKED ===');
-    console.log('Form data:', formData);
-    console.log('Invoice ID:', invoice?.id);
-    console.log('Token exists:', !!localStorage.getItem('token'));
-
     if (!formData.notes.trim()) {
-      console.log('ERROR: Notes are empty');
       return;
     }
+
+    setIsSaving(true);
 
     try {
       if (editingId) {
         // Update existing reminder
-        console.log('Updating reminder:', editingId);
         const updatedReminder = await apiService.put(`/invoices/payment-reminders/${editingId}`, formData);
 
         setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
 
         // Reset form
-        console.log('Resetting form after update...');
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
           notes: '',
@@ -136,21 +131,14 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         });
         setEditingId(null);
         notificationService.success('Note updated successfully');
-        console.log('=== UPDATE COMPLETED SUCCESSFULLY ===');
       } else {
         // Create new reminder
-        const url = `/invoices/${invoice.id}/payment-reminders`;
-        console.log('Making POST request to:', url);
-        console.log('Request body:', JSON.stringify(formData));
-
-        const newReminder = await apiService.post(url, formData);
-        console.log('New reminder received:', newReminder);
+        const newReminder = await apiService.post(`/invoices/${invoice.id}/payment-reminders`, formData);
 
         // Add new reminder to the TOP of the list
         setReminders([newReminder, ...reminders]);
 
         // Reset form
-        console.log('Resetting form...');
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
           notes: '',
@@ -160,7 +148,6 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         setEditingId(null);
 
         // Delay refresh to allow smooth state transition (300ms)
-        console.log('Refreshing list...');
         setTimeout(async () => {
           await fetchReminders();
         }, 300);
@@ -169,11 +156,12 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           onSave(newReminder);
         }
         notificationService.success('Note saved successfully');
-        console.log('=== SAVE COMPLETED SUCCESSFULLY ===');
       }
     } catch (err) {
       console.error('Error saving reminder:', err);
       notificationService.error(`Error saving note: ${err.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -434,14 +422,27 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
               <div className="flex gap-2 mt-4">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-yellow-500 dark:bg-yellow-600 text-white rounded-lg hover:bg-yellow-600 dark:hover:bg-yellow-700 transition-colors font-medium shadow"
+                  disabled={isSaving}
+                  className={`flex-1 px-4 py-2 bg-yellow-500 dark:bg-yellow-600 text-white rounded-lg hover:bg-yellow-600 dark:hover:bg-yellow-700 transition-colors font-medium shadow inline-flex items-center justify-center ${
+                    isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+                  }`}
                 >
-                  {editingId ? 'Update' : 'Save'} Note
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    `${editingId ? 'Update' : 'Save'} Note`
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow"
+                  disabled={isSaving}
+                  className={`flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
+                    isSaving ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   Cancel
                 </button>

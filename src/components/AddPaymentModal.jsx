@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, Loader2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
 import {
@@ -22,6 +22,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
   });
 
   const [errors, setErrors] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const balanceDue = calculateBalanceDue(invoiceTotal, existingPayments);
 
   // Load editing payment data
@@ -42,6 +43,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
       });
     }
     setErrors([]);
+    setIsSaving(false); // Reset saving state when modal opens
   }, [editingPayment, isOpen]);
 
   const handleSave = () => {
@@ -52,6 +54,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
       return;
     }
 
+    // Set saving state
+    setIsSaving(true);
+
     // Save the payment
     onSave({
       ...payment,
@@ -61,6 +66,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
 
     // Close modal with smooth transition delay (300ms for React state to settle)
     setTimeout(() => {
+      setIsSaving(false);
       onClose();
     }, 300);
   };
@@ -307,19 +313,30 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
+            disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode
                 ? 'bg-gray-700 hover:bg-gray-600 text-white'
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-            }`}
+            } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+            disabled={isSaving}
+            className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
+              isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+            }`}
           >
-            {editingPayment ? 'Update Payment' : 'Add Payment'}
+            {isSaving ? (
+              <>
+                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                Saving...
+              </>
+            ) : (
+              editingPayment ? 'Update Payment' : 'Add Payment'
+            )}
           </button>
         </div>
       </div>

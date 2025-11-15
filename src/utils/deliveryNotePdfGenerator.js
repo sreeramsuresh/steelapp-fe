@@ -1,6 +1,7 @@
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 import { formatDate } from './invoiceUtils';
+import { escapeHtml } from './htmlEscape';
 
 export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   try {
@@ -126,7 +127,7 @@ const createDNElement = (dn, company) => {
     ${dn.notes ? `
       <div style="margin-bottom: 30px;">
         <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
-        <p style="margin: 0; color: #64748b;">${dn.notes}</p>
+        <p style="margin: 0; color: #64748b;">${escapeHtml(dn.notes)}</p>
       </div>
     ` : ''}
 

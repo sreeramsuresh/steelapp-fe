@@ -149,13 +149,13 @@ const createPOElement = (po, company) => {
         ${po.notes ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
-            <p style="margin: 0; color: #64748b;">${po.notes}</p>
+            <p style="margin: 0; color: #64748b;">${escapeHtml(po.notes)}</p>
           </div>
         ` : ''}
         ${po.terms ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms:</h4>
-            <p style="margin: 0; color: #64748b;">${po.terms.replace(/\n/g, '<br>')}</p>
+            <p style="margin: 0; color: #64748b;">${escapeHtmlWithLineBreaks(po.terms)}</p>
           </div>
         ` : ''}
       </div>

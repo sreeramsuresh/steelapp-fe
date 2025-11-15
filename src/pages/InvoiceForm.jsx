@@ -21,6 +21,7 @@ import {
   Pin,
   PinOff,
   Settings,
+  Loader2,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -57,6 +58,7 @@ import { notificationService } from "../services/notificationService";
 import PaymentSummary from "../components/PaymentSummary";
 import PaymentLedger from "../components/PaymentLedger";
 import AddPaymentModal from "../components/AddPaymentModal";
+import LoadingOverlay from "../components/LoadingOverlay";
 import {
   calculateTotalPaid,
   calculateBalanceDue,
