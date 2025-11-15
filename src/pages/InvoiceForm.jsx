@@ -1366,7 +1366,7 @@ const InvoiceForm = ({ onSave }) => {
     []
   );
 
-  const handleProductSelect = useCallback((index, product) => {
+  const handleProductSelect = useCallback(async (index, product) => {
     if (product && typeof product === "object") {
       // Helper: extract thickness from product specs or size string
       const getThickness = (p) => {
@@ -1389,6 +1389,21 @@ const InvoiceForm = ({ onSave }) => {
         return "";
       };
 
+      // Fetch price from pricelist if available
+      let sellingPrice = product.selling_price || 0;
+      if (selectedPricelistId) {
+        try {
+          const priceResponse = await pricelistService.getProductPrice(product.id, {
+            pricelist_id: selectedPricelistId
+          });
+          sellingPrice = priceResponse.data?.price || product.selling_price || 0;
+        } catch (error) {
+          console.error('Error fetching pricelist price:', error);
+          // Fallback to default product price
+          sellingPrice = product.selling_price || 0;
+        }
+      }
+
       setInvoice((prev) => {
         const newItems = [...prev.items];
         newItems[index] = {
@@ -1405,11 +1420,11 @@ const InvoiceForm = ({ onSave }) => {
           length: product.length || "",
           thickness: getThickness(product),
           // unit removed from invoice UI
-          rate: product.selling_price || 0,
+          rate: sellingPrice,
           vatRate: newItems[index].vatRate || 5, // Preserve existing VAT rate or default to 5%
           amount: calculateItemAmount(
             newItems[index].quantity,
-            product.selling_price || 0
+            sellingPrice
           ),
         };
 
@@ -1422,7 +1437,7 @@ const InvoiceForm = ({ onSave }) => {
       // Clear search input for this row
       setSearchInputs((prev) => ({ ...prev, [index]: "" }));
     }
-  }, []);
+  }, [selectedPricelistId]);
 
   // No automatic coupling; due date is independently editable by the user
 
@@ -2445,6 +2460,14 @@ const InvoiceForm = ({ onSave }) => {
                             ]
                               .filter(Boolean)
                               .join(", ")}
+                          </p>
+                        )}
+                        {pricelistName && (
+                          <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                            <span className="font-medium">Price List:</span>{" "}
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                              {pricelistName}
+                            </span>
                           </p>
                         )}
                       </div>

@@ -594,3 +594,6 @@ export const suppliersAPI = {
     });
   },
 };
+
+// Export apiClient as default for backward compatibility
+export default apiClient;

@@ -24,7 +24,7 @@ import {
   AttachMoney as RevenueIcon,
   ShoppingCart as SalesIcon
 } from '@mui/icons-material';
-import api from '../config/api';
+import api from '../services/api';
 import { toast } from 'react-toastify';
 
 export default function ProfitAnalysisReport() {
