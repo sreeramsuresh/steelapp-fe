@@ -142,6 +142,13 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: BarChart3,
           description: 'Business insights and performance analytics',
           requiredPermission: 'analytics.read'
+        },
+        {
+          name: 'Commission Management',
+          path: '/commissions',
+          icon: DollarSign,
+          description: 'Track sales commissions and agent performance',
+          requiredPermission: 'analytics.read'
         }
       ]
     },

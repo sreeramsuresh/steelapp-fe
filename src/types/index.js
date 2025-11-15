@@ -90,7 +90,12 @@ export const createInvoice = () => ({
   payment_status: 'unpaid', // unpaid, partially_paid, fully_paid
   total_paid: 0, // Calculated from payments array
   balance_due: 0, // total - total_paid
-  last_payment_date: null // Date of most recent payment
+  last_payment_date: null, // Date of most recent payment
+  // Commission tracking
+  sales_agent_id: null, // ID of sales agent assigned to this invoice
+  commission_eligible: true, // Whether this invoice is eligible for commission
+  commission_calculated: false, // Whether commission has been calculated
+  commission_paid: false // Whether commission has been paid
 });
 
 export const createCompany = () => ({

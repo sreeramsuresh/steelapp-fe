@@ -2201,18 +2201,39 @@ const CompanySettings = () => {
     <SettingsPaper>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            User Management
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              User Management
+            </h3>
+            <button
+              onClick={() => setShowRoleGuideModal(true)}
+              className={`p-2 rounded-lg transition-colors duration-200 ${
+                isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
+              }`}
+              title="Role Guide & Best Practices"
+            >
+              <HelpCircle size={20} />
+            </button>
+          </div>
           <Button
             variant="primary"
-            startIcon={<Plus size={16} />}
-            onClick={() => setShowAddUserModal(true)}
+            startIcon={<UserPlus size={16} />}
+            onClick={() => {
+              setNewUser({
+                name: '',
+                email: '',
+                password: '',
+                role_ids: []
+              });
+              setSelectedUserRoles([]);
+              setShowAddUserModal(true);
+            }}
           >
             Add User
           </Button>
         </div>
 
+        {/* User List */}
         <div className="space-y-4">
           {users.map(user => (
             <SettingsCard key={user.id} className={user.status === 'active' ? '' : 'opacity-60'}>
@@ -2232,16 +2253,38 @@ const CompanySettings = () => {
                       <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {user.email}
                       </p>
-                      <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded border ${
-                        isDarkMode 
-                          ? 'text-teal-400 border-teal-600 bg-teal-900/20' 
-                          : 'text-teal-600 border-teal-300 bg-teal-50'
-                      }`}>
-                        {userRoles.find(r => r.id === user.role)?.name}
-                      </span>
+                      {/* Display Roles */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {user.roles && user.roles.length > 0 ? (
+                          user.roles.map((role, idx) => (
+                            <span
+                              key={idx}
+                              className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
+                                role.is_director
+                                  ? isDarkMode
+                                    ? 'text-purple-400 border-purple-600 bg-purple-900/20'
+                                    : 'text-purple-600 border-purple-300 bg-purple-50'
+                                  : isDarkMode
+                                    ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                                    : 'text-teal-600 border-teal-300 bg-teal-50'
+                              }`}
+                            >
+                              {role.display_name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
+                            isDarkMode
+                              ? 'text-gray-400 border-gray-600 bg-gray-800'
+                              : 'text-gray-600 border-gray-300 bg-gray-50'
+                          }`}>
+                            No roles assigned
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3">
                     <Switch
                       checked={user.status === 'active'}
@@ -2249,11 +2292,66 @@ const CompanySettings = () => {
                       label={user.status === 'active' ? 'Active' : 'Inactive'}
                     />
                     <button
-                      onClick={() => openEditUser(user)}
-                      className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'}`}
+                      onClick={async () => {
+                        try {
+                          const userPermissions = await roleService.getUserPermissions(user.id);
+                          setEditUserModal({
+                            open: true,
+                            user: {
+                              ...user,
+                              role_ids: userPermissions.roles.map(r => r.id),
+                              roles: userPermissions.roles
+                            }
+                          });
+                          setSelectedUserRoles(userPermissions.roles.map(r => r.id));
+                        } catch (error) {
+                          console.error('Error loading user data:', error);
+                          notificationService.error('Failed to load user data');
+                        }
+                      }}
+                      className={`p-2 rounded-lg transition-colors duration-200 ${
+                        isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
+                      }`}
                     >
                       <Edit size={16} />
                     </button>
+                    {isDirector && (
+                      <>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const logs = await roleService.getAuditLog(user.id, 50);
+                              setAuditLogModal({ open: true, userId: user.id, logs });
+                            } catch (error) {
+                              console.error('Error loading audit log:', error);
+                              notificationService.error('Failed to load audit log');
+                            }
+                          }}
+                          className={`p-2 rounded-lg transition-colors duration-200 ${
+                            isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                          }`}
+                          title="View Audit Log"
+                        >
+                          <History size={16} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setCustomPermissionModal({ open: true, userId: user.id });
+                            setCustomPermission({
+                              permission_key: '',
+                              reason: '',
+                              expires_at: null
+                            });
+                          }}
+                          className={`p-2 rounded-lg transition-colors duration-200 ${
+                            isDarkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-yellow-600'
+                          }`}
+                          title="Grant Custom Permission"
+                        >
+                          <UserCheck size={16} />
+                        </button>
+                      </>
+                    )}
                     <button
                       onClick={() => deleteUser(user.id)}
                       className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
@@ -2266,7 +2364,7 @@ const CompanySettings = () => {
                 <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
                 {/* User Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Created
@@ -2284,64 +2382,22 @@ const CompanySettings = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* User Permissions */}
-                <div className={`border rounded-lg ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <details className="group">
-                    <summary className={`flex justify-between items-center p-3 cursor-pointer ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
-                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Permissions
-                      </span>
-                      <ChevronDown size={16} className={`transition-transform group-open:rotate-180 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                    </summary>
-                    <div className={`p-3 border-t space-y-3 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                      {Object.entries(user.permissions).map(([module, perms]) => (
-                        <div key={module} className="flex justify-between items-center">
-                          <span className={`text-sm font-medium capitalize ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {module}
-                          </span>
-                          <div className="flex space-x-1">
-                            {typeof perms === 'object' ? (
-                              Object.entries(perms).map(([action, allowed]) => (
-                                <span
-                                  key={action}
-                                  className={`px-2 py-1 text-xs font-medium rounded ${
-                                    allowed
-                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                      : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                                  }`}
-                                >
-                                  {action.charAt(0).toUpperCase()}
-                                </span>
-                              ))
-                            ) : (
-                              <span
-                                className={`px-2 py-1 text-xs font-medium rounded ${
-                                  perms
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                                }`}
-                              >
-                                R
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                </div>
               </div>
             </SettingsCard>
           ))}
         </div>
       </div>
 
-      
+      {/* Role Guide Modal */}
+      <RoleGuideModal
+        isOpen={showRoleGuideModal}
+        onClose={() => setShowRoleGuideModal(false)}
+      />
+
       {/* Add User Modal */}
       {showAddUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
+          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
             <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
                 <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -2357,7 +2413,7 @@ const CompanySettings = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
@@ -2373,17 +2429,6 @@ const CompanySettings = () => {
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                   placeholder="Enter email address"
                 />
-                <div>
-                  <Select
-                    label="Role"
-                    value={newUser.role}
-                    onChange={(e) => handleRoleChange(e.target.value)}
-                    options={userRoles.map(role => ({ value: role.id, label: role.name }))}
-                  />
-                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {userRoles.find(r => r.id === newUser.role)?.description}
-                  </p>
-                </div>
                 <TextField
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
@@ -2402,57 +2447,57 @@ const CompanySettings = () => {
                 />
               </div>
 
+              {/* Multi-Role Selection */}
               <div className="mt-6">
-                <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Permissions
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(newUser.permissions).map(([module, perms]) => (
-                    <SettingsCard key={module}>
-                      <div className="p-4">
-                        <h5 className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {moduleLabel(module)}
-                        </h5>
-                        <div className="space-y-2">
-                          {typeof perms === 'object' ? (
-                            Object.entries(perms).map(([action, allowed]) => (
-                              <Checkbox
-                                key={action}
-                                checked={allowed}
-                                onChange={(e) => setNewUser({
-                                  ...newUser,
-                                  permissions: {
-                                    ...newUser.permissions,
-                                    [module]: {
-                                      ...newUser.permissions[module],
-                                      [action]: e.target.checked
-                                    }
-                                  }
-                                })}
-                                label={action.charAt(0).toUpperCase() + action.slice(1)}
-                              />
-                            ))
-                          ) : (
-                            <Checkbox
-                              checked={perms}
-                              onChange={(e) => setNewUser({
-                                ...newUser,
-                                permissions: {
-                                  ...newUser.permissions,
-                                  [module]: { read: e.target.checked }
-                                }
-                              })}
-                              label="Read"
-                            />
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Assign Roles (select multiple)
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availableRoles.map(role => (
+                    <div
+                      key={role.id}
+                      onClick={() => {
+                        const isSelected = selectedUserRoles.includes(role.id);
+                        if (isSelected) {
+                          setSelectedUserRoles(selectedUserRoles.filter(id => id !== role.id));
+                        } else {
+                          setSelectedUserRoles([...selectedUserRoles, role.id]);
+                        }
+                      }}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        selectedUserRoles.includes(role.id)
+                          ? isDarkMode
+                            ? 'border-teal-500 bg-teal-900/20'
+                            : 'border-teal-500 bg-teal-50'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {role.display_name}
+                          </h5>
+                          {role.description && (
+                            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {role.description}
+                            </p>
                           )}
                         </div>
+                        {selectedUserRoles.includes(role.id) && (
+                          <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                        )}
                       </div>
-                    </SettingsCard>
+                    </div>
                   ))}
                 </div>
+                <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Click on roles to select/deselect. Users can have multiple roles.
+                </p>
               </div>
             </div>
-            
+
             <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button
                 variant="outline"
@@ -2461,7 +2506,45 @@ const CompanySettings = () => {
                 Cancel
               </Button>
               <Button
-                onClick={handleAddUser}
+                onClick={async () => {
+                  try {
+                    // 1. Create user via existing API
+                    const userData = {
+                      name: newUser.name,
+                      email: newUser.email,
+                      password: newUser.password
+                    };
+                    const createdUser = await userAdminAPI.create(userData);
+
+                    // 2. Assign selected roles
+                    if (selectedUserRoles.length > 0) {
+                      await roleService.assignRoles(createdUser.id, selectedUserRoles);
+                    }
+
+                    notificationService.success('User created successfully!');
+                    setShowAddUserModal(false);
+
+                    // Refresh user list
+                    const remoteUsers = await userAdminAPI.list();
+                    const mapped = await Promise.all(remoteUsers.map(async (u) => {
+                      const userPerms = await roleService.getUserPermissions(u.id);
+                      return {
+                        id: String(u.id),
+                        name: u.name,
+                        email: u.email,
+                        role: u.role,
+                        status: u.status || 'active',
+                        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+                        lastLogin: u.last_login || u.lastLogin || null,
+                        roles: userPerms.roles || []
+                      };
+                    }));
+                    setUsers(mapped);
+                  } catch (error) {
+                    console.error('Error creating user:', error);
+                    notificationService.error(error.response?.data?.error || 'Failed to create user');
+                  }
+                }}
                 startIcon={<Save size={20} />}
               >
                 Add User
@@ -2474,7 +2557,7 @@ const CompanySettings = () => {
       {/* Edit User Modal */}
       {editUserModal.open && editUserModal.user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
+          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
             <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
                 <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -2506,118 +2589,51 @@ const CompanySettings = () => {
                   onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, email: e.target.value } }))}
                   placeholder="Enter email address"
                 />
-                <div>
-                  <Select
-                    label="Role"
-                    value={editUserModal.user.role}
-                    onChange={(e) => handleEditRoleChange(e.target.value)}
-                    options={userRoles.map(role => ({ value: role.id, label: role.name }))}
-                  />
-                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {userRoles.find(r => r.id === editUserModal.user.role)?.description}
-                  </p>
-                </div>
-                {/* Password change / reset */}
-                {(() => {
-                  const currentUser = authService.getUser();
-                  const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
-                  if (isSelf) {
-                    return (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
-                        <TextField
-                          label="Current Password"
-                          type={showPassword ? 'text' : 'password'}
-                          value={editUserModal.user.currentPassword}
-                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, currentPassword: e.target.value } }))}
-                          placeholder="Enter current password"
-                        />
-                        <TextField
-                          label="New Password"
-                          type={showPassword ? 'text' : 'password'}
-                          value={editUserModal.user.newPassword}
-                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, newPassword: e.target.value } }))}
-                          placeholder="Enter new password"
-                          endAdornment={
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
-                          }
-                        />
-                        <TextField
-                          label="Confirm New Password"
-                          type={showPassword ? 'text' : 'password'}
-                          value={editUserModal.user.confirmPassword}
-                          onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, confirmPassword: e.target.value } }))}
-                          placeholder="Re-enter new password"
-                        />
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
-                      <TextField
-                        label="New Password (admin reset)"
-                        type={showPassword ? 'text' : 'password'}
-                        value={editUserModal.user.newPassword}
-                        onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, newPassword: e.target.value } }))}
-                        placeholder="Enter new password"
-                        endAdornment={
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
-                          >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                        }
-                      />
-                      <TextField
-                        label="Confirm New Password"
-                        type={showPassword ? 'text' : 'password'}
-                        value={editUserModal.user.confirmPassword}
-                        onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, confirmPassword: e.target.value } }))}
-                        placeholder="Re-enter new password"
-                      />
-                    </div>
-                  );
-                })()}
               </div>
 
+              {/* Multi-Role Selection */}
               <div className="mt-6">
-                <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Permissions
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(editUserModal.user.permissions || {}).map(([module, perms]) => (
-                    <SettingsCard key={module}>
-                      <div className="p-4">
-                        <h5 className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {moduleLabel(module)}
-                        </h5>
-                        <div className="space-y-2">
-                          {typeof perms === 'object' ? (
-                            Object.entries(perms).map(([action, allowed]) => (
-                              <Checkbox
-                                key={action}
-                                checked={!!allowed}
-                                onChange={(e) => setEditPermission(module, action, e.target.checked)}
-                                label={action.charAt(0).toUpperCase() + action.slice(1)}
-                              />
-                            ))
-                          ) : (
-                            <Checkbox
-                              checked={!!perms}
-                              onChange={(e) => setEditPermission(module, 'read', e.target.checked)}
-                              label="Read"
-                            />
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Assigned Roles (select multiple)
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availableRoles.map(role => (
+                    <div
+                      key={role.id}
+                      onClick={() => {
+                        const isSelected = selectedUserRoles.includes(role.id);
+                        if (isSelected) {
+                          setSelectedUserRoles(selectedUserRoles.filter(id => id !== role.id));
+                        } else {
+                          setSelectedUserRoles([...selectedUserRoles, role.id]);
+                        }
+                      }}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        selectedUserRoles.includes(role.id)
+                          ? isDarkMode
+                            ? 'border-teal-500 bg-teal-900/20'
+                            : 'border-teal-500 bg-teal-50'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {role.display_name}
+                          </h5>
+                          {role.description && (
+                            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {role.description}
+                            </p>
                           )}
                         </div>
+                        {selectedUserRoles.includes(role.id) && (
+                          <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                        )}
                       </div>
-                    </SettingsCard>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -2631,10 +2647,255 @@ const CompanySettings = () => {
                 Cancel
               </Button>
               <Button
-                onClick={saveEditUser}
+                onClick={async () => {
+                  try {
+                    // 1. Update user basic info
+                    const userData = {
+                      name: editUserModal.user.name,
+                      email: editUserModal.user.email
+                    };
+                    await userAdminAPI.update(editUserModal.user.id, userData);
+
+                    // 2. Replace all roles
+                    await roleService.replaceUserRoles(editUserModal.user.id, selectedUserRoles);
+
+                    notificationService.success('User updated successfully!');
+                    setEditUserModal({ open: false, user: null });
+
+                    // Refresh user list
+                    const remoteUsers = await userAdminAPI.list();
+                    const mapped = await Promise.all(remoteUsers.map(async (u) => {
+                      const userPerms = await roleService.getUserPermissions(u.id);
+                      return {
+                        id: String(u.id),
+                        name: u.name,
+                        email: u.email,
+                        role: u.role,
+                        status: u.status || 'active',
+                        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
+                        lastLogin: u.last_login || u.lastLogin || null,
+                        roles: userPerms.roles || []
+                      };
+                    }));
+                    setUsers(mapped);
+                  } catch (error) {
+                    console.error('Error updating user:', error);
+                    notificationService.error(error.response?.data?.error || 'Failed to update user');
+                  }
+                }}
                 startIcon={<Save size={20} />}
               >
                 Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Permission Modal (Director Only) */}
+      {customPermissionModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Grant Custom Permission
+                </h3>
+                <button
+                  onClick={() => setCustomPermissionModal({ open: false, userId: null })}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className={`mb-4 p-4 rounded-lg border-l-4 ${
+                isDarkMode
+                  ? 'bg-yellow-900/20 border-yellow-500 text-yellow-300'
+                  : 'bg-yellow-50 border-yellow-500 text-yellow-800'
+              }`}>
+                <div className="flex items-start">
+                  <Shield size={20} className="mt-0.5 mr-3 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-semibold mb-1">Director Override</p>
+                    <p>You can grant any permission to any user temporarily. This is useful for one-time access or emergency situations.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                    Permission
+                  </label>
+                  <select
+                    value={customPermission.permission_key}
+                    onChange={(e) => setCustomPermission({...customPermission, permission_key: e.target.value})}
+                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select Permission...</option>
+                    {Object.entries(allPermissions).map(([module, permissions]) => (
+                      <optgroup key={module} label={module.toUpperCase()}>
+                        {permissions.map(perm => (
+                          <option key={perm.key} value={perm.key}>
+                            {perm.description}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                <TextField
+                  label="Reason (required)"
+                  value={customPermission.reason}
+                  onChange={(e) => setCustomPermission({...customPermission, reason: e.target.value})}
+                  placeholder="Explain why this permission is needed"
+                  multiline
+                  rows={2}
+                />
+
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                    Expires At (optional)
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={customPermission.expires_at || ''}
+                    onChange={(e) => setCustomPermission({...customPermission, expires_at: e.target.value})}
+                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Leave blank for permanent access
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setCustomPermissionModal({ open: false, userId: null })}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    if (!customPermission.permission_key || !customPermission.reason) {
+                      notificationService.warning('Permission and reason are required');
+                      return;
+                    }
+
+                    await roleService.grantCustomPermission(
+                      customPermissionModal.userId,
+                      customPermission.permission_key,
+                      customPermission.reason,
+                      customPermission.expires_at || null
+                    );
+
+                    notificationService.success('Custom permission granted successfully!');
+                    setCustomPermissionModal({ open: false, userId: null });
+                  } catch (error) {
+                    console.error('Error granting permission:', error);
+                    notificationService.error(error.response?.data?.error || 'Failed to grant permission');
+                  }
+                }}
+                startIcon={<Shield size={20} />}
+              >
+                Grant Permission
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Audit Log Modal */}
+      {auditLogModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Permission Audit Log
+                </h3>
+                <button
+                  onClick={() => setAuditLogModal({ open: false, userId: null, logs: [] })}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {auditLogModal.logs.length === 0 ? (
+                <div className="text-center py-12">
+                  <History size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+                    No audit log entries found
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {auditLogModal.logs.map((log, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 rounded-lg border ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatDateTime(log.created_at)}
+                          </span>
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded ${
+                          log.action === 'grant'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                            : log.action === 'revoke'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                        }`}>
+                          {log.action.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <strong>Changed by:</strong> {log.changed_by_name}
+                      </p>
+                      {log.details && (
+                        <div className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <pre className="whitespace-pre-wrap">{JSON.stringify(log.details, null, 2)}</pre>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setAuditLogModal({ open: false, userId: null, logs: [] })}
+              >
+                Close
               </Button>
             </div>
           </div>

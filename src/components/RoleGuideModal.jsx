@@ -15,7 +15,7 @@ import {
   DollarSign,
   Package
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * Role Guide Modal

@@ -47,7 +47,7 @@ import {
   calculateDiscountedTRN,
 } from "../utils/invoiceUtils";
 import InvoicePreview from "../components/InvoicePreview";
-import { invoiceService, companyService } from "../services";
+import { invoiceService, companyService, commissionService } from "../services";
 import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { pinnedProductsService } from "../services/pinnedProductsService";
@@ -1032,6 +1032,10 @@ const InvoiceForm = ({ onSave }) => {
     () => customerService.getCustomers({ status: "active" }),
     []
   );
+  const { data: salesAgentsData, loading: loadingAgents } = useApiData(
+    () => commissionService.getAgents(),
+    []
+  );
   const {
     data: productsData,
     loading: loadingProducts,
@@ -1326,6 +1330,16 @@ const InvoiceForm = ({ onSave }) => {
       }
     },
     [customersData, validateField]
+  );
+
+  const handleSalesAgentSelect = useCallback(
+    (agentId) => {
+      setInvoice((prev) => ({
+        ...prev,
+        sales_agent_id: agentId ? parseInt(agentId) : null,
+      }));
+    },
+    []
   );
 
   const handleProductSelect = useCallback((index, product) => {
@@ -2452,6 +2466,44 @@ const InvoiceForm = ({ onSave }) => {
                     </div>
                   )}
                 </div>
+
+              {/* Sales Agent Selection */}
+              <div className="mb-4 border-t pt-4" style={{
+                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)'
+              }}>
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                  Sales Information
+                </h3>
+                <Select
+                  label="Sales Agent (Optional)"
+                  value={invoice.sales_agent_id || ""}
+                  onChange={(e) => handleSalesAgentSelect(e.target.value)}
+                  disabled={loadingAgents}
+                  className="text-base min-h-[44px]"
+                >
+                  <option value="">No sales agent</option>
+                  {(salesAgentsData?.data || []).map((agent) => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.full_name || agent.username}
+                      {agent.default_commission_rate ? ` (${agent.default_commission_rate}% commission)` : ''}
+                    </option>
+                  ))}
+                </Select>
+                {loadingAgents && (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <LoadingSpinner size="sm" />
+                    <span
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      Loading sales agents...
+                    </span>
+                  </div>
+                )}
+              </div>
 
               {/* Invoice Details Section */}
               <div className="border-t pt-6 mt-6" style={{
