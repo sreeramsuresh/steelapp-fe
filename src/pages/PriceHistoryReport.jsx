@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import pricelistService from '../services/pricelistService';
-import productService from '../services/productService';
+import { productService } from '../services/productService';
 import { toast } from 'react-toastify';
 
 export default function PriceHistoryReport() {
