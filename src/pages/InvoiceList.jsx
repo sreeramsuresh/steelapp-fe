@@ -2048,14 +2048,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                  paymentDrawerInvoice.payment_status === 'paid'
+                  paymentDrawerInvoice.status === 'paid'
                     ? 'bg-green-100 text-green-800 border-green-300'
-                    : paymentDrawerInvoice.payment_status === 'partially_paid'
+                    : paymentDrawerInvoice.status === 'partially_paid'
                     ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
                     : 'bg-red-100 text-red-800 border-red-300'
                 }`}>
-                  {paymentDrawerInvoice.payment_status === 'paid' ? 'Paid' :
-                   paymentDrawerInvoice.payment_status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                  {paymentDrawerInvoice.status === 'paid' ? 'Paid' :
+                   paymentDrawerInvoice.status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
                 </span>
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>
@@ -2201,7 +2201,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   return (
     <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
       <div className="font-semibold mb-3 text-teal-900 flex items-center gap-2">
-        <Banknote size={18} />
+        <CircleDollarSign size={18} />
         Record Payment Details
       </div>
       {outstanding > 0 && (
