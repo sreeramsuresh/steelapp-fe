@@ -159,9 +159,11 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
         });
         setEditingId(null);
 
-        // Refresh the list to ensure we have latest data
+        // Delay refresh to allow smooth state transition (300ms)
         console.log('Refreshing list...');
-        await fetchReminders();
+        setTimeout(async () => {
+          await fetchReminders();
+        }, 300);
 
         if (onSave) {
           onSave(newReminder);

@@ -59,8 +59,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
       created_at: editingPayment?.created_at || new Date().toISOString()
     });
 
-    // Close modal immediately after successful save
-    onClose();
+    // Close modal with smooth transition delay (300ms for React state to settle)
+    setTimeout(() => {
+      onClose();
+    }, 300);
   };
 
   const modeConfig = PAYMENT_MODES[payment.payment_mode] || PAYMENT_MODES.cash;

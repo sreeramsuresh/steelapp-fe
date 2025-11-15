@@ -652,9 +652,10 @@ const QuotationForm = () => {
         setSuccess("Quotation created successfully");
       }
 
+      // Standardized smooth transition delay (300ms)
       setTimeout(() => {
         navigate("/quotations");
-      }, 1500);
+      }, 300);
 
     } catch (err) {
       console.error("Error saving quotation:", err);

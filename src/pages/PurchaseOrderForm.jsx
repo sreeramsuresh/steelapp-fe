@@ -1044,7 +1044,7 @@ const PurchaseOrderForm = () => {
       setTimeout(() => {
         const errorAlert = document.getElementById('validation-errors-alert');
         if (errorAlert) {
-          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorAlert.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
       }, 100);
 

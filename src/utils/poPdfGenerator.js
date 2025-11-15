@@ -1,4 +1,5 @@
 import { formatCurrency, formatDate } from './invoiceUtils';
+import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
 import logoCompany from '../assets/logocompany.png';
 import sealImage from '../assets/Seal.png';
 

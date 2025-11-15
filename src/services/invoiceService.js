@@ -110,7 +110,10 @@ const transformInvoiceFromServer = (serverData) => {
     received: serverData.received !== undefined ? Number(serverData.received) : 0,
     outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
     paymentStatus: serverData.payment_status || 'unpaid',
-    payments: serverData.payments || []
+    payments: serverData.payments || [],
+    // Promise data (for payment reminders)
+    promiseDate: serverData.promise_date || null,
+    promiseAmount: serverData.promise_amount !== undefined ? Number(serverData.promise_amount) : null
   };
 };
 

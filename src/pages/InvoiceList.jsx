@@ -40,8 +40,8 @@ import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import PaymentReminderModal from "../components/PaymentReminderModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useConfirm } from "../hooks/useConfirm";
-import { getPaymentStatusConfig } from "../utils/paymentUtils";
-import { getInvoiceReminderInfo, generatePaymentReminder, formatDaysMessage, getPromiseIndicatorInfo, formatPromiseMessage } from "../utils/reminderUtils";
+import { generatePaymentReminder, getInvoiceReminderInfo } from "../utils/reminderUtils";
+import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -79,7 +79,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
   const [showRecordPaymentDrawer, setShowRecordPaymentDrawer] = useState(false);
   const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
-  const [invoiceReminders, setInvoiceReminders] = useState({}); // Store latest reminder per invoice
 
   const company = createCompany();
 
@@ -154,46 +153,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     }
   }, []);
-
-  // Fetch latest reminder for invoices with promised_date
-  const fetchInvoiceReminders = React.useCallback(async (invoiceIds) => {
-    try {
-      // Fetch reminders for all invoices in parallel
-      const reminderPromises = invoiceIds.map(async (id) => {
-        try {
-          const reminders = await apiClient.get(`/invoices/${id}/payment-reminders`);
-          // Get the most recent reminder with a promised_date
-          const latestWithPromise = reminders.find(r => r.promised_date);
-          return { invoiceId: id, reminder: latestWithPromise || null };
-        } catch (error) {
-          console.error(`Failed to fetch reminder for invoice ${id}:`, error);
-          return { invoiceId: id, reminder: null };
-        }
-      });
-
-      const results = await Promise.all(reminderPromises);
-
-      // Build reminders map
-      const remindersMap = {};
-      results.forEach(({ invoiceId, reminder }) => {
-        if (reminder) {
-          remindersMap[invoiceId] = reminder;
-        }
-      });
-
-      setInvoiceReminders(remindersMap);
-    } catch (error) {
-      console.error('Error fetching reminders:', error);
-    }
-  }, []);
-
-  // Fetch reminders when invoices change
-  useEffect(() => {
-    if (invoices.length > 0) {
-      const invoiceIds = invoices.map(inv => inv.id);
-      fetchInvoiceReminders(invoiceIds);
-    }
-  }, [invoices, fetchInvoiceReminders]);
 
   // Consolidated effect with debouncing and request cancellation
   useEffect(() => {
@@ -324,121 +283,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setCurrentPage(1);
   };
 
-  const getStatusBadge = (status = "draft") => {
-    const statusConfig = {
-      draft: {
-        className: isDarkMode
-          ? "bg-gray-900/30 text-gray-300 border-gray-600"
-          : "bg-gray-100 text-gray-800 border-gray-300",
-        label: "DRAFT INVOICE",
-      },
-      proforma: {
-        className: isDarkMode
-          ? "bg-blue-900/30 text-blue-300 border-blue-600"
-          : "bg-blue-100 text-blue-800 border-blue-300",
-        label: "PROFORMA INVOICE",
-      },
-      sent: {
-        className: isDarkMode
-          ? "bg-blue-900/30 text-blue-300 border-blue-600"
-          : "bg-blue-100 text-blue-800 border-blue-300",
-        label: "SENT",
-      },
-      issued: {
-        className: isDarkMode
-          ? "bg-green-900/30 text-green-300 border-green-600"
-          : "bg-green-100 text-green-800 border-green-300",
-        label: "ISSUED",
-      },
-      overdue: {
-        className: isDarkMode
-          ? "bg-red-900/30 text-red-300 border-red-600"
-          : "bg-red-100 text-red-800 border-red-300",
-        label: "OVERDUE",
-      },
-    };
-
-    const config = statusConfig[status] || statusConfig.draft;
-
-    return (
-      <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
-  const getPaymentStatusBadge = (invoice) => {
-    // Only show payment badge for issued invoices
-    if (invoice.status !== 'issued') return null;
-
-    // GOLD STANDARD: Use backend-provided payment status directly
-    // Backend calculates this consistently using invoiceHelpers.js
-    const paymentStatus = invoice.payment_status || 'unpaid';
-
-    const config = getPaymentStatusConfig(paymentStatus);
-
-    const className = isDarkMode
-      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
-      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
-
-    return (
-      <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
-  const getReminderIndicator = (invoice) => {
-    const reminderInfo = getInvoiceReminderInfo(invoice);
-    if (!reminderInfo || !reminderInfo.shouldShowReminder) return null;
-
-    const { config, daysUntilDue } = reminderInfo;
-    const daysMessage = formatDaysMessage(daysUntilDue);
-
-    const className = isDarkMode
-      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
-      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
-
-    return (
-      <span
-        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
-        title={`${config.label}: ${daysMessage}`}
-      >
-        <span>{config.icon}</span>
-        <span>{daysMessage}</span>
-      </span>
-    );
-  };
-
-  const getPromiseIndicator = (invoice) => {
-    // Get latest reminder for this invoice
-    const latestReminder = invoiceReminders[invoice.id];
-    if (!latestReminder) return null;
-
-    const promiseInfo = getPromiseIndicatorInfo(invoice, latestReminder);
-    if (!promiseInfo || !promiseInfo.shouldShowPromise) return null;
-
-    const { config, daysUntilPromised } = promiseInfo;
-    const promiseMessage = formatPromiseMessage(daysUntilPromised);
-
-    const className = isDarkMode
-      ? `${config.bgDark} ${config.textDark} ${config.borderDark}`
-      : `${config.bgLight} ${config.textLight} ${config.borderLight}`;
-
-    return (
-      <span
-        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${className}`}
-        title={`${config.label}: ${promiseMessage}`}
-      >
-        <span>{config.icon}</span>
-        <span>{promiseMessage}</span>
-      </span>
-    );
-  };
 
   const getTotalAmount = () => {
     return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
@@ -674,11 +518,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handlePaymentReminderSaved = (reminder) => {
     notificationService.success('Payment reminder note saved successfully!');
-    // Refresh reminders to show updated promise indicator
-    if (invoices.length > 0) {
-      const invoiceIds = invoices.map(inv => inv.id);
-      fetchInvoiceReminders(invoiceIds);
-    }
+    // Refresh invoices to show updated promise indicator
+    fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
   };
 
   const handleRecordPayment = async (invoice) => {
@@ -1785,12 +1626,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col gap-2">
-                      {getStatusBadge(invoice.status)}
-                      {getPaymentStatusBadge(invoice)}
-                      {getReminderIndicator(invoice)}
-                      {getPromiseIndicator(invoice)}
-                    </div>
+                    <InvoiceStatusColumn
+                      invoice={invoice}
+                      isDarkMode={isDarkMode}
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-0.5 justify-end">

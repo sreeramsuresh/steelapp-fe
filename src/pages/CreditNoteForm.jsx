@@ -379,7 +379,7 @@ const CreditNoteForm = () => {
     if (!validateForm()) {
       setTimeout(() => {
         document.getElementById('validation-errors-alert')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          ?.scrollIntoView({ behavior: 'instant', block: 'center' });
       }, 100);
       return;
     }

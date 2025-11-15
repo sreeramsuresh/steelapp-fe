@@ -1835,11 +1835,11 @@ const InvoiceForm = ({ onSave }) => {
       setValidationErrors(errors);
       setInvalidFields(invalidFieldsSet);
 
-      // Scroll to the first error (save button area)
+      // Scroll to the first error (save button area) - instant to prevent layout shift
       setTimeout(() => {
         const errorAlert = document.getElementById('validation-errors-alert');
         if (errorAlert) {
-          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorAlert.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
       }, 100);
 
@@ -1887,10 +1887,10 @@ const InvoiceForm = ({ onSave }) => {
           notificationService.success(
             "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
           );
-          // Navigate to new invoice ID after a short delay to allow state to update
+          // Navigate to new invoice ID with smooth transition (300ms)
           setTimeout(() => {
             navigate(`/edit/${updatedInvoice.new_invoice_id}`, { replace: true });
-          }, 500);
+          }, 300);
         } else {
           notificationService.success(
             "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
@@ -1994,22 +1994,24 @@ const InvoiceForm = ({ onSave }) => {
   const handleSuccessDownloadPDF = async () => {
     setShowSuccessModal(false);
 
-    // Wait a moment for modal to close, then trigger PDF download
+    // Wait for modal close animation, then trigger PDF download and navigate
     setTimeout(async () => {
       await handleDownloadPDF();
+      notificationService.success("Invoice created successfully! PDF downloaded.");
 
-      // After PDF download, navigate to invoice list
-      setTimeout(() => {
-        notificationService.success("Invoice created successfully! PDF downloaded.");
-        navigate('/invoices');
-      }, 500); // Small delay to allow PDF download to complete
+      // Navigate after PDF download completes (smooth transition)
+      navigate('/invoices');
     }, 300);
   };
 
   const handleSuccessGoToList = () => {
     setShowSuccessModal(false);
-    notificationService.success("Invoice created successfully!");
-    navigate('/invoices');
+
+    // Smooth transition delay for modal close animation
+    setTimeout(() => {
+      notificationService.success("Invoice created successfully!");
+      navigate('/invoices');
+    }, 300);
   };
 
   const handleSuccessModalClose = () => {

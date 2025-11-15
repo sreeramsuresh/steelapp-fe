@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Lock,
   Mail,
@@ -53,6 +53,53 @@ const Login = ({ onLoginSuccess }) => {
     password: "",
   });
   const [error, setError] = useState("");
+
+  // 🚀 HYBRID AUTH: Auto-login in development mode
+  useEffect(() => {
+    const autoLogin = async () => {
+      // Only in development mode AND when VITE_AUTO_LOGIN is explicitly enabled
+      const isProduction = import.meta.env.PROD;
+      const autoLoginEnabled = import.meta.env.VITE_AUTO_LOGIN === 'true';
+
+      if (isProduction || !autoLoginEnabled) {
+        return; // Skip auto-login in production or when disabled
+      }
+
+      const devEmail = import.meta.env.VITE_DEV_EMAIL;
+      const devPassword = import.meta.env.VITE_DEV_PASSWORD;
+
+      if (!devEmail || !devPassword) {
+        console.warn('⚠️  Auto-login enabled but dev credentials not configured');
+        return;
+      }
+
+      // Check if already logged in (has valid token)
+      const token = localStorage.getItem('token');
+      if (token) {
+        console.log('🔑 Token found in localStorage, skipping auto-login');
+        return;
+      }
+
+      console.log('🚀 Auto-login enabled - logging in with dev credentials...');
+      setLoading(true);
+
+      try {
+        const response = await authService.login(devEmail, devPassword);
+        console.log('✅ Auto-login successful');
+
+        if (onLoginSuccess) {
+          onLoginSuccess(response.user);
+        }
+      } catch (error) {
+        console.error('❌ Auto-login failed:', error.message);
+        // Don't show error to user, just let them login manually
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    autoLogin();
+  }, [onLoginSuccess]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
