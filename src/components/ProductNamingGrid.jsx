@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Check, Edit2, Loader, Wand2, CheckCircle, AlertCircle, Download, Upload, Search, Filter, Replace, Type, Undo, Edit, FileSpreadsheet, Pencil } from 'lucide-react';
+import { X, Check, Edit2, Loader, Wand2, CheckCircle, AlertCircle, Download, Upload, Search, Filter, Replace, Type, Undo, Edit, FileSpreadsheet, Pencil, Settings, Save, Eye, Copy, ChevronDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { apiService } from '../services/axiosApi';
 
@@ -7,7 +7,14 @@ import { apiService } from '../services/axiosApi';
  * Product Naming Management - Drawer-based UI
  * Clean interface with organized drawers for each operation
  */
-const ProductNamingGrid = ({ companyId, presets = [] }) => {
+const ProductNamingGrid = ({
+  companyId,
+  presets = [],
+  template: externalTemplate,
+  separator: externalSeparator,
+  onSaveTemplate,
+  variables = []
+}) => {
   const { isDarkMode } = useTheme();
 
   console.log('ProductNamingGrid rendered with:', { companyId, presetsCount: presets.length });
@@ -23,9 +30,16 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
   const [saving, setSaving] = useState(null);
 
   // UI state
-  const [activeDrawer, setActiveDrawer] = useState(null); // 'bulk-edit', 'templates', 'import-export'
+  const [activeDrawer, setActiveDrawer] = useState(null); // 'configuration', 'bulk-edit', 'templates', 'import-export'
   const [showFilters, setShowFilters] = useState(true);
   const [bulkMessage, setBulkMessage] = useState(null);
+
+  // Configuration state
+  const [template, setTemplate] = useState(externalTemplate || '');
+  const [separator, setSeparator] = useState(externalSeparator || ' ');
+  const [preview, setPreview] = useState('');
+  const [showVariables, setShowVariables] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   // Search/Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,6 +86,12 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
       inputRef.current.select();
     }
   }, [editingId]);
+
+  // Sync external template/separator with local state
+  useEffect(() => {
+    if (externalTemplate !== undefined) setTemplate(externalTemplate);
+    if (externalSeparator !== undefined) setSeparator(externalSeparator);
+  }, [externalTemplate, externalSeparator]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -664,6 +684,70 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
     }
   };
 
+  // === CONFIGURATION ===
+  // Group variables by category
+  const groupedVariables = variables.reduce((acc, variable) => {
+    const category = variable.category || 'Other';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(variable);
+    return acc;
+  }, {});
+
+  const handlePreview = async () => {
+    if (!template.trim()) {
+      setPreview('');
+      return;
+    }
+
+    try {
+      const response = await apiService.post(`/api/product-naming/${companyId}/preview`, {
+        template: template,
+        separator: separator,
+        sample_product: {
+          commodity: 'SS',
+          grade: '304',
+          grade_variant: 'L',
+          category: 'sheet',
+          finish: 'HL',
+          width: '4',
+          length: '8',
+          thickness: '1.2mm'
+        }
+      });
+      setPreview(response.data.preview);
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      setPreview('Error generating preview');
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    setSavingTemplate(true);
+    try {
+      if (onSaveTemplate) {
+        await onSaveTemplate(template, separator);
+      }
+      setBulkMessage({ type: 'success', text: 'Template saved successfully' });
+      setTimeout(() => setBulkMessage(null), 5000);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      setBulkMessage({ type: 'error', text: 'Failed to save template' });
+      setTimeout(() => setBulkMessage(null), 5000);
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const insertVariable = (variable) => {
+    setTemplate(prev => prev + ' ' + variable);
+  };
+
+  const loadPreset = (preset) => {
+    setTemplate(preset.template);
+    setSeparator(preset.separator);
+    handlePreview();
+  };
+
   console.log('ProductNamingGrid state:', { loading, productsCount: products.length, activeDrawer });
 
   if (loading) {
@@ -741,6 +825,20 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Filter Toggle */}
+            {/* Configuration */}
+            <button
+              onClick={() => setActiveDrawer(activeDrawer === 'configuration' ? null : 'configuration')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                activeDrawer === 'configuration'
+                  ? (isDarkMode ? 'bg-indigo-600 text-white' : 'bg-indigo-600 text-white')
+                  : (isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              Configuration
+            </button>
+
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -1046,6 +1144,189 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
         <div className={`fixed right-0 top-0 h-screen w-96 shadow-2xl border-l flex flex-col z-50 ${
           isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
         }`}>
+          {/* === CONFIGURATION DRAWER === */}
+          {activeDrawer === 'configuration' && (
+            <>
+              {/* Header */}
+              <div className={`flex items-center justify-between px-6 py-4 border-b ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <Settings className={`h-5 w-5 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Configuration
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveDrawer(null)}
+                  className={`p-1 rounded transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {/* 1. Template Pattern */}
+                <div className={`p-3 rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <label className={`flex items-center gap-2 text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs">1</span>
+                    Template Pattern
+                  </label>
+                  <textarea
+                    value={template}
+                    onChange={(e) => setTemplate(e.target.value)}
+                    onBlur={handlePreview}
+                    rows={2}
+                    placeholder="{commodity} {grade}{grade_variant} {category}"
+                    className={`w-full px-3 py-2 rounded border font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                      isDarkMode
+                        ? 'bg-gray-900 border-gray-600 text-white placeholder-gray-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                    }`}
+                  />
+                </div>
+
+                {/* 2. Separator */}
+                <div className={`p-3 rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <label className={`flex items-center gap-2 text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs">2</span>
+                    Separator
+                  </label>
+                  <div className="flex gap-2">
+                    {[
+                      { value: ' ', label: 'Space', example: 'SS 304' },
+                      { value: '-', label: 'Hyphen', example: 'SS-304' },
+                      { value: '_', label: 'Underscore', example: 'SS_304' }
+                    ].map(sep => (
+                      <button
+                        key={sep.value}
+                        onClick={() => setSeparator(sep.value)}
+                        className={`flex-1 px-3 py-2 rounded text-xs font-medium transition-all ${
+                          separator === sep.value
+                            ? 'bg-indigo-600 text-white ring-2 ring-indigo-500'
+                            : isDarkMode
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                        }`}
+                      >
+                        <div>{sep.label}</div>
+                        <div className={`text-xs font-mono ${separator === sep.value ? 'text-indigo-100' : isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {sep.example}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Preview */}
+                <div className={`p-3 rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <label className={`flex items-center justify-between text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs">3</span>
+                      Preview
+                    </span>
+                    <button
+                      onClick={handlePreview}
+                      className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-500"
+                    >
+                      <Eye className="h-3 w-3" />
+                      Update
+                    </button>
+                  </label>
+                  <div className={`px-3 py-2 rounded ${isDarkMode ? 'bg-gray-900' : 'bg-white border border-gray-300'}`}>
+                    <div className="font-mono text-sm font-semibold text-indigo-600">
+                      {preview || 'Update preview to see result'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="pt-4 border-t border-gray-700">
+                  <h4 className={`text-xs font-semibold mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Quick Presets</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {presets.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => loadPreset(preset)}
+                        title={`${preset.description}\nExample: ${preset.example}`}
+                        className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
+                          isDarkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Variables */}
+                <div className="pt-4 border-t border-gray-700">
+                  <button
+                    onClick={() => setShowVariables(!showVariables)}
+                    className="flex items-center justify-between w-full mb-3"
+                  >
+                    <h4 className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Variables</h4>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showVariables ? 'rotate-180' : ''} ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                  </button>
+
+                  {showVariables && (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {Object.entries(groupedVariables).map(([category, vars]) => (
+                        <div key={category}>
+                          <h5 className={`text-xs font-semibold mb-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {category}
+                          </h5>
+                          <div className="space-y-1.5">
+                            {vars.map((v) => (
+                              <button
+                                key={v.variable}
+                                onClick={() => insertVariable(v.variable)}
+                                className={`w-full flex items-start gap-2 p-2 rounded text-left transition-colors ${
+                                  isDarkMode
+                                    ? 'hover:bg-gray-700 border border-gray-700'
+                                    : 'hover:bg-gray-50 border border-gray-200'
+                                }`}
+                              >
+                                <Copy className="h-3 w-3 text-indigo-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-mono text-xs text-indigo-600">{v.variable}</div>
+                                  <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                                    Ex: {v.example}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className={`px-6 py-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <button
+                  onClick={handleSaveTemplate}
+                  disabled={savingTemplate || !template}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    savingTemplate || !template
+                      ? 'bg-gray-600 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  } text-white`}
+                >
+                  <Save className="h-4 w-4" />
+                  {savingTemplate ? 'Saving...' : 'Save Template'}
+                </button>
+              </div>
+            </>
+          )}
+
           {/* === BULK EDIT DRAWER === */}
           {activeDrawer === 'bulk-edit' && (
             <>
