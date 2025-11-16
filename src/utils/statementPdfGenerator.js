@@ -1,12 +1,12 @@
-import { formatCurrency, formatDate } from './invoiceUtils';
-import logoCompany from '../assets/logocompany.png';
-import sealImage from '../assets/Seal.png';
+import { formatCurrency, formatDate, getCompanyImages } from './invoiceUtils';
 
 export const generateStatementPDF = async ({ customerName, periodStart, periodEnd, items, company }) => {
   try {
     const { jsPDF } = await import('jspdf');
 
-    const element = createStatementElement({ customerName, periodStart, periodEnd, items, company });
+    // Get company images from company profile
+    const { logoUrl, sealUrl } = getCompanyImages(company);
+    const element = createStatementElement({ customerName, periodStart, periodEnd, items, company, logoUrl, sealUrl });
     document.body.appendChild(element);
 
     await waitForImages(element);
@@ -37,7 +37,7 @@ export const generateStatementPDF = async ({ customerName, periodStart, periodEn
   }
 };
 
-const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {} }) => {
+const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {}, logoUrl: logoCompany, sealUrl: sealImage }) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;

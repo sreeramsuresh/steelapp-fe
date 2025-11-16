@@ -1,13 +1,25 @@
 import React from 'react';
-import defaultSeal from "../../assets/Seal.png";
 
 /**
  * Invoice Signature Section Component
  * Displays company seal and authorized signatory
  * ONLY SHOWN ON LAST PAGE (UAE Best Practice + Industry Standard)
+ * Uses seal uploaded in Company Settings (pdf_seal_url or seal_url)
  */
 const InvoiceSignatureSection = ({ company }) => {
-  const companySeal = company?.seal_url || defaultSeal;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  
+  // Get seal from company profile
+  let companySeal = null;
+  if (company?.pdf_seal_url) {
+    companySeal = company.pdf_seal_url.startsWith('/') 
+      ? `${baseUrl}${company.pdf_seal_url}` 
+      : company.pdf_seal_url;
+  } else if (company?.seal_url) {
+    companySeal = company.seal_url.startsWith('/') 
+      ? `${baseUrl}${company.seal_url}` 
+      : company.seal_url;
+  }
 
   return (
     <div className="invoice-signature-section">

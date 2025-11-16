@@ -210,3 +210,35 @@ export const formatNumber = (value, fractionDigits = 2) => {
     maximumFractionDigits: fractionDigits,
   }).format(safe);
 };
+
+/**
+ * Get company image URLs for PDF generation from company profile
+ * ONLY uses images uploaded in Company Settings - no defaults
+ * @param {Object} company - Company data from API
+ * @returns {Object} { logoUrl, sealUrl }
+ */
+export const getCompanyImages = (company) => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  
+  // Get logo URL - prioritize pdf_logo_url, fallback to logo_url
+  let logoUrl = null;
+  if (company?.pdf_logo_url) {
+    logoUrl = company.pdf_logo_url.startsWith('/') 
+      ? `${baseUrl}${company.pdf_logo_url}` 
+      : company.pdf_logo_url;
+  } else if (company?.logo_url) {
+    logoUrl = company.logo_url.startsWith('/') 
+      ? `${baseUrl}${company.logo_url}` 
+      : company.logo_url;
+  }
+  
+  // Get seal URL - use pdf_seal_url only
+  let sealUrl = null;
+  if (company?.pdf_seal_url) {
+    sealUrl = company.pdf_seal_url.startsWith('/') 
+      ? `${baseUrl}${company.pdf_seal_url}` 
+      : company.pdf_seal_url;
+  }
+  
+  return { logoUrl, sealUrl };
+};

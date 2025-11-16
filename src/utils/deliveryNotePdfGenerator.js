@@ -1,12 +1,12 @@
-import logoCompany from '../assets/logocompany.png';
-import sealImage from '../assets/Seal.png';
-import { formatDate } from './invoiceUtils';
+import { formatDate, getCompanyImages } from './invoiceUtils';
 import { escapeHtml } from './htmlEscape';
 
 export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   try {
     const { jsPDF } = await import('jspdf');
-    const el = createDNElement(deliveryNote, company);
+    // Get company images from company profile
+    const { logoUrl, sealUrl } = getCompanyImages(company);
+    const el = createDNElement(deliveryNote, company, logoUrl, sealUrl);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -34,7 +34,7 @@ export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   }
 };
 
-const createDNElement = (dn, company) => {
+const createDNElement = (dn, company, logoCompany, sealImage) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;

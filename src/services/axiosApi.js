@@ -98,8 +98,8 @@ api.interceptors.response.use(
         );
         
         console.log("[Interceptor] Refresh response:", data); // Debug log
-        
-        // Support both response formats
+
+        // Backend already sends camelCase
         const newAccessToken = data.accessToken || data.token;
         const newRefreshToken = data.refreshToken || data.refresh_token;
         

@@ -1,13 +1,13 @@
-import { formatCurrency, formatDate } from './invoiceUtils';
+import { formatCurrency, formatDate, getCompanyImages } from './invoiceUtils';
 import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
-import logoCompany from '../assets/logocompany.png';
-import sealImage from '../assets/Seal.png';
 
 export const generatePurchaseOrderPDF = async (po, company) => {
   try {
     const { jsPDF } = await import('jspdf');
 
-    const el = createPOElement(po, company);
+    // Get company images from company profile
+    const { logoUrl, sealUrl } = getCompanyImages(company);
+    const el = createPOElement(po, company, logoUrl, sealUrl);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -37,7 +37,7 @@ export const generatePurchaseOrderPDF = async (po, company) => {
   }
 };
 
-const createPOElement = (po, company) => {
+const createPOElement = (po, company, logoCompany, sealImage) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;

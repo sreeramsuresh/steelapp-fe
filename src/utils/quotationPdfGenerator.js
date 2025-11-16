@@ -1,12 +1,12 @@
-import { formatCurrency, formatDate, calculateTRN } from './invoiceUtils';
+import { formatCurrency, formatDate, calculateTRN, getCompanyImages } from './invoiceUtils';
 import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
-import logoCompany from '../assets/logocompany.png';
-import sealImage from '../assets/Seal.png';
 
 export const generateQuotationPDF = async (quotation, company) => {
   try {
     const { jsPDF } = await import('jspdf');
-    const el = createQuotationElement(quotation, company);
+    // Get company images from company profile
+    const { logoUrl, sealUrl } = getCompanyImages(company);
+    const el = createQuotationElement(quotation, company, logoUrl, sealUrl);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -33,7 +33,7 @@ export const generateQuotationPDF = async (quotation, company) => {
   }
 };
 
-const createQuotationElement = (q, company) => {
+const createQuotationElement = (q, company, logoCompany, sealImage) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;

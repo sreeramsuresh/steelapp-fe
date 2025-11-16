@@ -1,5 +1,4 @@
 import React from 'react';
-import defaultLogo from "../../assets/logocompany.png";
 import { formatDateDMY } from "../../utils/invoiceUtils";
 import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
 
@@ -7,10 +6,24 @@ import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettin
  * Invoice Header Component
  * Displays on every page of the invoice
  * Shows company info and optionally invoice details on first page
+ * Uses logo uploaded in Company Settings (pdf_logo_url or logo_url)
  */
 const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor }) => {
   const compAddr = company?.address || {};
-  const companyLogo = company?.logo_url || company?.pdf_logo_url || defaultLogo;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  
+  // Get logo from company profile
+  let companyLogo = null;
+  if (company?.pdf_logo_url) {
+    companyLogo = company.pdf_logo_url.startsWith('/') 
+      ? `${baseUrl}${company.pdf_logo_url}` 
+      : company.pdf_logo_url;
+  } else if (company?.logo_url) {
+    companyLogo = company.logo_url.startsWith('/') 
+      ? `${baseUrl}${company.logo_url}` 
+      : company.logo_url;
+  }
+  
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
   return (

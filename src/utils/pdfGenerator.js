@@ -9,10 +9,9 @@ import {
   formatNumber,
   formatDateDMY,
   calculateDiscountedTRN,
+  getCompanyImages,
 } from "./invoiceUtils";
 import { mergeTemplateSettings } from "../constants/defaultTemplateSettings";
-import logoCompany from "../assets/logocompany.png";
-import sealImage from "../assets/Seal.png";
 
 /**
  * Convert hex color to RGB array
@@ -34,6 +33,9 @@ const hexToRgb = (hex) => {
 export const generateInvoicePDF = async (invoice, company) => {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
+
+  // Get company images from company profile
+  const { logoUrl: logoCompany, sealUrl: sealImage } = getCompanyImages(company);
 
   // Get template settings (merge company settings with defaults)
   const templateSettings = mergeTemplateSettings(company?.settings?.invoice_template || {});
