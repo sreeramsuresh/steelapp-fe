@@ -498,9 +498,9 @@ const CustomerManagement = () => {
                 <div className={`flex items-center gap-2 text-sm ${textSecondary}`}>
                   <FaMapMarkerAlt className={`w-4 h-4 ${textMuted}`} />
                   <span className="truncate">
-                    {typeof customer.address === 'object' 
-                      ? `${customer.address.street}, ${customer.address.city}` 
-                      : customer.address
+                    {customer.address && typeof customer.address === 'object'
+                      ? `${customer.address.street || ''}, ${customer.address.city || ''}`.trim().replace(/^,\s*|,\s*$/, '') || 'No address'
+                      : customer.address || 'No address'
                     }
                   </span>
                 </div>

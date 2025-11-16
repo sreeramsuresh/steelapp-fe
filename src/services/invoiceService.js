@@ -46,75 +46,23 @@ const transformInvoiceForServer = (invoiceData) => {
   };
 };
 
+// Backend returns pure snake_case - no transformation needed
+// Field validators enforce snake_case consistency
 const transformInvoiceFromServer = (serverData) => {
   return {
-    id: serverData.id,
-    // Backend middleware converts to camelCase, so use camelCase property names
-    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || '',
-    date: serverData.invoiceDate || serverData.invoice_date,
-    dueDate: serverData.dueDate || serverData.due_date,
-    modeOfPayment: serverData.modeOfPayment || serverData.mode_of_payment || '',
-    chequeNumber: serverData.chequeNumber || serverData.cheque_number || '',
-    customer: typeof serverData.customerDetails === 'string'
-      ? JSON.parse(serverData.customerDetails)
-      : (serverData.customerDetails || serverData.customer_details || {}),
-    subtotal: serverData.subtotal || 0,
-    vatAmount: serverData.vatAmount || serverData.vat_amount || 0,
-    total: serverData.total || 0,
-    discountType: serverData.discountType || serverData.discount_type || 'amount',
-    discountPercentage: serverData.discountPercentage || serverData.discount_percentage || 0,
-    discountAmount: serverData.discountAmount || serverData.discount_amount || 0,
-    packingCharges: serverData.packingCharges || serverData.packing_charges || 0,
-    freightCharges: serverData.freightCharges || serverData.freight_charges || 0,
-    insuranceCharges: serverData.insuranceCharges || serverData.insurance_charges || 0,
-    loadingCharges: serverData.loadingCharges || serverData.loading_charges || 0,
-    otherCharges: serverData.otherCharges || serverData.other_charges || 0,
-    advanceReceived: serverData.advanceReceived || serverData.advance_received || 0,
-    status: serverData.status || 'draft',
-    notes: serverData.notes || '',
-    terms: serverData.terms || '',
-    taxNotes: serverData.taxNotes || serverData.tax_notes || '',
-    currency: serverData.currency || 'AED',
-    exchangeRate: serverData.exchangeRate || serverData.exchange_rate || 1,
-    warehouseId: serverData.warehouseId || serverData.warehouse_id || null,
-    warehouseName: serverData.warehouseName || serverData.warehouse_name || '',
-    warehouseCode: serverData.warehouseCode || serverData.warehouse_code || '',
-    warehouseCity: serverData.warehouseCity || serverData.warehouse_city || '',
-    items: serverData.items?.map(item => ({
-      id: item.id,
-      productId: item.productId || item.product_id,
-      name: item.name || '',
-      finish: item.finish || '',
-      size: item.size || '',
-      thickness: item.thickness || '',
-      specification: item.specification || '',
-      hsnCode: item.hsnCode || item.hsn_code || '',
-      unit: item.unit || '',
-      quantity: item.quantity || 0,
-      rate: item.rate || 0,
-      vatRate: item.vatRate || item.vat_rate || 5,
-      amount: item.amount || 0
-    })) || [],
-    createdAt: serverData.createdAt || serverData.created_at,
-    updatedAt: serverData.updatedAt || serverData.updated_at,
-    // Audit trail fields for cancel and recreate
-    recreated_from: serverData.recreatedFrom || serverData.recreated_from,
-    original_id: serverData.originalId || serverData.original_id,
-    new_invoice_id: serverData.newInvoiceId || serverData.new_invoice_id,
-    // Soft delete fields
-    deletedAt: serverData.deletedAt || serverData.deleted_at,
-    deletionReason: serverData.deletionReason || serverData.deletion_reason,
-    deletionReasonCode: serverData.deletionReasonCode || serverData.deletion_reason_code,
-    deletedByUserId: serverData.deletedByUserId || serverData.deleted_by_user_id,
-    // Payment data (from backend aggregation - GOLD STANDARD)
-    // Backend calculates these, frontend just displays
+    ...serverData,
+    // Ensure customer_details is parsed if it's a string
+    customer: typeof serverData.customer_details === 'string'
+      ? JSON.parse(serverData.customer_details)
+      : serverData.customer_details || serverData.customer || {},
+    // Ensure numeric fields are numbers
     received: serverData.received !== undefined ? Number(serverData.received) : 0,
     outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
-    paymentStatus: serverData.paymentStatus || serverData.payment_status || 'unpaid',
-    payments: serverData.payments || [],
-    // Promise data (for payment reminders)
-    promiseDate: serverData.promiseDate || serverData.promise_date || null,
-    promiseAmount: serverData.promiseAmount !== undefined ? Number(serverData.promiseAmount) : (serverData.promise_amount !== undefined ? Number(serverData.promise_amount) : null)
+    subtotal: serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
+    vat_amount: serverData.vat_amount !== undefined ? Number(serverData.vat_amount) : 0,
+    total: serverData.total !== undefined ? Number(serverData.total) : 0,
+    // Ensure items is an array
+    items: Array.isArray(serverData.items) ? serverData.items : []
   };
 };
 

@@ -621,6 +621,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       notificationService.success('Payment recorded successfully!');
 
+      // Fetch fresh drawer data to show backend-generated receipt number
+      const freshData = await payablesService.getInvoice(inv.id);
+      setPaymentDrawerInvoice(freshData);
+
+      // Update the specific invoice in the list (in-place update without re-fetching entire list)
+      setInvoices(prevInvoices =>
+        prevInvoices.map(invoice =>
+          invoice.id === inv.id
+            ? {
+                ...invoice,
+                payment_status: freshData.payment_status,
+                received: freshData.received,
+                outstanding: freshData.outstanding,
+                balance_due: freshData.outstanding
+              }
+            : invoice
+        )
+      );
+
       // Auto-calculate commission if invoice is now fully paid and has a sales agent
       if (payment_status === 'paid' && inv.sales_agent_id) {
         try {
@@ -631,13 +650,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           // Don't show error to user - commission can be calculated manually later
         }
       }
-
-      // Refresh invoice list to get updated data from backend
-      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted, null);
-
-      // Fetch fresh drawer data to show backend-generated receipt number
-      const freshData = await payablesService.getInvoice(inv.id);
-      setPaymentDrawerInvoice(freshData);
     } catch (error) {
       console.error('Error recording payment:', error);
       notificationService.error(error?.response?.data?.error || 'Failed to record payment');
@@ -685,8 +697,24 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       notificationService.success('Payment voided successfully');
 
-      // Refresh invoice list
-      await fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted, null);
+      // Fetch fresh drawer data
+      const freshData = await payablesService.getInvoice(inv.id);
+      setPaymentDrawerInvoice(freshData);
+
+      // Update the specific invoice in the list (in-place update without re-fetching entire list)
+      setInvoices(prevInvoices =>
+        prevInvoices.map(invoice =>
+          invoice.id === inv.id
+            ? {
+                ...invoice,
+                payment_status: freshData.payment_status,
+                received: freshData.received,
+                outstanding: freshData.outstanding,
+                balance_due: freshData.outstanding
+              }
+            : invoice
+        )
+      );
     } catch (error) {
       console.error('Error voiding payment:', error);
       notificationService.error('Failed to void payment');
@@ -899,6 +927,121 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       console.error('Error restoring invoice:', error);
       notificationService.error(error?.response?.data?.error || 'Failed to restore invoice');
     }
+  };
+
+  // Helper function to get action button configurations
+  const getActionButtonConfig = (invoice) => {
+    const isDeleted = invoice.deleted_at != null;
+    const canUpdate = authService.hasPermission('invoices', 'update');
+    const canDelete = authService.hasPermission('invoices', 'delete');
+    const canRead = authService.hasPermission('invoices', 'read');
+    const canCreateCreditNote = authService.hasPermission('invoices', 'update');
+    const canReadCustomers = authService.hasPermission('customers', 'read');
+    const canReadDeliveryNotes = authService.hasPermission('delivery_notes', 'read');
+    const canCreateDeliveryNotes = authService.hasPermission('delivery_notes', 'create');
+
+    return {
+      edit: {
+        enabled: canUpdate && !isDeleted && invoice.status !== 'issued',
+        tooltip: !canUpdate
+          ? 'No permission to edit'
+          : isDeleted
+            ? 'Cannot edit deleted invoice'
+            : invoice.status === 'issued'
+              ? 'Cannot edit issued invoice'
+              : 'Edit Invoice',
+        link: `/edit/${invoice.id}`
+      },
+      creditNote: {
+        enabled: canCreateCreditNote && !isDeleted && invoice.status === 'issued',
+        tooltip: !canCreateCreditNote
+          ? 'No permission to create credit notes'
+          : isDeleted
+            ? 'Cannot create credit note for deleted invoice'
+            : invoice.status !== 'issued'
+              ? 'Only available for issued invoices'
+              : 'Create Credit Note',
+        link: `/credit-notes/new?invoiceId=${invoice.id}`
+      },
+      view: {
+        enabled: true,
+        tooltip: 'View Invoice'
+      },
+      download: {
+        enabled: canRead,
+        tooltip: !canRead
+          ? 'No permission to download'
+          : !validateInvoiceForDownload(invoice).isValid
+            ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
+            : 'Download PDF',
+        isValid: validateInvoiceForDownload(invoice).isValid
+      },
+      recordPayment: {
+        enabled: !isDeleted,
+        tooltip: isDeleted
+          ? 'Cannot view payments for deleted invoice'
+          : invoice.payment_status === 'paid'
+            ? 'View Payment History'
+            : 'Record Payment',
+        isPaid: invoice.payment_status === 'paid',
+        canAddPayment: canUpdate && invoice.payment_status !== 'paid' && (invoice.balance_due === undefined || invoice.balance_due > 0)
+      },
+      commission: {
+        enabled: invoice.payment_status === 'paid' && invoice.sales_agent_id && !isDeleted,
+        tooltip: invoice.payment_status !== 'paid'
+          ? 'Only available for paid invoices'
+          : !invoice.sales_agent_id
+            ? 'No sales agent assigned'
+            : isDeleted
+              ? 'Cannot calculate for deleted invoice'
+              : 'Calculate Commission'
+      },
+      reminder: {
+        enabled: getInvoiceReminderInfo(invoice)?.shouldShowReminder,
+        tooltip: getInvoiceReminderInfo(invoice)?.shouldShowReminder
+          ? `Send payment reminder (${getInvoiceReminderInfo(invoice)?.config.label})`
+          : 'No reminder needed'
+      },
+      phone: {
+        enabled: !isDeleted,
+        tooltip: isDeleted
+          ? 'Cannot add notes to deleted invoice'
+          : 'Payment Reminder - Phone Call Notes'
+      },
+      statement: {
+        enabled: canReadCustomers,
+        tooltip: canReadCustomers
+          ? 'Generate Statement of Accounts'
+          : 'No permission to generate statements'
+      },
+      deliveryNote: {
+        enabled: invoice.status === 'issued' && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
+        tooltip: invoice.status !== 'issued'
+          ? 'Only available for issued invoices'
+          : deliveryNoteStatus[invoice.id]?.hasNotes
+            ? `View Delivery Notes (${deliveryNoteStatus[invoice.id]?.count})`
+            : !canCreateDeliveryNotes
+              ? 'No permission to create delivery notes'
+              : 'Create delivery note',
+        hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes
+      },
+      delete: {
+        enabled: canDelete && !isDeleted,
+        tooltip: !canDelete
+          ? 'No permission to delete'
+          : isDeleted
+            ? 'Invoice already deleted'
+            : 'Delete Invoice'
+      },
+      restore: {
+        enabled: isDeleted && canUpdate,
+        tooltip: !isDeleted
+          ? 'Invoice not deleted'
+          : !canUpdate
+            ? 'No permission to restore'
+            : 'Restore Invoice'
+      }
+    };
   };
 
   const handleViewInvoice = async (invoice) => {
@@ -1633,225 +1776,345 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-0.5 justify-end">
-                      {/* Edit button - only for non-issued invoices */}
-                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status !== 'issued' && (
-                        <Link
-                        to={`/edit/${invoice.id}`}
-                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                          isDarkMode
-                            ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                            : "hover:bg-blue-50 text-blue-600 bg-white"
-                        }`}
-                        title="Edit Invoice"
-                      >
-                        <Edit size={18} />
-                      </Link>
-                      )}
-                      {/* Create Credit Note button - only for issued invoices */}
-                      {authService.hasPermission('invoices', 'update') && !isDeleted && invoice.status === 'issued' && (
-                        <button
-                        onClick={() => navigate(`/credit-notes/new?invoiceId=${invoice.id}`)}
-                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                          isDarkMode
-                            ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
-                            : "hover:bg-purple-50 text-purple-600 bg-white"
-                        }`}
-                        title="Create Credit Note"
-                      >
-                        <FileMinus size={18} />
-                      </button>
-                      )}
-                      <button
-                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                          isDarkMode
-                            ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
-                            : "hover:bg-cyan-50 text-cyan-600 bg-white"
-                        }`}
-                        title="View Invoice"
-                        onClick={() => handleViewInvoice(invoice)}
-                      >
-                        <Eye size={18} />
-                      </button>
-                      {authService.hasPermission('invoices', 'read') && (
-                      <div className="relative">
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                            downloadingIds.has(invoice.id)
-                              ? "bg-transparent"
-                              : !validateInvoiceForDownload(invoice).isValid
-                              ? isDarkMode
-                                ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                : "hover:bg-orange-50 text-orange-600 bg-white"
-                              : isDarkMode
-                              ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-green-50 text-green-600 bg-white"
-                          }`}
-                          title={
-                            !validateInvoiceForDownload(invoice).isValid
-                              ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
-                              : "Download PDF"
-                          }
-                          onClick={() => handleDownloadPDF(invoice)}
-                          disabled={downloadingIds.has(invoice.id)}
-                        >
-                          {downloadingIds.has(invoice.id) ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                          ) : (
-                            <Download size={18} />
-                          )}
-                        </button>
-                        {!validateInvoiceForDownload(invoice).isValid && (
-                          <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
-                            isDarkMode ? 'bg-orange-400' : 'bg-orange-500'
-                          }`} title="Incomplete"></div>
-                        )}
-                      </div>
-                      )}
-                      {/* Record Payment Button - Match Receivables: show for all unpaid invoices */}
-                      {authService.hasPermission('invoices', 'update') &&
-                       !isDeleted &&
-                       invoice.payment_status !== 'paid' &&
-                       (invoice.balance_due === undefined || invoice.balance_due > 0) && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                            isDarkMode
-                              ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-emerald-50 text-emerald-600 bg-white"
-                          }`}
-                          title="Record Payment"
-                          onClick={() => handleRecordPayment(invoice)}
-                        >
-                          <CircleDollarSign size={18} />
-                        </button>
-                      )}
-                      {/* Calculate Commission Button - Show for paid invoices with sales agent */}
-                      {invoice.payment_status === 'paid' &&
-                       invoice.sales_agent_id &&
-                       !isDeleted && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                            calculatingCommissionIds.has(invoice.id)
-                              ? "bg-transparent"
-                              : isDarkMode
-                              ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-blue-50 text-blue-600 bg-white"
-                          }`}
-                          title="Calculate Commission"
-                          onClick={() => handleCalculateCommission(invoice)}
-                          disabled={calculatingCommissionIds.has(invoice.id)}
-                        >
-                          {calculatingCommissionIds.has(invoice.id) ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                          ) : (
-                            <Award size={18} />
-                          )}
-                        </button>
-                      )}
-                      {/* Payment Reminder Button */}
-                      {getInvoiceReminderInfo(invoice)?.shouldShowReminder && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                            sendingReminderIds.has(invoice.id)
-                              ? "bg-transparent"
-                              : isDarkMode
-                              ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-yellow-50 text-yellow-600 bg-white"
-                          }`}
-                          title={`Send payment reminder (${getInvoiceReminderInfo(invoice)?.config.label})`}
-                          onClick={() => handleSendReminder(invoice)}
-                          disabled={sendingReminderIds.has(invoice.id)}
-                        >
-                          {sendingReminderIds.has(invoice.id) ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                          ) : (
-                            <Bell size={18} />
-                          )}
-                        </button>
-                      )}
-                      {/* Payment Reminder Phone Call Note Button */}
-                      {!isDeleted && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                            isDarkMode
-                              ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-orange-50 text-orange-600 bg-white"
-                          }`}
-                          title="Payment Reminder - Phone Call Notes"
-                          onClick={() => handleOpenPaymentReminder(invoice)}
-                        >
-                          <Phone size={18} />
-                        </button>
-                      )}
-                      {/* Generate Statement Button */}
-                      {authService.hasPermission('customers', 'read') && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                            isDarkMode
-                              ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-purple-50 text-purple-600 bg-white"
-                          }`}
-                          title="Generate Statement of Accounts"
-                          onClick={() => handleGenerateStatement(invoice)}
-                        >
-                          <FileText size={18} />
-                        </button>
-                      )}
-                      {invoice.status === "issued" && authService.hasPermission('delivery_notes', deliveryNoteStatus[invoice.id]?.hasNotes ? 'read' : 'create') && (
-                        <button
-                          className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                            deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? isDarkMode
-                                ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                : "hover:bg-yellow-50 text-yellow-600 bg-white"
-                              : isDarkMode
-                              ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                              : "hover:bg-green-50 text-green-600 bg-white"
-                          }`}
-                          title={
-                            deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? `View Delivery Notes (${
-                                  deliveryNoteStatus[invoice.id]?.count
-                                })`
-                              : "Create delivery note"
-                          }
-                          onClick={() =>
-                            deliveryNoteStatus[invoice.id]?.hasNotes
-                              ? navigate(
-                                  `/delivery-notes?invoice_id=${invoice.id}`
-                                )
-                              : handleCreateDeliveryNote(invoice)
-                          }
-                        >
-                          <Truck size={18} />
-                        </button>
-                      )}
-                      {authService.hasPermission('invoices', 'delete') && !isDeleted && (
-                      <button
-                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                          isDarkMode
-                            ? "text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50"
-                            : "hover:bg-red-50 text-red-600 bg-white"
-                        }`}
-                        title="Delete Invoice"
-                        onClick={() => handleDeleteInvoice(invoice)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      )}
-                      {/* Restore button for deleted invoices */}
-                      {isDeleted && authService.hasPermission('invoices', 'update') && (
-                      <button
-                        className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                          isDarkMode
-                            ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                            : "hover:bg-green-50 text-green-600 bg-white"
-                        }`}
-                        title="Restore Invoice"
-                        onClick={() => handleRestoreInvoice(invoice)}
-                      >
-                        <RotateCcw size={18} />
-                      </button>
-                      )}
+                      {(() => {
+                        const actions = getActionButtonConfig(invoice);
+
+                        return (
+                          <>
+                            {/* Edit button - Always visible */}
+                            {actions.edit.enabled ? (
+                              <Link
+                                to={actions.edit.link}
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-blue-50 text-blue-600 bg-white"
+                                }`}
+                                title={actions.edit.tooltip}
+                              >
+                                <Edit size={18} />
+                              </Link>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.edit.tooltip}
+                              >
+                                <Edit size={18} />
+                              </button>
+                            )}
+
+                            {/* Credit Note button - Always visible */}
+                            {actions.creditNote.enabled ? (
+                              <button
+                                onClick={() => navigate(actions.creditNote.link)}
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-purple-50 text-purple-600 bg-white"
+                                }`}
+                                title={actions.creditNote.tooltip}
+                              >
+                                <FileMinus size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.creditNote.tooltip}
+                              >
+                                <FileMinus size={18} />
+                              </button>
+                            )}
+
+                            {/* View button - Always enabled */}
+                            <button
+                              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                isDarkMode
+                                  ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                  : "hover:bg-cyan-50 text-cyan-600 bg-white"
+                              }`}
+                              title={actions.view.tooltip}
+                              onClick={() => handleViewInvoice(invoice)}
+                            >
+                              <Eye size={18} />
+                            </button>
+
+                            {/* Download button - Always visible */}
+                            {actions.download.enabled ? (
+                              <div className="relative">
+                                <button
+                                  className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    downloadingIds.has(invoice.id)
+                                      ? "bg-transparent"
+                                      : !actions.download.isValid
+                                      ? isDarkMode
+                                        ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                        : "hover:bg-orange-50 text-orange-600 bg-white"
+                                      : isDarkMode
+                                      ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                      : "hover:bg-green-50 text-green-600 bg-white"
+                                  }`}
+                                  title={actions.download.tooltip}
+                                  onClick={() => handleDownloadPDF(invoice)}
+                                  disabled={downloadingIds.has(invoice.id)}
+                                >
+                                  {downloadingIds.has(invoice.id) ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                  ) : (
+                                    <Download size={18} />
+                                  )}
+                                </button>
+                                {!actions.download.isValid && (
+                                  <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+                                    isDarkMode ? 'bg-orange-400' : 'bg-orange-500'
+                                  }`} title="Incomplete"></div>
+                                )}
+                              </div>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.download.tooltip}
+                              >
+                                <Download size={18} />
+                              </button>
+                            )}
+
+                            {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
+                            {actions.recordPayment.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  actions.recordPayment.isPaid
+                                    ? isDarkMode
+                                      ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                      : "hover:bg-blue-50 text-blue-600 bg-white"
+                                    : isDarkMode
+                                      ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                      : "hover:bg-emerald-50 text-emerald-600 bg-white"
+                                }`}
+                                title={actions.recordPayment.tooltip}
+                                onClick={() => handleRecordPayment(invoice)}
+                              >
+                                <CircleDollarSign size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.recordPayment.tooltip}
+                              >
+                                <CircleDollarSign size={18} />
+                              </button>
+                            )}
+
+                            {/* Commission button - Always visible */}
+                            {actions.commission.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                  calculatingCommissionIds.has(invoice.id)
+                                    ? "bg-transparent"
+                                    : isDarkMode
+                                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-blue-50 text-blue-600 bg-white"
+                                }`}
+                                title={actions.commission.tooltip}
+                                onClick={() => handleCalculateCommission(invoice)}
+                                disabled={calculatingCommissionIds.has(invoice.id)}
+                              >
+                                {calculatingCommissionIds.has(invoice.id) ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                ) : (
+                                  <Award size={18} />
+                                )}
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.commission.tooltip}
+                              >
+                                <Award size={18} />
+                              </button>
+                            )}
+
+                            {/* Reminder button - Always visible */}
+                            {actions.reminder.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                  sendingReminderIds.has(invoice.id)
+                                    ? "bg-transparent"
+                                    : isDarkMode
+                                    ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-yellow-50 text-yellow-600 bg-white"
+                                }`}
+                                title={actions.reminder.tooltip}
+                                onClick={() => handleSendReminder(invoice)}
+                                disabled={sendingReminderIds.has(invoice.id)}
+                              >
+                                {sendingReminderIds.has(invoice.id) ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                ) : (
+                                  <Bell size={18} />
+                                )}
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.reminder.tooltip}
+                              >
+                                <Bell size={18} />
+                              </button>
+                            )}
+
+                            {/* Phone button - Always visible */}
+                            {actions.phone.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-orange-50 text-orange-600 bg-white"
+                                }`}
+                                title={actions.phone.tooltip}
+                                onClick={() => handleOpenPaymentReminder(invoice)}
+                              >
+                                <Phone size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.phone.tooltip}
+                              >
+                                <Phone size={18} />
+                              </button>
+                            )}
+
+                            {/* Statement button - Always visible */}
+                            {actions.statement.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-purple-50 text-purple-600 bg-white"
+                                }`}
+                                title={actions.statement.tooltip}
+                                onClick={() => handleGenerateStatement(invoice)}
+                              >
+                                <FileText size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.statement.tooltip}
+                              >
+                                <FileText size={18} />
+                              </button>
+                            )}
+
+                            {/* Delivery Note button - Always visible */}
+                            {actions.deliveryNote.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  actions.deliveryNote.hasNotes
+                                    ? isDarkMode
+                                      ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                      : "hover:bg-yellow-50 text-yellow-600 bg-white"
+                                    : isDarkMode
+                                    ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-green-50 text-green-600 bg-white"
+                                }`}
+                                title={actions.deliveryNote.tooltip}
+                                onClick={() =>
+                                  actions.deliveryNote.hasNotes
+                                    ? navigate(`/delivery-notes?invoice_id=${invoice.id}`)
+                                    : handleCreateDeliveryNote(invoice)
+                                }
+                              >
+                                <Truck size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.deliveryNote.tooltip}
+                              >
+                                <Truck size={18} />
+                              </button>
+                            )}
+
+                            {/* Delete button - Always visible */}
+                            {actions.delete.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-red-50 text-red-600 bg-white"
+                                }`}
+                                title={actions.delete.tooltip}
+                                onClick={() => handleDeleteInvoice(invoice)}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.delete.tooltip}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            )}
+
+                            {/* Restore button - Always visible */}
+                            {actions.restore.enabled ? (
+                              <button
+                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                  isDarkMode
+                                    ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                                    : "hover:bg-green-50 text-green-600 bg-white"
+                                }`}
+                                title={actions.restore.tooltip}
+                                onClick={() => handleRestoreInvoice(invoice)}
+                              >
+                                <RotateCcw size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+                                }`}
+                                title={actions.restore.tooltip}
+                              >
+                                <RotateCcw size={18} />
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </td>
                 </tr>
@@ -1970,30 +2233,53 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
             </div>
             <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="opacity-70">Invoice Date</div>
-                  <div>{formatDate(paymentDrawerInvoice.invoiceDate) || 'N/A'}</div>
+              {/* Invoice Summary Section */}
+              <div className={`p-4 rounded-lg border-2 ${
+                isDarkMode
+                  ? 'bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-blue-700'
+                  : 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-300'
+              }`}>
+                <div className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
+                  isDarkMode ? 'text-blue-100' : 'text-blue-900'
+                }`}>
+                  <CircleDollarSign size={18} />
+                  Invoice Summary
                 </div>
-                <div>
-                  <div className="opacity-70">Due Date</div>
-                  <div>{formatDate(paymentDrawerInvoice.dueDate) || 'N/A'}</div>
+                <div className="grid grid-cols-3 gap-3 text-sm mb-3">
+                  <div>
+                    <div className={`text-xs mb-1 ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                      Total Amount
+                    </div>
+                    <div className={`font-bold text-lg ${isDarkMode ? 'text-blue-100' : 'text-blue-900'}`}>
+                      {formatCurrency(paymentDrawerInvoice.invoice_amount || paymentDrawerInvoice.total || 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={`text-xs mb-1 ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                      Paid Amount
+                    </div>
+                    <div className={`font-bold text-lg ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                      {formatCurrency(paymentDrawerInvoice.received || 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={`text-xs mb-1 ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                      Balance Due
+                    </div>
+                    <div className={`font-bold text-lg ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                      {formatCurrency(paymentDrawerInvoice.outstanding || 0)}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="opacity-70">Currency</div>
-                  <div>{paymentDrawerInvoice.currency || 'AED'}</div>
-                </div>
-                <div>
-                  <div className="opacity-70">Invoice Amount</div>
-                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.invoiceAmount || 0)}</div>
-                </div>
-                <div>
-                  <div className="opacity-70">Received</div>
-                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.received || 0)}</div>
-                </div>
-                <div>
-                  <div className="opacity-70">Outstanding</div>
-                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.outstanding || 0)}</div>
+                <div className={`pt-3 border-t grid grid-cols-2 gap-2 text-xs ${
+                  isDarkMode ? 'border-blue-700 text-blue-300' : 'border-blue-300 text-blue-700'
+                }`}>
+                  <div>
+                    <strong>Invoice Date:</strong> {formatDate(paymentDrawerInvoice.invoice_date) || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Due Date:</strong> {formatDate(paymentDrawerInvoice.due_date) || 'N/A'}
+                  </div>
                 </div>
               </div>
 
@@ -2089,6 +2375,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   const [method, setMethod] = useState('cash');
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
   const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
@@ -2096,17 +2383,23 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   const canSave =
     Number(amount) > 0 &&
     Number(amount) <= Number(outstanding || 0) &&
-    (!modeConfig.requiresRef || (reference && reference.trim() !== ''));
+    (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
+    !isSaving;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canSave) return;
-    onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
-    // Clear form after successful save
-    setDate(new Date().toISOString().slice(0,10));
-    setAmount('');
-    setMethod('cash');
-    setReference('');
-    setNotes('');
+    setIsSaving(true);
+    try {
+      await onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
+      // Clear form after successful save
+      setDate(new Date().toISOString().slice(0,10));
+      setAmount('');
+      setMethod('cash');
+      setReference('');
+      setNotes('');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -2138,46 +2431,113 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
           </div>
         </>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <div className="text-xs opacity-70 mb-1">Payment Date</div>
-          <input type="date" className="px-2 py-2 rounded border w-full" value={date} onChange={e=>setDate(e.target.value)} />
+          <label className="block text-xs font-medium mb-1.5">
+            Payment Date <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+            value={date}
+            onChange={e=>setDate(e.target.value)}
+            required
+          />
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">Amount (max: {formatCurrency(outstanding)})</div>
-          <input type="number" step="0.01" max={outstanding} className="px-2 py-2 rounded border w-full" value={amount} onChange={e=>setAmount(numberInput(e.target.value))} />
-          {Number(amount) > Number(outstanding) && <div className="text-xs text-red-600 mt-1">Amount cannot exceed outstanding balance</div>}
+          <label className="block text-xs font-medium mb-1.5">
+            Amount <span className="text-red-500">*</span>
+            <span className="text-gray-500 font-normal ml-1">(max: {formatCurrency(outstanding)})</span>
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            max={outstanding}
+            className={`px-3 py-2.5 rounded-lg border w-full focus:ring-2 focus:ring-teal-500 transition-all ${
+              Number(amount) > Number(outstanding)
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 focus:border-teal-500'
+            }`}
+            value={amount}
+            onChange={e=>setAmount(numberInput(e.target.value))}
+            placeholder="0.00"
+            required
+          />
+          {Number(amount) > Number(outstanding) && (
+            <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
+              <span>⚠️</span> Amount cannot exceed outstanding balance
+            </div>
+          )}
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">Payment Method</div>
-          <select className="px-2 py-2 rounded border w-full" value={method} onChange={e=>{setMethod(e.target.value); setReference('');}}>
+          <label className="block text-xs font-medium mb-1.5">
+            Payment Method <span className="text-red-500">*</span>
+          </label>
+          <select
+            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+            value={method}
+            onChange={e=>{setMethod(e.target.value); setReference('');}}
+            required
+          >
             {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
           </select>
         </div>
         <div>
-          <div className="text-xs opacity-70 mb-1">
+          <label className="block text-xs font-medium mb-1.5">
             {modeConfig.refLabel || 'Reference #'}
             {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
-          </div>
+            {!modeConfig.requiresRef && <span className="text-gray-500 font-normal ml-1">(Optional)</span>}
+          </label>
           <input
-            className="px-2 py-2 rounded border w-full"
+            className={`px-3 py-2.5 rounded-lg border w-full focus:ring-2 transition-all ${
+              modeConfig.requiresRef && (!reference || reference.trim() === '')
+                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500'
+            }`}
             value={reference}
             onChange={e=>setReference(e.target.value)}
-            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || 'reference'}` : 'Optional'}
+            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || 'reference'} (required)` : 'Optional'}
             required={modeConfig.requiresRef}
           />
           {modeConfig.requiresRef && (!reference || reference.trim() === '') && (
-            <div className="text-xs text-red-600 mt-1">Reference is required for {modeConfig.label}</div>
+            <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
+              <span>⚠️</span> Required for {modeConfig.label}
+            </div>
           )}
         </div>
         <div className="sm:col-span-2">
-          <div className="text-xs opacity-70 mb-1">Notes</div>
-          <textarea className="px-2 py-2 rounded border w-full" rows={2} value={notes} onChange={e=>setNotes(e.target.value)} />
+          <label className="block text-xs font-medium mb-1.5">
+            Notes <span className="text-gray-500 font-normal">(Optional)</span>
+          </label>
+          <textarea
+            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all resize-y min-h-[60px]"
+            rows={2}
+            value={notes}
+            onChange={e=>setNotes(e.target.value)}
+            placeholder="Add any additional notes about this payment..."
+            maxLength={200}
+          />
+          <div className="text-xs text-gray-500 mt-1 text-right">
+            {notes.length}/200
+          </div>
         </div>
       </div>
       <div className="mt-4 flex justify-end">
-        <button disabled={!canSave} onClick={handleSave} className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>
-          💾 Save Payment
+        <button
+          disabled={!canSave}
+          onClick={handleSave}
+          className={`px-4 py-2.5 rounded-lg font-semibold transition-all inline-flex items-center gap-2 ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+        >
+          {isSaving ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              Saving...
+            </>
+          ) : (
+            <>
+              💾 Save Payment
+            </>
+          )}
         </button>
       </div>
     </div>
