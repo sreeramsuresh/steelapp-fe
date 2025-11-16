@@ -1973,11 +1973,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <div className="opacity-70">Invoice Date</div>
-                  <div>{formatDate(paymentDrawerInvoice.invoice_date || paymentDrawerInvoice.date)}</div>
+                  <div>{formatDate(paymentDrawerInvoice.invoiceDate) || 'N/A'}</div>
                 </div>
                 <div>
                   <div className="opacity-70">Due Date</div>
-                  <div>{formatDate(paymentDrawerInvoice.due_date || paymentDrawerInvoice.dueDate)}</div>
+                  <div>{formatDate(paymentDrawerInvoice.dueDate) || 'N/A'}</div>
                 </div>
                 <div>
                   <div className="opacity-70">Currency</div>
@@ -1985,7 +1985,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </div>
                 <div>
                   <div className="opacity-70">Invoice Amount</div>
-                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.invoice_amount || 0)}</div>
+                  <div className="font-semibold">{formatCurrency(paymentDrawerInvoice.invoiceAmount || 0)}</div>
                 </div>
                 <div>
                   <div className="opacity-70">Received</div>

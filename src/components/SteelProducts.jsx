@@ -307,21 +307,29 @@ const SteelProducts = () => {
           return;
         }
       }
-      // Convert empty strings to appropriate default values
+      // Convert camelCase to snake_case and handle default values
       const productData = {
-        ...newProduct,
-        currentStock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),
-        minStock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),
-        maxStock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),
-        costPrice: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
-        sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice)
+        name: newProduct.name,
+        category: newProduct.category,
+        commodity: newProduct.commodity || 'SS',
+        grade: newProduct.grade,
+        finish: newProduct.finish,
+        size: newProduct.size,
+        size_inch: newProduct.sizeInch || undefined,
+        od: newProduct.od || undefined,
+        length: newProduct.length || undefined,
+        thickness: newProduct.thickness,
+        weight: newProduct.weight,
+        description: newProduct.description,
+        current_stock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),
+        min_stock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),
+        max_stock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),
+        cost_price: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
+        selling_price: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),
+        supplier: newProduct.supplier,
+        location: newProduct.location,
+        specifications: newProduct.specifications
       };
-      // Ensure we do not send unit (removed from UI)
-      delete productData.unit;
-      // Map pipe fields
-      productData.size_inch = newProduct.sizeInch || undefined;
-      productData.od = newProduct.od || undefined;
-      productData.length = newProduct.length || undefined;
       await createProduct(productData);
       setNewProduct({
         name: '',

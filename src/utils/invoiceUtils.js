@@ -139,7 +139,10 @@ export const formatCurrency = (amount) => {
 };
 
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-AE', {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-AE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
