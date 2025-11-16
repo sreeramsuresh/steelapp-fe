@@ -1955,14 +1955,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                  paymentDrawerInvoice.status === 'paid'
+                  paymentDrawerInvoice.payment_status === 'paid'
                     ? 'bg-green-100 text-green-800 border-green-300'
-                    : paymentDrawerInvoice.status === 'partially_paid'
+                    : paymentDrawerInvoice.payment_status === 'partially_paid'
                     ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
                     : 'bg-red-100 text-red-800 border-red-300'
                 }`}>
-                  {paymentDrawerInvoice.status === 'paid' ? 'Paid' :
-                   paymentDrawerInvoice.status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                  {paymentDrawerInvoice.payment_status === 'paid' ? 'Paid' :
+                   paymentDrawerInvoice.payment_status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
                 </span>
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>
@@ -2006,6 +2006,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   )}
                   {(paymentDrawerInvoice.payments || []).map((p, idx) => {
                     const paymentIndex = (paymentDrawerInvoice.payments || []).length - idx;
+                    const paymentMode = PAYMENT_MODES[p.method] || PAYMENT_MODES.other;
                     return (
                       <div key={p.id || idx} className={`p-2 rounded border ${
                         p.voided ? 'opacity-60 line-through' : ''
@@ -2013,7 +2014,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                            <div className="opacity-70">
+                              {paymentMode.icon} {paymentMode.label}
+                              {p.reference_no && <> • {p.reference_no}</>}
+                            </div>
                             {p.receipt_number && (
                               <div className="text-xs mt-1 text-teal-600 font-semibold">
                                 Receipt: {p.receipt_number}
