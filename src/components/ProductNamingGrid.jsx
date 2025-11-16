@@ -10,6 +10,8 @@ import { apiService } from '../services/axiosApi';
 const ProductNamingGrid = ({ companyId, presets = [] }) => {
   const { isDarkMode } = useTheme();
 
+  console.log('ProductNamingGrid rendered with:', { companyId, presetsCount: presets.length });
+
   // Core state
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -662,19 +664,30 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
     }
   };
 
+  console.log('ProductNamingGrid state:', { loading, productsCount: products.length, activeDrawer });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
         <Loader className="h-8 w-8 animate-spin text-teal-600" />
+        <span className="ml-2">Loading products...</span>
       </div>
     );
   }
 
   return (
-    <div className="relative flex gap-0">
+    <div className="relative">
+      {/* Backdrop overlay */}
+      {activeDrawer && (
+        <div
+          className="fixed inset-0 bg-black/20 z-40"
+          onClick={() => setActiveDrawer(null)}
+        />
+      )}
+
       {/* Main Grid Section */}
-      <div className={`flex-1 rounded-lg border overflow-hidden transition-all ${
-        activeDrawer ? 'mr-2' : ''
+      <div className={`rounded-lg border overflow-hidden transition-all ${
+        activeDrawer ? 'relative z-30' : ''
       } ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}>
 
         {/* Success/Error Messages */}
@@ -1030,7 +1043,7 @@ const ProductNamingGrid = ({ companyId, presets = [] }) => {
 
       {/* DRAWERS */}
       {activeDrawer && (
-        <div className={`fixed right-0 top-0 h-screen w-96 shadow-2xl border-l flex flex-col transition-transform ${
+        <div className={`fixed right-0 top-0 h-screen w-96 shadow-2xl border-l flex flex-col z-50 ${
           isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
         }`}>
           {/* === BULK EDIT DRAWER === */}
