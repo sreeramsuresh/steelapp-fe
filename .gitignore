@@ -10,3 +10,5 @@ dist
 .env.*.local
 .env.development
 .env.production
+# Claude Code configuration
+.claude/
