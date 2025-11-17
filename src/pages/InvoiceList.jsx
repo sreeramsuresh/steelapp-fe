@@ -1692,7 +1692,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
-                      {invoice.invoiceNumber}
+                      {invoice.invoice_number}
                     </div>
                     {isDeleted && (
                       <div
@@ -1730,14 +1730,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           isDarkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
-                        {invoice.customer.name}
+                        {invoice.customer_details?.name || invoice.customer?.name}
                       </div>
                       <div
                         className={`text-xs ${
                           isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {invoice.customer.email}
+                        {invoice.customer_details?.email || invoice.customer?.email}
                       </div>
                     </div>
                   </td>
@@ -1747,7 +1747,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(invoice.date)}
+                      {formatDate(invoice.invoice_date)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -1756,7 +1756,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(invoice.dueDate)}
+                      {formatDate(invoice.due_date)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
