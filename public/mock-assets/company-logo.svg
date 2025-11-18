@@ -1,0 +1,25 @@
+<svg width="240" height="80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="240" height="80" fill="#ffffff" rx="4"/>
+  
+  <!-- Steel icon/symbol -->
+  <g transform="translate(15, 20)">
+    <!-- Stylized steel beams -->
+    <rect x="0" y="0" width="8" height="40" fill="#1e40af" rx="1"/>
+    <rect x="12" y="8" width="8" height="32" fill="#2563eb" rx="1"/>
+    <rect x="24" y="4" width="8" height="36" fill="#3b82f6" rx="1"/>
+  </g>
+  
+  <!-- Company name -->
+  <text x="60" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#1e293b">
+    ULTIMATE
+  </text>
+  <text x="60" y="54" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#1e40af">
+    STEELS
+  </text>
+  
+  <!-- Tagline -->
+  <text x="60" y="68" font-family="Arial, sans-serif" font-size="9" fill="#64748b">
+    Trading LLC • Dubai, UAE
+  </text>
+</svg>

@@ -53,7 +53,7 @@ const createPOElement = (po, company, logoCompany, sealImage) => {
     left: -9999px;
   `;
 
-  const safe = (v) => (v == null ? '' : v);
+  const safe = (v) => (v === null || v === undefined ? '' : v);
   const comp = company || {};
   const compAddr = comp.address || {};
   const items = Array.isArray(po.items) ? po.items : [];

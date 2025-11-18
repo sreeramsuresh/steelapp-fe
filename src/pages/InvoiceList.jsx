@@ -27,7 +27,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { createCompany } from "../types";
-import { invoiceService } from "../services/invoiceService";
+import { invoiceService } from "../services/dataService";
 import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { payablesService, PAYMENT_MODES } from "../services/payablesService";
@@ -933,7 +933,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Helper function to get action button configurations
   const getActionButtonConfig = (invoice) => {
-    const isDeleted = invoice.deleted_at != null;
+    const isDeleted = invoice.deleted_at !== null;
     const canUpdate = authService.hasPermission('invoices', 'update');
     const canDelete = authService.hasPermission('invoices', 'delete');
     const canRead = authService.hasPermission('invoices', 'read');

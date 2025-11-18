@@ -771,7 +771,9 @@ const PurchaseOrderForm = () => {
         const numMatch = last.match(/\d+(?:\.\d+)?/);
         if (numMatch) return `${numMatch[0]}mm`;
       }
-    } catch {}
+    } catch (err) {
+      console.warn('Error extracting thickness from product:', err);
+    }
     return "";
   };
 
@@ -866,7 +868,9 @@ const PurchaseOrderForm = () => {
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
-    } catch {}
+    } catch (err) {
+      console.error('Error setting up product search timer:', err);
+    }
   }, []);
 
   const handleItemChange = (index, field, value) => {

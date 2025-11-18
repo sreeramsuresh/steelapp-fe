@@ -1,0 +1,5552 @@
+[
+  {
+    "id": 1,
+    "poNumber": "PO-2025-0001",
+    "supplierId": 16,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-5-3359663",
+      "trn": "100761016831267",
+      "address": {
+        "street": "Industrial Area 13",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "79783",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-06",
+    "expectedDeliveryDate": "2025-08-20",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 397988.14160000003,
+    "taxRate": 5,
+    "taxAmount": 19899.407080000004,
+    "totalAmount": 417887.54868,
+    "items": [
+      {
+        "id": 1,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 172,
+        "unitPrice": 65.7876,
+        "amount": 11315.4672
+      },
+      {
+        "id": 2,
+        "productId": 65,
+        "productName": "SS 304H Sheet BA 1000x2000 1.5mm",
+        "description": "SS 304H Sheet BA 1000x2000 1.5mm",
+        "quantity": 227,
+        "unitPrice": 188.28,
+        "amount": 42739.56
+      },
+      {
+        "id": 3,
+        "productId": 31,
+        "productName": "SS 304L Sheet HL 2000x2000 1mm",
+        "description": "SS 304L Sheet HL 2000x2000 1mm",
+        "quantity": 291,
+        "unitPrice": 276.68940000000003,
+        "amount": 80516.61540000001
+      },
+      {
+        "id": 4,
+        "productId": 7,
+        "productName": "SS 410N Pipe 1\" SCH40",
+        "description": "SS 410N Pipe 1\" SCH40",
+        "quantity": 87,
+        "unitPrice": 332.4636,
+        "amount": 28924.333199999997
+      },
+      {
+        "id": 5,
+        "productId": 61,
+        "productName": "SS 430L Pipe 4\" SCH40",
+        "description": "SS 430L Pipe 4\" SCH40",
+        "quantity": 55,
+        "unitPrice": 44.8392,
+        "amount": 2466.156
+      },
+      {
+        "id": 6,
+        "productId": 94,
+        "productName": "SS 410H Sheet HL 2000x2000 3mm",
+        "description": "SS 410H Sheet HL 2000x2000 3mm",
+        "quantity": 253,
+        "unitPrice": 120.04959999999998,
+        "amount": 30372.548799999997
+      },
+      {
+        "id": 7,
+        "productId": 32,
+        "productName": "SS 201H Pipe 1.5\" SCH40",
+        "description": "SS 201H Pipe 1.5\" SCH40",
+        "quantity": 370,
+        "unitPrice": 331.02750000000003,
+        "amount": 122480.17500000002
+      },
+      {
+        "id": 8,
+        "productId": 64,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 94,
+        "unitPrice": 210.154,
+        "amount": 19754.476
+      },
+      {
+        "id": 9,
+        "productId": 42,
+        "productName": "SS 304H Pipe 3\" SCH40",
+        "description": "SS 304H Pipe 3\" SCH40",
+        "quantity": 375,
+        "unitPrice": 101.27640000000001,
+        "amount": 37978.65
+      },
+      {
+        "id": 10,
+        "productId": 5,
+        "productName": "SS 316 Pipe 4\" SCH80",
+        "description": "SS 316 Pipe 4\" SCH80",
+        "quantity": 420,
+        "unitPrice": 51.048,
+        "amount": 21440.16
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-06T07:04:04.659Z",
+    "updatedAt": "2025-10-07T04:32:15.068Z"
+  },
+  {
+    "id": 2,
+    "poNumber": "PO-2025-0002",
+    "supplierId": 20,
+    "supplierDetails": {
+      "name": "Royal Metal Trading LLC",
+      "email": "procurement@royalmetaltradingllc.ae",
+      "phone": "+971-5-2163022",
+      "trn": "100825817285305",
+      "address": {
+        "street": "Industrial Area 15",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "76031",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-19",
+    "expectedDeliveryDate": "2025-08-05",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 399389.18159999995,
+    "taxRate": 5,
+    "taxAmount": 19969.45908,
+    "totalAmount": 419358.64067999995,
+    "items": [
+      {
+        "id": 1,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 70,
+        "unitPrice": 358.08,
+        "amount": 25065.6
+      },
+      {
+        "id": 2,
+        "productId": 51,
+        "productName": "SS 316 Coil 2B 1000x0.5mm",
+        "description": "SS 316 Coil 2B 1000x0.5mm",
+        "quantity": 311,
+        "unitPrice": 391.464,
+        "amount": 121745.304
+      },
+      {
+        "id": 3,
+        "productId": 58,
+        "productName": "SS 304H Pipe 1\" SCH40",
+        "description": "SS 304H Pipe 1\" SCH40",
+        "quantity": 150,
+        "unitPrice": 304.3575,
+        "amount": 45653.625
+      },
+      {
+        "id": 4,
+        "productId": 66,
+        "productName": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "description": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "quantity": 258,
+        "unitPrice": 404.95699999999994,
+        "amount": 104478.90599999999
+      },
+      {
+        "id": 5,
+        "productId": 14,
+        "productName": "SS 316H Coil BA 1000x1.2mm",
+        "description": "SS 316H Coil BA 1000x1.2mm",
+        "quantity": 163,
+        "unitPrice": 240.70499999999998,
+        "amount": 39234.915
+      },
+      {
+        "id": 6,
+        "productId": 15,
+        "productName": "SS 430 Pipe 1/2\" STD",
+        "description": "SS 430 Pipe 1/2\" STD",
+        "quantity": 371,
+        "unitPrice": 170.37959999999998,
+        "amount": 63210.83159999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-19T04:25:17.151Z",
+    "updatedAt": "2025-07-31T08:56:03.348Z"
+  },
+  {
+    "id": 3,
+    "poNumber": "PO-2025-0003",
+    "supplierId": 3,
+    "supplierDetails": {
+      "name": "Emirates Steel Mills LLC",
+      "email": "procurement@emiratessteelmillsllc.ae",
+      "phone": "+971-3-2421438",
+      "trn": "100841829795520",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "58595",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-05",
+    "expectedDeliveryDate": "2025-07-05",
+    "status": "cancelled",
+    "currency": "AED",
+    "subtotal": 677262.4502000001,
+    "taxRate": 5,
+    "taxAmount": 33863.12251000001,
+    "totalAmount": 711125.5727100001,
+    "items": [
+      {
+        "id": 1,
+        "productId": 18,
+        "productName": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "description": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "quantity": 481,
+        "unitPrice": 238.5129,
+        "amount": 114724.7049
+      },
+      {
+        "id": 2,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 209,
+        "unitPrice": 57.545899999999996,
+        "amount": 12027.0931
+      },
+      {
+        "id": 3,
+        "productId": 91,
+        "productName": "SS 304 Sheet 2B 1219x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1219x3000 1.2mm",
+        "quantity": 369,
+        "unitPrice": 71.5253,
+        "amount": 26392.8357
+      },
+      {
+        "id": 4,
+        "productId": 49,
+        "productName": "SS 304N Pipe 1\" SCH80",
+        "description": "SS 304N Pipe 1\" SCH80",
+        "quantity": 260,
+        "unitPrice": 412.96500000000003,
+        "amount": 107370.90000000001
+      },
+      {
+        "id": 5,
+        "productId": 97,
+        "productName": "SS 201 Sheet 2B 1000x4000 1mm",
+        "description": "SS 201 Sheet 2B 1000x4000 1mm",
+        "quantity": 392,
+        "unitPrice": 226.67229999999998,
+        "amount": 88855.5416
+      },
+      {
+        "id": 6,
+        "productId": 13,
+        "productName": "SS 304 Tube 50.8mm x 1.5mm",
+        "description": "SS 304 Tube 50.8mm x 1.5mm",
+        "quantity": 477,
+        "unitPrice": 219.41400000000002,
+        "amount": 104660.478
+      },
+      {
+        "id": 7,
+        "productId": 80,
+        "productName": "SS 201N Pipe 2\" XS",
+        "description": "SS 201N Pipe 2\" XS",
+        "quantity": 107,
+        "unitPrice": 246.45749999999998,
+        "amount": 26370.9525
+      },
+      {
+        "id": 8,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 489,
+        "unitPrice": 326.2438,
+        "amount": 159533.2182
+      },
+      {
+        "id": 9,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 103,
+        "unitPrice": 362.3954,
+        "amount": 37326.7262
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-05T10:59:15.188Z",
+    "updatedAt": "2025-06-28T08:35:20.780Z"
+  },
+  {
+    "id": 4,
+    "poNumber": "PO-2025-0004",
+    "supplierId": 12,
+    "supplierDetails": {
+      "name": "Emirates Manufacturing LLC",
+      "email": "procurement@emiratesmanufacturingllc.ae",
+      "phone": "+971-3-4484960",
+      "trn": "100812004783754",
+      "address": {
+        "street": "Industrial Area 2",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "65945",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-01",
+    "expectedDeliveryDate": "2025-07-27",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 725718.5562,
+    "taxRate": 5,
+    "taxAmount": 36285.92781,
+    "totalAmount": 762004.48401,
+    "items": [
+      {
+        "id": 1,
+        "productId": 34,
+        "productName": "SS 410 Pipe 1\" SCH40",
+        "description": "SS 410 Pipe 1\" SCH40",
+        "quantity": 136,
+        "unitPrice": 92.79270000000001,
+        "amount": 12619.807200000001
+      },
+      {
+        "id": 2,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 293,
+        "unitPrice": 68.5821,
+        "amount": 20094.5553
+      },
+      {
+        "id": 3,
+        "productId": 66,
+        "productName": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "description": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "quantity": 395,
+        "unitPrice": 419.594,
+        "amount": 165739.63
+      },
+      {
+        "id": 4,
+        "productId": 46,
+        "productName": "SS 304L Bar 6mm",
+        "description": "SS 304L Bar 6mm",
+        "quantity": 441,
+        "unitPrice": 151.16649999999998,
+        "amount": 66664.42649999999
+      },
+      {
+        "id": 5,
+        "productId": 36,
+        "productName": "SS 201L Bar 16mm",
+        "description": "SS 201L Bar 16mm",
+        "quantity": 304,
+        "unitPrice": 217.126,
+        "amount": 66006.304
+      },
+      {
+        "id": 6,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 352,
+        "unitPrice": 45.6494,
+        "amount": 16068.5888
+      },
+      {
+        "id": 7,
+        "productId": 35,
+        "productName": "SS 304N Sheet BA 1000x3000 1mm",
+        "description": "SS 304N Sheet BA 1000x3000 1mm",
+        "quantity": 228,
+        "unitPrice": 137.8776,
+        "amount": 31436.0928
+      },
+      {
+        "id": 8,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 338,
+        "unitPrice": 366.822,
+        "amount": 123985.836
+      },
+      {
+        "id": 9,
+        "productId": 51,
+        "productName": "SS 316 Coil 2B 1000x0.5mm",
+        "description": "SS 316 Coil 2B 1000x0.5mm",
+        "quantity": 407,
+        "unitPrice": 420.8238,
+        "amount": 171275.2866
+      },
+      {
+        "id": 10,
+        "productId": 20,
+        "productName": "SS 304N Sheet HL 1000x2000 2mm",
+        "description": "SS 304N Sheet HL 1000x2000 2mm",
+        "quantity": 209,
+        "unitPrice": 247.98100000000002,
+        "amount": 51828.029
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-01T00:05:29.926Z",
+    "updatedAt": "2025-10-29T04:28:38.434Z"
+  },
+  {
+    "id": 5,
+    "poNumber": "PO-2025-0005",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-04",
+    "expectedDeliveryDate": "2025-10-04",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 502418.3447,
+    "taxRate": 5,
+    "taxAmount": 25120.917235,
+    "totalAmount": 527539.2619350001,
+    "items": [
+      {
+        "id": 1,
+        "productId": 51,
+        "productName": "SS 316 Coil 2B 1000x0.5mm",
+        "description": "SS 316 Coil 2B 1000x0.5mm",
+        "quantity": 325,
+        "unitPrice": 376.7841,
+        "amount": 122454.8325
+      },
+      {
+        "id": 2,
+        "productId": 16,
+        "productName": "SS 430N Sheet BA 1219x3000 2mm",
+        "description": "SS 430N Sheet BA 1219x3000 2mm",
+        "quantity": 457,
+        "unitPrice": 309.3886,
+        "amount": 141390.5902
+      },
+      {
+        "id": 3,
+        "productId": 78,
+        "productName": "SS 316H Tube 38.1mm x 1.5mm",
+        "description": "SS 316H Tube 38.1mm x 1.5mm",
+        "quantity": 494,
+        "unitPrice": 213.77319999999997,
+        "amount": 105603.96079999999
+      },
+      {
+        "id": 4,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 206,
+        "unitPrice": 271.6414,
+        "amount": 55958.128399999994
+      },
+      {
+        "id": 5,
+        "productId": 98,
+        "productName": "SS 304H Pipe 1\" STD",
+        "description": "SS 304H Pipe 1\" STD",
+        "quantity": 396,
+        "unitPrice": 194.4718,
+        "amount": 77010.8328
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-04T14:17:50.714Z",
+    "updatedAt": "2025-11-13T00:48:06.543Z"
+  },
+  {
+    "id": 6,
+    "poNumber": "PO-2025-0006",
+    "supplierId": 17,
+    "supplierDetails": {
+      "name": "Royal Steel Mills LLC",
+      "email": "procurement@royalsteelmillsllc.ae",
+      "phone": "+971-7-4545916",
+      "trn": "100987703303151",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "20784",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-15",
+    "expectedDeliveryDate": "2025-10-10",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 735134.8239999999,
+    "taxRate": 5,
+    "taxAmount": 36756.7412,
+    "totalAmount": 771891.5652,
+    "items": [
+      {
+        "id": 1,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 454,
+        "unitPrice": 321.9882,
+        "amount": 146182.6428
+      },
+      {
+        "id": 2,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 468,
+        "unitPrice": 201.44939999999997,
+        "amount": 94278.31919999998
+      },
+      {
+        "id": 3,
+        "productId": 42,
+        "productName": "SS 304H Pipe 3\" SCH40",
+        "description": "SS 304H Pipe 3\" SCH40",
+        "quantity": 455,
+        "unitPrice": 105.38220000000001,
+        "amount": 47948.901000000005
+      },
+      {
+        "id": 4,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 316,
+        "unitPrice": 338.29139999999995,
+        "amount": 106900.08239999998
+      },
+      {
+        "id": 5,
+        "productId": 43,
+        "productName": "SS 430H Sheet BA 1500x2438 1mm",
+        "description": "SS 430H Sheet BA 1500x2438 1mm",
+        "quantity": 222,
+        "unitPrice": 301.6656,
+        "amount": 66969.7632
+      },
+      {
+        "id": 6,
+        "productId": 1,
+        "productName": "SS 304 Pipe 1.5\" SCH40",
+        "description": "SS 304 Pipe 1.5\" SCH40",
+        "quantity": 483,
+        "unitPrice": 91.96000000000001,
+        "amount": 44416.68
+      },
+      {
+        "id": 7,
+        "productId": 46,
+        "productName": "SS 304L Bar 6mm",
+        "description": "SS 304L Bar 6mm",
+        "quantity": 116,
+        "unitPrice": 123.9905,
+        "amount": 14382.898
+      },
+      {
+        "id": 8,
+        "productId": 65,
+        "productName": "SS 304H Sheet BA 1000x2000 1.5mm",
+        "description": "SS 304H Sheet BA 1000x2000 1.5mm",
+        "quantity": 371,
+        "unitPrice": 176.5125,
+        "amount": 65486.1375
+      },
+      {
+        "id": 9,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 369,
+        "unitPrice": 402.6271,
+        "amount": 148569.3999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-15T14:28:31.693Z",
+    "updatedAt": "2025-10-02T05:46:55.328Z"
+  },
+  {
+    "id": 7,
+    "poNumber": "PO-2025-0007",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-14",
+    "expectedDeliveryDate": "2025-12-05",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 518470.0093999999,
+    "taxRate": 5,
+    "taxAmount": 25923.50047,
+    "totalAmount": 544393.50987,
+    "items": [
+      {
+        "id": 1,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 316,
+        "unitPrice": 370.9598,
+        "amount": 117223.2968
+      },
+      {
+        "id": 2,
+        "productId": 73,
+        "productName": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "quantity": 68,
+        "unitPrice": 434.8782,
+        "amount": 29571.7176
+      },
+      {
+        "id": 3,
+        "productId": 25,
+        "productName": "SS 201N Sheet BA 1500x4000 1mm",
+        "description": "SS 201N Sheet BA 1500x4000 1mm",
+        "quantity": 256,
+        "unitPrice": 200.91060000000002,
+        "amount": 51433.113600000004
+      },
+      {
+        "id": 4,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 467,
+        "unitPrice": 309.6576,
+        "amount": 144610.0992
+      },
+      {
+        "id": 5,
+        "productId": 22,
+        "productName": "SS 304N Tube 38.1mm x 1.2mm",
+        "description": "SS 304N Tube 38.1mm x 1.2mm",
+        "quantity": 357,
+        "unitPrice": 152.63840000000002,
+        "amount": 54491.908800000005
+      },
+      {
+        "id": 6,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 299,
+        "unitPrice": 160.6162,
+        "amount": 48024.2438
+      },
+      {
+        "id": 7,
+        "productId": 36,
+        "productName": "SS 201L Bar 16mm",
+        "description": "SS 201L Bar 16mm",
+        "quantity": 284,
+        "unitPrice": 257.44939999999997,
+        "amount": 73115.62959999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-14T03:44:45.156Z",
+    "updatedAt": "2025-11-18T20:47:33.718Z"
+  },
+  {
+    "id": 8,
+    "poNumber": "PO-2025-0008",
+    "supplierId": 10,
+    "supplierDetails": {
+      "name": "National Manufacturing LLC",
+      "email": "procurement@nationalmanufacturingllc.ae",
+      "phone": "+971-5-6713879",
+      "trn": "100996122381676",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "53650",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-14",
+    "expectedDeliveryDate": "2025-12-31",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 277992.3238,
+    "taxRate": 5,
+    "taxAmount": 13899.61619,
+    "totalAmount": 291891.93999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 5,
+        "productName": "SS 316 Pipe 4\" SCH80",
+        "description": "SS 316 Pipe 4\" SCH80",
+        "quantity": 424,
+        "unitPrice": 40.2712,
+        "amount": 17074.9888
+      },
+      {
+        "id": 2,
+        "productId": 83,
+        "productName": "SS 304H Tube 12.7mm x 1.5mm",
+        "description": "SS 304H Tube 12.7mm x 1.5mm",
+        "quantity": 437,
+        "unitPrice": 271.7808,
+        "amount": 118768.2096
+      },
+      {
+        "id": 3,
+        "productId": 42,
+        "productName": "SS 304H Pipe 3\" SCH40",
+        "description": "SS 304H Pipe 3\" SCH40",
+        "quantity": 163,
+        "unitPrice": 120.43680000000002,
+        "amount": 19631.198400000005
+      },
+      {
+        "id": 4,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 315,
+        "unitPrice": 388.9458,
+        "amount": 122517.92700000001
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-14T09:00:45.022Z",
+    "updatedAt": "2025-11-18T20:47:33.718Z"
+  },
+  {
+    "id": 9,
+    "poNumber": "PO-2025-0009",
+    "supplierId": 15,
+    "supplierDetails": {
+      "name": "United Metal Trading LLC",
+      "email": "procurement@unitedmetaltradingllc.ae",
+      "phone": "+971-3-9915828",
+      "trn": "100216298857908",
+      "address": {
+        "street": "Industrial Area 7",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "71769",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-20",
+    "expectedDeliveryDate": "2025-07-26",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 748609.5372,
+    "taxRate": 5,
+    "taxAmount": 37430.47686,
+    "totalAmount": 786040.0140600001,
+    "items": [
+      {
+        "id": 1,
+        "productId": 64,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 147,
+        "unitPrice": 213.1562,
+        "amount": 31333.9614
+      },
+      {
+        "id": 2,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 338,
+        "unitPrice": 383.5569,
+        "amount": 129642.2322
+      },
+      {
+        "id": 3,
+        "productId": 27,
+        "productName": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "description": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "quantity": 292,
+        "unitPrice": 55.8828,
+        "amount": 16317.777600000001
+      },
+      {
+        "id": 4,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 487,
+        "unitPrice": 275.064,
+        "amount": 133956.168
+      },
+      {
+        "id": 5,
+        "productId": 22,
+        "productName": "SS 304N Tube 38.1mm x 1.2mm",
+        "description": "SS 304N Tube 38.1mm x 1.2mm",
+        "quantity": 189,
+        "unitPrice": 148.6216,
+        "amount": 28089.4824
+      },
+      {
+        "id": 6,
+        "productId": 56,
+        "productName": "SS 201 Sheet HL 1000x3000 2mm",
+        "description": "SS 201 Sheet HL 1000x3000 2mm",
+        "quantity": 485,
+        "unitPrice": 270.2736,
+        "amount": 131082.696
+      },
+      {
+        "id": 7,
+        "productId": 36,
+        "productName": "SS 201L Bar 16mm",
+        "description": "SS 201L Bar 16mm",
+        "quantity": 217,
+        "unitPrice": 254.3476,
+        "amount": 55193.4292
+      },
+      {
+        "id": 8,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 421,
+        "unitPrice": 345.53979999999996,
+        "amount": 145472.25579999998
+      },
+      {
+        "id": 9,
+        "productId": 23,
+        "productName": "SS 304 Tube 19.05mm x 1.5mm",
+        "description": "SS 304 Tube 19.05mm x 1.5mm",
+        "quantity": 223,
+        "unitPrice": 347.6302,
+        "amount": 77521.5346
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-20T18:14:42.282Z",
+    "updatedAt": "2025-10-27T11:59:16.575Z"
+  },
+  {
+    "id": 10,
+    "poNumber": "PO-2025-0010",
+    "supplierId": 20,
+    "supplierDetails": {
+      "name": "Royal Metal Trading LLC",
+      "email": "procurement@royalmetaltradingllc.ae",
+      "phone": "+971-5-2163022",
+      "trn": "100825817285305",
+      "address": {
+        "street": "Industrial Area 15",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "76031",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-19",
+    "expectedDeliveryDate": "2025-09-08",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 564598.0314,
+    "taxRate": 5,
+    "taxAmount": 28229.90157,
+    "totalAmount": 592827.93297,
+    "items": [
+      {
+        "id": 1,
+        "productId": 38,
+        "productName": "SS 316N Pipe 1\" SCH80",
+        "description": "SS 316N Pipe 1\" SCH80",
+        "quantity": 230,
+        "unitPrice": 274.17339999999996,
+        "amount": 63059.88199999999
+      },
+      {
+        "id": 2,
+        "productId": 19,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 181,
+        "unitPrice": 172.39679999999998,
+        "amount": 31203.820799999998
+      },
+      {
+        "id": 3,
+        "productId": 75,
+        "productName": "SS 304 Sheet HL 1500x3000 0.5mm",
+        "description": "SS 304 Sheet HL 1500x3000 0.5mm",
+        "quantity": 251,
+        "unitPrice": 297.88980000000004,
+        "amount": 74770.33980000002
+      },
+      {
+        "id": 4,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 142,
+        "unitPrice": 184.2525,
+        "amount": 26163.855
+      },
+      {
+        "id": 5,
+        "productId": 15,
+        "productName": "SS 430 Pipe 1/2\" STD",
+        "description": "SS 430 Pipe 1/2\" STD",
+        "quantity": 411,
+        "unitPrice": 180.7686,
+        "amount": 74295.8946
+      },
+      {
+        "id": 6,
+        "productId": 33,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 441,
+        "unitPrice": 301.47599999999994,
+        "amount": 132950.91599999997
+      },
+      {
+        "id": 7,
+        "productId": 50,
+        "productName": "SS 304 Sheet BA 1000x2438 1mm",
+        "description": "SS 304 Sheet BA 1000x2438 1mm",
+        "quantity": 488,
+        "unitPrice": 332.2814,
+        "amount": 162153.3232
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-19T08:42:20.911Z",
+    "updatedAt": "2025-09-01T00:29:47.790Z"
+  },
+  {
+    "id": 11,
+    "poNumber": "PO-2025-0011",
+    "supplierId": 8,
+    "supplierDetails": {
+      "name": "Al Noor Steel Mills LLC",
+      "email": "procurement@alnoorsteelmillsllc.ae",
+      "phone": "+971-7-2875502",
+      "trn": "100767445448461",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "68068",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-12",
+    "expectedDeliveryDate": "2025-10-10",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 283138.12549999997,
+    "taxRate": 5,
+    "taxAmount": 14156.906275,
+    "totalAmount": 297295.031775,
+    "items": [
+      {
+        "id": 1,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 137,
+        "unitPrice": 295.69379999999995,
+        "amount": 40510.050599999995
+      },
+      {
+        "id": 2,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 452,
+        "unitPrice": 201.3358,
+        "amount": 91003.7816
+      },
+      {
+        "id": 3,
+        "productId": 58,
+        "productName": "SS 304H Pipe 1\" SCH40",
+        "description": "SS 304H Pipe 1\" SCH40",
+        "quantity": 165,
+        "unitPrice": 266.78249999999997,
+        "amount": 44019.112499999996
+      },
+      {
+        "id": 4,
+        "productId": 42,
+        "productName": "SS 304H Pipe 3\" SCH40",
+        "description": "SS 304H Pipe 3\" SCH40",
+        "quantity": 278,
+        "unitPrice": 120.43680000000002,
+        "amount": 33481.430400000005
+      },
+      {
+        "id": 5,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 123,
+        "unitPrice": 265.016,
+        "amount": 32596.968
+      },
+      {
+        "id": 6,
+        "productId": 11,
+        "productName": "SS 316N Pipe 2\" STD",
+        "description": "SS 316N Pipe 2\" STD",
+        "quantity": 147,
+        "unitPrice": 60.9192,
+        "amount": 8955.1224
+      },
+      {
+        "id": 7,
+        "productId": 95,
+        "productName": "SS 430N Tube 50.8mm x 1.5mm",
+        "description": "SS 430N Tube 50.8mm x 1.5mm",
+        "quantity": 220,
+        "unitPrice": 148.053,
+        "amount": 32571.66
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-12T18:21:19.780Z",
+    "updatedAt": "2025-10-12T02:28:02.943Z"
+  },
+  {
+    "id": 12,
+    "poNumber": "PO-2025-0012",
+    "supplierId": 17,
+    "supplierDetails": {
+      "name": "Royal Steel Mills LLC",
+      "email": "procurement@royalsteelmillsllc.ae",
+      "phone": "+971-7-4545916",
+      "trn": "100987703303151",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "20784",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-22",
+    "expectedDeliveryDate": "2025-07-19",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 318193.0185,
+    "taxRate": 5,
+    "taxAmount": 15909.650925000002,
+    "totalAmount": 334102.66942500003,
+    "items": [
+      {
+        "id": 1,
+        "productId": 38,
+        "productName": "SS 316N Pipe 1\" SCH80",
+        "description": "SS 316N Pipe 1\" SCH80",
+        "quantity": 151,
+        "unitPrice": 281.685,
+        "amount": 42534.435
+      },
+      {
+        "id": 2,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 296,
+        "unitPrice": 145.22570000000002,
+        "amount": 42986.8072
+      },
+      {
+        "id": 3,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 307,
+        "unitPrice": 383.5569,
+        "amount": 117751.9683
+      },
+      {
+        "id": 4,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 290,
+        "unitPrice": 396.2752,
+        "amount": 114919.80799999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-22T08:00:41.072Z",
+    "updatedAt": "2025-07-30T04:59:47.039Z"
+  },
+  {
+    "id": 13,
+    "poNumber": "PO-2025-0013",
+    "supplierId": 11,
+    "supplierDetails": {
+      "name": "Gulf Steel Mills LLC",
+      "email": "procurement@gulfsteelmillsllc.ae",
+      "phone": "+971-6-3944225",
+      "trn": "100499582505081",
+      "address": {
+        "street": "Industrial Area 12",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "24982",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-05-27",
+    "expectedDeliveryDate": "2025-06-23",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 467495.68940000003,
+    "taxRate": 5,
+    "taxAmount": 23374.784470000002,
+    "totalAmount": 490870.47387000005,
+    "items": [
+      {
+        "id": 1,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 342,
+        "unitPrice": 331.483,
+        "amount": 113367.186
+      },
+      {
+        "id": 2,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 433,
+        "unitPrice": 220.68650000000002,
+        "amount": 95557.25450000001
+      },
+      {
+        "id": 3,
+        "productId": 29,
+        "productName": "SS 410 Coil 2B 1219x1.2mm",
+        "description": "SS 410 Coil 2B 1219x1.2mm",
+        "quantity": 255,
+        "unitPrice": 186.0669,
+        "amount": 47447.0595
+      },
+      {
+        "id": 4,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 381,
+        "unitPrice": 179.33909999999997,
+        "amount": 68328.19709999999
+      },
+      {
+        "id": 5,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 80,
+        "unitPrice": 176.4516,
+        "amount": 14116.128
+      },
+      {
+        "id": 6,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 377,
+        "unitPrice": 341.3259,
+        "amount": 128679.8643
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-05-27T17:01:53.282Z",
+    "updatedAt": "2025-07-04T20:15:55.817Z"
+  },
+  {
+    "id": 14,
+    "poNumber": "PO-2025-0014",
+    "supplierId": 8,
+    "supplierDetails": {
+      "name": "Al Noor Steel Mills LLC",
+      "email": "procurement@alnoorsteelmillsllc.ae",
+      "phone": "+971-7-2875502",
+      "trn": "100767445448461",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "68068",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-20",
+    "expectedDeliveryDate": "2025-12-18",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 55599.871199999994,
+    "taxRate": 5,
+    "taxAmount": 2779.99356,
+    "totalAmount": 58379.86476,
+    "items": [
+      {
+        "id": 1,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 95,
+        "unitPrice": 245.55599999999998,
+        "amount": 23327.82
+      },
+      {
+        "id": 2,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 128,
+        "unitPrice": 252.12539999999998,
+        "amount": 32272.051199999998
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-20T08:30:06.960Z",
+    "updatedAt": "2025-11-07T23:47:19.458Z"
+  },
+  {
+    "id": 15,
+    "poNumber": "PO-2025-0015",
+    "supplierId": 12,
+    "supplierDetails": {
+      "name": "Emirates Manufacturing LLC",
+      "email": "procurement@emiratesmanufacturingllc.ae",
+      "phone": "+971-3-4484960",
+      "trn": "100812004783754",
+      "address": {
+        "street": "Industrial Area 2",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "65945",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-20",
+    "expectedDeliveryDate": "2025-11-05",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 450303.9601,
+    "taxRate": 5,
+    "taxAmount": 22515.198005000002,
+    "totalAmount": 472819.15810500004,
+    "items": [
+      {
+        "id": 1,
+        "productId": 70,
+        "productName": "SS 201N Sheet HL 1219x3000 0.5mm",
+        "description": "SS 201N Sheet HL 1219x3000 0.5mm",
+        "quantity": 439,
+        "unitPrice": 220.30380000000002,
+        "amount": 96713.36820000001
+      },
+      {
+        "id": 2,
+        "productId": 78,
+        "productName": "SS 316H Tube 38.1mm x 1.5mm",
+        "description": "SS 316H Tube 38.1mm x 1.5mm",
+        "quantity": 464,
+        "unitPrice": 222.55839999999998,
+        "amount": 103267.0976
+      },
+      {
+        "id": 3,
+        "productId": 27,
+        "productName": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "description": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "quantity": 88,
+        "unitPrice": 47.4354,
+        "amount": 4174.3152
+      },
+      {
+        "id": 4,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 59,
+        "unitPrice": 316.0425,
+        "amount": 18646.5075
+      },
+      {
+        "id": 5,
+        "productId": 64,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 149,
+        "unitPrice": 219.16060000000002,
+        "amount": 32654.9294
+      },
+      {
+        "id": 6,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 422,
+        "unitPrice": 275.9751,
+        "amount": 116461.4922
+      },
+      {
+        "id": 7,
+        "productId": 8,
+        "productName": "SS 316N Bar 8mm",
+        "description": "SS 316N Bar 8mm",
+        "quantity": 500,
+        "unitPrice": 156.7725,
+        "amount": 78386.25
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-20T01:28:17.136Z",
+    "updatedAt": "2025-11-08T15:03:06.357Z"
+  },
+  {
+    "id": 16,
+    "poNumber": "PO-2025-0016",
+    "supplierId": 10,
+    "supplierDetails": {
+      "name": "National Manufacturing LLC",
+      "email": "procurement@nationalmanufacturingllc.ae",
+      "phone": "+971-5-6713879",
+      "trn": "100996122381676",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "53650",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-16",
+    "expectedDeliveryDate": "2025-08-08",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 607959.0303,
+    "taxRate": 5,
+    "taxAmount": 30397.951515,
+    "totalAmount": 638356.981815,
+    "items": [
+      {
+        "id": 1,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 75,
+        "unitPrice": 349.7537,
+        "amount": 26231.5275
+      },
+      {
+        "id": 2,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 492,
+        "unitPrice": 317.0304,
+        "amount": 155978.95679999999
+      },
+      {
+        "id": 3,
+        "productId": 15,
+        "productName": "SS 430 Pipe 1/2\" STD",
+        "description": "SS 430 Pipe 1/2\" STD",
+        "quantity": 284,
+        "unitPrice": 184.9242,
+        "amount": 52518.4728
+      },
+      {
+        "id": 4,
+        "productId": 11,
+        "productName": "SS 316N Pipe 2\" STD",
+        "description": "SS 316N Pipe 2\" STD",
+        "quantity": 402,
+        "unitPrice": 64.3036,
+        "amount": 25850.0472
+      },
+      {
+        "id": 5,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 359,
+        "unitPrice": 427.3602,
+        "amount": 153422.3118
+      },
+      {
+        "id": 6,
+        "productId": 43,
+        "productName": "SS 430H Sheet BA 1500x2438 1mm",
+        "description": "SS 430H Sheet BA 1500x2438 1mm",
+        "quantity": 297,
+        "unitPrice": 364.5126,
+        "amount": 108260.24220000001
+      },
+      {
+        "id": 7,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 85,
+        "unitPrice": 206.3628,
+        "amount": 17540.838
+      },
+      {
+        "id": 8,
+        "productId": 95,
+        "productName": "SS 430N Tube 50.8mm x 1.5mm",
+        "description": "SS 430N Tube 50.8mm x 1.5mm",
+        "quantity": 455,
+        "unitPrice": 149.7948,
+        "amount": 68156.634
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-16T05:51:41.087Z",
+    "updatedAt": "2025-07-11T09:27:11.668Z"
+  },
+  {
+    "id": 17,
+    "poNumber": "PO-2025-0017",
+    "supplierId": 14,
+    "supplierDetails": {
+      "name": "Premier Steel Mills LLC",
+      "email": "procurement@premiersteelmillsllc.ae",
+      "phone": "+971-5-7054156",
+      "trn": "100904411523552",
+      "address": {
+        "street": "Industrial Area 1",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "74621",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-06",
+    "expectedDeliveryDate": "2025-08-02",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 340655.1358,
+    "taxRate": 5,
+    "taxAmount": 17032.75679,
+    "totalAmount": 357687.89259,
+    "items": [
+      {
+        "id": 1,
+        "productId": 52,
+        "productName": "SS 201N Pipe 1\" STD",
+        "description": "SS 201N Pipe 1\" STD",
+        "quantity": 100,
+        "unitPrice": 46.2774,
+        "amount": 4627.74
+      },
+      {
+        "id": 2,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 231,
+        "unitPrice": 134.1959,
+        "amount": 30999.2529
+      },
+      {
+        "id": 3,
+        "productId": 2,
+        "productName": "SS 430N Pipe 3\" SCH40",
+        "description": "SS 430N Pipe 3\" SCH40",
+        "quantity": 273,
+        "unitPrice": 119.71800000000002,
+        "amount": 32683.014000000006
+      },
+      {
+        "id": 4,
+        "productId": 73,
+        "productName": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "quantity": 184,
+        "unitPrice": 439.8768,
+        "amount": 80937.3312
+      },
+      {
+        "id": 5,
+        "productId": 17,
+        "productName": "SS 410H Sheet 2B 2000x4000 2mm",
+        "description": "SS 410H Sheet 2B 2000x4000 2mm",
+        "quantity": 61,
+        "unitPrice": 124.31169999999999,
+        "amount": 7583.0136999999995
+      },
+      {
+        "id": 6,
+        "productId": 79,
+        "productName": "SS 304 Sheet BA 1219x4000 0.8mm",
+        "description": "SS 304 Sheet BA 1219x4000 0.8mm",
+        "quantity": 480,
+        "unitPrice": 382.9683,
+        "amount": 183824.78399999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-06T02:19:45.343Z",
+    "updatedAt": "2025-08-09T19:17:51.780Z"
+  },
+  {
+    "id": 18,
+    "poNumber": "PO-2025-0018",
+    "supplierId": 1,
+    "supplierDetails": {
+      "name": "United Import Export LLC",
+      "email": "procurement@unitedimportexportllc.ae",
+      "phone": "+971-4-3377067",
+      "trn": "100228072056586",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "35497",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-03",
+    "expectedDeliveryDate": "2025-06-26",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 654206.9983999999,
+    "taxRate": 5,
+    "taxAmount": 32710.349919999997,
+    "totalAmount": 686917.3483199999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 88,
+        "productName": "SS 201 Sheet No.4 2000x4000 2mm",
+        "description": "SS 201 Sheet No.4 2000x4000 2mm",
+        "quantity": 362,
+        "unitPrice": 294.2018,
+        "amount": 106501.05159999999
+      },
+      {
+        "id": 2,
+        "productId": 98,
+        "productName": "SS 304H Pipe 1\" STD",
+        "description": "SS 304H Pipe 1\" STD",
+        "quantity": 211,
+        "unitPrice": 158.291,
+        "amount": 33399.401
+      },
+      {
+        "id": 3,
+        "productId": 95,
+        "productName": "SS 430N Tube 50.8mm x 1.5mm",
+        "description": "SS 430N Tube 50.8mm x 1.5mm",
+        "quantity": 145,
+        "unitPrice": 146.3112,
+        "amount": 21215.124000000003
+      },
+      {
+        "id": 4,
+        "productId": 6,
+        "productName": "SS 316H Tube 19.05mm x 1mm",
+        "description": "SS 316H Tube 19.05mm x 1mm",
+        "quantity": 445,
+        "unitPrice": 391.16459999999995,
+        "amount": 174068.24699999997
+      },
+      {
+        "id": 5,
+        "productId": 1,
+        "productName": "SS 304 Pipe 1.5\" SCH40",
+        "description": "SS 304 Pipe 1.5\" SCH40",
+        "quantity": 342,
+        "unitPrice": 105.27,
+        "amount": 36002.34
+      },
+      {
+        "id": 6,
+        "productId": 14,
+        "productName": "SS 316H Coil BA 1000x1.2mm",
+        "description": "SS 316H Coil BA 1000x1.2mm",
+        "quantity": 73,
+        "unitPrice": 232.6815,
+        "amount": 16985.7495
+      },
+      {
+        "id": 7,
+        "productId": 47,
+        "productName": "SS 201 Tube 19.05mm x 1mm",
+        "description": "SS 201 Tube 19.05mm x 1mm",
+        "quantity": 455,
+        "unitPrice": 223.8691,
+        "amount": 101860.4405
+      },
+      {
+        "id": 8,
+        "productId": 6,
+        "productName": "SS 316H Tube 19.05mm x 1mm",
+        "description": "SS 316H Tube 19.05mm x 1mm",
+        "quantity": 478,
+        "unitPrice": 343.4616,
+        "amount": 164174.64479999998
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-03T11:41:04.132Z",
+    "updatedAt": "2025-11-05T20:40:02.713Z"
+  },
+  {
+    "id": 19,
+    "poNumber": "PO-2025-0019",
+    "supplierId": 14,
+    "supplierDetails": {
+      "name": "Premier Steel Mills LLC",
+      "email": "procurement@premiersteelmillsllc.ae",
+      "phone": "+971-5-7054156",
+      "trn": "100904411523552",
+      "address": {
+        "street": "Industrial Area 1",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "74621",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-04",
+    "expectedDeliveryDate": "2025-07-31",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 211306.70160000003,
+    "taxRate": 5,
+    "taxAmount": 10565.335080000003,
+    "totalAmount": 221872.03668000002,
+    "items": [
+      {
+        "id": 1,
+        "productId": 68,
+        "productName": "SS 316N Pipe 1/2\" XS",
+        "description": "SS 316N Pipe 1/2\" XS",
+        "quantity": 386,
+        "unitPrice": 225.2853,
+        "amount": 86960.12580000001
+      },
+      {
+        "id": 2,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 174,
+        "unitPrice": 194.54919999999998,
+        "amount": 33851.5608
+      },
+      {
+        "id": 3,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 135,
+        "unitPrice": 134.5308,
+        "amount": 18161.658
+      },
+      {
+        "id": 4,
+        "productId": 2,
+        "productName": "SS 430N Pipe 3\" SCH40",
+        "description": "SS 430N Pipe 3\" SCH40",
+        "quantity": 381,
+        "unitPrice": 107.894,
+        "amount": 41107.614
+      },
+      {
+        "id": 5,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 138,
+        "unitPrice": 226.27350000000004,
+        "amount": 31225.743000000006
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-04T07:02:56.060Z",
+    "updatedAt": "2025-11-15T02:12:02.572Z"
+  },
+  {
+    "id": 20,
+    "poNumber": "PO-2025-0020",
+    "supplierId": 1,
+    "supplierDetails": {
+      "name": "United Import Export LLC",
+      "email": "procurement@unitedimportexportllc.ae",
+      "phone": "+971-4-3377067",
+      "trn": "100228072056586",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "35497",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-06",
+    "expectedDeliveryDate": "2025-09-07",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 467590.7457999999,
+    "taxRate": 5,
+    "taxAmount": 23379.537289999997,
+    "totalAmount": 490970.2830899999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 417,
+        "unitPrice": 241.90409999999997,
+        "amount": 100874.0097
+      },
+      {
+        "id": 2,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 365,
+        "unitPrice": 296.41769999999997,
+        "amount": 108192.46049999999
+      },
+      {
+        "id": 3,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 72,
+        "unitPrice": 362.3954,
+        "amount": 26092.4688
+      },
+      {
+        "id": 4,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 385,
+        "unitPrice": 284.6854,
+        "amount": 109603.879
+      },
+      {
+        "id": 5,
+        "productId": 17,
+        "productName": "SS 410H Sheet 2B 2000x4000 2mm",
+        "description": "SS 410H Sheet 2B 2000x4000 2mm",
+        "quantity": 360,
+        "unitPrice": 143.0436,
+        "amount": 51495.695999999996
+      },
+      {
+        "id": 6,
+        "productId": 52,
+        "productName": "SS 201N Pipe 1\" STD",
+        "description": "SS 201N Pipe 1\" STD",
+        "quantity": 139,
+        "unitPrice": 49.837199999999996,
+        "amount": 6927.3708
+      },
+      {
+        "id": 7,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 158,
+        "unitPrice": 257.8725,
+        "amount": 40743.855
+      },
+      {
+        "id": 8,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 295,
+        "unitPrice": 80.2068,
+        "amount": 23661.006
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-06T20:15:17.952Z",
+    "updatedAt": "2025-09-29T16:23:30.339Z"
+  },
+  {
+    "id": 21,
+    "poNumber": "PO-2025-0021",
+    "supplierId": 15,
+    "supplierDetails": {
+      "name": "United Metal Trading LLC",
+      "email": "procurement@unitedmetaltradingllc.ae",
+      "phone": "+971-3-9915828",
+      "trn": "100216298857908",
+      "address": {
+        "street": "Industrial Area 7",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "71769",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-13",
+    "expectedDeliveryDate": "2025-09-10",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 654451.3824,
+    "taxRate": 5,
+    "taxAmount": 32722.56912,
+    "totalAmount": 687173.95152,
+    "items": [
+      {
+        "id": 1,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 230,
+        "unitPrice": 296.38480000000004,
+        "amount": 68168.50400000002
+      },
+      {
+        "id": 2,
+        "productId": 62,
+        "productName": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "description": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "quantity": 263,
+        "unitPrice": 341.7525,
+        "amount": 89880.9075
+      },
+      {
+        "id": 3,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 149,
+        "unitPrice": 234.654,
+        "amount": 34963.445999999996
+      },
+      {
+        "id": 4,
+        "productId": 31,
+        "productName": "SS 304L Sheet HL 2000x2000 1mm",
+        "description": "SS 304L Sheet HL 2000x2000 1mm",
+        "quantity": 83,
+        "unitPrice": 258.9529,
+        "amount": 21493.0907
+      },
+      {
+        "id": 5,
+        "productId": 74,
+        "productName": "SS 304L Pipe 1/2\" STD",
+        "description": "SS 304L Pipe 1/2\" STD",
+        "quantity": 378,
+        "unitPrice": 341.2749,
+        "amount": 129001.9122
+      },
+      {
+        "id": 6,
+        "productId": 69,
+        "productName": "SS 316N Pipe 3\" STD",
+        "description": "SS 316N Pipe 3\" STD",
+        "quantity": 452,
+        "unitPrice": 158.0625,
+        "amount": 71444.25
+      },
+      {
+        "id": 7,
+        "productId": 1,
+        "productName": "SS 304 Pipe 1.5\" SCH40",
+        "description": "SS 304 Pipe 1.5\" SCH40",
+        "quantity": 203,
+        "unitPrice": 85.91,
+        "amount": 17439.73
+      },
+      {
+        "id": 8,
+        "productId": 73,
+        "productName": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304 Sheet No.4 1500x4000 0.8mm",
+        "quantity": 440,
+        "unitPrice": 444.8754,
+        "amount": 195745.176
+      },
+      {
+        "id": 9,
+        "productId": 45,
+        "productName": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "description": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "quantity": 65,
+        "unitPrice": 404.8364,
+        "amount": 26314.366
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-13T08:48:37.802Z",
+    "updatedAt": "2025-08-17T05:28:02.209Z"
+  },
+  {
+    "id": 22,
+    "poNumber": "PO-2025-0022",
+    "supplierId": 5,
+    "supplierDetails": {
+      "name": "Advanced Metal Trading LLC",
+      "email": "procurement@advancedmetaltradingllc.ae",
+      "phone": "+971-7-4209958",
+      "trn": "100383303693889",
+      "address": {
+        "street": "Industrial Area 3",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "42768",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-06",
+    "expectedDeliveryDate": "2025-06-27",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 211005.3159,
+    "taxRate": 5,
+    "taxAmount": 10550.265795,
+    "totalAmount": 221555.581695,
+    "items": [
+      {
+        "id": 1,
+        "productId": 67,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 469,
+        "unitPrice": 172.01970000000003,
+        "amount": 80677.23930000002
+      },
+      {
+        "id": 2,
+        "productId": 32,
+        "productName": "SS 201H Pipe 1.5\" SCH40",
+        "description": "SS 201H Pipe 1.5\" SCH40",
+        "quantity": 233,
+        "unitPrice": 344.2686,
+        "amount": 80214.5838
+      },
+      {
+        "id": 3,
+        "productId": 56,
+        "productName": "SS 201 Sheet HL 1000x3000 2mm",
+        "description": "SS 201 Sheet HL 1000x3000 2mm",
+        "quantity": 110,
+        "unitPrice": 292.7964,
+        "amount": 32207.604
+      },
+      {
+        "id": 4,
+        "productId": 27,
+        "productName": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "description": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "quantity": 332,
+        "unitPrice": 53.9334,
+        "amount": 17905.8888
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-06T06:22:31.426Z",
+    "updatedAt": "2025-08-06T13:54:14.063Z"
+  },
+  {
+    "id": 23,
+    "poNumber": "PO-2025-0023",
+    "supplierId": 10,
+    "supplierDetails": {
+      "name": "National Manufacturing LLC",
+      "email": "procurement@nationalmanufacturingllc.ae",
+      "phone": "+971-5-6713879",
+      "trn": "100996122381676",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "53650",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-30",
+    "expectedDeliveryDate": "2025-10-13",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 353825.5729,
+    "taxRate": 5,
+    "taxAmount": 17691.278645000002,
+    "totalAmount": 371516.85154500004,
+    "items": [
+      {
+        "id": 1,
+        "productId": 49,
+        "productName": "SS 304N Pipe 1\" SCH80",
+        "description": "SS 304N Pipe 1\" SCH80",
+        "quantity": 120,
+        "unitPrice": 403.788,
+        "amount": 48454.56
+      },
+      {
+        "id": 2,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 243,
+        "unitPrice": 362.8544,
+        "amount": 88173.6192
+      },
+      {
+        "id": 3,
+        "productId": 12,
+        "productName": "SS 201H Tube 19.05mm x 2mm",
+        "description": "SS 201H Tube 19.05mm x 2mm",
+        "quantity": 132,
+        "unitPrice": 369.7413,
+        "amount": 48805.8516
+      },
+      {
+        "id": 4,
+        "productId": 61,
+        "productName": "SS 430L Pipe 4\" SCH40",
+        "description": "SS 430L Pipe 4\" SCH40",
+        "quantity": 197,
+        "unitPrice": 41.1026,
+        "amount": 8097.212200000001
+      },
+      {
+        "id": 5,
+        "productId": 47,
+        "productName": "SS 201 Tube 19.05mm x 1mm",
+        "description": "SS 201 Tube 19.05mm x 1mm",
+        "quantity": 87,
+        "unitPrice": 230.0025,
+        "amount": 20010.2175
+      },
+      {
+        "id": 6,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 345,
+        "unitPrice": 80.2068,
+        "amount": 27671.346
+      },
+      {
+        "id": 7,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 84,
+        "unitPrice": 374.7395,
+        "amount": 31478.118000000002
+      },
+      {
+        "id": 8,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 314,
+        "unitPrice": 258.3906,
+        "amount": 81134.6484
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-30T19:03:31.379Z",
+    "updatedAt": "2025-10-02T06:46:55.010Z"
+  },
+  {
+    "id": 24,
+    "poNumber": "PO-2025-0024",
+    "supplierId": 17,
+    "supplierDetails": {
+      "name": "Royal Steel Mills LLC",
+      "email": "procurement@royalsteelmillsllc.ae",
+      "phone": "+971-7-4545916",
+      "trn": "100987703303151",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "20784",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-30",
+    "expectedDeliveryDate": "2025-11-19",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 84492.4338,
+    "taxRate": 5,
+    "taxAmount": 4224.62169,
+    "totalAmount": 88717.05549,
+    "items": [
+      {
+        "id": 1,
+        "productId": 99,
+        "productName": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "description": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "quantity": 134,
+        "unitPrice": 148.5459,
+        "amount": 19905.150599999997
+      },
+      {
+        "id": 2,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 123,
+        "unitPrice": 132.636,
+        "amount": 16314.228
+      },
+      {
+        "id": 3,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 143,
+        "unitPrice": 271.6414,
+        "amount": 38844.720199999996
+      },
+      {
+        "id": 4,
+        "productId": 91,
+        "productName": "SS 304 Sheet 2B 1219x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1219x3000 1.2mm",
+        "quantity": 145,
+        "unitPrice": 65.023,
+        "amount": 9428.335
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-30T06:14:57.586Z",
+    "updatedAt": "2025-11-17T09:22:11.350Z"
+  },
+  {
+    "id": 25,
+    "poNumber": "PO-2025-0025",
+    "supplierId": 3,
+    "supplierDetails": {
+      "name": "Emirates Steel Mills LLC",
+      "email": "procurement@emiratessteelmillsllc.ae",
+      "phone": "+971-3-2421438",
+      "trn": "100841829795520",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "58595",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-04",
+    "expectedDeliveryDate": "2025-09-03",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 456698.4573,
+    "taxRate": 5,
+    "taxAmount": 22834.922865,
+    "totalAmount": 479533.380165,
+    "items": [
+      {
+        "id": 1,
+        "productId": 49,
+        "productName": "SS 304N Pipe 1\" SCH80",
+        "description": "SS 304N Pipe 1\" SCH80",
+        "quantity": 395,
+        "unitPrice": 403.788,
+        "amount": 159496.26
+      },
+      {
+        "id": 2,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 398,
+        "unitPrice": 357.3881,
+        "amount": 142240.4638
+      },
+      {
+        "id": 3,
+        "productId": 48,
+        "productName": "SS 410L Sheet 2B 1000x4000 3mm",
+        "description": "SS 410L Sheet 2B 1000x4000 3mm",
+        "quantity": 380,
+        "unitPrice": 233.06400000000002,
+        "amount": 88564.32
+      },
+      {
+        "id": 4,
+        "productId": 71,
+        "productName": "SS 316L Tube 25.4mm x 2mm",
+        "description": "SS 316L Tube 25.4mm x 2mm",
+        "quantity": 165,
+        "unitPrice": 304.9096,
+        "amount": 50310.084
+      },
+      {
+        "id": 5,
+        "productId": 52,
+        "productName": "SS 201N Pipe 1\" STD",
+        "description": "SS 201N Pipe 1\" STD",
+        "quantity": 319,
+        "unitPrice": 50.430499999999995,
+        "amount": 16087.329499999998
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-04T00:51:04.690Z",
+    "updatedAt": "2025-09-26T15:11:42.276Z"
+  },
+  {
+    "id": 26,
+    "poNumber": "PO-2025-0026",
+    "supplierId": 12,
+    "supplierDetails": {
+      "name": "Emirates Manufacturing LLC",
+      "email": "procurement@emiratesmanufacturingllc.ae",
+      "phone": "+971-3-4484960",
+      "trn": "100812004783754",
+      "address": {
+        "street": "Industrial Area 2",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "65945",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-05",
+    "expectedDeliveryDate": "2025-12-17",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 555542.3543,
+    "taxRate": 5,
+    "taxAmount": 27777.117715,
+    "totalAmount": 583319.472015,
+    "items": [
+      {
+        "id": 1,
+        "productId": 29,
+        "productName": "SS 410 Coil 2B 1219x1.2mm",
+        "description": "SS 410 Coil 2B 1219x1.2mm",
+        "quantity": 261,
+        "unitPrice": 158.2638,
+        "amount": 41306.851800000004
+      },
+      {
+        "id": 2,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 188,
+        "unitPrice": 306.0087,
+        "amount": 57529.635599999994
+      },
+      {
+        "id": 3,
+        "productId": 31,
+        "productName": "SS 304L Sheet HL 2000x2000 1mm",
+        "description": "SS 304L Sheet HL 2000x2000 1mm",
+        "quantity": 413,
+        "unitPrice": 308.61510000000004,
+        "amount": 127458.03630000002
+      },
+      {
+        "id": 4,
+        "productId": 22,
+        "productName": "SS 304N Tube 38.1mm x 1.2mm",
+        "description": "SS 304N Tube 38.1mm x 1.2mm",
+        "quantity": 492,
+        "unitPrice": 158.6636,
+        "amount": 78062.4912
+      },
+      {
+        "id": 5,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 280,
+        "unitPrice": 375.4837,
+        "amount": 105135.436
+      },
+      {
+        "id": 6,
+        "productId": 20,
+        "productName": "SS 304N Sheet HL 1000x2000 2mm",
+        "description": "SS 304N Sheet HL 1000x2000 2mm",
+        "quantity": 208,
+        "unitPrice": 222.0295,
+        "amount": 46182.136000000006
+      },
+      {
+        "id": 7,
+        "productId": 14,
+        "productName": "SS 316H Coil BA 1000x1.2mm",
+        "description": "SS 316H Coil BA 1000x1.2mm",
+        "quantity": 316,
+        "unitPrice": 192.564,
+        "amount": 60850.223999999995
+      },
+      {
+        "id": 8,
+        "productId": 54,
+        "productName": "SS 201 Pipe 4\" STD",
+        "description": "SS 201 Pipe 4\" STD",
+        "quantity": 407,
+        "unitPrice": 95.86619999999999,
+        "amount": 39017.543399999995
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-05T22:38:34.986Z",
+    "updatedAt": "2025-11-16T20:00:17.493Z"
+  },
+  {
+    "id": 27,
+    "poNumber": "PO-2025-0027",
+    "supplierId": 13,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-3-2556107",
+      "trn": "100853984698436",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "71977",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-18",
+    "expectedDeliveryDate": "2025-09-26",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 342109.42079999996,
+    "taxRate": 5,
+    "taxAmount": 17105.47104,
+    "totalAmount": 359214.89183999994,
+    "items": [
+      {
+        "id": 1,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 174,
+        "unitPrice": 154.4172,
+        "amount": 26868.592800000002
+      },
+      {
+        "id": 2,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 332,
+        "unitPrice": 345.7296,
+        "amount": 114782.22720000001
+      },
+      {
+        "id": 3,
+        "productId": 68,
+        "productName": "SS 316N Pipe 1/2\" XS",
+        "description": "SS 316N Pipe 1/2\" XS",
+        "quantity": 326,
+        "unitPrice": 244.7544,
+        "amount": 79789.9344
+      },
+      {
+        "id": 4,
+        "productId": 18,
+        "productName": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "description": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "quantity": 420,
+        "unitPrice": 248.31480000000002,
+        "amount": 104292.21600000001
+      },
+      {
+        "id": 5,
+        "productId": 83,
+        "productName": "SS 304H Tube 12.7mm x 1.5mm",
+        "description": "SS 304H Tube 12.7mm x 1.5mm",
+        "quantity": 61,
+        "unitPrice": 268.4664,
+        "amount": 16376.450400000002
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-18T12:12:34.491Z",
+    "updatedAt": "2025-10-04T08:00:43.947Z"
+  },
+  {
+    "id": 28,
+    "poNumber": "PO-2025-0028",
+    "supplierId": 11,
+    "supplierDetails": {
+      "name": "Gulf Steel Mills LLC",
+      "email": "procurement@gulfsteelmillsllc.ae",
+      "phone": "+971-6-3944225",
+      "trn": "100499582505081",
+      "address": {
+        "street": "Industrial Area 12",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "24982",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-30",
+    "expectedDeliveryDate": "2025-11-14",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 217052.9172,
+    "taxRate": 5,
+    "taxAmount": 10852.64586,
+    "totalAmount": 227905.56306,
+    "items": [
+      {
+        "id": 1,
+        "productId": 97,
+        "productName": "SS 201 Sheet 2B 1000x4000 1mm",
+        "description": "SS 201 Sheet 2B 1000x4000 1mm",
+        "quantity": 185,
+        "unitPrice": 220.4621,
+        "amount": 40785.4885
+      },
+      {
+        "id": 2,
+        "productId": 57,
+        "productName": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "description": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "quantity": 360,
+        "unitPrice": 57.0945,
+        "amount": 20554.02
+      },
+      {
+        "id": 3,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 76,
+        "unitPrice": 380.00759999999997,
+        "amount": 28880.577599999997
+      },
+      {
+        "id": 4,
+        "productId": 8,
+        "productName": "SS 316N Bar 8mm",
+        "description": "SS 316N Bar 8mm",
+        "quantity": 260,
+        "unitPrice": 183.9464,
+        "amount": 47826.064000000006
+      },
+      {
+        "id": 5,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 263,
+        "unitPrice": 215.5436,
+        "amount": 56687.9668
+      },
+      {
+        "id": 6,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 171,
+        "unitPrice": 130.51930000000002,
+        "amount": 22318.800300000003
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-30T23:32:50.933Z",
+    "updatedAt": "2025-10-17T08:00:50.508Z"
+  },
+  {
+    "id": 29,
+    "poNumber": "PO-2025-0029",
+    "supplierId": 13,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-3-2556107",
+      "trn": "100853984698436",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "71977",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-02",
+    "expectedDeliveryDate": "2025-10-27",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 162347.6058,
+    "taxRate": 5,
+    "taxAmount": 8117.38029,
+    "totalAmount": 170464.98609,
+    "items": [
+      {
+        "id": 1,
+        "productId": 39,
+        "productName": "SS 304L Bar 8mm",
+        "description": "SS 304L Bar 8mm",
+        "quantity": 461,
+        "unitPrice": 150.8612,
+        "amount": 69547.0132
+      },
+      {
+        "id": 2,
+        "productId": 24,
+        "productName": "SS 316L Tube 12.7mm x 1mm",
+        "description": "SS 316L Tube 12.7mm x 1mm",
+        "quantity": 431,
+        "unitPrice": 215.31459999999998,
+        "amount": 92800.59259999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-02T22:52:48.314Z",
+    "updatedAt": "2025-11-03T20:17:51.720Z"
+  },
+  {
+    "id": 30,
+    "poNumber": "PO-2025-0030",
+    "supplierId": 15,
+    "supplierDetails": {
+      "name": "United Metal Trading LLC",
+      "email": "procurement@unitedmetaltradingllc.ae",
+      "phone": "+971-3-9915828",
+      "trn": "100216298857908",
+      "address": {
+        "street": "Industrial Area 7",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "71769",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-30",
+    "expectedDeliveryDate": "2025-07-14",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 596466.4332999999,
+    "taxRate": 5,
+    "taxAmount": 29823.321664999996,
+    "totalAmount": 626289.7549649999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 97,
+        "unitPrice": 191.6226,
+        "amount": 18587.392200000002
+      },
+      {
+        "id": 2,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 381,
+        "unitPrice": 286.1964,
+        "amount": 109040.8284
+      },
+      {
+        "id": 3,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 483,
+        "unitPrice": 288.5852,
+        "amount": 139386.65159999998
+      },
+      {
+        "id": 4,
+        "productId": 16,
+        "productName": "SS 430N Sheet BA 1219x3000 2mm",
+        "description": "SS 430N Sheet BA 1219x3000 2mm",
+        "quantity": 408,
+        "unitPrice": 360.24699999999996,
+        "amount": 146980.77599999998
+      },
+      {
+        "id": 5,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 427,
+        "unitPrice": 255.53249999999997,
+        "amount": 109112.37749999999
+      },
+      {
+        "id": 6,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 76,
+        "unitPrice": 242.8276,
+        "amount": 18454.8976
+      },
+      {
+        "id": 7,
+        "productId": 1,
+        "productName": "SS 304 Pipe 1.5\" SCH40",
+        "description": "SS 304 Pipe 1.5\" SCH40",
+        "quantity": 87,
+        "unitPrice": 94.38000000000001,
+        "amount": 8211.060000000001
+      },
+      {
+        "id": 8,
+        "productId": 62,
+        "productName": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "description": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "quantity": 140,
+        "unitPrice": 333.51750000000004,
+        "amount": 46692.450000000004
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-30T18:45:40.908Z",
+    "updatedAt": "2025-10-01T21:29:34.739Z"
+  },
+  {
+    "id": 31,
+    "poNumber": "PO-2025-0031",
+    "supplierId": 18,
+    "supplierDetails": {
+      "name": "National Steel Mills LLC",
+      "email": "procurement@nationalsteelmillsllc.ae",
+      "phone": "+971-5-8865126",
+      "trn": "100588441952203",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "46605",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-07",
+    "expectedDeliveryDate": "2025-09-06",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 407487.79730000003,
+    "taxRate": 5,
+    "taxAmount": 20374.389865000005,
+    "totalAmount": 427862.187165,
+    "items": [
+      {
+        "id": 1,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 187,
+        "unitPrice": 217.36020000000002,
+        "amount": 40646.3574
+      },
+      {
+        "id": 2,
+        "productId": 36,
+        "productName": "SS 201L Bar 16mm",
+        "description": "SS 201L Bar 16mm",
+        "quantity": 206,
+        "unitPrice": 276.0602,
+        "amount": 56868.4012
+      },
+      {
+        "id": 3,
+        "productId": 58,
+        "productName": "SS 304H Pipe 1\" SCH40",
+        "description": "SS 304H Pipe 1\" SCH40",
+        "quantity": 208,
+        "unitPrice": 266.78249999999997,
+        "amount": 55490.759999999995
+      },
+      {
+        "id": 4,
+        "productId": 7,
+        "productName": "SS 410N Pipe 1\" SCH40",
+        "description": "SS 410N Pipe 1\" SCH40",
+        "quantity": 122,
+        "unitPrice": 361.9224,
+        "amount": 44154.5328
+      },
+      {
+        "id": 5,
+        "productId": 53,
+        "productName": "SS 410 Pipe 1.5\" SCH80",
+        "description": "SS 410 Pipe 1.5\" SCH80",
+        "quantity": 106,
+        "unitPrice": 62.7284,
+        "amount": 6649.2104
+      },
+      {
+        "id": 6,
+        "productId": 10,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 435,
+        "unitPrice": 82.3606,
+        "amount": 35826.861000000004
+      },
+      {
+        "id": 7,
+        "productId": 24,
+        "productName": "SS 316L Tube 12.7mm x 1mm",
+        "description": "SS 316L Tube 12.7mm x 1mm",
+        "quantity": 160,
+        "unitPrice": 242.608,
+        "amount": 38817.28
+      },
+      {
+        "id": 8,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 289,
+        "unitPrice": 226.17210000000003,
+        "amount": 65363.73690000001
+      },
+      {
+        "id": 9,
+        "productId": 64,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 241,
+        "unitPrice": 264.1936,
+        "amount": 63670.6576
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-07T06:44:38.254Z",
+    "updatedAt": "2025-11-11T21:22:16.775Z"
+  },
+  {
+    "id": 32,
+    "poNumber": "PO-2025-0032",
+    "supplierId": 13,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-3-2556107",
+      "trn": "100853984698436",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "71977",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-31",
+    "expectedDeliveryDate": "2025-09-19",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 777910.421,
+    "taxRate": 5,
+    "taxAmount": 38895.52105,
+    "totalAmount": 816805.94205,
+    "items": [
+      {
+        "id": 1,
+        "productId": 12,
+        "productName": "SS 201H Tube 19.05mm x 2mm",
+        "description": "SS 201H Tube 19.05mm x 2mm",
+        "quantity": 83,
+        "unitPrice": 344.24190000000004,
+        "amount": 28572.077700000005
+      },
+      {
+        "id": 2,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 291,
+        "unitPrice": 330.24469999999997,
+        "amount": 96101.20769999998
+      },
+      {
+        "id": 3,
+        "productId": 35,
+        "productName": "SS 304N Sheet BA 1000x3000 1mm",
+        "description": "SS 304N Sheet BA 1000x3000 1mm",
+        "quantity": 433,
+        "unitPrice": 123.61439999999999,
+        "amount": 53525.0352
+      },
+      {
+        "id": 4,
+        "productId": 74,
+        "productName": "SS 304L Pipe 1/2\" STD",
+        "description": "SS 304L Pipe 1/2\" STD",
+        "quantity": 315,
+        "unitPrice": 294.2025,
+        "amount": 92673.78749999999
+      },
+      {
+        "id": 5,
+        "productId": 14,
+        "productName": "SS 316H Coil BA 1000x1.2mm",
+        "description": "SS 316H Coil BA 1000x1.2mm",
+        "quantity": 121,
+        "unitPrice": 203.262,
+        "amount": 24594.702
+      },
+      {
+        "id": 6,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 493,
+        "unitPrice": 348.5312,
+        "amount": 171825.8816
+      },
+      {
+        "id": 7,
+        "productId": 32,
+        "productName": "SS 201H Pipe 1.5\" SCH40",
+        "description": "SS 201H Pipe 1.5\" SCH40",
+        "quantity": 266,
+        "unitPrice": 383.9919,
+        "amount": 102141.84539999999
+      },
+      {
+        "id": 8,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 423,
+        "unitPrice": 226.17210000000003,
+        "amount": 95670.79830000001
+      },
+      {
+        "id": 9,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 290,
+        "unitPrice": 196.4448,
+        "amount": 56968.992
+      },
+      {
+        "id": 10,
+        "productId": 8,
+        "productName": "SS 316N Bar 8mm",
+        "description": "SS 316N Bar 8mm",
+        "quantity": 318,
+        "unitPrice": 175.5852,
+        "amount": 55836.09359999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-31T15:55:48.402Z",
+    "updatedAt": "2025-10-30T05:52:52.454Z"
+  },
+  {
+    "id": 33,
+    "poNumber": "PO-2025-0033",
+    "supplierId": 5,
+    "supplierDetails": {
+      "name": "Advanced Metal Trading LLC",
+      "email": "procurement@advancedmetaltradingllc.ae",
+      "phone": "+971-7-4209958",
+      "trn": "100383303693889",
+      "address": {
+        "street": "Industrial Area 3",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "42768",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-24",
+    "expectedDeliveryDate": "2025-09-15",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 487699.57110000006,
+    "taxRate": 5,
+    "taxAmount": 24384.978555000005,
+    "totalAmount": 512084.54965500004,
+    "items": [
+      {
+        "id": 1,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 189,
+        "unitPrice": 206.71900000000002,
+        "amount": 39069.891
+      },
+      {
+        "id": 2,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 123,
+        "unitPrice": 374.7395,
+        "amount": 46092.9585
+      },
+      {
+        "id": 3,
+        "productId": 71,
+        "productName": "SS 316L Tube 25.4mm x 2mm",
+        "description": "SS 316L Tube 25.4mm x 2mm",
+        "quantity": 464,
+        "unitPrice": 321.3912,
+        "amount": 149125.5168
+      },
+      {
+        "id": 4,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 386,
+        "unitPrice": 320.7168,
+        "amount": 123796.68479999999
+      },
+      {
+        "id": 5,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 260,
+        "unitPrice": 342.36719999999997,
+        "amount": 89015.472
+      },
+      {
+        "id": 6,
+        "productId": 49,
+        "productName": "SS 304N Pipe 1\" SCH80",
+        "description": "SS 304N Pipe 1\" SCH80",
+        "quantity": 112,
+        "unitPrice": 362.49150000000003,
+        "amount": 40599.048
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-24T07:24:53.850Z",
+    "updatedAt": "2025-11-05T00:03:22.088Z"
+  },
+  {
+    "id": 34,
+    "poNumber": "PO-2025-0034",
+    "supplierId": 14,
+    "supplierDetails": {
+      "name": "Premier Steel Mills LLC",
+      "email": "procurement@premiersteelmillsllc.ae",
+      "phone": "+971-5-7054156",
+      "trn": "100904411523552",
+      "address": {
+        "street": "Industrial Area 1",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "74621",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-15",
+    "expectedDeliveryDate": "2025-08-12",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 414295.78169999993,
+    "taxRate": 5,
+    "taxAmount": 20714.789084999997,
+    "totalAmount": 435010.57078499993,
+    "items": [
+      {
+        "id": 1,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 231,
+        "unitPrice": 323.6834,
+        "amount": 74770.8654
+      },
+      {
+        "id": 2,
+        "productId": 72,
+        "productName": "SS 316H Sheet HL 1500x2438 3mm",
+        "description": "SS 316H Sheet HL 1500x2438 3mm",
+        "quantity": 469,
+        "unitPrice": 418.8267,
+        "amount": 196429.7223
+      },
+      {
+        "id": 3,
+        "productId": 21,
+        "productName": "SS 201L Bar 6mm",
+        "description": "SS 201L Bar 6mm",
+        "quantity": 254,
+        "unitPrice": 108.621,
+        "amount": 27589.734
+      },
+      {
+        "id": 4,
+        "productId": 83,
+        "productName": "SS 304H Tube 12.7mm x 1.5mm",
+        "description": "SS 304H Tube 12.7mm x 1.5mm",
+        "quantity": 223,
+        "unitPrice": 275.0952,
+        "amount": 61346.22959999999
+      },
+      {
+        "id": 5,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 151,
+        "unitPrice": 358.6704,
+        "amount": 54159.23039999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-15T05:41:57.002Z",
+    "updatedAt": "2025-09-06T22:11:29.374Z"
+  },
+  {
+    "id": 35,
+    "poNumber": "PO-2025-0035",
+    "supplierId": 13,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-3-2556107",
+      "trn": "100853984698436",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "71977",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-22",
+    "expectedDeliveryDate": "2025-07-15",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 118600.9674,
+    "taxRate": 5,
+    "taxAmount": 5930.04837,
+    "totalAmount": 124531.01577,
+    "items": [
+      {
+        "id": 1,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 285,
+        "unitPrice": 232.04670000000002,
+        "amount": 66133.3095
+      },
+      {
+        "id": 2,
+        "productId": 52,
+        "productName": "SS 201N Pipe 1\" STD",
+        "description": "SS 201N Pipe 1\" STD",
+        "quantity": 137,
+        "unitPrice": 45.6841,
+        "amount": 6258.7217
+      },
+      {
+        "id": 3,
+        "productId": 17,
+        "productName": "SS 410H Sheet 2B 2000x4000 2mm",
+        "description": "SS 410H Sheet 2B 2000x4000 2mm",
+        "quantity": 214,
+        "unitPrice": 134.5291,
+        "amount": 28789.2274
+      },
+      {
+        "id": 4,
+        "productId": 36,
+        "productName": "SS 201L Bar 16mm",
+        "description": "SS 201L Bar 16mm",
+        "quantity": 72,
+        "unitPrice": 241.9404,
+        "amount": 17419.7088
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-22T14:45:17.185Z",
+    "updatedAt": "2025-08-13T21:08:13.308Z"
+  },
+  {
+    "id": 36,
+    "poNumber": "PO-2025-0036",
+    "supplierId": 17,
+    "supplierDetails": {
+      "name": "Royal Steel Mills LLC",
+      "email": "procurement@royalsteelmillsllc.ae",
+      "phone": "+971-7-4545916",
+      "trn": "100987703303151",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "20784",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-04",
+    "expectedDeliveryDate": "2025-10-26",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 738127.533,
+    "taxRate": 5,
+    "taxAmount": 36906.376650000006,
+    "totalAmount": 775033.90965,
+    "items": [
+      {
+        "id": 1,
+        "productId": 34,
+        "productName": "SS 410 Pipe 1\" SCH40",
+        "description": "SS 410 Pipe 1\" SCH40",
+        "quantity": 268,
+        "unitPrice": 84.357,
+        "amount": 22607.676
+      },
+      {
+        "id": 2,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 310,
+        "unitPrice": 328.0896,
+        "amount": 101707.77600000001
+      },
+      {
+        "id": 3,
+        "productId": 23,
+        "productName": "SS 304 Tube 19.05mm x 1.5mm",
+        "description": "SS 304 Tube 19.05mm x 1.5mm",
+        "quantity": 404,
+        "unitPrice": 352.52639999999997,
+        "amount": 142420.66559999998
+      },
+      {
+        "id": 4,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 86,
+        "unitPrice": 41.7525,
+        "amount": 3590.7149999999997
+      },
+      {
+        "id": 5,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 186,
+        "unitPrice": 276.48,
+        "amount": 51425.280000000006
+      },
+      {
+        "id": 6,
+        "productId": 7,
+        "productName": "SS 410N Pipe 1\" SCH40",
+        "description": "SS 410N Pipe 1\" SCH40",
+        "quantity": 172,
+        "unitPrice": 328.2552,
+        "amount": 56459.8944
+      },
+      {
+        "id": 7,
+        "productId": 6,
+        "productName": "SS 316H Tube 19.05mm x 1mm",
+        "description": "SS 316H Tube 19.05mm x 1mm",
+        "quantity": 460,
+        "unitPrice": 386.3943,
+        "amount": 177741.378
+      },
+      {
+        "id": 8,
+        "productId": 14,
+        "productName": "SS 316H Coil BA 1000x1.2mm",
+        "description": "SS 316H Coil BA 1000x1.2mm",
+        "quantity": 356,
+        "unitPrice": 208.611,
+        "amount": 74265.516
+      },
+      {
+        "id": 9,
+        "productId": 48,
+        "productName": "SS 410L Sheet 2B 1000x4000 3mm",
+        "description": "SS 410L Sheet 2B 1000x4000 3mm",
+        "quantity": 463,
+        "unitPrice": 233.06400000000002,
+        "amount": 107908.63200000001
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-04T20:16:53.125Z",
+    "updatedAt": "2025-11-08T12:43:43.160Z"
+  },
+  {
+    "id": 37,
+    "poNumber": "PO-2025-0037",
+    "supplierId": 1,
+    "supplierDetails": {
+      "name": "United Import Export LLC",
+      "email": "procurement@unitedimportexportllc.ae",
+      "phone": "+971-4-3377067",
+      "trn": "100228072056586",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "35497",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-08",
+    "expectedDeliveryDate": "2025-10-31",
+    "status": "cancelled",
+    "currency": "AED",
+    "subtotal": 232173.85809999998,
+    "taxRate": 5,
+    "taxAmount": 11608.692905,
+    "totalAmount": 243782.551005,
+    "items": [
+      {
+        "id": 1,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 447,
+        "unitPrice": 153.4788,
+        "amount": 68605.0236
+      },
+      {
+        "id": 2,
+        "productId": 61,
+        "productName": "SS 430L Pipe 4\" SCH40",
+        "description": "SS 430L Pipe 4\" SCH40",
+        "quantity": 209,
+        "unitPrice": 46.4406,
+        "amount": 9706.0854
+      },
+      {
+        "id": 3,
+        "productId": 45,
+        "productName": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "description": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "quantity": 72,
+        "unitPrice": 418.9586,
+        "amount": 30165.0192
+      },
+      {
+        "id": 4,
+        "productId": 90,
+        "productName": "SS 304H Sheet BA 1000x2000 1mm",
+        "description": "SS 304H Sheet BA 1000x2000 1mm",
+        "quantity": 81,
+        "unitPrice": 290.3981,
+        "amount": 23522.2461
+      },
+      {
+        "id": 5,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 156,
+        "unitPrice": 412.9548,
+        "amount": 64420.9488
+      },
+      {
+        "id": 6,
+        "productId": 93,
+        "productName": "SS 430L Pipe 3\" STD",
+        "description": "SS 430L Pipe 3\" STD",
+        "quantity": 151,
+        "unitPrice": 236.785,
+        "amount": 35754.534999999996
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-08T18:34:04.645Z",
+    "updatedAt": "2025-11-18T02:59:33.466Z"
+  },
+  {
+    "id": 38,
+    "poNumber": "PO-2025-0038",
+    "supplierId": 12,
+    "supplierDetails": {
+      "name": "Emirates Manufacturing LLC",
+      "email": "procurement@emiratesmanufacturingllc.ae",
+      "phone": "+971-3-4484960",
+      "trn": "100812004783754",
+      "address": {
+        "street": "Industrial Area 2",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "65945",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-21",
+    "expectedDeliveryDate": "2025-08-14",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 560931.6547000001,
+    "taxRate": 5,
+    "taxAmount": 28046.582735000004,
+    "totalAmount": 588978.237435,
+    "items": [
+      {
+        "id": 1,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 257,
+        "unitPrice": 240.8586,
+        "amount": 61900.6602
+      },
+      {
+        "id": 2,
+        "productId": 20,
+        "productName": "SS 304N Sheet HL 1000x2000 2mm",
+        "description": "SS 304N Sheet HL 1000x2000 2mm",
+        "quantity": 471,
+        "unitPrice": 207.612,
+        "amount": 97785.252
+      },
+      {
+        "id": 3,
+        "productId": 12,
+        "productName": "SS 201H Tube 19.05mm x 2mm",
+        "description": "SS 201H Tube 19.05mm x 2mm",
+        "quantity": 419,
+        "unitPrice": 378.2411,
+        "amount": 158483.0209
+      },
+      {
+        "id": 4,
+        "productId": 83,
+        "productName": "SS 304H Tube 12.7mm x 1.5mm",
+        "description": "SS 304H Tube 12.7mm x 1.5mm",
+        "quantity": 431,
+        "unitPrice": 271.7808,
+        "amount": 117137.5248
+      },
+      {
+        "id": 5,
+        "productId": 97,
+        "productName": "SS 201 Sheet 2B 1000x4000 1mm",
+        "description": "SS 201 Sheet 2B 1000x4000 1mm",
+        "quantity": 168,
+        "unitPrice": 245.3029,
+        "amount": 41210.8872
+      },
+      {
+        "id": 6,
+        "productId": 76,
+        "productName": "SS 304N Coil HL 1500x0.5mm",
+        "description": "SS 304N Coil HL 1500x0.5mm",
+        "quantity": 326,
+        "unitPrice": 258.9396,
+        "amount": 84414.3096
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-21T13:18:48.892Z",
+    "updatedAt": "2025-07-05T21:57:58.901Z"
+  },
+  {
+    "id": 39,
+    "poNumber": "PO-2025-0039",
+    "supplierId": 11,
+    "supplierDetails": {
+      "name": "Gulf Steel Mills LLC",
+      "email": "procurement@gulfsteelmillsllc.ae",
+      "phone": "+971-6-3944225",
+      "trn": "100499582505081",
+      "address": {
+        "street": "Industrial Area 12",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "24982",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-20",
+    "expectedDeliveryDate": "2025-10-24",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 582006.6058,
+    "taxRate": 5,
+    "taxAmount": 29100.33029,
+    "totalAmount": 611106.93609,
+    "items": [
+      {
+        "id": 1,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 139,
+        "unitPrice": 324.40319999999997,
+        "amount": 45092.044799999996
+      },
+      {
+        "id": 2,
+        "productId": 60,
+        "productName": "SS 410L Pipe 1\" STD",
+        "description": "SS 410L Pipe 1\" STD",
+        "quantity": 240,
+        "unitPrice": 370.9598,
+        "amount": 89030.352
+      },
+      {
+        "id": 3,
+        "productId": 97,
+        "productName": "SS 201 Sheet 2B 1000x4000 1mm",
+        "description": "SS 201 Sheet 2B 1000x4000 1mm",
+        "quantity": 275,
+        "unitPrice": 273.2488,
+        "amount": 75143.42
+      },
+      {
+        "id": 4,
+        "productId": 61,
+        "productName": "SS 430L Pipe 4\" SCH40",
+        "description": "SS 430L Pipe 4\" SCH40",
+        "quantity": 447,
+        "unitPrice": 46.4406,
+        "amount": 20758.948200000003
+      },
+      {
+        "id": 5,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 331,
+        "unitPrice": 288.81719999999996,
+        "amount": 95598.49319999998
+      },
+      {
+        "id": 6,
+        "productId": 68,
+        "productName": "SS 316N Pipe 1/2\" XS",
+        "description": "SS 316N Pipe 1/2\" XS",
+        "quantity": 168,
+        "unitPrice": 241.9731,
+        "amount": 40651.4808
+      },
+      {
+        "id": 7,
+        "productId": 53,
+        "productName": "SS 410 Pipe 1.5\" SCH80",
+        "description": "SS 410 Pipe 1.5\" SCH80",
+        "quantity": 222,
+        "unitPrice": 56.1638,
+        "amount": 12468.3636
+      },
+      {
+        "id": 8,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 319,
+        "unitPrice": 215.5436,
+        "amount": 68758.4084
+      },
+      {
+        "id": 9,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 89,
+        "unitPrice": 80.2068,
+        "amount": 7138.4052
+      },
+      {
+        "id": 10,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 432,
+        "unitPrice": 294.83029999999997,
+        "amount": 127366.68959999998
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-20T18:00:22.313Z",
+    "updatedAt": "2025-09-29T17:57:31.055Z"
+  },
+  {
+    "id": 40,
+    "poNumber": "PO-2025-0040",
+    "supplierId": 18,
+    "supplierDetails": {
+      "name": "National Steel Mills LLC",
+      "email": "procurement@nationalsteelmillsllc.ae",
+      "phone": "+971-5-8865126",
+      "trn": "100588441952203",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "46605",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-19",
+    "expectedDeliveryDate": "2025-09-15",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 436348.76379999996,
+    "taxRate": 5,
+    "taxAmount": 21817.43819,
+    "totalAmount": 458166.20199,
+    "items": [
+      {
+        "id": 1,
+        "productId": 72,
+        "productName": "SS 316H Sheet HL 1500x2438 3mm",
+        "description": "SS 316H Sheet HL 1500x2438 3mm",
+        "quantity": 348,
+        "unitPrice": 380.31390000000005,
+        "amount": 132349.2372
+      },
+      {
+        "id": 2,
+        "productId": 78,
+        "productName": "SS 316H Tube 38.1mm x 1.5mm",
+        "description": "SS 316H Tube 38.1mm x 1.5mm",
+        "quantity": 341,
+        "unitPrice": 204.98799999999997,
+        "amount": 69900.908
+      },
+      {
+        "id": 3,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 73,
+        "unitPrice": 49.5463,
+        "amount": 3616.8799000000004
+      },
+      {
+        "id": 4,
+        "productId": 48,
+        "productName": "SS 410L Sheet 2B 1000x4000 3mm",
+        "description": "SS 410L Sheet 2B 1000x4000 3mm",
+        "quantity": 59,
+        "unitPrice": 250.992,
+        "amount": 14808.528
+      },
+      {
+        "id": 5,
+        "productId": 42,
+        "productName": "SS 304H Pipe 3\" SCH40",
+        "description": "SS 304H Pipe 3\" SCH40",
+        "quantity": 92,
+        "unitPrice": 102.64500000000001,
+        "amount": 9443.34
+      },
+      {
+        "id": 6,
+        "productId": 99,
+        "productName": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "description": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "quantity": 79,
+        "unitPrice": 152.2137,
+        "amount": 12024.8823
+      },
+      {
+        "id": 7,
+        "productId": 33,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 164,
+        "unitPrice": 279.942,
+        "amount": 45910.488
+      },
+      {
+        "id": 8,
+        "productId": 94,
+        "productName": "SS 410H Sheet HL 2000x2000 3mm",
+        "description": "SS 410H Sheet HL 2000x2000 3mm",
+        "quantity": 362,
+        "unitPrice": 117.32119999999999,
+        "amount": 42470.274399999995
+      },
+      {
+        "id": 9,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 215,
+        "unitPrice": 234.654,
+        "amount": 50450.61
+      },
+      {
+        "id": 10,
+        "productId": 48,
+        "productName": "SS 410L Sheet 2B 1000x4000 3mm",
+        "description": "SS 410L Sheet 2B 1000x4000 3mm",
+        "quantity": 226,
+        "unitPrice": 245.016,
+        "amount": 55373.615999999995
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-19T09:58:01.587Z",
+    "updatedAt": "2025-10-06T11:52:58.865Z"
+  },
+  {
+    "id": 41,
+    "poNumber": "PO-2025-0041",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-05-23",
+    "expectedDeliveryDate": "2025-07-10",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 63085.835600000006,
+    "taxRate": 5,
+    "taxAmount": 3154.2917800000005,
+    "totalAmount": 66240.12738,
+    "items": [
+      {
+        "id": 1,
+        "productId": 45,
+        "productName": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "description": "SS 410L Sheet 2B 1000x4000 0.5mm",
+        "quantity": 86,
+        "unitPrice": 371.88460000000003,
+        "amount": 31982.075600000004
+      },
+      {
+        "id": 2,
+        "productId": 94,
+        "productName": "SS 410H Sheet HL 2000x2000 3mm",
+        "description": "SS 410H Sheet HL 2000x2000 3mm",
+        "quantity": 304,
+        "unitPrice": 102.315,
+        "amount": 31103.76
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-05-23T11:34:08.498Z",
+    "updatedAt": "2025-08-22T05:03:56.256Z"
+  },
+  {
+    "id": 42,
+    "poNumber": "PO-2025-0042",
+    "supplierId": 17,
+    "supplierDetails": {
+      "name": "Royal Steel Mills LLC",
+      "email": "procurement@royalsteelmillsllc.ae",
+      "phone": "+971-7-4545916",
+      "trn": "100987703303151",
+      "address": {
+        "street": "Industrial Area 9",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "20784",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-30",
+    "expectedDeliveryDate": "2025-10-27",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 422265.06830000004,
+    "taxRate": 5,
+    "taxAmount": 21113.253415000003,
+    "totalAmount": 443378.321715,
+    "items": [
+      {
+        "id": 1,
+        "productId": 41,
+        "productName": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "description": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "quantity": 227,
+        "unitPrice": 290.78970000000004,
+        "amount": 66009.26190000001
+      },
+      {
+        "id": 2,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 358,
+        "unitPrice": 184.2525,
+        "amount": 65962.395
+      },
+      {
+        "id": 3,
+        "productId": 62,
+        "productName": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "description": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "quantity": 133,
+        "unitPrice": 304.695,
+        "amount": 40524.435
+      },
+      {
+        "id": 4,
+        "productId": 93,
+        "productName": "SS 430L Pipe 3\" STD",
+        "description": "SS 430L Pipe 3\" STD",
+        "quantity": 313,
+        "unitPrice": 256.795,
+        "amount": 80376.835
+      },
+      {
+        "id": 5,
+        "productId": 21,
+        "productName": "SS 201L Bar 6mm",
+        "description": "SS 201L Bar 6mm",
+        "quantity": 124,
+        "unitPrice": 101.3796,
+        "amount": 12571.070399999999
+      },
+      {
+        "id": 6,
+        "productId": 74,
+        "productName": "SS 304L Pipe 1/2\" STD",
+        "description": "SS 304L Pipe 1/2\" STD",
+        "quantity": 381,
+        "unitPrice": 337.3522,
+        "amount": 128531.18819999999
+      },
+      {
+        "id": 7,
+        "productId": 20,
+        "productName": "SS 304N Sheet HL 1000x2000 2mm",
+        "description": "SS 304N Sheet HL 1000x2000 2mm",
+        "quantity": 83,
+        "unitPrice": 219.14600000000002,
+        "amount": 18189.118000000002
+      },
+      {
+        "id": 8,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 216,
+        "unitPrice": 46.7628,
+        "amount": 10100.764799999999
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-30T06:09:53.583Z",
+    "updatedAt": "2025-11-12T19:39:07.491Z"
+  },
+  {
+    "id": 43,
+    "poNumber": "PO-2025-0043",
+    "supplierId": 5,
+    "supplierDetails": {
+      "name": "Advanced Metal Trading LLC",
+      "email": "procurement@advancedmetaltradingllc.ae",
+      "phone": "+971-7-4209958",
+      "trn": "100383303693889",
+      "address": {
+        "street": "Industrial Area 3",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "42768",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-11",
+    "expectedDeliveryDate": "2025-08-09",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 110543.0625,
+    "taxRate": 5,
+    "taxAmount": 5527.153125000001,
+    "totalAmount": 116070.215625,
+    "items": [
+      {
+        "id": 1,
+        "productId": 22,
+        "productName": "SS 304N Tube 38.1mm x 1.2mm",
+        "description": "SS 304N Tube 38.1mm x 1.2mm",
+        "quantity": 390,
+        "unitPrice": 162.68040000000002,
+        "amount": 63445.35600000001
+      },
+      {
+        "id": 2,
+        "productId": 46,
+        "productName": "SS 304L Bar 6mm",
+        "description": "SS 304L Bar 6mm",
+        "quantity": 351,
+        "unitPrice": 134.1815,
+        "amount": 47097.7065
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-11T23:12:58.004Z",
+    "updatedAt": "2025-10-10T17:00:32.110Z"
+  },
+  {
+    "id": 44,
+    "poNumber": "PO-2025-0044",
+    "supplierId": 10,
+    "supplierDetails": {
+      "name": "National Manufacturing LLC",
+      "email": "procurement@nationalmanufacturingllc.ae",
+      "phone": "+971-5-6713879",
+      "trn": "100996122381676",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "53650",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-23",
+    "expectedDeliveryDate": "2025-10-08",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 333247.93239999993,
+    "taxRate": 5,
+    "taxAmount": 16662.396619999996,
+    "totalAmount": 349910.32901999995,
+    "items": [
+      {
+        "id": 1,
+        "productId": 29,
+        "productName": "SS 410 Coil 2B 1219x1.2mm",
+        "description": "SS 410 Coil 2B 1219x1.2mm",
+        "quantity": 321,
+        "unitPrice": 171.096,
+        "amount": 54921.816
+      },
+      {
+        "id": 2,
+        "productId": 7,
+        "productName": "SS 410N Pipe 1\" SCH40",
+        "description": "SS 410N Pipe 1\" SCH40",
+        "quantity": 267,
+        "unitPrice": 324.04679999999996,
+        "amount": 86520.4956
+      },
+      {
+        "id": 3,
+        "productId": 88,
+        "productName": "SS 201 Sheet No.4 2000x4000 2mm",
+        "description": "SS 201 Sheet No.4 2000x4000 2mm",
+        "quantity": 248,
+        "unitPrice": 337.93449999999996,
+        "amount": 83807.756
+      },
+      {
+        "id": 4,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 464,
+        "unitPrice": 69.39240000000001,
+        "amount": 32198.073600000003
+      },
+      {
+        "id": 5,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 100,
+        "unitPrice": 65.4289,
+        "amount": 6542.889999999999
+      },
+      {
+        "id": 6,
+        "productId": 98,
+        "productName": "SS 304H Pipe 1\" STD",
+        "description": "SS 304H Pipe 1\" STD",
+        "quantity": 104,
+        "unitPrice": 196.7331,
+        "amount": 20460.2424
+      },
+      {
+        "id": 7,
+        "productId": 31,
+        "productName": "SS 304L Sheet HL 2000x2000 1mm",
+        "description": "SS 304L Sheet HL 2000x2000 1mm",
+        "quantity": 181,
+        "unitPrice": 269.5948,
+        "amount": 48796.658800000005
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-23T05:37:08.370Z",
+    "updatedAt": "2025-10-14T18:35:25.719Z"
+  },
+  {
+    "id": 45,
+    "poNumber": "PO-2025-0045",
+    "supplierId": 10,
+    "supplierDetails": {
+      "name": "National Manufacturing LLC",
+      "email": "procurement@nationalmanufacturingllc.ae",
+      "phone": "+971-5-6713879",
+      "trn": "100996122381676",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "53650",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-06",
+    "expectedDeliveryDate": "2025-12-01",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 298248.1251,
+    "taxRate": 5,
+    "taxAmount": 14912.406255000002,
+    "totalAmount": 313160.531355,
+    "items": [
+      {
+        "id": 1,
+        "productId": 69,
+        "productName": "SS 316N Pipe 3\" STD",
+        "description": "SS 316N Pipe 3\" STD",
+        "quantity": 149,
+        "unitPrice": 153.8475,
+        "amount": 22923.2775
+      },
+      {
+        "id": 2,
+        "productId": 33,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 363,
+        "unitPrice": 315.832,
+        "amount": 114647.016
+      },
+      {
+        "id": 3,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 429,
+        "unitPrice": 374.54040000000003,
+        "amount": 160677.8316
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-06T22:57:56.114Z",
+    "updatedAt": "2025-11-16T06:30:02.859Z"
+  },
+  {
+    "id": 46,
+    "poNumber": "PO-2025-0046",
+    "supplierId": 11,
+    "supplierDetails": {
+      "name": "Gulf Steel Mills LLC",
+      "email": "procurement@gulfsteelmillsllc.ae",
+      "phone": "+971-6-3944225",
+      "trn": "100499582505081",
+      "address": {
+        "street": "Industrial Area 12",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "24982",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-15",
+    "expectedDeliveryDate": "2025-07-11",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 231504.3584,
+    "taxRate": 5,
+    "taxAmount": 11575.217920000001,
+    "totalAmount": 243079.57632,
+    "items": [
+      {
+        "id": 1,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 175,
+        "unitPrice": 47.8762,
+        "amount": 8378.335
+      },
+      {
+        "id": 2,
+        "productId": 98,
+        "productName": "SS 304H Pipe 1\" STD",
+        "description": "SS 304H Pipe 1\" STD",
+        "quantity": 465,
+        "unitPrice": 187.68789999999998,
+        "amount": 87274.87349999999
+      },
+      {
+        "id": 3,
+        "productId": 47,
+        "productName": "SS 201 Tube 19.05mm x 1mm",
+        "description": "SS 201 Tube 19.05mm x 1mm",
+        "quantity": 211,
+        "unitPrice": 245.336,
+        "amount": 51765.896
+      },
+      {
+        "id": 4,
+        "productId": 11,
+        "productName": "SS 316N Pipe 2\" STD",
+        "description": "SS 316N Pipe 2\" STD",
+        "quantity": 337,
+        "unitPrice": 61.765299999999996,
+        "amount": 20814.9061
+      },
+      {
+        "id": 5,
+        "productId": 62,
+        "productName": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "description": "SS 316L Sheet BA 2000x4000 1.2mm",
+        "quantity": 66,
+        "unitPrice": 333.51750000000004,
+        "amount": 22012.155000000002
+      },
+      {
+        "id": 6,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 129,
+        "unitPrice": 168.6372,
+        "amount": 21754.198800000002
+      },
+      {
+        "id": 7,
+        "productId": 20,
+        "productName": "SS 304N Sheet HL 1000x2000 2mm",
+        "description": "SS 304N Sheet HL 1000x2000 2mm",
+        "quantity": 89,
+        "unitPrice": 219.14600000000002,
+        "amount": 19503.994000000002
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-15T22:13:03.529Z",
+    "updatedAt": "2025-06-26T19:24:35.153Z"
+  },
+  {
+    "id": 47,
+    "poNumber": "PO-2025-0047",
+    "supplierId": 16,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-5-3359663",
+      "trn": "100761016831267",
+      "address": {
+        "street": "Industrial Area 13",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "79783",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-18",
+    "expectedDeliveryDate": "2025-08-12",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 544713.4539999999,
+    "taxRate": 5,
+    "taxAmount": 27235.672699999996,
+    "totalAmount": 571949.1266999999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 241,
+        "unitPrice": 258.048,
+        "amount": 62189.568
+      },
+      {
+        "id": 2,
+        "productId": 69,
+        "productName": "SS 316N Pipe 3\" STD",
+        "description": "SS 316N Pipe 3\" STD",
+        "quantity": 314,
+        "unitPrice": 149.6325,
+        "amount": 46984.604999999996
+      },
+      {
+        "id": 3,
+        "productId": 23,
+        "productName": "SS 304 Tube 19.05mm x 1.5mm",
+        "description": "SS 304 Tube 19.05mm x 1.5mm",
+        "quantity": 57,
+        "unitPrice": 381.90360000000004,
+        "amount": 21768.505200000003
+      },
+      {
+        "id": 4,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 457,
+        "unitPrice": 281.5795,
+        "amount": 128681.8315
+      },
+      {
+        "id": 5,
+        "productId": 54,
+        "productName": "SS 201 Pipe 4\" STD",
+        "description": "SS 201 Pipe 4\" STD",
+        "quantity": 105,
+        "unitPrice": 99.37349999999999,
+        "amount": 10434.217499999999
+      },
+      {
+        "id": 6,
+        "productId": 31,
+        "productName": "SS 304L Sheet HL 2000x2000 1mm",
+        "description": "SS 304L Sheet HL 2000x2000 1mm",
+        "quantity": 468,
+        "unitPrice": 315.7097,
+        "amount": 147752.1396
+      },
+      {
+        "id": 7,
+        "productId": 68,
+        "productName": "SS 316N Pipe 1/2\" XS",
+        "description": "SS 316N Pipe 1/2\" XS",
+        "quantity": 378,
+        "unitPrice": 244.7544,
+        "amount": 92517.1632
+      },
+      {
+        "id": 8,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 102,
+        "unitPrice": 337.112,
+        "amount": 34385.424
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-18T23:47:08.266Z",
+    "updatedAt": "2025-08-26T12:12:21.246Z"
+  },
+  {
+    "id": 48,
+    "poNumber": "PO-2025-0048",
+    "supplierId": 5,
+    "supplierDetails": {
+      "name": "Advanced Metal Trading LLC",
+      "email": "procurement@advancedmetaltradingllc.ae",
+      "phone": "+971-7-4209958",
+      "trn": "100383303693889",
+      "address": {
+        "street": "Industrial Area 3",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "42768",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-13",
+    "expectedDeliveryDate": "2025-12-10",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 977284.8182999999,
+    "taxRate": 5,
+    "taxAmount": 48864.240915,
+    "totalAmount": 1026149.0592149999,
+    "items": [
+      {
+        "id": 1,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 481,
+        "unitPrice": 357.10470000000004,
+        "amount": 171767.36070000002
+      },
+      {
+        "id": 2,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 490,
+        "unitPrice": 374.54040000000003,
+        "amount": 183524.796
+      },
+      {
+        "id": 3,
+        "productId": 16,
+        "productName": "SS 430N Sheet BA 1219x3000 2mm",
+        "description": "SS 430N Sheet BA 1219x3000 2mm",
+        "quantity": 250,
+        "unitPrice": 322.1032,
+        "amount": 80525.8
+      },
+      {
+        "id": 4,
+        "productId": 40,
+        "productName": "SS 316N Pipe 4\" SCH80",
+        "description": "SS 316N Pipe 4\" SCH80",
+        "quantity": 432,
+        "unitPrice": 266.0566,
+        "amount": 114936.4512
+      },
+      {
+        "id": 5,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 302,
+        "unitPrice": 316.0425,
+        "amount": 95444.835
+      },
+      {
+        "id": 6,
+        "productId": 37,
+        "productName": "SS 430N Pipe 1.5\" SCH40",
+        "description": "SS 430N Pipe 1.5\" SCH40",
+        "quantity": 287,
+        "unitPrice": 120.46619999999999,
+        "amount": 34573.799399999996
+      },
+      {
+        "id": 7,
+        "productId": 79,
+        "productName": "SS 304 Sheet BA 1219x4000 0.8mm",
+        "description": "SS 304 Sheet BA 1219x4000 0.8mm",
+        "quantity": 413,
+        "unitPrice": 392.6637,
+        "amount": 162170.1081
+      },
+      {
+        "id": 8,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 53,
+        "unitPrice": 49.5463,
+        "amount": 2625.9539
+      },
+      {
+        "id": 9,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 146,
+        "unitPrice": 161.058,
+        "amount": 23514.468
+      },
+      {
+        "id": 10,
+        "productId": 16,
+        "productName": "SS 430N Sheet BA 1219x3000 2mm",
+        "description": "SS 430N Sheet BA 1219x3000 2mm",
+        "quantity": 345,
+        "unitPrice": 313.6268,
+        "amount": 108201.246
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-13T10:28:47.807Z",
+    "updatedAt": "2025-11-18T20:47:33.718Z"
+  },
+  {
+    "id": 49,
+    "poNumber": "PO-2025-0049",
+    "supplierId": 18,
+    "supplierDetails": {
+      "name": "National Steel Mills LLC",
+      "email": "procurement@nationalsteelmillsllc.ae",
+      "phone": "+971-5-8865126",
+      "trn": "100588441952203",
+      "address": {
+        "street": "Industrial Area 11",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "46605",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-21",
+    "expectedDeliveryDate": "2025-08-18",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 301218.7472,
+    "taxRate": 5,
+    "taxAmount": 15060.93736,
+    "totalAmount": 316279.68455999997,
+    "items": [
+      {
+        "id": 1,
+        "productId": 97,
+        "productName": "SS 201 Sheet 2B 1000x4000 1mm",
+        "description": "SS 201 Sheet 2B 1000x4000 1mm",
+        "quantity": 59,
+        "unitPrice": 260.8284,
+        "amount": 15388.8756
+      },
+      {
+        "id": 2,
+        "productId": 40,
+        "productName": "SS 316N Pipe 4\" SCH80",
+        "description": "SS 316N Pipe 4\" SCH80",
+        "quantity": 316,
+        "unitPrice": 230.1838,
+        "amount": 72738.0808
+      },
+      {
+        "id": 3,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 385,
+        "unitPrice": 194.54919999999998,
+        "amount": 74901.442
+      },
+      {
+        "id": 4,
+        "productId": 23,
+        "productName": "SS 304 Tube 19.05mm x 1.5mm",
+        "description": "SS 304 Tube 19.05mm x 1.5mm",
+        "quantity": 392,
+        "unitPrice": 352.52639999999997,
+        "amount": 138190.34879999998
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-21T10:50:15.979Z",
+    "updatedAt": "2025-10-31T15:37:07.785Z"
+  },
+  {
+    "id": 50,
+    "poNumber": "PO-2025-0050",
+    "supplierId": 3,
+    "supplierDetails": {
+      "name": "Emirates Steel Mills LLC",
+      "email": "procurement@emiratessteelmillsllc.ae",
+      "phone": "+971-3-2421438",
+      "trn": "100841829795520",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "58595",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-11-08",
+    "expectedDeliveryDate": "2025-12-13",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 249796.77000000002,
+    "taxRate": 5,
+    "taxAmount": 12489.838500000002,
+    "totalAmount": 262286.60850000003,
+    "items": [
+      {
+        "id": 1,
+        "productId": 3,
+        "productName": "SS 304N Tube 25.4mm x 2mm",
+        "description": "SS 304N Tube 25.4mm x 2mm",
+        "quantity": 89,
+        "unitPrice": 370.3308,
+        "amount": 32959.4412
+      },
+      {
+        "id": 2,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 346,
+        "unitPrice": 354.59459999999996,
+        "amount": 122689.73159999998
+      },
+      {
+        "id": 3,
+        "productId": 89,
+        "productName": "SS 316 Sheet 2B 2000x3000 3mm",
+        "description": "SS 316 Sheet 2B 2000x3000 3mm",
+        "quantity": 110,
+        "unitPrice": 295.69379999999995,
+        "amount": 32526.317999999996
+      },
+      {
+        "id": 4,
+        "productId": 67,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 372,
+        "unitPrice": 165.64860000000002,
+        "amount": 61621.279200000004
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-11-08T05:50:46.736Z",
+    "updatedAt": "2025-11-16T03:38:02.442Z"
+  },
+  {
+    "id": 51,
+    "poNumber": "PO-2025-0051",
+    "supplierId": 12,
+    "supplierDetails": {
+      "name": "Emirates Manufacturing LLC",
+      "email": "procurement@emiratesmanufacturingllc.ae",
+      "phone": "+971-3-4484960",
+      "trn": "100812004783754",
+      "address": {
+        "street": "Industrial Area 2",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "65945",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-08",
+    "expectedDeliveryDate": "2025-08-09",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 86848.44509999998,
+    "taxRate": 5,
+    "taxAmount": 4342.4222549999995,
+    "totalAmount": 91190.86735499998,
+    "items": [
+      {
+        "id": 1,
+        "productId": 27,
+        "productName": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "description": "SS 304H Sheet HL 1219x2000 0.8mm",
+        "quantity": 91,
+        "unitPrice": 55.8828,
+        "amount": 5085.3348000000005
+      },
+      {
+        "id": 2,
+        "productId": 11,
+        "productName": "SS 316N Pipe 2\" STD",
+        "description": "SS 316N Pipe 2\" STD",
+        "quantity": 213,
+        "unitPrice": 61.765299999999996,
+        "amount": 13156.008899999999
+      },
+      {
+        "id": 3,
+        "productId": 26,
+        "productName": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "description": "SS 201L Sheet HL 1219x4000 0.5mm",
+        "quantity": 208,
+        "unitPrice": 199.17319999999998,
+        "amount": 41428.02559999999
+      },
+      {
+        "id": 4,
+        "productId": 61,
+        "productName": "SS 430L Pipe 4\" SCH40",
+        "description": "SS 430L Pipe 4\" SCH40",
+        "quantity": 296,
+        "unitPrice": 45.373,
+        "amount": 13430.408
+      },
+      {
+        "id": 5,
+        "productId": 10,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 179,
+        "unitPrice": 76.8082,
+        "amount": 13748.6678
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-08T12:19:10.904Z",
+    "updatedAt": "2025-10-12T01:57:59.152Z"
+  },
+  {
+    "id": 52,
+    "poNumber": "PO-2025-0052",
+    "supplierId": 14,
+    "supplierDetails": {
+      "name": "Premier Steel Mills LLC",
+      "email": "procurement@premiersteelmillsllc.ae",
+      "phone": "+971-5-7054156",
+      "trn": "100904411523552",
+      "address": {
+        "street": "Industrial Area 1",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "74621",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-30",
+    "expectedDeliveryDate": "2025-09-17",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 181137.003,
+    "taxRate": 5,
+    "taxAmount": 9056.85015,
+    "totalAmount": 190193.85315,
+    "items": [
+      {
+        "id": 1,
+        "productId": 57,
+        "productName": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "description": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "quantity": 375,
+        "unitPrice": 54.407700000000006,
+        "amount": 20402.8875
+      },
+      {
+        "id": 2,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 156,
+        "unitPrice": 165.447,
+        "amount": 25809.732
+      },
+      {
+        "id": 3,
+        "productId": 81,
+        "productName": "SS 304 Tube 19.05mm x 1.2mm",
+        "description": "SS 304 Tube 19.05mm x 1.2mm",
+        "quantity": 197,
+        "unitPrice": 148.90230000000003,
+        "amount": 29333.753100000005
+      },
+      {
+        "id": 4,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 291,
+        "unitPrice": 362.8544,
+        "amount": 105590.6304
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-30T14:19:04.783Z",
+    "updatedAt": "2025-10-22T06:59:04.168Z"
+  },
+  {
+    "id": 53,
+    "poNumber": "PO-2025-0053",
+    "supplierId": 11,
+    "supplierDetails": {
+      "name": "Gulf Steel Mills LLC",
+      "email": "procurement@gulfsteelmillsllc.ae",
+      "phone": "+971-6-3944225",
+      "trn": "100499582505081",
+      "address": {
+        "street": "Industrial Area 12",
+        "city": "Sharjah",
+        "state": "Sharjah",
+        "postalCode": "24982",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-18",
+    "expectedDeliveryDate": "2025-10-10",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 292796.7446,
+    "taxRate": 5,
+    "taxAmount": 14639.83723,
+    "totalAmount": 307436.58183,
+    "items": [
+      {
+        "id": 1,
+        "productId": 40,
+        "productName": "SS 316N Pipe 4\" SCH80",
+        "description": "SS 316N Pipe 4\" SCH80",
+        "quantity": 201,
+        "unitPrice": 254.099,
+        "amount": 51073.899
+      },
+      {
+        "id": 2,
+        "productId": 77,
+        "productName": "SS 316 Pipe 1.5\" STD",
+        "description": "SS 316 Pipe 1.5\" STD",
+        "quantity": 415,
+        "unitPrice": 213.7329,
+        "amount": 88699.1535
+      },
+      {
+        "id": 3,
+        "productId": 50,
+        "productName": "SS 304 Sheet BA 1000x2438 1mm",
+        "description": "SS 304 Sheet BA 1000x2438 1mm",
+        "quantity": 86,
+        "unitPrice": 368.6958,
+        "amount": 31707.8388
+      },
+      {
+        "id": 4,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 347,
+        "unitPrice": 60.6991,
+        "amount": 21062.5877
+      },
+      {
+        "id": 5,
+        "productId": 28,
+        "productName": "SS 304L Sheet HL 1500x3000 1mm",
+        "description": "SS 304L Sheet HL 1500x3000 1mm",
+        "quantity": 204,
+        "unitPrice": 325.72839999999997,
+        "amount": 66448.5936
+      },
+      {
+        "id": 6,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 80,
+        "unitPrice": 422.5584,
+        "amount": 33804.672
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_30",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-18T18:04:46.157Z",
+    "updatedAt": "2025-10-31T01:31:00.459Z"
+  },
+  {
+    "id": 54,
+    "poNumber": "PO-2025-0054",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-02",
+    "expectedDeliveryDate": "2025-10-18",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 309674.3786,
+    "taxRate": 5,
+    "taxAmount": 15483.718930000001,
+    "totalAmount": 325158.09752999997,
+    "items": [
+      {
+        "id": 1,
+        "productId": 18,
+        "productName": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "description": "SS 410 Sheet 2B 2000x2438 1.5mm",
+        "quantity": 138,
+        "unitPrice": 277.7205,
+        "amount": 38325.429000000004
+      },
+      {
+        "id": 2,
+        "productId": 98,
+        "productName": "SS 304H Pipe 1\" STD",
+        "description": "SS 304H Pipe 1\" STD",
+        "quantity": 222,
+        "unitPrice": 198.99439999999998,
+        "amount": 44176.756799999996
+      },
+      {
+        "id": 3,
+        "productId": 93,
+        "productName": "SS 430L Pipe 3\" STD",
+        "description": "SS 430L Pipe 3\" STD",
+        "quantity": 199,
+        "unitPrice": 286.81,
+        "amount": 57075.19
+      },
+      {
+        "id": 4,
+        "productId": 39,
+        "productName": "SS 304L Bar 8mm",
+        "description": "SS 304L Bar 8mm",
+        "quantity": 375,
+        "unitPrice": 131.565,
+        "amount": 49336.875
+      },
+      {
+        "id": 5,
+        "productId": 47,
+        "productName": "SS 201 Tube 19.05mm x 1mm",
+        "description": "SS 201 Tube 19.05mm x 1mm",
+        "quantity": 307,
+        "unitPrice": 214.669,
+        "amount": 65903.383
+      },
+      {
+        "id": 6,
+        "productId": 21,
+        "productName": "SS 201L Bar 6mm",
+        "description": "SS 201L Bar 6mm",
+        "quantity": 351,
+        "unitPrice": 86.8968,
+        "amount": 30500.7768
+      },
+      {
+        "id": 7,
+        "productId": 66,
+        "productName": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "description": "SS 316 Sheet HL 1500x4000 1.5mm",
+        "quantity": 64,
+        "unitPrice": 380.562,
+        "amount": 24355.968
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-02T20:13:28.868Z",
+    "updatedAt": "2025-11-11T08:23:41.094Z"
+  },
+  {
+    "id": 55,
+    "poNumber": "PO-2025-0055",
+    "supplierId": 5,
+    "supplierDetails": {
+      "name": "Advanced Metal Trading LLC",
+      "email": "procurement@advancedmetaltradingllc.ae",
+      "phone": "+971-7-4209958",
+      "trn": "100383303693889",
+      "address": {
+        "street": "Industrial Area 3",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "42768",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-06-11",
+    "expectedDeliveryDate": "2025-07-15",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 494726.4795,
+    "taxRate": 5,
+    "taxAmount": 24736.323975000003,
+    "totalAmount": 519462.803475,
+    "items": [
+      {
+        "id": 1,
+        "productId": 70,
+        "productName": "SS 201N Sheet HL 1219x3000 0.5mm",
+        "description": "SS 201N Sheet HL 1219x3000 0.5mm",
+        "quantity": 227,
+        "unitPrice": 193.10580000000002,
+        "amount": 43835.0166
+      },
+      {
+        "id": 2,
+        "productId": 21,
+        "productName": "SS 201L Bar 6mm",
+        "description": "SS 201L Bar 6mm",
+        "quantity": 466,
+        "unitPrice": 90.5175,
+        "amount": 42181.155
+      },
+      {
+        "id": 3,
+        "productId": 46,
+        "productName": "SS 304L Bar 6mm",
+        "description": "SS 304L Bar 6mm",
+        "quantity": 353,
+        "unitPrice": 122.29199999999999,
+        "amount": 43169.075999999994
+      },
+      {
+        "id": 4,
+        "productId": 33,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 125,
+        "unitPrice": 269.17499999999995,
+        "amount": 33646.87499999999
+      },
+      {
+        "id": 5,
+        "productId": 17,
+        "productName": "SS 410H Sheet 2B 2000x4000 2mm",
+        "description": "SS 410H Sheet 2B 2000x4000 2mm",
+        "quantity": 201,
+        "unitPrice": 137.9349,
+        "amount": 27724.9149
+      },
+      {
+        "id": 6,
+        "productId": 86,
+        "productName": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "description": "SS 304N Sheet HL 1500x3000 1.2mm",
+        "quantity": 385,
+        "unitPrice": 353.96759999999995,
+        "amount": 136277.52599999998
+      },
+      {
+        "id": 7,
+        "productId": 11,
+        "productName": "SS 316N Pipe 2\" STD",
+        "description": "SS 316N Pipe 2\" STD",
+        "quantity": 474,
+        "unitPrice": 65.1497,
+        "amount": 30880.957799999996
+      },
+      {
+        "id": 8,
+        "productId": 41,
+        "productName": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "description": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "quantity": 482,
+        "unitPrice": 284.2551,
+        "amount": 137010.95820000002
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-06-11T05:15:47.007Z",
+    "updatedAt": "2025-09-07T15:05:04.444Z"
+  },
+  {
+    "id": 56,
+    "poNumber": "PO-2025-0056",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-05-28",
+    "expectedDeliveryDate": "2025-07-21",
+    "status": "sent",
+    "currency": "AED",
+    "subtotal": 416950.76320000004,
+    "taxRate": 5,
+    "taxAmount": 20847.538160000004,
+    "totalAmount": 437798.30136000004,
+    "items": [
+      {
+        "id": 1,
+        "productId": 87,
+        "productName": "SS 316N Tube 19.05mm x 1.5mm",
+        "description": "SS 316N Tube 19.05mm x 1.5mm",
+        "quantity": 429,
+        "unitPrice": 347.0822,
+        "amount": 148898.2638
+      },
+      {
+        "id": 2,
+        "productId": 99,
+        "productName": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "description": "SS 201 Sheet 2B 1219x2438 1.5mm",
+        "quantity": 120,
+        "unitPrice": 139.3764,
+        "amount": 16725.167999999998
+      },
+      {
+        "id": 3,
+        "productId": 41,
+        "productName": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "description": "SS 316L Sheet 2B 2000x2438 0.8mm",
+        "quantity": 207,
+        "unitPrice": 231.9783,
+        "amount": 48019.5081
+      },
+      {
+        "id": 4,
+        "productId": 49,
+        "productName": "SS 304N Pipe 1\" SCH80",
+        "description": "SS 304N Pipe 1\" SCH80",
+        "quantity": 303,
+        "unitPrice": 330.372,
+        "amount": 100102.716
+      },
+      {
+        "id": 5,
+        "productId": 4,
+        "productName": "SS 316N Coil 2B 1219x1.2mm",
+        "description": "SS 316N Coil 2B 1219x1.2mm",
+        "quantity": 211,
+        "unitPrice": 274.9541,
+        "amount": 58015.3151
+      },
+      {
+        "id": 6,
+        "productId": 22,
+        "productName": "SS 304N Tube 38.1mm x 1.2mm",
+        "description": "SS 304N Tube 38.1mm x 1.2mm",
+        "quantity": 164,
+        "unitPrice": 148.6216,
+        "amount": 24373.9424
+      },
+      {
+        "id": 7,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 326,
+        "unitPrice": 63.8523,
+        "amount": 20815.8498
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-05-28T10:28:21.812Z",
+    "updatedAt": "2025-10-17T20:40:33.664Z"
+  },
+  {
+    "id": 57,
+    "poNumber": "PO-2025-0057",
+    "supplierId": 3,
+    "supplierDetails": {
+      "name": "Emirates Steel Mills LLC",
+      "email": "procurement@emiratessteelmillsllc.ae",
+      "phone": "+971-3-2421438",
+      "trn": "100841829795520",
+      "address": {
+        "street": "Industrial Area 10",
+        "city": "Abu Dhabi",
+        "state": "Abu Dhabi",
+        "postalCode": "58595",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-08-25",
+    "expectedDeliveryDate": "2025-09-29",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 451823.8584,
+    "taxRate": 5,
+    "taxAmount": 22591.19292,
+    "totalAmount": 474415.05132,
+    "items": [
+      {
+        "id": 1,
+        "productId": 33,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 115,
+        "unitPrice": 294.29799999999994,
+        "amount": 33844.27
+      },
+      {
+        "id": 2,
+        "productId": 92,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 354,
+        "unitPrice": 223.2348,
+        "amount": 79025.1192
+      },
+      {
+        "id": 3,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 169,
+        "unitPrice": 367.6288,
+        "amount": 62129.2672
+      },
+      {
+        "id": 4,
+        "productId": 59,
+        "productName": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "description": "SS 304H Sheet No.4 1500x4000 0.8mm",
+        "quantity": 420,
+        "unitPrice": 63.064,
+        "amount": 26486.88
+      },
+      {
+        "id": 5,
+        "productId": 19,
+        "productName": "SS 316 Tube 25.4mm x 1.5mm",
+        "description": "SS 316 Tube 25.4mm x 1.5mm",
+        "quantity": 131,
+        "unitPrice": 177.1856,
+        "amount": 23211.313599999998
+      },
+      {
+        "id": 6,
+        "productId": 43,
+        "productName": "SS 430H Sheet BA 1500x2438 1mm",
+        "description": "SS 430H Sheet BA 1500x2438 1mm",
+        "quantity": 431,
+        "unitPrice": 293.286,
+        "amount": 126406.266
+      },
+      {
+        "id": 7,
+        "productId": 82,
+        "productName": "SS 201H Bar 20mm",
+        "description": "SS 201H Bar 20mm",
+        "quantity": 293,
+        "unitPrice": 343.7568,
+        "amount": 100720.7424
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-08-25T06:43:35.911Z",
+    "updatedAt": "2025-09-27T03:24:08.409Z"
+  },
+  {
+    "id": 58,
+    "poNumber": "PO-2025-0058",
+    "supplierId": 6,
+    "supplierDetails": {
+      "name": "United Steel Mills LLC",
+      "email": "procurement@unitedsteelmillsllc.ae",
+      "phone": "+971-5-4357571",
+      "trn": "100836711954939",
+      "address": {
+        "street": "Industrial Area 7",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "57686",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-09-12",
+    "expectedDeliveryDate": "2025-10-28",
+    "status": "confirmed",
+    "currency": "AED",
+    "subtotal": 590242.9898999999,
+    "taxRate": 5,
+    "taxAmount": 29512.149494999998,
+    "totalAmount": 619755.139395,
+    "items": [
+      {
+        "id": 1,
+        "productId": 67,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 315,
+        "unitPrice": 186.8856,
+        "amount": 58868.964
+      },
+      {
+        "id": 2,
+        "productId": 40,
+        "productName": "SS 316N Pipe 4\" SCH80",
+        "description": "SS 316N Pipe 4\" SCH80",
+        "quantity": 269,
+        "unitPrice": 269.046,
+        "amount": 72373.374
+      },
+      {
+        "id": 3,
+        "productId": 30,
+        "productName": "SS 304 Pipe 1\" SCH40",
+        "description": "SS 304 Pipe 1\" SCH40",
+        "quantity": 374,
+        "unitPrice": 317.0304,
+        "amount": 118569.36959999999
+      },
+      {
+        "id": 4,
+        "productId": 32,
+        "productName": "SS 201H Pipe 1.5\" SCH40",
+        "description": "SS 201H Pipe 1.5\" SCH40",
+        "quantity": 361,
+        "unitPrice": 348.6823,
+        "amount": 125874.3103
+      },
+      {
+        "id": 5,
+        "productId": 9,
+        "productName": "SS 304 Tube 50.8mm x 1.5mm",
+        "description": "SS 304 Tube 50.8mm x 1.5mm",
+        "quantity": 207,
+        "unitPrice": 176.022,
+        "amount": 36436.554
+      },
+      {
+        "id": 6,
+        "productId": 84,
+        "productName": "SS 316H Pipe 1\" XS",
+        "description": "SS 316H Pipe 1\" XS",
+        "quantity": 409,
+        "unitPrice": 223.48000000000002,
+        "amount": 91403.32
+      },
+      {
+        "id": 7,
+        "productId": 64,
+        "productName": "SS 316H Tube 12.7mm x 2mm",
+        "description": "SS 316H Tube 12.7mm x 2mm",
+        "quantity": 157,
+        "unitPrice": 267.1958,
+        "amount": 41949.740600000005
+      },
+      {
+        "id": 8,
+        "productId": 53,
+        "productName": "SS 410 Pipe 1.5\" SCH80",
+        "description": "SS 410 Pipe 1.5\" SCH80",
+        "quantity": 158,
+        "unitPrice": 56.1638,
+        "amount": 8873.8804
+      },
+      {
+        "id": 9,
+        "productId": 44,
+        "productName": "SS 304H Sheet HL 1000x3000 2mm",
+        "description": "SS 304H Sheet HL 1000x3000 2mm",
+        "quantity": 122,
+        "unitPrice": 48.432900000000004,
+        "amount": 5908.813800000001
+      },
+      {
+        "id": 10,
+        "productId": 17,
+        "productName": "SS 410H Sheet 2B 2000x4000 2mm",
+        "description": "SS 410H Sheet 2B 2000x4000 2mm",
+        "quantity": 248,
+        "unitPrice": 120.90589999999999,
+        "amount": 29984.663199999995
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_60",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-09-12T19:47:18.718Z",
+    "updatedAt": "2025-11-14T22:12:28.423Z"
+  },
+  {
+    "id": 59,
+    "poNumber": "PO-2025-0059",
+    "supplierId": 9,
+    "supplierDetails": {
+      "name": "Advanced Steel Mills LLC",
+      "email": "procurement@advancedsteelmillsllc.ae",
+      "phone": "+971-5-8065947",
+      "trn": "100395969022634",
+      "address": {
+        "street": "Industrial Area 8",
+        "city": "Ajman",
+        "state": "Ajman",
+        "postalCode": "77406",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-07-19",
+    "expectedDeliveryDate": "2025-08-29",
+    "status": "draft",
+    "currency": "AED",
+    "subtotal": 69650.7148,
+    "taxRate": 5,
+    "taxAmount": 3482.5357400000003,
+    "totalAmount": 73133.25054000001,
+    "items": [
+      {
+        "id": 1,
+        "productId": 53,
+        "productName": "SS 410 Pipe 1.5\" SCH80",
+        "description": "SS 410 Pipe 1.5\" SCH80",
+        "quantity": 164,
+        "unitPrice": 53.246199999999995,
+        "amount": 8732.3768
+      },
+      {
+        "id": 2,
+        "productId": 57,
+        "productName": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "description": "SS 430N Sheet BA 1219x3000 1.2mm",
+        "quantity": 130,
+        "unitPrice": 55.7511,
+        "amount": 7247.643
+      },
+      {
+        "id": 3,
+        "productId": 63,
+        "productName": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "description": "SS 304 Sheet 2B 1500x3000 1.2mm",
+        "quantity": 325,
+        "unitPrice": 165.1406,
+        "amount": 53670.695
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_15",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-07-19T14:21:12.025Z",
+    "updatedAt": "2025-08-19T05:10:10.095Z"
+  },
+  {
+    "id": 60,
+    "poNumber": "PO-2025-0060",
+    "supplierId": 16,
+    "supplierDetails": {
+      "name": "Modern Import Export LLC",
+      "email": "procurement@modernimportexportllc.ae",
+      "phone": "+971-5-3359663",
+      "trn": "100761016831267",
+      "address": {
+        "street": "Industrial Area 13",
+        "city": "Dubai",
+        "state": "Dubai",
+        "postalCode": "79783",
+        "country": "UAE"
+      }
+    },
+    "orderDate": "2025-10-27",
+    "expectedDeliveryDate": "2025-11-21",
+    "status": "received",
+    "currency": "AED",
+    "subtotal": 546570.9682,
+    "taxRate": 5,
+    "taxAmount": 27328.548410000003,
+    "totalAmount": 573899.51661,
+    "items": [
+      {
+        "id": 1,
+        "productId": 96,
+        "productName": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "description": "SS 201N Sheet Mirror 2000x2000 0.5mm",
+        "quantity": 207,
+        "unitPrice": 289.3818,
+        "amount": 59902.0326
+      },
+      {
+        "id": 2,
+        "productId": 53,
+        "productName": "SS 410 Pipe 1.5\" SCH80",
+        "description": "SS 410 Pipe 1.5\" SCH80",
+        "quantity": 299,
+        "unitPrice": 65.646,
+        "amount": 19628.154
+      },
+      {
+        "id": 3,
+        "productId": 43,
+        "productName": "SS 430H Sheet BA 1500x2438 1mm",
+        "description": "SS 430H Sheet BA 1500x2438 1mm",
+        "quantity": 416,
+        "unitPrice": 347.7534,
+        "amount": 144665.4144
+      },
+      {
+        "id": 4,
+        "productId": 85,
+        "productName": "SS 316H Pipe 1/2\" SCH40",
+        "description": "SS 316H Pipe 1/2\" SCH40",
+        "quantity": 312,
+        "unitPrice": 157.26839999999999,
+        "amount": 49067.74079999999
+      },
+      {
+        "id": 5,
+        "productId": 16,
+        "productName": "SS 430N Sheet BA 1219x3000 2mm",
+        "description": "SS 430N Sheet BA 1219x3000 2mm",
+        "quantity": 373,
+        "unitPrice": 309.3886,
+        "amount": 115401.9478
+      },
+      {
+        "id": 6,
+        "productId": 55,
+        "productName": "SS 304 Tube 50.8mm x 1mm",
+        "description": "SS 304 Tube 50.8mm x 1mm",
+        "quantity": 368,
+        "unitPrice": 77.5032,
+        "amount": 28521.177600000003
+      },
+      {
+        "id": 7,
+        "productId": 100,
+        "productName": "SS 201 Tube 50.8mm x 1.2mm",
+        "description": "SS 201 Tube 50.8mm x 1.2mm",
+        "quantity": 317,
+        "unitPrice": 408.153,
+        "amount": 129384.501
+      }
+    ],
+    "notes": "",
+    "paymentTerms": "NET_45",
+    "companyId": 1,
+    "createdBy": 1,
+    "createdAt": "2025-10-27T00:57:24.462Z",
+    "updatedAt": "2025-11-15T04:33:47.710Z"
+  }
+]

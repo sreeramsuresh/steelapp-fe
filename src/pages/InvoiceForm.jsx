@@ -1308,7 +1308,7 @@ const InvoiceForm = ({ onSave }) => {
   const handleCustomerSelect = useCallback(
     async (customerId) => {
       const customers = customersData?.customers || [];
-      const selectedCustomer = customers.find((c) => c.id == customerId);
+      const selectedCustomer = customers.find((c) => c.id === customerId);
 
       if (selectedCustomer) {
         setInvoice((prev) => ({
@@ -1385,7 +1385,9 @@ const InvoiceForm = ({ onSave }) => {
             const numMatch = last.match(/\d+(?:\.\d+)?/);
             if (numMatch) return `${numMatch[0]}mm`;
           }
-        } catch {}
+        } catch (err) {
+          console.warn('Error extracting thickness from product:', err);
+        }
         return "";
       };
 
@@ -1476,7 +1478,9 @@ const InvoiceForm = ({ onSave }) => {
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
-    } catch {}
+    } catch (err) {
+      console.error('Error setting up product search timer:', err);
+    }
   }, []);
 
   const isProductExisting = useCallback(

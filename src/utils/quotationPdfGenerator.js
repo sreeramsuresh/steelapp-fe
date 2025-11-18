@@ -49,7 +49,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
     left: -9999px;
   `;
 
-  const safe = (v) => (v == null ? '' : v);
+  const safe = (v) => (v === null || v === undefined ? '' : v);
   const comp = company || {};
   const compAddr = comp.address || {};
   const cust = q.customer_details || {};

@@ -14,7 +14,7 @@ const toServer = (item = {}) => ({
   landed_cost: typeof item.landedCost === 'number' ? item.landedCost : (parseFloat(item.landedCost) || 0),
   location: item.location || '',
   warehouse_id: item.warehouseId ? Number(item.warehouseId) : null,
-  min_stock: item.minStock != null ? Number(item.minStock) : 0,
+  min_stock: item.minStock !== null && item.minStock !== undefined ? Number(item.minStock) : 0,
   product_id: item.productId ? Number(item.productId) : null,
   product_name: item.productName || null,
 });
