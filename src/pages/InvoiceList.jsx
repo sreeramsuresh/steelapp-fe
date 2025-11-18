@@ -42,6 +42,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useConfirm } from "../hooks/useConfirm";
 import { generatePaymentReminder, getInvoiceReminderInfo } from "../utils/reminderUtils";
 import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
+import { normalizeInvoices } from "../utils/invoiceNormalizer";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -127,7 +128,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       // invoiceService returns { invoices, pagination }
       const invoicesData = response.invoices || response;
-      setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
+      const normalizedInvoices = normalizeInvoices(Array.isArray(invoicesData) ? invoicesData : [], 'fetchInvoices');
+      setInvoices(normalizedInvoices);
 
       // Set pagination if available
       if (response.pagination) {
