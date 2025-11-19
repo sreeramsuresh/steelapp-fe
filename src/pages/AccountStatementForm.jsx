@@ -36,12 +36,12 @@ const AccountStatementForm = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.customer_id || !formData.start_date || !formData.end_date) {
+    if (!formData.customerId || !formData.startDate || !formData.endDate) {
       setError('Please fill in all required fields');
       return;
     }
 
-    if (new Date(formData.start_date) > new Date(formData.end_date)) {
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
       setError('Start date must be before end date');
       return;
     }
@@ -100,7 +100,7 @@ const AccountStatementForm = () => {
             <div className="relative">
               <select
                 name="customer_id"
-                value={formData.customer_id}
+                value={formData.customerId}
                 onChange={handleChange}
                 required
                 className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -132,7 +132,7 @@ const AccountStatementForm = () => {
                 <input
                   type="date"
                   name="start_date"
-                  value={formData.start_date}
+                  value={formData.startDate}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -155,7 +155,7 @@ const AccountStatementForm = () => {
                 <input
                   type="date"
                   name="end_date"
-                  value={formData.end_date}
+                  value={formData.endDate}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${

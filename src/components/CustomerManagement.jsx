@@ -147,7 +147,7 @@ const CustomerManagement = () => {
   }, [searchParams]);
 
   const handleAddCustomer = async () => {
-    const trnError = validateTRN(newCustomer.trn_number);
+    const trnError = validateTRN(newCustomer.trnNumber);
     if (trnError) {
       notificationService.error(trnError);
       return;
@@ -155,8 +155,8 @@ const CustomerManagement = () => {
     try {
       const customerData = {
         ...newCustomer,
-        credit_limit: newCustomer.credit_limit === '' ? 0 : Number(newCustomer.credit_limit),
-        current_credit: newCustomer.current_credit === '' ? 0 : Number(newCustomer.current_credit)
+        credit_limit: newCustomer.creditLimit === '' ? 0 : Number(newCustomer.creditLimit),
+        current_credit: newCustomer.currentCredit === '' ? 0 : Number(newCustomer.currentCredit)
       };
       await createCustomer(customerData);
       setNewCustomer({
@@ -189,7 +189,7 @@ const CustomerManagement = () => {
   };
 
   const handleEditCustomer = async () => {
-    const trnError = validateTRN(selectedCustomer?.trn_number);
+    const trnError = validateTRN(selectedCustomer?.trnNumber);
     if (trnError) {
       notificationService.error(trnError);
       return;
@@ -197,8 +197,8 @@ const CustomerManagement = () => {
     try {
       const customerData = {
         ...selectedCustomer,
-        credit_limit: selectedCustomer.credit_limit === '' ? 0 : Number(selectedCustomer.credit_limit),
-        current_credit: selectedCustomer.current_credit === '' ? 0 : Number(selectedCustomer.current_credit)
+        credit_limit: selectedCustomer.creditLimit === '' ? 0 : Number(selectedCustomer.creditLimit),
+        current_credit: selectedCustomer.currentCredit === '' ? 0 : Number(selectedCustomer.currentCredit)
       };
       await updateCustomer(selectedCustomer.id, customerData);
       setShowEditModal(false);
@@ -247,7 +247,7 @@ const CustomerManagement = () => {
   });
 
   const handleAddSupplier = async () => {
-    const trnErr = validateTRN(newSupplier.trn_number);
+    const trnErr = validateTRN(newSupplier.trnNumber);
     if (trnErr) { notificationService.error(trnErr); return; }
     try {
       const data = { ...newSupplier };
@@ -262,7 +262,7 @@ const CustomerManagement = () => {
   };
 
   const handleEditSupplier = async () => {
-    const trnErr = validateTRN(selectedSupplier?.trn_number);
+    const trnErr = validateTRN(selectedSupplier?.trnNumber);
     if (trnErr) { notificationService.error(trnErr); return; }
     try {
       await updateSupplier(selectedSupplier.id, selectedSupplier);
@@ -300,7 +300,7 @@ const CustomerManagement = () => {
       
       setContactHistoryCustomer(prev => ({
         ...prev,
-        contact_history: [...(prev.contact_history || []), {
+        contact_history: [...(prev.contactHistory || []), {
           ...newContact,
           id: Date.now().toString(),
           created_at: new Date().toISOString()
@@ -324,8 +324,8 @@ const CustomerManagement = () => {
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter(c => c.status === 'active').length;
-    const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.credit_limit) || 0), 0);
-    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.current_credit) || 0), 0);
+    const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.creditLimit) || 0), 0);
+    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.currentCredit) || 0), 0);
     const avgCreditUtilization = totalCreditLimit > 0 ? (totalCreditUsed / totalCreditLimit) * 100 : 0;
     
     return {
@@ -511,13 +511,13 @@ const CustomerManagement = () => {
                 <div className="flex justify-between items-center mb-2">
                   <span className={`text-xs ${textMuted}`}>Credit Limit</span>
                   <span className={`text-sm font-semibold ${textPrimary}`}>
-                    {formatCurrency(Number(customer.credit_limit) || 0)}
+                    {formatCurrency(Number(customer.creditLimit) || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
                   <span className={`text-xs ${textMuted}`}>Used</span>
                   <span className={`text-sm font-semibold ${textPrimary}`}>
-                    {formatCurrency(Number(customer.current_credit) || 0)}
+                    {formatCurrency(Number(customer.currentCredit) || 0)}
                   </span>
                 </div>
                 
@@ -526,12 +526,12 @@ const CustomerManagement = () => {
                   <div 
                     className="bg-[#008B8B] h-2 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${customer.credit_limit > 0 ? ((customer.current_credit || 0) / customer.credit_limit) * 100 : 0}%` 
+                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%` 
                     }}
                   />
                 </div>
                 <p className={`text-xs text-right ${textMuted}`}>
-                  {customer.credit_limit > 0 ? Math.round(((customer.current_credit || 0) / customer.credit_limit) * 100) : 0}% used
+                  {customer.creditLimit > 0 ? Math.round(((customer.currentCredit || 0) / customer.creditLimit) * 100) : 0}% used
                 </p>
               </div>
             </div>
@@ -586,10 +586,10 @@ const CustomerManagement = () => {
                 {s.email && <div><FaEnvelope className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.email}</div>}
                 {s.phone && <div><FaPhone className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.phone}</div>}
                 {s.address && <div><FaMapMarkerAlt className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.address}</div>}
-                {s.trn_number && <div>TRN: {s.trn_number}</div>}
-                {s.default_currency && <div>Currency: {s.default_currency}</div>}
-                {s.payment_terms && <div>Payment Terms: {s.payment_terms}</div>}
-                {s.contact_name && <div>Contact: {s.contact_name}{s.contact_email ? ` • ${s.contact_email}` : ''}{s.contact_phone ? ` • ${s.contact_phone}` : ''}</div>}
+                {s.trnNumber && <div>TRN: {s.trnNumber}</div>}
+                {s.defaultCurrency && <div>Currency: {s.defaultCurrency}</div>}
+                {s.paymentTerms && <div>Payment Terms: {s.paymentTerms}</div>}
+                {s.contactName && <div>Contact: {s.contactName}{s.contactEmail ? ` • ${s.contactEmail}` : ''}{s.contactPhone ? ` • ${s.contactPhone}` : ''}</div>}
               </div>
             </div>
           ))}
@@ -653,12 +653,12 @@ const CustomerManagement = () => {
                   <div 
                     className="bg-[#008B8B] h-3 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${customer.credit_limit > 0 ? (customer.current_credit / customer.credit_limit) * 100 : 0}%` 
+                      width: `${customer.creditLimit > 0 ? (customer.currentCredit / customer.creditLimit) * 100 : 0}%` 
                     }}
                   />
                 </div>
                 <span className={`text-sm font-medium w-12 text-right ${textSecondary}`}>
-                  {customer.credit_limit > 0 ? Math.round((customer.current_credit / customer.credit_limit) * 100) : 0}%
+                  {customer.creditLimit > 0 ? Math.round((customer.currentCredit / customer.creditLimit) * 100) : 0}%
                 </span>
               </div>
             </div>
@@ -849,7 +849,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="tel"
-                    value={newCustomer.alternate_phone}
+                    value={newCustomer.alternatePhone}
                     onChange={(e) => setNewCustomer({...newCustomer, alternate_phone: e.target.value})}
                     placeholder="Enter alternate phone number"
                     className={inputClasses}
@@ -904,15 +904,15 @@ const CustomerManagement = () => {
                     inputMode="numeric"
                     pattern="\\d*"
                     maxLength={15}
-                    value={newCustomer.trn_number}
+                    value={newCustomer.trnNumber}
                     onChange={(e) => setNewCustomer({...newCustomer, trn_number: sanitizeTRNInput(e.target.value)})}
                     placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
-                  {validateTRN(newCustomer.trn_number) && (
-                    <p className="text-xs text-red-600 mt-1">{validateTRN(newCustomer.trn_number)}</p>
+                  {validateTRN(newCustomer.trnNumber) && (
+                    <p className="text-xs text-red-600 mt-1">{validateTRN(newCustomer.trnNumber)}</p>
                   )}
-                  {!validateTRN(newCustomer.trn_number) && (
+                  {!validateTRN(newCustomer.trnNumber) && (
                     <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                   )}
                 </div>
@@ -923,7 +923,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="text"
-                    value={newCustomer.trade_license_number}
+                    value={newCustomer.tradeLicenseNumber}
                     onChange={(e) => setNewCustomer({...newCustomer, trade_license_number: e.target.value})}
                     placeholder="Enter trade license number"
                     className={inputClasses}
@@ -936,7 +936,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="date"
-                    value={newCustomer.trade_license_expiry}
+                    value={newCustomer.tradeLicenseExpiry}
                     onChange={(e) => setNewCustomer({...newCustomer, trade_license_expiry: e.target.value})}
                     className={inputClasses}
                   />
@@ -949,7 +949,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="number"
-                    value={newCustomer.credit_limit || ''}
+                    value={newCustomer.creditLimit || ''}
                     onChange={(e) => setNewCustomer({...newCustomer, credit_limit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter credit limit"
                     className={inputClasses}
@@ -962,7 +962,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="number"
-                    value={newCustomer.current_credit || ''}
+                    value={newCustomer.currentCredit || ''}
                     onChange={(e) => setNewCustomer({...newCustomer, current_credit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     placeholder="Enter current credit used"
                     className={inputClasses}
@@ -974,7 +974,7 @@ const CustomerManagement = () => {
                     Price List
                   </label>
                   <select
-                    value={newCustomer.pricelist_id || ''}
+                    value={newCustomer.pricelistId || ''}
                     onChange={(e) => setNewCustomer({...newCustomer, pricelist_id: e.target.value ? Number(e.target.value) : null})}
                     className={inputClasses}
                   >
@@ -1018,7 +1018,7 @@ const CustomerManagement = () => {
               </button>
               <button
                 onClick={handleAddCustomer}
-                disabled={creatingCustomer || !!validateTRN(newCustomer.trn_number)}
+                disabled={creatingCustomer || !!validateTRN(newCustomer.trnNumber)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
@@ -1062,20 +1062,20 @@ const CustomerManagement = () => {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>TRN Number</label>
-                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={newSupplier.trn_number} onChange={(e)=>setNewSupplier({...newSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
-                {validateTRN(newSupplier.trn_number) ? (
-                  <p className="text-xs text-red-600 mt-1">{validateTRN(newSupplier.trn_number)}</p>
+                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={newSupplier.trnNumber} onChange={(e)=>setNewSupplier({...newSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
+                {validateTRN(newSupplier.trnNumber) ? (
+                  <p className="text-xs text-red-600 mt-1">{validateTRN(newSupplier.trnNumber)}</p>
                 ) : (
                   <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                 )}
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
-                <input type="text" placeholder="e.g., Net 30" value={newSupplier.payment_terms} onChange={(e)=>setNewSupplier({...newSupplier, payment_terms:e.target.value})} className={inputClasses} />
+                <input type="text" placeholder="e.g., Net 30" value={newSupplier.paymentTerms} onChange={(e)=>setNewSupplier({...newSupplier, payment_terms:e.target.value})} className={inputClasses} />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Default Currency</label>
-                <select value={newSupplier.default_currency} onChange={(e)=>setNewSupplier({...newSupplier, default_currency:e.target.value})} className={inputClasses}>
+                <select value={newSupplier.defaultCurrency} onChange={(e)=>setNewSupplier({...newSupplier, default_currency:e.target.value})} className={inputClasses}>
                   <option value="AED">AED</option>
                   <option value="USD">USD</option>
                   <option value="INR">INR</option>
@@ -1085,15 +1085,15 @@ const CustomerManagement = () => {
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Name</label>
-                  <input type="text" value={newSupplier.contact_name} onChange={(e)=>setNewSupplier({...newSupplier, contact_name:e.target.value})} className={inputClasses} />
+                  <input type="text" value={newSupplier.contactName} onChange={(e)=>setNewSupplier({...newSupplier, contact_name:e.target.value})} className={inputClasses} />
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Email</label>
-                  <input type="email" value={newSupplier.contact_email} onChange={(e)=>setNewSupplier({...newSupplier, contact_email:e.target.value})} className={inputClasses} />
+                  <input type="email" value={newSupplier.contactEmail} onChange={(e)=>setNewSupplier({...newSupplier, contact_email:e.target.value})} className={inputClasses} />
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Phone</label>
-                  <input type="tel" value={newSupplier.contact_phone} onChange={(e)=>setNewSupplier({...newSupplier, contact_phone:e.target.value})} className={inputClasses} />
+                  <input type="tel" value={newSupplier.contactPhone} onChange={(e)=>setNewSupplier({...newSupplier, contact_phone:e.target.value})} className={inputClasses} />
                 </div>
               </div>
               <div>
@@ -1106,7 +1106,7 @@ const CustomerManagement = () => {
             </div>
             <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
               <button onClick={()=>setShowAddSupplierModal(false)} className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}>Cancel</button>
-              <button onClick={handleAddSupplier} disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {creatingSupplier? 'Adding...' : 'Add Supplier'}</button>
+              <button onClick={handleAddSupplier} disabled={creatingSupplier || !!validateTRN(newSupplier.trnNumber)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {creatingSupplier? 'Adding...' : 'Add Supplier'}</button>
             </div>
           </div>
         </div>
@@ -1143,20 +1143,20 @@ const CustomerManagement = () => {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>TRN Number</label>
-                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={selectedSupplier.trn_number || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
-                {validateTRN(selectedSupplier.trn_number) ? (
-                  <p className="text-xs text-red-600 mt-1">{validateTRN(selectedSupplier.trn_number)}</p>
+                <input type="text" inputMode="numeric" pattern="\\d*" maxLength={15} placeholder="100XXXXXXXXXXXX" value={selectedSupplier.trnNumber || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, trn_number: e.target.value.replace(/\D/g,'').slice(0,15)})} className={inputClasses} />
+                {validateTRN(selectedSupplier.trnNumber) ? (
+                  <p className="text-xs text-red-600 mt-1">{validateTRN(selectedSupplier.trnNumber)}</p>
                 ) : (
                   <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                 )}
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
-                <input type="text" placeholder="e.g., Net 30" value={selectedSupplier.payment_terms || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, payment_terms:e.target.value})} className={inputClasses} />
+                <input type="text" placeholder="e.g., Net 30" value={selectedSupplier.paymentTerms || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, payment_terms:e.target.value})} className={inputClasses} />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Default Currency</label>
-                <select value={selectedSupplier.default_currency || 'AED'} onChange={(e)=>setSelectedSupplier({...selectedSupplier, default_currency:e.target.value})} className={inputClasses}>
+                <select value={selectedSupplier.defaultCurrency || 'AED'} onChange={(e)=>setSelectedSupplier({...selectedSupplier, default_currency:e.target.value})} className={inputClasses}>
                   <option value="AED">AED</option>
                   <option value="USD">USD</option>
                   <option value="INR">INR</option>
@@ -1166,15 +1166,15 @@ const CustomerManagement = () => {
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Name</label>
-                  <input type="text" value={selectedSupplier.contact_name || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_name:e.target.value})} className={inputClasses} />
+                  <input type="text" value={selectedSupplier.contactName || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_name:e.target.value})} className={inputClasses} />
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Email</label>
-                  <input type="email" value={selectedSupplier.contact_email || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_email:e.target.value})} className={inputClasses} />
+                  <input type="email" value={selectedSupplier.contactEmail || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_email:e.target.value})} className={inputClasses} />
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Contact Phone</label>
-                  <input type="tel" value={selectedSupplier.contact_phone || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_phone:e.target.value})} className={inputClasses} />
+                  <input type="tel" value={selectedSupplier.contactPhone || ''} onChange={(e)=>setSelectedSupplier({...selectedSupplier, contact_phone:e.target.value})} className={inputClasses} />
                 </div>
               </div>
               <div>
@@ -1187,7 +1187,7 @@ const CustomerManagement = () => {
             </div>
             <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
               <button onClick={()=>setShowEditSupplierModal(false)} className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}>Cancel</button>
-              <button onClick={handleEditSupplier} disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {updatingSupplier? 'Saving...' : 'Save Changes'}</button>
+              <button onClick={handleEditSupplier} disabled={updatingSupplier || !!validateTRN(selectedSupplier.trnNumber)} className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"><FaSave /> {updatingSupplier? 'Saving...' : 'Save Changes'}</button>
             </div>
           </div>
         </div>
@@ -1265,7 +1265,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="tel"
-                    value={selectedCustomer.alternate_phone || ''}
+                    value={selectedCustomer.alternatePhone || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, alternate_phone: e.target.value})}
                     placeholder="Enter alternate phone number"
                     className={inputClasses}
@@ -1308,15 +1308,15 @@ const CustomerManagement = () => {
                     inputMode="numeric"
                     pattern="\\d*"
                     maxLength={15}
-                    value={selectedCustomer.trn_number || ''}
+                    value={selectedCustomer.trnNumber || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, trn_number: sanitizeTRNInput(e.target.value)})}
                     placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
-                  {validateTRN(selectedCustomer.trn_number) && (
-                    <p className="text-xs text-red-600 mt-1">{validateTRN(selectedCustomer.trn_number)}</p>
+                  {validateTRN(selectedCustomer.trnNumber) && (
+                    <p className="text-xs text-red-600 mt-1">{validateTRN(selectedCustomer.trnNumber)}</p>
                   )}
-                  {!validateTRN(selectedCustomer.trn_number) && (
+                  {!validateTRN(selectedCustomer.trnNumber) && (
                     <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                   )}
                 </div>
@@ -1327,7 +1327,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="text"
-                    value={selectedCustomer.trade_license_number || ''}
+                    value={selectedCustomer.tradeLicenseNumber || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, trade_license_number: e.target.value})}
                     className={inputClasses}
                   />
@@ -1339,7 +1339,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="date"
-                    value={selectedCustomer.trade_license_expiry || ''}
+                    value={selectedCustomer.tradeLicenseExpiry || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, trade_license_expiry: e.target.value})}
                     className={inputClasses}
                   />
@@ -1352,7 +1352,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="number"
-                    value={selectedCustomer.credit_limit || ''}
+                    value={selectedCustomer.creditLimit || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, credit_limit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     className={inputClasses}
                   />
@@ -1364,7 +1364,7 @@ const CustomerManagement = () => {
                   </label>
                   <input
                     type="number"
-                    value={selectedCustomer.current_credit || ''}
+                    value={selectedCustomer.currentCredit || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, current_credit: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                     className={inputClasses}
                   />
@@ -1375,7 +1375,7 @@ const CustomerManagement = () => {
                     Price List
                   </label>
                   <select
-                    value={selectedCustomer.pricelist_id || ''}
+                    value={selectedCustomer.pricelistId || ''}
                     onChange={(e) => setSelectedCustomer({...selectedCustomer, pricelist_id: e.target.value ? Number(e.target.value) : null})}
                     className={inputClasses}
                   >
@@ -1419,7 +1419,7 @@ const CustomerManagement = () => {
               </button>
               <button
                 onClick={handleEditCustomer}
-                disabled={updatingCustomer || !!validateTRN(selectedCustomer.trn_number)}
+                disabled={updatingCustomer || !!validateTRN(selectedCustomer.trnNumber)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
@@ -1475,7 +1475,7 @@ const CustomerManagement = () => {
                     </label>
                     <input
                       type="date"
-                      value={newContact.contact_date}
+                      value={newContact.contactDate}
                       onChange={(e) => setNewContact({...newContact, contact_date: e.target.value})}
                       className={inputClasses}
                     />
@@ -1519,9 +1519,9 @@ const CustomerManagement = () => {
               {/* Contact History List */}
               <div>
                 <h3 className={`text-lg font-semibold mb-4 ${textPrimary}`}>Contact History</h3>
-                {contactHistoryCustomer.contact_history && contactHistoryCustomer.contact_history.length > 0 ? (
+                {contactHistoryCustomer.contactHistory && contactHistoryCustomer.contactHistory.length > 0 ? (
                   <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {contactHistoryCustomer.contact_history.map(contact => (
+                    {contactHistoryCustomer.contactHistory.map(contact => (
                       <div key={contact.id} className={`${cardClasses} p-4 hover:shadow-md transition-shadow`}>
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-[#008B8B]">
@@ -1532,7 +1532,7 @@ const CustomerManagement = () => {
                             <span className="text-sm font-medium capitalize">{contact.type}</span>
                           </div>
                           <span className={`text-sm ${textMuted}`}>
-                            {format(new Date(contact.contact_date), 'MMM dd, yyyy')}
+                            {format(new Date(contact.contactDate), 'MMM dd, yyyy')}
                           </span>
                         </div>
                         <h4 className={`font-semibold mb-1 ${textPrimary}`}>{contact.subject}</h4>

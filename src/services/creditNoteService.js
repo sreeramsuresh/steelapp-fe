@@ -6,28 +6,28 @@ const transformCreditNoteForServer = (creditNoteData) => {
   return {
     ...creditNoteData,
     // Extract customer fields if customer object provided
-    customer_id: creditNoteData.customer_id || creditNoteData.customer?.id,
-    customer_name: creditNoteData.customer_name || creditNoteData.customer?.name,
-    customer_address: creditNoteData.customer_address || creditNoteData.customer?.address,
-    customer_phone: creditNoteData.customer_phone || creditNoteData.customer?.phone,
-    customer_email: creditNoteData.customer_email || creditNoteData.customer?.email,
-    customer_trn: creditNoteData.customer_trn || creditNoteData.customer?.trn,
+    customer_id: creditNoteData.customerId || creditNoteData.customer?.id,
+    customer_name: creditNoteData.customerName || creditNoteData.customer?.name,
+    customer_address: creditNoteData.customerAddress || creditNoteData.customer?.address,
+    customer_phone: creditNoteData.customerPhone || creditNoteData.customer?.phone,
+    customer_email: creditNoteData.customerEmail || creditNoteData.customer?.email,
+    customer_trn: creditNoteData.customerTrn || creditNoteData.customer?.trn,
     // Ensure numeric fields are numbers
     subtotal: parseFloat(creditNoteData.subtotal || 0),
-    vat_amount: parseFloat(creditNoteData.vat_amount || 0),
-    total_credit: parseFloat(creditNoteData.total_credit || 0),
+    vat_amount: parseFloat(creditNoteData.vatAmount || 0),
+    total_credit: parseFloat(creditNoteData.totalCredit || 0),
     // Ensure items is array with numeric fields converted
     items: (creditNoteData.items || []).map(item => ({
       ...item,
-      quantity_returned: parseFloat(item.quantity_returned || item.quantity || 0),
-      original_quantity: parseFloat(item.original_quantity || 0),
+      quantity_returned: parseFloat(item.quantityReturned || item.quantity || 0),
+      original_quantity: parseFloat(item.originalQuantity || 0),
       rate: parseFloat(item.rate || 0),
       amount: parseFloat(item.amount || 0),
-      vat_rate: parseFloat(item.vat_rate || 5),
-      vat_amount: parseFloat(item.vat_amount || 0),
-      restocked_quantity: parseFloat(item.restocked_quantity || 0),
-      damaged_quantity: parseFloat(item.damaged_quantity || 0),
-      defective_quantity: parseFloat(item.defective_quantity || 0)
+      vat_rate: parseFloat(item.vatRate || 5),
+      vat_amount: parseFloat(item.vatAmount || 0),
+      restocked_quantity: parseFloat(item.restockedQuantity || 0),
+      damaged_quantity: parseFloat(item.damagedQuantity || 0),
+      defective_quantity: parseFloat(item.defectiveQuantity || 0)
     }))
   };
 };
@@ -40,29 +40,29 @@ const transformCreditNoteFromServer = (serverData) => {
     ...serverData,
     // Build customer object from flat fields
     customer: {
-      id: serverData.customer_id,
-      name: serverData.customer_name || '',
-      address: serverData.customer_address || '',
-      phone: serverData.customer_phone || '',
-      email: serverData.customer_email || '',
-      trn: serverData.customer_trn || ''
+      id: serverData.customerId,
+      name: serverData.customerName || '',
+      address: serverData.customerAddress || '',
+      phone: serverData.customerPhone || '',
+      email: serverData.customerEmail || '',
+      trn: serverData.customerTrn || ''
     },
     // Ensure numeric fields are numbers
     subtotal: parseFloat(serverData.subtotal || 0),
-    vat_amount: parseFloat(serverData.vat_amount || 0),
-    total_credit: parseFloat(serverData.total_credit || 0),
+    vat_amount: parseFloat(serverData.vatAmount || 0),
+    total_credit: parseFloat(serverData.totalCredit || 0),
     // Ensure items is array
     items: (serverData.items || []).map(item => ({
       ...item,
-      quantity_returned: parseFloat(item.quantity_returned || item.quantity || 0),
-      original_quantity: parseFloat(item.original_quantity || 0),
+      quantity_returned: parseFloat(item.quantityReturned || item.quantity || 0),
+      original_quantity: parseFloat(item.originalQuantity || 0),
       rate: parseFloat(item.rate || 0),
       amount: parseFloat(item.amount || 0),
-      vat_rate: parseFloat(item.vat_rate || 5),
-      vat_amount: parseFloat(item.vat_amount || 0),
-      restocked_quantity: parseFloat(item.restocked_quantity || 0),
-      damaged_quantity: parseFloat(item.damaged_quantity || 0),
-      defective_quantity: parseFloat(item.defective_quantity || 0)
+      vat_rate: parseFloat(item.vatRate || 5),
+      vat_amount: parseFloat(item.vatAmount || 0),
+      restocked_quantity: parseFloat(item.restockedQuantity || 0),
+      damaged_quantity: parseFloat(item.damagedQuantity || 0),
+      defective_quantity: parseFloat(item.defectiveQuantity || 0)
     }))
   };
 };

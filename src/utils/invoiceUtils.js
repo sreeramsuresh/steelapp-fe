@@ -225,22 +225,22 @@ export const getCompanyImages = (company) => {
   
   // Get logo URL - prioritize pdf_logo_url, fallback to logo_url
   let logoUrl = null;
-  if (company?.pdf_logo_url) {
-    logoUrl = company.pdf_logo_url.startsWith('/') 
-      ? `${baseUrl}${company.pdf_logo_url}` 
-      : company.pdf_logo_url;
-  } else if (company?.logo_url) {
-    logoUrl = company.logo_url.startsWith('/') 
-      ? `${baseUrl}${company.logo_url}` 
-      : company.logo_url;
+  if (company?.pdfLogoUrl) {
+    logoUrl = company.pdfLogoUrl.startsWith('/') 
+      ? `${baseUrl}${company.pdfLogoUrl}` 
+      : company.pdfLogoUrl;
+  } else if (company?.logoUrl) {
+    logoUrl = company.logoUrl.startsWith('/') 
+      ? `${baseUrl}${company.logoUrl}` 
+      : company.logoUrl;
   }
   
   // Get seal URL - use pdf_seal_url only
   let sealUrl = null;
-  if (company?.pdf_seal_url) {
-    sealUrl = company.pdf_seal_url.startsWith('/') 
-      ? `${baseUrl}${company.pdf_seal_url}` 
-      : company.pdf_seal_url;
+  if (company?.pdfSealUrl) {
+    sealUrl = company.pdfSealUrl.startsWith('/') 
+      ? `${baseUrl}${company.pdfSealUrl}` 
+      : company.pdfSealUrl;
   }
   
   return { logoUrl, sealUrl };

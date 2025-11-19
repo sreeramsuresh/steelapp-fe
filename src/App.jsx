@@ -121,6 +121,7 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
           handleSaveInvoice={handleSaveInvoice}
           onLoginSuccess={onLoginSuccess}
         />
+        {console.log('🎯 App.jsx rendering AppRouter with user:', user?.email || 'null')}
       </div>
     </div>
   );
@@ -130,7 +131,10 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
 const ThemedApp = ({ isLoading, ...props }) => {
   const { isDarkMode } = useTheme();
 
+  console.log('🌍 GLOBAL ThemedApp - isLoading:', isLoading, 'user:', props.user?.email || 'null');
+
   if (isLoading) {
+    console.log('🌍 GLOBAL SPINNER SHOWING - "Loading ULTIMATE STEELS..."');
     return (
       <div className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
@@ -139,6 +143,7 @@ const ThemedApp = ({ isLoading, ...props }) => {
     );
   }
 
+  console.log('🌍 GLOBAL SPINNER HIDDEN - rendering AppContent');
   return <AppContent {...props} />;
 }
 
@@ -152,18 +157,27 @@ function App() {
 
     const initializeApp = async () => {
       try {
+        console.log('🚀 App.jsx initializeApp - isAuthenticated:', authService.isAuthenticated());
         // Exact GigLabz behavior: do not proactively verify/refresh on load.
         // Just hydrate user from storage if tokens exist; rely on interceptor (403) to refresh.
         if (authService.isAuthenticated()) {
           const storedUser = authService.getUser();
-          if (storedUser && mounted) setUser(storedUser);
+          console.log('🚀 App.jsx - storedUser from authService:', storedUser?.email);
+          if (storedUser && mounted) {
+            setUser(storedUser);
+            console.log('🚀 App.jsx - user state set to:', storedUser?.email);
+          }
         } else if (mounted) {
+          console.log('🚀 App.jsx - not authenticated, setting user to null');
           setUser(null);
         }
       } catch (error) {
         if (mounted) console.error('Failed to initialize app:', error);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          console.log('🚀 App.jsx - setting loading to false');
+          setLoading(false);
+        }
       }
     };
 
@@ -193,7 +207,9 @@ function App() {
   };
 
   const handleLoginSuccess = async (userData) => {
+    console.log('🔑 App.jsx handleLoginSuccess called with:', userData);
     setUser(userData);
+    console.log('🔑 App.jsx user state set to:', userData?.email);
   };
 
   const handleLogout = async () => {
@@ -213,7 +229,10 @@ function App() {
   };
 
 
+  console.log('🌍 APP.JSX MAIN RENDER - loading:', loading, 'user:', user?.email || 'null');
+
   if (loading) {
+    console.log('🌍 APP.JSX - showing global loading screen (initial auth check)');
     return (
       <ThemeProvider>
         <ThemedApp isLoading={true} />
@@ -221,6 +240,7 @@ function App() {
     );
   }
 
+  console.log('🌍 APP.JSX - rendering full app with Router');
   return (
     <ThemeProvider>
       <Router>

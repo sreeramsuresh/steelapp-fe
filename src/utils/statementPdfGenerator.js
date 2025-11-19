@@ -57,7 +57,7 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
   const comp = company || {};
   const compAddr = comp.address || {};
 
-  const totalInvoiced = items.reduce((s, r) => s + (parseFloat(r.invoice_amount) || 0), 0);
+  const totalInvoiced = items.reduce((s, r) => s + (parseFloat(r.invoiceAmount) || 0), 0);
   const totalReceived = items.reduce((s, r) => s + (parseFloat(r.received) || 0), 0);
   const totalOutstanding = items.reduce((s, r) => s + (parseFloat(r.outstanding) || 0), 0);
 
@@ -96,7 +96,7 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
     <div style="margin-bottom:20px; display:flex; gap:16px;">
       <div style="flex:1; padding:12px; border:1px solid #000;">
         <div style="font-size:11px; color:#000; font-weight:600;">Opening Balance:</div>
-        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(items[0]?.opening_balance || 0)}</div>
+        <div style="font-size:14px; font-weight:700; color:#000;">${formatCurrency(items[0]?.openingBalance || 0)}</div>
       </div>
       <div style="flex:1; padding:12px; border:1px solid #000;">
         <div style="font-size:11px; color:#000; font-weight:600;">Total Invoiced:</div>
@@ -127,14 +127,14 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
         </thead>
         <tbody>
           ${items.map((r, idx) => {
-            const debit = parseFloat(r.invoice_amount) || 0;
+            const debit = parseFloat(r.invoiceAmount) || 0;
             const credit = parseFloat(r.received) || 0;
             return `
             <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ''}>
-              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoice_date || r.date)}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoiceDate || r.date)}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? 'Invoice' : 'Payment'}</td>
-              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.invoice_no || r.invoiceNumber)}</td>
-              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || 'Invoice ' + (r.invoice_no || r.invoiceNumber))}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.invoiceNo || r.invoiceNumber)}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || 'Invoice ' + (r.invoiceNo || r.invoiceNumber))}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc;">${debit > 0 ? formatCurrency(debit) : '-'}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc;">${credit > 0 ? formatCurrency(credit) : '-'}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>

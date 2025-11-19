@@ -56,15 +56,15 @@ export const customerService = {
           phone: current?.phone ?? '',
           address,
           company: current?.company ?? '',
-          credit_limit: Number(current?.credit_limit) || 0,
-          current_credit: Number(current?.current_credit) || 0,
+          credit_limit: Number(current?.creditLimit) || 0,
+          current_credit: Number(current?.currentCredit) || 0,
           status: 'archived',
-          trn_number: current?.trn_number ?? '',
-          payment_terms: current?.payment_terms ?? '',
-          default_currency: current?.default_currency ?? 'AED',
-          contact_name: current?.contact_name ?? '',
-          contact_email: current?.contact_email ?? '',
-          contact_phone: current?.contact_phone ?? '',
+          trn_number: current?.trnNumber ?? '',
+          payment_terms: current?.paymentTerms ?? '',
+          default_currency: current?.defaultCurrency ?? 'AED',
+          contact_name: current?.contactName ?? '',
+          contact_email: current?.contactEmail ?? '',
+          contact_phone: current?.contactPhone ?? '',
         };
 
         return await apiClient.put(`/customers/${id}`, payload);

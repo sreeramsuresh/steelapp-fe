@@ -6,7 +6,7 @@ import ProductNamingGrid from './ProductNamingGrid';
 
 // Product Row Component for individual editing
 const ProductRow = ({ product, presets, isDarkMode, isEditing, onEdit, onSave, onApplyPreset, onCancel }) => {
-  const [editedName, setEditedName] = useState(product.full_name || product.name);
+  const [editedName, setEditedName] = useState(product.fullName || product.name);
   const [showPresets, setShowPresets] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ const ProductRow = ({ product, presets, isDarkMode, isEditing, onEdit, onSave, o
         {/* Product Info */}
         <div className="flex-1 min-w-0">
           <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-            {product.commodity} {product.grade}{product.grade_variant} • {product.category}
+            {product.commodity} {product.grade}{product.gradeVariant} • {product.category}
           </div>
 
           {isEditing ? (
@@ -65,7 +65,7 @@ const ProductRow = ({ product, presets, isDarkMode, isEditing, onEdit, onSave, o
             </div>
           ) : (
             <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {product.full_name || product.name}
+              {product.fullName || product.name}
             </div>
           )}
         </div>
@@ -170,7 +170,7 @@ const ProductNamingSettings = ({ companyId }) => {
   const fetchProducts = async () => {
     try {
       setLoadingProducts(true);
-      const response = await apiService.get(`/products?company_id=${companyId}&limit=100`);
+      const response = await apiService.get(`/products?companyId=${companyId}&limit=100`);
       setProducts(response.products || response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -251,14 +251,14 @@ const ProductNamingSettings = ({ companyId }) => {
         sample_product: {
           commodity: product.commodity,
           grade: product.grade,
-          grade_variant: product.grade_variant,
+          grade_variant: product.gradeVariant,
           category: product.category,
           finish: product.finish,
           width: product.width,
           length: product.length,
           thickness: product.thickness,
           od: product.od,
-          nb_size: product.nb_size,
+          nb_size: product.nbSize,
           schedule: product.schedule,
           diameter: product.diameter,
           size: product.size

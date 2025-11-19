@@ -16,6 +16,13 @@ const ProtectedRoute = ({
 
   // Check if user is authenticated - use auth service as primary source of truth
   const isAuthenticated = authService.isAuthenticated();
+  
+  console.log('🔒 ProtectedRoute check:', {
+    isAuthenticated,
+    hasUserProp: !!user,
+    userEmail: user?.email,
+    path: location.pathname
+  });
 
   if (!isAuthenticated) {
     // Save the attempted location for redirect after login
@@ -30,6 +37,7 @@ const ProtectedRoute = ({
 
   // If authenticated but no user object, show loading state instead of redirect
   if (!user) {
+    console.log('🔒 ProtectedRoute SHOWING SPINNER - user is null/undefined, path:', location.pathname);
     return (
       <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
@@ -37,6 +45,8 @@ const ProtectedRoute = ({
       </div>
     );
   }
+
+  console.log('🔒 ProtectedRoute RENDERING CHILDREN - user exists:', user?.email, 'path:', location.pathname);
 
   // DEVELOPMENT MODE: Skip role check
   // Check role-based access

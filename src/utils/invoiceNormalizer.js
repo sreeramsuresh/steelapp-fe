@@ -2,13 +2,15 @@
  * Frontend Invoice Data Normalizer
  * FAIL-SAFE: Validates and normalizes invoice data from API
  * Logs errors to console (and optionally to Sentry) when data format is wrong
+ * 
+ * @typedef {import('../types/invoice').Invoice} Invoice
  */
 
 /**
  * Normalize invoice data from API response
  * @param {Object} invoice - Raw invoice data from API
  * @param {string} source - Source of the data (e.g., 'list', 'detail', 'create')
- * @returns {Object} Normalized invoice with validated types
+ * @returns {Invoice|null} Normalized invoice with validated types
  */
 export function normalizeInvoice(invoice, source = 'unknown') {
   if (!invoice || typeof invoice !== 'object') {
@@ -106,6 +108,9 @@ export function normalizeInvoice(invoice, source = 'unknown') {
 
 /**
  * Normalize array of invoices
+ * @param {Object[]} invoices - Raw invoice array from API
+ * @param {string} source - Source of the data
+ * @returns {Invoice[]} Array of normalized invoices
  */
 export function normalizeInvoices(invoices, source = 'list') {
   if (!Array.isArray(invoices)) {

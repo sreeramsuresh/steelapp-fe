@@ -59,14 +59,14 @@ export default function ProfitAnalysisReport() {
           p.grade,
           SUM(ii.quantity) as total_quantity,
           SUM(ii.amount) as total_revenue,
-          SUM(ii.cost_price * ii.quantity) as total_cost,
+          SUM(ii.costPrice * ii.quantity) as total_cost,
           SUM(ii.profit * ii.quantity) as total_profit,
-          AVG(ii.margin_percent) as avg_margin
+          AVG(ii.marginPercent) as avg_margin
         FROM invoice_items ii
-        JOIN products p ON ii.product_id = p.id
-        JOIN invoices i ON ii.invoice_id = i.id
-        WHERE i.invoice_date BETWEEN $1 AND $2
-          AND ii.cost_price IS NOT NULL
+        JOIN products p ON ii.productId = p.id
+        JOIN invoices i ON ii.invoiceId = i.id
+        WHERE i.invoiceDate BETWEEN $1 AND $2
+          AND ii.costPrice IS NOT NULL
           AND i.status != 'cancelled'
         GROUP BY p.id, p.name, p.category, p.grade
         ORDER BY total_profit DESC
@@ -82,10 +82,10 @@ export default function ProfitAnalysisReport() {
 
       // Calculate summary
       const totals = results.reduce((acc, row) => ({
-        totalRevenue: acc.totalRevenue + parseFloat(row.total_revenue || 0),
-        totalCost: acc.totalCost + parseFloat(row.total_cost || 0),
-        totalProfit: acc.totalProfit + parseFloat(row.total_profit || 0),
-        totalQuantity: acc.totalQuantity + parseFloat(row.total_quantity || 0)
+        totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || 0),
+        totalCost: acc.totalCost + parseFloat(row.totalCost || 0),
+        totalProfit: acc.totalProfit + parseFloat(row.totalProfit || 0),
+        totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0)
       }), { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 });
 
       const averageMargin = totals.totalRevenue > 0
@@ -111,11 +111,11 @@ export default function ProfitAnalysisReport() {
       row.name,
       row.category,
       row.grade,
-      row.total_quantity,
-      row.total_revenue,
-      row.total_cost,
-      row.total_profit,
-      row.avg_margin
+      row.totalQuantity,
+      row.totalRevenue,
+      row.totalCost,
+      row.totalProfit,
+      row.avgMargin
     ]);
 
     const csv = [
@@ -271,23 +271,23 @@ export default function ProfitAnalysisReport() {
                       </Typography>
                     </TableCell>
                     <TableCell>{row.category}</TableCell>
-                    <TableCell align="right">{parseFloat(row.total_quantity).toLocaleString()}</TableCell>
+                    <TableCell align="right">{parseFloat(row.totalQuantity).toLocaleString()}</TableCell>
                     <TableCell align="right">
-                      AED {parseFloat(row.total_revenue).toLocaleString()}
+                      AED {parseFloat(row.totalRevenue).toLocaleString()}
                     </TableCell>
                     <TableCell align="right">
-                      AED {parseFloat(row.total_cost).toLocaleString()}
+                      AED {parseFloat(row.totalCost).toLocaleString()}
                     </TableCell>
                     <TableCell align="right">
                       <Typography color="success.main" fontWeight="bold">
-                        AED {parseFloat(row.total_profit).toLocaleString()}
+                        AED {parseFloat(row.totalProfit).toLocaleString()}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
                       <Chip
-                        label={`${parseFloat(row.avg_margin).toFixed(1)}%`}
+                        label={`${parseFloat(row.avgMargin).toFixed(1)}%`}
                         size="small"
-                        color={parseFloat(row.avg_margin) > 30 ? 'success' : parseFloat(row.avg_margin) > 20 ? 'warning' : 'default'}
+                        color={parseFloat(row.avgMargin) > 30 ? 'success' : parseFloat(row.avgMargin) > 20 ? 'warning' : 'default'}
                       />
                     </TableCell>
                   </TableRow>

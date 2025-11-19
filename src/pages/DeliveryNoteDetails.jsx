@@ -68,7 +68,7 @@ const DeliveryNoteDetails = () => {
         return;
       }
 
-      if (quantity > partialDialog.item.remaining_quantity) {
+      if (quantity > partialDialog.item.remainingQuantity) {
         setError('Quantity exceeds remaining quantity');
         return;
       }
@@ -91,17 +91,17 @@ const DeliveryNoteDetails = () => {
       await deliveryNotesAPI.updateStatus(id, newStatus);
       setSuccess(`Status updated to ${statusLabels[newStatus]}`);
       // If marked completed, try to update related purchase order transit status
-      if (newStatus === 'completed' && deliveryNote?.purchase_order_id) {
+      if (newStatus === 'completed' && deliveryNote?.purchaseOrderId) {
         try {
           const { purchaseOrdersAPI } = await import('../services/api');
           const { stockMovementService } = await import('../services/stockMovementService');
           // Update PO status to received
-          await purchaseOrdersAPI.updateStatus(deliveryNote.purchase_order_id, 'received');
+          await purchaseOrdersAPI.updateStatus(deliveryNote.purchaseOrderId, 'received');
           // Create IN stock movements for each PO item
-          const po = await purchaseOrdersAPI.getById(deliveryNote.purchase_order_id);
+          const po = await purchaseOrdersAPI.getById(deliveryNote.purchaseOrderId);
           const items = Array.isArray(po?.items) ? po.items : [];
           for (const item of items) {
-            if ((item.name || item.product_id) && item.quantity > 0) {
+            if ((item.name || item.productId) && item.quantity > 0) {
               await stockMovementService.createMovement({
                 date: new Date().toISOString().split('T')[0],
                 movement: 'IN',
@@ -110,11 +110,11 @@ const DeliveryNoteDetails = () => {
                 thickness: '',
                 size: '',
                 finish: '',
-                invoiceNo: po.po_number,
+                invoiceNo: po.poNumber,
                 quantity: item.quantity,
                 currentStock: 0,
-                seller: po.supplier_name || '',
-                notes: `Received from PO #${po.po_number} via Delivery Note`,
+                seller: po.supplierName || '',
+                notes: `Received from PO #${po.poNumber} via Delivery Note`,
               });
             }
           }
@@ -139,8 +139,8 @@ const DeliveryNoteDetails = () => {
   const getTotalDeliveredPercentage = () => {
     if (!deliveryNote?.items?.length) return 0;
     
-    const totalOrdered = deliveryNote.items.reduce((sum, item) => sum + item.ordered_quantity, 0);
-    const totalDelivered = deliveryNote.items.reduce((sum, item) => sum + item.delivered_quantity, 0);
+    const totalOrdered = deliveryNote.items.reduce((sum, item) => sum + item.orderedQuantity, 0);
+    const totalDelivered = deliveryNote.items.reduce((sum, item) => sum + item.deliveredQuantity, 0);
     
     return totalOrdered > 0 ? Math.round((totalDelivered / totalOrdered) * 100) : 0;
   };
@@ -196,7 +196,7 @@ const DeliveryNoteDetails = () => {
           </button>
           <h1 className={`text-2xl font-semibold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             <Truck size={32} className="text-teal-600" />
-            {deliveryNote.delivery_note_number}
+            {deliveryNote.deliveryNoteNumber}
           </h1>
           <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ml-4 ${
             statusColors[deliveryNote.status]
@@ -243,7 +243,7 @@ const DeliveryNoteDetails = () => {
                   Related Invoice
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.invoice_number}
+                  {deliveryNote.invoiceNumber}
                 </p>
               </div>
               <div>
@@ -251,7 +251,7 @@ const DeliveryNoteDetails = () => {
                   Delivery Date
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {formatDate(deliveryNote.delivery_date)}
+                  {formatDate(deliveryNote.deliveryDate)}
                 </p>
               </div>
               <div>
@@ -259,7 +259,7 @@ const DeliveryNoteDetails = () => {
                   Vehicle Number
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.vehicle_number || 'Not specified'}
+                  {deliveryNote.vehicleNumber || 'Not specified'}
                 </p>
               </div>
               <div>
@@ -267,11 +267,11 @@ const DeliveryNoteDetails = () => {
                   Driver
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.driver_name || 'Not specified'}
+                  {deliveryNote.driverName || 'Not specified'}
                 </p>
-                {deliveryNote.driver_phone && (
+                {deliveryNote.driverPhone && (
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {deliveryNote.driver_phone}
+                    {deliveryNote.driverPhone}
                   </p>
                 )}
               </div>
@@ -291,11 +291,11 @@ const DeliveryNoteDetails = () => {
                   Customer Name
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.customer_details?.name}
+                  {deliveryNote.customerDetails?.name}
                 </p>
-                {deliveryNote.customer_details?.company && (
+                {deliveryNote.customerDetails?.company && (
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {deliveryNote.customer_details.company}
+                    {deliveryNote.customerDetails.company}
                   </p>
                 )}
               </div>
@@ -304,10 +304,10 @@ const DeliveryNoteDetails = () => {
                   Contact
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.customer_details?.phone}
+                  {deliveryNote.customerDetails?.phone}
                 </p>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {deliveryNote.customer_details?.email}
+                  {deliveryNote.customerDetails?.email}
                 </p>
               </div>
               <div className="sm:col-span-2">
@@ -315,8 +315,8 @@ const DeliveryNoteDetails = () => {
                   Delivery Address
                 </p>
                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.delivery_address?.street || deliveryNote.customer_details?.address?.street}<br />
-                  {deliveryNote.delivery_address?.city || deliveryNote.customer_details?.address?.city} {deliveryNote.delivery_address?.po_box || deliveryNote.customer_details?.address?.po_box}
+                  {deliveryNote.deliveryAddress?.street || deliveryNote.customerDetails?.address?.street}<br />
+                  {deliveryNote.deliveryAddress?.city || deliveryNote.customerDetails?.address?.city} {deliveryNote.deliveryAddress?.poBox || deliveryNote.customerDetails?.address?.poBox}
                 </p>
               </div>
             </div>
@@ -382,37 +382,37 @@ const DeliveryNoteDetails = () => {
                         {item.unit}
                       </td>
                       <td className={`px-4 py-3 text-right text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {item.ordered_quantity}
+                        {item.orderedQuantity}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className={`text-sm font-medium ${
-                          item.delivered_quantity > 0 
+                          item.deliveredQuantity > 0 
                             ? (isDarkMode ? 'text-green-400' : 'text-green-600')
                             : (isDarkMode ? 'text-white' : 'text-gray-900')
                         }`}>
-                          {item.delivered_quantity}
+                          {item.deliveredQuantity}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className={`text-sm font-medium ${
-                          item.remaining_quantity === 0
+                          item.remainingQuantity === 0
                             ? (isDarkMode ? 'text-green-400' : 'text-green-600')
                             : (isDarkMode ? 'text-yellow-400' : 'text-yellow-600')
                         }`}>
-                          {item.remaining_quantity}
+                          {item.remainingQuantity}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          item.is_fully_delivered
+                          item.isFullyDelivered
                             ? (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
                             : (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
                         }`}>
-                          {item.is_fully_delivered ? 'Complete' : 'Partial'}
+                          {item.isFullyDelivered ? 'Complete' : 'Partial'}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        {!item.is_fully_delivered && deliveryNote.status !== 'completed' && deliveryNote.status !== 'cancelled' && (
+                        {!item.isFullyDelivered && deliveryNote.status !== 'completed' && deliveryNote.status !== 'cancelled' && (
                           <button
                             onClick={() => setPartialDialog({
                               open: true,
@@ -517,14 +517,14 @@ const DeliveryNoteDetails = () => {
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Fully Delivered</span>
                 <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.items?.filter(item => item.is_fully_delivered).length || 0}
+                  {deliveryNote.items?.filter(item => item.isFullyDelivered).length || 0}
                 </span>
               </div>
               
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pending</span>
                 <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {deliveryNote.items?.filter(item => !item.is_fully_delivered).length || 0}
+                  {deliveryNote.items?.filter(item => !item.isFullyDelivered).length || 0}
                 </span>
               </div>
 
@@ -533,11 +533,11 @@ const DeliveryNoteDetails = () => {
               <div className="flex justify-between items-center">
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Is Partial Delivery</span>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  deliveryNote.is_partial
+                  deliveryNote.isPartial
                     ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-300' : 'bg-yellow-100 text-yellow-800')
                     : (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
                 }`}>
-                  {deliveryNote.is_partial ? 'Yes' : 'No'}
+                  {deliveryNote.isPartial ? 'Yes' : 'No'}
                 </span>
               </div>
             </div>
@@ -564,7 +564,7 @@ const DeliveryNoteDetails = () => {
                       {partialDialog.item.name}
                     </p>
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Remaining quantity: {partialDialog.item.remaining_quantity} {partialDialog.item.unit}
+                      Remaining quantity: {partialDialog.item.remainingQuantity} {partialDialog.item.unit}
                     </p>
                   </div>
                   <div>
@@ -576,7 +576,7 @@ const DeliveryNoteDetails = () => {
                       value={partialDialog.quantity}
                       onChange={(e) => setPartialDialog(prev => ({ ...prev, quantity: e.target.value }))}
                       min={0}
-                      max={partialDialog.item.remaining_quantity}
+                      max={partialDialog.item.remainingQuantity}
                       step={0.01}
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
@@ -585,7 +585,7 @@ const DeliveryNoteDetails = () => {
                       }`}
                     />
                     <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Maximum: {partialDialog.item.remaining_quantity} {partialDialog.item.unit}
+                      Maximum: {partialDialog.item.remainingQuantity} {partialDialog.item.unit}
                     </p>
                   </div>
                 </div>

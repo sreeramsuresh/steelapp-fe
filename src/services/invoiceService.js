@@ -52,14 +52,14 @@ const transformInvoiceFromServer = (serverData) => {
   return {
     ...serverData,
     // Ensure customer_details is parsed if it's a string
-    customer: typeof serverData.customer_details === 'string'
-      ? JSON.parse(serverData.customer_details)
-      : serverData.customer_details || serverData.customer || {},
+    customer: typeof serverData.customerDetails === 'string'
+      ? JSON.parse(serverData.customerDetails)
+      : serverData.customerDetails || serverData.customer || {},
     // Ensure numeric fields are numbers
     received: serverData.received !== undefined ? Number(serverData.received) : 0,
     outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
     subtotal: serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
-    vat_amount: serverData.vat_amount !== undefined ? Number(serverData.vat_amount) : 0,
+    vat_amount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
     // Ensure items is an array
     items: Array.isArray(serverData.items) ? serverData.items : []

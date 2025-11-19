@@ -63,15 +63,15 @@ const WarehouseManagement = () => {
         address: warehouse.address || '',
         city: warehouse.city || '',
         state: warehouse.state || '',
-        zipCode: warehouse.zip_code || '',
+        zipCode: warehouse.zipCode || '',
         country: warehouse.country || 'UAE',
-        contactPerson: warehouse.contact_person || '',
+        contactPerson: warehouse.contactPerson || '',
         phone: warehouse.phone || '',
         email: warehouse.email || '',
         capacity: warehouse.capacity || '',
         description: warehouse.description || '',
-        isActive: warehouse.is_active !== false,
-        itemsCount: warehouse.inventory_count || 0,
+        isActive: warehouse.isActive !== false,
+        itemsCount: warehouse.inventoryCount || 0,
         utilizationPercent: Math.floor(Math.random() * 100) // Calculate actual utilization based on capacity
       }));
       
@@ -281,7 +281,7 @@ const WarehouseManagement = () => {
                 setLoading(true);
                 const response = await apiClient.post('/warehouses/seed');
                 console.log('Seed response:', response);
-                notificationService.success(`Seeded ${response.warehouses_inserted} warehouses successfully`);
+                notificationService.success(`Seeded ${response.warehousesInserted} warehouses successfully`);
                 await fetchWarehouses();
               } catch (error) {
                 console.error('Error seeding warehouses:', error);
@@ -300,7 +300,7 @@ const WarehouseManagement = () => {
               try {
                 const response = await apiClient.get('/warehouses/debug');
                 console.log('Debug response:', response);
-                notificationService.success(`Found ${response.company_count} companies and ${response.warehouse_count} warehouses`);
+                notificationService.success(`Found ${response.companyCount} companies and ${response.warehouseCount} warehouses`);
               } catch (error) {
                 console.error('Error fetching debug data:', error);
                 notificationService.error('Failed to fetch debug data');
@@ -565,7 +565,7 @@ const WarehouseManagement = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.contact_person}
+                    value={formData.contactPerson}
                     onChange={(e) => handleInputChange('contact_person', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
@@ -640,7 +640,7 @@ const WarehouseManagement = () => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={formData.is_active}
+                      checked={formData.isActive}
                       onChange={(e) => handleInputChange('is_active', e.target.checked)}
                       className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />

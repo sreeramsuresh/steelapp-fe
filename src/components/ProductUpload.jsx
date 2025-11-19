@@ -321,7 +321,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className={`font-medium ${textPrimary}`}>
-                              Row {failed.row}: {failed.data.name || failed.data.product_name || 'Unknown Product'}
+                              Row {failed.row}: {failed.data.name || failed.data.productName || 'Unknown Product'}
                             </p>
                             <p className={`text-sm text-red-500 mt-1`}>
                               {failed.error}

@@ -33,7 +33,7 @@ const ImportOrderList = () => {
       setLoading(true);
       const params = {
         page,
-        limit: pagination.per_page,
+        limit: pagination.perPage,
         ...filters
       };
       
@@ -69,7 +69,7 @@ const ImportOrderList = () => {
   const handleStatusUpdate = async (orderId, status) => {
     try {
       await importOrderService.updateStatus(orderId, status);
-      loadOrders(pagination.current_page);
+      loadOrders(pagination.currentPage);
     } catch (err) {
       setError(err.message);
     }
@@ -88,7 +88,7 @@ const ImportOrderList = () => {
 
     try {
       await importOrderService.deleteImportOrder(orderId);
-      loadOrders(pagination.current_page);
+      loadOrders(pagination.currentPage);
     } catch (err) {
       setError(err.message);
     }
@@ -152,7 +152,7 @@ const ImportOrderList = () => {
 
           <input
             type="date"
-            value={filters.start_date}
+            value={filters.startDate}
             onChange={(e) => handleFilterChange('start_date', e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode 
@@ -164,7 +164,7 @@ const ImportOrderList = () => {
 
           <input
             type="date"
-            value={filters.end_date}
+            value={filters.endDate}
             onChange={(e) => handleFilterChange('end_date', e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode 
@@ -233,22 +233,22 @@ const ImportOrderList = () => {
                   <tr key={order.id} className={`hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">
-                        {order.import_order_number}
+                        {order.importOrderNumber}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
-                        {order.supplier_name || 'N/A'}
+                        {order.supplierName || 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
-                        {order.origin_port || 'N/A'}
+                        {order.originPort || 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
-                        {new Date(order.order_date).toLocaleDateString()}
+                        {new Date(order.orderDate).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -294,24 +294,24 @@ const ImportOrderList = () => {
         )}
         
         {/* Pagination */}
-        {pagination.total_pages > 1 && (
+        {pagination.totalPages > 1 && (
           <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200">
             <div className="text-sm text-gray-700">
-              Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to{' '}
-              {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of{' '}
+              Showing {((pagination.currentPage - 1) * pagination.perPage) + 1} to{' '}
+              {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of{' '}
               {pagination.total} results
             </div>
             <div className="flex space-x-2">
               <button
-                onClick={() => loadOrders(pagination.current_page - 1)}
-                disabled={pagination.current_page <= 1}
+                onClick={() => loadOrders(pagination.currentPage - 1)}
+                disabled={pagination.currentPage <= 1}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Previous
               </button>
               <button
-                onClick={() => loadOrders(pagination.current_page + 1)}
-                disabled={pagination.current_page >= pagination.total_pages}
+                onClick={() => loadOrders(pagination.currentPage + 1)}
+                disabled={pagination.currentPage >= pagination.totalPages}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Next

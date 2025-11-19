@@ -39,12 +39,12 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
   const handleGenerate = async () => {
     // Validation
-    if (!formData.start_date || !formData.end_date) {
+    if (!formData.startDate || !formData.endDate) {
       setError('Please select both start and end dates');
       return;
     }
 
-    if (new Date(formData.start_date) > new Date(formData.end_date)) {
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
       setError('Start date must be before end date');
       return;
     }
@@ -55,8 +55,8 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
       const statementData = {
         customer_id: customer.id,
-        start_date: formData.start_date,
-        end_date: formData.end_date,
+        start_date: formData.startDate,
+        end_date: formData.endDate,
         notes: `Generated on ${formatDate(new Date())}`
       };
 
@@ -180,7 +180,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                 <input
                   type="date"
                   name="start_date"
-                  value={formData.start_date}
+                  value={formData.startDate}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -205,7 +205,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                 <input
                   type="date"
                   name="end_date"
-                  value={formData.end_date}
+                  value={formData.endDate}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${

@@ -11,14 +11,14 @@ const InvoiceSignatureSection = ({ company }) => {
   
   // Get seal from company profile
   let companySeal = null;
-  if (company?.pdf_seal_url) {
-    companySeal = company.pdf_seal_url.startsWith('/') 
-      ? `${baseUrl}${company.pdf_seal_url}` 
-      : company.pdf_seal_url;
-  } else if (company?.seal_url) {
-    companySeal = company.seal_url.startsWith('/') 
-      ? `${baseUrl}${company.seal_url}` 
-      : company.seal_url;
+  if (company?.pdfSealUrl) {
+    companySeal = company.pdfSealUrl.startsWith('/') 
+      ? `${baseUrl}${company.pdfSealUrl}` 
+      : company.pdfSealUrl;
+  } else if (company?.sealUrl) {
+    companySeal = company.sealUrl.startsWith('/') 
+      ? `${baseUrl}${company.sealUrl}` 
+      : company.sealUrl;
   }
 
   return (

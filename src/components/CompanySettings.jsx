@@ -587,16 +587,16 @@ const CompanySettings = () => {
   // Load invoice settings when templates data changes
   useEffect(() => {
     if (templatesData && templatesData.length > 0) {
-      const defaultTemplate = templatesData.find(t => t.is_default) || templatesData[0];
+      const defaultTemplate = templatesData.find(t => t.isDefault) || templatesData[0];
       setInvoiceSettings({
-        templateStyle: defaultTemplate.template_style,
-        primaryColor: defaultTemplate.primary_color,
-        showLogo: defaultTemplate.show_logo,
-        showBankDetails: defaultTemplate.show_bank_details,
-        footer: defaultTemplate.footer_text || '',
-        terms: defaultTemplate.terms_and_conditions || '',
-        invoiceNumberFormat: defaultTemplate.invoice_number_format,
-        dueDays: defaultTemplate.default_due_days
+        templateStyle: defaultTemplate.templateStyle,
+        primaryColor: defaultTemplate.primaryColor,
+        showLogo: defaultTemplate.showLogo,
+        showBankDetails: defaultTemplate.showBankDetails,
+        footer: defaultTemplate.footerText || '',
+        terms: defaultTemplate.termsAndConditions || '',
+        invoiceNumberFormat: defaultTemplate.invoiceNumberFormat,
+        dueDays: defaultTemplate.defaultDueDays
       });
     }
   }, [templatesData?.length, templatesData?.[0]?.id]); // Only re-run when data actually changes
@@ -614,7 +614,7 @@ const CompanySettings = () => {
             rate: Number(rate.rate),
             type: rate.type,
             description: rate.description,
-            active: rate.is_active
+            active: rate.isActive
           }));
           setVatRates(transformedRates);
         } else {
@@ -640,8 +640,8 @@ const CompanySettings = () => {
           email: u.email,
           role: u.role,
           status: u.status || 'active',
-          createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-          lastLogin: u.last_login || u.lastLogin || null,
+          createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+          lastLogin: u.lastLogin || u.lastLogin || null,
           permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
         }));
         setUsers(mapped);
@@ -701,7 +701,7 @@ const CompanySettings = () => {
           const currentUser = authService.getUser();
           if (currentUser && currentUser.id) {
             const userPermissions = await roleService.getUserPermissions(currentUser.id);
-            setIsDirector(userPermissions.is_director || false);
+            setIsDirector(userPermissions.isDirector || false);
           }
         } catch (error) {
           console.error('Error loading RBAC data:', error);
@@ -768,7 +768,7 @@ const CompanySettings = () => {
       };
 
       if (templatesData && templatesData.length > 0) {
-        const defaultTemplate = templatesData.find(t => t.is_default) || templatesData[0];
+        const defaultTemplate = templatesData.find(t => t.isDefault) || templatesData[0];
         await updateTemplate(defaultTemplate.id, templateData);
       } else {
         await createTemplate(templateData);
@@ -842,7 +842,7 @@ const CompanySettings = () => {
       const response = await uploadLogo(file);
 
       // Handle different possible response structures
-      let logoUrl = response?.logoUrl || response?.logo_url || response?.url || response?.path;
+      let logoUrl = response?.logoUrl || response?.logoUrl || response?.url || response?.path;
 
       if (!logoUrl) {
         console.error('No logo URL found in response. Response structure:', response);
@@ -959,7 +959,7 @@ const CompanySettings = () => {
       const response = await companyService.uploadBrandmark(file);
 
       // Handle different possible response structures
-      let brandmarkUrl = response?.brandmarkUrl || response?.brandmark_url || response?.url || response?.path;
+      let brandmarkUrl = response?.brandmarkUrl || response?.brandmarkUrl || response?.url || response?.path;
 
       if (!brandmarkUrl) {
         console.error('No brandmark URL found in response. Response structure:', response);
@@ -1083,7 +1083,7 @@ const CompanySettings = () => {
       console.log('[Seal Upload] Response received:', response);
 
       // Handle different possible response structures
-      let sealUrl = response?.sealUrl || response?.seal_url || response?.url || response?.path;
+      let sealUrl = response?.sealUrl || response?.sealUrl || response?.url || response?.path;
 
       if (!sealUrl) {
         console.error('No seal URL found in response. Response structure:', response);
@@ -1208,8 +1208,8 @@ const CompanySettings = () => {
         email: u.email,
         role: u.role,
         status: u.status || 'active',
-        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.last_login || u.lastLogin || null,
+        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.lastLogin || u.lastLogin || null,
         permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
       }));
       setUsers(mapped);
@@ -1251,7 +1251,7 @@ const CompanySettings = () => {
         rate: Number(createdRate.rate),
         type: createdRate.type,
         description: createdRate.description,
-        active: createdRate.is_active
+        active: createdRate.isActive
       };
 
       setVatRates([...vatRates, transformedRate]);
@@ -1276,10 +1276,10 @@ const CompanySettings = () => {
 
       // Update local state
       const updatedVatRates = vatRates.map(vatRate =>
-        vatRate.id === vatRateId ? { ...vatRate, active: updatedRate.is_active } : vatRate
+        vatRate.id === vatRateId ? { ...vatRate, active: updatedRate.isActive } : vatRate
       );
       setVatRates(updatedVatRates);
-      notificationService.success(`VAT rate ${updatedRate.is_active ? 'activated' : 'deactivated'}!`);
+      notificationService.success(`VAT rate ${updatedRate.isActive ? 'activated' : 'deactivated'}!`);
     } catch (error) {
       console.error('Error toggling VAT rate:', error);
       notificationService.error('Failed to toggle VAT rate');
@@ -1315,8 +1315,8 @@ const CompanySettings = () => {
         email: u.email,
         role: u.role,
         status: u.status || 'active',
-        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.last_login || u.lastLogin || null,
+        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.lastLogin || u.lastLogin || null,
         permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
       }));
       setUsers(mapped);
@@ -1337,8 +1337,8 @@ const CompanySettings = () => {
         email: u.email,
         role: u.role,
         status: u.status || 'active',
-        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.last_login || u.lastLogin || null,
+        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.lastLogin || u.lastLogin || null,
         permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
       }));
       setUsers(mapped);
@@ -1561,8 +1561,8 @@ const CompanySettings = () => {
         email: u.email,
         role: u.role,
         status: u.status || 'active',
-        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.last_login || u.lastLogin || null,
+        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+        lastLogin: u.lastLogin || u.lastLogin || null,
         permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
       }));
       setUsers(mapped);
@@ -1989,7 +1989,7 @@ const CompanySettings = () => {
       company={companyProfile}
       onSave={async (templateSettings) => {
         try {
-          // Save template settings to company.settings.invoice_template
+          // Save template settings to company.settings.invoiceTemplate
           const updatedProfile = {
             ...companyProfile,
             settings: {
@@ -2270,7 +2270,7 @@ const CompanySettings = () => {
                             <span
                               key={idx}
                               className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
-                                role.is_director
+                                role.isDirector
                                   ? isDarkMode
                                     ? 'text-purple-400 border-purple-600 bg-purple-900/20'
                                     : 'text-purple-600 border-purple-300 bg-purple-50'
@@ -2279,7 +2279,7 @@ const CompanySettings = () => {
                                     : 'text-teal-600 border-teal-300 bg-teal-50'
                               }`}
                             >
-                              {role.display_name}
+                              {role.displayName}
                             </span>
                           ))
                         ) : (
@@ -2522,7 +2522,7 @@ const CompanySettings = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {role.display_name}
+                            {role.displayName}
                           </h5>
                           {role.description && (
                             <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -2579,8 +2579,8 @@ const CompanySettings = () => {
                         email: u.email,
                         role: u.role,
                         status: u.status || 'active',
-                        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-                        lastLogin: u.last_login || u.lastLogin || null,
+                        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+                        lastLogin: u.lastLogin || u.lastLogin || null,
                         roles: userPerms.roles || []
                       };
                     }));
@@ -2666,7 +2666,7 @@ const CompanySettings = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {role.display_name}
+                            {role.displayName}
                           </h5>
                           {role.description && (
                             <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -2717,8 +2717,8 @@ const CompanySettings = () => {
                         email: u.email,
                         role: u.role,
                         status: u.status || 'active',
-                        createdAt: (u.created_at || u.createdAt || '').toString().substring(0,10),
-                        lastLogin: u.last_login || u.lastLogin || null,
+                        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+                        lastLogin: u.lastLogin || u.lastLogin || null,
                         roles: userPerms.roles || []
                       };
                     }));
@@ -2779,12 +2779,12 @@ const CompanySettings = () => {
 
               <div className="space-y-4">
                 {/* Selected Permissions Count */}
-                {customPermission.permission_keys.length > 0 && (
+                {customPermission.permissionKeys.length > 0 && (
                   <div className={`p-3 rounded-lg ${
                     isDarkMode ? 'bg-teal-900/20 border border-teal-700/30' : 'bg-teal-50 border border-teal-200'
                   }`}>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}>
-                      {customPermission.permission_keys.length} permission{customPermission.permission_keys.length !== 1 ? 's' : ''} selected
+                      {customPermission.permissionKeys.length} permission{customPermission.permissionKeys.length !== 1 ? 's' : ''} selected
                     </p>
                   </div>
                 )}
@@ -2844,8 +2844,8 @@ const CompanySettings = () => {
 
                           const isExpanded = expandedModules[module] !== false; // Default to expanded
                           const modulePerms = filteredPerms.map(p => p.key);
-                          const allSelected = modulePerms.every(k => customPermission.permission_keys.includes(k));
-                          const someSelected = modulePerms.some(k => customPermission.permission_keys.includes(k));
+                          const allSelected = modulePerms.every(k => customPermission.permissionKeys.includes(k));
+                          const someSelected = modulePerms.some(k => customPermission.permissionKeys.includes(k));
 
                           return (
                             <div key={module} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}>
@@ -2868,8 +2868,8 @@ const CompanySettings = () => {
                                     onChange={(e) => {
                                       e.stopPropagation();
                                       const newKeys = e.target.checked
-                                        ? [...new Set([...customPermission.permission_keys, ...modulePerms])]
-                                        : customPermission.permission_keys.filter(k => !modulePerms.includes(k));
+                                        ? [...new Set([...customPermission.permissionKeys, ...modulePerms])]
+                                        : customPermission.permissionKeys.filter(k => !modulePerms.includes(k));
                                       setCustomPermission({ ...customPermission, permission_keys: newKeys });
                                     }}
                                     onClick={(e) => e.stopPropagation()}
@@ -2897,11 +2897,11 @@ const CompanySettings = () => {
                                     >
                                       <input
                                         type="checkbox"
-                                        checked={customPermission.permission_keys.includes(perm.key)}
+                                        checked={customPermission.permissionKeys.includes(perm.key)}
                                         onChange={(e) => {
                                           const newKeys = e.target.checked
-                                            ? [...customPermission.permission_keys, perm.key]
-                                            : customPermission.permission_keys.filter(k => k !== perm.key);
+                                            ? [...customPermission.permissionKeys, perm.key]
+                                            : customPermission.permissionKeys.filter(k => k !== perm.key);
                                           setCustomPermission({ ...customPermission, permission_keys: newKeys });
                                         }}
                                         className="mt-0.5 mr-3 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
@@ -2940,7 +2940,7 @@ const CompanySettings = () => {
                   </label>
                   <input
                     type="datetime-local"
-                    value={customPermission.expires_at || ''}
+                    value={customPermission.expiresAt || ''}
                     onChange={(e) => setCustomPermission({...customPermission, expires_at: e.target.value})}
                     className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
@@ -2965,19 +2965,19 @@ const CompanySettings = () => {
               <Button
                 onClick={async () => {
                   try {
-                    if (customPermission.permission_keys.length === 0 || !customPermission.reason) {
+                    if (customPermission.permissionKeys.length === 0 || !customPermission.reason) {
                       notificationService.warning('Please select at least one permission and provide a reason');
                       return;
                     }
 
                     // Grant all selected permissions
                     const results = await Promise.allSettled(
-                      customPermission.permission_keys.map(permKey =>
+                      customPermission.permissionKeys.map(permKey =>
                         roleService.grantCustomPermission(
                           customPermissionModal.userId,
                           permKey,
                           customPermission.reason,
-                          customPermission.expires_at || null
+                          customPermission.expiresAt || null
                         )
                       )
                     );
@@ -3004,9 +3004,9 @@ const CompanySettings = () => {
                   }
                 }}
                 startIcon={<Shield size={20} />}
-                disabled={customPermission.permission_keys.length === 0}
+                disabled={customPermission.permissionKeys.length === 0}
               >
-                Grant {customPermission.permission_keys.length > 0 ? `${customPermission.permission_keys.length} ` : ''}Permission{customPermission.permission_keys.length !== 1 ? 's' : ''}
+                Grant {customPermission.permissionKeys.length > 0 ? `${customPermission.permissionKeys.length} ` : ''}Permission{customPermission.permissionKeys.length !== 1 ? 's' : ''}
               </Button>
             </div>
           </div>
@@ -3054,7 +3054,7 @@ const CompanySettings = () => {
                         <div className="flex items-center gap-2">
                           <Clock size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
                           <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {formatDateTime(log.created_at)}
+                            {formatDateTime(log.createdAt)}
                           </span>
                         </div>
                         <span className={`px-2 py-1 text-xs font-medium rounded ${
@@ -3068,7 +3068,7 @@ const CompanySettings = () => {
                         </span>
                       </div>
                       <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <strong>Changed by:</strong> {log.changed_by_name}
+                        <strong>Changed by:</strong> {log.changedByName}
                       </p>
                       {log.details && (
                         <div className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -3146,9 +3146,9 @@ const CompanySettings = () => {
                           >
                             <div className="flex items-center justify-between mb-3">
                               <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                {role.display_name}
+                                {role.displayName}
                               </h5>
-                              {role.is_director && (
+                              {role.isDirector && (
                                 <span className={`px-2 py-1 text-xs rounded ${
                                   isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
                                 }`}>
@@ -3172,7 +3172,7 @@ const CompanySettings = () => {
                                   >
                                     <CheckCircle size={14} className="mr-2 text-green-500 flex-shrink-0" />
                                     <span className="truncate" title={perm.description}>
-                                      {perm.description || perm.permission_key}
+                                      {perm.description || perm.permissionKey}
                                     </span>
                                   </div>
                                 ))}
@@ -3210,7 +3210,7 @@ const CompanySettings = () => {
                                 <div className="flex items-center">
                                   <CheckCircle size={14} className="mr-2 text-yellow-500" />
                                   <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                    {grant.permission_key}
+                                    {grant.permissionKey}
                                   </span>
                                 </div>
                                 {grant.reason && (
@@ -3218,21 +3218,21 @@ const CompanySettings = () => {
                                     <strong>Reason:</strong> {grant.reason}
                                   </p>
                                 )}
-                                {grant.granted_by_name && (
+                                {grant.grantedByName && (
                                   <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    <strong>Granted by:</strong> {grant.granted_by_name}
+                                    <strong>Granted by:</strong> {grant.grantedByName}
                                   </p>
                                 )}
                               </div>
-                              {grant.expires_at && (
+                              {grant.expiresAt && (
                                 <div className="ml-4">
                                   <span className={`inline-flex items-center px-2 py-1 text-xs rounded ${
-                                    new Date(grant.expires_at) < new Date()
+                                    new Date(grant.expiresAt) < new Date()
                                       ? isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700'
                                       : isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
                                   }`}>
                                     <Clock size={12} className="mr-1" />
-                                    Expires: {new Date(grant.expires_at).toLocaleDateString()}
+                                    Expires: {new Date(grant.expiresAt).toLocaleDateString()}
                                   </span>
                                 </div>
                               )}
@@ -3303,7 +3303,7 @@ const CompanySettings = () => {
               Receipt Size
             </label>
             <select
-              value={printingSettings.receipt_size}
+              value={printingSettings.receiptSize}
               onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3326,7 +3326,7 @@ const CompanySettings = () => {
               Print On Paper Size
             </label>
             <select
-              value={printingSettings.print_on_paper_size}
+              value={printingSettings.printOnPaperSize}
               onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3364,7 +3364,7 @@ const CompanySettings = () => {
               Receipt Printer
             </label>
             <select
-              value={printingSettings.receipt_printer}
+              value={printingSettings.receiptPrinter}
               onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3387,7 +3387,7 @@ const CompanySettings = () => {
               Invoice Printer
             </label>
             <select
-              value={printingSettings.invoice_printer}
+              value={printingSettings.invoicePrinter}
               onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3428,7 +3428,7 @@ const CompanySettings = () => {
               type="number"
               min="1"
               max="5"
-              value={printingSettings.receipt_copies}
+              value={printingSettings.receiptCopies}
               onChange={(e) => setPrintingSettings({...printingSettings, receipt_copies: parseInt(e.target.value) || 1})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3450,7 +3450,7 @@ const CompanySettings = () => {
               type="number"
               min="1"
               max="5"
-              value={printingSettings.invoice_copies}
+              value={printingSettings.invoiceCopies}
               onChange={(e) => setPrintingSettings({...printingSettings, invoice_copies: parseInt(e.target.value) || 1})}
               className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
@@ -3472,7 +3472,7 @@ const CompanySettings = () => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={printingSettings.auto_print_receipts}
+                  checked={printingSettings.autoPrintReceipts}
                   onChange={(e) => setPrintingSettings({...printingSettings, auto_print_receipts: e.target.checked})}
                   className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
@@ -3483,7 +3483,7 @@ const CompanySettings = () => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={printingSettings.auto_print_invoices}
+                  checked={printingSettings.autoPrintInvoices}
                   onChange={(e) => setPrintingSettings({...printingSettings, auto_print_invoices: e.target.checked})}
                   className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />

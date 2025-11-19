@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, Filter, RefreshCw, X, PlusCircle, Trash2, CheckCircle, AlertTriangle, Printer } from 'lucide-react';
-import { payablesService, PAYMENT_MODES } from '../services/payablesService';
+import { payablesService, PAYMENT_MODES } from '../services/dataService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
@@ -131,15 +131,15 @@ const InvoicesTab = ({ canManage }) => {
   useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.dateType, filters.customer, filters.minOut, filters.maxOut, filters.page, filters.size]);
 
   const aggregates = useMemo(() => {
-    const totalInvoiced = items.reduce((s, r) => s + (Number(r.invoice_amount || 0)), 0);
+    const totalInvoiced = items.reduce((s, r) => s + (Number(r.invoiceAmount || 0)), 0);
     const totalReceived = items.reduce((s, r) => s + (Number(r.received || 0)), 0);
     const totalOutstanding = items.reduce((s, r) => s + (Number(r.outstanding || 0)), 0);
     const overdueAmount = items.filter(r => r.status === 'overdue').reduce((s, r) => s + (Number(r.outstanding || 0)), 0);
     // Simple avg days past due placeholder
     const today = new Date();
     const pastDueDays = items
-      .filter(r => (r.due_date && new Date(r.due_date) < today && r.outstanding > 0))
-      .map(r => Math.floor((today - new Date(r.due_date)) / (1000*60*60*24)));
+      .filter(r => (r.dueDate && new Date(r.dueDate) < today && r.outstanding > 0))
+      .map(r => Math.floor((today - new Date(r.dueDate)) / (1000*60*60*24)));
     const avgDaysPastDue = pastDueDays.length ? Math.round(pastDueDays.reduce((a,b)=>a+b,0)/pastDueDays.length) : 0;
     return { totalInvoiced, totalReceived, totalOutstanding, overdueAmount, avgDaysPastDue };
   }, [items]);
@@ -153,7 +153,7 @@ const InvoicesTab = ({ canManage }) => {
   const openDrawer = (item) => setDrawer({ open: true, item });
   const closeDrawer = () => setDrawer({ open: false, item: null });
 
-  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+  const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
     const inv = drawer.item;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
@@ -162,14 +162,14 @@ const InvoicesTab = ({ canManage }) => {
     // Optimistic update
     const newPayment = {
       id: uuid(),
-      payment_date: payment_date || new Date().toISOString().slice(0,10),
+      paymentDate: paymentDate || new Date().toISOString().slice(0,10),
       amount: Number(amount),
-      method, reference_no, notes, created_at: new Date().toISOString(),
+      method, referenceNo, notes, createdAt: new Date().toISOString(),
     };
     const updated = { ...inv, payments: [...(inv.payments||[]), newPayment] };
     const derived = { received: (inv.received||0) + newPayment.amount, outstanding: Math.max(0, +(outstanding - newPayment.amount).toFixed(2)), status: inv.status };
     // recompute status
-    if (derived.outstanding === 0) derived.status = 'paid'; else if (derived.outstanding < (inv.invoice_amount||0)) derived.status = 'partially_paid';
+    if (derived.outstanding === 0) derived.status = 'paid'; else if (derived.outstanding < (inv.invoiceAmount||0)) derived.status = 'partially_paid';
     const updatedInv = { ...updated, ...derived };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
@@ -186,8 +186,8 @@ const InvoicesTab = ({ canManage }) => {
     const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p);
     const updated = { ...inv, payments: updatedPayments };
     const received = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
-    const outstanding = Math.max(0, +((inv.invoice_amount||0)-received).toFixed(2));
-    let status = 'unpaid'; if (outstanding === 0) status='paid'; else if (outstanding < (inv.invoice_amount||0)) status='partially_paid';
+    const outstanding = Math.max(0, +((inv.invoiceAmount||0)-received).toFixed(2));
+    let status = 'unpaid'; if (outstanding === 0) status='paid'; else if (outstanding < (inv.invoiceAmount||0)) status='partially_paid';
     const updatedInv = { ...updated, received, outstanding, status };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
@@ -198,7 +198,7 @@ const InvoicesTab = ({ canManage }) => {
     const inv = drawer.item; if (!inv) return;
     const amt = Number(inv.outstanding || 0);
     if (amt <= 0) return;
-    await handleAddPayment({ amount: amt, method: 'Other', reference_no: 'Auto-Paid', notes: 'Mark as Paid', payment_date: new Date().toISOString().slice(0,10) });
+    await handleAddPayment({ amount: amt, method: 'Other', referenceNo: 'Auto-Paid', notes: 'Mark as Paid', paymentDate: new Date().toISOString().slice(0,10) });
   };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
@@ -213,8 +213,8 @@ const InvoicesTab = ({ canManage }) => {
     setDownloadingReceiptId(payment.id);
     try {
       const invoiceData = {
-        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
-        total: inv.invoice_amount || 0,
+        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
+        total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
         customer: inv.customer || {}
       };
@@ -242,8 +242,8 @@ const InvoicesTab = ({ canManage }) => {
     setPrintingReceiptId(payment.id);
     try {
       const invoiceData = {
-        invoiceNumber: inv.invoice_no || inv.invoiceNumber,
-        total: inv.invoice_amount || 0,
+        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
+        total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
         customer: inv.customer || {}
       };
@@ -278,7 +278,7 @@ const InvoicesTab = ({ canManage }) => {
       console.warn('Backend export failed, falling back to client CSV');
     }
     const headers = ['Invoice #','Customer','Invoice Date','Due Date','Currency','Invoice Amount','Received To-Date','Outstanding','Status'];
-    const rows = items.map(r => [r.invoice_no || r.invoiceNumber, r.customer?.name || '', r.invoice_date || r.date, r.due_date || r.dueDate, r.currency || 'AED', (r.invoice_amount||0), (r.received||0), (r.outstanding||0), r.status]);
+    const rows = items.map(r => [r.invoiceNo || r.invoiceNumber, r.customer?.name || '', r.invoiceDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.invoiceAmount||0), (r.received||0), (r.outstanding||0), r.status]);
     const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -287,7 +287,7 @@ const InvoicesTab = ({ canManage }) => {
 
   const exportCSV = () => {
     const headers = ['Invoice #','Customer','Invoice Date','Due Date','Currency','Invoice Amount','Received To-Date','Outstanding','Status'];
-    const rows = items.map(r => [r.invoice_no || r.invoiceNumber, r.customer?.name || '', r.invoice_date || r.date, r.due_date || r.dueDate, r.currency || 'AED', (r.invoice_amount||0), (r.received||0), (r.outstanding||0), r.status]);
+    const rows = items.map(r => [r.invoiceNo || r.invoiceNumber, r.customer?.name || '', r.invoiceDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.invoiceAmount||0), (r.received||0), (r.outstanding||0), r.status]);
     const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -385,14 +385,14 @@ const InvoicesTab = ({ canManage }) => {
               ) : items.map((row) => (
                 <tr key={row.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} cursor-pointer`}>
                   <td className="px-4 py-2"><input type="checkbox" checked={selected.has(row.id)} onChange={() => toggleOne(row.id)} onClick={(e)=>e.stopPropagation()}/></td>
-                  <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.invoice_no || row.invoiceNumber}</td>
+                  <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.invoiceNo || row.invoiceNumber}</td>
                   <td className="px-4 py-2">
                     {row.customer?.name ? (
                       <button
                         className="text-teal-600 hover:underline"
                         onClick={(e)=>{
                           e.stopPropagation();
-                          const cid = row.customer?.id || row.customer_id || '';
+                          const cid = row.customer?.id || row.customerId || '';
                           const name = row.customer?.name || '';
                           if (cid) navigate(`/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
                           else navigate(`/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`);
@@ -404,15 +404,15 @@ const InvoicesTab = ({ canManage }) => {
                       <span onClick={()=>openDrawer(row)}>{row.customer?.name || ''}</span>
                     )}
                   </td>
-                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.invoice_date || row.date)}</td>
+                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.invoiceDate || row.date)}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>
                     <div className="flex items-center gap-2">
-                      <span>{formatDate(row.due_date || row.dueDate)}</span>
+                      <span>{formatDate(row.dueDate || row.dueDate)}</span>
                       {(row.status === 'overdue') && <Pill color="red">Overdue</Pill>}
                     </div>
                   </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.currency || 'AED'}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.invoice_amount || 0)}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.invoiceAmount || 0)}</td>
                   <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.received || 0)}</td>
                   <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.outstanding || 0)}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}><StatusPill status={row.status} /></td>
@@ -431,7 +431,7 @@ const InvoicesTab = ({ canManage }) => {
             <div className="flex gap-2">
               <button className={`px-3 py-2 rounded border ${canManage ? '' : 'text-gray-400 cursor-not-allowed'}`} disabled={!canManage} onClick={()=>{
                 // Mark selected as paid (optimistic)
-                setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, received: (i.received||0)+(i.outstanding||0), outstanding: 0, status:'paid', payments: [...(i.payments||[]), { id: uuid(), amount: i.outstanding||0, method:'Other', payment_date: new Date().toISOString().slice(0,10) }] } : i));
+                setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, received: (i.received||0)+(i.outstanding||0), outstanding: 0, status:'paid', payments: [...(i.payments||[]), { id: uuid(), amount: i.outstanding||0, method:'Other', paymentDate: new Date().toISOString().slice(0,10) }] } : i));
                 setSelected(new Set());
               }}><CheckCircle size={16} className="inline mr-1"/>Mark as Paid</button>
               <button className="px-3 py-2 rounded border" onClick={()=>exportInvoices()}><Download size={16} className="inline mr-1"/>Export</button>
@@ -447,7 +447,7 @@ const InvoicesTab = ({ canManage }) => {
           <div className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'} shadow-xl`}> 
             <div className="p-4 border-b flex items-center justify-between">
               <div>
-                <div className="font-semibold text-lg">{drawer.item.invoice_no || drawer.item.invoiceNumber}</div>
+                <div className="font-semibold text-lg">{drawer.item.invoiceNo || drawer.item.invoiceNumber}</div>
                 <div className="text-sm opacity-70">{drawer.item.customer?.name || ''}</div>
               </div>
               <div className="flex items-center gap-2">
@@ -457,10 +457,10 @@ const InvoicesTab = ({ canManage }) => {
             </div>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><div className="opacity-70">Invoice Date</div><div>{formatDate(drawer.item.invoice_date || drawer.item.date)}</div></div>
-                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.due_date || drawer.item.dueDate)}</div></div>
+                <div><div className="opacity-70">Invoice Date</div><div>{formatDate(drawer.item.invoiceDate || drawer.item.date)}</div></div>
+                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.dueDate || drawer.item.dueDate)}</div></div>
                 <div><div className="opacity-70">Currency</div><div>{drawer.item.currency || 'AED'}</div></div>
-                <div><div className="opacity-70">Invoice Amount</div><div className="font-semibold">{formatCurrency(drawer.item.invoice_amount || 0)}</div></div>
+                <div><div className="opacity-70">Invoice Amount</div><div className="font-semibold">{formatCurrency(drawer.item.invoiceAmount || 0)}</div></div>
                 <div><div className="opacity-70">Received</div><div className="font-semibold">{formatCurrency(drawer.item.received || 0)}</div></div>
                 <div><div className="opacity-70">Outstanding</div><div className="font-semibold">{formatCurrency(drawer.item.outstanding || 0)}</div></div>
               </div>
@@ -482,11 +482,11 @@ const InvoicesTab = ({ canManage }) => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                            <div className="opacity-70">{p.method} • {p.referenceNo || '—'}</div>
                           </div>
                           <div className="text-right flex items-center gap-2">
                             <div>
-                              <div>{formatDate(p.payment_date)}</div>
+                              <div>{formatDate(p.paymentDate)}</div>
                               {p.voided && <div className="text-xs text-red-600">Voided</div>}
                             </div>
                             {!p.voided && (
@@ -552,7 +552,7 @@ const InvoicesTab = ({ canManage }) => {
                         <button className="px-3 py-2 rounded border" onClick={async()=>{
                           try {
                             const blob = await payablesService.downloadInvoiceReceipt(drawer.item.id, last.id);
-                            downloadBlob(blob, `receipt-${drawer.item.invoice_no || drawer.item.invoiceNumber}-${last.id}.pdf`);
+                            downloadBlob(blob, `receipt-${drawer.item.invoiceNo || drawer.item.invoiceNumber}-${last.id}.pdf`);
                           } catch(e) {
                             notificationService.error('Failed to download receipt');
                           }
@@ -596,7 +596,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
 
   const handleSave = () => {
     if (!canSave) return;
-    onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
+    onSave({ amount: Number(amount), method, referenceNo: reference, notes, paymentDate: date });
     // Clear form after successful save
     setDate(new Date().toISOString().slice(0,10));
     setAmount('');
@@ -700,27 +700,27 @@ const POTab = ({ canManage }) => {
   useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.vendor, filters.minBal, filters.maxBal]);
 
   const aggregates = useMemo(() => {
-    const totalPO = items.reduce((s, r) => s + (Number(r.po_value || 0)), 0);
+    const totalPO = items.reduce((s, r) => s + (Number(r.poValue || 0)), 0);
     const totalPaid = items.reduce((s, r) => s + (Number(r.paid || 0)), 0);
     const totalBalance = items.reduce((s, r) => s + (Number(r.balance || 0)), 0);
     const overdue = items.filter(r => r.status === 'overdue').reduce((s,r)=>s+Number(r.balance||0),0);
     const today = new Date();
-    const upcoming = items.filter(r => r.due_date && new Date(r.due_date) > today && new Date(r.due_date) < new Date(+today + 7*864e5)).reduce((s,r)=>s+Number(r.balance||0),0);
+    const upcoming = items.filter(r => r.dueDate && new Date(r.dueDate) > today && new Date(r.dueDate) < new Date(+today + 7*864e5)).reduce((s,r)=>s+Number(r.balance||0),0);
     return { totalPO, totalPaid, totalBalance, overdue, upcoming };
   }, [items]);
 
   const openDrawer = (item) => setDrawer({ open: true, item });
   const closeDrawer = () => setDrawer({ open: false, item: null });
 
-  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+  const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
     const po = drawer.item; if (!po) return;
     const balance = Number(po.balance || 0);
     if (!(Number(amount) > 0)) return alert('Amount must be > 0');
     if (Number(amount) > balance) return alert('Amount exceeds balance');
-    const newPayment = { id: uuid(), payment_date: payment_date || new Date().toISOString().slice(0,10), amount: Number(amount), method, reference_no, notes };
+    const newPayment = { id: uuid(), paymentDate: paymentDate || new Date().toISOString().slice(0,10), amount: Number(amount), method, referenceNo, notes };
     const updated = { ...po, payments: [...(po.payments||[]), newPayment] };
     const paid = (po.paid||0)+newPayment.amount; const newBal = Math.max(0, +(balance - newPayment.amount).toFixed(2));
-    let status='unpaid'; if (newBal===0) status='paid'; else if (newBal<(po.po_value||0)) status='partially_paid';
+    let status='unpaid'; if (newBal===0) status='paid'; else if (newBal<(po.poValue||0)) status='partially_paid';
     const updatedPO = { ...updated, paid, balance: newBal, status };
     setDrawer({ open: true, item: updatedPO });
     setItems(prev => prev.map(i => i.id===po.id? updatedPO : i));
@@ -732,7 +732,7 @@ const POTab = ({ canManage }) => {
     if (!payments.length) return; const last = payments[payments.length-1];
     const updatedPayments = po.payments.map(p=>p.id===last.id? { ...p, voided:true, voided_at: new Date().toISOString() } : p);
     const paid = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
-    const balance = Math.max(0, +((po.po_value||0)-paid).toFixed(2)); let status='unpaid'; if (balance===0) status='paid'; else if (balance<(po.po_value||0)) status='partially_paid';
+    const balance = Math.max(0, +((po.poValue||0)-paid).toFixed(2)); let status='unpaid'; if (balance===0) status='paid'; else if (balance<(po.poValue||0)) status='partially_paid';
     const updatedPO = { ...po, payments: updatedPayments, paid, balance, status };
     setDrawer({ open: true, item: updatedPO }); setItems(prev=>prev.map(i=>i.id===po.id?updatedPO:i));
     try{ await payablesService.voidPOPayment(po.id, last.id, 'User void via UI'); }catch(e){/* ignore */}
@@ -740,7 +740,7 @@ const POTab = ({ canManage }) => {
 
   const handleMarkPaid = async () => {
     const po = drawer.item; if (!po) return; const amt = Number(po.balance||0); if (amt<=0) return;
-    await handleAddPayment({ amount: amt, method:'Other', reference_no:'Auto-Paid', notes:'Mark as Fully Paid', payment_date: new Date().toISOString().slice(0,10) });
+    await handleAddPayment({ amount: amt, method:'Other', referenceNo:'Auto-Paid', notes:'Mark as Fully Paid', paymentDate: new Date().toISOString().slice(0,10) });
   };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
@@ -755,8 +755,8 @@ const POTab = ({ canManage }) => {
     setDownloadingReceiptId(payment.id);
     try {
       const poData = {
-        invoiceNumber: po.po_no || po.poNumber,
-        total: po.po_value || 0,
+        invoiceNumber: po.poNo || po.poNumber,
+        total: po.poValue || 0,
         payments: po.payments || [],
         customer: po.vendor || {}
       };
@@ -784,8 +784,8 @@ const POTab = ({ canManage }) => {
     setPrintingReceiptId(payment.id);
     try {
       const poData = {
-        invoiceNumber: po.po_no || po.poNumber,
-        total: po.po_value || 0,
+        invoiceNumber: po.poNo || po.poNumber,
+        total: po.poValue || 0,
         payments: po.payments || [],
         customer: po.vendor || {}
       };
@@ -819,7 +819,7 @@ const POTab = ({ canManage }) => {
       console.warn('Backend export failed, falling back to client CSV');
     }
     const headers = ['PO #','Vendor','PO Date','Due Date','Currency','PO Value','Paid To-Date','Balance','Status'];
-    const rows = items.map(r => [r.po_no || r.poNumber, r.vendor?.name || r.vendor || '', r.po_date || r.date, r.due_date || r.dueDate, r.currency || 'AED', (r.po_value||0), (r.paid||0), (r.balance||0), r.status]);
+    const rows = items.map(r => [r.poNo || r.poNumber, r.vendor?.name || r.vendor || '', r.poDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.poValue||0), (r.paid||0), (r.balance||0), r.status]);
     const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -828,7 +828,7 @@ const POTab = ({ canManage }) => {
 
   const exportCSV = () => {
     const headers = ['PO #','Vendor','PO Date','Due Date','Currency','PO Value','Paid To-Date','Balance','Status'];
-    const rows = items.map(r => [r.po_no || r.poNumber, r.vendor?.name || r.vendor || '', r.po_date || r.date, r.due_date || r.dueDate, r.currency || 'AED', (r.po_value||0), (r.paid||0), (r.balance||0), r.status]);
+    const rows = items.map(r => [r.poNo || r.poNumber, r.vendor?.name || r.vendor || '', r.poDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.poValue||0), (r.paid||0), (r.balance||0), r.status]);
     const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -922,17 +922,17 @@ const POTab = ({ canManage }) => {
                 <tr><td colSpan={11} className="px-4 py-6 text-center">No records</td></tr>
               ) : items.map((row) => (
                 <tr key={row.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} cursor-pointer`}>
-                  <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.po_no || row.poNumber}</td>
+                  <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.poNo || row.poNumber}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.vendor?.name || row.vendor || ''}</td>
-                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.po_date || row.date)}</td>
+                  <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.poDate || row.date)}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>
                     <div className="flex items-center gap-2">
-                      <span>{formatDate(row.due_date || row.dueDate)}</span>
+                      <span>{formatDate(row.dueDate || row.dueDate)}</span>
                       {(row.status === 'overdue') && <Pill color="red">Overdue</Pill>}
                     </div>
                   </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.currency || 'AED'}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.po_value || 0)}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.poValue || 0)}</td>
                   <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>
                     <div>
                       <div className="font-medium">{formatCurrency(row.paid || 0)}</div>
@@ -946,7 +946,7 @@ const POTab = ({ canManage }) => {
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>
                     {(row.payments && row.payments.length > 0) ? (
                       <div className="text-xs">
-                        <div className="font-medium">{formatDate(row.payments[row.payments.length - 1]?.payment_date)}</div>
+                        <div className="font-medium">{formatDate(row.payments[row.payments.length - 1]?.paymentDate)}</div>
                         <div className="opacity-70">{formatCurrency(row.payments[row.payments.length - 1]?.amount || 0)}</div>
                       </div>
                     ) : (
@@ -972,7 +972,7 @@ const POTab = ({ canManage }) => {
           <div className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'} shadow-xl`}> 
             <div className="p-4 border-b flex items-center justify-between">
               <div>
-                <div className="font-semibold text-lg">{drawer.item.po_no || drawer.item.poNumber}</div>
+                <div className="font-semibold text-lg">{drawer.item.poNo || drawer.item.poNumber}</div>
                 <div className="text-sm opacity-70">{drawer.item.vendor?.name || drawer.item.vendor || ''}</div>
               </div>
               <div className="flex items-center gap-2">
@@ -982,10 +982,10 @@ const POTab = ({ canManage }) => {
             </div>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><div className="opacity-70">PO Date</div><div>{formatDate(drawer.item.po_date || drawer.item.date)}</div></div>
-                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.due_date || drawer.item.dueDate)}</div></div>
+                <div><div className="opacity-70">PO Date</div><div>{formatDate(drawer.item.poDate || drawer.item.date)}</div></div>
+                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.dueDate || drawer.item.dueDate)}</div></div>
                 <div><div className="opacity-70">Currency</div><div>{drawer.item.currency || 'AED'}</div></div>
-                <div><div className="opacity-70">PO Value</div><div className="font-semibold">{formatCurrency(drawer.item.po_value || 0)}</div></div>
+                <div><div className="opacity-70">PO Value</div><div className="font-semibold">{formatCurrency(drawer.item.poValue || 0)}</div></div>
                 <div><div className="opacity-70">Paid</div><div className="font-semibold">{formatCurrency(drawer.item.paid || 0)}</div></div>
                 <div><div className="opacity-70">Balance</div><div className="font-semibold">{formatCurrency(drawer.item.balance || 0)}</div></div>
               </div>
@@ -1007,11 +1007,11 @@ const POTab = ({ canManage }) => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.reference_no || '—'}</div>
+                            <div className="opacity-70">{p.method} • {p.referenceNo || '—'}</div>
                           </div>
                           <div className="text-right flex items-center gap-2">
                             <div>
-                              <div>{formatDate(p.payment_date)}</div>
+                              <div>{formatDate(p.paymentDate)}</div>
                               {p.voided && <div className="text-xs text-red-600">Voided</div>}
                             </div>
                             {!p.voided && (
@@ -1077,7 +1077,7 @@ const POTab = ({ canManage }) => {
                         <button className="px-3 py-2 rounded border" onClick={async()=>{
                           try {
                             const blob = await payablesService.downloadPOVoucher(drawer.item.id, last.id);
-                            downloadBlob(blob, `voucher-${drawer.item.po_no || drawer.item.poNumber}-${last.id}.pdf`);
+                            downloadBlob(blob, `voucher-${drawer.item.poNo || drawer.item.poNumber}-${last.id}.pdf`);
                           } catch(e) {
                             notificationService.error('Failed to download voucher');
                           }

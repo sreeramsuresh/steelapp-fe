@@ -106,14 +106,14 @@ const AuditLogs = () => {
 
     const headers = ['Date/Time', 'User', 'Email', 'Category', 'Action', 'Description', 'Status', 'IP Address'];
     const csvData = logs.map(log => [
-      new Date(log.created_at).toLocaleString(),
+      new Date(log.createdAt).toLocaleString(),
       log.username || '-',
-      log.user_email || '-',
+      log.userEmail || '-',
       log.category,
       log.action,
       log.description || '-',
       log.status,
-      log.ip_address || '-'
+      log.ipAddress || '-'
     ]);
 
     const csvContent = [
@@ -161,7 +161,7 @@ const AuditLogs = () => {
     const search = filters.search.toLowerCase();
     return (
       log.username?.toLowerCase().includes(search) ||
-      log.user_email?.toLowerCase().includes(search) ||
+      log.userEmail?.toLowerCase().includes(search) ||
       log.description?.toLowerCase().includes(search) ||
       log.action?.toLowerCase().includes(search)
     );
@@ -221,7 +221,7 @@ const AuditLogs = () => {
                 <div>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Failed Actions</p>
                   <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failed_count || 0), 0) || 0}
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
@@ -433,7 +433,7 @@ const AuditLogs = () => {
                         } transition-colors`}
                       >
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                          {formatDate(log.created_at)}
+                          {formatDate(log.createdAt)}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
                           <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ const AuditLogs = () => {
                             <div>
                               <div className="font-medium">{log.username || '-'}</div>
                               <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                {log.user_email || '-'}
+                                {log.userEmail || '-'}
                               </div>
                             </div>
                           </div>
@@ -471,7 +471,7 @@ const AuditLogs = () => {
                           )}
                         </td>
                         <td className={`px-4 py-3 text-sm font-mono ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {log.ip_address || '-'}
+                          {log.ipAddress || '-'}
                         </td>
                       </tr>
                     ))}

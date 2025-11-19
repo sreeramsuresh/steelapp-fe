@@ -127,7 +127,7 @@ const ProductNamingGrid = ({
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await apiService.get(`/products?company_id=${companyId}&limit=100`);
+      const response = await apiService.get(`/products?companyId=${companyId}&limit=100`);
       setProducts(response.products || response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -140,7 +140,7 @@ const ProductNamingGrid = ({
   const filteredProducts = products.filter(p => {
     const matchesSearch = !searchTerm ||
       p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.commodity?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.grade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -164,7 +164,7 @@ const ProductNamingGrid = ({
   // === INLINE EDITING ===
   const handleStartEdit = (product) => {
     setEditingId(product.id);
-    setEditValue(product.full_name || product.name || '');
+    setEditValue(product.fullName || product.name || '');
   };
 
   const handleSave = async (productId) => {
@@ -246,7 +246,7 @@ const ProductNamingGrid = ({
 
     const previews = productsToCheck
       .map(product => {
-        const currentName = product.full_name || product.name || '';
+        const currentName = product.fullName || product.name || '';
         let newName;
 
         if (caseSensitive) {
@@ -346,7 +346,7 @@ const ProductNamingGrid = ({
       : filteredProducts;
 
     const previews = productsToModify.map(product => {
-      const currentName = product.full_name || product.name || '';
+      const currentName = product.fullName || product.name || '';
       const newName = `${prefixText}${currentName}${suffixText}`;
 
       return {
@@ -447,14 +447,14 @@ const ProductNamingGrid = ({
             sample_product: {
               commodity: product.commodity,
               grade: product.grade,
-              grade_variant: product.grade_variant,
+              grade_variant: product.gradeVariant,
               category: product.category,
               finish: product.finish,
               width: product.width,
               length: product.length,
               thickness: product.thickness,
               od: product.od,
-              nb_size: product.nb_size,
+              nb_size: product.nbSize,
               schedule: product.schedule,
               diameter: product.diameter,
               size: product.size
@@ -465,7 +465,7 @@ const ProductNamingGrid = ({
 
           historyChanges.push({
             id: product.id,
-            oldName: product.full_name || product.name || '',
+            oldName: product.fullName || product.name || '',
             newName
           });
 
@@ -522,10 +522,10 @@ const ProductNamingGrid = ({
       p.id,
       p.commodity || '',
       p.grade || '',
-      p.grade_variant || '',
+      p.gradeVariant || '',
       p.category || '',
-      p.full_name || p.name || '',
-      p.full_name || p.name || ''
+      p.fullName || p.name || '',
+      p.fullName || p.name || ''
     ]);
 
     const csvContent = [
@@ -580,7 +580,7 @@ const ProductNamingGrid = ({
           if (product) {
             historyChanges.push({
               id: parseInt(id),
-              oldName: product.full_name || product.name || '',
+              oldName: product.fullName || product.name || '',
               newName
             });
             updates.push({ id: parseInt(id), newName });
@@ -1032,7 +1032,7 @@ const ProductNamingGrid = ({
 
                 {/* Grade */}
                 <div className={`col-span-1 text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {product.grade || '-'}{product.grade_variant || ''}
+                  {product.grade || '-'}{product.gradeVariant || ''}
                 </div>
 
                 {/* Category */}
@@ -1063,7 +1063,7 @@ const ProductNamingGrid = ({
                       }`}
                       title="Click to edit"
                     >
-                      {product.full_name || product.name || 'Unnamed Product'}
+                      {product.fullName || product.name || 'Unnamed Product'}
                     </div>
                   )}
                 </div>

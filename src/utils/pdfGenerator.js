@@ -38,7 +38,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   const { logoUrl: logoCompany, sealUrl: sealImage } = getCompanyImages(company);
 
   // Get template settings (merge company settings with defaults)
-  const templateSettings = mergeTemplateSettings(company?.settings?.invoice_template || {});
+  const templateSettings = mergeTemplateSettings(company?.settings?.invoiceTemplate || {});
   const { colors, layout, typography, branding, visibility, table, formatting, labels } = templateSettings;
 
   // Page dimensions

@@ -61,7 +61,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     onSave({
       ...payment,
       amount: parseFloat(payment.amount),
-      created_at: editingPayment?.created_at || new Date().toISOString()
+      created_at: editingPayment?.createdAt || new Date().toISOString()
     });
 
     // Close modal with smooth transition delay (300ms for React state to settle)
@@ -71,7 +71,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     }, 300);
   };
 
-  const modeConfig = PAYMENT_MODES[payment.payment_mode] || PAYMENT_MODES.cash;
+  const modeConfig = PAYMENT_MODES[payment.paymentMode] || PAYMENT_MODES.cash;
 
   if (!isOpen) return null;
 
@@ -227,7 +227,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Payment Mode <span className="text-red-500">*</span>
             </label>
             <select
-              value={payment.payment_mode}
+              value={payment.paymentMode}
               onChange={(e) =>
                 setPayment((prev) => ({
                   ...prev,
@@ -263,7 +263,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             </label>
             <input
               type="text"
-              value={payment.reference_number}
+              value={payment.referenceNumber}
               onChange={(e) =>
                 setPayment((prev) => ({
                   ...prev,

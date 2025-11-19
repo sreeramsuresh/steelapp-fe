@@ -57,8 +57,8 @@ const StockMovement = () => {
         allPOs = poResponse;
       } else if (poResponse.data && Array.isArray(poResponse.data)) {
         allPOs = poResponse.data;
-      } else if (poResponse.purchase_orders && Array.isArray(poResponse.purchase_orders)) {
-        allPOs = poResponse.purchase_orders;
+      } else if (poResponse.purchaseOrders && Array.isArray(poResponse.purchaseOrders)) {
+        allPOs = poResponse.purchaseOrders;
       }
       
       console.log('All POs:', allPOs);
@@ -68,7 +68,7 @@ const StockMovement = () => {
       // Backend doesn't expose transit_status; use stock_status === 'transit'
       // and exclude ones already received/cancelled.
       const inTransitPOs = allPOs.filter(po =>
-        (po.stock_status === 'transit') && po.status !== 'received' && po.status !== 'cancelled'
+        (po.stockStatus === 'transit') && po.status !== 'received' && po.status !== 'cancelled'
       );
       console.log('Found in-transit POs:', inTransitPOs);
       
@@ -80,7 +80,7 @@ const StockMovement = () => {
       // Build a quick map of PO number -> status/stock_status for filtering
       const poMap = new Map();
       for (const po of allPOs) {
-        if (po.po_number) poMap.set(String(po.po_number), { status: po.status, stock_status: po.stock_status });
+        if (po.poNumber) poMap.set(String(po.poNumber), { status: po.status, stock_status: po.stockStatus });
       }
 
       // Combine both movements and filter inconsistencies:
@@ -90,10 +90,10 @@ const StockMovement = () => {
         const key = m.invoiceNo ? String(m.invoiceNo) : '';
         const poInfo = poMap.get(key);
         if (poInfo) {
-          if (m.movement === 'IN' && poInfo.stock_status === 'transit' && poInfo.status !== 'received') {
+          if (m.movement === 'IN' && poInfo.stockStatus === 'transit' && poInfo.status !== 'received') {
             return false;
           }
-          if (m.isTransit && poInfo.stock_status !== 'transit') {
+          if (m.isTransit && poInfo.stockStatus !== 'transit') {
             return false;
           }
         }

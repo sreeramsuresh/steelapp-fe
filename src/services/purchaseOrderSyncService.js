@@ -23,7 +23,7 @@ class PurchaseOrderSyncService {
       }
       
       // If stock status changes from transit to retain for a received PO
-      if (newStockStatus === 'retain' && po.stock_status === 'transit' && po.status === 'received') {
+      if (newStockStatus === 'retain' && po.stockStatus === 'transit' && po.status === 'received') {
         await this.movePOFromTransitToStock(po);
       }
       
@@ -42,9 +42,9 @@ class PurchaseOrderSyncService {
   async addPOItemsToInventory(po) {
     try {
       for (const item of po.items) {
-        if ((item.product_type || item.name) && item.quantity > 0) {
+        if ((item.productType || item.name) && item.quantity > 0) {
           // Check if inventory item already exists
-          const existingItems = await this.findExistingInventoryItem(item, po.warehouse_id);
+          const existingItems = await this.findExistingInventoryItem(item, po.warehouseId);
           
           if (existingItems.length > 0) {
             // Update existing inventory item quantity
@@ -60,7 +60,7 @@ class PurchaseOrderSyncService {
           } else {
             // Create new inventory item
             const inventoryItem = {
-              productType: item.product_type || item.name,
+              productType: item.productType || item.name,
               grade: item.grade || '',
               thickness: item.thickness || '',
               size: item.size || '',
@@ -69,9 +69,9 @@ class PurchaseOrderSyncService {
               pricePurchased: item.rate || 0,
               sellingPrice: 0, // To be set later
               landedCost: item.rate || 0,
-              warehouseId: po.warehouse_id,
-              warehouseName: po.warehouse_name || '',
-              location: `From PO #${po.po_number}`,
+              warehouseId: po.warehouseId,
+              warehouseName: po.warehouseName || '',
+              location: `From PO #${po.poNumber}`,
               description: this.generateItemDescription(item)
             };
 
@@ -80,11 +80,11 @@ class PurchaseOrderSyncService {
           }
           
           // Create stock movement
-          await this.createStockMovement(po, item, 'IN', `Received from PO #${po.po_number}`);
+          await this.createStockMovement(po, item, 'IN', `Received from PO #${po.poNumber}`);
         }
       }
       
-      notificationService.success(`Added ${po.items.length} items to inventory from PO #${po.po_number}`);
+      notificationService.success(`Added ${po.items.length} items to inventory from PO #${po.poNumber}`);
     } catch (error) {
       console.error('Error adding PO items to inventory:', error);
       throw error;
@@ -101,7 +101,7 @@ class PurchaseOrderSyncService {
       // Transit items will automatically disappear from stock movement view
       // when stock_status changes from 'transit' to 'retain'
       
-      notificationService.success(`PO #${po.po_number} items moved from transit to stock`);
+      notificationService.success(`PO #${po.poNumber} items moved from transit to stock`);
     } catch (error) {
       console.error('Error moving PO from transit to stock:', error);
       throw error;
@@ -137,15 +137,15 @@ class PurchaseOrderSyncService {
       const stockMovement = {
         date: new Date().toISOString().split("T")[0],
         movement: movement,
-        productType: item.product_type || item.name,
+        productType: item.productType || item.name,
         grade: item.grade || '',
         thickness: item.thickness || '',
         size: item.size || '',
         finish: item.finish || '',
-        invoiceNo: po.po_number,
+        invoiceNo: po.poNumber,
         quantity: movement === 'OUT' ? -item.quantity : item.quantity,
         currentStock: 0, // Will be calculated by backend
-        seller: po.supplier_name,
+        seller: po.supplierName,
         notes: notes
       };
       
@@ -164,7 +164,7 @@ class PurchaseOrderSyncService {
    */
   generateItemDescription(item) {
     const parts = [];
-    if (item.product_type || item.name) parts.push(`SS ${(item.product_type || item.name).toUpperCase()}`);
+    if (item.productType || item.name) parts.push(`SS ${(item.productType || item.name).toUpperCase()}`);
     if (item.grade) parts.push(`GR${item.grade}`);
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
@@ -183,24 +183,24 @@ class PurchaseOrderSyncService {
     
     for (const po of purchaseOrders) {
       // Only show as transit if stock_status is 'transit' and not yet received/cancelled
-      if (po.stock_status === 'transit' && po.status !== 'received' && po.status !== 'cancelled') {
+      if (po.stockStatus === 'transit' && po.status !== 'received' && po.status !== 'cancelled') {
         if (po.items && Array.isArray(po.items)) {
           for (const item of po.items) {
-            if ((item.product_type || item.name) && item.quantity > 0) {
+            if ((item.productType || item.name) && item.quantity > 0) {
               transitMovements.push({
                 id: `transit_${po.id}_${item.id || Math.random()}`,
-                date: po.expected_delivery_date || po.po_date,
+                date: po.expectedDeliveryDate || po.poDate,
                 movement: "OUT",
-                productType: item.product_type || item.name,
+                productType: item.productType || item.name,
                 grade: item.grade || '',
                 thickness: item.thickness || '',
                 size: item.size || '',
                 finish: item.finish || '',
-                invoiceNo: po.po_number,
+                invoiceNo: po.poNumber,
                 quantity: -item.quantity, // Negative for transit
                 currentStock: 0,
-                seller: po.supplier_name,
-                notes: `In Transit from PO #${po.po_number}`,
+                seller: po.supplierName,
+                notes: `In Transit from PO #${po.poNumber}`,
                 isTransit: true
               });
             }

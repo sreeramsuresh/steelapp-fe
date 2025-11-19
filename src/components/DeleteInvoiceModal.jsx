@@ -20,7 +20,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
 
   if (!isOpen) return null;
 
-  const invoiceNumber = invoice?.invoice_number || invoice?.invoiceNumber || invoice?.id;
+  const invoiceNumber = invoice?.invoiceNumber || invoice?.invoiceNumber || invoice?.id;
   const invoiceStatus = invoice?.status || 'draft';
 
   const statusLabels = {

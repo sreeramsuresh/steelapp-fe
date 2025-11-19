@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { invoiceService } from '../services/invoiceService';
-import { customerService } from '../services/customerService';
+import { invoiceService, customerService } from '../services/dataService';
 import { Search, FileText, Users, ArrowRight, AlertCircle } from 'lucide-react';
 import { formatDate, formatCurrency } from '../utils/invoiceUtils';
 

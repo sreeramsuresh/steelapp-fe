@@ -14,14 +14,14 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor }) => {
   
   // Get logo from company profile
   let companyLogo = null;
-  if (company?.pdf_logo_url) {
-    companyLogo = company.pdf_logo_url.startsWith('/') 
-      ? `${baseUrl}${company.pdf_logo_url}` 
-      : company.pdf_logo_url;
-  } else if (company?.logo_url) {
-    companyLogo = company.logo_url.startsWith('/') 
-      ? `${baseUrl}${company.logo_url}` 
-      : company.logo_url;
+  if (company?.pdfLogoUrl) {
+    companyLogo = company.pdfLogoUrl.startsWith('/') 
+      ? `${baseUrl}${company.pdfLogoUrl}` 
+      : company.pdfLogoUrl;
+  } else if (company?.logoUrl) {
+    companyLogo = company.logoUrl.startsWith('/') 
+      ? `${baseUrl}${company.logoUrl}` 
+      : company.logoUrl;
   }
   
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;

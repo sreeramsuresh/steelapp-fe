@@ -85,7 +85,7 @@ const PurchaseOrderList = () => {
   const getTransitStatusBadge = (po) => {
     const key = po?.status === 'received'
       ? 'completed'
-      : (po?.stock_status === 'transit' ? 'in_transit' : 'retain');
+      : (po?.stockStatus === 'transit' ? 'in_transit' : 'retain');
 
     const transitConfig = {
       in_transit: { 
@@ -143,10 +143,10 @@ const PurchaseOrderList = () => {
         // Paginated response with data array
         orders = response.data;
         total = response.total || response.data.length;
-      } else if (response.purchase_orders && Array.isArray(response.purchase_orders)) {
+      } else if (response.purchaseOrders && Array.isArray(response.purchaseOrders)) {
         // Response with purchase_orders array
-        orders = response.purchase_orders;
-        total = response.total || response.purchase_orders.length;
+        orders = response.purchaseOrders;
+        total = response.total || response.purchaseOrders.length;
       }
       
       setPurchaseOrders(orders);
@@ -343,14 +343,14 @@ const PurchaseOrderList = () => {
                   <tr key={po.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {po.po_number}
+                        {po.poNumber}
                       </div>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {po.supplier_name}
+                      {po.supplierName}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {formatDate(po.po_date)}
+                      {formatDate(po.poDate)}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {po.items?.length || 0} items

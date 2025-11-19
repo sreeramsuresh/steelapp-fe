@@ -166,7 +166,7 @@ const AgentCommissionDashboard = () => {
                       Total Sales
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.total_sales || 0))}
+                      {formatCurrency(parseFloat(summary.totalSales || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-lg">
@@ -185,7 +185,7 @@ const AgentCommissionDashboard = () => {
                       Pending
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.pending_amount || 0))}
+                      {formatCurrency(parseFloat(summary.pendingAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-yellow-100 rounded-lg">
@@ -204,7 +204,7 @@ const AgentCommissionDashboard = () => {
                       Approved
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.approved_amount || 0))}
+                      {formatCurrency(parseFloat(summary.approvedAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-lg">
@@ -223,7 +223,7 @@ const AgentCommissionDashboard = () => {
                       Paid
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.paid_amount || 0))}
+                      {formatCurrency(parseFloat(summary.paidAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-lg">
@@ -246,7 +246,7 @@ const AgentCommissionDashboard = () => {
                     Total Transactions
                   </p>
                   <p className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {summary.total_transactions || 0}
+                    {summary.totalTransactions || 0}
                   </p>
                 </div>
                 <div>
@@ -254,7 +254,7 @@ const AgentCommissionDashboard = () => {
                     Total Commission Earned
                   </p>
                   <p className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {formatCurrency(parseFloat(summary.total_commission || 0))}
+                    {formatCurrency(parseFloat(summary.totalCommission || 0))}
                   </p>
                 </div>
                 <div>
@@ -262,7 +262,7 @@ const AgentCommissionDashboard = () => {
                     Average Commission Rate
                   </p>
                   <p className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {summary.average_rate ? `${parseFloat(summary.average_rate).toFixed(2)}%` : 'N/A'}
+                    {summary.averageRate ? `${parseFloat(summary.averageRate).toFixed(2)}%` : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -328,19 +328,19 @@ const AgentCommissionDashboard = () => {
                         className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}
                       >
                         <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                          {transaction.invoice_number || '-'}
+                          {transaction.invoiceNumber || '-'}
                         </td>
                         <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                          {formatCurrency(parseFloat(transaction.sale_amount || 0))}
+                          {formatCurrency(parseFloat(transaction.saleAmount || 0))}
                         </td>
                         <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                          {transaction.commission_rate}%
+                          {transaction.commissionRate}%
                         </td>
                         <td className={`px-6 py-4 whitespace-nowrap font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {formatCurrency(parseFloat(transaction.commission_amount || 0))}
+                          {formatCurrency(parseFloat(transaction.commissionAmount || 0))}
                         </td>
                         <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {new Date(transaction.created_at).toLocaleDateString()}
+                          {new Date(transaction.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(transaction.status)}

@@ -91,7 +91,7 @@ const DeliveryNoteList = () => {
       };
 
       const response = await deliveryNotesAPI.getAll(params);
-      setDeliveryNotes(response.delivery_notes || []);
+      setDeliveryNotes(response.deliveryNotes || []);
       setTotalCount(response.pagination?.total || 0);
     } catch (err) {
       setError('Failed to fetch delivery notes: ' + err.message);
@@ -307,31 +307,31 @@ const DeliveryNoteList = () => {
                   <tr key={deliveryNote.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {deliveryNote.delivery_note_number}
+                        {deliveryNote.deliveryNoteNumber}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-teal-600">
-                        {deliveryNote.invoice_number}
+                        {deliveryNote.invoiceNumber}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {deliveryNote.customer_details?.name}
+                        {deliveryNote.customerDetails?.name}
                       </div>
                       <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {deliveryNote.customer_details?.company}
+                        {deliveryNote.customerDetails?.company}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {formatDate(deliveryNote.delivery_date)}
+                        {formatDate(deliveryNote.deliveryDate)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         {getStatusBadge(deliveryNote.status)}
-                        {deliveryNote.is_partial && (
+                        {deliveryNote.isPartial && (
                           <span className="text-xs text-orange-500 font-medium">
                             Partial Delivery
                           </span>
@@ -340,11 +340,11 @@ const DeliveryNoteList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {deliveryNote.vehicle_number || '-'}
+                        {deliveryNote.vehicleNumber || '-'}
                       </div>
-                      {deliveryNote.driver_name && (
+                      {deliveryNote.driverName && (
                         <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {deliveryNote.driver_name}
+                          {deliveryNote.driverName}
                         </div>
                       )}
                     </td>
@@ -391,7 +391,7 @@ const DeliveryNoteList = () => {
                           onClick={() => setDeleteDialog({
                             open: true,
                             id: deliveryNote.id,
-                            number: deliveryNote.delivery_note_number
+                            number: deliveryNote.deliveryNoteNumber
                           })}
                           title="Delete"
                         >

@@ -5,8 +5,8 @@ export const analyticsService = {
   normalizeParams(params = {}) {
     if (!params) return {};
     const p = { ...params };
-    if (p.startDate && !p.start_date) p.start_date = p.startDate;
-    if (p.endDate && !p.end_date) p.end_date = p.endDate;
+    if (p.startDate && !p.startDate) p.startDate = p.startDate;
+    if (p.endDate && !p.endDate) p.endDate = p.endDate;
     delete p.startDate;
     delete p.endDate;
     return p;

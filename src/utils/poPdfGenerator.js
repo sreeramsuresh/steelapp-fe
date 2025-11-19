@@ -29,7 +29,7 @@ export const generatePurchaseOrderPDF = async (po, company) => {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
-    pdf.save(`${(po.po_number || po.poNumber || 'PO')}.pdf`);
+    pdf.save(`${(po.poNumber || po.poNumber || 'PO')}.pdf`);
     return true;
   } catch (e) {
     console.error('PO PDF generation failed:', e);
@@ -78,12 +78,12 @@ const createPOElement = (po, company, logoCompany, sealImage) => {
 
       <div style="text-align: left;">
         <div style="margin-bottom: 6px;">
-          <p style="margin: 2px 0;">${safe(po.supplier_name || po.supplierName || 'Supplier')}</p>
+          <p style="margin: 2px 0;">${safe(po.supplierName || po.supplierName || 'Supplier')}</p>
         </div>
         <div style="margin-bottom: 10px;">
-          <p style="margin: 2px 0;"><strong>PO #:</strong> ${safe(po.po_number || po.poNumber)}</p>
-          <p style="margin: 2px 0;"><strong>Date:</strong> ${formatDate(po.po_date || po.poDate)}</p>
-          ${po.expected_delivery_date || po.expectedDeliveryDate ? `<p style="margin: 2px 0;"><strong>Expected:</strong> ${formatDate(po.expected_delivery_date || po.expectedDeliveryDate)}</p>` : ''}
+          <p style="margin: 2px 0;"><strong>PO #:</strong> ${safe(po.poNumber || po.poNumber)}</p>
+          <p style="margin: 2px 0;"><strong>Date:</strong> ${formatDate(po.poDate || po.poDate)}</p>
+          ${po.expectedDeliveryDate || po.expectedDeliveryDate ? `<p style="margin: 2px 0;"><strong>Expected:</strong> ${formatDate(po.expectedDeliveryDate || po.expectedDeliveryDate)}</p>` : ''}
           ${po.status ? `<p style="margin: 2px 0; line-height: 1.5;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #eff6ff; border: 1px solid #2563eb; border-radius: 4px; white-space: nowrap;">${safe(po.status)}</span></p>` : ''}
         </div>
       </div>

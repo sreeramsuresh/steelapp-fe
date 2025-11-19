@@ -18,7 +18,7 @@ import {
   Upload
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { productService } from '../services/productService';
+import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
@@ -286,9 +286,9 @@ const SteelProducts = () => {
 
     const matchesCategory = categoryFilter === 'all' || product?.category === categoryFilter;
 
-    const current = Number(product?.currentStock ?? product?.current_stock ?? 0);
-    const min = Number(product?.minStock ?? product?.min_stock ?? 0);
-    const max = Number(product?.maxStock ?? product?.max_stock ?? 1) || 1;
+    const current = Number(product?.currentStock ?? product?.currentStock ?? 0);
+    const min = Number(product?.minStock ?? product?.minStock ?? 0);
+    const max = Number(product?.maxStock ?? product?.maxStock ?? 1) || 1;
 
     const matchesStock = stockFilter === 'all' || 
                          (stockFilter === 'low' && current <= min) ||
@@ -477,8 +477,8 @@ const SteelProducts = () => {
 
 
   const getStockStatus = (product) => {
-    if (product.current_stock <= product.min_stock) return 'low';
-    if (product.current_stock >= product.max_stock * 0.8) return 'high';
+    if (product.currentStock <= product.minStock) return 'low';
+    if (product.currentStock >= product.maxStock * 0.8) return 'high';
     return 'normal';
   };
 
@@ -570,7 +570,7 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.full_name || product.name}
+                      {product.fullName || product.name}
                     </h3>
                     <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {categories.find(c => c.value === product.category)?.label}
@@ -599,11 +599,11 @@ const SteelProducts = () => {
                       )}
                       {(/pipe/i.test(product.category || '')) ? (
                         <>
-                          {product.size_inch && (
+                          {product.sizeInch && (
                             <span className={`px-2 py-1 text-xs rounded-md border ${
                               isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
                             }`}>
-                              {product.size_inch}
+                              {product.sizeInch}
                             </span>
                           )}
                           {product.od && (
@@ -611,7 +611,7 @@ const SteelProducts = () => {
                               isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
                             }`}>
                               {(() => {
-                                const hay = [product.size, product.size_inch, product.name, product.description]
+                                const hay = [product.size, product.sizeInch, product.name, product.description]
                                   .filter(Boolean)
                                   .join(' ');
                                 const hasDia = /dia\b/i.test(hay) || /[øØ∅φΦ]/.test(hay);
@@ -658,23 +658,23 @@ const SteelProducts = () => {
                         console.log('🔍 Product fields available:', Object.keys(product));
                         console.log('💰 Cost price field values:', {
                           costPrice: product.costPrice,
-                          cost_price: product.cost_price,
-                          selling_price: product.selling_price,
+                          cost_price: product.costPrice,
+                          selling_price: product.sellingPrice,
                           sellingPrice: product.sellingPrice
                         });
                         
                         // Convert snake_case to camelCase for form and normalize strings
                         const formattedProduct = {
                           ...product,
-                          sizeInch: product.size_inch,
+                          sizeInch: product.sizeInch,
                           od: product.od,
                           length: product.length,
                           finish: product.finish ? String(product.finish).trim() : '',
-                          currentStock: product.current_stock,
-                          minStock: product.min_stock,
-                          maxStock: product.max_stock,
-                          costPrice: product.cost_price,
-                          sellingPrice: product.selling_price
+                          currentStock: product.currentStock,
+                          minStock: product.minStock,
+                          maxStock: product.maxStock,
+                          costPrice: product.costPrice,
+                          sellingPrice: product.sellingPrice
                         };
                         
                         console.log('🔄 Formatted product for form:', formattedProduct);
@@ -711,7 +711,7 @@ const SteelProducts = () => {
                   <div className="flex justify-between text-xs">
                     <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Qty:</span>
                     <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.current_stock}
+                      {product.currentStock}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
@@ -746,13 +746,13 @@ const SteelProducts = () => {
                     </span>
                   </div>
                   <h4 className={`text-xl font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {product.current_stock}
+                    {product.currentStock}
                   </h4>
                   <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Min: {product.min_stock} | Max: {product.max_stock}
+                    Min: {product.minStock} | Max: {product.maxStock}
                   </p>
                   <StockProgressBar 
-                    value={Math.min((product.current_stock / product.max_stock) * 100, 100)}
+                    value={Math.min((product.currentStock / product.maxStock) * 100, 100)}
                     stockStatus={stockStatus}
                   />
                 </div>
@@ -761,17 +761,17 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cost Price</p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.cost_price || '0.00'}</p>
+                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.costPrice || '0.00'}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selling Price</p>
-                    <p className="text-sm font-semibold text-green-600">د.إ{product.selling_price || '0.00'}</p>
+                    <p className="text-sm font-semibold text-green-600">د.إ{product.sellingPrice || '0.00'}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Margin</p>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.cost_price > 0 ? 
-                        Math.round(((product.selling_price - product.cost_price) / product.cost_price) * 100) 
+                      {product.costPrice > 0 ? 
+                        Math.round(((product.sellingPrice - product.costPrice) / product.costPrice) * 100) 
                         : 0}%
                     </p>
                   </div>
@@ -1413,11 +1413,11 @@ const SteelProducts = () => {
                     )}
                     {(/pipe/i.test(selectedProduct.category || '')) ? (
                       <>
-                        {(selectedProduct.sizeInch || selectedProduct.size_inch) && (
+                        {(selectedProduct.sizeInch || selectedProduct.sizeInch) && (
                           <div className="flex justify-between py-2">
                             <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size (in):</span>
                             <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {selectedProduct.sizeInch || selectedProduct.size_inch}
+                              {selectedProduct.sizeInch || selectedProduct.sizeInch}
                             </span>
                           </div>
                         )}
@@ -1456,7 +1456,7 @@ const SteelProducts = () => {
                     <div className="flex justify-between py-2">
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Qty:</span>
                       <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.current_stock}
+                        {selectedProduct.currentStock}
                       </span>
                     </div>
                   </div>

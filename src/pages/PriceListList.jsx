@@ -69,7 +69,7 @@ export default function PriceListList() {
   };
 
   const handleCopy = async (id) => {
-    navigate(`/pricelists/new?copy_from=${id}`);
+    navigate(`/pricelists/new?copyFrom=${id}`);
   };
 
   if (loading) {

@@ -95,7 +95,7 @@ const TransitList = () => {
       const data = await apiClient.get("/purchase-orders", {
         params: { stock_status: "transit" },
       });
-      setTransitItems(data.purchase_orders || data || []);
+      setTransitItems(data.purchaseOrders || data || []);
     } catch (error) {
       console.error("Error fetching transit purchase orders:", error);
       setTransitItems([]);
@@ -110,10 +110,10 @@ const TransitList = () => {
 
   const filteredItems = transitItems.filter((item) => {
     const matchesSearch =
-      (item.po_number &&
-        item.po_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.supplier_name &&
-        item.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()));
+      (item.poNumber &&
+        item.poNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.supplierName &&
+        item.supplierName.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus =
       statusFilter === "all" || item.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -414,7 +414,7 @@ const TransitList = () => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-teal-600">
-                      {item.po_number}
+                      {item.poNumber}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -423,14 +423,14 @@ const TransitList = () => {
                         isDarkMode ? "text-white" : "text-gray-900"
                       }`}
                     >
-                      {item.supplier_name}
+                      {item.supplierName}
                     </div>
                     <div
                       className={`text-xs ${
                         isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
-                      {item.supplier_email}
+                      {item.supplierEmail}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -439,7 +439,7 @@ const TransitList = () => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(item.po_date)}
+                      {formatDate(item.poDate)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -448,7 +448,7 @@ const TransitList = () => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(item.expected_delivery_date)}
+                      {formatDate(item.expectedDeliveryDate)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -464,7 +464,7 @@ const TransitList = () => {
                     {getStatusBadge(item.status)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStockStatusBadge(item.stock_status)}
+                    {getStockStatusBadge(item.stockStatus)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button

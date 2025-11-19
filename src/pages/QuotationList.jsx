@@ -110,7 +110,7 @@ const QuotationList = () => {
       
       if (response?.quotations) {
         setQuotations(response.quotations);
-        setTotalPages(response.pagination?.total_pages || 1);
+        setTotalPages(response.pagination?.totalPages || 1);
       } else {
         setQuotations([]);
         setTotalPages(1);
@@ -160,7 +160,7 @@ const QuotationList = () => {
   const handleConvertToInvoice = async (id) => {
     try {
       const response = await quotationsAPI.convertToInvoice(id);
-      setSuccess(`Quotation converted to invoice ${response.invoice_number}`);
+      setSuccess(`Quotation converted to invoice ${response.invoiceNumber}`);
       fetchQuotations();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -372,7 +372,7 @@ const QuotationList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div>
                         <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {quotation.quotation_number}
+                          {quotation.quotationNumber}
                         </div>
                         <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {quotation.items?.length || 0} items
@@ -381,28 +381,28 @@ const QuotationList = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {quotation.customer_details?.name || 'N/A'}
+                        {quotation.customerDetails?.name || 'N/A'}
                       </div>
-                      {quotation.customer_details?.company && (
+                      {quotation.customerDetails?.company && (
                         <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {quotation.customer_details.company}
+                          {quotation.customerDetails.company}
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {formatDate(quotation.quotation_date)}
+                        {formatDate(quotation.quotationDate)}
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {quotation.valid_until ? (
+                      {quotation.validUntil ? (
                         <div className={`text-sm ${
-                          isExpired(quotation.valid_until) 
+                          isExpired(quotation.validUntil) 
                             ? 'text-red-600 font-medium' 
                             : isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}>
-                          {formatDate(quotation.valid_until)}
-                          {isExpired(quotation.valid_until) && (
+                          {formatDate(quotation.validUntil)}
+                          {isExpired(quotation.validUntil) && (
                             <div className="text-xs text-red-500">Expired</div>
                           )}
                         </div>

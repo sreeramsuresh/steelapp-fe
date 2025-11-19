@@ -23,7 +23,7 @@ class AuthService {
 
       // Support both response formats: SteelApp (token) and GigLabz (accessToken)
       const accessToken = response.accessToken || response.token;
-      const refreshToken = response.refreshToken || response.refresh_token;
+      const refreshToken = response.refreshToken || response.refreshToken;
       const user = response.user;
 
       if (accessToken && user) {
@@ -128,7 +128,7 @@ class AuthService {
 
       // Support both response formats
       const newAccessToken = response.accessToken || response.token;
-      const newRefreshToken = response.refreshToken || response.refresh_token;
+      const newRefreshToken = response.refreshToken || response.refreshToken;
 
       if (newAccessToken) {
         tokenUtils.setToken(newAccessToken);

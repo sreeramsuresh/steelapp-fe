@@ -3,51 +3,84 @@
  * Automatically switches between mock data and real API based on configuration
  * 
  * Usage in components:
- *   import { invoiceService } from '../services/dataService';
- *   const invoices = await invoiceService.getInvoices({ page: 1, limit: 20 });
+ *   import { invoiceService, customerService, productService } from '../services/dataService';
  */
 
 import { USE_MOCK_DATA } from '../mock/config/mockConfig';
 
 // Import real services
 import * as realInvoiceService from './invoiceService';
-// Import more real services as needed...
-// import * as realCustomerService from './customerService';
-// import * as realProductService from './productService';
+import * as realCustomerService from './customerService';
+import * as realProductService from './productService';
+import * as realCompanyService from './companyService';
+import * as realPayablesService from './payablesService';
 
 // Import mock services
 import * as mockInvoiceService from '../mock/services/mockInvoiceService';
-// Import more mock services as needed...
-// import * as mockCustomerService from '../mock/services/mockCustomerService';
-// import * as mockProductService from '../mock/services/mockProductService';
+import * as mockCustomerService from '../mock/services/mockCustomerService';
+import * as mockProductService from '../mock/services/mockProductService';
+import * as mockCompanyService from '../mock/services/mockCompanyService';
+import * as mockQuotationService from '../mock/services/mockQuotationService';
+import * as mockPayablesService from '../mock/services/mockPayablesService';
 
 /**
  * Invoice Service
- * Automatically uses mock or real based on USE_MOCK_DATA flag
  */
 export const invoiceService = USE_MOCK_DATA 
   ? mockInvoiceService 
   : realInvoiceService;
 
 /**
- * Customer Service (add when mock service is created)
+ * Customer Service
  */
-// export const customerService = USE_MOCK_DATA
-//   ? mockCustomerService
-//   : realCustomerService;
+export const customerService = USE_MOCK_DATA
+  ? mockCustomerService
+  : realCustomerService;
 
 /**
- * Product Service (add when mock service is created)
+ * Product Service
  */
-// export const productService = USE_MOCK_DATA
-//   ? mockProductService
-//   : realProductService;
+export const productService = USE_MOCK_DATA
+  ? mockProductService
+  : realProductService;
+
+/**
+ * Company Service
+ */
+export const companyService = USE_MOCK_DATA
+  ? mockCompanyService.companyService
+  : realCompanyService.companyService;
+
+/**
+ * Quotation Service
+ */
+export const quotationService = USE_MOCK_DATA
+  ? mockQuotationService
+  : null; // Add real quotation service when available
+
+/**
+ * Payables Service
+ */
+export const payablesService = USE_MOCK_DATA
+  ? mockPayablesService
+  : realPayablesService;
+
+/**
+ * Payment Modes constant
+ */
+export const PAYMENT_MODES = USE_MOCK_DATA
+  ? mockPayablesService.PAYMENT_MODES
+  : realPayablesService.PAYMENT_MODES;
 
 /**
  * Export all services as default
  */
 export default {
   invoiceService,
-  // customerService,
-  // productService,
+  customerService,
+  productService,
+  companyService,
+  quotationService,
+  payablesService,
+  PAYMENT_MODES,
 };

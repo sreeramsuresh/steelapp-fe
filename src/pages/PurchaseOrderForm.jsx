@@ -12,13 +12,13 @@ import {
 import { purchaseOrdersAPI } from "../services/api";
 import { stockMovementService } from "../services/stockMovementService";
 import { inventoryService } from "../services/inventoryService";
-import { productService } from "../services/productService";
+import { productService, payablesService } from "../services/dataService";
 import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
 import { supplierService } from "../services/supplierService";
 import { notificationService } from "../services/notificationService";
-import { PAYMENT_MODES } from "../services/payablesService";
+const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
 const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }) => {
@@ -64,7 +64,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
             </label>
             <input
               type="date"
-              value={formData.payment_date}
+              value={formData.paymentDate}
               onChange={(e) => setFormData({...formData, payment_date: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode 
@@ -103,7 +103,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
               Payment Method
             </label>
             <select
-              value={formData.payment_method}
+              value={formData.paymentMethod}
               onChange={(e) => setFormData({...formData, payment_method: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
@@ -125,7 +125,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
             </label>
             <input
               type="text"
-              value={formData.reference_number}
+              value={formData.referenceNumber}
               onChange={(e) => setFormData({...formData, reference_number: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode 
@@ -569,7 +569,7 @@ const PurchaseOrderForm = () => {
       ...product,
       label: product.name,
       subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
-        product.selling_price || 0
+        product.sellingPrice || 0
       }`,
     }));
   }, [availableProducts]);
@@ -580,7 +580,7 @@ const PurchaseOrderForm = () => {
       ...product,
       label: product.name,
       subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${
-        product.selling_price || 0
+        product.sellingPrice || 0
       }`,
     }));
   }, [searchInputs.__results]);
@@ -595,19 +595,19 @@ const PurchaseOrderForm = () => {
         // Map backend fields to form model
         setPurchaseOrder(prev => ({
           ...prev,
-          poNumber: data.po_number || prev.poNumber,
-          supplierName: data.supplier_name || '',
-          supplierEmail: data.supplier_email || '',
-          supplierPhone: data.supplier_phone || '',
-          supplierAddress: data.supplier_address || '',
-          poDate: toDateInput(data.po_date) || prev.poDate,
-          expectedDeliveryDate: toDateInput(data.expected_delivery_date) || '',
+          poNumber: data.poNumber || prev.poNumber,
+          supplierName: data.supplierName || '',
+          supplierEmail: data.supplierEmail || '',
+          supplierPhone: data.supplierPhone || '',
+          supplierAddress: data.supplierAddress || '',
+          poDate: toDateInput(data.poDate) || prev.poDate,
+          expectedDeliveryDate: toDateInput(data.expectedDeliveryDate) || '',
           status: data.status || 'draft',
-          stockStatus: data.stock_status || 'retain',
+          stockStatus: data.stockStatus || 'retain',
           currency: data.currency || prev.currency,
-          supplierContactName: data.supplier_contact_name || '',
-          supplierContactEmail: data.supplier_contact_email || data.supplier_email || '',
-          supplierContactPhone: data.supplier_contact_phone || data.supplier_phone || '',
+          supplierContactName: data.supplierContactName || '',
+          supplierContactEmail: data.supplierContactEmail || data.supplierEmail || '',
+          supplierContactPhone: data.supplierContactPhone || data.supplierPhone || '',
           items: Array.isArray(data.items) ? data.items.map(it => ({
             productType: it.name || '',
             name: it.name || '',
@@ -621,12 +621,12 @@ const PurchaseOrderForm = () => {
             amount: it.amount || 0,
           })) : prev.items,
           subtotal: data.subtotal || 0,
-          vatAmount: data.vat_amount || data.tax_amount || 0,
+          vatAmount: data.vatAmount || data.taxAmount || 0,
           total: data.total || 0,
           notes: data.notes || '',
           terms: data.terms || '',
-          paymentTerms: data.payment_terms || prev.paymentTerms,
-          dueDate: toDateInput(data.due_date) || '',
+          paymentTerms: data.paymentTerms || prev.paymentTerms,
+          dueDate: toDateInput(data.dueDate) || '',
         }));
         
         // Load existing payments
@@ -636,8 +636,8 @@ const PurchaseOrderForm = () => {
         }
         
         // Set warehouse if available
-        if (data.warehouse_id) {
-          setSelectedWarehouse(data.warehouse_id.toString());
+        if (data.warehouseId) {
+          setSelectedWarehouse(data.warehouseId.toString());
         }
       } catch (e) {
         notificationService.error('Failed to load purchase order');
@@ -673,7 +673,7 @@ const PurchaseOrderForm = () => {
       const apiWarehouses = response?.warehouses || response?.data || response;
       
       if (apiWarehouses && Array.isArray(apiWarehouses) && apiWarehouses.length > 0) {
-        setWarehouses(apiWarehouses.filter(w => w.is_active !== false));
+        setWarehouses(apiWarehouses.filter(w => w.isActive !== false));
         return;
       }
     } catch (error) {
@@ -709,10 +709,10 @@ const PurchaseOrderForm = () => {
 
   // Update PO number when server data is available
   useEffect(() => {
-    if (nextPOData && nextPOData.next_po_number && !id) {
+    if (nextPOData && nextPOData.nextPoNumber && !id) {
       setPurchaseOrder((prev) => ({
         ...prev,
-        poNumber: nextPOData.next_po_number,
+        poNumber: nextPOData.nextPoNumber,
       }));
     }
   }, [nextPOData, id]);
@@ -746,11 +746,11 @@ const PurchaseOrderForm = () => {
       supplierEmail: found.email || '',
       supplierPhone: found.phone || '',
       supplierAddress: found.address || found.company || '',
-      terms: found.payment_terms || prev.terms || '',
-      currency: found.default_currency || prev.currency || 'AED',
-      supplierContactName: found.contact_name || '',
-      supplierContactEmail: found.contact_email || found.email || '',
-      supplierContactPhone: found.contact_phone || found.phone || ''
+      terms: found.paymentTerms || prev.terms || '',
+      currency: found.defaultCurrency || prev.currency || 'AED',
+      supplierContactName: found.contactName || '',
+      supplierContactEmail: found.contactEmail || found.email || '',
+      supplierContactPhone: found.contactPhone || found.phone || ''
     }));
   };
 
@@ -785,7 +785,7 @@ const PurchaseOrderForm = () => {
       const updatedItems = [...purchaseOrder.items];
       
       // Try multiple possible field names for finish and thickness
-      const rawFinish = product.finish || product.surface_finish || product.finishType || "";
+      const rawFinish = product.finish || product.surfaceFinish || product.finishType || "";
       
       // Match finish with predefined FINISHES options (case-insensitive)
       const finish = (() => {
@@ -801,17 +801,17 @@ const PurchaseOrderForm = () => {
         ...updatedItems[index],
         productType: product.name,
         name: product.name,
-        grade: product.grade || product.steel_grade || "",
+        grade: product.grade || product.steelGrade || "",
         finish: finish,
         size: product.size || product.dimensions || "",
         thickness: thickness,
         specification: product.specification || product.description || "",
-        rate: product.selling_price || product.purchase_price || product.price || 0,
+        rate: product.sellingPrice || product.purchasePrice || product.price || 0,
       };
 
       // Calculate amount if quantity exists
       if (updatedItems[index].quantity) {
-        updatedItems[index].amount = updatedItems[index].quantity * (product.selling_price || product.purchase_price || 0);
+        updatedItems[index].amount = updatedItems[index].quantity * (product.sellingPrice || product.purchasePrice || 0);
       }
 
       // Recalculate totals
@@ -1098,14 +1098,14 @@ const PurchaseOrderForm = () => {
         // Include payment data
         payments: payments.map(payment => ({
           id: payment.id,
-          payment_date: payment.payment_date,
+          payment_date: payment.paymentDate,
           amount: parseFloat(payment.amount) || 0,
-          payment_method: payment.payment_method,
-          reference_number: payment.reference_number || null,
+          payment_method: payment.paymentMethod,
+          reference_number: payment.referenceNumber || null,
           notes: payment.notes || null,
           voided: payment.voided || false,
-          voided_at: payment.voided_at || null,
-          created_at: payment.created_at
+          voided_at: payment.voidedAt || null,
+          created_at: payment.createdAt
         })),
         payment_status: paymentStatus,
         // Transform items array
@@ -1143,7 +1143,7 @@ const PurchaseOrderForm = () => {
           });
           console.log('Stock status updated and inventory created:', stockStatusResponse);
           
-          if (stockStatusResponse.inventory_created) {
+          if (stockStatusResponse.inventoryCreated) {
             notificationService.success('Inventory items created successfully!');
           }
         } catch (stockError) {
@@ -2458,8 +2458,8 @@ const PurchaseOrderForm = () => {
                           {payment.voided && <span className="text-red-500 ml-2">(VOIDED)</span>}
                         </div>
                         <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {payment.payment_method} • {payment.payment_date} 
-                          {payment.reference_number && ` • Ref: ${payment.reference_number}`}
+                          {payment.paymentMethod} • {payment.paymentDate} 
+                          {payment.referenceNumber && ` • Ref: ${payment.referenceNumber}`}
                         </div>
                         {payment.notes && (
                           <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>

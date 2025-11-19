@@ -90,7 +90,7 @@ export const getInvoices = async (params = {}) => {
   const start = (page - 1) * limit;
   const paginatedData = filtered.slice(start, start + limit);
   
-  return {
+  const result = {
     invoices: paginatedData,
     pagination: {
       total,
@@ -99,6 +99,14 @@ export const getInvoices = async (params = {}) => {
       totalPages
     }
   };
+  
+  console.log('🎭 Mock getInvoices returning:', {
+    invoicesCount: result.invoices.length,
+    isArray: Array.isArray(result.invoices),
+    pagination: result.pagination
+  });
+  
+  return result;
 };
 
 /**

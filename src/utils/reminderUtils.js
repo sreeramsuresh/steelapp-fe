@@ -199,7 +199,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
   if (invoice.status !== 'issued') return null;
 
   // Only show if reminder has a promised_date
-  if (!latestReminder || !latestReminder.promised_date) return null;
+  if (!latestReminder || !latestReminder.promisedDate) return null;
 
   // Use backend payment status if available (gold standard), otherwise calculate
   const paymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
@@ -208,7 +208,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
   if (paymentStatus === 'fully_paid' || paymentStatus === 'paid') return null;
 
   // Calculate days until promised date
-  const daysUntilPromised = calculateDaysUntilDue(latestReminder.promised_date);
+  const daysUntilPromised = calculateDaysUntilDue(latestReminder.promisedDate);
 
   // Determine visual style based on promise timing
   let config;
@@ -273,8 +273,8 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
     config,
     daysUntilPromised,
     isPromiseBroken: daysUntilPromised < 0,
-    promisedAmount: latestReminder.promised_amount,
-    promisedDate: latestReminder.promised_date,
+    promisedAmount: latestReminder.promisedAmount,
+    promisedDate: latestReminder.promisedDate,
     balanceDue,
     shouldShowPromise: true
   };

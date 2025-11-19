@@ -245,13 +245,13 @@ export const validatePayment = (payment, invoiceTotal, existingPayments = []) =>
   }
 
   // Payment mode validation
-  if (!payment.payment_mode) {
+  if (!payment.paymentMode) {
     errors.push('Payment mode is required');
   }
 
   // Reference number validation (for certain payment modes)
-  const modeConfig = getPaymentModeConfig(payment.payment_mode);
-  if (modeConfig.requiresRef && !payment.reference_number) {
+  const modeConfig = getPaymentModeConfig(payment.paymentMode);
+  if (modeConfig.requiresRef && !payment.referenceNumber) {
     errors.push(`Reference number is required for ${modeConfig.label}`);
   }
 
@@ -271,11 +271,11 @@ export const validatePayment = (payment, invoiceTotal, existingPayments = []) =>
  */
 export const formatPaymentDisplay = (payment) => {
   // Handle different payment method field names
-  const methodValue = payment.payment_method || payment.payment_mode || payment.method;
+  const methodValue = payment.paymentMethod || payment.paymentMode || payment.method;
   const modeConfig = getPaymentModeConfig(methodValue);
 
   // Handle different date field names and formats
-  const dateValue = payment.payment_date || payment.date;
+  const dateValue = payment.paymentDate || payment.date;
   let formattedDate = 'N/A';
 
   try {

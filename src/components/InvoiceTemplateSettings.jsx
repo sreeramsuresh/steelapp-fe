@@ -87,8 +87,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
   // Load settings from company
   useEffect(() => {
-    if (company?.settings?.invoice_template) {
-      const mergedSettings = mergeTemplateSettings(company.settings.invoice_template);
+    if (company?.settings?.invoiceTemplate) {
+      const mergedSettings = mergeTemplateSettings(company.settings.invoiceTemplate);
       setSettings(mergedSettings);
       setOriginalSettings(mergedSettings);
     } else if (company && !originalSettings) {
@@ -97,7 +97,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setSettings(defaults);
       setOriginalSettings(defaults);
     }
-  }, [company?.id, company?.settings?.invoice_template]); // Only re-run when company ID or template changes
+  }, [company?.id, company?.settings?.invoiceTemplate]); // Only re-run when company ID or template changes
 
   // Check for changes
   useEffect(() => {

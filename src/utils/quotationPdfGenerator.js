@@ -25,7 +25,7 @@ export const generateQuotationPDF = async (quotation, company) => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${quotation.quotation_number || 'Quotation'}.pdf`);
+    pdf.save(`${quotation.quotationNumber || 'Quotation'}.pdf`);
     return true;
   } catch (e) {
     console.error('Quotation PDF generation failed:', e);
@@ -52,15 +52,15 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
   const safe = (v) => (v === null || v === undefined ? '' : v);
   const comp = company || {};
   const compAddr = comp.address || {};
-  const cust = q.customer_details || {};
+  const cust = q.customerDetails || {};
   const custAddr = cust.address || {};
   const items = Array.isArray(q.items) ? q.items : [];
   const hasDescription = items.some((it) => !!it.description);
   const hasItemDiscount = items.some((it) => (parseFloat(it.discount) || 0) > 0);
 
   const subtotal = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
-  const gstAmount = items.reduce((s, it) => s + calculateTRN((parseFloat(it.amount) || 0), (parseFloat(it.vat_rate) || 0)), 0);
-  const total = subtotal + gstAmount + (parseFloat(q.other_charges) || 0);
+  const gstAmount = items.reduce((s, it) => s + calculateTRN((parseFloat(it.amount) || 0), (parseFloat(it.vatRate) || 0)), 0);
+  const total = subtotal + gstAmount + (parseFloat(q.otherCharges) || 0);
 
   el.innerHTML = `
     <div style="display:flex; justify-content:space-between; margin-bottom:30px; padding-bottom:20px; border-bottom:2px solid #e2e8f0;">
@@ -84,9 +84,9 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
           <p style="margin:2px 0;">${safe(cust.name) || 'Customer'}</p>
         </div>
         <div style="margin-bottom:10px;">
-          <p style="margin:2px 0;"><strong>Quotation #:</strong> ${safe(q.quotation_number)}</p>
-          <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(q.quotation_date)}</p>
-          ${q.valid_until ? `<p style=\"margin:2px 0;\"><strong>Valid Until:</strong> ${formatDate(q.valid_until)}</p>` : ''}
+          <p style="margin:2px 0;"><strong>Quotation #:</strong> ${safe(q.quotationNumber)}</p>
+          <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(q.quotationDate)}</p>
+          ${q.validUntil ? `<p style=\"margin:2px 0;\"><strong>Valid Until:</strong> ${formatDate(q.validUntil)}</p>` : ''}
           ${q.status ? `<p style=\"margin:2px 0; line-height:1.5;\"><strong>Status:</strong> <span style=\"color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;\">${safe(q.status)}</span></p>` : ''}
         </div>
       </div>
@@ -115,7 +115,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
         <tbody>
           ${items.map((it) => {
             const amountNum = parseFloat(it.amount) || 0;
-            const gstRateNum = parseFloat(it.vat_rate) || 0;
+            const gstRateNum = parseFloat(it.vatRate) || 0;
             const gstAmt = calculateTRN(amountNum, gstRateNum);
             const totalWithTax = amountNum + gstAmt;
             const spec = (it.specification && String(it.specification).trim()) || [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
@@ -129,7 +129,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
                 <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(it.unit) || 'pcs'}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${safe(it.quantity)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(it.rate || 0)}</td>
-                ${hasItemDiscount ? '<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">' + (((parseFloat(it.discount)||0) > 0) ? (formatCurrency(it.discount) + (it.discount_type === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
+                ${hasItemDiscount ? '<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">' + (((parseFloat(it.discount)||0) > 0) ? (formatCurrency(it.discount) + (it.discountType === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(amountNum)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${gstRateNum}%</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(gstAmt)}</td>
@@ -151,10 +151,10 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
           <span>VAT Amount:</span>
           <span>${formatCurrency(gstAmount)}</span>
         </div>
-        ${(parseFloat(q.other_charges)||0) ? `
+        ${(parseFloat(q.otherCharges)||0) ? `
         <div style=\"display:flex; justify-content:space-between; padding:8px 0;\">
           <span>Other Charges:</span>
-          <span>${formatCurrency(parseFloat(q.other_charges)||0)}</span>
+          <span>${formatCurrency(parseFloat(q.otherCharges)||0)}</span>
         </div>` : ''}
         <div style="display:flex; justify-content:space-between; padding:16px 0; border-top:1px solid #e2e8f0; margin-top:8px; font-weight:600; font-size:14px;">
           <span><strong>Total Amount:</strong></span>
@@ -163,7 +163,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
       </div>
     </div>
 
-    ${(q.notes || q.terms_and_conditions) ? `
+    ${(q.notes || q.termsAndConditions) ? `
       <div style="margin-bottom:30px;">
         ${q.notes ? `
           <div style="margin-bottom:15px;">
@@ -171,10 +171,10 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
             <p style="margin:0; color:#64748b;">${escapeHtml(q.notes)}</p>
           </div>
         ` : ''}
-        ${q.terms_and_conditions ? `
+        ${q.termsAndConditions ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Terms & Conditions:</h4>
-            <p style="margin:0; color:#64748b;">${escapeHtmlWithLineBreaks(q.terms_and_conditions)}</p>
+            <p style="margin:0; color:#64748b;">${escapeHtmlWithLineBreaks(q.termsAndConditions)}</p>
           </div>
         ` : ''}
       </div>

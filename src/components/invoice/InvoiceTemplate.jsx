@@ -36,7 +36,7 @@ const InvoiceTemplate = ({
   showTotals = false
 }) => {
   // Get template colors from company settings or use defaults
-  const templateSettings = company?.settings?.invoice_template || DEFAULT_TEMPLATE_SETTINGS;
+  const templateSettings = company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
   const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
   return (

@@ -181,7 +181,7 @@ const CommissionDashboard = () => {
                       Sales Agents
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {summary.total_agents || 0}
+                      {summary.totalAgents || 0}
                     </p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-lg">
@@ -200,7 +200,7 @@ const CommissionDashboard = () => {
                       Pending
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.pending_amount || 0))}
+                      {formatCurrency(parseFloat(summary.pendingAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-yellow-100 rounded-lg">
@@ -219,7 +219,7 @@ const CommissionDashboard = () => {
                       Approved
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.approved_amount || 0))}
+                      {formatCurrency(parseFloat(summary.approvedAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-lg">
@@ -238,7 +238,7 @@ const CommissionDashboard = () => {
                       Paid
                     </p>
                     <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(summary.paid_amount || 0))}
+                      {formatCurrency(parseFloat(summary.paidAmount || 0))}
                     </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-lg">
@@ -291,19 +291,19 @@ const CommissionDashboard = () => {
                           </div>
                           <div>
                             <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {agent.full_name}
+                              {agent.fullName}
                             </p>
                             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              {agent.transaction_count} transactions
+                              {agent.transactionCount} transactions
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {formatCurrency(parseFloat(agent.total_commission || 0))}
+                            {formatCurrency(parseFloat(agent.totalCommission || 0))}
                           </p>
                           <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            Sales: {formatCurrency(parseFloat(agent.total_sales || 0))}
+                            Sales: {formatCurrency(parseFloat(agent.totalSales || 0))}
                           </p>
                         </div>
                       </div>
@@ -370,18 +370,18 @@ const CommissionDashboard = () => {
                       dashboardData.recentTransactions.map((transaction) => (
                         <tr key={transaction.id} className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
                           <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                            {transaction.agent_name}
+                            {transaction.agentName}
                           </td>
                           <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                            {transaction.invoice_number || '-'}
+                            {transaction.invoiceNumber || '-'}
                           </td>
                           <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                            {formatCurrency(parseFloat(transaction.sale_amount || 0))}
+                            {formatCurrency(parseFloat(transaction.saleAmount || 0))}
                           </td>
                           <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                            {formatCurrency(parseFloat(transaction.commission_amount || 0))}
+                            {formatCurrency(parseFloat(transaction.commissionAmount || 0))}
                             <span className={`ml-1 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                              ({transaction.commission_rate}%)
+                              ({transaction.commissionRate}%)
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">

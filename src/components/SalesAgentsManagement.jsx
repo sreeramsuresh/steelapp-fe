@@ -50,9 +50,9 @@ const SalesAgentsManagement = () => {
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
     setEditForm({
-      default_commission_rate: agent.default_commission_rate || '',
-      employee_code: agent.employee_code || '',
-      hire_date: agent.hire_date || '',
+      default_commission_rate: agent.defaultCommissionRate || '',
+      employee_code: agent.employeeCode || '',
+      hire_date: agent.hireDate || '',
       department: agent.department || ''
     });
     setShowEditModal(true);
@@ -65,7 +65,7 @@ const SalesAgentsManagement = () => {
       setSaving(true);
       await commissionService.updateAgent(selectedAgent.id, {
         ...editForm,
-        default_commission_rate: parseFloat(editForm.default_commission_rate) || null
+        default_commission_rate: parseFloat(editForm.defaultCommissionRate) || null
       });
       notificationService.success('Agent updated successfully');
       setShowEditModal(false);
@@ -79,7 +79,7 @@ const SalesAgentsManagement = () => {
   };
 
   const filteredAgents = agents.filter(agent =>
-    agent.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    agent.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     agent.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     agent.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -159,11 +159,11 @@ const SalesAgentsManagement = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    agent.is_commission_eligible
+                    agent.isCommissionEligible
                       ? 'bg-green-100 text-green-600'
                       : 'bg-gray-100 text-gray-600'
                   }`}>
-                    {agent.is_commission_eligible ? (
+                    {agent.isCommissionEligible ? (
                       <CheckCircle className="h-6 w-6" />
                     ) : (
                       <Users className="h-6 w-6" />
@@ -171,7 +171,7 @@ const SalesAgentsManagement = () => {
                   </div>
                   <div>
                     <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {agent.full_name || agent.username}
+                      {agent.fullName || agent.username}
                     </h3>
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {agent.email}
@@ -198,18 +198,18 @@ const SalesAgentsManagement = () => {
                     Commission Rate
                   </span>
                   <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {agent.default_commission_rate ? `${agent.default_commission_rate}%` : 'Not set'}
+                    {agent.defaultCommissionRate ? `${agent.defaultCommissionRate}%` : 'Not set'}
                   </span>
                 </div>
 
                 {/* Employee Code */}
-                {agent.employee_code && (
+                {agent.employeeCode && (
                   <div className="flex items-center justify-between">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       Employee Code
                     </span>
                     <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {agent.employee_code}
+                      {agent.employeeCode}
                     </span>
                   </div>
                 )}
@@ -234,7 +234,7 @@ const SalesAgentsManagement = () => {
                         Total Sales
                       </p>
                       <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {agent.total_sales ? formatCurrency(parseFloat(agent.total_sales)) : '-'}
+                        {agent.totalSales ? formatCurrency(parseFloat(agent.totalSales)) : '-'}
                       </p>
                     </div>
                     <div>
@@ -242,7 +242,7 @@ const SalesAgentsManagement = () => {
                         Total Commission
                       </p>
                       <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {agent.total_commission ? formatCurrency(parseFloat(agent.total_commission)) : '-'}
+                        {agent.totalCommission ? formatCurrency(parseFloat(agent.totalCommission)) : '-'}
                       </p>
                     </div>
                   </div>
@@ -250,19 +250,19 @@ const SalesAgentsManagement = () => {
 
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {agent.is_active && (
+                  {agent.isActive && (
                     <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                       Active
                     </span>
                   )}
-                  {agent.is_commission_eligible && (
+                  {agent.isCommissionEligible && (
                     <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
                       Commission Eligible
                     </span>
                   )}
-                  {agent.total_transactions > 0 && (
+                  {agent.totalTransactions > 0 && (
                     <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
-                      {agent.total_transactions} transactions
+                      {agent.totalTransactions} transactions
                     </span>
                   )}
                 </div>
@@ -284,7 +284,7 @@ const SalesAgentsManagement = () => {
                 Edit Sales Agent
               </h3>
               <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {selectedAgent.full_name || selectedAgent.username}
+                {selectedAgent.fullName || selectedAgent.username}
               </p>
             </div>
 
@@ -302,7 +302,7 @@ const SalesAgentsManagement = () => {
                   step="0.01"
                   min="0"
                   max="100"
-                  value={editForm.default_commission_rate}
+                  value={editForm.defaultCommissionRate}
                   onChange={(e) => setEditForm({ ...editForm, default_commission_rate: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
@@ -322,7 +322,7 @@ const SalesAgentsManagement = () => {
                 </label>
                 <input
                   type="text"
-                  value={editForm.employee_code}
+                  value={editForm.employeeCode}
                   onChange={(e) => setEditForm({ ...editForm, employee_code: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
@@ -342,7 +342,7 @@ const SalesAgentsManagement = () => {
                 </label>
                 <input
                   type="date"
-                  value={editForm.hire_date}
+                  value={editForm.hireDate}
                   onChange={(e) => setEditForm({ ...editForm, hire_date: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode

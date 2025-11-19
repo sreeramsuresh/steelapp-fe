@@ -111,15 +111,15 @@ const CommissionTransactions = () => {
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch =
-      transaction.agent_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase());
+      transaction.agentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = selectedStatus === 'all' || transaction.status === selectedStatus;
-    const matchesAgent = selectedAgent === 'all' || transaction.agent_id === parseInt(selectedAgent);
+    const matchesAgent = selectedAgent === 'all' || transaction.agentId === parseInt(selectedAgent);
 
     const matchesDateRange = (() => {
       if (!dateRange.start && !dateRange.end) return true;
-      const transactionDate = new Date(transaction.created_at);
+      const transactionDate = new Date(transaction.createdAt);
       if (dateRange.start && transactionDate < new Date(dateRange.start)) return false;
       if (dateRange.end && transactionDate > new Date(dateRange.end)) return false;
       return true;
@@ -233,7 +233,7 @@ const CommissionTransactions = () => {
             <option value="all">All Agents</option>
             {agents.map(agent => (
               <option key={agent.id} value={agent.id}>
-                {agent.full_name || agent.username}
+                {agent.fullName || agent.username}
               </option>
             ))}
           </select>
@@ -381,23 +381,23 @@ const CommissionTransactions = () => {
                     <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
                       <div className="flex items-center space-x-2">
                         <User className="h-4 w-4" />
-                        <span>{transaction.agent_name}</span>
+                        <span>{transaction.agentName}</span>
                       </div>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {transaction.invoice_number || '-'}
+                      {transaction.invoiceNumber || '-'}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(transaction.sale_amount || 0))}
+                      {formatCurrency(parseFloat(transaction.saleAmount || 0))}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {transaction.commission_rate}%
+                      {transaction.commissionRate}%
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(parseFloat(transaction.commission_amount || 0))}
+                      {formatCurrency(parseFloat(transaction.commissionAmount || 0))}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {new Date(transaction.created_at).toLocaleDateString()}
+                      {new Date(transaction.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(transaction.status)}
@@ -430,7 +430,7 @@ const CommissionTransactions = () => {
               Total Sales
             </p>
             <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.sale_amount || 0), 0))}
+              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.saleAmount || 0), 0))}
             </p>
           </div>
           <div className={`rounded-lg p-4 border ${
@@ -440,7 +440,7 @@ const CommissionTransactions = () => {
               Total Commission
             </p>
             <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.commission_amount || 0), 0))}
+              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.commissionAmount || 0), 0))}
             </p>
           </div>
         </div>

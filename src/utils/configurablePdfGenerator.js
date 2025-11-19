@@ -28,7 +28,7 @@ const hexToRgb = (hex) => {
 
 /**
  * Fully configurable PDF generator based on template settings
- * Reads settings from company.settings.invoice_template
+ * Reads settings from company.settings.invoiceTemplate
  * Falls back to defaults if not configured
  * @param {Object} invoice - Invoice data
  * @param {Object} company - Company data
@@ -43,7 +43,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   const { logoUrl: logoCompany, sealUrl: sealImage } = getCompanyImages(company);
 
   // Get template settings (merge company settings with defaults)
-  const settings = mergeTemplateSettings(company?.settings?.invoice_template || {});
+  const settings = mergeTemplateSettings(company?.settings?.invoiceTemplate || {});
   const { colors, layout, typography, branding, visibility, table, formatting, labels } = settings;
 
   // Page dimensions

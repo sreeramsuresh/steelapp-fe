@@ -25,7 +25,7 @@ export const generateDeliveryNotePDF = async (deliveryNote, company) => {
     const pdfW = pdf.internal.pageSize.getWidth();
     const pdfH = (canvas.height * pdfW) / canvas.width;
     pdf.addImage(img, 'PNG', 0, 0, pdfW, pdfH);
-    const fname = `DeliveryNote-${deliveryNote.delivery_note_number || deliveryNote.id}.pdf`;
+    const fname = `DeliveryNote-${deliveryNote.deliveryNoteNumber || deliveryNote.id}.pdf`;
     pdf.save(fname);
     return true;
   } catch (e) {
@@ -53,7 +53,7 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
   const safe = (v) => (v === null || v === undefined ? '' : v);
   const comp = company || {};
   const compAddr = comp.address || {};
-  const cust = dn.customer_details || {};
+  const cust = dn.customerDetails || {};
   const custAddr = (cust.address) || {};
   const items = Array.isArray(dn.items) ? dn.items : [];
 
@@ -79,11 +79,11 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
           <p style="margin:2px 0;">${safe(cust.name) || 'Customer'}</p>
         </div>
         <div style="margin-bottom:10px;">
-          <p style="margin:2px 0;">${safe(custAddr.street || dn.delivery_address?.street || '')}</p>
-          <p style="margin:2px 0;">${safe(custAddr.city || dn.delivery_address?.city || '')} ${safe(custAddr.poBox || dn.delivery_address?.po_box || '')}</p>
-          <p style="margin:2px 0;"><strong>Delivery Note #:</strong> ${safe(dn.delivery_note_number || dn.id)}</p>
-          <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoice_number || '')}</p>
-          <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(dn.delivery_date || dn.created_at || new Date())}</p>
+          <p style="margin:2px 0;">${safe(custAddr.street || dn.deliveryAddress?.street || '')}</p>
+          <p style="margin:2px 0;">${safe(custAddr.city || dn.deliveryAddress?.city || '')} ${safe(custAddr.poBox || dn.deliveryAddress?.poBox || '')}</p>
+          <p style="margin:2px 0;"><strong>Delivery Note #:</strong> ${safe(dn.deliveryNoteNumber || dn.id)}</p>
+          <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoiceNumber || '')}</p>
+          <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(dn.deliveryDate || dn.createdAt || new Date())}</p>
           ${dn.status ? `<p style=\"margin:2px 0; line-height:1.5;\"><strong>Status:</strong> <span style=\"color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;\">${safe(dn.status)}</span></p>` : ''}
         </div>
       </div>
@@ -114,10 +114,10 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
               </td>
               <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.specification) || '-'}</td>
               <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit) || ''}</td>
-              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.ordered_quantity)}</td>
-              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.delivered_quantity)}</td>
-              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight:600;">${safe(item.remaining_quantity)}</td>
-              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.is_fully_delivered ? 'Complete' : 'Partial'}</td>
+              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.orderedQuantity)}</td>
+              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.deliveredQuantity)}</td>
+              <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight:600;">${safe(item.remainingQuantity)}</td>
+              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.isFullyDelivered ? 'Complete' : 'Partial'}</td>
             </tr>
           `).join('')}
         </tbody>

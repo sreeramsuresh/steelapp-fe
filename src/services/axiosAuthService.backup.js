@@ -122,7 +122,7 @@ class AuthService {
         const newAccess = response.token || response.accessToken;
         if (newAccess) {
           console.log("[Auth] ✅ Token refresh successful");
-          this.setTokens(newAccess, response.refreshToken || response.refresh_token);
+          this.setTokens(newAccess, response.refreshToken || response.refreshToken);
           return newAccess;
         }
 

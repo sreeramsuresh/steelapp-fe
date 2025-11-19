@@ -132,8 +132,8 @@ const SalesAnalytics = () => {
           .map((row) => ({
             month: format(new Date(row.period), 'MMM yyyy'),
             revenue: safeNum(row.revenue),
-            orders: parseInt(row.invoice_count || 0),
-            customers: parseInt(row.unique_customers || 0),
+            orders: parseInt(row.invoiceCount || 0),
+            customers: parseInt(row.uniqueCustomers || 0),
           }))
       : [];
 
@@ -151,37 +151,37 @@ const SalesAnalytics = () => {
     const topProductsArr = Array.isArray(productPerformance)
       ? productPerformance
           .slice()
-          .sort((a, b) => safeNum(b.total_revenue) - safeNum(a.total_revenue))
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
           .map((p) => {
             const prev = prevMap.get(p.id) || {};
             const revGrowth = (function () {
-              const c = safeNum(p.total_revenue);
-              const pr = safeNum(prev.total_revenue);
+              const c = safeNum(p.totalRevenue);
+              const pr = safeNum(prev.totalRevenue);
               return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
             })();
             const qtyGrowth = (function () {
-              const c = safeNum(p.total_sold);
-              const pr = safeNum(prev.total_sold);
+              const c = safeNum(p.totalSold);
+              const pr = safeNum(prev.totalSold);
               return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
             })();
             const ordGrowth = (function () {
-              const c = parseInt(p.times_sold || 0);
-              const pr = parseInt(prev.times_sold || 0);
+              const c = parseInt(p.timesSold || 0);
+              const pr = parseInt(prev.timesSold || 0);
               return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
             })();
             return {
               id: p.id,
               product: p.name,
-              revenue: safeNum(p.total_revenue),
-              orders: parseInt(p.times_sold || 0),
-              quantity: safeNum(p.total_sold),
+              revenue: safeNum(p.totalRevenue),
+              orders: parseInt(p.timesSold || 0),
+              quantity: safeNum(p.totalSold),
               category: p.category,
               revenueGrowth: revGrowth,
               quantityGrowth: qtyGrowth,
               ordersGrowth: ordGrowth,
-              prevRevenue: safeNum(prev.total_revenue),
-              prevQuantity: safeNum(prev.total_sold),
-              prevOrders: parseInt(prev.times_sold || 0),
+              prevRevenue: safeNum(prev.totalRevenue),
+              prevQuantity: safeNum(prev.totalSold),
+              prevOrders: parseInt(prev.timesSold || 0),
             };
           })
       : [];
@@ -194,8 +194,8 @@ const SalesAnalytics = () => {
         if (!categoryPerf[key]) {
           categoryPerf[key] = { revenue: 0, orders: 0, avgOrderValue: 0 };
         }
-        categoryPerf[key].revenue += safeNum(p.total_revenue);
-        categoryPerf[key].orders += parseInt(p.times_sold || 0);
+        categoryPerf[key].revenue += safeNum(p.totalRevenue);
+        categoryPerf[key].orders += parseInt(p.timesSold || 0);
       }
       for (const k of Object.keys(categoryPerf)) {
         const c = categoryPerf[k];
@@ -207,34 +207,34 @@ const SalesAnalytics = () => {
     const topCustomersArr = Array.isArray(customerAnalysis)
       ? customerAnalysis
           .slice()
-          .sort((a, b) => safeNum(b.total_revenue) - safeNum(a.total_revenue))
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
           .map((c) => ({
             customer: c.name || c.company || 'Unknown',
-            revenue: safeNum(c.total_revenue),
-            orders: parseInt(c.total_invoices || 0),
+            revenue: safeNum(c.totalRevenue),
+            orders: parseInt(c.totalInvoices || 0),
           }))
       : [];
 
-    const revMetrics = dashboardData.revenue_metrics || {};
-    const revPrev = (dashboardPrev && dashboardPrev.revenue_metrics) || {};
-    const custMetrics = dashboardData.customer_metrics || {};
+    const revMetrics = dashboardData.revenueMetrics || {};
+    const revPrev = (dashboardPrev && dashboardPrev.revenueMetrics) || {};
+    const custMetrics = dashboardData.customerMetrics || {};
 
     return {
-      currentRevenue: safeNum(revMetrics.total_revenue),
+      currentRevenue: safeNum(revMetrics.totalRevenue),
       revenueGrowth: pct(safeNum(curr.revenue), safeNum(prev.revenue)),
-      currentOrders: parseInt(revMetrics.total_invoices || 0),
+      currentOrders: parseInt(revMetrics.totalInvoices || 0),
       ordersGrowth: pct(parseInt(curr.orders || 0), parseInt(prev.orders || 0)),
-      uniqueCustomers: parseInt(custMetrics.total_customers || curr.customers || 0),
+      uniqueCustomers: parseInt(custMetrics.totalCustomers || curr.customers || 0),
       customersGrowth: pct(parseInt(curr.customers || 0), parseInt(prev.customers || 0)),
-      avgOrderValue: safeNum(revMetrics.average_invoice_value),
+      avgOrderValue: safeNum(revMetrics.averageInvoiceValue),
       avgOrderGrowth: (function () {
-        const c = safeNum(revMetrics.average_invoice_value);
-        const p = safeNum(revPrev.average_invoice_value);
+        const c = safeNum(revMetrics.averageInvoiceValue);
+        const p = safeNum(revPrev.averageInvoiceValue);
         return p !== 0 ? ((c - p) / p) * 100 : 0;
       })(),
-      prevTotalRevenue: safeNum(revPrev.total_revenue),
-      prevTotalInvoices: parseInt(revPrev.total_invoices || 0),
-      prevAvgOrderValue: safeNum(revPrev.average_invoice_value),
+      prevTotalRevenue: safeNum(revPrev.totalRevenue),
+      prevTotalInvoices: parseInt(revPrev.totalInvoices || 0),
+      prevAvgOrderValue: safeNum(revPrev.averageInvoiceValue),
       topProducts: topProductsArr,
       topCustomers: topCustomersArr,
       categoryPerformance: categoryPerf,

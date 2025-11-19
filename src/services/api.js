@@ -123,7 +123,7 @@ export const deliveryNotesAPI = {
 
     // Get delivery note number for filename
     const deliveryNote = await deliveryNotesAPI.getById(id);
-    const filename = `delivery-note-${deliveryNote.delivery_note_number}.pdf`;
+    const filename = `delivery-note-${deliveryNote.deliveryNoteNumber}.pdf`;
 
     // Create download link
     const link = document.createElement("a");
@@ -191,7 +191,7 @@ export const invoicesAPI = {
 
     // Get invoice number for filename
     const invoice = await invoicesAPI.getById(id);
-    const filename = `invoice-${invoice.invoice_number}.pdf`;
+    const filename = `invoice-${invoice.invoiceNumber}.pdf`;
 
     // Create download link
     const link = document.createElement("a");
@@ -345,7 +345,7 @@ export const accountStatementsAPI = {
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = blobUrl;
-    const fileName = `Statement-${data.customer_id || 'Customer'}-${data.start_date}-to-${data.end_date}.pdf`;
+    const fileName = `Statement-${data.customerId || 'Customer'}-${data.startDate}-to-${data.endDate}.pdf`;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();

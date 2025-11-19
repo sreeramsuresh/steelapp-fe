@@ -241,7 +241,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
             <tbody>
               {sortedPayments.map((payment, index) => {
                 const formatted = formatPaymentDisplay(payment);
-                const modeConfig = getPaymentModeConfig(payment.payment_mode);
+                const modeConfig = getPaymentModeConfig(payment.paymentMode);
                 const isSelected = selectedForDelete.has(payment.id);
 
                 return (
@@ -310,7 +310,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                         isDarkMode ? 'text-gray-400' : 'text-gray-600'
                       }`}
                     >
-                      {payment.reference_number || '-'}
+                      {payment.referenceNumber || '-'}
                     </td>
 
                     {/* Notes */}

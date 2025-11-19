@@ -34,10 +34,10 @@ const ls = {
 const computeInvoiceDerived = (inv) => {
   const payments = (inv.payments || []).filter(p => !p.voided);
   const received = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const total = Number(inv.invoice_amount ?? inv.total ?? 0);
+  const total = Number(inv.invoiceAmount ?? inv.total ?? 0);
   const outstanding = Math.max(0, +(total - received).toFixed(2));
   const today = new Date().toISOString().slice(0,10);
-  const dueDate = inv.due_date || inv.dueDate || today;
+  const dueDate = inv.dueDate || inv.dueDate || today;
   let status = 'unpaid';
   if (outstanding === 0 && total > 0) status = 'paid';
   else if (outstanding < total && outstanding > 0) status = 'partially_paid';
@@ -50,10 +50,10 @@ const computeInvoiceDerived = (inv) => {
 const computePODerived = (po) => {
   const payments = (po.payments || []).filter(p => !p.voided);
   const paid = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const total = Number(po.po_value ?? po.total ?? 0);
+  const total = Number(po.poValue ?? po.total ?? 0);
   const balance = Math.max(0, +(total - paid).toFixed(2));
   const today = new Date().toISOString().slice(0,10);
-  const dueDate = po.due_date || po.dueDate || today;
+  const dueDate = po.dueDate || po.dueDate || today;
   let status = 'unpaid';
   if (balance === 0 && total > 0) status = 'paid';
   else if (balance < total && balance > 0) status = 'partially_paid';

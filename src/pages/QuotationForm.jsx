@@ -174,7 +174,7 @@ const QuotationForm = () => {
         setProducts(productsResponse.products || []);
 
         const warehouseList = warehousesResponse?.warehouses || warehousesResponse?.data?.warehouses || [];
-        const activeWarehouses = warehouseList.filter((w) => w.is_active !== false);
+        const activeWarehouses = warehouseList.filter((w) => w.isActive !== false);
         setWarehouses(activeWarehouses);
 
         // Set default warehouse (Sharjah) for new quotations
@@ -199,7 +199,7 @@ const QuotationForm = () => {
           const nextNumberResponse = await quotationsAPI.getNextNumber();
           setFormData(prev => ({
             ...prev,
-            quotationNumber: nextNumberResponse.next_quotation_number
+            quotationNumber: nextNumberResponse.nextQuotationNumber
           }));
         }
       } catch (err) {
@@ -221,11 +221,11 @@ const QuotationForm = () => {
 
           // Transform snake_case to camelCase
           setFormData({
-            quotationNumber: response.quotation_number || "",
-            customerId: response.customer_id || "",
-            customerDetails: typeof response.customer_details === 'string'
-              ? JSON.parse(response.customer_details)
-              : response.customer_details || {
+            quotationNumber: response.quotationNumber || "",
+            customerId: response.customerId || "",
+            customerDetails: typeof response.customerDetails === 'string'
+              ? JSON.parse(response.customerDetails)
+              : response.customerDetails || {
                   name: "",
                   company: "",
                   email: "",
@@ -233,22 +233,22 @@ const QuotationForm = () => {
                   address: { street: "", city: "", emirate: "", country: "UAE" },
                   vatNumber: ""
                 },
-            quotationDate: response.quotation_date?.split('T')[0] || "",
-            validUntil: response.valid_until?.split('T')[0] || "",
-            customerPurchaseOrderNumber: response.customer_purchase_order_number || "",
-            customerPurchaseOrderDate: response.customer_purchase_order_date?.split('T')[0] || "",
-            warehouseId: response.warehouse_id?.toString() || "",
-            warehouseName: response.warehouse_name || "",
-            warehouseCode: response.warehouse_code || "",
-            warehouseCity: response.warehouse_city || "",
+            quotationDate: response.quotationDate?.split('T')[0] || "",
+            validUntil: response.validUntil?.split('T')[0] || "",
+            customerPurchaseOrderNumber: response.customerPurchaseOrderNumber || "",
+            customerPurchaseOrderDate: response.customerPurchaseOrderDate?.split('T')[0] || "",
+            warehouseId: response.warehouseId?.toString() || "",
+            warehouseName: response.warehouseName || "",
+            warehouseCode: response.warehouseCode || "",
+            warehouseCity: response.warehouseCity || "",
             currency: response.currency || "AED",
-            exchangeRate: response.exchange_rate || 1,
-            deliveryTerms: response.delivery_terms || "",
-            paymentTerms: response.payment_terms || "",
+            exchangeRate: response.exchangeRate || 1,
+            deliveryTerms: response.deliveryTerms || "",
+            paymentTerms: response.paymentTerms || "",
             notes: response.notes || "",
-            termsAndConditions: response.terms_and_conditions || "",
+            termsAndConditions: response.termsAndConditions || "",
             items: (response.items || []).map(item => ({
-              productId: item.product_id || "",
+              productId: item.productId || "",
               name: item.name || "",
               specification: item.specification || "",
               grade: item.grade || "",
@@ -256,29 +256,29 @@ const QuotationForm = () => {
               size: item.size || "",
               thickness: item.thickness || "",
               description: item.description || "",
-              hsnCode: item.hsn_code || "",
+              hsnCode: item.hsnCode || "",
               unit: item.unit || "pcs",
               quantity: item.quantity || 0,
               rate: item.rate || 0,
               discount: item.discount || 0,
-              discountType: item.discount_type || "amount",
-              taxableAmount: item.taxable_amount || 0,
-              vatRate: item.vat_rate || 5,
+              discountType: item.discountType || "amount",
+              taxableAmount: item.taxableAmount || 0,
+              vatRate: item.vatRate || 5,
               amount: item.amount || 0,
-              netAmount: item.net_amount || 0
+              netAmount: item.netAmount || 0
             })),
             subtotal: response.subtotal || 0,
-            vatAmount: response.vat_amount || 0,
-            totalQuantity: response.total_quantity || 0,
-            totalWeight: response.total_weight || 0,
-            packingCharges: response.packing_charges || 0,
-            freightCharges: response.freight_charges || 0,
-            insuranceCharges: response.insurance_charges || 0,
-            loadingCharges: response.loading_charges || 0,
-            otherCharges: response.other_charges || 0,
-            discountType: response.discount_type || 'amount',
-            discountPercentage: response.discount_percentage || 0,
-            discountAmount: response.discount_amount || 0,
+            vatAmount: response.vatAmount || 0,
+            totalQuantity: response.totalQuantity || 0,
+            totalWeight: response.totalWeight || 0,
+            packingCharges: response.packingCharges || 0,
+            freightCharges: response.freightCharges || 0,
+            insuranceCharges: response.insuranceCharges || 0,
+            loadingCharges: response.loadingCharges || 0,
+            otherCharges: response.otherCharges || 0,
+            discountType: response.discountType || 'amount',
+            discountPercentage: response.discountPercentage || 0,
+            discountAmount: response.discountAmount || 0,
             total: response.total || 0,
             status: response.status || "draft"
           });
@@ -320,7 +320,7 @@ const QuotationForm = () => {
             emirate: "",
             country: "UAE"
           },
-          vatNumber: customer.vat_number || ""
+          vatNumber: customer.vatNumber || ""
         }
       }));
     } else {
@@ -361,7 +361,7 @@ const QuotationForm = () => {
     const pinned = products.filter(p => pinnedProductIds.includes(p.id));
     const unpinned = products
       .filter(p => !pinnedProductIds.includes(p.id))
-      .sort((a, b) => (b.times_quoted || 0) - (a.times_quoted || 0))
+      .sort((a, b) => (b.timesQuoted || 0) - (a.timesQuoted || 0))
       .slice(0, 10 - pinned.length);
     return [...pinned, ...unpinned];
   }, [products, pinnedProductIds]);
@@ -370,17 +370,17 @@ const QuotationForm = () => {
   const quickAddItem = (product) => {
     const newItem = {
       productId: product.id || "",
-      name: product.full_name || product.name || "",
+      name: product.fullName || product.name || "",
       specification: product.specifications?.specification || product.specifications?.size || "",
       grade: product.specifications?.grade || product.grade || "",
       finish: product.specifications?.finish || product.finish || "",
       size: product.specifications?.size || product.size || "",
       thickness: product.specifications?.thickness || product.thickness || "",
       description: product.description || "",
-      hsnCode: product.hsn_code || "",
+      hsnCode: product.hsnCode || "",
       unit: product.unit || "kg",
       quantity: 1,
-      rate: parseFloat(product.selling_price || product.price) || 0,
+      rate: parseFloat(product.sellingPrice || product.price) || 0,
       discount: 0,
       discountType: "amount",
       taxableAmount: 0,
@@ -449,16 +449,16 @@ const QuotationForm = () => {
       if (product) {
         newItems[index] = {
           ...newItems[index],
-          name: product.full_name || product.name,
+          name: product.fullName || product.name,
           specification: product.specifications?.specification || product.specifications?.size || newItems[index].specification || "",
           grade: product.specifications?.grade || product.grade || newItems[index].grade || "",
           finish: product.specifications?.finish || product.finish || newItems[index].finish || "",
           size: product.specifications?.size || product.size || newItems[index].size || "",
           thickness: product.specifications?.thickness || product.thickness || newItems[index].thickness || "",
           description: product.description || "",
-          hsnCode: product.hsn_code || "",
+          hsnCode: product.hsnCode || "",
           unit: product.unit || "pcs",
-          rate: product.selling_price || product.price || 0
+          rate: product.sellingPrice || product.price || 0
         };
       }
     }
@@ -1135,7 +1135,7 @@ const QuotationForm = () => {
                             : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
                         }`}
                       >
-                        {product.full_name || product.name}
+                        {product.fullName || product.name}
                       </button>
                       <button
                         type="button"
@@ -1188,7 +1188,7 @@ const QuotationForm = () => {
                         <option value="">Select or enter manually</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.full_name || product.name}
+                            {product.fullName || product.name}
                           </option>
                         ))}
                       </Select>

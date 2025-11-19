@@ -76,24 +76,24 @@ const DeliveryNoteForm = () => {
       const deliveryNote = await deliveryNotesAPI.getById(id);
       
       setFormData({
-        delivery_note_number: deliveryNote.delivery_note_number,
-        invoice_id: deliveryNote.invoice_id,
-        delivery_date: deliveryNote.delivery_date,
-        delivery_address: deliveryNote.delivery_address || {
+        delivery_note_number: deliveryNote.deliveryNoteNumber,
+        invoice_id: deliveryNote.invoiceId,
+        delivery_date: deliveryNote.deliveryDate,
+        delivery_address: deliveryNote.deliveryAddress || {
           street: '',
           city: '',
           po_box: ''
         },
-        vehicle_number: deliveryNote.vehicle_number || '',
-        driver_name: deliveryNote.driver_name || '',
-        driver_phone: deliveryNote.driver_phone || '',
+        vehicle_number: deliveryNote.vehicleNumber || '',
+        driver_name: deliveryNote.driverName || '',
+        driver_phone: deliveryNote.driverPhone || '',
         notes: deliveryNote.notes || '',
         items: deliveryNote.items || []
       });
 
       // Load the related invoice
-      if (deliveryNote.invoice_id) {
-        const invoice = await invoicesAPI.getById(deliveryNote.invoice_id);
+      if (deliveryNote.invoiceId) {
+        const invoice = await invoicesAPI.getById(deliveryNote.invoiceId);
         setSelectedInvoice(invoice);
       }
     } catch (err) {
@@ -120,7 +120,7 @@ const DeliveryNoteForm = () => {
       const response = await deliveryNotesAPI.getNextNumber();
       setFormData(prev => ({
         ...prev,
-        delivery_note_number: response.next_delivery_note_number
+        delivery_note_number: response.nextDeliveryNoteNumber
       }));
     } catch (err) {
       console.error('Failed to generate delivery note number:', err);
@@ -135,7 +135,7 @@ const DeliveryNoteForm = () => {
       setFormData(prev => ({
         ...prev,
         invoice_id: invoice.id,
-        delivery_address: invoice.customer_details?.address || prev.delivery_address,
+        delivery_address: invoice.customerDetails?.address || prev.deliveryAddress,
         items: invoice.items?.map(item => ({
           invoice_item_id: item.id,
           name: item.name,
@@ -181,8 +181,8 @@ const DeliveryNoteForm = () => {
 
     // Calculate remaining quantity
     if (field === 'delivered_quantity') {
-      updatedItems[index].remaining_quantity = 
-        updatedItems[index].ordered_quantity - numValue;
+      updatedItems[index].remainingQuantity = 
+        updatedItems[index].orderedQuantity - numValue;
     }
 
     setFormData(prev => ({
@@ -197,31 +197,31 @@ const DeliveryNoteForm = () => {
     const invalidFieldsSet = new Set();
 
     // Delivery note number validation
-    if (!formData.delivery_note_number || formData.delivery_note_number.trim() === '') {
+    if (!formData.deliveryNoteNumber || formData.deliveryNoteNumber.trim() === '') {
       errors.push('Delivery note number is required');
       invalidFieldsSet.add('delivery_note_number');
     }
 
     // Invoice selection validation
-    if (!formData.invoice_id) {
+    if (!formData.invoiceId) {
       errors.push('Please select an invoice');
       invalidFieldsSet.add('invoice_id');
     }
 
     // Delivery date validation
-    if (!formData.delivery_date) {
+    if (!formData.deliveryDate) {
       errors.push('Delivery date is required');
       invalidFieldsSet.add('delivery_date');
     }
 
     // Vehicle number validation (optional but recommended)
-    if (!formData.vehicle_number || formData.vehicle_number.trim() === '') {
+    if (!formData.vehicleNumber || formData.vehicleNumber.trim() === '') {
       errors.push('Vehicle number is required');
       invalidFieldsSet.add('vehicle_number');
     }
 
     // Driver name validation (optional but recommended)
-    if (!formData.driver_name || formData.driver_name.trim() === '') {
+    if (!formData.driverName || formData.driverName.trim() === '') {
       errors.push('Driver name is required');
       invalidFieldsSet.add('driver_name');
     }
@@ -231,13 +231,13 @@ const DeliveryNoteForm = () => {
       errors.push('At least one item is required');
     } else {
       formData.items.forEach((item, index) => {
-        if (!item.delivered_quantity || item.delivered_quantity <= 0) {
+        if (!item.deliveredQuantity || item.deliveredQuantity <= 0) {
           errors.push(`Item ${index + 1}: Delivered quantity must be greater than 0`);
-          invalidFieldsSet.add(`item.${index}.delivered_quantity`);
+          invalidFieldsSet.add(`item.${index}.deliveredQuantity`);
         }
-        if (item.delivered_quantity > item.ordered_quantity) {
-          errors.push(`Item ${index + 1}: Delivered quantity cannot exceed ordered quantity (${item.ordered_quantity})`);
-          invalidFieldsSet.add(`item.${index}.delivered_quantity`);
+        if (item.deliveredQuantity > item.orderedQuantity) {
+          errors.push(`Item ${index + 1}: Delivered quantity cannot exceed ordered quantity (${item.orderedQuantity})`);
+          invalidFieldsSet.add(`item.${index}.deliveredQuantity`);
         }
       });
     }
@@ -270,8 +270,8 @@ const DeliveryNoteForm = () => {
       const submitData = {
         ...formData,
         items: formData.items.map(item => ({
-          invoice_item_id: item.invoice_item_id,
-          delivered_quantity: item.delivered_quantity
+          invoice_item_id: item.invoiceItemId,
+          delivered_quantity: item.deliveredQuantity
         }))
       };
 
@@ -326,7 +326,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.delivery_note_number}
+                  value={formData.deliveryNoteNumber}
                   onChange={(e) => handleInputChange('delivery_note_number', e.target.value)}
                   required
                   disabled={isEdit}
@@ -343,7 +343,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="date"
-                  value={formData.delivery_date}
+                  value={formData.deliveryDate}
                   onChange={(e) => handleInputChange('delivery_date', e.target.value)}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -360,7 +360,7 @@ const DeliveryNoteForm = () => {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={selectedInvoice ? `${selectedInvoice.invoice_number} - ${selectedInvoice.customer_details?.name}` : ''}
+                    value={selectedInvoice ? `${selectedInvoice.invoiceNumber} - ${selectedInvoice.customerDetails?.name}` : ''}
                     readOnly
                     required
                     className={`flex-grow px-4 py-3 border rounded-lg transition-colors duration-200 ${
@@ -399,7 +399,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.delivery_address.street}
+                  value={formData.deliveryAddress.street}
                   onChange={(e) => handleInputChange('delivery_address.street', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode 
@@ -415,7 +415,7 @@ const DeliveryNoteForm = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.delivery_address.city}
+                    value={formData.deliveryAddress.city}
                     onChange={(e) => handleInputChange('delivery_address.city', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
@@ -430,8 +430,8 @@ const DeliveryNoteForm = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.delivery_address.po_box}
-                    onChange={(e) => handleInputChange('delivery_address.po_box', e.target.value)}
+                    value={formData.deliveryAddress.poBox}
+                    onChange={(e) => handleInputChange('delivery_address.poBox', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
                         ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
@@ -471,20 +471,20 @@ const DeliveryNoteForm = () => {
                         </td>
                         <td className="px-4 py-3">{item.specification || '-'}</td>
                         <td className="px-4 py-3">{item.unit}</td>
-                        <td className="px-4 py-3 text-right">{item.ordered_quantity}</td>
+                        <td className="px-4 py-3 text-right">{item.orderedQuantity}</td>
                         <td className="px-4 py-3 text-right">
                           <input
                             type="number"
-                            value={item.delivered_quantity || ''}
+                            value={item.deliveredQuantity || ''}
                             onChange={(e) => handleItemQuantityChange(index, 'delivered_quantity', e.target.value)}
                             min={0}
-                            max={item.ordered_quantity}
+                            max={item.orderedQuantity}
                             step={0.01}
                             className={`w-24 px-2 py-1 border rounded ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                           />
                         </td>
-                        <td className={`px-4 py-3 text-right ${item.remaining_quantity === 0 ? 'text-green-600' : 'text-orange-600'}`}>
-                          {item.remaining_quantity}
+                        <td className={`px-4 py-3 text-right ${item.remainingQuantity === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                          {item.remainingQuantity}
                         </td>
                       </tr>
                     ))}
@@ -510,7 +510,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.vehicle_number}
+                  value={formData.vehicleNumber}
                   onChange={(e) => handleInputChange('vehicle_number', e.target.value)}
                   placeholder="e.g., MH-01-AB-1234"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -526,7 +526,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.driver_name}
+                  value={formData.driverName}
                   onChange={(e) => handleInputChange('driver_name', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode 
@@ -541,7 +541,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   type="tel"
-                  value={formData.driver_phone}
+                  value={formData.driverPhone}
                   onChange={(e) => handleInputChange('driver_phone', e.target.value)}
                   placeholder="e.g., +91 98765 43210"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${

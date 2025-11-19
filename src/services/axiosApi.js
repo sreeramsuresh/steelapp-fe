@@ -101,7 +101,7 @@ api.interceptors.response.use(
 
         // Backend already sends camelCase
         const newAccessToken = data.accessToken || data.token;
-        const newRefreshToken = data.refreshToken || data.refresh_token;
+        const newRefreshToken = data.refreshToken || data.refreshToken;
         
         if (newAccessToken) {
           // Store new tokens

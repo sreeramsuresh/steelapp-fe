@@ -50,7 +50,7 @@ const CustomerPerspective = () => {
     // Client-side filter as a safety net, in case backend ignores params
     if (customerId) {
       const byId = list.filter((r) => {
-        const id = String(r.customer?.id ?? r.customer_id ?? '').trim();
+        const id = String(r.customer?.id ?? r.customerId ?? '').trim();
         return id && id === String(customerId).trim();
       });
       if (byId.length > 0) {
@@ -77,7 +77,7 @@ const CustomerPerspective = () => {
   useEffect(() => { fetchData(); }, [customerId, start, end]);
 
   const totals = useMemo(() => {
-    const totalInvoiced = items.reduce((s, r) => s + Number(r.invoice_amount || 0), 0);
+    const totalInvoiced = items.reduce((s, r) => s + Number(r.invoiceAmount || 0), 0);
     const totalReceived = items.reduce((s, r) => s + Number(r.received || 0), 0);
     const totalOutstanding = items.reduce((s, r) => s + Number(r.outstanding || 0), 0);
     return { totalInvoiced, totalReceived, totalOutstanding };
@@ -136,7 +136,7 @@ const CustomerPerspective = () => {
     } catch (e) {
       // Fallback to CSV
       const headers = ['Invoice #','Invoice Date','Due Date','Currency','Invoice Amount','Received','Outstanding','Status'];
-      const rows = items.map(r => [r.invoice_no || r.invoiceNumber, r.invoice_date || r.date, r.due_date || r.dueDate, r.currency || 'AED', (r.invoice_amount||0), (r.received||0), (r.outstanding||0), r.status]);
+      const rows = items.map(r => [r.invoiceNo || r.invoiceNumber, r.invoiceDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.invoiceAmount||0), (r.received||0), (r.outstanding||0), r.status]);
       const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -235,11 +235,11 @@ const CustomerPerspective = () => {
                     <tr><td colSpan={8} className="px-4 py-6 text-center">No records</td></tr>
                   ) : items.map((row) => (
                     <tr key={row.id}>
-                      <td className="px-4 py-2">{row.invoice_no || row.invoiceNumber}</td>
-                      <td className="px-4 py-2">{formatDate(row.invoice_date || row.date)}</td>
-                      <td className="px-4 py-2">{formatDate(row.due_date || row.dueDate)}</td>
+                      <td className="px-4 py-2">{row.invoiceNo || row.invoiceNumber}</td>
+                      <td className="px-4 py-2">{formatDate(row.invoiceDate || row.date)}</td>
+                      <td className="px-4 py-2">{formatDate(row.dueDate || row.dueDate)}</td>
                       <td className="px-4 py-2">{row.currency || 'AED'}</td>
-                      <td className="px-4 py-2 text-right">{formatCurrency(row.invoice_amount || 0)}</td>
+                      <td className="px-4 py-2 text-right">{formatCurrency(row.invoiceAmount || 0)}</td>
                       <td className="px-4 py-2 text-right">{formatCurrency(row.received || 0)}</td>
                       <td className="px-4 py-2 text-right">{formatCurrency(row.outstanding || 0)}</td>
                       <td className="px-4 py-2">{row.status}</td>

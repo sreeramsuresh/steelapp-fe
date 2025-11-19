@@ -13,8 +13,8 @@ import { formatPaymentDisplay, getPaymentModeConfig } from './paymentUtils';
  */
 export const generateReceiptNumber = (payment, paymentIndex = 1) => {
   // Priority 1: Use existing receipt number from database
-  if (payment && payment.receipt_number) {
-    return payment.receipt_number;
+  if (payment && payment.receiptNumber) {
+    return payment.receiptNumber;
   }
 
   // Priority 2: Generate fallback with current year + index
@@ -28,7 +28,7 @@ export const generateReceiptNumber = (payment, paymentIndex = 1) => {
  * Helper function to add payment history table to PDF
  */
 const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, pageWidth) => {
-  const allPayments = (invoice.payments || []).filter(p => !p.voided).sort((a, b) => new Date(a.payment_date) - new Date(b.payment_date));
+  const allPayments = (invoice.payments || []).filter(p => !p.voided).sort((a, b) => new Date(a.paymentDate) - new Date(b.paymentDate));
 
   if (allPayments.length === 0) {
     return yPos;
@@ -84,8 +84,8 @@ const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, page
     // Format date properly - handle different date formats
     let dateStr = 'N/A';
     try {
-      if (pmt.payment_date) {
-        dateStr = formatDateDMY(pmt.payment_date);
+      if (pmt.paymentDate) {
+        dateStr = formatDateDMY(pmt.paymentDate);
       }
     } catch (e) {
       console.error('Date formatting error:', e);
@@ -98,7 +98,7 @@ const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, page
     pdf.text(methodText, colX.method, yPos);
 
     // Allow more space for reference numbers (up to 20 characters)
-    const refText = (pmt.reference_number || '-').substring(0, 20);
+    const refText = (pmt.referenceNumber || '-').substring(0, 20);
     pdf.text(refText, colX.refNo, yPos);
     pdf.text(formatCurrency(pmt.amount), colX.amount, yPos, { align: 'right' });
 
@@ -313,11 +313,11 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
     leftY += 6;
 
     // Reference Number (if available)
-    if (payment.reference_number) {
+    if (payment.referenceNumber) {
       pdf.setFont('helvetica', 'bold');
       pdf.text('Reference No:', col1X, leftY);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(payment.reference_number, col1X + labelWidth, leftY);
+      pdf.text(payment.referenceNumber, col1X + labelWidth, leftY);
       leftY += 6;
     }
 
@@ -616,11 +616,11 @@ export const printPaymentReceipt = async (payment, invoice, company, paymentInde
     leftY += 6;
 
     // Reference Number (if available)
-    if (payment.reference_number) {
+    if (payment.referenceNumber) {
       pdf.setFont('helvetica', 'bold');
       pdf.text('Reference No:', col1X, leftY);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(payment.reference_number, col1X + labelWidth, leftY);
+      pdf.text(payment.referenceNumber, col1X + labelWidth, leftY);
       leftY += 6;
     }
 

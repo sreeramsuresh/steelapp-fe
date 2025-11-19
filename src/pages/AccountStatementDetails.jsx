@@ -67,18 +67,18 @@ const AccountStatementDetails = () => {
 
   // Calculate running balance for transactions
   const transactions = [];
-  let runningBalance = parseFloat(statement.opening_balance) || 0;
+  let runningBalance = parseFloat(statement.openingBalance) || 0;
 
   // Add invoices
   if (statement.invoices) {
     statement.invoices.forEach(invoice => {
-      runningBalance += invoice.total_amount || 0;
+      runningBalance += invoice.totalAmount || 0;
       transactions.push({
-        date: invoice.invoice_date,
+        date: invoice.invoiceDate,
         type: 'Invoice',
-        reference: invoice.invoice_number,
-        description: `Invoice ${invoice.invoice_number}`,
-        debit: invoice.total_amount || 0,
+        reference: invoice.invoiceNumber,
+        description: `Invoice ${invoice.invoiceNumber}`,
+        debit: invoice.totalAmount || 0,
         credit: 0,
         balance: runningBalance
       });
@@ -90,10 +90,10 @@ const AccountStatementDetails = () => {
     statement.payments.forEach(payment => {
       runningBalance -= payment.amount || 0;
       transactions.push({
-        date: payment.payment_date,
+        date: payment.paymentDate,
         type: 'Payment',
-        reference: payment.reference_number || '-',
-        description: `Payment for ${payment.invoice_number}`,
+        reference: payment.referenceNumber || '-',
+        description: `Payment for ${payment.invoiceNumber}`,
         debit: 0,
         credit: payment.amount || 0,
         balance: runningBalance
@@ -125,7 +125,7 @@ const AccountStatementDetails = () => {
                 Account Statement
               </h1>
               <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {statement.statement_number}
+                {statement.statementNumber}
               </p>
             </div>
           </div>
@@ -147,21 +147,21 @@ const AccountStatementDetails = () => {
               Customer Details
             </h3>
             <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {statement.customer_name}
+              {statement.customerName}
             </div>
-            {statement.customer_company && (
+            {statement.customerCompany && (
               <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {statement.customer_company}
+                {statement.customerCompany}
               </div>
             )}
-            {statement.customer_email && (
+            {statement.customerEmail && (
               <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {statement.customer_email}
+                {statement.customerEmail}
               </div>
             )}
-            {statement.customer_phone && (
+            {statement.customerPhone && (
               <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {statement.customer_phone}
+                {statement.customerPhone}
               </div>
             )}
           </div>
@@ -173,10 +173,10 @@ const AccountStatementDetails = () => {
               Statement Period
             </h3>
             <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {formatDate(statement.start_date)} - {formatDate(statement.end_date)}
+              {formatDate(statement.startDate)} - {formatDate(statement.endDate)}
             </div>
             <div className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Generated on: {formatDate(statement.created_at)}
+              Generated on: {formatDate(statement.createdAt)}
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@ const AccountStatementDetails = () => {
                   Opening Balance
                 </p>
                 <p className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {formatCurrency(statement.opening_balance)}
+                  {formatCurrency(statement.openingBalance)}
                 </p>
               </div>
             </div>
@@ -209,7 +209,7 @@ const AccountStatementDetails = () => {
                   Total Invoiced
                 </p>
                 <p className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {formatCurrency(statement.total_invoiced)}
+                  {formatCurrency(statement.totalInvoiced)}
                 </p>
               </div>
             </div>
@@ -225,7 +225,7 @@ const AccountStatementDetails = () => {
                   Total Paid
                 </p>
                 <p className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {formatCurrency(statement.total_paid)}
+                  {formatCurrency(statement.totalPaid)}
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ const AccountStatementDetails = () => {
             isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <div className="flex items-center gap-3">
-              {statement.closing_balance > 0 ? (
+              {statement.closingBalance > 0 ? (
                 <TrendingUp className="text-red-500" size={24} />
               ) : (
                 <TrendingDown className="text-green-500" size={24} />
@@ -245,11 +245,11 @@ const AccountStatementDetails = () => {
                   Closing Balance
                 </p>
                 <p className={`text-lg font-semibold ${
-                  statement.closing_balance > 0
+                  statement.closingBalance > 0
                     ? 'text-red-500'
                     : 'text-green-500'
                 }`}>
-                  {formatCurrency(statement.closing_balance)}
+                  {formatCurrency(statement.closingBalance)}
                 </p>
               </div>
             </div>
@@ -298,7 +298,7 @@ const AccountStatementDetails = () => {
                   <td className="px-4 py-3 text-right">-</td>
                   <td className="px-4 py-3 text-right">-</td>
                   <td className={`px-4 py-3 text-right font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {formatCurrency(statement.opening_balance)}
+                    {formatCurrency(statement.openingBalance)}
                   </td>
                 </tr>
                 {transactions.map((trans, index) => (

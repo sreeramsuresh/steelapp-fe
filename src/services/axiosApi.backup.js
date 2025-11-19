@@ -140,7 +140,7 @@ axiosApi.interceptors.request.use(async (config) => {
                 const newAccess = data.accessToken || data.token;
                 if (newAccess) {
                   tokenUtils.setToken(newAccess);
-                  const newRefresh = data.refreshToken || data.refresh_token;
+                  const newRefresh = data.refreshToken || data.refreshToken;
                   if (newRefresh) tokenUtils.setRefreshToken(newRefresh);
                 }
                 return newAccess;
@@ -200,7 +200,7 @@ axiosApi.interceptors.response.use(
           if (!newAccess) throw new Error("No accessToken in refresh response");
 
           tokenUtils.setToken(newAccess);
-          const newRefresh = data.refreshToken || data.refresh_token;
+          const newRefresh = data.refreshToken || data.refreshToken;
           if (newRefresh) tokenUtils.setRefreshToken(newRefresh);
 
           // Retry the original request with new token

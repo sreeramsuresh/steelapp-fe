@@ -128,10 +128,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
   const handleEdit = (reminder) => {
     setEditingId(reminder.id);
     setFormData({
-      contact_date: new Date(reminder.contact_date).toISOString().slice(0, 16),
+      contact_date: new Date(reminder.contactDate).toISOString().slice(0, 16),
       notes: reminder.notes,
-      promised_amount: reminder.promised_amount || '',
-      promised_date: reminder.promised_date || ''
+      promised_amount: reminder.promisedAmount || '',
+      promised_date: reminder.promisedDate || ''
     });
   };
 
@@ -225,7 +225,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
               <div>
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Total Amount</div>
                 <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
-                  {formatCurrency(invoice?.invoice_amount || invoice?.total || 0)}
+                  {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
                 </div>
               </div>
               <div>
@@ -237,7 +237,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
               <div>
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Balance Due</div>
                 <div className="font-bold text-lg text-red-600 dark:text-red-400">
-                  {formatCurrency(invoice?.outstanding || invoice?.balance_due || 0)}
+                  {formatCurrency(invoice?.outstanding || invoice?.balanceDue || 0)}
                 </div>
               </div>
             </div>
@@ -264,7 +264,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Calendar size={14} />
                       <span className="font-medium">
-                        {formatDateTime(reminder.contact_date)}
+                        {formatDateTime(reminder.contactDate)}
                       </span>
                       {/* User First Name */}
                       <span className="ml-2 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded text-xs font-semibold">
@@ -294,23 +294,23 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                   </p>
 
                   {/* Show promised payment info if available */}
-                  {(reminder.promised_amount || reminder.promised_date) && (
+                  {(reminder.promisedAmount || reminder.promisedDate) && (
                     <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
-                      {reminder.promised_amount && (
+                      {reminder.promisedAmount && (
                         <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                           <span>💰</span>
                           <span className="font-semibold">Promised Amount:</span>
                           <span className="text-green-600 dark:text-green-400 font-bold">
-                            AED {parseFloat(reminder.promised_amount).toFixed(2)}
+                            AED {parseFloat(reminder.promisedAmount).toFixed(2)}
                           </span>
                         </div>
                       )}
-                      {reminder.promised_date && (
+                      {reminder.promisedDate && (
                         <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                           <span>📅</span>
                           <span className="font-semibold">Promised Date:</span>
                           <span className="text-blue-600 dark:text-blue-400 font-bold">
-                            {new Date(reminder.promised_date).toLocaleDateString('en-US', {
+                            {new Date(reminder.promisedDate).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
@@ -341,7 +341,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                   </label>
                   <input
                     type="datetime-local"
-                    value={formData.contact_date}
+                    value={formData.contactDate}
                     onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
                     required
@@ -383,7 +383,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                     type="number"
                     step="0.01"
                     min="0"
-                    value={formData.promised_amount}
+                    value={formData.promisedAmount}
                     onChange={(e) => setFormData({ ...formData, promised_amount: e.target.value })}
                     placeholder="e.g., 5000"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
@@ -398,7 +398,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                   </label>
                   <input
                     type="date"
-                    value={formData.promised_date}
+                    value={formData.promisedDate}
                     onChange={(e) => setFormData({ ...formData, promised_date: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
                   />

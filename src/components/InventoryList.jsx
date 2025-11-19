@@ -87,13 +87,13 @@ const InventoryList = () => {
       
       // Transform to match expected format
       const transformedWarehouses = warehouseList
-        .filter(w => w.is_active !== false) // Only show active warehouses
+        .filter(w => w.isActive !== false) // Only show active warehouses
         .map(w => ({
           id: w.id,
           name: w.name,
           code: w.code,
           city: w.city,
-          isActive: w.is_active !== false
+          isActive: w.isActive !== false
         }));
       
       setWarehouses(transformedWarehouses);
@@ -242,7 +242,7 @@ const InventoryList = () => {
     setFormData((prev) => ({
       ...prev,
       productId: product.id,
-      productName: product.full_name || product.name,
+      productName: product.fullName || product.name,
     }));
     setProductQuery("");
     setProductOptions([]);

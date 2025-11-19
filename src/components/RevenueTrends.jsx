@@ -67,9 +67,9 @@ const RevenueTrends = () => {
     const revenueData = sortedData.map(item => ({
       month: format(new Date(item.period), 'MMM yyyy'),
       revenue: parseFloat(item.revenue),
-      invoiceCount: parseInt(item.invoice_count),
-      avgOrderValue: parseFloat(item.average_order_value),
-      uniqueCustomers: parseInt(item.unique_customers),
+      invoiceCount: parseInt(item.invoiceCount),
+      avgOrderValue: parseFloat(item.averageOrderValue),
+      uniqueCustomers: parseInt(item.uniqueCustomers),
       period: new Date(item.period)
     }));
 

@@ -143,7 +143,7 @@ const CreditNoteForm = () => {
   const loadNextCreditNoteNumber = async () => {
     try {
       const response = await creditNoteService.getNextCreditNoteNumber();
-      const nextNumber = response.next_number || response.nextNumber || 'CN-0001';
+      const nextNumber = response.nextNumber || response.nextNumber || 'CN-0001';
       setCreditNote(prev => ({ ...prev, creditNoteNumber: nextNumber }));
     } catch (error) {
       console.error('Error loading next credit note number:', error);
@@ -206,7 +206,7 @@ const CreditNoteForm = () => {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(dateFilter));
       results = results.filter(inv =>
-        new Date(inv.invoice_date) >= daysAgo
+        new Date(inv.invoiceDate) >= daysAgo
       );
     }
 
@@ -631,12 +631,12 @@ const CreditNoteForm = () => {
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                  {invoice.invoice_number}
+                                  {invoice.invoiceNumber}
                                 </div>
                                 <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                  {invoice.customer_name}
-                                  {invoice.customer_email && (
-                                    <span className="ml-2">• {invoice.customer_email}</span>
+                                  {invoice.customerName}
+                                  {invoice.customerEmail && (
+                                    <span className="ml-2">• {invoice.customerEmail}</span>
                                   )}
                                 </div>
                               </div>
@@ -645,7 +645,7 @@ const CreditNoteForm = () => {
                                   {formatCurrency(invoice.total)}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                  {new Date(invoice.invoice_date).toLocaleDateString()}
+                                  {new Date(invoice.invoiceDate).toLocaleDateString()}
                                 </div>
                               </div>
                             </div>

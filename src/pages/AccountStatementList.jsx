@@ -38,9 +38,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
         customer_id: customerFilter || undefined,
       });
       
-      setStatements(response.account_statements || []);
+      setStatements(response.accountStatements || []);
       if (response.pagination) {
-        setTotalPages(response.pagination.total_pages);
+        setTotalPages(response.pagination.totalPages);
       }
     } catch (err) {
       console.error('Error fetching account statements:', err);
@@ -222,7 +222,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           }`}>
             <div className="py-4">
               <div className="text-2xl font-bold text-orange-600">
-                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.total_invoices || 0), 0))}
+                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.totalInvoices || 0), 0))}
               </div>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Invoiced
@@ -234,7 +234,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           }`}>
             <div className="py-4">
               <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.total_payments || 0), 0))}
+                {formatCurrency(statements.reduce((sum, stmt) => sum + (stmt.totalPayments || 0), 0))}
               </div>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Paid
@@ -246,7 +246,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           }`}>
             <div className="py-4">
               <div className="text-2xl font-bold text-red-600">
-                {formatCurrency(statements.reduce((sum, stmt) => sum + stmt.closing_balance, 0))}
+                {formatCurrency(statements.reduce((sum, stmt) => sum + stmt.closingBalance, 0))}
               </div>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Total Outstanding
@@ -315,36 +315,36 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                   <tr key={statement.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {statement.statement_number}
+                        {statement.statementNumber}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {statement.customer_name}
+                        {statement.customerName}
                       </div>
-                      {statement.customer_company && (
+                      {statement.customerCompany && (
                         <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {statement.customer_company}
+                          {statement.customerCompany}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {formatDate(statement.from_date)} - {formatDate(statement.to_date)}
+                        {formatDate(statement.fromDate)} - {formatDate(statement.toDate)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {formatCurrency(statement.total_invoices)}
+                        {formatCurrency(statement.totalInvoices)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {formatCurrency(statement.total_payments)}
+                        {formatCurrency(statement.totalPayments)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getBalanceBadge(statement.closing_balance)}
+                      {getBalanceBadge(statement.closingBalance)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">
@@ -373,7 +373,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                           onClick={() => setDeleteDialog({
                             open: true,
                             id: statement.id,
-                            number: statement.statement_number
+                            number: statement.statementNumber
                           })}
                           title="Archive Statement"
                         >

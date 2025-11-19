@@ -27,10 +27,9 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { createCompany } from "../types";
-import { invoiceService } from "../services/dataService";
+import { invoiceService, payablesService, PAYMENT_MODES } from "../services/dataService";
 import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
-import { payablesService, PAYMENT_MODES } from "../services/payablesService";
 import { authService } from "../services/axiosAuthService";
 import { apiClient } from "../services/api";
 import { uuid } from "../utils/uuid";
@@ -43,6 +42,7 @@ import { useConfirm } from "../hooks/useConfirm";
 import { generatePaymentReminder, getInvoiceReminderInfo } from "../utils/reminderUtils";
 import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 import { normalizeInvoices } from "../utils/invoiceNormalizer";
+import { guardInvoicesDev } from "../utils/devGuards";
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -53,9 +53,19 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   React.useEffect(() => {
     notificationService.setTheme(isDarkMode);
   }, [isDarkMode]);
+  // STATE: Primary invoice data and loading state
+  /** @type {[import('../types/invoice').Invoice[], Function]} */
   const [invoices, setInvoices] = useState([]);
   const [pagination, setPagination] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Controls spinner visibility
+
+  // DEBUG: Track component instance to detect multiple mounts
+  const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
+  const renderCount = React.useRef(0);
+  renderCount.current++;
+  
+  console.log(`[${instanceRef.current}] RENDER #${renderCount.current} - loading=${loading}, invoices.length=${invoices.length}`);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
@@ -88,10 +98,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const statusMap = {};
 
     invoices.forEach((invoice) => {
-      if (invoice.delivery_status) {
+      if (invoice.deliveryStatus) {
         statusMap[invoice.id] = {
-          hasNotes: invoice.delivery_status.hasNotes,
-          count: invoice.delivery_status.count,
+          hasNotes: invoice.deliveryStatus.hasNotes,
+          count: invoice.deliveryStatus.count,
         };
       } else {
         statusMap[invoice.id] = { hasNotes: false, count: 0 };
@@ -102,8 +112,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
   // Fetch invoices with pagination and abort controller
+  // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
   const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
     try {
+      // START LOADING: Set loading state before fetch
+      console.log(`[${instanceRef.current}] fetchInvoices START - setLoading(true)`);
       setLoading(true);
       const queryParams = {
         page: page,
@@ -121,7 +134,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // Use invoiceService to get ALL invoices (including draft and proforma)
       const response = await invoiceService.getInvoices(queryParams, signal);
 
-      // Check if request was aborted
+      // Check if request was aborted before updating state
       if (signal?.aborted) {
         return;
       }
@@ -129,7 +142,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // invoiceService returns { invoices, pagination }
       const invoicesData = response.invoices || response;
       const normalizedInvoices = normalizeInvoices(Array.isArray(invoicesData) ? invoicesData : [], 'fetchInvoices');
-      setInvoices(normalizedInvoices);
+      
+      // In development, wrap with guards that warn on snake_case access
+      const guardedInvoices = guardInvoicesDev(normalizedInvoices);
+      
+      setInvoices(guardedInvoices);
 
       // Set pagination if available
       if (response.pagination) {
@@ -143,24 +160,31 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     } catch (error) {
       // Ignore abort errors
       if (error.name === 'AbortError' || error.message === 'canceled') {
-        console.log('Request cancelled');
         return;
       }
       console.error("Error fetching invoices:", error);
       setInvoices([]);
       setPagination(null);
     } finally {
+      // END LOADING: Always turn off loading unless request was aborted
       if (!signal?.aborted) {
+        console.log(`[${instanceRef.current}] fetchInvoices END - setLoading(false)`);
         setLoading(false);
+      } else {
+        console.log(`[${instanceRef.current}] fetchInvoices ABORTED - NOT setting loading to false`);
       }
     }
   }, []);
 
   // Consolidated effect with debouncing and request cancellation
+  // TRIGGERS: Runs when page, filters, or search changes
+  // CLEANUP: Aborts pending requests when dependencies change
   useEffect(() => {
+    console.log(`[${instanceRef.current}] FETCH EFFECT TRIGGERED - currentPage=${currentPage}, searchTerm="${searchTerm}", statusFilter=${statusFilter}`);
     const abortController = new AbortController();
 
     const timeoutId = setTimeout(() => {
+      console.log(`[${instanceRef.current}] CALLING fetchInvoices after ${searchTerm ? 500 : 0}ms debounce`);
       fetchInvoices(
         currentPage,
         pageSize,
@@ -172,15 +196,19 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }, searchTerm ? 500 : 0); // Debounce search by 500ms, others immediately
 
     return () => {
+      console.log(`[${instanceRef.current}] FETCH EFFECT CLEANUP - aborting`);
       clearTimeout(timeoutId);
       abortController.abort();
     };
-  }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted, fetchInvoices]);
+  }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter, showDeleted]);
+    console.log(`[${instanceRef.current}] RESET PAGE EFFECT - currentPage was ${currentPage}, setting to 1`);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [searchTerm, statusFilter, showDeleted, currentPage]);
 
   // Initialize search from URL param
   useEffect(() => {
@@ -198,7 +226,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Client-side payment status and card filtering
   // GOLD STANDARD: Use backend-provided payment status instead of calculating
+  /** @type {import('../types/invoice').Invoice[]} */
   const filteredInvoices = React.useMemo(() => {
+    console.log(`[${instanceRef.current}] 🔍 FILTERING invoices - input length:`, invoices?.length, 'filters:', {
+      paymentStatusFilter,
+      activeCardFilter
+    });
+    console.log(`[${instanceRef.current}] 🔍 SAMPLE INVOICE OBJECT:`, invoices?.[0], 'keys:', Object.keys(invoices?.[0] || {}));
+    
     let filtered = invoices;
 
     // Apply payment status filter
@@ -210,7 +245,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         }
 
         // Use backend-provided payment status (GOLD STANDARD)
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === paymentStatusFilter;
       });
     }
@@ -220,7 +255,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       filtered = filtered.filter(invoice => {
         if (invoice.status !== 'issued') return false;
         // Use backend-provided payment status
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       });
     } else if (activeCardFilter === 'overdue') {
@@ -230,7 +265,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         // Use backend-provided payment status
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     } else if (activeCardFilter === 'due_soon') {
@@ -243,11 +278,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         if (invoice.status !== 'issued') return false;
         const dueDate = new Date(invoice.dueDate);
         // Use backend-provided payment status
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     }
 
+    console.log(`[${instanceRef.current}] 🔍 FILTERING RESULT - filtered length:`, filtered?.length);
     return filtered;
   }, [invoices, paymentStatusFilter, activeCardFilter]);
 
@@ -296,7 +332,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       })
       .reduce((sum, invoice) => {
@@ -311,7 +347,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       const dueDate = new Date(invoice.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const paymentStatus = invoice.payment_status || 'unpaid';
+      const paymentStatus = invoice.paymentStatus || 'unpaid';
       return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -332,7 +368,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const dueSoonInvoices = invoices.filter(invoice => {
       if (invoice.status !== 'issued') return false;
       const dueDate = new Date(invoice.dueDate);
-      const paymentStatus = invoice.payment_status || 'unpaid';
+      const paymentStatus = invoice.paymentStatus || 'unpaid';
       return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -348,7 +384,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return invoices
       .filter(invoice => {
         if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.payment_status || 'unpaid';
+        const paymentStatus = invoice.paymentStatus || 'unpaid';
         return paymentStatus === 'paid';
       })
       .reduce((sum, invoice) => sum + invoice.total, 0);
@@ -501,8 +537,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
   const handleGenerateStatement = (invoice) => {
-    const customerId = invoice.customer?.id || invoice.customer_id;
-    const customerName = invoice.customer?.name || invoice.customer_name;
+    const customerId = invoice.customer?.id || invoice.customerId;
+    const customerName = invoice.customer?.name || invoice.customerName;
 
     // Navigate to Finance Dashboard with customer pre-selected for SOA generation
     navigate(`/finance?tab=statements&customerId=${customerId}&customerName=${encodeURIComponent(customerName)}`);
@@ -545,12 +581,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const handleCalculateCommission = async (invoice) => {
     if (calculatingCommissionIds.has(invoice.id)) return;
 
-    if (!invoice.sales_agent_id) {
+    if (!invoice.salesAgentId) {
       notificationService.warning('No sales agent assigned to this invoice');
       return;
     }
 
-    if (invoice.payment_status !== 'paid') {
+    if (invoice.paymentStatus !== 'paid') {
       notificationService.warning('Commission can only be calculated for fully paid invoices');
       return;
     }
@@ -604,7 +640,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     // Calculate payment_status (not invoice status)
     let payment_status = 'unpaid';
     if (newOutstanding === 0) payment_status = 'paid';
-    else if (newOutstanding < (inv.invoice_amount || 0)) payment_status = 'partially_paid';
+    else if (newOutstanding < (inv.invoiceAmount || 0)) payment_status = 'partially_paid';
 
     const updatedInv = {
       ...inv,
@@ -633,7 +669,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           invoice.id === inv.id
             ? {
                 ...invoice,
-                payment_status: freshData.payment_status,
+                payment_status: freshData.paymentStatus,
                 received: freshData.received,
                 outstanding: freshData.outstanding,
                 balance_due: freshData.outstanding
@@ -643,7 +679,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       );
 
       // Auto-calculate commission if invoice is now fully paid and has a sales agent
-      if (payment_status === 'paid' && inv.sales_agent_id) {
+      if (payment_status === 'paid' && inv.salesAgentId) {
         try {
           await commissionService.calculateCommission(inv.id);
           notificationService.success('Commission calculated automatically');
@@ -679,10 +715,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p
     );
     const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
-    const outstanding = Math.max(0, +((inv.invoice_amount || 0) - received).toFixed(2));
+    const outstanding = Math.max(0, +((inv.invoiceAmount || 0) - received).toFixed(2));
     let status = 'unpaid';
     if (outstanding === 0) status = 'paid';
-    else if (outstanding < (inv.invoice_amount || 0)) status = 'partially_paid';
+    else if (outstanding < (inv.invoiceAmount || 0)) status = 'partially_paid';
 
     const updatedInv = {
       ...inv,
@@ -709,7 +745,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           invoice.id === inv.id
             ? {
                 ...invoice,
-                payment_status: freshData.payment_status,
+                payment_status: freshData.paymentStatus,
                 received: freshData.received,
                 outstanding: freshData.outstanding,
                 balance_due: freshData.outstanding
@@ -838,7 +874,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     try {
       const confirmed = await confirm({
         title: 'Create Delivery Note',
-        message: `Create a delivery note for Invoice #${invoice.invoice_number || invoice.invoiceNumber}?\n\nNote: Only one delivery note is allowed per invoice.`,
+        message: `Create a delivery note for Invoice #${invoice.invoiceNumber}?\n\nNote: Only one delivery note is allowed per invoice.`,
         confirmText: 'Create',
         variant: 'info'
       });
@@ -846,7 +882,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // Create delivery note using axios client (auth + baseURL + refresh)
       const { apiClient } = await import("../services/api");
       const resp = await apiClient.post(`/invoices/${invoice.id}/generate-delivery-note`);
-      const dn = resp?.delivery_note || resp?.data?.delivery_note || resp;
+      const dn = resp?.deliveryNote || resp?.data?.deliveryNote || resp;
 
       notificationService.createSuccess("Delivery note");
       // Open modal with the created delivery note
@@ -863,7 +899,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       if (String(msg).toLowerCase().includes("already exists")) {
         try {
           const list = await deliveryNotesAPI.getAll({ invoice_id: invoice.id, limit: 1, page: 1 });
-          const dn = Array.isArray(list?.delivery_notes) ? list.delivery_notes[0] : (Array.isArray(list) ? list[0] : null);
+          const dn = Array.isArray(list?.deliveryNotes) ? list.deliveryNotes[0] : (Array.isArray(list) ? list[0] : null);
           if (dn) {
             setCreatedDeliveryNote(dn);
             setShowDeliveryModal(true);
@@ -912,7 +948,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
   const handleRestoreInvoice = async (invoice) => {
-    const number = invoice.invoice_number || invoice.invoiceNumber || invoice.id;
+    const number = invoice.invoiceNumber || invoice.id;
     const confirmed = await confirm({
       title: 'Restore Invoice',
       message: `Restore invoice ${number}?\n\nThis will undelete the invoice and make it active again.`,
@@ -933,7 +969,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Helper function to get action button configurations
   const getActionButtonConfig = (invoice) => {
-    const isDeleted = invoice.deleted_at !== null;
+    const isDeleted = invoice.deletedAt !== null;
     const canUpdate = authService.hasPermission('invoices', 'update');
     const canDelete = authService.hasPermission('invoices', 'delete');
     const canRead = authService.hasPermission('invoices', 'read');
@@ -982,17 +1018,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         enabled: !isDeleted,
         tooltip: isDeleted
           ? 'Cannot view payments for deleted invoice'
-          : invoice.payment_status === 'paid'
+          : invoice.paymentStatus === 'paid'
             ? 'View Payment History'
             : 'Record Payment',
-        isPaid: invoice.payment_status === 'paid',
-        canAddPayment: canUpdate && invoice.payment_status !== 'paid' && (invoice.balance_due === undefined || invoice.balance_due > 0)
+        isPaid: invoice.paymentStatus === 'paid',
+        canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
       },
       commission: {
-        enabled: invoice.payment_status === 'paid' && invoice.sales_agent_id && !isDeleted,
-        tooltip: invoice.payment_status !== 'paid'
+        enabled: invoice.paymentStatus === 'paid' && invoice.salesAgentId && !isDeleted,
+        tooltip: invoice.paymentStatus !== 'paid'
           ? 'Only available for paid invoices'
-          : !invoice.sales_agent_id
+          : !invoice.salesAgentId
             ? 'No sales agent assigned'
             : isDeleted
               ? 'Cannot calculate for deleted invoice'
@@ -1058,6 +1094,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
+  // SPINNER LOGIC: Show spinner ONLY when loading is true
+  // Once loading is false, always show the invoice list (even if empty)
+  console.log(`[${instanceRef.current}] SPINNER CHECK - loading=${loading} → ${loading ? 'SHOWING SPINNER' : 'SHOWING INVOICE LIST'}`);
+  
   if (loading) {
     return (
       <div
@@ -1088,7 +1128,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <div className={`flex items-center justify-between px-6 py-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
             <div className="flex items-center gap-3">
               <Truck className="text-teal-600" size={20} />
-              <div className="font-semibold">Delivery Note {dn.delivery_note_number}</div>
+              <div className="font-semibold">Delivery Note {dn.deliveryNote_number}</div>
             </div>
             <button onClick={() => setShowDeliveryModal(false)} className={isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}>
               <X size={18} />
@@ -1098,15 +1138,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-sm text-gray-500">Invoice #</div>
-                <div className="font-medium text-teal-600">{dn.invoice_number || '-'}</div>
+                <div className="font-medium text-teal-600">{dn.invoiceNumber || '-'}</div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Delivery Date</div>
-                <div className="font-medium">{formatDate(dn.delivery_date)}</div>
+                <div className="font-medium">{formatDate(dn.deliveryDate)}</div>
               </div>
               <div className="col-span-2">
                 <div className="text-sm text-gray-500">Customer</div>
-                <div className="font-medium">{dn.customer_details?.name || '-'}</div>
+                <div className="font-medium">{dn.customerDetails?.name || '-'}</div>
               </div>
             </div>
             <div className="overflow-x-auto rounded-lg border border-gray-200">
@@ -1127,9 +1167,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       <td className="px-3 py-2">{it.name}</td>
                       <td className="px-3 py-2">{it.specification || '-'}</td>
                       <td className="px-3 py-2">{it.unit || ''}</td>
-                      <td className="px-3 py-2 text-right">{it.ordered_quantity}</td>
-                      <td className="px-3 py-2 text-right">{it.delivered_quantity}</td>
-                      <td className="px-3 py-2 text-right">{it.remaining_quantity}</td>
+                      <td className="px-3 py-2 text-right">{it.orderedQuantity}</td>
+                      <td className="px-3 py-2 text-right">{it.deliveredQuantity}</td>
+                      <td className="px-3 py-2 text-right">{it.remainingQuantity}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1610,6 +1650,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
+              {console.log("TABLE FIELD CHECK", {
+                sampleKeys: Object.keys(filteredInvoices[0] || {}),
+                sampleInvoiceNumber: filteredInvoices[0]?.invoiceNumber,
+                sampleCustomerName: filteredInvoices[0]?.customerDetails?.name,
+                count: filteredInvoices.length
+              })}
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-16 text-center">
@@ -1663,8 +1709,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((invoice) => {
-                const isDeleted = invoice.deleted_at || invoice.deletedAt;
+                filteredInvoices.map((invoice, index) => {
+                console.log(`[${instanceRef.current}] 🔨 CREATING ROW ${index + 1}/${filteredInvoices.length}`, {
+                  id: invoice.id,
+                  invoiceNumber: invoice.invoiceNumber,
+                  customerName: invoice.customerDetails?.name
+                });
+                const isDeleted = invoice.deletedAt;
                 const isSelected = selectedInvoiceIds.has(invoice.id);
                 return (
                 <tr
@@ -1694,25 +1745,25 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
-                      {invoice.invoice_number}
+                      {invoice.invoiceNumber}
                     </div>
                     {isDeleted && (
                       <div
                         className={`text-xs mt-1 ${
                           isDarkMode ? "text-red-400" : "text-red-600"
                         }`}
-                        title={`Deleted: ${invoice.deletion_reason || invoice.deletionReason || 'No reason provided'}`}
+                        title={`Deleted: ${invoice.deletionReason || 'No reason provided'}`}
                       >
                         🗑️ DELETED
                       </div>
                     )}
-                    {invoice.recreated_from && (
+                    {invoice.recreatedFrom && (
                       <div
                         className={`text-xs mt-1 ${
                           isDarkMode ? "text-yellow-400" : "text-yellow-600"
                         }`}
                       >
-                        🔄 Recreated from {invoice.recreated_from}
+                        🔄 Recreated from {invoice.recreatedFrom}
                       </div>
                     )}
                     {invoice.status === "cancelled" && (
@@ -1732,14 +1783,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           isDarkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
-                        {invoice.customer_details?.name || invoice.customer?.name}
+                        {invoice.customerDetails?.name || invoice.customer?.name}
                       </div>
                       <div
                         className={`text-xs ${
                           isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {invoice.customer_details?.email || invoice.customer?.email}
+                        {invoice.customerDetails?.email || invoice.customer?.email}
                       </div>
                     </div>
                   </td>
@@ -1749,7 +1800,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(invoice.invoice_date)}
+                      {formatDate(invoice.invoiceDate)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -1758,7 +1809,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {formatDate(invoice.due_date)}
+                      {formatDate(invoice.dueDate)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -2047,7 +2098,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                 title={actions.deliveryNote.tooltip}
                                 onClick={() =>
                                   actions.deliveryNote.hasNotes
-                                    ? navigate(`/delivery-notes?invoice_id=${invoice.id}`)
+                                    ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
                                     : handleCreateDeliveryNote(invoice)
                                 }
                               >
@@ -2128,7 +2179,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         </div>
 
         {/* Pagination */}
-        {pagination && pagination.total_pages > 1 && (
+        {pagination && pagination.totalPages > 1 && (
           <div
             className={`flex justify-between items-center mt-6 pt-4 border-t ${
               isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -2139,10 +2190,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{" "}
+              Showing {(pagination.currentPage - 1) * pagination.perPage + 1}{" "}
               to{" "}
               {Math.min(
-                pagination.current_page * pagination.per_page,
+                pagination.currentPage * pagination.perPage,
                 pagination.total
               )}{" "}
               of {pagination.total} invoices
@@ -2150,11 +2201,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) =>
-                  handlePageChange(e, pagination.current_page - 1)
+                  handlePageChange(e, pagination.currentPage - 1)
                 }
-                disabled={pagination.current_page === 1}
+                disabled={pagination.currentPage === 1}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
-                  pagination.current_page === 1
+                  pagination.currentPage === 1
                     ? isDarkMode
                       ? "text-gray-600 cursor-not-allowed"
                       : "text-gray-400 cursor-not-allowed"
@@ -2170,15 +2221,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   isDarkMode ? "text-gray-300" : "text-gray-600"
                 }`}
               >
-                Page {pagination.current_page} of {pagination.total_pages}
+                Page {pagination.currentPage} of {pagination.totalPages}
               </span>
               <button
                 onClick={(e) =>
-                  handlePageChange(e, pagination.current_page + 1)
+                  handlePageChange(e, pagination.currentPage + 1)
                 }
-                disabled={pagination.current_page === pagination.total_pages}
+                disabled={pagination.currentPage === pagination.totalPages}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
-                  pagination.current_page === pagination.total_pages
+                  pagination.currentPage === pagination.totalPages
                     ? isDarkMode
                       ? "text-gray-600 cursor-not-allowed"
                       : "text-gray-400 cursor-not-allowed"
@@ -2212,7 +2263,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="p-4 border-b flex items-center justify-between">
               <div>
                 <div className="font-semibold text-lg">
-                  {paymentDrawerInvoice.invoice_no || paymentDrawerInvoice.invoiceNumber}
+                  {paymentDrawerInvoice.invoiceNo || paymentDrawerInvoice.invoiceNumber}
                 </div>
                 <div className="text-sm opacity-70">
                   {paymentDrawerInvoice.customer?.name || ''}
@@ -2220,14 +2271,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                  paymentDrawerInvoice.payment_status === 'paid'
+                  paymentDrawerInvoice.paymentStatus === 'paid'
                     ? 'bg-green-100 text-green-800 border-green-300'
-                    : paymentDrawerInvoice.payment_status === 'partially_paid'
+                    : paymentDrawerInvoice.paymentStatus === 'partially_paid'
                     ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
                     : 'bg-red-100 text-red-800 border-red-300'
                 }`}>
-                  {paymentDrawerInvoice.payment_status === 'paid' ? 'Paid' :
-                   paymentDrawerInvoice.payment_status === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                  {paymentDrawerInvoice.paymentStatus === 'paid' ? 'Paid' :
+                   paymentDrawerInvoice.paymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
                 </span>
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>
@@ -2253,7 +2304,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       Total Amount
                     </div>
                     <div className={`font-bold text-lg ${isDarkMode ? 'text-blue-100' : 'text-blue-900'}`}>
-                      {formatCurrency(paymentDrawerInvoice.invoice_amount || paymentDrawerInvoice.total || 0)}
+                      {formatCurrency(paymentDrawerInvoice.invoiceAmount || paymentDrawerInvoice.total || 0)}
                     </div>
                   </div>
                   <div>
@@ -2277,10 +2328,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   isDarkMode ? 'border-blue-700 text-blue-300' : 'border-blue-300 text-blue-700'
                 }`}>
                   <div>
-                    <strong>Invoice Date:</strong> {formatDate(paymentDrawerInvoice.invoice_date) || 'N/A'}
+                    <strong>Invoice Date:</strong> {formatDate(paymentDrawerInvoice.invoiceDate) || 'N/A'}
                   </div>
                   <div>
-                    <strong>Due Date:</strong> {formatDate(paymentDrawerInvoice.due_date) || 'N/A'}
+                    <strong>Due Date:</strong> {formatDate(paymentDrawerInvoice.dueDate) || 'N/A'}
                   </div>
                 </div>
               </div>
@@ -2304,16 +2355,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
                             <div className="opacity-70">
                               {paymentMode.icon} {paymentMode.label}
-                              {p.reference_no && <> • {p.reference_no}</>}
+                              {p.referenceNo && <> • {p.referenceNo}</>}
                             </div>
-                            {p.receipt_number && (
+                            {p.receiptNumber && (
                               <div className="text-xs mt-1 text-teal-600 font-semibold">
-                                Receipt: {p.receipt_number}
+                                Receipt: {p.receiptNumber}
                               </div>
                             )}
                           </div>
                           <div className="text-right">
-                            <div>{formatDate(p.payment_date)}</div>
+                            <div>{formatDate(p.paymentDate)}</div>
                             {p.voided && <div className="text-xs text-red-600">Voided</div>}
                           </div>
                         </div>

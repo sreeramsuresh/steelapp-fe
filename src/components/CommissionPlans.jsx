@@ -62,7 +62,7 @@ const CommissionPlans = () => {
     setFormData({
       name: plan.name,
       description: plan.description || '',
-      is_active: plan.is_active,
+      is_active: plan.isActive,
       tiers: plan.tiers || [{ min_amount: 0, max_amount: null, rate: 0 }]
     });
     setShowModal(true);
@@ -110,7 +110,7 @@ const CommissionPlans = () => {
 
   const addTier = () => {
     const lastTier = formData.tiers[formData.tiers.length - 1];
-    const newMinAmount = lastTier.max_amount || 0;
+    const newMinAmount = lastTier.maxAmount || 0;
     setFormData({
       ...formData,
       tiers: [
@@ -207,7 +207,7 @@ const CommissionPlans = () => {
                     <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {plan.name}
                     </h3>
-                    {plan.is_active && (
+                    {plan.isActive && (
                       <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                         Active
                       </span>
@@ -260,11 +260,11 @@ const CommissionPlans = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {tier.min_amount !== null && tier.min_amount !== undefined ? (
+                          {tier.minAmount !== null && tier.minAmount !== undefined ? (
                             <>
-                              ₹{tier.min_amount.toLocaleString()}
-                              {tier.max_amount !== null && tier.max_amount !== undefined
-                                ? ` - ₹${tier.max_amount.toLocaleString()}`
+                              ₹{tier.minAmount.toLocaleString()}
+                              {tier.maxAmount !== null && tier.maxAmount !== undefined
+                                ? ` - ₹${tier.maxAmount.toLocaleString()}`
                                 : '+'}
                             </>
                           ) : (
@@ -284,12 +284,12 @@ const CommissionPlans = () => {
               </div>
 
               {/* Stats */}
-              {plan.agent_count > 0 && (
+              {plan.agentCount > 0 && (
                 <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                   <div className="flex items-center space-x-2">
                     <Users className={`h-4 w-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {plan.agent_count} agent(s) assigned
+                      {plan.agentCount} agent(s) assigned
                     </span>
                   </div>
                 </div>
@@ -360,7 +360,7 @@ const CommissionPlans = () => {
                   <input
                     type="checkbox"
                     id="is_active"
-                    checked={formData.is_active}
+                    checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -442,7 +442,7 @@ const CommissionPlans = () => {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={tier.min_amount || ''}
+                            value={tier.minAmount || ''}
                             onChange={(e) => updateTier(index, 'min_amount', parseFloat(e.target.value) || 0)}
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode
@@ -461,7 +461,7 @@ const CommissionPlans = () => {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={tier.max_amount || ''}
+                            value={tier.maxAmount || ''}
                             onChange={(e) => updateTier(index, 'max_amount', e.target.value ? parseFloat(e.target.value) : null)}
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode

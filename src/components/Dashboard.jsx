@@ -116,8 +116,8 @@ const Dashboard = () => {
       const invoices = Array.isArray(invResp?.invoices) ? invResp.invoices : [];
 
       // Trends for month-over-month change
-      const trends = Array.isArray(dashboard?.monthly_trends)
-        ? dashboard.monthly_trends
+      const trends = Array.isArray(dashboard?.monthlyTrends)
+        ? dashboard.monthlyTrends
         : [];
       const current = trends[0] || {};
       const previous = trends[1] || {};
@@ -132,16 +132,16 @@ const Dashboard = () => {
         return ((c - p) / p) * 100;
       };
 
-      const totalRevenue = safeNum(dashboard?.revenue_metrics?.total_revenue);
-      const totalCustomers = parseInt(dashboard?.customer_metrics?.total_customers || 0);
-      const totalProducts = parseInt(dashboard?.product_metrics?.total_products || 0);
-      const totalInvoices = parseInt(dashboard?.revenue_metrics?.total_invoices || 0);
+      const totalRevenue = safeNum(dashboard?.revenueMetrics?.totalRevenue);
+      const totalCustomers = parseInt(dashboard?.customerMetrics?.totalCustomers || 0);
+      const totalProducts = parseInt(dashboard?.productMetrics?.totalProducts || 0);
+      const totalInvoices = parseInt(dashboard?.revenueMetrics?.totalInvoices || 0);
 
       const revenueChange = percentChange(current?.revenue, previous?.revenue);
-      const invoicesChange = percentChange(current?.invoice_count, previous?.invoice_count);
+      const invoicesChange = percentChange(current?.invoiceCount, previous?.invoiceCount);
       const customersChange = percentChange(
-        current?.unique_customers,
-        previous?.unique_customers
+        current?.uniqueCustomers,
+        previous?.uniqueCustomers
       );
 
       setStats({
@@ -159,13 +159,13 @@ const Dashboard = () => {
       setRecentInvoices(invoices);
 
       // Top products from analytics
-      const tops = Array.isArray(dashboard?.top_products)
-        ? dashboard.top_products.slice(0, 5).map((p) => ({
+      const tops = Array.isArray(dashboard?.topProducts)
+        ? dashboard.topProducts.slice(0, 5).map((p) => ({
             id: p.id,
             name: p.name,
             category: p.category,
-            sales: safeNum(p.total_sold),
-            revenue: safeNum(p.total_revenue),
+            sales: safeNum(p.totalSold),
+            revenue: safeNum(p.totalRevenue),
           }))
         : [];
       setTopProducts(tops);
@@ -557,22 +557,22 @@ const Dashboard = () => {
                       <tr key={invoice.id} className={`transition-colors ${isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {invoice.invoice_number}
+                            {invoice.invoiceNumber}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {invoice.customer_details?.name || "Unknown Customer"}
+                              {invoice.customerDetails?.name || "Unknown Customer"}
                             </div>
                             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {invoice.customer_details?.email}
+                              {invoice.customerDetails?.email}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {formatDate(invoice.invoice_date)}
+                            {formatDate(invoice.invoiceDate)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
