@@ -1,5 +1,6 @@
 import { getPaymentStatusConfig } from './paymentUtils';
 import { REMINDER_CONFIG, calculateDaysUntilDue, getReminderType } from './reminderUtils';
+import { assertValidInvoiceStatus, assertValidPaymentStatus } from './invoiceTypes';
 
 /**
  * Invoice Status Configurations
@@ -127,7 +128,35 @@ const formatDaysMessage = (days, type = 'reminder') => {
  */
 function getInvoiceStatusBadge(invoice) {
   const status = invoice.status || 'draft';
-  const config = INVOICE_STATUS_CONFIG[status] || INVOICE_STATUS_CONFIG.draft;
+
+  // DEV-ONLY: Assert status is valid
+  assertValidInvoiceStatus(status, 'getInvoiceStatusBadge');
+
+  // Exhaustive switch with runtime check
+  let config;
+  switch (status) {
+    case 'draft':
+      config = INVOICE_STATUS_CONFIG.draft;
+      break;
+    case 'proforma':
+      config = INVOICE_STATUS_CONFIG.proforma;
+      break;
+    case 'sent':
+      config = INVOICE_STATUS_CONFIG.sent;
+      break;
+    case 'issued':
+      config = INVOICE_STATUS_CONFIG.issued;
+      break;
+    case 'cancelled':
+      // Cancelled invoices use overdue styling (red)
+      config = INVOICE_STATUS_CONFIG.overdue;
+      break;
+    default:
+      // This should never happen if assertValidInvoiceStatus works
+      console.error(`SCHEMA_MISMATCH[INVOICE_STATUS]: Unhandled invoice status in switch: '${status}'`);
+      config = INVOICE_STATUS_CONFIG.draft; // Fallback
+      break;
+  }
 
   return {
     type: 'invoice_status',
@@ -144,7 +173,28 @@ function getPaymentStatusBadge(invoice) {
 
   // invoiceService transforms snake_case to camelCase
   const paymentStatus = invoice.paymentStatus || 'unpaid';
-  const config = getPaymentStatusConfig(paymentStatus);
+
+  // DEV-ONLY: Assert payment status is valid
+  assertValidPaymentStatus(paymentStatus, 'getPaymentStatusBadge');
+
+  // Get config with exhaustive handling
+  let config;
+  switch (paymentStatus) {
+    case 'unpaid':
+      config = getPaymentStatusConfig('unpaid');
+      break;
+    case 'partially_paid':
+      config = getPaymentStatusConfig('partially_paid');
+      break;
+    case 'paid':
+    case 'fully_paid': // Alias
+      config = getPaymentStatusConfig('paid');
+      break;
+    default:
+      console.error(`SCHEMA_MISMATCH[PAYMENT_STATUS]: Unhandled payment status in switch: '${paymentStatus}'`);
+      config = getPaymentStatusConfig('unpaid'); // Fallback
+      break;
+  }
 
   return {
     type: 'payment_status',
@@ -162,9 +212,22 @@ function shouldShowReminder(invoice) {
 
   // Only for unpaid or partially paid (camelCase from invoiceService)
   const paymentStatus = invoice.paymentStatus || 'unpaid';
-  if (paymentStatus === 'paid' || paymentStatus === 'fully_paid') return false;
 
-  return true;
+  // DEV-ONLY: Validate payment status
+  assertValidPaymentStatus(paymentStatus, 'shouldShowReminder');
+
+  // Exhaustive check
+  switch (paymentStatus) {
+    case 'paid':
+    case 'fully_paid':
+      return false;
+    case 'unpaid':
+    case 'partially_paid':
+      return true;
+    default:
+      console.error(`SCHEMA_MISMATCH[PAYMENT_STATUS]: Unexpected payment status in shouldShowReminder: '${paymentStatus}'`);
+      return false;
+  }
 }
 
 /**

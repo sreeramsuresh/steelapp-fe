@@ -44,6 +44,223 @@ import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 import { normalizeInvoices } from "../utils/invoiceNormalizer";
 import { guardInvoicesDev } from "../utils/devGuards";
 
+/**
+ * ============================================================================
+ * DEV-ONLY DEBUG AND INVARIANT HELPERS
+ * ============================================================================
+ * These functions help catch schema drift and logic inconsistencies early.
+ * All are guarded by NODE_ENV checks - zero production impact.
+ */
+
+/**
+ * DEV-ONLY: Log invoice state snapshot for debugging
+ * @param {Object} invoice - Invoice object
+ * @param {Object} permissions - Computed permissions object
+ * @param {Object} deliveryNoteStatus - Delivery note status state
+ */
+const debugInvoiceRow = (invoice, permissions, deliveryNoteStatus) => {
+  if (process.env.NODE_ENV === 'production') return;
+
+  console.log('INVOICE_DEBUG', {
+    id: invoice.id,
+    invoiceNumber: invoice.invoiceNumber,
+    status: invoice.status,
+    paymentStatus: invoice.paymentStatus,
+    isDeleted: invoice.deletedAt !== null,
+    balanceDue: invoice.balanceDue,
+    outstanding: invoice.outstanding,
+    promiseDate: invoice.promiseDate,
+    dueDate: invoice.dueDate,
+    salesAgentId: invoice.salesAgentId,
+    hasDeliveryNotes: deliveryNoteStatus[invoice.id]?.hasNotes || false,
+    deliveryNotesCount: deliveryNoteStatus[invoice.id]?.count || 0,
+    permissions: {
+      canUpdate: permissions.canUpdate,
+      canDelete: permissions.canDelete,
+      canRead: permissions.canRead,
+      canCreateCreditNote: permissions.canCreateCreditNote,
+      canReadCustomers: permissions.canReadCustomers,
+      canCreateDeliveryNotes: permissions.canCreateDeliveryNotes,
+      canReadDeliveryNotes: permissions.canReadDeliveryNotes,
+    },
+  });
+};
+
+/**
+ * DEV-ONLY: Assert icon enable/disable logic matches spec
+ * @param {string} iconKey - Icon identifier
+ * @param {boolean} enabled - Whether icon is enabled
+ * @param {Object} invoice - Invoice object
+ */
+const assertIconInvariants = (iconKey, enabled, invoice) => {
+  if (process.env.NODE_ENV === 'production') return;
+
+  const isDeleted = invoice.deletedAt !== null;
+  const paymentStatus = invoice.paymentStatus || 'unpaid';
+
+  switch (iconKey) {
+    case 'edit':
+      // Spec: Edit disabled for issued or deleted invoices
+      if (enabled && (invoice.status === 'issued' || isDeleted)) {
+        console.error('SCHEMA_MISMATCH[ICON:EDIT]: Edit enabled for issued/deleted invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+          isDeleted,
+        });
+      }
+      break;
+
+    case 'creditNote':
+      // Spec: Credit Note ONLY for issued invoices
+      if (enabled && invoice.status !== 'issued') {
+        console.error('SCHEMA_MISMATCH[ICON:CREDIT_NOTE]: Credit Note enabled for non-issued invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+        });
+      }
+      if (enabled && isDeleted) {
+        console.error('SCHEMA_MISMATCH[ICON:CREDIT_NOTE]: Credit Note enabled for deleted invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+        });
+      }
+      break;
+
+    case 'commission':
+      // Spec: Commission ONLY for paid invoices with salesAgentId and not deleted
+      if (enabled && paymentStatus !== 'paid') {
+        console.error('SCHEMA_MISMATCH[ICON:COMMISSION]: Commission enabled for non-paid invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          paymentStatus,
+        });
+      }
+      if (enabled && !invoice.salesAgentId) {
+        console.error('SCHEMA_MISMATCH[ICON:COMMISSION]: Commission enabled without salesAgentId', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          salesAgentId: invoice.salesAgentId,
+        });
+      }
+      if (enabled && isDeleted) {
+        console.error('SCHEMA_MISMATCH[ICON:COMMISSION]: Commission enabled for deleted invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+        });
+      }
+      break;
+
+    case 'reminder':
+      // Spec: Reminder ONLY for issued + unpaid/partially_paid
+      if (enabled && invoice.status !== 'issued') {
+        console.error('SCHEMA_MISMATCH[ICON:REMINDER]: Reminder enabled for non-issued invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+        });
+      }
+      if (enabled && (paymentStatus === 'paid' || paymentStatus === 'fully_paid')) {
+        console.error('SCHEMA_MISMATCH[ICON:REMINDER]: Reminder enabled for paid invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          paymentStatus,
+        });
+      }
+      break;
+
+    case 'deliveryNote':
+      // Spec: Delivery Note ONLY for issued invoices
+      if (enabled && invoice.status !== 'issued') {
+        console.error('SCHEMA_MISMATCH[ICON:DELIVERY_NOTE]: Delivery Note enabled for non-issued invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+        });
+      }
+      break;
+
+    case 'delete':
+      // Spec: Delete disabled for already deleted invoices
+      if (enabled && isDeleted) {
+        console.error('SCHEMA_MISMATCH[ICON:DELETE]: Delete enabled for already deleted invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+        });
+      }
+      break;
+
+    case 'restore':
+      // Spec: Restore only for deleted invoices
+      if (enabled && !isDeleted) {
+        console.error('SCHEMA_MISMATCH[ICON:RESTORE]: Restore enabled for non-deleted invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+        });
+      }
+      break;
+
+    default:
+      // No invariants for other icons (view, download, recordPayment, phone, statement)
+      break;
+  }
+};
+
+/**
+ * DEV-ONLY: Assert payment state consistency
+ * @param {Object} invoice - Invoice object
+ */
+const assertPaymentConsistency = (invoice) => {
+  if (process.env.NODE_ENV === 'production') return;
+
+  const paymentStatus = invoice.paymentStatus || 'unpaid';
+  const balanceDue = invoice.balanceDue !== undefined ? invoice.balanceDue : invoice.outstanding;
+
+  // Paid invoices should have zero or near-zero balance
+  if ((paymentStatus === 'paid' || paymentStatus === 'fully_paid') && balanceDue > 0.01) {
+    console.error('SCHEMA_MISMATCH[PAYMENT]: Paid invoice has positive balanceDue', {
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      paymentStatus,
+      balanceDue,
+      outstanding: invoice.outstanding,
+    });
+  }
+
+  // Unpaid invoices should have positive balance
+  if (paymentStatus === 'unpaid' && balanceDue <= 0 && invoice.total > 0) {
+    console.error('SCHEMA_MISMATCH[PAYMENT]: Unpaid invoice has zero/negative balanceDue', {
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      paymentStatus,
+      balanceDue,
+      total: invoice.total,
+    });
+  }
+
+  // Partially paid should have 0 < balance < total
+  if (paymentStatus === 'partially_paid') {
+    if (balanceDue <= 0) {
+      console.error('SCHEMA_MISMATCH[PAYMENT]: Partially paid invoice has zero/negative balanceDue', {
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        paymentStatus,
+        balanceDue,
+      });
+    }
+    if (balanceDue >= invoice.total) {
+      console.error('SCHEMA_MISMATCH[PAYMENT]: Partially paid invoice balanceDue >= total', {
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        paymentStatus,
+        balanceDue,
+        total: invoice.total,
+      });
+    }
+  }
+};
+
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -968,7 +1185,24 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const canReadDeliveryNotes = authService.hasPermission('delivery_notes', 'read');
     const canCreateDeliveryNotes = authService.hasPermission('delivery_notes', 'create');
 
-    return {
+    // DEV-ONLY: Collect permissions for debug logging
+    const permissions = {
+      canUpdate,
+      canDelete,
+      canRead,
+      canCreateCreditNote,
+      canReadCustomers,
+      canReadDeliveryNotes,
+      canCreateDeliveryNotes,
+    };
+
+    // DEV-ONLY: Log invoice state and check payment consistency
+    if (process.env.NODE_ENV !== 'production') {
+      debugInvoiceRow(invoice, permissions, deliveryNoteStatus);
+      assertPaymentConsistency(invoice);
+    }
+
+    const actions = {
       edit: {
         enabled: canUpdate && !isDeleted && invoice.status !== 'issued',
         tooltip: !canUpdate
@@ -1070,6 +1304,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             : 'Restore Invoice'
       }
     };
+
+    // DEV-ONLY: Log computed actions and assert invariants
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('ACTION_CONFIG_DEBUG', invoice.id, actions);
+
+      Object.entries(actions).forEach(([key, cfg]) => {
+        assertIconInvariants(key, cfg.enabled, invoice);
+      });
+    }
+
+    return actions;
   };
 
   const handleViewInvoice = async (invoice) => {
