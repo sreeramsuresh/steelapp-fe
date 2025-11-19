@@ -8,14 +8,14 @@
 
 import { USE_MOCK_DATA } from '../mock/config/mockConfig';
 
-// Import real services
-import * as realInvoiceService from './invoiceService';
-import * as realCustomerService from './customerService';
-import * as realProductService from './productService';
-import * as realCompanyService from './companyService';
-import * as realPayablesService from './payablesService';
+// Import real services (using named imports because they export objects)
+import { invoiceService as realInvoiceService } from './invoiceService';
+import { customerService as realCustomerService } from './customerService';
+import { productService as realProductService } from './productService';
+import { companyService as realCompanyService } from './companyService';
+import { payablesService as realPayablesService } from './payablesService';
 
-// Import mock services
+// Import mock services (using namespace imports because they export individual functions)
 import * as mockInvoiceService from '../mock/services/mockInvoiceService';
 import * as mockCustomerService from '../mock/services/mockCustomerService';
 import * as mockProductService from '../mock/services/mockProductService';
