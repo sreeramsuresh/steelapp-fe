@@ -114,24 +114,35 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Build the normalized Invoice object (EXPLICIT snake_case → camelCase conversion)
+    const customerDetailsNormalized = normalizeCustomerDetails(
+      rawInvoice.customerDetails || rawInvoice.customerDetails || rawInvoice.customer
+    );
+    const invoiceDateParsed = parseDate(rawInvoice.invoiceDate || rawInvoice.invoiceDate, 'invoiceDate');
+    
     const normalized: Invoice = {
       // Core identifiers
       id: rawInvoice.id || 0,
       invoiceNumber: rawInvoice.invoiceNumber || rawInvoice.invoiceNumber || '',
       
       // Dates
-      invoiceDate: parseDate(rawInvoice.invoiceDate || rawInvoice.invoiceDate, 'invoiceDate'),
+      invoiceDate: invoiceDateParsed,
       dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, 'dueDate'),
+      date: invoiceDateParsed,  // Legacy alias for invoiceDate
+      promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null,  // Promise/delivery date
       createdAt: rawInvoice.createdAt || rawInvoice.createdAt || undefined,
       updatedAt: rawInvoice.updatedAt || rawInvoice.updatedAt || undefined,
       deletedAt: rawInvoice.deletedAt || rawInvoice.deletedAt || null,
       
       // Customer information
       customerId: rawInvoice.customerId || rawInvoice.customerId || 0,
-      customerDetails: normalizeCustomerDetails(
-        rawInvoice.customerDetails || rawInvoice.customerDetails || rawInvoice.customer
-      ),
+      customerDetails: customerDetailsNormalized,
+      customer: customerDetailsNormalized,  // Legacy alias for customerDetails
       customerName: rawInvoice.customerName || rawInvoice.customerName || undefined,
+      customerEmail: rawInvoice.customerEmail || rawInvoice.customer_email || undefined,
+      
+      // Customer Purchase Order
+      customerPurchaseOrderNumber: rawInvoice.customerPurchaseOrderNumber || rawInvoice.customer_purchase_order_number || undefined,
+      customerPurchaseOrderDate: rawInvoice.customerPurchaseOrderDate || rawInvoice.customer_purchase_order_date || undefined,
       
       // Financial
       subtotal: parseNumber(rawInvoice.subtotal, 0),
@@ -141,6 +152,20 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       received: parseNumber(rawInvoice.received, 0),
       outstanding: parseNumber(rawInvoice.outstanding, 0),
       balanceDue: parseNumber(rawInvoice.balanceDue || rawInvoice.balanceDue, undefined),
+      
+      // Discounts & Currency
+      discountPercentage: parseNumber(rawInvoice.discountPercentage || rawInvoice.discount_percentage, undefined),
+      discountAmount: parseNumber(rawInvoice.discountAmount || rawInvoice.discount_amount, undefined),
+      discountType: rawInvoice.discountType || rawInvoice.discount_type || undefined,
+      currency: rawInvoice.currency || 'INR',
+      exchangeRate: parseNumber(rawInvoice.exchangeRate || rawInvoice.exchange_rate, 1),
+      
+      // Additional Charges
+      packingCharges: parseNumber(rawInvoice.packingCharges || rawInvoice.packing_charges, undefined),
+      loadingCharges: parseNumber(rawInvoice.loadingCharges || rawInvoice.loading_charges, undefined),
+      freightCharges: parseNumber(rawInvoice.freightCharges || rawInvoice.freight_charges, undefined),
+      otherCharges: parseNumber(rawInvoice.otherCharges || rawInvoice.other_charges, undefined),
+      taxNotes: rawInvoice.taxNotes || rawInvoice.tax_notes || undefined,
       
       // Status
       status: rawInvoice.status || 'draft',
@@ -158,6 +183,15 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       // Payments
       payments: normalizePayments(rawInvoice.payments || []),
       lastPaymentDate: rawInvoice.lastPaymentDate || rawInvoice.lastPaymentDate || null,
+      advanceReceived: parseNumber(rawInvoice.advanceReceived || rawInvoice.advance_received, undefined),
+      modeOfPayment: rawInvoice.modeOfPayment || rawInvoice.mode_of_payment || undefined,
+      chequeNumber: rawInvoice.chequeNumber || rawInvoice.cheque_number || undefined,
+      
+      // Warehouse
+      warehouseId: rawInvoice.warehouseId || rawInvoice.warehouse_id || undefined,
+      warehouseName: rawInvoice.warehouseName || rawInvoice.warehouse_name || undefined,
+      warehouseCode: rawInvoice.warehouseCode || rawInvoice.warehouse_code || undefined,
+      warehouseCity: rawInvoice.warehouseCity || rawInvoice.warehouse_city || undefined,
       
       // Delivery
       deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
@@ -166,9 +200,10 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       deletionReason: rawInvoice.deletionReason || rawInvoice.deletionReason || null,
       recreatedFrom: rawInvoice.recreatedFrom || rawInvoice.recreatedFrom || null,
       
-      // Notes
+      // Notes & Terms
       notes: rawInvoice.notes || undefined,
-      termsAndConditions: rawInvoice.termsAndConditions || rawInvoice.termsAndConditions || undefined,
+      terms: rawInvoice.terms || rawInvoice.termsAndConditions || rawInvoice.terms_and_conditions || undefined,  // Canonical UI field
+      termsAndConditions: rawInvoice.termsAndConditions || rawInvoice.terms_and_conditions || rawInvoice.terms || undefined,  // Backend/legacy alias
       
       // Company details
       companyDetails: rawInvoice.companyDetails || rawInvoice.companyDetails || undefined

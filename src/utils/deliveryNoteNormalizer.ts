@@ -1,0 +1,105 @@
+/**
+ * Frontend Delivery Note Data Normalizer
+ * CRITICAL: Converts snake_case API fields to camelCase frontend schema
+ * FAIL-SAFE: Validates and normalizes delivery note data from API
+ */
+
+/**
+ * Convert snake_case API response to camelCase DeliveryNote object
+ * @param rawDN - Raw delivery note data from API (snake_case)
+ * @param source - Source of the data for debugging
+ * @returns Normalized DeliveryNote with camelCase fields
+ */
+export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | null {
+  if (!rawDN || typeof rawDN !== 'object') {
+    console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
+    return null;
+  }
+
+  const errors: string[] = [];
+
+  try {
+    // Helper to safely parse dates
+    const parseDate = (value: any): string | undefined => {
+      if (!value) return undefined;
+      
+      // Handle Timestamp objects
+      if (value?.seconds) {
+        return new Date(parseInt(value.seconds) * 1000).toISOString();
+      }
+      
+      // Handle string dates
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          return parsed.toISOString();
+        }
+      }
+      
+      return undefined;
+    };
+
+    // Build the normalized DeliveryNote object
+    const normalized: any = {
+      // Core identifiers
+      id: rawDN.id || 0,
+      deliveryNoteNumber: rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
+      deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
+      
+      // Related documents
+      invoiceId: rawDN.invoiceId || rawDN.invoice_id || undefined,
+      invoiceNumber: rawDN.invoiceNumber || rawDN.invoice_number || undefined,
+      purchaseOrderId: rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
+      
+      // Customer & Delivery
+      customerDetails: rawDN.customerDetails || rawDN.customer_details || undefined,
+      deliveryAddress: rawDN.deliveryAddress || rawDN.delivery_address || undefined,
+      
+      // Driver & Vehicle
+      driverName: rawDN.driverName || rawDN.driver_name || undefined,
+      driverPhone: rawDN.driverPhone || rawDN.driver_phone || undefined,
+      vehicleNumber: rawDN.vehicleNumber || rawDN.vehicle_number || undefined,
+      
+      // Items & Status
+      items: rawDN.items || [],
+      status: rawDN.status || undefined,
+      isPartial: Boolean(rawDN.isPartial || rawDN.is_partial),
+      
+      // Notes & Metadata
+      notes: rawDN.notes || undefined,
+      hasNotes: Boolean(rawDN.hasNotes || rawDN.has_notes),
+      tooltip: rawDN.tooltip || undefined,
+      enabled: Boolean(rawDN.enabled)
+    };
+
+    // Log validation errors if any
+    if (errors.length > 0) {
+      console.warn(`⚠️ [DeliveryNote Normalizer] Validation warnings from ${source}:`);
+      errors.forEach(error => console.warn(`   - ${error}`));
+    }
+
+    return normalized;
+    
+  } catch (error) {
+    console.error(`❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`, error);
+    console.error('   Raw data:', rawDN);
+    return null;
+  }
+}
+
+/**
+ * Normalize array of delivery notes
+ * @param rawDNs - Array of raw delivery note data from API
+ * @param source - Source identifier for debugging
+ * @returns Array of normalized DeliveryNote objects
+ */
+export function normalizeDeliveryNotes(rawDNs: any[], source = 'list'): any[] {
+  if (!Array.isArray(rawDNs)) {
+    console.error(`❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`);
+    return [];
+  }
+
+  return rawDNs
+    .map((dn, index) => normalizeDeliveryNote(dn, `${source}[${index}]`))
+    .filter((dn): dn is any => dn !== null);
+}

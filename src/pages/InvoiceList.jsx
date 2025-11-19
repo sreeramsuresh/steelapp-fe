@@ -61,10 +61,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // DEBUG: Track component instance to detect multiple mounts
   const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
-  const renderCount = React.useRef(0);
-  renderCount.current++;
-  
-  console.log(`[${instanceRef.current}] RENDER #${renderCount.current} - loading=${loading}, invoices.length=${invoices.length}`);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
@@ -115,8 +111,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
   const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
     try {
-      // START LOADING: Set loading state before fetch
-      console.log(`[${instanceRef.current}] fetchInvoices START - setLoading(true)`);
+      console.log("🔄 Fetch START", { currentPage: page, pageSize: limit });
       setLoading(true);
       const queryParams = {
         page: page,
@@ -157,21 +152,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       // Process delivery note status from invoice data
       processDeliveryNoteStatus(invoicesData);
+      
+      console.log("✅ Fetch DONE", { count: guardedInvoices.length });
     } catch (error) {
       // Ignore abort errors
       if (error.name === 'AbortError' || error.message === 'canceled') {
         return;
       }
-      console.error("Error fetching invoices:", error);
+      console.log("❌ Fetch ERROR", error);
       setInvoices([]);
       setPagination(null);
     } finally {
       // END LOADING: Always turn off loading unless request was aborted
       if (!signal?.aborted) {
-        console.log(`[${instanceRef.current}] fetchInvoices END - setLoading(false)`);
         setLoading(false);
-      } else {
-        console.log(`[${instanceRef.current}] fetchInvoices ABORTED - NOT setting loading to false`);
       }
     }
   }, []);
@@ -180,11 +174,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // TRIGGERS: Runs when page, filters, or search changes
   // CLEANUP: Aborts pending requests when dependencies change
   useEffect(() => {
-    console.log(`[${instanceRef.current}] FETCH EFFECT TRIGGERED - currentPage=${currentPage}, searchTerm="${searchTerm}", statusFilter=${statusFilter}`);
+    console.log("⚙️ useEffect(fetchInvoices) TRIGGERED", {
+      currentPage,
+      pageSize,
+      searchTerm,
+      statusFilter,
+      showDeleted,
+    });
     const abortController = new AbortController();
 
     const timeoutId = setTimeout(() => {
-      console.log(`[${instanceRef.current}] CALLING fetchInvoices after ${searchTerm ? 500 : 0}ms debounce`);
       fetchInvoices(
         currentPage,
         pageSize,
@@ -196,7 +195,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }, searchTerm ? 500 : 0); // Debounce search by 500ms, others immediately
 
     return () => {
-      console.log(`[${instanceRef.current}] FETCH EFFECT CLEANUP - aborting`);
       clearTimeout(timeoutId);
       abortController.abort();
     };
@@ -204,7 +202,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    console.log(`[${instanceRef.current}] RESET PAGE EFFECT - currentPage was ${currentPage}, setting to 1`);
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
@@ -228,12 +225,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // GOLD STANDARD: Use backend-provided payment status instead of calculating
   /** @type {import('../types/invoice').Invoice[]} */
   const filteredInvoices = React.useMemo(() => {
-    console.log(`[${instanceRef.current}] 🔍 FILTERING invoices - input length:`, invoices?.length, 'filters:', {
-      paymentStatusFilter,
-      activeCardFilter
-    });
-    console.log(`[${instanceRef.current}] 🔍 SAMPLE INVOICE OBJECT:`, invoices?.[0], 'keys:', Object.keys(invoices?.[0] || {}));
-    
     let filtered = invoices;
 
     // Apply payment status filter
@@ -283,7 +274,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       });
     }
 
-    console.log(`[${instanceRef.current}] 🔍 FILTERING RESULT - filtered length:`, filtered?.length);
     return filtered;
   }, [invoices, paymentStatusFilter, activeCardFilter]);
 
@@ -1096,7 +1086,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // SPINNER LOGIC: Show spinner ONLY when loading is true
   // Once loading is false, always show the invoice list (even if empty)
-  console.log(`[${instanceRef.current}] SPINNER CHECK - loading=${loading} → ${loading ? 'SHOWING SPINNER' : 'SHOWING INVOICE LIST'}`);
+  console.log("🌀 Spinner check", { loading, length: invoices?.length });
   
   if (loading) {
     return (
@@ -1650,12 +1640,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {console.log("TABLE FIELD CHECK", {
-                sampleKeys: Object.keys(filteredInvoices[0] || {}),
-                sampleInvoiceNumber: filteredInvoices[0]?.invoiceNumber,
-                sampleCustomerName: filteredInvoices[0]?.customerDetails?.name,
-                count: filteredInvoices.length
-              })}
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-16 text-center">
@@ -1710,11 +1694,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </tr>
               ) : (
                 filteredInvoices.map((invoice, index) => {
-                console.log(`[${instanceRef.current}] 🔨 CREATING ROW ${index + 1}/${filteredInvoices.length}`, {
-                  id: invoice.id,
-                  invoiceNumber: invoice.invoiceNumber,
-                  customerName: invoice.customerDetails?.name
-                });
                 const isDeleted = invoice.deletedAt;
                 const isSelected = selectedInvoiceIds.has(invoice.id);
                 return (

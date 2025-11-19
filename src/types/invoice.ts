@@ -55,6 +55,8 @@ export interface Invoice {
   // Dates (ISO 8601 strings)
   invoiceDate: string;
   dueDate: string;
+  date: string; // Legacy alias for invoiceDate (used by pdfGenerator, stockUtils)
+  promiseDate?: string | null; // Promise/delivery date
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
@@ -62,7 +64,13 @@ export interface Invoice {
   // Customer information
   customerId: number;
   customerDetails: CustomerDetails;
+  customer: CustomerDetails; // Legacy alias for customerDetails (used by pdfGenerator, reminderUtils)
   customerName?: string; // Denormalized for quick access
+  customerEmail?: string; // Customer email for quick access
+  
+  // Customer Purchase Order
+  customerPurchaseOrderNumber?: string;
+  customerPurchaseOrderDate?: string;
   
   // Financial
   subtotal: number;
@@ -72,6 +80,20 @@ export interface Invoice {
   received: number;
   outstanding: number;
   balanceDue?: number;
+  
+  // Discounts & Currency
+  discountPercentage?: number;
+  discountAmount?: number;
+  discountType?: string;
+  currency?: string;
+  exchangeRate?: number;
+  
+  // Additional Charges
+  packingCharges?: number;
+  loadingCharges?: number;
+  freightCharges?: number;
+  otherCharges?: number;
+  taxNotes?: string;
   
   // Status fields
   status: 'draft' | 'issued' | 'cancelled' | 'void';
@@ -89,6 +111,15 @@ export interface Invoice {
   // Payment tracking
   payments?: PaymentRecord[];
   lastPaymentDate?: string | null;
+  advanceReceived?: number;
+  modeOfPayment?: string;
+  chequeNumber?: string;
+  
+  // Warehouse
+  warehouseId?: number;
+  warehouseName?: string;
+  warehouseCode?: string;
+  warehouseCity?: string;
   
   // Delivery tracking
   deliveryStatus?: DeliveryStatus;
@@ -97,9 +128,10 @@ export interface Invoice {
   deletionReason?: string | null;
   recreatedFrom?: string | null;
   
-  // Notes & metadata
+  // Notes & Terms
   notes?: string;
-  termsAndConditions?: string;
+  terms?: string; // Canonical UI field name
+  termsAndConditions?: string; // Backend/legacy alias for terms
   
   // Company details (if embedded)
   companyDetails?: {
