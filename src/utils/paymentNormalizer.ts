@@ -66,14 +66,20 @@ export function normalizePayment(rawPayment: any, source = 'unknown'): any | nul
       referenceNumber: rawPayment.referenceNumber || rawPayment.reference_number || undefined,
       reference: rawPayment.reference || rawPayment.referenceNumber || rawPayment.reference_number || undefined,
       receiptNumber: rawPayment.receiptNumber || rawPayment.receipt_number || undefined,
+      receiptGenerated: Boolean(rawPayment.receipt_generated || rawPayment.receiptGenerated),
       
       // Notes & metadata
       notes: rawPayment.notes || undefined,
       createdAt: parseDate(rawPayment.createdAt || rawPayment.created_at),
+      updatedAt: parseDate(rawPayment.updatedAt || rawPayment.updated_at),
+      createdBy: rawPayment.created_by || rawPayment.createdBy || undefined,
+      updatedBy: rawPayment.updated_by || rawPayment.updatedBy || undefined,
       
-      // Void tracking
+      // Void tracking (4 fields)
       voided: Boolean(rawPayment.voided),
-      voidedAt: parseDate(rawPayment.voidedAt || rawPayment.voided_at)
+      voidedAt: parseDate(rawPayment.voidedAt || rawPayment.voided_at),
+      voidedBy: rawPayment.voided_by || rawPayment.voidedBy || undefined,
+      voidReason: rawPayment.void_reason || rawPayment.voidReason || undefined
     };
 
     // Log validation errors if any

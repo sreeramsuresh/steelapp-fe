@@ -43,6 +43,7 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
     const normalized: any = {
       // Core identifiers
       id: rawDN.id || 0,
+      companyId: rawDN.company_id || rawDN.companyId,
       deliveryNoteNumber: rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
       deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
       
@@ -50,6 +51,9 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       invoiceId: rawDN.invoiceId || rawDN.invoice_id || undefined,
       invoiceNumber: rawDN.invoiceNumber || rawDN.invoice_number || undefined,
       purchaseOrderId: rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
+      
+      // Customer linkage
+      customerId: rawDN.customer_id || rawDN.customerId || undefined,
       
       // Customer & Delivery
       customerDetails: rawDN.customerDetails || rawDN.customer_details || undefined,
@@ -65,9 +69,19 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       status: rawDN.status || undefined,
       isPartial: Boolean(rawDN.isPartial || rawDN.is_partial),
       
+      // PDF generation (2 fields)
+      pdfUrl: rawDN.pdf_url || rawDN.pdfUrl || undefined,
+      pdfGeneratedAt: parseDate(rawDN.pdf_generated_at || rawDN.pdfGeneratedAt),
+      
       // Notes & Metadata
       notes: rawDN.notes || undefined,
       hasNotes: Boolean(rawDN.hasNotes || rawDN.has_notes),
+      
+      // Audit trail
+      createdAt: parseDate(rawDN.created_at || rawDN.createdAt),
+      updatedAt: parseDate(rawDN.updated_at || rawDN.updatedAt),
+      createdBy: rawDN.created_by || rawDN.createdBy || undefined,
+      updatedBy: rawDN.updated_by || rawDN.updatedBy || undefined
       tooltip: rawDN.tooltip || undefined,
       enabled: Boolean(rawDN.enabled)
     };

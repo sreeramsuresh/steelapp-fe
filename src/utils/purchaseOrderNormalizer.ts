@@ -49,6 +49,8 @@ export function normalizePurchaseOrder(rawPO: any, source = 'unknown'): any | nu
     // Build the normalized PurchaseOrder object
     const normalized: any = {
       // Core identifiers
+      id: rawPO.id || 0,
+      companyId: rawPO.company_id || rawPO.companyId,
       poNumber: rawPO.poNumber || rawPO.po_number || '',
       poDate: parseDate(rawPO.poDate || rawPO.po_date),
       dueDate: parseDate(rawPO.dueDate || rawPO.due_date),
@@ -94,14 +96,32 @@ export function normalizePurchaseOrder(rawPO: any, source = 'unknown'): any | nu
       items: rawPO.items || [],
       stockStatus: rawPO.stockStatus || rawPO.stock_status || undefined,
       
-      // Approval
+      // Approval workflow (5 fields)
       approvalStatus: rawPO.approvalStatus || rawPO.approval_status || undefined,
       approvalDate: parseDate(rawPO.approvalDate || rawPO.approval_date),
       approvedBy: rawPO.approvedBy || rawPO.approved_by || undefined,
+      approvedAt: parseDate(rawPO.approvedAt || rawPO.approved_at),
       approvalComments: rawPO.approvalComments || rawPO.approval_comments || undefined,
+      rejectionReason: rawPO.rejection_reason || rawPO.rejectionReason || undefined,
+      
+      // Stock tracking (3 fields)
+      stockReceived: Boolean(rawPO.stock_received || rawPO.stockReceived),
+      stockReceivedDate: parseDate(rawPO.stock_received_date || rawPO.stockReceivedDate),
+      partialReceived: Boolean(rawPO.partial_received || rawPO.partialReceived),
+      
+      // Payment tracking (3 fields)
+      paymentStatus: rawPO.payment_status || rawPO.paymentStatus || undefined,
+      paidAmount: parseNumber(rawPO.paid_amount || rawPO.paidAmount, undefined),
+      outstandingAmount: parseNumber(rawPO.outstanding_amount || rawPO.outstandingAmount, undefined),
       
       // Notes
-      notes: rawPO.notes || undefined
+      notes: rawPO.notes || undefined,
+      
+      // Audit trail
+      createdAt: parseDate(rawPO.created_at || rawPO.createdAt),
+      updatedAt: parseDate(rawPO.updated_at || rawPO.updatedAt),
+      createdBy: rawPO.created_by || rawPO.createdBy || undefined,
+      updatedBy: rawPO.updated_by || rawPO.updatedBy || undefined
     };
 
     // Log validation errors if any

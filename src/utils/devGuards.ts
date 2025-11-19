@@ -73,6 +73,9 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   'salesAgentName',
   'commissionAmount',
   'commissionCalculated',
+  'commissionEligible',        // NEW: Whether invoice qualifies for commission
+  'commissionPaid',             // NEW: Whether commission has been paid
+  'commissionNotes',            // NEW: Notes about commission status
   
   // Delivery
   'deliveryStatus',
@@ -85,7 +88,21 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   
   // Soft delete & recreation
   'deletionReason',
+  'deletionReasonCode',         // NEW: Categorized deletion reason code
+  'deletedByUserId',            // NEW: User ID who deleted invoice
   'recreatedFrom',
+  
+  // Price List Reference (2 new fields)
+  'pricelistId',                // NEW: ID of applied price list
+  'pricelistName',              // NEW: Name of applied price list
+  
+  // PDF Generation (2 new fields)
+  'pdfUrl',                     // NEW: URL/path to generated PDF
+  'pdfGeneratedAt',             // NEW: Timestamp of PDF generation
+  
+  // Credit Note Tracking (2 new fields)
+  'hasCreditNotes',             // NEW: Whether invoice has credit notes
+  'totalCreditedAmount',        // NEW: Total amount credited back
   
   // Notes & Terms
   'notes',
@@ -184,6 +201,26 @@ const ALLOWED_PRODUCT_KEYS = new Set<string>([
   'description',
   'image',
   
+  // Material Specification (8 new fields)
+  'sizeInch',
+  'od',
+  'length',
+  'gradeVariant',
+  'standard',
+  'formType',
+  'shape',
+  'condition',
+  
+  // Additional Dimensions (4 new fields)
+  'height',
+  'nbSize',
+  'schedule',
+  'diameter',
+  
+  // Computed Fields (2 new fields)
+  'fullName',
+  'currentStock',
+  
   // Internal/special properties
   'constructor',
   'toString',
@@ -222,6 +259,11 @@ const ALLOWED_CUSTOMER_KEYS = new Set<string>([
   'currentCredit',
   'paymentTerms',
   'revenue',
+  
+  // Compliance Fields (3 new fields)
+  'cinNumber',                  // NEW: Corporate Identification Number
+  'tradeLicenseNumber',         // NEW: Trade license registration
+  'tradeLicenseExpiry',         // NEW: Trade license expiration date
   
   // Metadata
   'status',
@@ -262,6 +304,26 @@ const ALLOWED_SUPPLIER_KEYS = new Set<string>([
   // Financial
   'paymentTerms',
   
+  // Financial & Business Info (15 new fields)
+  'companyId',
+  'contactPerson',
+  'website',
+  'category',
+  'country',
+  'countryId',
+  'vatNumber',
+  'businessLicense',
+  'taxId',
+  'bankDetails',
+  'certifications',
+  'creditLimit',
+  'isActive',
+  'createdAt',
+  'updatedAt',
+  'notes',
+  'defaultCurrency',
+  'currentCredit',
+  
   // Internal/special properties
   'constructor',
   'toString',
@@ -299,14 +361,20 @@ const ALLOWED_PAYMENT_KEYS = new Set<string>([
   'referenceNumber',
   'reference',
   'receiptNumber',
+  'receiptGenerated',
   
   // Notes & metadata
   'notes',
   'createdAt',
+  'updatedAt',
+  'createdBy',
+  'updatedBy',
   
-  // Void tracking
+  // Void tracking (4 fields)
   'voided',
   'voidedAt',
+  'voidedBy',
+  'voidReason',
   
   // Internal/special properties
   'constructor',
@@ -373,14 +441,34 @@ const ALLOWED_PURCHASE_ORDER_KEYS = new Set<string>([
   'items',
   'stockStatus',
   
-  // Approval
+  // Approval workflow (6 fields)
   'approvalStatus',
   'approvalDate',
   'approvedBy',
+  'approvedAt',
   'approvalComments',
+  'rejectionReason',
+  
+  // Stock tracking (3 fields)
+  'stockReceived',
+  'stockReceivedDate',
+  'partialReceived',
+  
+  // Payment tracking (3 fields)
+  'paymentStatus',
+  'paidAmount',
+  'outstandingAmount',
+  
+  // Audit trail (4 fields)
+  'createdAt',
+  'updatedAt',
+  'createdBy',
+  'updatedBy',
   
   // Notes
   'notes',
+  'id',
+  'companyId',
   
   // Internal/special properties
   'constructor',
@@ -425,11 +513,25 @@ const ALLOWED_DELIVERY_NOTE_KEYS = new Set<string>([
   'status',
   'isPartial',
   
+  // PDF generation (2 fields)
+  'pdfUrl',
+  'pdfGeneratedAt',
+  
+  // Customer linkage
+  'customerId',
+  
+  // Audit trail (4 fields)
+  'createdAt',
+  'updatedAt',
+  'createdBy',
+  'updatedBy',
+  
   // Notes & Metadata
   'notes',
   'hasNotes',
   'tooltip',
   'enabled',
+  'companyId',
   
   // Internal/special properties
   'constructor',
