@@ -609,7 +609,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
-  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+  const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
     const inv = paymentDrawerInvoice;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
