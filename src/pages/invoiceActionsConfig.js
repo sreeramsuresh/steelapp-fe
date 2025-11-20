@@ -32,26 +32,31 @@ export function getInvoiceActionButtonConfig(
     canCreateDeliveryNotes,
   } = permissions;
 
+  // Status lifecycle constants
+  const nonEditableStatuses = ['issued', 'sent', 'completed', 'cancelled'];
+  const creditNoteAllowedStatuses = ['issued', 'sent'];
+  const deliveryNoteAllowedStatuses = ['issued', 'sent'];
+
   return {
     edit: {
-      enabled: canUpdate && !isDeleted && invoice.status !== 'issued',
+      enabled: canUpdate && !isDeleted && !nonEditableStatuses.includes(invoice.status),
       tooltip: !canUpdate
         ? 'No permission to edit'
         : isDeleted
           ? 'Cannot edit deleted invoice'
-          : invoice.status === 'issued'
-            ? 'Cannot edit issued invoice'
+          : nonEditableStatuses.includes(invoice.status)
+            ? `Cannot edit ${invoice.status} invoice`
             : 'Edit Invoice',
       link: `/edit/${invoice.id}`
     },
     creditNote: {
-      enabled: canCreateCreditNote && !isDeleted && invoice.status === 'issued',
+      enabled: canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status),
       tooltip: !canCreateCreditNote
         ? 'No permission to create credit notes'
         : isDeleted
           ? 'Cannot create credit note for deleted invoice'
-          : invoice.status !== 'issued'
-            ? 'Only available for issued invoices'
+          : !creditNoteAllowedStatuses.includes(invoice.status)
+            ? 'Only available for issued/sent invoices'
             : 'Create Credit Note',
       link: `/credit-notes/new?invoiceId=${invoice.id}`
     },
@@ -76,13 +81,18 @@ export function getInvoiceActionButtonConfig(
           ? 'View Payment History'
           : 'Record Payment',
       isPaid: invoice.paymentStatus === 'paid',
-      canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
+      canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && invoice.status !== 'cancelled' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
     },
     commission: {
-      enabled: invoice.paymentStatus === 'paid' && invoice.salesAgentId && !isDeleted,
+      enabled: !!(
+        invoice.paymentStatus === 'paid' &&
+        invoice.salesAgentId &&
+        parseInt(invoice.salesAgentId, 10) > 0 &&
+        !isDeleted
+      ),
       tooltip: invoice.paymentStatus !== 'paid'
         ? 'Only available for paid invoices'
-        : !invoice.salesAgentId
+        : !invoice.salesAgentId || parseInt(invoice.salesAgentId, 10) === 0
           ? 'No sales agent assigned'
           : isDeleted
             ? 'Cannot calculate for deleted invoice'
@@ -107,9 +117,9 @@ export function getInvoiceActionButtonConfig(
         : 'No permission to generate statements'
     },
     deliveryNote: {
-      enabled: invoice.status === 'issued' && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
-      tooltip: invoice.status !== 'issued'
-        ? 'Only available for issued invoices'
+      enabled: deliveryNoteAllowedStatuses.includes(invoice.status) && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
+      tooltip: !deliveryNoteAllowedStatuses.includes(invoice.status)
+        ? 'Only available for issued/sent invoices'
         : deliveryNoteStatus[invoice.id]?.hasNotes
           ? `View Delivery Notes (${deliveryNoteStatus[invoice.id]?.count})`
           : !canCreateDeliveryNotes

@@ -27,7 +27,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { createCompany } from "../types";
-import { invoiceService, payablesService, PAYMENT_MODES } from "../services/dataService";
+import { invoiceService } from "../services/dataService";
+import { PAYMENT_MODES } from "../utils/paymentUtils";
 import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
@@ -770,8 +771,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   const handleRecordPayment = async (invoice) => {
     try {
-      // Use payablesService to get invoice with correct payment data and outstanding balance
-      const invoiceData = await payablesService.getInvoice(invoice.id);
+      // Get invoice with correct payment data and outstanding balance
+      const invoiceData = await invoiceService.getInvoice(invoice.id);
 
       setPaymentDrawerInvoice(invoiceData);
       setShowRecordPaymentDrawer(true);
@@ -868,7 +869,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       notificationService.success('Payment recorded successfully!');
 
       // Fetch fresh drawer data to show backend-generated receipt number
-      const freshData = await payablesService.getInvoice(inv.id);
+      const freshData = await invoiceService.getInvoice(inv.id);
       setPaymentDrawerInvoice(freshData);
 
       // Update the specific invoice in the list (in-place update without re-fetching entire list)
@@ -902,7 +903,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       // Reload drawer on error to get correct state
       try {
-        const freshData = await payablesService.getInvoice(inv.id);
+        const freshData = await invoiceService.getInvoice(inv.id);
         setPaymentDrawerInvoice(freshData);
       } catch (e) {
         console.error('Error reloading invoice:', e);
@@ -944,7 +945,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       notificationService.success('Payment voided successfully');
 
       // Fetch fresh drawer data
-      const freshData = await payablesService.getInvoice(inv.id);
+      const freshData = await invoiceService.getInvoice(inv.id);
       setPaymentDrawerInvoice(freshData);
 
       // Update the specific invoice in the list (in-place update without re-fetching entire list)
@@ -967,7 +968,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       // Reload drawer on error
       try {
-        const freshData = await payablesService.getInvoice(inv.id);
+        const freshData = await invoiceService.getInvoice(inv.id);
         setPaymentDrawerInvoice(freshData);
       } catch (e) {
         console.error('Error reloading invoice:', e);

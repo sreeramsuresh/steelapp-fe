@@ -224,9 +224,9 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, 'dueDate'),
       date: invoiceDateParsed,  // Legacy alias for invoiceDate
       promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null,  // Promise/delivery date
-      createdAt: rawInvoice.createdAt || rawInvoice.createdAt || undefined,
-      updatedAt: rawInvoice.updatedAt || rawInvoice.updatedAt || undefined,
-      deletedAt: rawInvoice.deletedAt || rawInvoice.deletedAt || null,
+      createdAt: rawInvoice.audit?.createdAt ?? rawInvoice.createdAt ?? undefined,
+      updatedAt: rawInvoice.audit?.updatedAt ?? rawInvoice.updatedAt ?? undefined,
+      deletedAt: rawInvoice.audit?.deletedAt ?? rawInvoice.deletedAt ?? null,
       
       // Customer information
       customerId: rawInvoice.customerId || rawInvoice.customerId || 0,
@@ -246,7 +246,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       totalAmount: parseNumber(rawInvoice.totalAmount || rawInvoice.totalAmount || rawInvoice.total, 0),
       received: parseNumber(rawInvoice.received, 0),
       outstanding: parseNumber(rawInvoice.outstanding, 0),
-      balanceDue: parseNumber(rawInvoice.balanceDue || rawInvoice.balanceDue, undefined),
+      balanceDue: parseNumber(rawInvoice.balanceDue || rawInvoice.balance_due || rawInvoice.balanceAmount || rawInvoice.balance_amount, undefined),
       
       // Discounts & Currency
       discountPercentage: parseNumber(rawInvoice.discountPercentage || rawInvoice.discount_percentage, undefined),
@@ -292,7 +292,8 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
       
       // Soft delete & recreation
-      deletionReason: rawInvoice.deletionReason || rawInvoice.deletionReason || null,
+      deletionReason: rawInvoice.audit?.deletionReason ?? rawInvoice.deletionReason ?? null,
+      deletedBy: rawInvoice.audit?.deletedBy ?? rawInvoice.deletedBy ?? null,
       recreatedFrom: rawInvoice.recreatedFrom || rawInvoice.recreatedFrom || null,
       
       // Notes & Terms

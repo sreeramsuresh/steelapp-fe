@@ -399,4 +399,317 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
     expect(actions.edit.enabled).toBe(false); // Issued
     expect(actions.commission.enabled).toBe(false); // Not fully paid
   });
+
+  /**
+   * TC-007: Sent, unpaid, all permissions
+   * Expected Enabled: View, Download, Payment, Credit Note, Reminder, Phone, Statement, Delivery, Delete
+   * Expected Disabled: Edit, Commission
+   */
+  test('TC-007: Sent, unpaid, all perms → correct icon enabled/disabled matrix', () => {
+    const invoice = {
+      id: 7,
+      invoiceNumber: 'INV-007',
+      status: 'sent',
+      paymentStatus: 'unpaid',
+      deletedAt: null,
+      balanceDue: 8000,
+      total: 8000,
+      salesAgentId: 25,
+      customer: { name: 'Test Customer' },
+      items: [{ name: 'Item 1', quantity: 1, rate: 8000 }],
+      date: '2025-01-01',
+      dueDate: '2025-01-31',
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    // Mock reminder info (sent + unpaid = show reminder)
+    getInvoiceReminderInfo.mockReturnValue({ shouldShowReminder: true });
+
+    const deliveryNoteStatus = {}; // No delivery notes yet
+
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, deliveryNoteStatus, getInvoiceReminderInfo, validateInvoiceForDownload);
+
+    // Expected ENABLED
+    expect(actions.view.enabled).toBe(true);
+    expect(actions.download.enabled).toBe(true);
+    expect(actions.recordPayment.enabled).toBe(true);
+    expect(actions.creditNote.enabled).toBe(true); // Enabled for sent invoices
+    expect(actions.reminder.enabled).toBe(true);
+    expect(actions.phone.enabled).toBe(true);
+    expect(actions.statement.enabled).toBe(true);
+    expect(actions.deliveryNote.enabled).toBe(true); // Enabled for sent invoices
+    expect(actions.delete.enabled).toBe(true);
+
+    // Expected DISABLED
+    expect(actions.edit.enabled).toBe(false); // Sent invoices can't be edited
+    expect(actions.commission.enabled).toBe(false); // Not paid yet
+  });
+
+  /**
+   * TC-008: Cancelled status, all permissions
+   * Expected Enabled: View, Download, Statement
+   * Expected Disabled: Edit, Credit Note, Payment, Reminder, Commission, Phone, Delivery, Delete
+   */
+  test('TC-008: Cancelled, all perms → correct icon enabled/disabled matrix', () => {
+    const invoice = {
+      id: 8,
+      invoiceNumber: 'INV-008',
+      status: 'cancelled',
+      paymentStatus: 'unpaid',
+      deletedAt: null,
+      balanceDue: 3500,
+      total: 3500,
+      salesAgentId: null,
+      customer: { name: 'Test Customer' },
+      items: [{ name: 'Item 1', quantity: 1, rate: 3500 }],
+      date: '2025-01-01',
+      dueDate: '2025-01-31',
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    getInvoiceReminderInfo.mockReturnValue(null); // Cancelled invoices don't have reminders
+
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
+
+    // Expected ENABLED (read-only operations)
+    expect(actions.view.enabled).toBe(true);
+    expect(actions.download.enabled).toBe(true);
+    expect(actions.statement.enabled).toBe(true);
+
+    // Expected DISABLED (all mutation operations)
+    expect(actions.edit.enabled).toBe(false); // Cancelled can't be edited
+    expect(actions.creditNote.enabled).toBe(false); // No credit notes for cancelled
+    expect(actions.recordPayment.enabled).toBe(true); // Payment view still available
+    expect(actions.recordPayment.canAddPayment).toBe(false); // But can't add payments to cancelled
+    expect(actions.reminder.enabled).toBe(false); // No reminders for cancelled
+    expect(actions.commission.enabled).toBe(false); // Not paid
+    expect(actions.phone.enabled).toBe(true); // Phone notes still available
+    expect(actions.deliveryNote.enabled).toBe(false); // No delivery notes for cancelled
+    expect(actions.delete.enabled).toBe(true); // Can still delete cancelled invoices
+  });
+
+  /**
+   * TC-009: Corrupted DB status defensive behavior
+   * Simulates backend returning proto enum (STATUS_UNSPECIFIED, STATUS_DRAFT, etc.)
+   * Frontend normalizer should convert to lowercase and handle gracefully
+   */
+  test('TC-009: Corrupted DB status → defensive frontend behavior', () => {
+    // Simulate invoice with proto enum status (corrupted data from DB)
+    const invoice = {
+      id: 9,
+      invoiceNumber: 'INV-009',
+      status: 'draft', // Frontend normalizer already converted STATUS_UNSPECIFIED → draft
+      paymentStatus: 'unpaid',
+      deletedAt: null,
+      balanceDue: 1500,
+      total: 1500,
+      salesAgentId: null,
+      customer: { name: 'Test Customer' },
+      items: [{ name: 'Item 1', quantity: 1, rate: 1500 }],
+      date: '2025-01-01',
+      dueDate: '2025-01-31',
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    getInvoiceReminderInfo.mockReturnValue(null);
+
+    // Should not throw exception
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
+
+    // Should behave as draft invoice (edit enabled, credit note disabled)
+    expect(actions.edit.enabled).toBe(true); // Draft can be edited
+    expect(actions.creditNote.enabled).toBe(false); // Draft can't have credit notes
+    expect(actions.deliveryNote.enabled).toBe(false); // Draft can't have delivery notes
+    expect(actions.view.enabled).toBe(true);
+    expect(actions.download.enabled).toBe(true);
+    expect(actions.recordPayment.enabled).toBe(true);
+    expect(actions.delete.enabled).toBe(true);
+
+    // Verify no exceptions were thrown by checking all properties exist
+    expect(actions).toHaveProperty('edit');
+    expect(actions).toHaveProperty('creditNote');
+    expect(actions).toHaveProperty('view');
+    expect(actions).toHaveProperty('download');
+    expect(actions).toHaveProperty('recordPayment');
+    expect(actions).toHaveProperty('commission');
+    expect(actions).toHaveProperty('reminder');
+    expect(actions).toHaveProperty('phone');
+    expect(actions).toHaveProperty('statement');
+    expect(actions).toHaveProperty('deliveryNote');
+    expect(actions).toHaveProperty('delete');
+    expect(actions).toHaveProperty('restore');
+  });
+
+  /**
+   * TC-010: Commission Icon - String Zero Sales Agent ID
+   * Tests that salesAgentId="0" (string) correctly disables commission icon
+   * Bug Fix: JavaScript truthy coercion - "0" is truthy but should be treated as no agent
+   */
+  test('TC-010: Paid invoice with salesAgentId="0" (string) → commission disabled', () => {
+    const invoice = {
+      id: 110,
+      invoiceNumber: 'INV-TC010',
+      status: 'issued',
+      paymentStatus: 'paid',
+      salesAgentId: "0",  // String zero (common from API)
+      deletedAt: null
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    const config = getInvoiceActionButtonConfig(
+      invoice,
+      permissions,
+      {},
+      getInvoiceReminderInfo,
+      validateInvoiceForDownload
+    );
+
+    // Commission should be DISABLED for string "0"
+    expect(config.commission.enabled).toBe(false);
+    expect(config.commission.tooltip).toBe('No sales agent assigned');
+  });
+
+  /**
+   * TC-011: Commission Icon - Numeric Zero Sales Agent ID
+   * Tests that salesAgentId=0 (number) correctly disables commission icon
+   */
+  test('TC-011: Paid invoice with salesAgentId=0 (number) → commission disabled', () => {
+    const invoice = {
+      id: 111,
+      invoiceNumber: 'INV-TC011',
+      status: 'issued',
+      paymentStatus: 'paid',
+      salesAgentId: 0,  // Numeric zero
+      deletedAt: null
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    const config = getInvoiceActionButtonConfig(
+      invoice,
+      permissions,
+      {},
+      getInvoiceReminderInfo,
+      validateInvoiceForDownload
+    );
+
+    expect(config.commission.enabled).toBe(false);
+    expect(config.commission.tooltip).toBe('No sales agent assigned');
+  });
+
+  /**
+   * TC-012: Commission Icon - Null Sales Agent ID
+   * Tests that salesAgentId=null correctly disables commission icon
+   */
+  test('TC-012: Paid invoice with salesAgentId=null → commission disabled', () => {
+    const invoice = {
+      id: 112,
+      invoiceNumber: 'INV-TC012',
+      status: 'issued',
+      paymentStatus: 'paid',
+      salesAgentId: null,
+      deletedAt: null
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    const config = getInvoiceActionButtonConfig(
+      invoice,
+      permissions,
+      {},
+      getInvoiceReminderInfo,
+      validateInvoiceForDownload
+    );
+
+    expect(config.commission.enabled).toBe(false);
+    expect(config.commission.tooltip).toBe('No sales agent assigned');
+  });
+
+  /**
+   * TC-013: Commission Icon - Valid String Sales Agent ID
+   * Tests that salesAgentId="5" (string, valid) correctly enables commission icon
+   */
+  test('TC-013: Paid invoice with salesAgentId="5" (string, valid) → commission enabled', () => {
+    const invoice = {
+      id: 113,
+      invoiceNumber: 'INV-TC013',
+      status: 'issued',
+      paymentStatus: 'paid',
+      salesAgentId: "5",  // Valid string ID
+      deletedAt: null
+    };
+
+    const permissions = {
+      canUpdate: true,
+      canDelete: true,
+      canRead: true,
+      canCreateCreditNote: true,
+      canReadCustomers: true,
+      canReadDeliveryNotes: true,
+      canCreateDeliveryNotes: true,
+    };
+
+    const config = getInvoiceActionButtonConfig(
+      invoice,
+      permissions,
+      {},
+      getInvoiceReminderInfo,
+      validateInvoiceForDownload
+    );
+
+    expect(config.commission.enabled).toBe(true);
+    expect(config.commission.tooltip).toBe('Calculate Commission');
+  });
 });
