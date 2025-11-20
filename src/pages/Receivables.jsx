@@ -264,7 +264,10 @@ const Receivables = () => {
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
     try {
       await invoiceService.addInvoicePayment(inv.id, newPayment);
-    } catch (e) { /* ignore */ }
+    } catch (e) { 
+      // Ignore - optimistic UI already updated, backend error doesn't affect display
+      console.warn('Failed to persist payment to backend:', e.message);
+    }
   };
 
   const handleVoidLast = async () => {
@@ -272,7 +275,7 @@ const Receivables = () => {
     const payments = (inv.payments || []).filter(p => !p.voided);
     if (payments.length === 0) return;
     const last = payments[payments.length - 1];
-    const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p);
+    const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voidedAt: new Date().toISOString() } : p);
     const updated = { ...inv, payments: updatedPayments };
     const received = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
     const outstanding = Math.max(0, +((inv.invoiceAmount||0)-received).toFixed(2));
@@ -280,7 +283,12 @@ const Receivables = () => {
     const updatedInv = { ...updated, received, outstanding, status };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
-    try { await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); } catch(e){ /* ignore */ }
+    try { 
+      await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); 
+    } catch(e){ 
+      // Ignore - optimistic UI already voided payment, backend error doesn't affect display
+      console.warn('Failed to persist void to backend:', e.message);
+    }
   };
 
 

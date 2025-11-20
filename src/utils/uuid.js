@@ -6,7 +6,11 @@ export function uuid() {
   const c = g.crypto || (g.msCrypto /* IE11 */);
 
   if (c && typeof c.randomUUID === 'function') {
-    try { return c.randomUUID(); } catch {}
+    try { 
+      return c.randomUUID(); 
+    } catch {
+      // Ignore - fall through to next UUID generation method
+    }
   }
 
   if (c && typeof c.getRandomValues === 'function') {

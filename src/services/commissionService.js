@@ -5,7 +5,7 @@ const API_BASE = '/commissions';
 export const commissionService = {
   // Commission Plans
   async getPlans(isActive = null) {
-    const params = isActive !== null ? { is_active: isActive } : {};
+    const params = isActive !== null ? { isActive } : {};
     const response = await axiosApi.get(`${API_BASE}/plans`, { params });
     return response.data;
   },

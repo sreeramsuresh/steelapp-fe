@@ -2378,17 +2378,19 @@ const InvoiceForm = ({ onSave }) => {
               </Alert>
             )}
 
-            {/* Single Column Form - Mobile Friendly */}
-            <Card className={`p-3 md:p-4 ${
-              isDarkMode ? "bg-gray-800" : "bg-white"
-            }`}>
-              {/* Customer Selection - Priority #1 */}
-              <div className="mb-4">
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}>
-                  Customer Information
-                </h3>
+            {/* Two-Column Header Layout - Customer/Sales + Invoice Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* LEFT COLUMN: Customer & Sales Information */}
+              <Card className={`p-3 md:p-4 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}>
+                {/* Customer Selection - Priority #1 */}
+                <div className="mb-4">
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    Customer Information
+                  </h3>
                   {/* Customer Selector - Priority #1 Field */}
                   <Select
                     label="Select Customer"
@@ -2522,7 +2524,7 @@ const InvoiceForm = ({ onSave }) => {
                 </div>
 
               {/* Sales Agent Selection */}
-              <div className="mb-4 border-t pt-4" style={{
+              <div className="border-t pt-4 mt-4" style={{
                 borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)'
               }}>
                 <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
@@ -2558,18 +2560,18 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 )}
               </div>
+            </Card>
 
-              {/* Invoice Details Section */}
-              <div className="border-t pt-6 mt-6" style={{
-                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)'
-              }}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}>
-                  Invoice Details
-                </h3>
-
-                <div className="space-y-4">
+            {/* RIGHT COLUMN: Invoice Details */}
+            <Card className={`p-3 md:p-4 ${
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            }`}>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
+                Invoice Details
+              </h3>
+              <div className="space-y-4">
                   {/* Invoice Number - Read Only */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <Input
@@ -2667,9 +2669,20 @@ const InvoiceForm = ({ onSave }) => {
                       className="text-base min-h-[44px]"
                     />
                   )}
+                </div>
+              </Card>
+            </div>
 
-                  {/* Warehouse and Currency */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {/* Compact Settings Row - Warehouse, Currency, PO Fields */}
+            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
+                Additional Settings
+              </h3>
+              <div className="space-y-4">
+                {/* Warehouse and Currency */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                     <Select
                       label="Warehouse"
                       value={invoice.warehouseId || ""}
@@ -2725,53 +2738,52 @@ const InvoiceForm = ({ onSave }) => {
                     </Select>
                   </div>
 
-                  {/* Exchange Rate - Conditional */}
-                  {invoice.currency && invoice.currency !== 'AED' && (
-                    <Input
-                      label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
-                      type="number"
-                      value={invoice.exchangeRate || ''}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          exchangeRate: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., 3.67 for USD"
-                      step="0.000001"
-                      min="0"
-                      inputMode="decimal"
-                      className="text-base min-h-[44px]"
-                    />
-                  )}
+                {/* Exchange Rate - Conditional */}
+                {invoice.currency && invoice.currency !== 'AED' && (
+                  <Input
+                    label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
+                    type="number"
+                    value={invoice.exchangeRate || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        exchangeRate: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., 3.67 for USD"
+                    step="0.000001"
+                    min="0"
+                    inputMode="decimal"
+                    className="text-base min-h-[44px]"
+                  />
+                )}
 
-                  {/* Customer PO Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <Input
-                      label="Customer PO Number"
-                      value={invoice.customerPurchaseOrderNumber || ""}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          customerPurchaseOrderNumber: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter customer PO number"
-                      className="text-base min-h-[44px]"
-                    />
-                    <Input
-                      label="Customer PO Date"
-                      type="date"
-                      value={invoice.customerPurchaseOrderDate || ""}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          customerPurchaseOrderDate: e.target.value,
-                        }))
-                      }
-                      className="text-base min-h-[44px]"
-                    />
-                  </div>
+                {/* Customer PO Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                  <Input
+                    label="Customer PO Number"
+                    value={invoice.customerPurchaseOrderNumber || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderNumber: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter customer PO number"
+                    className="text-base min-h-[44px]"
+                  />
+                  <Input
+                    label="Customer PO Date"
+                    type="date"
+                    value={invoice.customerPurchaseOrderDate || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderDate: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[44px]"
+                  />
                 </div>
               </div>
             </Card>
@@ -3537,53 +3549,9 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             </Card>
 
-            {/* Notes - Single Column */}
-            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-              <div className="space-y-3">
-                {/* Invoice Notes */}
-                <div>
-                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  }`}>
-                    Notes
-                  </h3>
-                  <Textarea
-                    value={invoice.notes}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({ ...prev, notes: e.target.value }))
-                    }
-                    placeholder="Additional notes for the customer..."
-                    autoGrow={true}
-                    className="text-base min-h-[44px]"
-                  />
-                </div>
-
-                {/* VAT Tax Notes */}
-                <div>
-                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  }`}>
-                    VAT Tax Notes
-                  </h3>
-                  <Textarea
-                    value={invoice.taxNotes || ""}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
-                    }
-                    placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
-                    autoGrow={true}
-                    className="text-base min-h-[44px]"
-                  />
-                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Required when items are zero-rated or exempt from VAT
-                  </p>
-                </div>
-              </div>
-            </Card>
-
             {/* Payment Tracking Section - Show for Final Tax Invoices (issued status) */}
             {invoice.status === 'issued' && (
-              <Card className="p-4 sm:p-6 mt-4 sm:mt-6">
+              <Card className="p-4 sm:p-6">
                 <h2
                   className={`text-xl font-bold mb-4 ${
                     isDarkMode ? "text-white" : "text-gray-900"
@@ -3612,23 +3580,71 @@ const InvoiceForm = ({ onSave }) => {
               </Card>
             )}
 
-            {/* Payment Terms */}
-            <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}>
-                Payment Terms & Conditions
-              </h3>
-              <Textarea
-                value={invoice.terms}
-                onChange={(e) =>
-                  setInvoice((prev) => ({ ...prev, terms: e.target.value }))
-                }
-                placeholder="Enter payment terms and conditions..."
-                rows="3"
-                className="text-base min-h-[44px]"
-              />
-            </Card>
+            {/* Two-Column Notes Footer - General Notes + VAT Tax Notes (left) | Payment Terms (right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* LEFT COLUMN: General Notes & VAT Tax Notes */}
+              <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                {/* Invoice Notes */}
+                <div className="mb-4">
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    Notes
+                  </h3>
+                  <Textarea
+                    value={invoice.notes}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, notes: e.target.value }))
+                    }
+                    placeholder="Additional notes for the customer..."
+                    autoGrow={true}
+                    className="text-base min-h-[44px]"
+                  />
+                </div>
+
+                {/* VAT Tax Notes */}
+                <div className="border-t pt-4" style={{
+                  borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)'
+                }}>
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    VAT Tax Notes
+                  </h3>
+                  <Textarea
+                    value={invoice.taxNotes || ""}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
+                    }
+                    placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
+                    autoGrow={true}
+                    className="text-base min-h-[44px]"
+                  />
+                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Required when items are zero-rated or exempt from VAT
+                  </p>
+                </div>
+              </Card>
+
+              {/* RIGHT COLUMN: Payment Terms */}
+              <Card className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                  Payment Terms & Conditions
+                </h3>
+                <Textarea
+                  value={invoice.terms}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({ ...prev, terms: e.target.value }))
+                  }
+                  placeholder="Enter payment terms and conditions..."
+                  rows="3"
+                  autoGrow={true}
+                  className="text-base min-h-[44px]"
+                />
+              </Card>
+            </div>
           </main>
 
           {/* Sticky Mobile Footer - Actions & Total */}

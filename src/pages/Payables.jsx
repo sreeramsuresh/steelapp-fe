@@ -175,7 +175,10 @@ const InvoicesTab = ({ canManage }) => {
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
     try {
       await payablesService.addInvoicePayment(inv.id, newPayment);
-    } catch (e) { /* ignore */ }
+    } catch (e) { 
+      // Ignore - optimistic UI already updated, backend error doesn't affect display
+      console.warn('Failed to persist payment to backend:', e.message);
+    }
   };
 
   const handleVoidLast = async () => {
@@ -183,7 +186,7 @@ const InvoicesTab = ({ canManage }) => {
     const payments = (inv.payments || []).filter(p => !p.voided);
     if (payments.length === 0) return;
     const last = payments[payments.length - 1];
-    const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p);
+    const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voidedAt: new Date().toISOString() } : p);
     const updated = { ...inv, payments: updatedPayments };
     const received = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
     const outstanding = Math.max(0, +((inv.invoiceAmount||0)-received).toFixed(2));
@@ -191,7 +194,12 @@ const InvoicesTab = ({ canManage }) => {
     const updatedInv = { ...updated, received, outstanding, status };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
-    try { await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); } catch(e){ /* ignore */ }
+    try { 
+      await payablesService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); 
+    } catch(e){ 
+      // Ignore - optimistic UI already voided payment, backend error doesn't affect display
+      console.warn('Failed to persist void to backend:', e.message);
+    }
   };
 
   const handleMarkPaid = async () => {
@@ -724,13 +732,18 @@ const POTab = ({ canManage }) => {
     const updatedPO = { ...updated, paid, balance: newBal, status };
     setDrawer({ open: true, item: updatedPO });
     setItems(prev => prev.map(i => i.id===po.id? updatedPO : i));
-    try { await payablesService.addPOPayment(po.id, newPayment); } catch(e){ /* ignore */ }
+    try { 
+      await payablesService.addPOPayment(po.id, newPayment); 
+    } catch(e){ 
+      // Ignore - optimistic UI already updated, backend error doesn't affect display
+      console.warn('Failed to persist PO payment to backend:', e.message);
+    }
   };
 
   const handleVoidLast = async () => {
     const po = drawer.item; if (!po) return; const payments = (po.payments||[]).filter(p=>!p.voided);
     if (!payments.length) return; const last = payments[payments.length-1];
-    const updatedPayments = po.payments.map(p=>p.id===last.id? { ...p, voided:true, voided_at: new Date().toISOString() } : p);
+    const updatedPayments = po.payments.map(p=>p.id===last.id? { ...p, voided:true, voidedAt: new Date().toISOString() } : p);
     const paid = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
     const balance = Math.max(0, +((po.poValue||0)-paid).toFixed(2)); let status='unpaid'; if (balance===0) status='paid'; else if (balance<(po.poValue||0)) status='partially_paid';
     const updatedPO = { ...po, payments: updatedPayments, paid, balance, status };

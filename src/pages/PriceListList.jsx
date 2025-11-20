@@ -43,7 +43,7 @@ export default function PriceListList() {
   const fetchPricelists = async () => {
     try {
       setLoading(true);
-      const response = await pricelistService.getAll({ include_items: false });
+      const response = await pricelistService.getAll({ includeItems: false });
       setPricelists(response.data || []);
     } catch (error) {
       console.error('Error fetching pricelists:', error);

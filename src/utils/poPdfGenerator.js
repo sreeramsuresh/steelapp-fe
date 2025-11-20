@@ -182,7 +182,9 @@ const waitForImages = (container) => {
   return Promise.all(
     images.map((img) => new Promise((resolve) => {
       if (img.complete && img.naturalWidth !== 0) return resolve();
-      try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch {}
+      try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch {
+        // Ignore - crossOrigin may be read-only on some browsers
+      }
       img.addEventListener('load', resolve, { once: true });
       img.addEventListener('error', resolve, { once: true });
     }))

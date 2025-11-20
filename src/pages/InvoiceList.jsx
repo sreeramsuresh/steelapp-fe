@@ -357,7 +357,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       const invoicesData = response.invoices || response;
       const normalizedInvoices = normalizeInvoices(Array.isArray(invoicesData) ? invoicesData : [], 'fetchInvoices');
       
-      // In development, wrap with guards that warn on snake_case access
+      // ✅ NEW: Use shared devguard system
       const guardedInvoices = guardInvoicesDev(normalizedInvoices);
       
       setInvoices(guardedInvoices);
@@ -818,7 +818,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     }
   };
 
-  const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
+  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
     const inv = paymentDrawerInvoice;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
@@ -831,7 +831,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       return;
     }
 
-    // Optimistic UI update (like Receivables does)
+    // Normalize to camelCase for API Gateway (which converts to snake_case for backend)
+    const paymentPayload = {
+      paymentDate: payment_date || new Date().toISOString().slice(0,10),
+      amount: Number(amount),
+      method,
+      referenceNo: reference_no,
+      notes,
+    };
+
+    // Optimistic UI update (frontend state uses snake_case from backend)
     const newPayment = {
       id: uuid(),
       payment_date: payment_date || new Date().toISOString().slice(0,10),
@@ -863,8 +872,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setPaymentDrawerInvoice(updatedInv);
 
     try {
-      // Save to backend using invoiceService (correct endpoint)
-      await invoiceService.addInvoicePayment(inv.id, newPayment);
+      // Save to backend using invoiceService (send camelCase, API Gateway converts)
+      await invoiceService.addInvoicePayment(inv.id, paymentPayload);
 
       notificationService.success('Payment recorded successfully!');
 
@@ -878,7 +887,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           invoice.id === inv.id
             ? {
                 ...invoice,
-                payment_status: freshData.paymentStatus,
+                payment_status: freshData.payment_status,
                 received: freshData.received,
                 outstanding: freshData.outstanding,
                 balance_due: freshData.outstanding
@@ -954,7 +963,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           invoice.id === inv.id
             ? {
                 ...invoice,
-                payment_status: freshData.paymentStatus,
+                payment_status: freshData.payment_status,
                 received: freshData.received,
                 outstanding: freshData.outstanding,
                 balance_due: freshData.outstanding
