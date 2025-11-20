@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import MarketingLayout from "./MarketingLayout";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import MarketingLayout from './MarketingLayout';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -9,101 +9,101 @@ const Home = () => {
 
   const heroSlides = [
     {
-      title: "Your Trusted",
-      subtitle: "Partner in Steel Solutions",
-      tagline: "IMPORTERS & STOCKIST OF STAINLESS STEEL PRODUCTS",
+      title: 'Your Trusted',
+      subtitle: 'Partner in Steel Solutions',
+      tagline: 'IMPORTERS & STOCKIST OF STAINLESS STEEL PRODUCTS',
       image:
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1920&h=1080&fit=crop&q=80",
-      overlay: "from-slate-900/70 via-gray-900/80 to-black/90",
+        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1920&h=1080&fit=crop&q=80',
+      overlay: 'from-slate-900/70 via-gray-900/80 to-black/90',
     },
     {
-      title: "Ultimate Steels",
-      subtitle: "Powering Industries with Strength",
-      tagline: "HIGH-QUALITY STEEL FOR MODERN CONSTRUCTION",
+      title: 'Ultimate Steels',
+      subtitle: 'Powering Industries with Strength',
+      tagline: 'HIGH-QUALITY STEEL FOR MODERN CONSTRUCTION',
       image:
-        "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1920&h=1080&fit=crop&q=80",
-      overlay: "from-blue-900/70 via-slate-900/80 to-black/90",
+        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1920&h=1080&fit=crop&q=80',
+      overlay: 'from-blue-900/70 via-slate-900/80 to-black/90',
     },
     {
-      title: "Excellence in",
-      subtitle: "Steel Solutions",
-      tagline: "TRUSTED BY INDUSTRIES ACROSS THE UAE",
+      title: 'Excellence in',
+      subtitle: 'Steel Solutions',
+      tagline: 'TRUSTED BY INDUSTRIES ACROSS THE UAE',
       image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&h=1080&fit=crop&q=80",
-      overlay: "from-gray-900/70 via-slate-800/80 to-black/90",
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&h=1080&fit=crop&q=80',
+      overlay: 'from-gray-900/70 via-slate-800/80 to-black/90',
     },
   ];
 
   const services = [
     {
-      title: "Premium-Quality Steel Products",
+      title: 'Premium-Quality Steel Products',
       description:
-        "High-grade steel materials meeting international standards for all industrial applications.",
-      icon: "🏆",
+        'High-grade steel materials meeting international standards for all industrial applications.',
+      icon: '🏆',
       image:
-        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=500&h=400&fit=crop&q=80",
+        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=500&h=400&fit=crop&q=80',
     },
     {
-      title: "Customized Steel Fabrication",
+      title: 'Customized Steel Fabrication',
       description:
-        "Tailored fabrication solutions designed to meet your specific project requirements.",
-      icon: "⚙️",
+        'Tailored fabrication solutions designed to meet your specific project requirements.',
+      icon: '⚙️',
       image:
-        "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&h=400&fit=crop&q=80",
+        'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&h=400&fit=crop&q=80',
     },
     {
-      title: "Reliable Supply & Distribution",
+      title: 'Reliable Supply & Distribution',
       description:
-        "Efficient distribution network ensuring timely delivery across the UAE and GCC region.",
-      icon: "🚛",
+        'Efficient distribution network ensuring timely delivery across the UAE and GCC region.',
+      icon: '🚛',
       image:
-        "https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=500&h=400&fit=crop&q=80",
+        'https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=500&h=400&fit=crop&q=80',
     },
     {
-      title: "Structural & Industrial Steel",
+      title: 'Structural & Industrial Steel',
       description:
-        "Comprehensive range of structural steel products for construction and industrial projects.",
-      icon: "🏗️",
+        'Comprehensive range of structural steel products for construction and industrial projects.',
+      icon: '🏗️',
       image:
-        "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=500&h=400&fit=crop&q=80",
+        'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=500&h=400&fit=crop&q=80',
     },
   ];
 
   const industries = [
     {
-      title: "Construction & Infrastructure",
-      icon: "🏗️",
+      title: 'Construction & Infrastructure',
+      icon: '🏗️',
       image:
-        "https://images.unsplash.com/photo-1541976590-713941681591?w=300&h=300&fit=crop&q=80",
-      color: "from-blue-500 to-indigo-600",
+        'https://images.unsplash.com/photo-1541976590-713941681591?w=300&h=300&fit=crop&q=80',
+      color: 'from-blue-500 to-indigo-600',
     },
     {
-      title: "Manufacturing & Engineering",
-      icon: "⚙️",
+      title: 'Manufacturing & Engineering',
+      icon: '⚙️',
       image:
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=300&h=300&fit=crop&q=80",
-      color: "from-green-500 to-emerald-600",
+        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=300&h=300&fit=crop&q=80',
+      color: 'from-green-500 to-emerald-600',
     },
     {
-      title: "Marine & Shipbuilding",
-      icon: "🚢",
+      title: 'Marine & Shipbuilding',
+      icon: '🚢',
       image:
-        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&h=300&fit=crop&q=80",
-      color: "from-cyan-500 to-blue-600",
+        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&h=300&fit=crop&q=80',
+      color: 'from-cyan-500 to-blue-600',
     },
     {
-      title: "Heavy Equipment",
-      icon: "🏭",
+      title: 'Heavy Equipment',
+      icon: '🏭',
       image:
-        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop&q=80",
-      color: "from-orange-500 to-red-600",
+        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop&q=80',
+      color: 'from-orange-500 to-red-600',
     },
     {
-      title: "Oil and Gas",
-      icon: "⚡",
+      title: 'Oil and Gas',
+      icon: '⚡',
       image:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=300&fit=crop&q=80",
-      color: "from-purple-500 to-pink-600",
+        'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=300&fit=crop&q=80',
+      color: 'from-purple-500 to-pink-600',
     },
   ];
 
@@ -128,7 +128,7 @@ const Home = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "50px" }
+      { threshold: 0.1, rootMargin: '50px' },
     );
 
     document.querySelectorAll('[id^="section-"]').forEach((el) => {
@@ -151,8 +151,8 @@ const Home = () => {
                 key={index}
                 className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                   index === currentSlide
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-105"
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 scale-105'
                 }`}
               >
                 {/* Background Image */}
@@ -161,7 +161,7 @@ const Home = () => {
                   style={{
                     backgroundImage: `url('${slide.image}')`,
                     transform:
-                      index === currentSlide ? "scale(1.1)" : "scale(1)",
+                      index === currentSlide ? 'scale(1.1)' : 'scale(1)',
                   }}
                 />
 
@@ -177,8 +177,8 @@ const Home = () => {
                       <div
                         className={`transform transition-all duration-1000 delay-300 ${
                           index === currentSlide
-                            ? "translate-y-0 opacity-100"
-                            : "translate-y-10 opacity-0"
+                            ? 'translate-y-0 opacity-100'
+                            : 'translate-y-10 opacity-0'
                         }`}
                       >
                         <h1 className="text-7xl md:text-8xl font-bold mb-4 leading-tight">
@@ -234,8 +234,8 @@ const Home = () => {
                 key={index}
                 className={`w-4 h-4 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? "bg-white scale-125 shadow-lg"
-                    : "bg-white/50 hover:bg-white/75"
+                    ? 'bg-white scale-125 shadow-lg'
+                    : 'bg-white/50 hover:bg-white/75'
                 }`}
                 onClick={() => setCurrentSlide(index)}
               />
@@ -257,9 +257,9 @@ const Home = () => {
         <section
           id="section-intro"
           className={`py-24 transition-all duration-1000 ${
-            isVisible["section-intro"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-intro']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -322,28 +322,28 @@ const Home = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  number: "15+",
-                  label: "Years Experience",
-                  color: "from-blue-500 to-blue-600",
-                  icon: "📅",
+                  number: '15+',
+                  label: 'Years Experience',
+                  color: 'from-blue-500 to-blue-600',
+                  icon: '📅',
                 },
                 {
-                  number: "500+",
-                  label: "Projects Completed",
-                  color: "from-green-500 to-green-600",
-                  icon: "✅",
+                  number: '500+',
+                  label: 'Projects Completed',
+                  color: 'from-green-500 to-green-600',
+                  icon: '✅',
                 },
                 {
-                  number: "50+",
-                  label: "Happy Clients",
-                  color: "from-purple-500 to-purple-600",
-                  icon: "😊",
+                  number: '50+',
+                  label: 'Happy Clients',
+                  color: 'from-purple-500 to-purple-600',
+                  icon: '😊',
                 },
                 {
-                  number: "99%",
-                  label: "Success Rate",
-                  color: "from-orange-500 to-orange-600",
-                  icon: "🎯",
+                  number: '99%',
+                  label: 'Success Rate',
+                  color: 'from-orange-500 to-orange-600',
+                  icon: '🎯',
                 },
               ].map((stat, index) => (
                 <div
@@ -373,9 +373,9 @@ const Home = () => {
         <section
           id="section-services"
           className={`py-24 bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 transition-all duration-1000 ${
-            isVisible["section-services"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-services']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -440,9 +440,9 @@ const Home = () => {
         <section
           id="section-coverage"
           className={`py-24 transition-all duration-1000 ${
-            isVisible["section-coverage"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-coverage']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -473,27 +473,27 @@ const Home = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     {[
-                      { name: "Ajman", status: "Headquarters", color: "blue" },
-                      { name: "Dubai", status: "Full Service", color: "green" },
+                      { name: 'Ajman', status: 'Headquarters', color: 'blue' },
+                      { name: 'Dubai', status: 'Full Service', color: 'green' },
                       {
-                        name: "Abu Dhabi",
-                        status: "Full Service",
-                        color: "purple",
+                        name: 'Abu Dhabi',
+                        status: 'Full Service',
+                        color: 'purple',
                       },
                       {
-                        name: "Sharjah",
-                        status: "Full Service",
-                        color: "orange",
+                        name: 'Sharjah',
+                        status: 'Full Service',
+                        color: 'orange',
                       },
                       {
-                        name: "Other Emirates",
-                        status: "Available",
-                        color: "indigo",
+                        name: 'Other Emirates',
+                        status: 'Available',
+                        color: 'indigo',
                       },
                       {
-                        name: "GCC Region",
-                        status: "Expanding",
-                        color: "pink",
+                        name: 'GCC Region',
+                        status: 'Expanding',
+                        color: 'pink',
                       },
                     ].map((area, index) => (
                       <div
@@ -558,9 +558,9 @@ const Home = () => {
         <section
           id="section-industries"
           className={`py-24 bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 transition-all duration-1000 ${
-            isVisible["section-industries"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-industries']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">

@@ -10,7 +10,7 @@ import {
   Percent,
   Users,
   TrendingUp,
-  Info
+  Info,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { notificationService } from '../services/notificationService';
@@ -26,7 +26,7 @@ const CommissionPlans = () => {
     name: '',
     description: '',
     is_active: true,
-    tiers: [{ min_amount: 0, max_amount: null, rate: 0 }]
+    tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const CommissionPlans = () => {
       name: '',
       description: '',
       is_active: true,
-      tiers: [{ min_amount: 0, max_amount: null, rate: 0 }]
+      tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
     });
     setShowModal(true);
   };
@@ -63,7 +63,7 @@ const CommissionPlans = () => {
       name: plan.name,
       description: plan.description || '',
       is_active: plan.isActive,
-      tiers: plan.tiers || [{ min_amount: 0, max_amount: null, rate: 0 }]
+      tiers: plan.tiers || [{ min_amount: 0, max_amount: null, rate: 0 }],
     });
     setShowModal(true);
   };
@@ -115,8 +115,8 @@ const CommissionPlans = () => {
       ...formData,
       tiers: [
         ...formData.tiers,
-        { min_amount: newMinAmount, max_amount: null, rate: 0 }
-      ]
+        { min_amount: newMinAmount, max_amount: null, rate: 0 },
+      ],
     });
   };
 

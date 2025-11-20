@@ -5,7 +5,7 @@ import {
   Package,
   Calculator,
   Building,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 
 import CustomerManagement from '../components/CustomerManagement';
@@ -21,20 +21,20 @@ const BusinessDashboard = () => {
       id: 'customers',
       label: 'Customers',
       icon: Users,
-      component: CustomerManagement
+      component: CustomerManagement,
     },
     {
       id: 'products',
       label: 'Products',
       icon: Package,
-      component: SteelProducts
+      component: SteelProducts,
     },
     {
       id: 'calculator',
       label: 'Price Calculator',
       icon: Calculator,
-      component: PriceCalculator
-    }
+      component: PriceCalculator,
+    },
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

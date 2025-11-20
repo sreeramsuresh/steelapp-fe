@@ -48,7 +48,7 @@ const StatusPill = ({ status }) => {
     unpaid: { label: 'Unpaid', color: 'red' },
     partially_paid: { label: 'Partially Paid', color: 'yellow' },
     paid: { label: 'Paid', color: 'green' },
-    overdue: { label: 'Overdue', color: 'red' }
+    overdue: { label: 'Overdue', color: 'red' },
   };
   const cfg = map[status] || map.unpaid;
   return <Pill color={cfg.color}>{cfg.label}</Pill>;
@@ -187,7 +187,7 @@ const Receivables = () => {
     minOut: '',
     maxOut: '',
     page: '1',
-    size: '10'
+    size: '10',
   });
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
@@ -308,7 +308,7 @@ const Receivables = () => {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
         total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
-        customer: inv.customer || {}
+        customer: inv.customer || {},
       };
       const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -338,7 +338,7 @@ const Receivables = () => {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
         total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
-        customer: inv.customer || {}
+        customer: inv.customer || {},
       };
       const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {

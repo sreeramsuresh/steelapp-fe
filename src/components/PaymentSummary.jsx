@@ -5,7 +5,7 @@ import {
   calculateTotalPaid,
   calculateBalanceDue,
   calculatePaymentStatus,
-  getPaymentStatusConfig
+  getPaymentStatusConfig,
 } from '../utils/paymentUtils';
 
 const PaymentSummary = ({ invoiceTotal, payments = [] }) => {
@@ -65,8 +65,8 @@ const PaymentSummary = ({ invoiceTotal, payments = [] }) => {
               totalPaid > 0
                 ? 'text-green-600 dark:text-green-400'
                 : isDarkMode
-                ? 'text-gray-400'
-                : 'text-gray-600'
+                  ? 'text-gray-400'
+                  : 'text-gray-600'
             }`}
           >
             {formatCurrency(totalPaid)}

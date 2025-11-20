@@ -69,7 +69,7 @@ export function normalizeSupplier(rawSupplier: any, source = 'unknown'): any | n
       updatedAt: parseDate(rawSupplier.updated_at || rawSupplier.updatedAt),
       
       // Notes
-      notes: rawSupplier.notes || undefined
+      notes: rawSupplier.notes || undefined,
     };
 
     // Log validation errors if any

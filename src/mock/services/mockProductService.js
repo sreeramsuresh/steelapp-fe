@@ -4,7 +4,7 @@
 
 import productsData from '../data/products.json';
 
-let products = [...productsData];
+const products = [...productsData];
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const productService = {
@@ -22,7 +22,7 @@ export const productService = {
       const s = search.toLowerCase();
       filtered = filtered.filter(p =>
         p.name?.toLowerCase().includes(s) ||
-        p.description?.toLowerCase().includes(s)
+        p.description?.toLowerCase().includes(s),
       );
     }
     
@@ -33,7 +33,7 @@ export const productService = {
     
     return {
       products: paginatedData,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages }
+      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages },
     };
   },
 
@@ -52,7 +52,7 @@ export const productService = {
       id: Math.max(...products.map(p => p.id), 0) + 1,
       ...productData,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     products.push(newProduct);
     return newProduct;
@@ -67,7 +67,7 @@ export const productService = {
     products[index] = {
       ...products[index],
       ...productData,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     return products[index];
   },
@@ -80,7 +80,7 @@ export const productService = {
     }
     products.splice(index, 1);
     return { message: 'Product deleted successfully' };
-  }
+  },
 };
 
 export default productService;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { calculateTRN, formatNumber } from "../../utils/invoiceUtils";
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import { calculateTRN, formatNumber } from '../../utils/invoiceUtils';
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Items Table Component
@@ -12,7 +12,7 @@ const InvoiceItemsTable = ({
   startingIndex = 0,
   isFirstPage,
   isContinued,
-  primaryColor
+  primaryColor,
 }) => {
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
@@ -50,15 +50,15 @@ const InvoiceItemsTable = ({
               <tr
                 key={index}
                 style={{
-                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F8F8F8'
+                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F8F8F8',
                 }}
               >
                 <td className="px-2 py-2 text-xs">{globalIndex + 1}</td>
-                <td className="px-2 py-2 text-xs font-medium">{item.name || ""}</td>
+                <td className="px-2 py-2 text-xs font-medium">{item.name || ''}</td>
                 <td className="px-2 py-2 text-xs text-center">{item.quantity || 0}</td>
                 <td className="px-2 py-2 text-xs text-right">{formatNumber(item.rate || 0)}</td>
                 <td className="px-2 py-2 text-xs text-right">{formatNumber(amountNum)}</td>
-                <td className="px-2 py-2 text-xs text-right">{formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : "0%"})</td>
+                <td className="px-2 py-2 text-xs text-right">{formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : '0%'})</td>
                 <td className="px-2 py-2 text-xs text-right font-medium">{formatNumber(totalWithVAT)}</td>
               </tr>
             );

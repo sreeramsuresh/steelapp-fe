@@ -20,7 +20,7 @@ import {
   Snowflake,
   Leaf,
   Flower2,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
@@ -49,9 +49,9 @@ const RevenueTrends = () => {
     () => analyticsService.getSalesTrends({ 
       period: 'month',
       start_date: dateParams.startDate,
-      end_date: dateParams.endDate
+      end_date: dateParams.endDate,
     }),
-    [dateParams]
+    [dateParams],
   );
 
   // Process real data and generate forecasting
@@ -70,7 +70,7 @@ const RevenueTrends = () => {
       invoiceCount: parseInt(item.invoiceCount),
       avgOrderValue: parseFloat(item.averageOrderValue),
       uniqueCustomers: parseInt(item.uniqueCustomers),
-      period: new Date(item.period)
+      period: new Date(item.period),
     }));
 
     // Generate forecasting based on real historical data
@@ -108,7 +108,7 @@ const RevenueTrends = () => {
         8: 1.08,  // September
         9: 1.00,  // October
         10: 0.95, // November
-        11: 0.80  // December
+        11: 0.80,  // December
       };
 
       const forecast = [];
@@ -137,9 +137,9 @@ const RevenueTrends = () => {
           period: futureDate,
           confidence: {
             high: forecastedRevenue + confidenceRange,
-            low: Math.max(0, forecastedRevenue - confidenceRange)
+            low: Math.max(0, forecastedRevenue - confidenceRange),
           },
-          type: 'forecast'
+          type: 'forecast',
         });
         
         lastRevenue = forecastedRevenue;
@@ -155,7 +155,7 @@ const RevenueTrends = () => {
       totalInvoices: revenueData.reduce((sum, item) => sum + item.invoiceCount, 0),
       avgOrderValue: revenueData.length > 0 ? revenueData.reduce((sum, item) => sum + item.avgOrderValue, 0) / revenueData.length : 0,
       growthRate: revenueData.length >= 2 ? 
-        ((revenueData[revenueData.length - 1].revenue - revenueData[0].revenue) / revenueData[0].revenue) * 100 : 0
+        ((revenueData[revenueData.length - 1].revenue - revenueData[0].revenue) / revenueData[0].revenue) * 100 : 0,
     };
 
     const forecastData = generateForecast(revenueData);
@@ -178,7 +178,7 @@ const RevenueTrends = () => {
       style: 'currency',
       currency: 'AED',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -289,8 +289,8 @@ const RevenueTrends = () => {
             {getGrowthIcon(analytics.growthRate || 0)}
             <span className={`text-sm font-medium ${
               analytics.growthRate > 0 ? 'text-green-600' : 
-              analytics.growthRate < 0 ? 'text-red-600' : 
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                analytics.growthRate < 0 ? 'text-red-600' : 
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>
               overall trend
             </span>
@@ -460,7 +460,7 @@ const RevenueTrends = () => {
       name: season,
       revenue: seasonalData[season].revenue,
       avgRevenue: seasonalData[season].revenue / seasonalData[season].count,
-      months: seasonalData[season].count
+      months: seasonalData[season].count,
     }));
 
     return (
@@ -517,26 +517,26 @@ const RevenueTrends = () => {
         title: 'Total Revenue',
         value: formatCurrency(analytics.totalRevenue),
         icon: <TrendingUp size={24} className="text-green-500" />,
-        description: `Generated from ${analytics.totalInvoices} invoices`
+        description: `Generated from ${analytics.totalInvoices} invoices`,
       },
       {
         title: 'Average Order Value',
         value: formatCurrency(analytics.avgOrderValue),
         icon: <BarChart3 size={24} className="text-blue-500" />,
-        description: 'Per invoice average'
+        description: 'Per invoice average',
       },
       {
         title: 'Growth Rate',
         value: formatGrowth(analytics.growthRate),
         icon: getGrowthIcon(analytics.growthRate),
-        description: 'Overall period growth'
+        description: 'Overall period growth',
       },
       {
         title: 'Monthly Average',
         value: formatCurrency(analytics.avgMonthlyRevenue),
         icon: <Calendar size={24} className="text-purple-500" />,
-        description: 'Average revenue per month'
-      }
+        description: 'Average revenue per month',
+      },
     ];
 
     return (
@@ -680,11 +680,11 @@ const RevenueTrends = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'trends'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <LineChart size={18} />
@@ -695,11 +695,11 @@ const RevenueTrends = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'forecasting'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Target size={18} />
@@ -710,11 +710,11 @@ const RevenueTrends = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'seasonal'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Calendar size={18} />
@@ -725,11 +725,11 @@ const RevenueTrends = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'metrics'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Activity size={18} />

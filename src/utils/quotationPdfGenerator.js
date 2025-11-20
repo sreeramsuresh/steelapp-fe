@@ -71,7 +71,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
         <div style="margin-top:8px; line-height:1.3;">
           <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? ', ' + compAddr.emirate : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${  compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
@@ -114,29 +114,29 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
         </thead>
         <tbody>
           ${items.map((it) => {
-            const amountNum = parseFloat(it.amount) || 0;
-            const gstRateNum = parseFloat(it.vatRate) || 0;
-            const gstAmt = calculateTRN(amountNum, gstRateNum);
-            const totalWithTax = amountNum + gstAmt;
-            const spec = (it.specification && String(it.specification).trim()) || [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
-            return `
+    const amountNum = parseFloat(it.amount) || 0;
+    const gstRateNum = parseFloat(it.vatRate) || 0;
+    const gstAmt = calculateTRN(amountNum, gstRateNum);
+    const totalWithTax = amountNum + gstAmt;
+    const spec = (it.specification && String(it.specification).trim()) || [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
+    return `
               <tr>
                 <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">
                   <div style="font-weight:600;color:#0f172a;">${safe(it.name)}</div>
-                  ${spec ? '<div style="font-size:10px;color:#64748b;">' + safe(spec) + '</div>' : ''}
+                  ${spec ? `<div style="font-size:10px;color:#64748b;">${  safe(spec)  }</div>` : ''}
                 </td>
-                ${hasDescription ? '<td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">' + (safe(it.description) || '-') + '</td>' : ''}
+                ${hasDescription ? `<td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${  safe(it.description) || '-'  }</td>` : ''}
                 <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(it.unit) || 'pcs'}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${safe(it.quantity)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(it.rate || 0)}</td>
-                ${hasItemDiscount ? '<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">' + (((parseFloat(it.discount)||0) > 0) ? (formatCurrency(it.discount) + (it.discountType === 'percentage' ? '%' : '')) : '-') + '</td>' : ''}
+                ${hasItemDiscount ? `<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${  ((parseFloat(it.discount)||0) > 0) ? (formatCurrency(it.discount) + (it.discountType === 'percentage' ? '%' : '')) : '-'  }</td>` : ''}
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(amountNum)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${gstRateNum}%</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(gstAmt)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0; font-weight:600;">${formatCurrency(totalWithTax)}</td>
               </tr>
             `;
-          }).join('')}
+  }).join('')}
         </tbody>
       </table>
     </div>

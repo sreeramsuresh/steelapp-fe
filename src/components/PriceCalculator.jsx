@@ -18,7 +18,7 @@ import {
   Info,
   Target,
   Layers,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -31,7 +31,7 @@ const PriceCalculator = () => {
     width: '',
     thickness: '',
     diameter: '',
-    quantity: ''
+    quantity: '',
   });
   const [customRules, setCustomRules] = useState([]);
   const [bulkDiscounts, setBulkDiscounts] = useState([]);
@@ -44,13 +44,13 @@ const PriceCalculator = () => {
     value: '',
     adjustmentType: 'percentage',
     adjustmentValue: '',
-    active: true
+    active: true,
   });
   const [newDiscount, setNewDiscount] = useState({
     name: '',
     minQuantity: '',
     discountPercentage: '',
-    active: true
+    active: true,
   });
 
   // Base steel prices per kg (these would normally come from an API)
@@ -62,7 +62,7 @@ const PriceCalculator = () => {
     angle: { ms: 55, galvanized: 68 },
     round: { ms: 53, ss304: 175 },
     flat: { ms: 54, ss304: 178 },
-    wire: { ms: 60, galvanized: 72 }
+    wire: { ms: 60, galvanized: 72 },
   };
 
   // Steel density and weight calculations
@@ -73,50 +73,50 @@ const PriceCalculator = () => {
       name: 'TMT Rebar',
       grades: ['fe415', 'fe500', 'fe550'],
       weightFormula: 'circular',
-      dimensions: ['diameter', 'length']
+      dimensions: ['diameter', 'length'],
     },
     structural: {
       name: 'Structural Steel',
       grades: ['ms', 'ss304', 'ss316'],
       weightFormula: 'rectangular',
-      dimensions: ['length', 'width', 'thickness']
+      dimensions: ['length', 'width', 'thickness'],
     },
     sheet: {
       name: 'Steel Sheet',
       grades: ['ms', 'galvanized', 'ss304'],
       weightFormula: 'sheet',
-      dimensions: ['length', 'width', 'thickness']
+      dimensions: ['length', 'width', 'thickness'],
     },
     pipe: {
       name: 'Steel Pipe',
       grades: ['ms', 'galvanized', 'ss304'],
       weightFormula: 'pipe',
-      dimensions: ['diameter', 'thickness', 'length']
+      dimensions: ['diameter', 'thickness', 'length'],
     },
     angle: {
       name: 'Steel Angle',
       grades: ['ms', 'galvanized'],
       weightFormula: 'angle',
-      dimensions: ['length', 'width', 'thickness']
+      dimensions: ['length', 'width', 'thickness'],
     },
     round: {
       name: 'Round Bar',
       grades: ['ms', 'ss304'],
       weightFormula: 'circular',
-      dimensions: ['diameter', 'length']
+      dimensions: ['diameter', 'length'],
     },
     flat: {
       name: 'Flat Bar',
       grades: ['ms', 'ss304'],
       weightFormula: 'rectangular',
-      dimensions: ['length', 'width', 'thickness']
+      dimensions: ['length', 'width', 'thickness'],
     },
     wire: {
       name: 'Steel Wire',
       grades: ['ms', 'galvanized'],
       weightFormula: 'circular',
-      dimensions: ['diameter', 'length']
-    }
+      dimensions: ['diameter', 'length'],
+    },
   };
 
   const [selectedGrade, setSelectedGrade] = useState(productTypes[selectedProduct].grades[0]);
@@ -139,7 +139,7 @@ const PriceCalculator = () => {
           value: 1000,
           adjustmentType: 'percentage',
           adjustmentValue: -5,
-          active: true
+          active: true,
         },
         {
           id: '2',
@@ -149,7 +149,7 @@ const PriceCalculator = () => {
           value: 'ss316',
           adjustmentType: 'percentage',
           adjustmentValue: 10,
-          active: true
+          active: true,
         },
         {
           id: '3',
@@ -159,8 +159,8 @@ const PriceCalculator = () => {
           value: 5000,
           adjustmentType: 'fixed',
           adjustmentValue: 500,
-          active: true
-        }
+          active: true,
+        },
       ];
       setCustomRules(defaultRules);
       localStorage.setItem('steel-app-pricing-rules', JSON.stringify(defaultRules));
@@ -174,7 +174,7 @@ const PriceCalculator = () => {
         { id: '1', name: '5+ tonnes', minQuantity: 5000, discountPercentage: 3, active: true },
         { id: '2', name: '10+ tonnes', minQuantity: 10000, discountPercentage: 5, active: true },
         { id: '3', name: '25+ tonnes', minQuantity: 25000, discountPercentage: 8, active: true },
-        { id: '4', name: '50+ tonnes', minQuantity: 50000, discountPercentage: 12, active: true }
+        { id: '4', name: '50+ tonnes', minQuantity: 50000, discountPercentage: 12, active: true },
       ];
       setBulkDiscounts(defaultDiscounts);
       localStorage.setItem('steel-app-bulk-discounts', JSON.stringify(defaultDiscounts));
@@ -255,7 +255,7 @@ const PriceCalculator = () => {
 
     // Apply custom pricing rules
     const applicableRules = customRules.filter(rule => rule.active);
-    let adjustments = [];
+    const adjustments = [];
 
     applicableRules.forEach(rule => {
       let applies = false;
@@ -290,7 +290,7 @@ const PriceCalculator = () => {
         adjustments.push({
           name: rule.name,
           amount: adjustment,
-          type: rule.adjustmentType
+          type: rule.adjustmentType,
         });
         
         subtotal += adjustment;
@@ -319,7 +319,7 @@ const PriceCalculator = () => {
       appliedDiscount,
       subtotal,
       total: subtotal,
-      pricePerKg: totalWeight > 0 ? subtotal / totalWeight : 0
+      pricePerKg: totalWeight > 0 ? subtotal / totalWeight : 0,
     };
   }, [selectedProduct, selectedGrade, calculateWeight, dimensions, customRules, bulkDiscounts]);
 
@@ -328,7 +328,7 @@ const PriceCalculator = () => {
       ...newRule,
       id: Date.now().toString(),
       value: newRule.value === '' ? 0 : Number(newRule.value),
-      adjustmentValue: newRule.adjustmentValue === '' ? 0 : Number(newRule.adjustmentValue)
+      adjustmentValue: newRule.adjustmentValue === '' ? 0 : Number(newRule.adjustmentValue),
     };
     const updatedRules = [...customRules, rule];
     setCustomRules(updatedRules);
@@ -340,7 +340,7 @@ const PriceCalculator = () => {
       value: '',
       adjustmentType: 'percentage',
       adjustmentValue: '',
-      active: true
+      active: true,
     });
     setShowRulesModal(false);
   };
@@ -350,7 +350,7 @@ const PriceCalculator = () => {
       ...newDiscount,
       id: Date.now().toString(),
       minQuantity: newDiscount.minQuantity === '' ? 0 : Number(newDiscount.minQuantity),
-      discountPercentage: newDiscount.discountPercentage === '' ? 0 : Number(newDiscount.discountPercentage)
+      discountPercentage: newDiscount.discountPercentage === '' ? 0 : Number(newDiscount.discountPercentage),
     };
     const updatedDiscounts = [...bulkDiscounts, discount];
     setBulkDiscounts(updatedDiscounts);
@@ -359,14 +359,14 @@ const PriceCalculator = () => {
       name: '',
       minQuantity: '',
       discountPercentage: '',
-      active: true
+      active: true,
     });
     setShowDiscountModal(false);
   };
 
   const toggleRuleActive = (ruleId) => {
     const updatedRules = customRules.map(rule =>
-      rule.id === ruleId ? { ...rule, active: !rule.active } : rule
+      rule.id === ruleId ? { ...rule, active: !rule.active } : rule,
     );
     setCustomRules(updatedRules);
     localStorage.setItem('steel-app-pricing-rules', JSON.stringify(updatedRules));
@@ -374,7 +374,7 @@ const PriceCalculator = () => {
 
   const toggleDiscountActive = (discountId) => {
     const updatedDiscounts = bulkDiscounts.map(discount =>
-      discount.id === discountId ? { ...discount, active: !discount.active } : discount
+      discount.id === discountId ? { ...discount, active: !discount.active } : discount,
     );
     setBulkDiscounts(updatedDiscounts);
     localStorage.setItem('steel-app-bulk-discounts', JSON.stringify(updatedDiscounts));
@@ -820,11 +820,11 @@ const PriceCalculator = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'calculator'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Calculator size={18} />
@@ -835,11 +835,11 @@ const PriceCalculator = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'rules'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Settings size={18} />
@@ -850,11 +850,11 @@ const PriceCalculator = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'discounts'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Percent size={18} />

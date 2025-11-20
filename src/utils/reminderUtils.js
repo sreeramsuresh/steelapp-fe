@@ -11,7 +11,7 @@ export const REMINDER_TYPES = {
   DUE_TODAY: 'due_today',
   POLITE_OVERDUE: 'polite_overdue',
   URGENT_OVERDUE: 'urgent_overdue',
-  FINAL_OVERDUE: 'final_overdue'
+  FINAL_OVERDUE: 'final_overdue',
 };
 
 /**
@@ -29,7 +29,7 @@ export const REMINDER_CONFIG = {
     textLight: 'text-blue-700',
     textDark: 'text-blue-300',
     borderLight: 'border-blue-200',
-    borderDark: 'border-blue-800'
+    borderDark: 'border-blue-800',
   },
   [REMINDER_TYPES.DUE_SOON]: {
     label: 'Due Soon',
@@ -42,7 +42,7 @@ export const REMINDER_CONFIG = {
     textLight: 'text-yellow-700',
     textDark: 'text-yellow-300',
     borderLight: 'border-yellow-200',
-    borderDark: 'border-yellow-800'
+    borderDark: 'border-yellow-800',
   },
   [REMINDER_TYPES.DUE_TODAY]: {
     label: 'Due Today',
@@ -55,7 +55,7 @@ export const REMINDER_CONFIG = {
     textLight: 'text-orange-700',
     textDark: 'text-orange-300',
     borderLight: 'border-orange-200',
-    borderDark: 'border-orange-800'
+    borderDark: 'border-orange-800',
   },
   [REMINDER_TYPES.POLITE_OVERDUE]: {
     label: 'Overdue',
@@ -68,7 +68,7 @@ export const REMINDER_CONFIG = {
     textLight: 'text-red-700',
     textDark: 'text-red-300',
     borderLight: 'border-red-200',
-    borderDark: 'border-red-800'
+    borderDark: 'border-red-800',
   },
   [REMINDER_TYPES.URGENT_OVERDUE]: {
     label: 'Urgent Overdue',
@@ -81,7 +81,7 @@ export const REMINDER_CONFIG = {
     textLight: 'text-red-800',
     textDark: 'text-red-200',
     borderLight: 'border-red-300',
-    borderDark: 'border-red-700'
+    borderDark: 'border-red-700',
   },
   [REMINDER_TYPES.FINAL_OVERDUE]: {
     label: 'Final Notice',
@@ -94,8 +94,8 @@ export const REMINDER_CONFIG = {
     textLight: 'text-red-900',
     textDark: 'text-red-100',
     borderLight: 'border-red-400',
-    borderDark: 'border-red-600'
-  }
+    borderDark: 'border-red-600',
+  },
 };
 
 /**
@@ -164,7 +164,7 @@ export const getInvoiceReminderInfo = (invoice) => {
     isOverdue: daysUntilDue < 0,
     balanceDue,
     paymentStatus,
-    shouldShowReminder: true
+    shouldShowReminder: true,
   };
 };
 
@@ -223,7 +223,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
       textLight: 'text-blue-700',
       textDark: 'text-blue-300',
       borderLight: 'border-blue-200',
-      borderDark: 'border-blue-800'
+      borderDark: 'border-blue-800',
     };
   } else if (daysUntilPromised >= 1) {
     // Promise is 1-6 days away
@@ -236,7 +236,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
       textLight: 'text-purple-700',
       textDark: 'text-purple-300',
       borderLight: 'border-purple-200',
-      borderDark: 'border-purple-800'
+      borderDark: 'border-purple-800',
     };
   } else if (daysUntilPromised === 0) {
     // Promise is today
@@ -249,7 +249,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
       textLight: 'text-indigo-700',
       textDark: 'text-indigo-300',
       borderLight: 'border-indigo-200',
-      borderDark: 'border-indigo-800'
+      borderDark: 'border-indigo-800',
     };
   } else {
     // Promise is overdue (customer broke promise)
@@ -262,7 +262,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
       textLight: 'text-red-700',
       textDark: 'text-red-300',
       borderLight: 'border-red-200',
-      borderDark: 'border-red-800'
+      borderDark: 'border-red-800',
     };
   }
 
@@ -276,7 +276,7 @@ export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
     promisedAmount: latestReminder.promisedAmount,
     promisedDate: latestReminder.promisedDate,
     balanceDue,
-    shouldShowPromise: true
+    shouldShowPromise: true,
   };
 };
 
@@ -325,9 +325,9 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'We wanted to send this advance notice to help you plan your payment schedule. If you have already processed this payment, please disregard this reminder.',
         '',
-        'For your convenience, you can make payment via bank transfer, cheque, or any of our accepted payment methods. Please reference the invoice number when making the payment.'
+        'For your convenience, you can make payment via bank transfer, cheque, or any of our accepted payment methods. Please reference the invoice number when making the payment.',
       ],
-      closing: 'Thank you for your continued business.'
+      closing: 'Thank you for your continued business.',
     },
 
     [REMINDER_TYPES.DUE_SOON]: {
@@ -342,9 +342,9 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'Please arrange for payment at your earliest convenience to avoid any delays. If you have already made this payment, please accept our thanks and disregard this notice.',
         '',
-        'Should you have any questions or concerns regarding this invoice, please don\'t hesitate to contact us.'
+        'Should you have any questions or concerns regarding this invoice, please don\'t hesitate to contact us.',
       ],
-      closing: 'We appreciate your prompt attention to this matter.'
+      closing: 'We appreciate your prompt attention to this matter.',
     },
 
     [REMINDER_TYPES.DUE_TODAY]: {
@@ -358,9 +358,9 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'If you have already submitted your payment, thank you! If not, we kindly request that you process the payment today to maintain your account in good standing.',
         '',
-        'For immediate payment processing, please contact our accounts department or use any of our available payment methods.'
+        'For immediate payment processing, please contact our accounts department or use any of our available payment methods.',
       ],
-      closing: 'Thank you for your cooperation.'
+      closing: 'Thank you for your cooperation.',
     },
 
     [REMINDER_TYPES.POLITE_OVERDUE]: {
@@ -375,9 +375,9 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'We understand that oversights can happen, and we would appreciate it if you could arrange payment as soon as possible.',
         '',
-        'If you have already made this payment, please send us the payment confirmation so we can update our records. If there are any issues preventing payment, please contact us to discuss payment arrangements.'
+        'If you have already made this payment, please send us the payment confirmation so we can update our records. If there are any issues preventing payment, please contact us to discuss payment arrangements.',
       ],
-      closing: 'We value your business and look forward to resolving this matter promptly.'
+      closing: 'We value your business and look forward to resolving this matter promptly.',
     },
 
     [REMINDER_TYPES.URGENT_OVERDUE]: {
@@ -394,9 +394,9 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'Please arrange payment within the next 48 hours. If payment has already been made, please provide us with payment confirmation immediately.',
         '',
-        'If you are experiencing difficulties with payment, please contact us urgently to discuss alternative arrangements. Failure to respond may result in further action.'
+        'If you are experiencing difficulties with payment, please contact us urgently to discuss alternative arrangements. Failure to respond may result in further action.',
       ],
-      closing: 'Your immediate attention to this matter is required.'
+      closing: 'Your immediate attention to this matter is required.',
     },
 
     [REMINDER_TYPES.FINAL_OVERDUE]: {
@@ -418,10 +418,10 @@ export const getReminderLetterContent = (reminderType, invoice, daysUntilDue) =>
         '',
         'If you have made payment, please provide proof immediately. If you are unable to pay in full, contact us within 2 business days to discuss a payment plan.',
         '',
-        'This is your final opportunity to resolve this matter before we proceed with formal debt recovery action.'
+        'This is your final opportunity to resolve this matter before we proceed with formal debt recovery action.',
       ],
-      closing: 'URGENT ACTION REQUIRED - Contact us immediately.'
-    }
+      closing: 'URGENT ACTION REQUIRED - Contact us immediately.',
+    },
   };
 
   return templates[reminderType] || templates[REMINDER_TYPES.POLITE_OVERDUE];
@@ -561,7 +561,7 @@ export const generatePaymentReminder = async (invoice, company) => {
       'For any queries regarding this notice, please contact our accounts department immediately.',
       pageWidth / 2,
       pdf.internal.pageSize.getHeight() - 15,
-      { align: 'center' }
+      { align: 'center' },
     );
 
     // Save PDF

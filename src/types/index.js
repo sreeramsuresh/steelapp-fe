@@ -13,7 +13,7 @@ export const createCustomer = () => ({
     city: '',
     emirate: '',
     poBox: '',
-    country: 'UAE'
+    country: 'UAE',
   },
   vatNumber: '', // TRN Number
   panNumber: '',
@@ -22,7 +22,7 @@ export const createCustomer = () => ({
   tradeLicenseExpiry: '',
   contactPerson: '',
   website: '',
-  paymentTerms: 30
+  paymentTerms: 30,
 });
 
 export const createSteelItem = () => ({
@@ -43,7 +43,7 @@ export const createSteelItem = () => ({
   amount: 0,
   vatRate: 5, // TRN Rate
   netAmount: 0,
-  serialNumber: ''
+  serialNumber: '',
 });
 
 export const createInvoice = () => ({
@@ -95,7 +95,7 @@ export const createInvoice = () => ({
   sales_agent_id: null, // ID of sales agent assigned to this invoice
   commission_eligible: true, // Whether this invoice is eligible for commission
   commission_calculated: false, // Whether commission has been calculated
-  commission_paid: false // Whether commission has been paid
+  commission_paid: false, // Whether commission has been paid
 });
 
 export const createCompany = () => ({
@@ -105,11 +105,11 @@ export const createCompany = () => ({
     city: 'Dubai',
     emirate: 'Dubai',
     poBox: 'P.O. Box 12345',
-    country: 'UAE'
+    country: 'UAE',
   },
   phone: '+971 50 123 4567',
   email: 'info@steeltrading.com',
-  vatNumber: '100000000000003' // TRN Number
+  vatNumber: '100000000000003', // TRN Number
 });
 
 export const STEEL_UNITS = ['kg', 'ton', 'piece', 'meter', 'feet'];
@@ -124,7 +124,7 @@ export const UAE_EMIRATES = [
   'Ajman',
   'Umm Al-Quwain',
   'Ras Al Khaimah',
-  'Fujairah'
+  'Fujairah',
 ];
 
 export const UAE_CITIES = [
@@ -141,7 +141,7 @@ export const UAE_CITIES = [
   // Ras Al Khaimah Emirate
   'Ras Al Khaimah',
   // Fujairah Emirate
-  'Fujairah', 'Dibba Al-Fujairah'
+  'Fujairah', 'Dibba Al-Fujairah',
 ];
 
 export const createStockMovement = () => ({
@@ -156,7 +156,7 @@ export const createStockMovement = () => ({
   invoiceNo: '',
   quantity: '',
   currentStock: '',
-  seller: ''
+  seller: '',
 });
 
 export const createInventoryItem = () => ({
@@ -171,7 +171,7 @@ export const createInventoryItem = () => ({
   pricePurchased: 0,
   sellingPrice: 0,
   landedCost: 0,
-  location: ''
+  location: '',
 });
 
 export const PRODUCT_TYPES = ['Sheet', 'Square Tube', 'Rectangular Tube', 'Pol Pipe', 'Round Bar', 'Flat Bar', 'Angle Bar', 'Square Bar', 'Coil'];

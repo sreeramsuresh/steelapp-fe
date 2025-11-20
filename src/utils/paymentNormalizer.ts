@@ -79,7 +79,7 @@ export function normalizePayment(rawPayment: any, source = 'unknown'): any | nul
       voided: Boolean(rawPayment.voided),
       voidedAt: parseDate(rawPayment.voidedAt || rawPayment.voided_at),
       voidedBy: rawPayment.voided_by || rawPayment.voidedBy || undefined,
-      voidReason: rawPayment.void_reason || rawPayment.voidReason || undefined
+      voidReason: rawPayment.void_reason || rawPayment.voidReason || undefined,
     };
 
     // Log validation errors if any

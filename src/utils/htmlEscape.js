@@ -59,28 +59,28 @@ export const testHtmlEscape = () => {
     {
       input: '<script>alert("XSS")</script>',
       expected: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;',
-      name: 'Script tag escape'
+      name: 'Script tag escape',
     },
     {
       input: '<img src=x onerror="alert(\'XSS\')">',
       expected: '&lt;img src=x onerror=&quot;alert(&#039;XSS&#039;)&quot;&gt;',
-      name: 'Image tag with event handler'
+      name: 'Image tag with event handler',
     },
     {
       input: '"><script>alert(String.fromCharCode(88,83,83))</script>',
       expected: '&quot;&gt;&lt;script&gt;alert(String.fromCharCode(88,83,83))&lt;&#x2F;script&gt;',
-      name: 'Quote escape with script'
+      name: 'Quote escape with script',
     },
     {
       input: null,
       expected: '',
-      name: 'Null value'
+      name: 'Null value',
     },
     {
       input: '',
       expected: '',
-      name: 'Empty string'
-    }
+      name: 'Empty string',
+    },
   ];
 
   const results = tests.map(test => {

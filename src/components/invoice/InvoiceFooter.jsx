@@ -1,5 +1,5 @@
 import React from 'react';
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Footer Component
@@ -14,7 +14,7 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor }) => {
       {/* Bottom Footer Line */}
       <div className="border-t-2 pt-3" style={{ borderColor: color }}>
         <p className="text-center text-xs text-gray-700 leading-relaxed">
-          Phone: {company?.phone || "+971506061680"} | Email: {company?.email || "admin@company.com"} | Website: www.ultimatesteels.com
+          Phone: {company?.phone || '+971506061680'} | Email: {company?.email || 'admin@company.com'} | Website: www.ultimatesteels.com
         </p>
         <p className="text-center text-xs text-gray-500 mt-2">
           Page: {pageNumber} / {totalPages}

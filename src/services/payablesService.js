@@ -28,7 +28,7 @@ const ls = {
     const arr = ls.get(scope, id);
     const next = arr.map(p => p.id === paymentId ? { ...p, voided: true, voided_at: new Date().toISOString() } : p);
     ls.set(scope, id, next); return next;
-  }
+  },
 };
 
 const computeInvoiceDerived = (inv) => {

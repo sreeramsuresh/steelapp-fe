@@ -9,7 +9,7 @@ import {
   Search,
   Plus,
   TrendingUp,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
@@ -26,7 +26,7 @@ const SalesAgentsManagement = () => {
     default_commission_rate: '',
     employee_code: '',
     hire_date: '',
-    department: ''
+    department: '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -53,7 +53,7 @@ const SalesAgentsManagement = () => {
       default_commission_rate: agent.defaultCommissionRate || '',
       employee_code: agent.employeeCode || '',
       hire_date: agent.hireDate || '',
-      department: agent.department || ''
+      department: agent.department || '',
     });
     setShowEditModal(true);
   };
@@ -65,7 +65,7 @@ const SalesAgentsManagement = () => {
       setSaving(true);
       await commissionService.updateAgent(selectedAgent.id, {
         ...editForm,
-        default_commission_rate: parseFloat(editForm.defaultCommissionRate) || null
+        default_commission_rate: parseFloat(editForm.defaultCommissionRate) || null,
       });
       notificationService.success('Agent updated successfully');
       setShowEditModal(false);
@@ -81,7 +81,7 @@ const SalesAgentsManagement = () => {
   const filteredAgents = agents.filter(agent =>
     agent.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     agent.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agent.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    agent.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (loading) {

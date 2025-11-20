@@ -9,7 +9,7 @@ const ProtectedRoute = ({
   user, 
   requiredRole, 
   requiredPermission,
-  fallbackPath = '/login' 
+  fallbackPath = '/login', 
 }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
@@ -21,7 +21,7 @@ const ProtectedRoute = ({
     isAuthenticated,
     hasUserProp: !!user,
     userEmail: user?.email,
-    path: location.pathname
+    path: location.pathname,
   });
 
   if (!isAuthenticated) {

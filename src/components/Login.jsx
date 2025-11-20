@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Lock,
   Mail,
@@ -6,9 +6,9 @@ import {
   EyeOff,
   LogIn,
   X,
-} from "lucide-react";
-import { authService } from "../services/axiosAuthService";
-import { useTheme } from "../contexts/ThemeContext";
+} from 'lucide-react';
+import { authService } from '../services/axiosAuthService';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
@@ -49,10 +49,10 @@ const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // 🚀 HYBRID AUTH: Auto-login in development mode
   useEffect(() => {
@@ -104,7 +104,7 @@ const Login = ({ onLoginSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const response = await authService.login(formData.email, formData.password);
@@ -113,7 +113,7 @@ const Login = ({ onLoginSuccess }) => {
         onLoginSuccess(response.user);
       }
     } catch (error) {
-      setError(error.message || "Authentication failed");
+      setError(error.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -170,7 +170,7 @@ const Login = ({ onLoginSuccess }) => {
                 style={{
                   WebkitBoxShadow: isDarkMode ? '0 0 0 1000px #1E2328 inset' : '0 0 0 1000px white inset',
                   WebkitTextFillColor: isDarkMode ? 'white' : 'black',
-                  transition: 'background-color 5000s ease-in-out 0s'
+                  transition: 'background-color 5000s ease-in-out 0s',
                 }}
               />
             </div>
@@ -187,7 +187,7 @@ const Login = ({ onLoginSuccess }) => {
                 className={`absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} 
               />
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -201,7 +201,7 @@ const Login = ({ onLoginSuccess }) => {
                 style={{
                   WebkitBoxShadow: isDarkMode ? '0 0 0 1000px #1E2328 inset' : '0 0 0 1000px white inset',
                   WebkitTextFillColor: isDarkMode ? 'white' : 'black',
-                  transition: 'background-color 5000s ease-in-out 0s'
+                  transition: 'background-color 5000s ease-in-out 0s',
                 }}
               />
               <button
@@ -247,7 +247,7 @@ const Login = ({ onLoginSuccess }) => {
               )
             }
           >
-            {loading ? "Please wait..." : "Sign In"}
+            {loading ? 'Please wait...' : 'Sign In'}
           </Button>
         </form>
 

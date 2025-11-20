@@ -28,14 +28,14 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-excel',
-      'text/csv'
+      'text/csv',
     ];
     
     if (!allowedTypes.includes(file.type)) {
       addNotification({
         title: 'Invalid File Type',
         message: 'Please upload Excel (.xlsx, .xls) or CSV files only.',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -44,7 +44,7 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'File Too Large',
         message: 'Maximum allowed size is 10MB.',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -82,7 +82,7 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const downloadTemplate = async () => {
     try {
       const response = await api.get('/inventory/upload/template', {
-        responseType: 'blob'
+        responseType: 'blob',
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -97,13 +97,13 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'Template Downloaded',
         message: 'Template downloaded successfully',
-        type: 'success'
+        type: 'success',
       });
     } catch (error) {
       addNotification({
         title: 'Download Failed',
         message: 'Failed to download template',
-        type: 'error'
+        type: 'error',
       });
     }
   };
@@ -113,7 +113,7 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'No File Selected',
         message: 'Please select a file to upload',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -125,8 +125,8 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
     try {
       const response = await api.post('/inventory/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       setUploadResults(response.data.results);
@@ -135,7 +135,7 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
         addNotification({
           title: 'Upload Successful',
           message: response.data.message,
-          type: 'success'
+          type: 'success',
         });
         if (onUploadComplete) {
           onUploadComplete();
@@ -144,14 +144,14 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
         addNotification({
           title: 'Upload Warning',
           message: 'No inventory items were imported successfully',
-          type: 'warning'
+          type: 'warning',
         });
       }
     } catch (error) {
       addNotification({
         title: 'Upload Failed',
         message: error.response?.data?.error || 'Upload failed',
-        type: 'error'
+        type: 'error',
       });
     } finally {
       setUploading(false);

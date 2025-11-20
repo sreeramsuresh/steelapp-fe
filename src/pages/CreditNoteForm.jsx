@@ -12,7 +12,7 @@ import {
   Search,
   Loader2,
   Filter,
-  X
+  X,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
@@ -28,7 +28,7 @@ const RETURN_REASONS = [
   { value: 'quality_issue', label: 'Quality Issue' },
   { value: 'overcharge', label: 'Overcharge/Pricing Error' },
   { value: 'duplicate_order', label: 'Duplicate Order' },
-  { value: 'other', label: 'Other (Specify in Notes)' }
+  { value: 'other', label: 'Other (Specify in Notes)' },
 ];
 
 const CREDIT_NOTE_STATUSES = [
@@ -37,7 +37,7 @@ const CREDIT_NOTE_STATUSES = [
   { value: 'items_received', label: 'Items Received' },
   { value: 'items_inspected', label: 'Items Inspected' },
   { value: 'refunded', label: 'Refunded' },
-  { value: 'completed', label: 'Completed' }
+  { value: 'completed', label: 'Completed' },
 ];
 
 const REFUND_METHODS = [
@@ -45,7 +45,7 @@ const REFUND_METHODS = [
   { value: 'bank_transfer', label: 'Bank Transfer' },
   { value: 'cheque', label: 'Cheque' },
   { value: 'credit_adjustment', label: 'Credit Adjustment' },
-  { value: 'credit_card', label: 'Credit Card' }
+  { value: 'credit_card', label: 'Credit Card' },
 ];
 
 const CreditNoteForm = () => {
@@ -69,7 +69,7 @@ const CreditNoteForm = () => {
       address: '',
       phone: '',
       email: '',
-      trn: ''
+      trn: '',
     },
     creditNoteDate: formatDateForInput(new Date()),
     status: 'draft',
@@ -88,7 +88,7 @@ const CreditNoteForm = () => {
     warehouseId: null,
     returnShippingCost: 0,
     // Additional Charges
-    restockingFee: 0
+    restockingFee: 0,
   });
 
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -206,14 +206,14 @@ const CreditNoteForm = () => {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(dateFilter));
       results = results.filter(inv =>
-        new Date(inv.invoiceDate) >= daysAgo
+        new Date(inv.invoiceDate) >= daysAgo,
       );
     }
 
     // Amount filter
     if (amountFilter !== 'all') {
       results = results.filter(inv =>
-        inv.total >= parseInt(amountFilter)
+        inv.total >= parseInt(amountFilter),
       );
     }
 
@@ -269,8 +269,8 @@ const CreditNoteForm = () => {
           vatRate: item.vatRate || 5,
           vatAmount: 0,
           returnStatus: 'not_returned',
-          selected: false
-        }))
+          selected: false,
+        })),
       }));
 
       setShowInvoiceSelect(false);
@@ -330,7 +330,7 @@ const CreditNoteForm = () => {
       ...prev,
       subtotal,
       vatAmount,
-      totalCredit
+      totalCredit,
     }));
   };
 
@@ -392,7 +392,7 @@ const CreditNoteForm = () => {
 
       const creditNoteData = {
         ...creditNote,
-        items: returnedItems
+        items: returnedItems,
       };
 
       if (id) {
@@ -539,8 +539,8 @@ const CreditNoteForm = () => {
                           invalidFields.has('invoiceId')
                             ? 'border-red-500'
                             : isDarkMode
-                            ? 'border-gray-600 bg-gray-700 text-white'
-                            : 'border-gray-300 bg-white text-gray-900'
+                              ? 'border-gray-600 bg-gray-700 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
                         } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                       />
                       {isSearching && (
@@ -702,7 +702,7 @@ const CreditNoteForm = () => {
                           ...prev,
                           invoiceId: null,
                           invoiceNumber: '',
-                          items: []
+                          items: [],
                         }));
                       }}
                       className={`text-sm ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
@@ -745,8 +745,8 @@ const CreditNoteForm = () => {
                             ? 'border-teal-500 bg-teal-900/20'
                             : 'border-teal-500 bg-teal-50'
                           : isDarkMode
-                          ? 'border-gray-600'
-                          : 'border-gray-300'
+                            ? 'border-gray-600'
+                            : 'border-gray-300'
                       }`}
                     >
                       <div className="flex items-start gap-4">
@@ -871,8 +871,8 @@ const CreditNoteForm = () => {
                       invalidFields.has('creditNoteDate')
                         ? 'border-red-500'
                         : isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -907,8 +907,8 @@ const CreditNoteForm = () => {
                       invalidFields.has('reasonForReturn')
                         ? 'border-red-500'
                         : isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   >
                     <option value="">Select reason...</option>

@@ -9,7 +9,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     start_date: '',
-    end_date: ''
+    end_date: '',
   });
   const [error, setError] = useState('');
 
@@ -23,7 +23,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
       setFormData({
         start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0]
+        end_date: endDate.toISOString().split('T')[0],
       });
       setError('');
     }
@@ -33,7 +33,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -57,7 +57,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
         customer_id: customer.id,
         start_date: formData.startDate,
         end_date: formData.endDate,
-        notes: `Generated on ${formatDate(new Date())}`
+        notes: `Generated on ${formatDate(new Date())}`,
       };
 
       // Always generate and save statement (best practice)
@@ -81,7 +81,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
     setFormData(prev => ({
       ...prev,
       start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0]
+      end_date: endDate.toISOString().split('T')[0],
     }));
   };
 
@@ -150,7 +150,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                 { label: '1M', months: 1 },
                 { label: '3M', months: 3 },
                 { label: '6M', months: 6 },
-                { label: '1Y', months: 12 }
+                { label: '1Y', months: 12 },
               ].map(({ label, months }) => (
                 <button
                   key={label}

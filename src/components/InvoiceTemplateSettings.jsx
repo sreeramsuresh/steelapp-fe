@@ -13,7 +13,7 @@ import {
   CheckCircle,
   Upload,
   Download,
-  X
+  X,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { getDefaultTemplateSettings, validateTemplateSettings, mergeTemplateSettings } from '../constants/defaultTemplateSettings';
@@ -82,7 +82,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     branding: false,
     visibility: false,
     table: false,
-    formatting: false
+    formatting: false,
   });
 
   // Load settings from company
@@ -149,7 +149,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       title: 'Discard Changes?',
       message: 'Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.',
       confirmText: 'Discard',
-      variant: 'warning'
+      variant: 'warning',
     });
 
     if (!confirmed) return;
@@ -166,7 +166,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       title: 'Reset to Defaults?',
       message: 'Are you sure you want to reset all template settings to defaults? This cannot be undone.',
       confirmText: 'Reset',
-      variant: 'warning'
+      variant: 'warning',
     });
 
     if (!confirmed) return;
@@ -225,8 +225,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           address: {
             street: '123 Business Street',
             city: 'Dubai',
-            country: 'UAE'
-          }
+            country: 'UAE',
+          },
         },
         items: [
           {
@@ -234,20 +234,20 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             quantity: 10,
             rate: 850,
             amount: 8500,
-            vatRate: 5
+            vatRate: 5,
           },
           {
             name: 'Stainless Steel Pipe 316L - 2 inch',
             quantity: 25,
             rate: 120,
             amount: 3000,
-            vatRate: 5
-          }
+            vatRate: 5,
+          },
         ],
         notes: 'Thank you for your business!',
         terms: 'Payment due within 30 days',
         warehouseName: 'Main Warehouse',
-        warehouseCode: 'WH-001'
+        warehouseCode: 'WH-001',
       };
 
       // Create temporary company object with current settings
@@ -255,8 +255,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         ...company,
         settings: {
           ...company?.settings,
-          invoice_template: settings
-        }
+          invoice_template: settings,
+        },
       };
 
       // Generate PDF with preview watermark
@@ -273,7 +273,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -515,8 +515,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 ? 'text-teal-400 border-b-2 border-teal-400'
                 : 'text-teal-600 border-b-2 border-teal-600'
               : isDarkMode
-              ? 'text-gray-400 hover:text-gray-300'
-              : 'text-gray-600 hover:text-gray-800'
+                ? 'text-gray-400 hover:text-gray-300'
+                : 'text-gray-600 hover:text-gray-800'
           }`}
         >
           Basic Settings
@@ -529,8 +529,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 ? 'text-teal-400 border-b-2 border-teal-400'
                 : 'text-teal-600 border-b-2 border-teal-600'
               : isDarkMode
-              ? 'text-gray-400 hover:text-gray-300'
-              : 'text-gray-600 hover:text-gray-800'
+                ? 'text-gray-400 hover:text-gray-300'
+                : 'text-gray-600 hover:text-gray-800'
           }`}
         >
           Advanced Settings

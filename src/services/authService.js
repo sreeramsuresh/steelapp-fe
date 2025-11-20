@@ -57,7 +57,7 @@ class AuthService {
   async changePassword(currentPassword, newPassword) {
     return apiClient.post('/auth/change-password', {
       currentPassword,
-      newPassword
+      newPassword,
     });
   }
 

@@ -5,7 +5,7 @@ import InvoiceItemsTable from './InvoiceItemsTable';
 import InvoiceTotalsSection from './InvoiceTotalsSection';
 import InvoiceFooterNotes from './InvoiceFooterNotes';
 import InvoiceSignatureSection from './InvoiceSignatureSection';
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Template Component
@@ -33,7 +33,7 @@ const InvoiceTemplate = ({
   isFirstPage,
   isLastPage,
   showSignature = false,
-  showTotals = false
+  showTotals = false,
 }) => {
   // Get template colors from company settings or use defaults
   const templateSettings = company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
@@ -50,7 +50,7 @@ const InvoiceTemplate = ({
         boxSizing: 'border-box',
         background: 'white',
         position: 'relative',
-        pageBreakAfter: isLastPage ? 'avoid' : 'always'
+        pageBreakAfter: isLastPage ? 'avoid' : 'always',
       }}
     >
       {/* Header - appears on every page */}

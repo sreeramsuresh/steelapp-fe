@@ -1,76 +1,76 @@
-import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
+import React from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Components
-import Dashboard from "./Dashboard";
-import InvoiceForm from "../pages/InvoiceForm";
-import InvoiceList from "../pages/InvoiceList";
-import CustomerManagement from "./CustomerManagement";
-import SteelProducts from "./SteelProducts";
-import PriceCalculator from "./PriceCalculator";
-import SalesAnalytics from "./SalesAnalytics";
-import CompanySettings from "./CompanySettings";
-import SearchResults from "./SearchResults";
-import RevenueTrends from "./RevenueTrends";
-import InventoryList from "./InventoryList";
-import DeliveryNoteList from "../pages/DeliveryNoteList";
-import DeliveryNoteForm from "../pages/DeliveryNoteForm";
-import DeliveryNoteDetails from "../pages/DeliveryNoteDetails";
-import PurchaseOrderList from "../pages/PurchaseOrderList";
-import PurchaseOrderForm from "../pages/PurchaseOrderForm";
-import Login from "./Login";
-import MarketingHome from "../marketing/MarketingHome";
-import MarketingProducts from "../marketing/MarketingProducts";
-import MarketingAbout from "../marketing/MarketingAbout";
-import MarketingContact from "../marketing/MarketingContact";
-import AccountStatementList from "../pages/AccountStatementList";
-import AccountStatementForm from "../pages/AccountStatementForm";
-import AccountStatementDetails from "../pages/AccountStatementDetails";
-import QuotationList from "../pages/QuotationList";
-import QuotationForm from "../pages/QuotationForm";
-import CreditNoteList from "../pages/CreditNoteList";
-import CreditNoteForm from "../pages/CreditNoteForm";
-import Payables from "../pages/Payables";
-import Receivables from "../pages/Receivables";
-import CustomerPerspective from "../pages/CustomerPerspective";
-import ProtectedRoute from "./ProtectedRoute";
+import Dashboard from './Dashboard';
+import InvoiceForm from '../pages/InvoiceForm';
+import InvoiceList from '../pages/InvoiceList';
+import CustomerManagement from './CustomerManagement';
+import SteelProducts from './SteelProducts';
+import PriceCalculator from './PriceCalculator';
+import SalesAnalytics from './SalesAnalytics';
+import CompanySettings from './CompanySettings';
+import SearchResults from './SearchResults';
+import RevenueTrends from './RevenueTrends';
+import InventoryList from './InventoryList';
+import DeliveryNoteList from '../pages/DeliveryNoteList';
+import DeliveryNoteForm from '../pages/DeliveryNoteForm';
+import DeliveryNoteDetails from '../pages/DeliveryNoteDetails';
+import PurchaseOrderList from '../pages/PurchaseOrderList';
+import PurchaseOrderForm from '../pages/PurchaseOrderForm';
+import Login from './Login';
+import MarketingHome from '../marketing/MarketingHome';
+import MarketingProducts from '../marketing/MarketingProducts';
+import MarketingAbout from '../marketing/MarketingAbout';
+import MarketingContact from '../marketing/MarketingContact';
+import AccountStatementList from '../pages/AccountStatementList';
+import AccountStatementForm from '../pages/AccountStatementForm';
+import AccountStatementDetails from '../pages/AccountStatementDetails';
+import QuotationList from '../pages/QuotationList';
+import QuotationForm from '../pages/QuotationForm';
+import CreditNoteList from '../pages/CreditNoteList';
+import CreditNoteForm from '../pages/CreditNoteForm';
+import Payables from '../pages/Payables';
+import Receivables from '../pages/Receivables';
+import CustomerPerspective from '../pages/CustomerPerspective';
+import ProtectedRoute from './ProtectedRoute';
 
 // Import/Export Components
-import ImportExportDashboard from "../pages/ImportExportDashboard";
-import ImportOrderForm from "../pages/ImportOrderForm";
-import ImportOrderDetails from "../pages/ImportOrderDetails";
-import ExportOrderForm from "../pages/ExportOrderForm";
-import ExportOrderDetails from "../pages/ExportOrderDetails";
+import ImportExportDashboard from '../pages/ImportExportDashboard';
+import ImportOrderForm from '../pages/ImportOrderForm';
+import ImportOrderDetails from '../pages/ImportOrderDetails';
+import ExportOrderForm from '../pages/ExportOrderForm';
+import ExportOrderDetails from '../pages/ExportOrderDetails';
 
 // Finance Components
-import FinanceDashboard from "../pages/FinanceDashboard";
+import FinanceDashboard from '../pages/FinanceDashboard';
 
 // Business Components
-import BusinessDashboard from "../pages/BusinessDashboard";
+import BusinessDashboard from '../pages/BusinessDashboard';
 
 // Admin Components
-import AuditLogs from "../pages/AuditLogs";
+import AuditLogs from '../pages/AuditLogs';
 
 // Reports Components
-import ReportsDashboard from "../pages/ReportsDashboard";
-import ProfitAnalysisReport from "../pages/ProfitAnalysisReport";
-import PriceHistoryReport from "../pages/PriceHistoryReport";
+import ReportsDashboard from '../pages/ReportsDashboard';
+import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
+import PriceHistoryReport from '../pages/PriceHistoryReport';
 
 // Price List Components
-import PriceListList from "../pages/PriceListList";
-import PriceListForm from "../pages/PriceListForm";
+import PriceListList from '../pages/PriceListList';
+import PriceListForm from '../pages/PriceListForm';
 
 // Commission Components
-import AgentCommissionDashboard from "../pages/AgentCommissionDashboard";
+import AgentCommissionDashboard from '../pages/AgentCommissionDashboard';
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
   // Allow public marketing pages and login without auth
-  const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
-  const isLoginPage = location.pathname === "/login";
+  const isMarketing = location.pathname === '/' || location.pathname.startsWith('/marketing');
+  const isLoginPage = location.pathname === '/login';
 
   // Check if we need to redirect to login
   const needsAuth = !user && !isLoginPage && !isMarketing;
@@ -90,7 +90,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
     <div className={`w-full ${isMarketing ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <Routes>
         {/* Default route - redirect to login if not authenticated, invoices if authenticated */}
-        <Route path="/" element={<Navigate to={user ? "/invoices" : "/login"} replace />} />
+        <Route path="/" element={<Navigate to={user ? '/invoices' : '/login'} replace />} />
 
         {/* Public Routes: Marketing + Login */}
         <Route path="/marketing" element={<MarketingHome />} />

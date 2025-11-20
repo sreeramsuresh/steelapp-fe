@@ -66,5 +66,5 @@ export const companyService = {
 
   async deleteSeal(filename) {
     return apiClient.delete(`/company/seal/${filename}`);
-  }
+  },
 };

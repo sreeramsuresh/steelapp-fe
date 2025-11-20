@@ -57,7 +57,7 @@ function generatePayments() {
           status: 'completed',
           companyId: 1,
           createdAt: formatDateTime(new Date(payment.paymentDate)),
-          updatedAt: formatDateTime(new Date(payment.paymentDate))
+          updatedAt: formatDateTime(new Date(payment.paymentDate)),
         });
       });
     }
@@ -69,7 +69,7 @@ function generatePayments() {
 const payments = generatePayments();
 fs.writeFileSync(
   path.join(dataDir, 'payments.json'),
-  JSON.stringify(payments, null, 2)
+  JSON.stringify(payments, null, 2),
 );
 
 console.log(`✅ Generated ${payments.length} payments`);
@@ -88,7 +88,7 @@ function generateQuotations(count = 80) {
   const statusWeights = [20, 25, 20, 10, 5];
   
   function weightedChoice(items, weights) {
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
     let random = Math.random() * totalWeight;
     for (let i = 0; i < items.length; i++) {
       if (random < weights[i]) return items[i];
@@ -130,7 +130,7 @@ function generateQuotations(count = 80) {
         unitPrice,
         discount,
         taxRate,
-        amount
+        amount,
       });
       
       subtotal += amount;
@@ -149,7 +149,7 @@ function generateQuotations(count = 80) {
         email: customer.email,
         phone: customer.phone,
         trn: customer.trn,
-        address: customer.address
+        address: customer.address,
       },
       quoteDate: formatDate(quoteDate),
       validUntil: formatDate(validUntil),
@@ -169,7 +169,7 @@ function generateQuotations(count = 80) {
       companyId: 1,
       createdBy: 1,
       createdAt: formatDateTime(quoteDate),
-      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - quoteDate.getTime()) / (1000 * 60 * 60 * 24)) - 7), 0))
+      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - quoteDate.getTime()) / (1000 * 60 * 60 * 24)) - 7), 0)),
     });
   }
 
@@ -179,7 +179,7 @@ function generateQuotations(count = 80) {
 const quotations = generateQuotations(80);
 fs.writeFileSync(
   path.join(dataDir, 'quotations.json'),
-  JSON.stringify(quotations, null, 2)
+  JSON.stringify(quotations, null, 2),
 );
 
 console.log('✅ Generated 80 quotations');
@@ -200,7 +200,7 @@ function generateDeliveryNotes(count = 120) {
   const statusWeights = [30, 50, 35, 5];
   
   function weightedChoice(items, weights) {
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
     let random = Math.random() * totalWeight;
     for (let i = 0; i < items.length; i++) {
       if (random < weights[i]) return items[i];
@@ -225,7 +225,7 @@ function generateDeliveryNotes(count = 120) {
       productName: item.productName,
       description: item.description,
       quantity: item.quantity,
-      deliveredQuantity: status === 'delivered' ? item.quantity : Math.floor(item.quantity * 0.8)
+      deliveredQuantity: status === 'delivered' ? item.quantity : Math.floor(item.quantity * 0.8),
     })) : [];
 
     deliveryNotes.push({
@@ -238,7 +238,7 @@ function generateDeliveryNotes(count = 120) {
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
-        address: customer.address
+        address: customer.address,
       },
       deliveryDate: formatDate(deliveryDate),
       status,
@@ -250,7 +250,7 @@ function generateDeliveryNotes(count = 120) {
       signature: status === 'delivered' ? 'Signed by customer' : null,
       companyId: 1,
       createdAt: formatDateTime(deliveryDate),
-      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24)) - 3), 0))
+      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24)) - 3), 0)),
     });
   }
 
@@ -260,7 +260,7 @@ function generateDeliveryNotes(count = 120) {
 const deliveryNotes = generateDeliveryNotes(120);
 fs.writeFileSync(
   path.join(dataDir, 'deliveryNotes.json'),
-  JSON.stringify(deliveryNotes, null, 2)
+  JSON.stringify(deliveryNotes, null, 2),
 );
 
 console.log('✅ Generated 120 delivery notes');
@@ -286,7 +286,7 @@ function generateSuppliers(count = 20) {
   const cities = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman'];
   
   function weightedChoice(items, weights) {
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
     let random = Math.random() * totalWeight;
     for (let i = 0; i < items.length; i++) {
       if (random < weights[i]) return items[i];
@@ -308,10 +308,10 @@ function generateSuppliers(count = 20) {
       trn: `100${randomInt(100000000000, 999999999999)}`,
       address: {
         street: `Industrial Area ${randomInt(1, 15)}`,
-        city: city,
+        city,
         state: city,
         postalCode: `${randomInt(10000, 99999)}`,
-        country: 'UAE'
+        country: 'UAE',
       },
       contactPerson: `${randomChoice(['Ahmed', 'Mohammed', 'Ali', 'Omar'])} ${randomChoice(['Hassan', 'Khan', 'Ali'])}`,
       paymentTerms: randomChoice(['NET_15', 'NET_30', 'NET_45', 'NET_60']),
@@ -321,7 +321,7 @@ function generateSuppliers(count = 20) {
       companyId: 1,
       createdAt: formatDateTime(randomDate(730, 365)),
       updatedAt: formatDateTime(randomDate(30, 0)),
-      notes: status === 'blacklisted' ? 'Quality issues - do not use' : ''
+      notes: status === 'blacklisted' ? 'Quality issues - do not use' : '',
     });
   }
 
@@ -331,7 +331,7 @@ function generateSuppliers(count = 20) {
 const suppliers = generateSuppliers(20);
 fs.writeFileSync(
   path.join(dataDir, 'suppliers.json'),
-  JSON.stringify(suppliers, null, 2)
+  JSON.stringify(suppliers, null, 2),
 );
 
 console.log('✅ Generated 20 suppliers');
@@ -349,7 +349,7 @@ function generatePurchaseOrders(count = 60) {
   const statusWeights = [15, 20, 15, 8, 2];
   
   function weightedChoice(items, weights) {
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
     let random = Math.random() * totalWeight;
     for (let i = 0; i < items.length; i++) {
       if (random < weights[i]) return items[i];
@@ -383,7 +383,7 @@ function generatePurchaseOrders(count = 60) {
         description: product.name,
         quantity,
         unitPrice,
-        amount
+        amount,
       });
       
       subtotal += amount;
@@ -401,7 +401,7 @@ function generatePurchaseOrders(count = 60) {
         email: supplier.email,
         phone: supplier.phone,
         trn: supplier.trn,
-        address: supplier.address
+        address: supplier.address,
       },
       orderDate: formatDate(orderDate),
       expectedDeliveryDate: formatDate(expectedDate),
@@ -417,7 +417,7 @@ function generatePurchaseOrders(count = 60) {
       companyId: 1,
       createdBy: 1,
       createdAt: formatDateTime(orderDate),
-      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24)) - 7), 0))
+      updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24)) - 7), 0)),
     });
   }
 
@@ -427,7 +427,7 @@ function generatePurchaseOrders(count = 60) {
 const purchaseOrders = generatePurchaseOrders(60);
 fs.writeFileSync(
   path.join(dataDir, 'purchaseOrders.json'),
-  JSON.stringify(purchaseOrders, null, 2)
+  JSON.stringify(purchaseOrders, null, 2),
 );
 
 console.log('✅ Generated 60 purchase orders');
@@ -449,7 +449,7 @@ function generateUsers(count = 10) {
   const lastNames = ['Al Maktoum', 'Al Nahyan', 'Al Sharqi', 'Al Qasimi', 'Al Nuaimi'];
   
   function weightedChoice(items, weights) {
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
     let random = Math.random() * totalWeight;
     for (let i = 0; i < items.length; i++) {
       if (random < weights[i]) return items[i];
@@ -475,7 +475,7 @@ function generateUsers(count = 10) {
       companyId: 1,
       lastLogin: formatDateTime(randomDate(7, 0)),
       createdAt: formatDateTime(randomDate(365, 180)),
-      updatedAt: formatDateTime(randomDate(30, 0))
+      updatedAt: formatDateTime(randomDate(30, 0)),
     });
   }
 
@@ -485,7 +485,7 @@ function generateUsers(count = 10) {
 const users = generateUsers(10);
 fs.writeFileSync(
   path.join(dataDir, 'users.json'),
-  JSON.stringify(users, null, 2)
+  JSON.stringify(users, null, 2),
 );
 
 console.log('✅ Generated 10 users');
@@ -508,7 +508,7 @@ const priceLists = [
     isDefault: true,
     companyId: 1,
     createdAt: formatDateTime(randomDate(730, 365)),
-    updatedAt: formatDateTime(randomDate(30, 0))
+    updatedAt: formatDateTime(randomDate(30, 0)),
   },
   {
     id: 2,
@@ -519,7 +519,7 @@ const priceLists = [
     isDefault: false,
     companyId: 1,
     createdAt: formatDateTime(randomDate(730, 365)),
-    updatedAt: formatDateTime(randomDate(30, 0))
+    updatedAt: formatDateTime(randomDate(30, 0)),
   },
   {
     id: 3,
@@ -530,7 +530,7 @@ const priceLists = [
     isDefault: false,
     companyId: 1,
     createdAt: formatDateTime(randomDate(730, 365)),
-    updatedAt: formatDateTime(randomDate(30, 0))
+    updatedAt: formatDateTime(randomDate(30, 0)),
   },
   {
     id: 4,
@@ -541,7 +541,7 @@ const priceLists = [
     isDefault: false,
     companyId: 1,
     createdAt: formatDateTime(randomDate(730, 365)),
-    updatedAt: formatDateTime(randomDate(30, 0))
+    updatedAt: formatDateTime(randomDate(30, 0)),
   },
   {
     id: 5,
@@ -552,13 +552,13 @@ const priceLists = [
     isDefault: false,
     companyId: 1,
     createdAt: formatDateTime(randomDate(180, 90)),
-    updatedAt: formatDateTime(randomDate(30, 0))
-  }
+    updatedAt: formatDateTime(randomDate(30, 0)),
+  },
 ];
 
 fs.writeFileSync(
   path.join(dataDir, 'priceLists.json'),
-  JSON.stringify(priceLists, null, 2)
+  JSON.stringify(priceLists, null, 2),
 );
 
 console.log('✅ Generated 5 price lists');
@@ -581,14 +581,14 @@ const company = {
     city: 'Dubai',
     state: 'Dubai',
     postalCode: '12345',
-    country: 'UAE'
+    country: 'UAE',
   },
   bankDetails: {
     bankName: 'Emirates NBD',
     accountName: 'Ultimate Steels Trading LLC',
     accountNumber: '1234567890',
     iban: 'AE070331234567890123456',
-    swiftCode: 'EBILAEAD'
+    swiftCode: 'EBILAEAD',
   },
   settings: {
     currency: 'AED',
@@ -596,16 +596,16 @@ const company = {
     fiscalYearStart: '01-01',
     dateFormat: 'DD/MM/YYYY',
     timeZone: 'Asia/Dubai',
-    language: 'en'
+    language: 'en',
   },
   logo: null,
   createdAt: formatDateTime(randomDate(1095, 730)),
-  updatedAt: formatDateTime(randomDate(30, 0))
+  updatedAt: formatDateTime(randomDate(30, 0)),
 };
 
 fs.writeFileSync(
   path.join(dataDir, 'company.json'),
-  JSON.stringify(company, null, 2)
+  JSON.stringify(company, null, 2),
 );
 
 console.log('✅ Generated 1 company record');

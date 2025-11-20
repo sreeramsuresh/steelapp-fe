@@ -1,9 +1,9 @@
-import React from "react";
-import { X } from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import InvoiceTemplate from "./invoice/InvoiceTemplate";
-import { calculatePagination, splitItemsIntoPages } from "../utils/invoicePagination";
-import { DEFAULT_TEMPLATE_SETTINGS } from "../constants/defaultTemplateSettings";
+import React from 'react';
+import { X } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import InvoiceTemplate from './invoice/InvoiceTemplate';
+import { calculatePagination, splitItemsIntoPages } from '../utils/invoicePagination';
+import { DEFAULT_TEMPLATE_SETTINGS } from '../constants/defaultTemplateSettings';
 
 const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
   const { isDarkMode } = useTheme();
@@ -44,7 +44,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     const hasValidItems = hasItems && invoice.items.every(item =>
       item.name && item.name.trim() !== '' &&
       item.quantity > 0 &&
-      item.rate > 0
+      item.rate > 0,
     );
     const hasDate = !!invoice.date;
     const hasDueDate = !!invoice.dueDate;
@@ -79,7 +79,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
   const pagesWithIndices = pages.map((page) => {
     const pageData = {
       ...page,
-      startingIndex: cumulativeIndex
+      startingIndex: cumulativeIndex,
     };
     cumulativeIndex += page.items.length;
     return pageData;
@@ -107,9 +107,9 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                     ? 'bg-green-600 text-white hover:bg-green-700'
                     : 'bg-gray-400 text-gray-200 cursor-not-allowed'
                 } disabled:opacity-50`}
-                title={!canSave ? "Please fill in all required fields (Customer, Items, Date, Due Date)" : ""}
+                title={!canSave ? 'Please fill in all required fields (Customer, Items, Date, Due Date)' : ''}
               >
-                {isSaving ? "Saving..." : invoiceId ? "Update" : "Save"}
+                {isSaving ? 'Saving...' : invoiceId ? 'Update' : 'Save'}
               </button>
             )}
             <button
@@ -156,7 +156,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                   fontSize: '12px',
                   fontWeight: '500',
                   margin: '20px auto',
-                  maxWidth: '210mm'
+                  maxWidth: '210mm',
                 }}>
                   — Page {page.pageNumber} Ends / Page {page.pageNumber + 1} Begins —
                 </div>

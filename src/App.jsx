@@ -145,7 +145,7 @@ const ThemedApp = ({ isLoading, ...props }) => {
 
   console.log('🌍 GLOBAL SPINNER HIDDEN - rendering AppContent');
   return <AppContent {...props} />;
-}
+};
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);

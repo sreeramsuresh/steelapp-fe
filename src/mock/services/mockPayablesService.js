@@ -12,7 +12,7 @@ export const payablesService = {
     const { page = 1, limit = 20, dateType } = params;
     
     // Use invoice data
-    let filtered = [...invoicesData];
+    const filtered = [...invoicesData];
     
     const total = filtered.length;
     const totalPages = Math.ceil(total / limit);
@@ -21,7 +21,7 @@ export const payablesService = {
     
     return {
       invoices: paginatedData,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages }
+      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages },
     };
   },
 
@@ -33,7 +33,7 @@ export const payablesService = {
   async getPaymentHistory(invoiceId) {
     await delay();
     return { payments: [] };
-  }
+  },
 };
 
 export const PAYMENT_MODES = [

@@ -70,7 +70,7 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
         <div style="margin-top:8px; line-height:1.3;">
           <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? ', ' + compAddr.emirate : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${  compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
@@ -127,20 +127,20 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
         </thead>
         <tbody>
           ${items.map((r, idx) => {
-            const debit = parseFloat(r.invoiceAmount) || 0;
-            const credit = parseFloat(r.received) || 0;
-            return `
+    const debit = parseFloat(r.invoiceAmount) || 0;
+    const credit = parseFloat(r.received) || 0;
+    return `
             <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ''}>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoiceDate || r.date)}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? 'Invoice' : 'Payment'}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.invoiceNo || r.invoiceNumber)}</td>
-              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || 'Invoice ' + (r.invoiceNo || r.invoiceNumber))}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || `Invoice ${  r.invoiceNo || r.invoiceNumber}`)}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc;">${debit > 0 ? formatCurrency(debit) : '-'}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc;">${credit > 0 ? formatCurrency(credit) : '-'}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>
             </tr>
           `;
-          }).join('')}
+  }).join('')}
         </tbody>
       </table>
     </div>

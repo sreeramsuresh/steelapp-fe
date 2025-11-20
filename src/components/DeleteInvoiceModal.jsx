@@ -26,7 +26,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
   const statusLabels = {
     draft: 'Draft',
     proforma: 'Proforma',
-    issued: 'Final Tax Invoice'
+    issued: 'Final Tax Invoice',
   };
 
   const handleSubmit = async () => {
@@ -49,7 +49,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
       await onConfirm({
         invoiceId: invoice.id,
         reason,
-        reasonCode: selectedReason
+        reasonCode: selectedReason,
       });
       handleClose();
     } catch (error) {
@@ -137,8 +137,8 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
                         ? 'border-teal-500 bg-teal-900/20'
                         : 'border-teal-500 bg-teal-50'
                       : isDarkMode
-                      ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-700'
-                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                        ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-700'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
                   <input

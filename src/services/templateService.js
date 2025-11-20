@@ -19,5 +19,5 @@ export const templateService = {
 
   async deleteTemplate(id) {
     return apiClient.delete(`/templates/${id}`);
-  }
+  },
 };

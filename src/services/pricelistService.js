@@ -28,7 +28,7 @@ const pricelistService = {
   // Delete/deactivate pricelist
   async delete(id, hardDelete = false) {
     const response = await api.delete(`/pricelists/${id}`, {
-      params: { hard_delete: hardDelete }
+      params: { hard_delete: hardDelete },
     });
     return response.data;
   },
@@ -43,7 +43,7 @@ const pricelistService = {
   async updateItems(pricelistId, items, operation = 'upsert') {
     const response = await api.put(`/pricelists/${pricelistId}/items`, {
       items,
-      operation
+      operation,
     });
     return response.data;
   },
@@ -64,7 +64,7 @@ const pricelistService = {
   async applyPercentage(pricelistId, percentage, operation = 'increase') {
     const response = await api.post(`/pricelists/${pricelistId}/apply-percentage`, {
       percentage,
-      operation
+      operation,
     });
     return response.data;
   },
@@ -73,7 +73,7 @@ const pricelistService = {
   async copyFrom(pricelistId, sourcePricelistId, percentageAdjustment = 0) {
     const response = await api.post(`/pricelists/${pricelistId}/copy-from`, {
       source_pricelist_id: sourcePricelistId,
-      percentage_adjustment: percentageAdjustment
+      percentage_adjustment: percentageAdjustment,
     });
     return response.data;
   },
@@ -88,10 +88,10 @@ const pricelistService = {
   async bulkPriceLookup(productIds, params = {}) {
     const response = await api.post('/products/bulk-price-lookup', {
       product_ids: productIds,
-      ...params
+      ...params,
     });
     return response.data;
-  }
+  },
 };
 
 export default pricelistService;

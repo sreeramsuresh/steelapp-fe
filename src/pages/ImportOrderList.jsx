@@ -16,7 +16,7 @@ const ImportOrderList = () => {
     current_page: 1,
     per_page: 50,
     total: 0,
-    total_pages: 0
+    total_pages: 0,
   });
   
   // Filter states
@@ -24,7 +24,7 @@ const ImportOrderList = () => {
     search: '',
     status: '',
     start_date: '',
-    end_date: ''
+    end_date: '',
   });
 
   // Load orders
@@ -34,7 +34,7 @@ const ImportOrderList = () => {
       const params = {
         page,
         limit: pagination.perPage,
-        ...filters
+        ...filters,
       };
       
       const response = await importOrderService.getImportOrders(params);
@@ -61,7 +61,7 @@ const ImportOrderList = () => {
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -81,7 +81,7 @@ const ImportOrderList = () => {
       title: 'Delete Import Order?',
       message: 'Are you sure you want to delete this import order? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -259,9 +259,9 @@ const ImportOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'confirmed' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
+                          order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'confirmed' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
                       }`}>
                         {statusOptions.find(s => s.value === order.status)?.label || order.status}
                       </span>

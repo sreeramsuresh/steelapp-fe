@@ -53,7 +53,7 @@ class PurchaseOrderSyncService {
             
             await inventoryService.updateItem(existingItem.id, {
               ...existingItem,
-              quantity: newQuantity
+              quantity: newQuantity,
             });
             
             console.log(`Updated existing inventory item ${existingItem.id} with additional quantity ${item.quantity}`);
@@ -72,7 +72,7 @@ class PurchaseOrderSyncService {
               warehouseId: po.warehouseId,
               warehouseName: po.warehouseName || '',
               location: `From PO #${po.poNumber}`,
-              description: this.generateItemDescription(item)
+              description: this.generateItemDescription(item),
             };
 
             await inventoryService.createItem(inventoryItem);
@@ -135,8 +135,8 @@ class PurchaseOrderSyncService {
   async createStockMovement(po, item, movement, notes) {
     try {
       const stockMovement = {
-        date: new Date().toISOString().split("T")[0],
-        movement: movement,
+        date: new Date().toISOString().split('T')[0],
+        movement,
         productType: item.productType || item.name,
         grade: item.grade || '',
         thickness: item.thickness || '',
@@ -146,7 +146,7 @@ class PurchaseOrderSyncService {
         quantity: movement === 'OUT' ? -item.quantity : item.quantity,
         currentStock: 0, // Will be calculated by backend
         seller: po.supplierName,
-        notes: notes
+        notes,
       };
       
       await stockMovementService.createMovement(stockMovement);
@@ -190,7 +190,7 @@ class PurchaseOrderSyncService {
               transitMovements.push({
                 id: `transit_${po.id}_${item.id || Math.random()}`,
                 date: po.expectedDeliveryDate || po.poDate,
-                movement: "OUT",
+                movement: 'OUT',
                 productType: item.productType || item.name,
                 grade: item.grade || '',
                 thickness: item.thickness || '',
@@ -201,7 +201,7 @@ class PurchaseOrderSyncService {
                 currentStock: 0,
                 seller: po.supplierName,
                 notes: `In Transit from PO #${po.poNumber}`,
-                isTransit: true
+                isTransit: true,
               });
             }
           }

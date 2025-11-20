@@ -10,7 +10,7 @@ import {
   Calendar,
   User,
   Download,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
@@ -37,7 +37,7 @@ const CommissionTransactions = () => {
       setLoading(true);
       const [transactionsRes, agentsRes] = await Promise.all([
         commissionService.getTransactions(),
-        commissionService.getAgents()
+        commissionService.getAgents(),
       ]);
       setTransactions(transactionsRes.data || []);
       setAgents(agentsRes.data || []);
@@ -132,7 +132,7 @@ const CommissionTransactions = () => {
     const statusConfig = {
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
       approved: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Approved' },
-      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' }
+      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
     };
 
     const config = statusConfig[status] || statusConfig.pending;

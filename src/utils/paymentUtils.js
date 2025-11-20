@@ -12,7 +12,7 @@ export const PAYMENT_MODES = {
     label: 'Cash',
     icon: '💵',
     requiresRef: false,
-    color: 'green'
+    color: 'green',
   },
   cheque: {
     value: 'cheque',
@@ -20,7 +20,7 @@ export const PAYMENT_MODES = {
     icon: '🧾',
     requiresRef: true,
     refLabel: 'Cheque Number',
-    color: 'blue'
+    color: 'blue',
   },
   pdc: {
     value: 'pdc',
@@ -28,7 +28,7 @@ export const PAYMENT_MODES = {
     icon: '📅',
     requiresRef: true,
     refLabel: 'PDC Number',
-    color: 'orange'
+    color: 'orange',
   },
   bank_transfer: {
     value: 'bank_transfer',
@@ -36,7 +36,7 @@ export const PAYMENT_MODES = {
     icon: '🏦',
     requiresRef: true,
     refLabel: 'Transaction/Reference Number',
-    color: 'teal'
+    color: 'teal',
   },
   credit_card: {
     value: 'credit_card',
@@ -44,7 +44,7 @@ export const PAYMENT_MODES = {
     icon: '💳',
     requiresRef: true,
     refLabel: 'Transaction ID',
-    color: 'purple'
+    color: 'purple',
   },
   debit_card: {
     value: 'debit_card',
@@ -52,7 +52,7 @@ export const PAYMENT_MODES = {
     icon: '💳',
     requiresRef: true,
     refLabel: 'Transaction ID',
-    color: 'indigo'
+    color: 'indigo',
   },
   online: {
     value: 'online',
@@ -60,7 +60,7 @@ export const PAYMENT_MODES = {
     icon: '🌐',
     requiresRef: true,
     refLabel: 'Transaction ID',
-    color: 'cyan'
+    color: 'cyan',
   },
   wire_transfer: {
     value: 'wire_transfer',
@@ -68,7 +68,7 @@ export const PAYMENT_MODES = {
     icon: '🌍',
     requiresRef: true,
     refLabel: 'Swift/Reference Number',
-    color: 'blue'
+    color: 'blue',
   },
   mobile_wallet: {
     value: 'mobile_wallet',
@@ -76,7 +76,7 @@ export const PAYMENT_MODES = {
     icon: '📱',
     requiresRef: true,
     refLabel: 'Transaction ID',
-    color: 'green'
+    color: 'green',
   },
   other: {
     value: 'other',
@@ -84,8 +84,8 @@ export const PAYMENT_MODES = {
     icon: '📝',
     requiresRef: false,
     refLabel: 'Reference',
-    color: 'gray'
-  }
+    color: 'gray',
+  },
 };
 
 // Payment status configuration
@@ -99,7 +99,7 @@ export const PAYMENT_STATUS = {
     textLight: 'text-red-800',
     textDark: 'text-red-300',
     borderLight: 'border-red-300',
-    borderDark: 'border-red-600'
+    borderDark: 'border-red-600',
   },
   partially_paid: {
     value: 'partially_paid',
@@ -110,7 +110,7 @@ export const PAYMENT_STATUS = {
     textLight: 'text-yellow-800',
     textDark: 'text-yellow-300',
     borderLight: 'border-yellow-300',
-    borderDark: 'border-yellow-600'
+    borderDark: 'border-yellow-600',
   },
   // Backend uses 'paid' - map it to fully_paid config
   paid: {
@@ -122,7 +122,7 @@ export const PAYMENT_STATUS = {
     textLight: 'text-green-800',
     textDark: 'text-green-300',
     borderLight: 'border-green-300',
-    borderDark: 'border-green-600'
+    borderDark: 'border-green-600',
   },
   fully_paid: {
     value: 'fully_paid',
@@ -133,7 +133,7 @@ export const PAYMENT_STATUS = {
     textLight: 'text-green-800',
     textDark: 'text-green-300',
     borderLight: 'border-green-300',
-    borderDark: 'border-green-600'
+    borderDark: 'border-green-600',
   },
   // Backend uses 'overdue' - add config for it
   overdue: {
@@ -145,7 +145,7 @@ export const PAYMENT_STATUS = {
     textLight: 'text-red-800',
     textDark: 'text-red-300',
     borderLight: 'border-red-300',
-    borderDark: 'border-red-600'
+    borderDark: 'border-red-600',
   },
   overpaid: {
     value: 'overpaid',
@@ -156,8 +156,8 @@ export const PAYMENT_STATUS = {
     textLight: 'text-blue-800',
     textDark: 'text-blue-300',
     borderLight: 'border-blue-300',
-    borderDark: 'border-blue-600'
-  }
+    borderDark: 'border-blue-600',
+  },
 };
 
 /**
@@ -210,7 +210,7 @@ export const getPaymentModeConfig = (modeValue) => {
 
   // Try to match by label (case-insensitive)
   const modeByLabel = Object.values(PAYMENT_MODES).find(
-    mode => mode.label.toLowerCase() === String(modeValue).toLowerCase().trim()
+    mode => mode.label.toLowerCase() === String(modeValue).toLowerCase().trim(),
   );
 
   if (modeByLabel) {
@@ -302,7 +302,7 @@ export const formatPaymentDisplay = (payment) => {
       style: 'currency',
       currency: 'AED',
     }).format(payment.amount || 0),
-    formattedDate
+    formattedDate,
   };
 };
 
@@ -313,7 +313,7 @@ export const getLastPaymentDate = (payments = []) => {
   if (!Array.isArray(payments) || payments.length === 0) return null;
 
   const sorted = [...payments].sort((a, b) =>
-    new Date(b.date) - new Date(a.date)
+    new Date(b.date) - new Date(a.date),
   );
 
   return sorted[0]?.date || null;

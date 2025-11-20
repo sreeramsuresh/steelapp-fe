@@ -96,8 +96,8 @@ export function calculatePagination(invoice) {
       distribution: {
         firstPage: 0,
         middlePages: [],
-        lastPage: 0
-      }
+        lastPage: 0,
+      },
     };
   }
 
@@ -118,8 +118,8 @@ export function calculatePagination(invoice) {
       distribution: {
         firstPage: itemCount,
         middlePages: [],
-        lastPage: 0
-      }
+        lastPage: 0,
+      },
     };
   }
 
@@ -143,8 +143,8 @@ export function calculatePagination(invoice) {
       distribution: {
         firstPage: itemsOnFirstPage,
         middlePages: [],
-        lastPage: remainingItems
-      }
+        lastPage: remainingItems,
+      },
     };
   }
 
@@ -174,13 +174,13 @@ export function calculatePagination(invoice) {
     distribution: {
       firstPage: itemsOnFirstPage,
       middlePages,
-      lastPage: remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1]
+      lastPage: remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1],
     },
     limits: {
       maxItemsFirstPage,
       maxItemsOtherPage,
-      maxItemsLastPage
-    }
+      maxItemsLastPage,
+    },
   };
 }
 
@@ -204,7 +204,7 @@ export function splitItemsIntoPages(items, pagination) {
       items: pageItems,
       isFirstPage: pageIndex === 0,
       isLastPage: pageIndex === pagination.pages - 1,
-      isMiddlePage: pageIndex > 0 && pageIndex < pagination.pages - 1
+      isMiddlePage: pageIndex > 0 && pageIndex < pagination.pages - 1,
     });
 
     itemOffset += itemsOnThisPage;

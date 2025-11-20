@@ -124,7 +124,7 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -233,7 +233,7 @@ const ALLOWED_PRODUCT_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -282,7 +282,7 @@ const ALLOWED_CUSTOMER_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -336,7 +336,7 @@ const ALLOWED_SUPPLIER_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -388,7 +388,7 @@ const ALLOWED_PAYMENT_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -482,7 +482,7 @@ const ALLOWED_PURCHASE_ORDER_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -545,7 +545,7 @@ const ALLOWED_DELIVERY_NOTE_KEYS = new Set<string>([
   '__defineGetter__',
   '__defineSetter__',
   '__lookupGetter__',
-  '__lookupSetter__'
+  '__lookupSetter__',
 ]);
 
 /**
@@ -575,7 +575,7 @@ const FORBIDDEN_SNAKE_CASE_FIELDS = new Set([
   'deletion_reason',
   'recreated_from',
   'terms_and_conditions',
-  'company_details'
+  'company_details',
 ]);
 
 /**
@@ -617,7 +617,7 @@ export function guardInvoiceDev(invoice: Invoice): Invoice {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         
@@ -633,7 +633,7 @@ export function guardInvoiceDev(invoice: Invoice): Invoice {
           `⚠️ WARNING: Snake_case property '${propName}' accessed on Invoice\n` +
           `This field is not in the known forbidden list, but contains underscore.\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
@@ -641,7 +641,7 @@ export function guardInvoiceDev(invoice: Invoice): Invoice {
       if (!ALLOWED_INVOICE_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown Invoice field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_INVOICE_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_INVOICE_KEYS in devGuards.ts`,
         );
       }
 
@@ -656,13 +656,13 @@ export function guardInvoiceDev(invoice: Invoice): Invoice {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on Invoice! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -705,7 +705,7 @@ const FORBIDDEN_SNAKE_CASE_PRODUCT_FIELDS = new Set([
   'quantity_growth',
   'prev_revenue',
   'prev_orders',
-  'prev_quantity'
+  'prev_quantity',
 ]);
 
 /**
@@ -742,7 +742,7 @@ export function guardProductDev(product: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -755,7 +755,7 @@ export function guardProductDev(product: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on Product\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
@@ -763,7 +763,7 @@ export function guardProductDev(product: any): any {
       if (!ALLOWED_PRODUCT_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown Product field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_PRODUCT_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_PRODUCT_KEYS in devGuards.ts`,
         );
       }
 
@@ -776,13 +776,13 @@ export function guardProductDev(product: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_PRODUCT_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on Product! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -811,7 +811,7 @@ const FORBIDDEN_SNAKE_CASE_CUSTOMER_FIELDS = new Set([
   'tax_registration_number',
   'credit_limit',
   'current_credit',
-  'payment_terms'
+  'payment_terms',
 ]);
 
 /**
@@ -845,7 +845,7 @@ export function guardCustomerDev(customer: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -857,14 +857,14 @@ export function guardCustomerDev(customer: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on Customer\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
       if (!ALLOWED_CUSTOMER_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown Customer field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_CUSTOMER_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_CUSTOMER_KEYS in devGuards.ts`,
         );
       }
 
@@ -877,13 +877,13 @@ export function guardCustomerDev(customer: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_CUSTOMER_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on Customer! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -906,7 +906,7 @@ const FORBIDDEN_SNAKE_CASE_SUPPLIER_FIELDS = new Set([
   'email_address',
   'phone_number',
   'tax_registration_number',
-  'payment_terms'
+  'payment_terms',
 ]);
 
 /**
@@ -940,7 +940,7 @@ export function guardSupplierDev(supplier: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -952,14 +952,14 @@ export function guardSupplierDev(supplier: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on Supplier\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
       if (!ALLOWED_SUPPLIER_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown Supplier field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_SUPPLIER_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_SUPPLIER_KEYS in devGuards.ts`,
         );
       }
 
@@ -972,13 +972,13 @@ export function guardSupplierDev(supplier: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_SUPPLIER_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on Supplier! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -1004,7 +1004,7 @@ const FORBIDDEN_SNAKE_CASE_PAYMENT_FIELDS = new Set([
   'receipt_number',
   'invoice_number',
   'created_at',
-  'voided_at'
+  'voided_at',
 ]);
 
 /**
@@ -1038,7 +1038,7 @@ export function guardPaymentDev(payment: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -1050,14 +1050,14 @@ export function guardPaymentDev(payment: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on Payment\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
       if (!ALLOWED_PAYMENT_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown Payment field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_PAYMENT_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_PAYMENT_KEYS in devGuards.ts`,
         );
       }
 
@@ -1070,13 +1070,13 @@ export function guardPaymentDev(payment: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_PAYMENT_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on Payment! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -1124,7 +1124,7 @@ const FORBIDDEN_SNAKE_CASE_PURCHASE_ORDER_FIELDS = new Set([
   'approval_status',
   'approval_date',
   'approved_by',
-  'approval_comments'
+  'approval_comments',
 ]);
 
 /**
@@ -1158,7 +1158,7 @@ export function guardPurchaseOrderDev(purchaseOrder: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -1170,14 +1170,14 @@ export function guardPurchaseOrderDev(purchaseOrder: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on PurchaseOrder\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
       if (!ALLOWED_PURCHASE_ORDER_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown PurchaseOrder field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_PURCHASE_ORDER_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_PURCHASE_ORDER_KEYS in devGuards.ts`,
         );
       }
 
@@ -1190,13 +1190,13 @@ export function guardPurchaseOrderDev(purchaseOrder: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_PURCHASE_ORDER_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on PurchaseOrder! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 
@@ -1226,7 +1226,7 @@ const FORBIDDEN_SNAKE_CASE_DELIVERY_NOTE_FIELDS = new Set([
   'driver_phone',
   'vehicle_number',
   'is_partial',
-  'has_notes'
+  'has_notes',
 ]);
 
 /**
@@ -1260,7 +1260,7 @@ export function guardDeliveryNoteDev(deliveryNote: any): any {
           `\n` +
           `Fix this immediately in:\n` +
           `${stack?.split('\n')[2] || 'Unknown location'}\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
         );
         console.trace('Full stack trace:');
         return undefined;
@@ -1272,14 +1272,14 @@ export function guardDeliveryNoteDev(deliveryNote: any): any {
           `\n` +
           `⚠️ WARNING: Snake_case property '${propName}' accessed on DeliveryNote\n` +
           `Frontend should use camelCase. Did you mean '${snakeToCamel(propName)}'?\n` +
-          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`
+          `Location: ${stack?.split('\n')[2] || 'Unknown'}\n`,
         );
       }
 
       if (!ALLOWED_DELIVERY_NOTE_KEYS.has(propName) && !propName.startsWith('_')) {
         console.info(
           `ℹ️ Unknown DeliveryNote field '${propName}' accessed. ` +
-          `If this is a new field, add it to ALLOWED_DELIVERY_NOTE_KEYS in devGuards.ts`
+          `If this is a new field, add it to ALLOWED_DELIVERY_NOTE_KEYS in devGuards.ts`,
         );
       }
 
@@ -1292,13 +1292,13 @@ export function guardDeliveryNoteDev(deliveryNote: any): any {
       if (typeof prop === 'string' && FORBIDDEN_SNAKE_CASE_DELIVERY_NOTE_FIELDS.has(propName)) {
         console.error(
           `🚨 Attempted to SET snake_case field '${propName}' on DeliveryNote! ` +
-          `Use camelCase: ${snakeToCamel(propName)}`
+          `Use camelCase: ${snakeToCamel(propName)}`,
         );
         return false;
       }
 
       return Reflect.set(target, prop, value, receiver);
-    }
+    },
   });
 }
 

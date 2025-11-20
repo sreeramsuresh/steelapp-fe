@@ -11,7 +11,7 @@ import {
   Award,
   FileText,
   Settings,
-  Calculator
+  Calculator,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
@@ -52,7 +52,7 @@ const CommissionDashboard = () => {
 
       if (response.success) {
         notificationService.success(
-          `Successfully calculated commissions for ${response.data.processed} invoices`
+          `Successfully calculated commissions for ${response.data.processed} invoices`,
         );
         // Reload dashboard to show new commission data
         loadDashboardData();
@@ -141,7 +141,7 @@ const CommissionDashboard = () => {
               { id: 'overview', label: 'Overview', icon: TrendingUp },
               { id: 'agents', label: 'Sales Agents', icon: Users },
               { id: 'transactions', label: 'Transactions', icon: FileText },
-              { id: 'settings', label: 'Settings', icon: Settings }
+              { id: 'settings', label: 'Settings', icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -282,10 +282,10 @@ const CommissionDashboard = () => {
                             index === 0
                               ? 'bg-yellow-100 text-yellow-600'
                               : index === 1
-                              ? 'bg-gray-200 text-gray-600'
-                              : index === 2
-                              ? 'bg-orange-100 text-orange-600'
-                              : isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-600'
+                                ? 'bg-gray-200 text-gray-600'
+                                : index === 2
+                                  ? 'bg-orange-100 text-orange-600'
+                                  : isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-600'
                           }`}>
                             <span className="font-bold">{index + 1}</span>
                           </div>
@@ -389,8 +389,8 @@ const CommissionDashboard = () => {
                               transaction.status === 'paid'
                                 ? 'bg-green-100 text-green-800'
                                 : transaction.status === 'approved'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-yellow-100 text-yellow-800'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-yellow-100 text-yellow-800'
                             }`}>
                               {transaction.status}
                             </span>

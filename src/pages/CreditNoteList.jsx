@@ -10,7 +10,7 @@ import {
   FileText,
   Download,
   RotateCcw,
-  Package
+  Package,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
@@ -25,7 +25,7 @@ const STATUS_COLORS = {
   items_received: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300', label: 'Items Received' },
   items_inspected: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', label: 'Items Inspected' },
   refunded: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', label: 'Refunded' },
-  completed: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', label: 'Completed' }
+  completed: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', label: 'Completed' },
 };
 
 const CreditNoteList = () => {
@@ -52,7 +52,7 @@ const CreditNoteList = () => {
         page: currentPage,
         limit: pageSize,
         search: searchTerm,
-        status: statusFilter
+        status: statusFilter,
       });
 
       setCreditNotes(response.data || []);
@@ -70,7 +70,7 @@ const CreditNoteList = () => {
       title: 'Delete Credit Note?',
       message: `Are you sure you want to delete credit note ${creditNote.creditNoteNumber}? This action cannot be undone.`,
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -280,8 +280,8 @@ const CreditNoteList = () => {
                       currentPage === 1
                         ? 'opacity-50 cursor-not-allowed'
                         : isDarkMode
-                        ? 'border-gray-600 hover:bg-gray-700'
-                        : 'border-gray-300 hover:bg-gray-50'
+                          ? 'border-gray-600 hover:bg-gray-700'
+                          : 'border-gray-300 hover:bg-gray-50'
                     } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Previous
@@ -293,8 +293,8 @@ const CreditNoteList = () => {
                       currentPage * pageSize >= pagination.total
                         ? 'opacity-50 cursor-not-allowed'
                         : isDarkMode
-                        ? 'border-gray-600 hover:bg-gray-700'
-                        : 'border-gray-300 hover:bg-gray-50'
+                          ? 'border-gray-600 hover:bg-gray-700'
+                          : 'border-gray-300 hover:bg-gray-50'
                     } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Next

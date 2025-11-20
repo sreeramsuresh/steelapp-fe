@@ -33,7 +33,7 @@ import {
   Calendar,
   UserCheck,
   UserPlus,
-  History
+  History,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -119,7 +119,7 @@ const Input = ({ label, error, className = '', type = 'text', startIcon, endIcon
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = '' }) => {
+const Select = ({ label, options, value, onChange, placeholder = 'Select...', className = '' }) => {
   const { isDarkMode } = useTheme();
   
   return (
@@ -372,12 +372,12 @@ const CompanySettings = () => {
   
   const { data: companyData, loading: loadingCompany, refetch: refetchCompany } = useApiData(
     companyService.getCompany,
-    []
+    [],
   );
   
   const { data: templatesData, loading: loadingTemplates, refetch: refetchTemplates } = useApiData(
     templateService.getTemplates,
-    []
+    [],
   );
   
   const { execute: updateCompany, loading: updatingCompany } = useApi(companyService.updateCompany);
@@ -405,8 +405,8 @@ const CompanySettings = () => {
     bankDetails: {
       bankName: '',
       accountNumber: '',
-      iban: ''
-    }
+      iban: '',
+    },
   });
 
 
@@ -432,14 +432,14 @@ const CompanySettings = () => {
       setCompanyProfile({
         ...companyData,
         address: addressStr,
-        city: city,
-        country: country,
+        city,
+        country,
         website: companyData.website || '',
         bankDetails: companyData.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       });
     }
   }, [companyData]);
@@ -452,7 +452,7 @@ const CompanySettings = () => {
     footer: '',
     terms: '',
     invoiceNumberFormat: 'INV-{YYYY}-{MM}-{###}',
-    dueDays: ''
+    dueDays: '',
   });
 
   const [vatRates, setVatRates] = useState([]);
@@ -475,8 +475,8 @@ const CompanySettings = () => {
       invoices_all: { create: false, read: false, update: false, delete: false },
       quotations: { create: false, read: false, update: false, delete: false },
       delivery_notes: { create: false, read: false, update: false, delete: false },
-      purchase_orders: { create: false, read: false, update: false, delete: false }
-    }
+      purchase_orders: { create: false, read: false, update: false, delete: false },
+    },
   });
 
   // RBAC State
@@ -491,14 +491,14 @@ const CompanySettings = () => {
     userName: '',
     rolePermissions: [],
     customGrants: [],
-    loading: false
+    loading: false,
   });
   const [isDirector, setIsDirector] = useState(false);
   const [allPermissions, setAllPermissions] = useState({});
   const [customPermission, setCustomPermission] = useState({
     permission_keys: [], // Changed to array for multiple selections
     reason: '',
-    expires_at: null
+    expires_at: null,
   });
   const [permissionSearch, setPermissionSearch] = useState('');
   const [expandedModules, setExpandedModules] = useState({});
@@ -508,7 +508,7 @@ const CompanySettings = () => {
     rate: '',
     type: 'percentage',
     description: '',
-    active: true
+    active: true,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -522,7 +522,7 @@ const CompanySettings = () => {
     receipt_copies: 1,
     invoice_copies: 1,
     auto_print_receipts: false,
-    auto_print_invoices: false
+    auto_print_invoices: false,
   });
 
   const [savingPrintingSettings, setSavingPrintingSettings] = useState(false);
@@ -535,7 +535,7 @@ const CompanySettings = () => {
       if (isNaN(d.getTime())) return String(value);
       return d.toLocaleString('en-AE', {
         year: 'numeric', month: 'short', day: '2-digit',
-        hour: '2-digit', minute: '2-digit'
+        hour: '2-digit', minute: '2-digit',
       });
     } catch {
       return String(value);
@@ -574,14 +574,14 @@ const CompanySettings = () => {
     { id: 'modern', name: 'Modern', description: 'Clean and professional design' },
     { id: 'classic', name: 'Classic', description: 'Traditional business format' },
     { id: 'minimal', name: 'Minimal', description: 'Simple and elegant layout' },
-    { id: 'detailed', name: 'Detailed', description: 'Comprehensive information display' }
+    { id: 'detailed', name: 'Detailed', description: 'Comprehensive information display' },
   ];
 
   const userRoles = [
     { id: 'admin', name: 'Administrator', description: 'Full system access' },
     { id: 'manager', name: 'Manager', description: 'Manage operations and view reports' },
     { id: 'user', name: 'User', description: 'Basic access to create invoices' },
-    { id: 'viewer', name: 'Viewer', description: 'Read-only access' }
+    { id: 'viewer', name: 'Viewer', description: 'Read-only access' },
   ];
 
   // Load invoice settings when templates data changes
@@ -596,7 +596,7 @@ const CompanySettings = () => {
         footer: defaultTemplate.footerText || '',
         terms: defaultTemplate.termsAndConditions || '',
         invoiceNumberFormat: defaultTemplate.invoiceNumberFormat,
-        dueDays: defaultTemplate.defaultDueDays
+        dueDays: defaultTemplate.defaultDueDays,
       });
     }
   }, [templatesData?.length, templatesData?.[0]?.id]); // Only re-run when data actually changes
@@ -614,7 +614,7 @@ const CompanySettings = () => {
             rate: Number(rate.rate),
             type: rate.type,
             description: rate.description,
-            active: rate.isActive
+            active: rate.isActive,
           }));
           setVatRates(transformedRates);
         } else {
@@ -724,7 +724,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address || '',
           city: companyProfile.city || '',
-          country: companyProfile.country || 'UAE'
+          country: companyProfile.country || 'UAE',
         },
         phone: companyProfile.phone || '',
         email: companyProfile.email || '',
@@ -737,8 +737,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       
       console.log('Sending company data:', companyData);
@@ -764,7 +764,7 @@ const CompanySettings = () => {
         default_due_days: invoiceSettings.dueDays === '' ? 30 : Number(invoiceSettings.dueDays),
         footer_text: invoiceSettings.footer,
         terms_and_conditions: invoiceSettings.terms,
-        is_default: true
+        is_default: true,
       };
 
       if (templatesData && templatesData.length > 0) {
@@ -813,7 +813,7 @@ const CompanySettings = () => {
       receipt_copies: 1,
       invoice_copies: 1,
       auto_print_receipts: false,
-      auto_print_invoices: false
+      auto_print_invoices: false,
     });
     notificationService.info('Settings reset to defaults');
   };
@@ -842,7 +842,7 @@ const CompanySettings = () => {
       const response = await uploadLogo(file);
 
       // Handle different possible response structures
-      let logoUrl = response?.logoUrl || response?.logoUrl || response?.url || response?.path;
+      const logoUrl = response?.logoUrl || response?.logoUrl || response?.url || response?.path;
 
       if (!logoUrl) {
         console.error('No logo URL found in response. Response structure:', response);
@@ -863,7 +863,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -875,8 +875,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -912,7 +912,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -921,8 +921,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -959,7 +959,7 @@ const CompanySettings = () => {
       const response = await companyService.uploadBrandmark(file);
 
       // Handle different possible response structures
-      let brandmarkUrl = response?.brandmarkUrl || response?.brandmarkUrl || response?.url || response?.path;
+      const brandmarkUrl = response?.brandmarkUrl || response?.brandmarkUrl || response?.url || response?.path;
 
       if (!brandmarkUrl) {
         console.error('No brandmark URL found in response. Response structure:', response);
@@ -982,7 +982,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -992,8 +992,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -1031,7 +1031,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -1043,8 +1043,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -1083,7 +1083,7 @@ const CompanySettings = () => {
       console.log('[Seal Upload] Response received:', response);
 
       // Handle different possible response structures
-      let sealUrl = response?.sealUrl || response?.sealUrl || response?.url || response?.path;
+      const sealUrl = response?.sealUrl || response?.sealUrl || response?.url || response?.path;
 
       if (!sealUrl) {
         console.error('No seal URL found in response. Response structure:', response);
@@ -1107,7 +1107,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -1119,8 +1119,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -1165,7 +1165,7 @@ const CompanySettings = () => {
         address: {
           street: companyProfile.address,
           city: companyProfile.city,
-          country: companyProfile.country
+          country: companyProfile.country,
         },
         phone: companyProfile.phone,
         email: companyProfile.email,
@@ -1177,8 +1177,8 @@ const CompanySettings = () => {
         bankDetails: companyProfile.bankDetails || {
           bankName: '',
           accountNumber: '',
-          iban: ''
-        }
+          iban: '',
+        },
       };
       await updateCompany(companyData);
 
@@ -1223,8 +1223,8 @@ const CompanySettings = () => {
           customers: { create: false, read: false, update: false, delete: false },
           products: { create: false, read: false, update: false, delete: false },
           analytics: { read: false },
-          settings: { read: false, update: false }
-        }
+          settings: { read: false, update: false },
+        },
       });
       setShowAddUserModal(false);
     } catch (e) {
@@ -1239,7 +1239,7 @@ const CompanySettings = () => {
         rate: newVatRate.rate === '' ? 0 : Number(newVatRate.rate),
         type: newVatRate.type,
         description: newVatRate.description,
-        is_active: newVatRate.active
+        is_active: newVatRate.active,
       };
 
       const createdRate = await vatRateService.create(vatRateData);
@@ -1251,7 +1251,7 @@ const CompanySettings = () => {
         rate: Number(createdRate.rate),
         type: createdRate.type,
         description: createdRate.description,
-        active: createdRate.isActive
+        active: createdRate.isActive,
       };
 
       setVatRates([...vatRates, transformedRate]);
@@ -1260,7 +1260,7 @@ const CompanySettings = () => {
         rate: '',
         type: 'percentage',
         description: '',
-        active: true
+        active: true,
       });
       setShowAddVatModal(false);
       notificationService.success('VAT rate added successfully!');
@@ -1276,7 +1276,7 @@ const CompanySettings = () => {
 
       // Update local state
       const updatedVatRates = vatRates.map(vatRate =>
-        vatRate.id === vatRateId ? { ...vatRate, active: updatedRate.isActive } : vatRate
+        vatRate.id === vatRateId ? { ...vatRate, active: updatedRate.isActive } : vatRate,
       );
       setVatRates(updatedVatRates);
       notificationService.success(`VAT rate ${updatedRate.isActive ? 'activated' : 'deactivated'}!`);
@@ -1604,94 +1604,94 @@ const CompanySettings = () => {
                     Company Logo
                   </h5>
                   <div className="flex flex-col space-y-4">
-                <LogoContainer>
-                  {uploadingLogo ? (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
-                    </div>
-                  ) : companyProfile.logoUrl ? (
-                    <div className="relative w-full h-full">
-                      {console.log('Rendering logo with URL:', companyProfile.logoUrl)}
-                      <img 
-                        src={`${companyProfile.logoUrl}?t=${Date.now()}`}
-                        alt="Company Logo"
-                        className="w-full h-full object-contain rounded-lg"
-                        crossOrigin="anonymous"
-                        onLoad={() => console.log('Logo loaded successfully:', companyProfile.logoUrl)}
-                        onError={(e) => {
-                          console.error('Logo failed to load:', companyProfile.logoUrl, e);
-                          console.error('Image load error details:', e.type, e.target?.src);
-                          // Try to reload without cache-busting query first
-                          if (e.target.src.includes('?t=')) {
-                            console.log('Retrying without cache-busting query...');
-                            e.target.src = companyProfile.logoUrl;
-                          } else {
-                            // If that also fails, show upload option
-                            setCompanyProfile(prev => ({ ...prev, logoUrl: null }));
-                          }
-                        }}
-                        style={{ maxWidth: '100%', maxHeight: '100%' }}
-                      />
-                      <button
-                        className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                        onClick={handleLogoDelete}
-                        title="Delete logo"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Logo</span>
-                    </div>
-                  )}
-                </LogoContainer>
+                    <LogoContainer>
+                      {uploadingLogo ? (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                        </div>
+                      ) : companyProfile.logoUrl ? (
+                        <div className="relative w-full h-full">
+                          {console.log('Rendering logo with URL:', companyProfile.logoUrl)}
+                          <img 
+                            src={`${companyProfile.logoUrl}?t=${Date.now()}`}
+                            alt="Company Logo"
+                            className="w-full h-full object-contain rounded-lg"
+                            crossOrigin="anonymous"
+                            onLoad={() => console.log('Logo loaded successfully:', companyProfile.logoUrl)}
+                            onError={(e) => {
+                              console.error('Logo failed to load:', companyProfile.logoUrl, e);
+                              console.error('Image load error details:', e.type, e.target?.src);
+                              // Try to reload without cache-busting query first
+                              if (e.target.src.includes('?t=')) {
+                                console.log('Retrying without cache-busting query...');
+                                e.target.src = companyProfile.logoUrl;
+                              } else {
+                                // If that also fails, show upload option
+                                setCompanyProfile(prev => ({ ...prev, logoUrl: null }));
+                              }
+                            }}
+                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                          />
+                          <button
+                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                            onClick={handleLogoDelete}
+                            title="Delete logo"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Logo</span>
+                        </div>
+                      )}
+                    </LogoContainer>
 
-                <div className="space-y-2">
-                  <input
-                    type="file"
-                    id="logo-upload"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                  />
-                  <label htmlFor="logo-upload" className="cursor-pointer">
-                    <Button
-                      as="span"
-                      variant="outline"
-                      size="sm"
-                      startIcon={uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
-                      disabled={uploadingLogo}
-                    >
-                      {uploadingLogo ? 'Uploading...' : 'Upload'}
-                    </Button>
-                  </label>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        id="logo-upload"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                      />
+                      <label htmlFor="logo-upload" className="cursor-pointer">
+                        <Button
+                          as="span"
+                          variant="outline"
+                          size="sm"
+                          startIcon={uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                          disabled={uploadingLogo}
+                        >
+                          {uploadingLogo ? 'Uploading...' : 'Upload'}
+                        </Button>
+                      </label>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Max: 50KB
-                  </p>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={companyProfile.useLogoInPdf || false}
-                      onChange={(e) => {
-                        const useInPdf = e.target.checked;
-                        setCompanyProfile(prev => ({
-                          ...prev,
-                          useLogoInPdf: useInPdf,
-                          pdfLogoUrl: useInPdf ? prev.logoUrl : null
-                        }));
-                      }}
-                      className="mr-2"
-                    />
-                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      </p>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={companyProfile.useLogoInPdf || false}
+                          onChange={(e) => {
+                            const useInPdf = e.target.checked;
+                            setCompanyProfile(prev => ({
+                              ...prev,
+                              useLogoInPdf: useInPdf,
+                              pdfLogoUrl: useInPdf ? prev.logoUrl : null,
+                            }));
+                          }}
+                          className="mr-2"
+                        />
+                        <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       Use in PDFs
-                    </span>
-                  </label>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
                 {/* Brandmark Section */}
                 <div className="flex flex-col">
@@ -1916,7 +1916,7 @@ const CompanySettings = () => {
                     { value: 'United States', label: 'United States' },
                     { value: 'United Kingdom', label: 'United Kingdom' },
                     { value: 'Canada', label: 'Canada' },
-                    { value: 'Australia', label: 'Australia' }
+                    { value: 'Australia', label: 'Australia' },
                   ]}
                 />
               </div>
@@ -1954,7 +1954,7 @@ const CompanySettings = () => {
                   value={companyProfile.bankDetails?.bankName || ''}
                   onChange={(e) => setCompanyProfile({
                     ...companyProfile,
-                    bankDetails: {...(companyProfile.bankDetails || {}), bankName: e.target.value}
+                    bankDetails: {...(companyProfile.bankDetails || {}), bankName: e.target.value},
                   })}
                   placeholder="Enter bank name"
                 />
@@ -1963,7 +1963,7 @@ const CompanySettings = () => {
                   value={companyProfile.bankDetails?.accountNumber || ''}
                   onChange={(e) => setCompanyProfile({
                     ...companyProfile,
-                    bankDetails: {...(companyProfile.bankDetails || {}), accountNumber: e.target.value}
+                    bankDetails: {...(companyProfile.bankDetails || {}), accountNumber: e.target.value},
                   })}
                   placeholder="Enter account number"
                 />
@@ -1972,7 +1972,7 @@ const CompanySettings = () => {
                   value={companyProfile.bankDetails?.iban || ''}
                   onChange={(e) => setCompanyProfile({
                     ...companyProfile,
-                    bankDetails: {...(companyProfile.bankDetails || {}), iban: e.target.value}
+                    bankDetails: {...(companyProfile.bankDetails || {}), iban: e.target.value},
                   })}
                   placeholder="Enter IBAN"
                 />
@@ -1994,8 +1994,8 @@ const CompanySettings = () => {
             ...companyProfile,
             settings: {
               ...companyProfile.settings,
-              invoice_template: templateSettings
-            }
+              invoice_template: templateSettings,
+            },
           };
 
           await companyService.updateCompany(updatedProfile);
@@ -2173,7 +2173,7 @@ const CompanySettings = () => {
                   onChange={(e) => setNewVatRate({...newVatRate, type: e.target.value})}
                   options={[
                     { value: 'percentage', label: 'Percentage' },
-                    { value: 'fixed', label: 'Fixed Amount' }
+                    { value: 'fixed', label: 'Fixed Amount' },
                   ]}
                 />
                 <div className="md:col-span-2">
@@ -2233,7 +2233,7 @@ const CompanySettings = () => {
                 name: '',
                 email: '',
                 password: '',
-                role_ids: []
+                role_ids: [],
               });
               setSelectedUserRoles([]);
               setShowAddUserModal(true);
@@ -2310,7 +2310,7 @@ const CompanySettings = () => {
                             userName: user.name,
                             rolePermissions: [],
                             customGrants: [],
-                            loading: true
+                            loading: true,
                           });
 
                           const userPermissions = await roleService.getUserPermissions(user.id);
@@ -2319,7 +2319,7 @@ const CompanySettings = () => {
                             ...prev,
                             rolePermissions: userPermissions.roles || [],
                             customGrants: userPermissions.customPermissions || [],
-                            loading: false
+                            loading: false,
                           }));
                         } catch (error) {
                           console.error('Error loading permissions:', error);
@@ -2343,8 +2343,8 @@ const CompanySettings = () => {
                             user: {
                               ...user,
                               role_ids: userPermissions.roles.map(r => r.id),
-                              roles: userPermissions.roles
-                            }
+                              roles: userPermissions.roles,
+                            },
                           });
                           setSelectedUserRoles(userPermissions.roles.map(r => r.id));
                         } catch (error) {
@@ -2383,7 +2383,7 @@ const CompanySettings = () => {
                             setCustomPermission({
                               permission_keys: [],
                               reason: '',
-                              expires_at: null
+                              expires_at: null,
                             });
                             setPermissionSearch('');
                             setExpandedModules({});
@@ -2557,7 +2557,7 @@ const CompanySettings = () => {
                     const userData = {
                       name: newUser.name,
                       email: newUser.email,
-                      password: newUser.password
+                      password: newUser.password,
                     };
                     const createdUser = await userAdminAPI.create(userData);
 
@@ -2581,7 +2581,7 @@ const CompanySettings = () => {
                         status: u.status || 'active',
                         createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
                         lastLogin: u.lastLogin || u.lastLogin || null,
-                        roles: userPerms.roles || []
+                        roles: userPerms.roles || [],
                       };
                     }));
                     setUsers(mapped);
@@ -2697,7 +2697,7 @@ const CompanySettings = () => {
                     // 1. Update user basic info
                     const userData = {
                       name: editUserModal.user.name,
-                      email: editUserModal.user.email
+                      email: editUserModal.user.email,
                     };
                     await userAdminAPI.update(editUserModal.user.id, userData);
 
@@ -2719,7 +2719,7 @@ const CompanySettings = () => {
                         status: u.status || 'active',
                         createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
                         lastLogin: u.lastLogin || u.lastLogin || null,
-                        roles: userPerms.roles || []
+                        roles: userPerms.roles || [],
                       };
                     }));
                     setUsers(mapped);
@@ -2829,7 +2829,7 @@ const CompanySettings = () => {
                           return module.toLowerCase().includes(search) ||
                                  permissions.some(p =>
                                    p.description.toLowerCase().includes(search) ||
-                                   p.key.toLowerCase().includes(search)
+                                   p.key.toLowerCase().includes(search),
                                  );
                         })
                         .map(([module, permissions]) => {
@@ -2977,9 +2977,9 @@ const CompanySettings = () => {
                           customPermissionModal.userId,
                           permKey,
                           customPermission.reason,
-                          customPermission.expiresAt || null
-                        )
-                      )
+                          customPermission.expiresAt || null,
+                        ),
+                      ),
                     );
 
                     const succeeded = results.filter(r => r.status === 'fulfilled').length;
@@ -2987,11 +2987,11 @@ const CompanySettings = () => {
 
                     if (failed === 0) {
                       notificationService.success(
-                        `Successfully granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}!`
+                        `Successfully granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}!`,
                       );
                     } else if (succeeded > 0) {
                       notificationService.warning(
-                        `Granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}, but ${failed} failed`
+                        `Granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}, but ${failed} failed`,
                       );
                     } else {
                       notificationService.error('Failed to grant permissions');
@@ -3061,8 +3061,8 @@ const CompanySettings = () => {
                           log.action === 'grant'
                             ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                             : log.action === 'revoke'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                         }`}>
                           {log.action.toUpperCase()}
                         </span>
@@ -3294,225 +3294,225 @@ const CompanySettings = () => {
       <SettingsPaper>
         <SectionHeader icon={Printer} title="Printing & Document Settings" />
 
-      {/* Receipt Settings */}
-      <SectionCard title="Payment Receipt Settings">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Receipt Size */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {/* Receipt Settings */}
+        <SectionCard title="Payment Receipt Settings">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Receipt Size */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Size
-            </label>
-            <select
-              value={printingSettings.receiptSize}
-              onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            >
-              <option value="A5">A5 (148mm × 210mm) - Recommended</option>
-              <option value="A6">A6 (105mm × 148mm) - Compact</option>
-              <option value="A4">A4 (210mm × 297mm) - Full Page</option>
-            </select>
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <select
+                value={printingSettings.receiptSize}
+                onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="A5">A5 (148mm × 210mm) - Recommended</option>
+                <option value="A6">A6 (105mm × 148mm) - Compact</option>
+                <option value="A4">A4 (210mm × 297mm) - Full Page</option>
+              </select>
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Select the size for payment receipt PDFs
-            </p>
-          </div>
+              </p>
+            </div>
 
-          {/* Print On Paper Size */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {/* Print On Paper Size */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Print On Paper Size
-            </label>
-            <select
-              value={printingSettings.printOnPaperSize}
-              onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            >
-              <option value="A4">A4 (210mm × 297mm)</option>
-              <option value="A5">A5 (148mm × 210mm)</option>
-              <option value="A6">A6 (105mm × 148mm)</option>
-            </select>
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <select
+                value={printingSettings.printOnPaperSize}
+                onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="A4">A4 (210mm × 297mm)</option>
+                <option value="A5">A5 (148mm × 210mm)</option>
+                <option value="A6">A6 (105mm × 148mm)</option>
+              </select>
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Physical paper size loaded in printer
-            </p>
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-          <div className="flex items-start gap-3">
-            <AlertCircle size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-300">
-              <strong>Example:</strong> If Receipt Size = A5 and Print On = A4, the receipt will be A5 size centered on A4 paper.
+          <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <AlertCircle size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-800 dark:text-blue-300">
+                <strong>Example:</strong> If Receipt Size = A5 and Print On = A4, the receipt will be A5 size centered on A4 paper.
               This is the most economical setting for standard printers.
+              </div>
             </div>
           </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
 
-      {/* Printer Selection */}
-      <SectionCard title="Printer Settings">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Receipt Printer */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {/* Printer Selection */}
+        <SectionCard title="Printer Settings">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Receipt Printer */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Printer
-            </label>
-            <select
-              value={printingSettings.receiptPrinter}
-              onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            >
-              <option value="default">Default Printer</option>
-              <option value="receipt_printer">Receipt Printer (if available)</option>
-              <option value="pdf_only">Save as PDF Only (No Print)</option>
-            </select>
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <select
+                value={printingSettings.receiptPrinter}
+                onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="default">Default Printer</option>
+                <option value="receipt_printer">Receipt Printer (if available)</option>
+                <option value="pdf_only">Save as PDF Only (No Print)</option>
+              </select>
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Printer for payment receipts
-            </p>
-          </div>
+              </p>
+            </div>
 
-          {/* Invoice Printer */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {/* Invoice Printer */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Invoice Printer
-            </label>
-            <select
-              value={printingSettings.invoicePrinter}
-              onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            >
-              <option value="default">Default Printer</option>
-              <option value="main_printer">Main Office Printer</option>
-              <option value="pdf_only">Save as PDF Only (No Print)</option>
-            </select>
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <select
+                value={printingSettings.invoicePrinter}
+                onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="default">Default Printer</option>
+                <option value="main_printer">Main Office Printer</option>
+                <option value="pdf_only">Save as PDF Only (No Print)</option>
+              </select>
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Printer for invoices and documents
-            </p>
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-          <div className="flex items-start gap-3">
-            <AlertCircle size={20} className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-yellow-800 dark:text-yellow-300">
-              <strong>Note:</strong> Printer selection works when using the browser's print dialog.
+          <div className="mt-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start gap-3">
+              <AlertCircle size={20} className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-yellow-800 dark:text-yellow-300">
+                <strong>Note:</strong> Printer selection works when using the browser's print dialog.
               For automatic printing, configure your browser's default printer settings.
+              </div>
             </div>
           </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
 
-      {/* Document Copies */}
-      <SectionCard title="Document Copies">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Receipt Copies */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {/* Document Copies */}
+        <SectionCard title="Document Copies">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Receipt Copies */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Copies
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              value={printingSettings.receiptCopies}
-              onChange={(e) => setPrintingSettings({...printingSettings, receipt_copies: parseInt(e.target.value) || 1})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            />
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={printingSettings.receiptCopies}
+                onChange={(e) => setPrintingSettings({...printingSettings, receipt_copies: parseInt(e.target.value) || 1})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              />
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Number of copies to print
-            </p>
-          </div>
+              </p>
+            </div>
 
-          {/* Invoice Copies */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {/* Invoice Copies */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Invoice Copies
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              value={printingSettings.invoiceCopies}
-              onChange={(e) => setPrintingSettings({...printingSettings, invoice_copies: parseInt(e.target.value) || 1})}
-              className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            />
-            <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={printingSettings.invoiceCopies}
+                onChange={(e) => setPrintingSettings({...printingSettings, invoice_copies: parseInt(e.target.value) || 1})}
+                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              />
+              <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Number of copies to print
-            </p>
-          </div>
+              </p>
+            </div>
 
-          {/* Auto Print */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {/* Auto Print */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Auto Print
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={printingSettings.autoPrintReceipts}
-                  onChange={(e) => setPrintingSettings({...printingSettings, auto_print_receipts: e.target.checked})}
-                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={printingSettings.autoPrintReceipts}
+                    onChange={(e) => setPrintingSettings({...printingSettings, auto_print_receipts: e.target.checked})}
+                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Auto print receipts
-                </span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={printingSettings.autoPrintInvoices}
-                  onChange={(e) => setPrintingSettings({...printingSettings, auto_print_invoices: e.target.checked})}
-                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={printingSettings.autoPrintInvoices}
+                    onChange={(e) => setPrintingSettings({...printingSettings, auto_print_invoices: e.target.checked})}
+                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Auto print invoices
-                </span>
-              </label>
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-3 mt-6">
-        <Button
-          variant="outline"
-          onClick={resetPrintingSettings}
-        >
+        {/* Save Button */}
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            variant="outline"
+            onClick={resetPrintingSettings}
+          >
           Reset to Defaults
-        </Button>
-        <Button
-          startIcon={<Save size={20} />}
-          onClick={savePrintingSettings}
-          disabled={savingPrintingSettings}
-        >
-          {savingPrintingSettings ? 'Saving...' : 'Save Printing Settings'}
-        </Button>
-      </div>
-    </SettingsPaper>
+          </Button>
+          <Button
+            startIcon={<Save size={20} />}
+            onClick={savePrintingSettings}
+            disabled={savingPrintingSettings}
+          >
+            {savingPrintingSettings ? 'Saving...' : 'Save Printing Settings'}
+          </Button>
+        </div>
+      </SettingsPaper>
     );
   };
 
@@ -3562,11 +3562,11 @@ const CompanySettings = () => {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 ${
                     isDarkMode
                       ? (isActive
-                          ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                          : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white')
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white')
                       : (isActive
-                          ? 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
-                          : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                        ? 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                   }`}
                 >
                   <Icon size={18} />

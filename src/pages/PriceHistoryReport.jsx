@@ -18,7 +18,7 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  Grid
+  Grid,
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import pricelistService from '../services/pricelistService';
@@ -80,7 +80,7 @@ export default function PriceHistoryReport() {
             effectiveTo: pricelist.effectiveTo,
             price: item.sellingPrice,
             isActive: pricelist.isActive,
-            isDefault: pricelist.isDefault
+            isDefault: pricelist.isDefault,
           });
         }
       }

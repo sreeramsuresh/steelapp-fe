@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { 
   Edit, 
   Eye, 
@@ -19,73 +19,73 @@ import {
   ThumbsDown,
   Clock,
   Ban,
-  FileCheck
-} from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/axiosAuthService";
-import { useTheme } from "../contexts/ThemeContext";
-import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { quotationsAPI } from "../services/api";
-import { useApiData } from "../hooks/useApi";
-import { companyService } from "../services";
+  FileCheck,
+} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/axiosAuthService';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import { quotationsAPI } from '../services/api';
+import { useApiData } from '../hooks/useApi';
+import { companyService } from '../services';
 
 const QuotationList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const getStatusBadge = (status = "draft") => {
+  const getStatusBadge = (status = 'draft') => {
     const statusConfig = {
       draft: { 
         className: isDarkMode 
-          ? "bg-gray-900/30 text-gray-300 border-gray-600" 
-          : "bg-gray-100 text-gray-800 border-gray-300", 
-        label: "DRAFT",
-        icon: <Edit size={14} />
+          ? 'bg-gray-900/30 text-gray-300 border-gray-600' 
+          : 'bg-gray-100 text-gray-800 border-gray-300', 
+        label: 'DRAFT',
+        icon: <Edit size={14} />,
       },
       sent: { 
         className: isDarkMode 
-          ? "bg-blue-900/30 text-blue-300 border-blue-600" 
-          : "bg-blue-100 text-blue-800 border-blue-300", 
-        label: "SENT",
-        icon: <Send size={14} />
+          ? 'bg-blue-900/30 text-blue-300 border-blue-600' 
+          : 'bg-blue-100 text-blue-800 border-blue-300', 
+        label: 'SENT',
+        icon: <Send size={14} />,
       },
       accepted: { 
         className: isDarkMode 
-          ? "bg-green-900/30 text-green-300 border-green-600" 
-          : "bg-green-100 text-green-800 border-green-300", 
-        label: "ACCEPTED",
-        icon: <ThumbsUp size={14} />
+          ? 'bg-green-900/30 text-green-300 border-green-600' 
+          : 'bg-green-100 text-green-800 border-green-300', 
+        label: 'ACCEPTED',
+        icon: <ThumbsUp size={14} />,
       },
       rejected: { 
         className: isDarkMode 
-          ? "bg-red-900/30 text-red-300 border-red-600" 
-          : "bg-red-100 text-red-800 border-red-300", 
-        label: "REJECTED",
-        icon: <ThumbsDown size={14} />
+          ? 'bg-red-900/30 text-red-300 border-red-600' 
+          : 'bg-red-100 text-red-800 border-red-300', 
+        label: 'REJECTED',
+        icon: <ThumbsDown size={14} />,
       },
       expired: { 
         className: isDarkMode 
-          ? "bg-orange-900/30 text-orange-300 border-orange-600" 
-          : "bg-orange-100 text-orange-800 border-orange-300", 
-        label: "EXPIRED",
-        icon: <Clock size={14} />
+          ? 'bg-orange-900/30 text-orange-300 border-orange-600' 
+          : 'bg-orange-100 text-orange-800 border-orange-300', 
+        label: 'EXPIRED',
+        icon: <Clock size={14} />,
       },
       converted: { 
         className: isDarkMode 
-          ? "bg-purple-900/30 text-purple-300 border-purple-600" 
-          : "bg-purple-100 text-purple-800 border-purple-300", 
-        label: "CONVERTED",
-        icon: <FileCheck size={14} />
-      }
+          ? 'bg-purple-900/30 text-purple-300 border-purple-600' 
+          : 'bg-purple-100 text-purple-800 border-purple-300', 
+        label: 'CONVERTED',
+        icon: <FileCheck size={14} />,
+      },
     };
 
     const config = statusConfig[status] || statusConfig.draft;
@@ -100,11 +100,11 @@ const QuotationList = () => {
   const fetchQuotations = async () => {
     try {
       setLoading(true);
-      setError("");
+      setError('');
       
       const params = { page, limit: 10 };
       if (searchTerm) params.search = searchTerm;
-      if (statusFilter !== "all") params.status = statusFilter;
+      if (statusFilter !== 'all') params.status = statusFilter;
 
       const response = await quotationsAPI.getAll(params);
       
@@ -116,8 +116,8 @@ const QuotationList = () => {
         setTotalPages(1);
       }
     } catch (err) {
-      console.error("Error fetching quotations:", err);
-      setError(err.message || "Failed to fetch quotations");
+      console.error('Error fetching quotations:', err);
+      setError(err.message || 'Failed to fetch quotations');
       setQuotations([]);
     } finally {
       setLoading(false);
@@ -133,14 +133,14 @@ const QuotationList = () => {
   const handleDelete = async (id) => {
     try {
       await quotationsAPI.delete(id);
-      setSuccess("Quotation deleted successfully");
+      setSuccess('Quotation deleted successfully');
       setDeleteConfirm(null);
       fetchQuotations();
-      setTimeout(() => setSuccess(""), 3000);
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error("Error deleting quotation:", err);
-      setError(err.message || "Failed to delete quotation");
-      setTimeout(() => setError(""), 3000);
+      console.error('Error deleting quotation:', err);
+      setError(err.message || 'Failed to delete quotation');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -149,11 +149,11 @@ const QuotationList = () => {
       await quotationsAPI.updateStatus(id, newStatus);
       setSuccess(`Quotation status updated to ${newStatus}`);
       fetchQuotations();
-      setTimeout(() => setSuccess(""), 3000);
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error("Error updating status:", err);
-      setError(err.message || "Failed to update status");
-      setTimeout(() => setError(""), 3000);
+      console.error('Error updating status:', err);
+      setError(err.message || 'Failed to update status');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -162,11 +162,11 @@ const QuotationList = () => {
       const response = await quotationsAPI.convertToInvoice(id);
       setSuccess(`Quotation converted to invoice ${response.invoiceNumber}`);
       fetchQuotations();
-      setTimeout(() => setSuccess(""), 3000);
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error("Error converting quotation:", err);
-      setError(err.message || "Failed to convert quotation");
-      setTimeout(() => setError(""), 3000);
+      console.error('Error converting quotation:', err);
+      setError(err.message || 'Failed to convert quotation');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -174,12 +174,12 @@ const QuotationList = () => {
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
       await quotationsAPI.downloadPDF(id);
-      setSuccess("PDF downloaded successfully");
-      setTimeout(() => setSuccess(""), 3000);
+      setSuccess('PDF downloaded successfully');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error("Error downloading PDF:", err);
-      setError(err.message || "Failed to download PDF");
-      setTimeout(() => setError(""), 3000);
+      console.error('Error downloading PDF:', err);
+      setError(err.message || 'Failed to download PDF');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -229,7 +229,7 @@ const QuotationList = () => {
           <AlertCircle size={20} />
           {error}
           <button
-            onClick={() => setError("")}
+            onClick={() => setError('')}
             className="ml-auto text-red-500 hover:text-red-700"
           >
             <X size={16} />
@@ -242,7 +242,7 @@ const QuotationList = () => {
           <CheckCircle size={20} />
           {success}
           <button
-            onClick={() => setSuccess("")}
+            onClick={() => setSuccess('')}
             className="ml-auto text-green-500 hover:text-green-700"
           >
             <X size={16} />
@@ -321,7 +321,7 @@ const QuotationList = () => {
               No quotations found
             </h3>
             <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              {searchTerm || statusFilter !== "all" ? "Try adjusting your search or filters" : "Get started by creating your first quotation"}
+              {searchTerm || statusFilter !== 'all' ? 'Try adjusting your search or filters' : 'Get started by creating your first quotation'}
             </p>
           </div>
         ) : (
@@ -424,42 +424,42 @@ const QuotationList = () => {
                       <div className="flex justify-end gap-2">
                         {authService.hasPermission('quotations','read') && (
                           <Link
-                          to={`/quotations/${quotation.id}`}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode 
-                              ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
-                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                          }`}
-                          title="View Quotation"
-                        >
-                          <Eye size={16} />
-                        </Link>
+                            to={`/quotations/${quotation.id}`}
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDarkMode 
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                            }`}
+                            title="View Quotation"
+                          >
+                            <Eye size={16} />
+                          </Link>
                         )}
                         {authService.hasPermission('quotations','update') && (
-                        <Link
-                          to={`/quotations/${quotation.id}/edit`}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode 
-                              ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
-                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                          }`}
-                          title="Edit Quotation"
-                        >
-                          <Edit size={16} />
-                        </Link>
+                          <Link
+                            to={`/quotations/${quotation.id}/edit`}
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDarkMode 
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                            }`}
+                            title="Edit Quotation"
+                          >
+                            <Edit size={16} />
+                          </Link>
                         )}
                         {authService.hasPermission('quotations','read') && (
-                        <button
-                          onClick={() => handleDownloadPDF(quotation.id)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode 
-                              ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
-                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                          }`}
-                          title="Download PDF"
-                        >
-                          <Download size={16} />
-                        </button>
+                          <button
+                            onClick={() => handleDownloadPDF(quotation.id)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDarkMode 
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                            }`}
+                            title="Download PDF"
+                          >
+                            <Download size={16} />
+                          </button>
                         )}
                         
                         {/* Status Update Dropdown */}
@@ -523,13 +523,13 @@ const QuotationList = () => {
                         )}
 
                         {authService.hasPermission('quotations','delete') && (
-                        <button
-                          onClick={() => setDeleteConfirm(quotation.id)}
-                          className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                          title="Delete Quotation"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                          <button
+                            onClick={() => setDeleteConfirm(quotation.id)}
+                            className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                            title="Delete Quotation"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         )}
                       </div>
                     </td>

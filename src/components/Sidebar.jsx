@@ -28,7 +28,7 @@ import {
   MapPin,
   RotateCcw,
   Shield,
-  Banknote
+  Banknote,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -47,9 +47,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           name: 'Dashboard',
           path: '/dashboard',
           icon: Home,
-          description: 'Overview & Analytics'
-        }
-      ]
+          description: 'Overview & Analytics',
+        },
+      ],
     },
     {
       section: 'Finance / Accounts Receivable',
@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/finance',
           icon: Banknote,
           description: 'Manage receivables, payables, and credit notes',
-          requiredPermission: 'payables.read'
+          requiredPermission: 'payables.read',
         },
         {
           name: 'Invoices',
@@ -67,9 +67,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           icon: FileText,
           description: 'View and manage invoices',
           badge: invoiceCount,
-          requiredPermission: 'invoices_all.read'
-        }
-      ]
+          requiredPermission: 'invoices_all.read',
+        },
+      ],
     },
     {
       section: 'Quotations',
@@ -79,9 +79,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/quotations',
           icon: Quote,
           description: 'Manage quotations',
-          requiredPermission: 'quotations.read'
-        }
-      ]
+          requiredPermission: 'quotations.read',
+        },
+      ],
     },
     {
       section: 'Delivery',
@@ -91,9 +91,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/delivery-notes',
           icon: Truck,
           description: 'Manage delivery notes',
-          requiredPermission: 'delivery_notes.read'
-        }
-      ]
+          requiredPermission: 'delivery_notes.read',
+        },
+      ],
     },
     {
       section: 'Procurement',
@@ -103,9 +103,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/purchase-orders',
           icon: ShoppingCart,
           description: 'Manage purchase orders',
-          requiredPermission: 'purchase_orders.read'
-        }
-      ]
+          requiredPermission: 'purchase_orders.read',
+        },
+      ],
     },
     {
       section: 'Trade Operations',
@@ -115,9 +115,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/import-export',
           icon: Ship,
           description: 'Manage international trade operations',
-          requiredPermission: 'import_orders.read'
-        }
-      ]
+          requiredPermission: 'import_orders.read',
+        },
+      ],
     },
     {
       section: 'Business',
@@ -127,9 +127,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/business',
           icon: Users,
           description: 'Manage customers, products, and pricing',
-          requiredPermission: 'customers.read'
-        }
-      ]
+          requiredPermission: 'customers.read',
+        },
+      ],
     },
     {
       section: 'Reports',
@@ -139,9 +139,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/reports',
           icon: BarChart3,
           description: 'Business insights and performance analytics',
-          requiredPermission: 'analytics.read'
-        }
-      ]
+          requiredPermission: 'analytics.read',
+        },
+      ],
     },
     {
       section: 'Settings',
@@ -151,7 +151,7 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/settings',
           icon: Settings,
           description: 'Configure company details',
-          requiredRole: 'admin'
+          requiredRole: 'admin',
         },
         // Audit Logs - conditionally shown based on feature flag
         ...(isFeatureEnabled('AUDIT_LOGS') ? [{
@@ -159,10 +159,10 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/audit-logs',
           icon: Shield,
           description: 'View system activity logs',
-          requiredRole: 'admin'
-        }] : [])
-      ]
-    }
+          requiredRole: 'admin',
+        }] : []),
+      ],
+    },
   ];
 
   const isActiveRoute = (path) => {
@@ -229,46 +229,46 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
                   return true;
                 })
                 .map((item, itemIndex) => {
-                const Icon = item.icon;
-                const isActive = isActiveRoute(item.path);
+                  const Icon = item.icon;
+                  const isActive = isActiveRoute(item.path);
                 
-                return (
-                  <div key={itemIndex} className="px-2">
-                    <Link
-                      to={item.path}
-                      onClick={() => window.innerWidth <= 768 && onToggle()}
-                      title={item.description}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
-                        isActive
-                          ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
-                          : isDarkMode
-                          ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
-                          : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
-                      }`}
-                    >
-                      <div className="flex-shrink-0">
-                        <Icon size={20} className={`transition-transform duration-200 ${
-                          isActive ? '' : 'group-hover:scale-110'
-                        }`} />
-                      </div>
-                      <span className={`text-sm flex-1 ${
-                        isActive ? 'font-semibold' : 'font-medium'
-                      }`}>
-                        {item.name}
-                      </span>
-                      {item.badge && (
-                        <div className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-semibold ${
-                          isDarkMode 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-blue-500 text-white'
-                        }`}>
-                          {item.badge}
+                  return (
+                    <div key={itemIndex} className="px-2">
+                      <Link
+                        to={item.path}
+                        onClick={() => window.innerWidth <= 768 && onToggle()}
+                        title={item.description}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
+                          isActive
+                            ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
+                            : isDarkMode
+                              ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
+                              : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
+                        }`}
+                      >
+                        <div className="flex-shrink-0">
+                          <Icon size={20} className={`transition-transform duration-200 ${
+                            isActive ? '' : 'group-hover:scale-110'
+                          }`} />
                         </div>
-                      )}
-                    </Link>
-                  </div>
-                );
-              })}
+                        <span className={`text-sm flex-1 ${
+                          isActive ? 'font-semibold' : 'font-medium'
+                        }`}>
+                          {item.name}
+                        </span>
+                        {item.badge && (
+                          <div className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-semibold ${
+                            isDarkMode 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-blue-500 text-white'
+                          }`}>
+                            {item.badge}
+                          </div>
+                        )}
+                      </Link>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         ))}

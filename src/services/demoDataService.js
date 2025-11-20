@@ -34,8 +34,8 @@ class DemoDataService {
           yieldStrength: '205 MPa',
           carbonContent: '0.08%',
           coating: 'None',
-          standard: 'ASTM A240'
-        }
+          standard: 'ASTM A240',
+        },
       },
       {
         name: 'Stainless Steel Pipe',
@@ -59,8 +59,8 @@ class DemoDataService {
           yieldStrength: '170 MPa',
           carbonContent: '0.03%',
           coating: 'Pickled',
-          standard: 'ASTM A312'
-        }
+          standard: 'ASTM A312',
+        },
       },
       {
         name: 'Round Bar',
@@ -83,8 +83,8 @@ class DemoDataService {
           yieldStrength: '210 MPa',
           carbonContent: '0.08%',
           coating: 'Bright',
-          standard: 'ASTM A276'
-        }
+          standard: 'ASTM A276',
+        },
       },
       {
         name: 'Angle Bar',
@@ -109,8 +109,8 @@ class DemoDataService {
           yieldStrength: '170 MPa',
           carbonContent: '0.03%',
           coating: '2B',
-          standard: 'ASTM A276'
-        }
+          standard: 'ASTM A276',
+        },
       },
       {
         name: 'Flat Bar',
@@ -134,9 +134,9 @@ class DemoDataService {
           yieldStrength: '170 MPa',
           carbonContent: '0.03%',
           coating: 'HL',
-          standard: 'ASTM A240'
-        }
-      }
+          standard: 'ASTM A240',
+        },
+      },
     ];
 
     try {

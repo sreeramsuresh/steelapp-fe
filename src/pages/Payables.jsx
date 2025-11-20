@@ -61,7 +61,7 @@ const StatusPill = ({ status }) => {
     unpaid: { label: 'Unpaid', color: 'red' },
     partially_paid: { label: 'Partially Paid', color: 'yellow' },
     paid: { label: 'Paid', color: 'green' },
-    overdue: { label: 'Overdue', color: 'red' }
+    overdue: { label: 'Overdue', color: 'red' },
   };
   const cfg = map[status] || map.unpaid;
   return <Pill color={cfg.color}>{cfg.label}</Pill>;
@@ -99,7 +99,7 @@ const InvoicesTab = ({ canManage }) => {
     minOut: '',
     maxOut: '',
     page: '1',
-    size: '10'
+    size: '10',
   });
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
@@ -224,7 +224,7 @@ const InvoicesTab = ({ canManage }) => {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
         total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
-        customer: inv.customer || {}
+        customer: inv.customer || {},
       };
       const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -253,7 +253,7 @@ const InvoicesTab = ({ canManage }) => {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
         total: inv.invoiceAmount || 0,
         payments: inv.payments || [],
-        customer: inv.customer || {}
+        customer: inv.customer || {},
       };
       const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -684,7 +684,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
 const POTab = ({ canManage }) => {
   const { isDarkMode } = useTheme();
   const [filters, setFilters] = useURLState({
-    tab: 'pos', q: '', status: 'all', dateType: 'po', start: '', end: '', vendor: '', minBal: '', maxBal: '', page: '1', size: '10'
+    tab: 'pos', q: '', status: 'all', dateType: 'po', start: '', end: '', vendor: '', minBal: '', maxBal: '', page: '1', size: '10',
   });
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
@@ -771,7 +771,7 @@ const POTab = ({ canManage }) => {
         invoiceNumber: po.poNo || po.poNumber,
         total: po.poValue || 0,
         payments: po.payments || [],
-        customer: po.vendor || {}
+        customer: po.vendor || {},
       };
       const result = await generatePaymentReceipt(payment, poData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -800,7 +800,7 @@ const POTab = ({ canManage }) => {
         invoiceNumber: po.poNo || po.poNumber,
         total: po.poValue || 0,
         payments: po.payments || [],
-        customer: po.vendor || {}
+        customer: po.vendor || {},
       };
       const result = await printPaymentReceipt(payment, poData, companyInfo, paymentIndex);
       if (!result.success) {

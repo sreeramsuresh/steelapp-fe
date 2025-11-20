@@ -13,7 +13,7 @@ const ProductNamingGrid = ({
   template: externalTemplate,
   separator: externalSeparator,
   onSaveTemplate,
-  variables = []
+  variables = [],
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -177,11 +177,11 @@ const ProductNamingGrid = ({
       setSaving(productId);
       await apiService.patch(`/products/${productId}`, {
         name: editValue,
-        full_name: editValue
+        full_name: editValue,
       });
 
       setProducts(products.map(p =>
-        p.id === productId ? { ...p, name: editValue, full_name: editValue } : p
+        p.id === productId ? { ...p, name: editValue, full_name: editValue } : p,
       ));
 
       setEditingId(null);
@@ -263,7 +263,7 @@ const ProductNamingGrid = ({
             grade: product.grade,
             category: product.category,
             currentName,
-            newName
+            newName,
           };
         }
         return null;
@@ -288,19 +288,19 @@ const ProductNamingGrid = ({
         try {
           await apiService.patch(`/products/${preview.id}`, {
             name: preview.newName,
-            full_name: preview.newName
+            full_name: preview.newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p
-            )
+              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p,
+            ),
           );
 
           historyChanges.push({
             id: preview.id,
             oldName: preview.currentName,
-            newName: preview.newName
+            newName: preview.newName,
           });
 
           successCount++;
@@ -316,7 +316,7 @@ const ProductNamingGrid = ({
 
       setBulkMessage({
         type: 'success',
-        text: `✓ Replaced in ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        text: `✓ Replaced in ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
       });
 
       setActiveDrawer(null);
@@ -355,7 +355,7 @@ const ProductNamingGrid = ({
         grade: product.grade,
         category: product.category,
         currentName,
-        newName
+        newName,
       };
     });
 
@@ -377,19 +377,19 @@ const ProductNamingGrid = ({
         try {
           await apiService.patch(`/products/${preview.id}`, {
             name: preview.newName,
-            full_name: preview.newName
+            full_name: preview.newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p
-            )
+              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p,
+            ),
           );
 
           historyChanges.push({
             id: preview.id,
             oldName: preview.currentName,
-            newName: preview.newName
+            newName: preview.newName,
           });
 
           successCount++;
@@ -405,7 +405,7 @@ const ProductNamingGrid = ({
 
       setBulkMessage({
         type: 'success',
-        text: `✓ Updated ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        text: `✓ Updated ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
       });
 
       setActiveDrawer(null);
@@ -457,8 +457,8 @@ const ProductNamingGrid = ({
               nb_size: product.nbSize,
               schedule: product.schedule,
               diameter: product.diameter,
-              size: product.size
-            }
+              size: product.size,
+            },
           });
 
           const newName = response.preview;
@@ -466,18 +466,18 @@ const ProductNamingGrid = ({
           historyChanges.push({
             id: product.id,
             oldName: product.fullName || product.name || '',
-            newName
+            newName,
           });
 
           await apiService.patch(`/products/${product.id}`, {
             name: newName,
-            full_name: newName
+            full_name: newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === product.id ? { ...p, name: newName, full_name: newName } : p
-            )
+              p.id === product.id ? { ...p, name: newName, full_name: newName } : p,
+            ),
           );
 
           successCount++;
@@ -493,7 +493,7 @@ const ProductNamingGrid = ({
 
       setBulkMessage({
         type: 'success',
-        text: `✓ Updated ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        text: `✓ Updated ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
       });
 
       setSelectedIds(new Set());
@@ -525,12 +525,12 @@ const ProductNamingGrid = ({
       p.gradeVariant || '',
       p.category || '',
       p.fullName || p.name || '',
-      p.fullName || p.name || ''
+      p.fullName || p.name || '',
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -545,7 +545,7 @@ const ProductNamingGrid = ({
 
     setBulkMessage({
       type: 'success',
-      text: `✓ Exported ${productsToExport.length} product${productsToExport.length !== 1 ? 's' : ''} to CSV`
+      text: `✓ Exported ${productsToExport.length} product${productsToExport.length !== 1 ? 's' : ''} to CSV`,
     });
     setTimeout(() => setBulkMessage(null), 3000);
   };
@@ -581,7 +581,7 @@ const ProductNamingGrid = ({
             historyChanges.push({
               id: parseInt(id),
               oldName: product.fullName || product.name || '',
-              newName
+              newName,
             });
             updates.push({ id: parseInt(id), newName });
           }
@@ -599,13 +599,13 @@ const ProductNamingGrid = ({
         try {
           await apiService.patch(`/products/${id}`, {
             name: newName,
-            full_name: newName
+            full_name: newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === id ? { ...p, name: newName, full_name: newName } : p
-            )
+              p.id === id ? { ...p, name: newName, full_name: newName } : p,
+            ),
           );
 
           successCount++;
@@ -621,7 +621,7 @@ const ProductNamingGrid = ({
 
       setBulkMessage({
         type: 'success',
-        text: `✓ Imported ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        text: `✓ Imported ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
       });
 
       setTimeout(() => setBulkMessage(null), 5000);
@@ -652,13 +652,13 @@ const ProductNamingGrid = ({
         try {
           await apiService.patch(`/products/${change.id}`, {
             name: change.oldName,
-            full_name: change.oldName
+            full_name: change.oldName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === change.id ? { ...p, name: change.oldName, full_name: change.oldName } : p
-            )
+              p.id === change.id ? { ...p, name: change.oldName, full_name: change.oldName } : p,
+            ),
           );
 
           successCount++;
@@ -670,7 +670,7 @@ const ProductNamingGrid = ({
 
       setBulkMessage({
         type: 'success',
-        text: `✓ Undone ${undoHistory.action} for ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        text: `✓ Undone ${undoHistory.action} for ${successCount} product${successCount !== 1 ? 's' : ''}${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
       });
 
       setUndoHistory(null);
@@ -701,8 +701,8 @@ const ProductNamingGrid = ({
 
     try {
       const response = await apiService.post(`/api/product-naming/${companyId}/preview`, {
-        template: template,
-        separator: separator,
+        template,
+        separator,
         sample_product: {
           commodity: 'SS',
           grade: '304',
@@ -711,8 +711,8 @@ const ProductNamingGrid = ({
           finish: 'HL',
           width: '4',
           length: '8',
-          thickness: '1.2mm'
-        }
+          thickness: '1.2mm',
+        },
       });
       setPreview(response.data.preview);
     } catch (error) {
@@ -739,7 +739,7 @@ const ProductNamingGrid = ({
   };
 
   const insertVariable = (variable) => {
-    setTemplate(prev => prev + ' ' + variable);
+    setTemplate(prev => `${prev  } ${  variable}`);
   };
 
   const loadPreset = (preset) => {
@@ -1199,7 +1199,7 @@ const ProductNamingGrid = ({
                     {[
                       { value: ' ', label: 'Space', example: 'SS 304' },
                       { value: '-', label: 'Hyphen', example: 'SS-304' },
-                      { value: '_', label: 'Underscore', example: 'SS_304' }
+                      { value: '_', label: 'Underscore', example: 'SS_304' },
                     ].map(sep => (
                       <button
                         key={sep.value}
@@ -1208,8 +1208,8 @@ const ProductNamingGrid = ({
                           separator === sep.value
                             ? 'bg-indigo-600 text-white ring-2 ring-indigo-500'
                             : isDarkMode
-                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                         }`}
                       >
                         <div>{sep.label}</div>

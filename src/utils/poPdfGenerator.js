@@ -68,7 +68,7 @@ const createPOElement = (po, company, logoCompany, sealImage) => {
         <div style="margin-top: 8px; line-height: 1.3;">
           <p style="margin: 0; font-size: 11px; color: #334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
           <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.street)}</p>
-          <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.city)}${compAddr.emirate ? ', ' + compAddr.emirate : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${  compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.country)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Email: ${safe(comp.email)}</p>
@@ -107,21 +107,21 @@ const createPOElement = (po, company, logoCompany, sealImage) => {
         </thead>
         <tbody>
           ${items.map((item) => {
-            const spec = (item.specification && String(item.specification).trim()) || [item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(' | ');
-            return `
+    const spec = (item.specification && String(item.specification).trim()) || [item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(' | ');
+    return `
               <tr>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">
                   <div style="font-weight:600;color:#0f172a;">${safe(item.name || item.productType)}</div>
-                  ${spec ? '<div style="font-size:10px;color:#64748b;">' + spec + '</div>' : ''}
+                  ${spec ? `<div style="font-size:10px;color:#64748b;">${  spec  }</div>` : ''}
                 </td>
-                ${hasDescription ? '<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">' + (safe(item.description) || '-') + '</td>' : ''}
+                ${hasDescription ? `<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${  safe(item.description) || '-'  }</td>` : ''}
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit) || 'MT'}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.quantity)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate || 0)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(item.amount || 0)}</td>
               </tr>
             `;
-          }).join('')}
+  }).join('')}
         </tbody>
       </table>
     </div>
@@ -187,7 +187,7 @@ const waitForImages = (container) => {
       }
       img.addEventListener('load', resolve, { once: true });
       img.addEventListener('error', resolve, { once: true });
-    }))
+    })),
   );
 };
 

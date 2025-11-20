@@ -11,7 +11,7 @@ import {
   Globe,
   TrendingUp,
   FileText,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 
 // Import the existing components
@@ -34,56 +34,56 @@ const ImportExportDashboard = () => {
       id: 'overview',
       label: 'Overview',
       icon: BarChart3,
-      component: ImportExportOverview
+      component: ImportExportOverview,
     },
     {
       id: 'import-orders',
       label: 'Import Orders',
       icon: ArrowDownToLine,
-      component: ImportOrderList
+      component: ImportOrderList,
     },
     {
       id: 'export-orders',
       label: 'Export Orders',
       icon: ArrowUpFromLine,
-      component: ExportOrderList
+      component: ExportOrderList,
     },
     {
       id: 'shipping',
       label: 'Shipping',
       icon: Ship,
-      component: ShippingDocumentList
+      component: ShippingDocumentList,
     },
     {
       id: 'certificates',
       label: 'Certificates',
       icon: Award,
-      component: MaterialCertificateList
+      component: MaterialCertificateList,
     },
     {
       id: 'customs',
       label: 'Customs',
       icon: Scroll,
-      component: CustomsDocumentList
+      component: CustomsDocumentList,
     },
     {
       id: 'finance',
       label: 'Trade Finance',
       icon: CreditCard,
-      component: TradeFinanceList
+      component: TradeFinanceList,
     },
     {
       id: 'rates',
       label: 'Exchange Rates',
       icon: DollarSign,
-      component: ExchangeRateList
+      component: ExchangeRateList,
     },
     {
       id: 'countries',
       label: 'Countries & Ports',
       icon: Globe,
-      component: CountriesList
-    }
+      component: CountriesList,
+    },
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

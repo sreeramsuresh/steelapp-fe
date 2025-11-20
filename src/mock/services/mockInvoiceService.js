@@ -30,7 +30,7 @@ export const getInvoices = async (params = {}) => {
     sortBy = 'createdAt',
     sortOrder = 'desc',
     startDate,
-    endDate
+    endDate,
   } = params;
   
   let filtered = [...invoices];
@@ -63,7 +63,7 @@ export const getInvoices = async (params = {}) => {
     filtered = filtered.filter(inv =>
       inv.invoiceNumber.toLowerCase().includes(searchLower) ||
       inv.customerDetails.name.toLowerCase().includes(searchLower) ||
-      inv.notes?.toLowerCase().includes(searchLower)
+      inv.notes?.toLowerCase().includes(searchLower),
     );
   }
   
@@ -96,14 +96,14 @@ export const getInvoices = async (params = {}) => {
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      totalPages
-    }
+      totalPages,
+    },
   };
   
   console.log('🎭 Mock getInvoices returning:', {
     invoicesCount: result.invoices.length,
     isArray: Array.isArray(result.invoices),
-    pagination: result.pagination
+    pagination: result.pagination,
   });
   
   return result;
@@ -120,8 +120,8 @@ export const getInvoice = async (id) => {
     throw {
       response: {
         status: 404,
-        data: { error: 'Invoice not found' }
-      }
+        data: { error: 'Invoice not found' },
+      },
     };
   }
   
@@ -140,7 +140,7 @@ export const createInvoice = async (data) => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     pdfGenerated: false,
-    pdfGeneratedAt: null
+    pdfGeneratedAt: null,
   };
   
   invoices.push(newInvoice);
@@ -158,15 +158,15 @@ export const updateInvoice = async (id, data) => {
     throw {
       response: {
         status: 404,
-        data: { error: 'Invoice not found' }
-      }
+        data: { error: 'Invoice not found' },
+      },
     };
   }
   
   invoices[index] = {
     ...invoices[index],
     ...data,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
   
   return invoices[index];
@@ -183,8 +183,8 @@ export const deleteInvoice = async (id) => {
     throw {
       response: {
         status: 404,
-        data: { error: 'Invoice not found' }
-      }
+        data: { error: 'Invoice not found' },
+      },
     };
   }
   
@@ -203,15 +203,15 @@ export const addPayment = async (invoiceId, paymentData) => {
     throw {
       response: {
         status: 404,
-        data: { error: 'Invoice not found' }
-      }
+        data: { error: 'Invoice not found' },
+      },
     };
   }
   
   const payment = {
     id: (invoices[index].payments?.length || 0) + 1,
     ...paymentData,
-    paymentDate: paymentData.paymentDate || new Date().toISOString().split('T')[0]
+    paymentDate: paymentData.paymentDate || new Date().toISOString().split('T')[0],
   };
   
   if (!invoices[index].payments) {
@@ -256,7 +256,7 @@ export const getInvoiceStats = async () => {
       amount: invoices
         .filter(inv => new Date(inv.dueDate) < now && inv.balanceDue > 0)
         .reduce((sum, inv) => sum + inv.balanceDue, 0),
-      count: invoices.filter(inv => new Date(inv.dueDate) < now && inv.balanceDue > 0).length
+      count: invoices.filter(inv => new Date(inv.dueDate) < now && inv.balanceDue > 0).length,
     },
     
     dueIn7Days: {
@@ -269,7 +269,7 @@ export const getInvoiceStats = async () => {
       count: invoices.filter(inv => {
         const dueDate = new Date(inv.dueDate);
         return dueDate >= now && dueDate <= sevenDaysFromNow && inv.balanceDue > 0;
-      }).length
+      }).length,
     },
     
     paid: invoices
@@ -277,7 +277,7 @@ export const getInvoiceStats = async () => {
       .reduce((sum, inv) => sum + inv.totalAmount, 0),
     
     total: invoices.length,
-    totalAmount: invoices.reduce((sum, inv) => sum + inv.totalAmount, 0)
+    totalAmount: invoices.reduce((sum, inv) => sum + inv.totalAmount, 0),
   };
   
   return stats;
@@ -299,5 +299,5 @@ export default {
   deleteInvoice,
   addPayment,
   getInvoiceStats,
-  resetMockData
+  resetMockData,
 };

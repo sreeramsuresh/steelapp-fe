@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Edit,
   Eye,
@@ -22,29 +22,29 @@ import {
   CircleDollarSign,
   FileMinus,
   Award,
-} from "lucide-react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
-import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { createCompany } from "../types";
-import { invoiceService } from "../services/dataService";
-import { PAYMENT_MODES } from "../utils/paymentUtils";
-import { deliveryNotesAPI, accountStatementsAPI } from "../services/api";
-import { notificationService } from "../services/notificationService";
-import { authService } from "../services/axiosAuthService";
-import { apiClient } from "../services/api";
-import { uuid } from "../utils/uuid";
-import { commissionService } from "../services/commissionService";
-import InvoicePreview from "../components/InvoicePreview";
-import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
-import PaymentReminderModal from "../components/PaymentReminderModal";
-import ConfirmDialog from "../components/ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
-import { generatePaymentReminder, getInvoiceReminderInfo } from "../utils/reminderUtils";
-import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
-import { normalizeInvoices } from "../utils/invoiceNormalizer";
-import { guardInvoicesDev } from "../utils/devGuards";
-import { getInvoiceActionButtonConfig } from "./invoiceActionsConfig";
+} from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import { createCompany } from '../types';
+import { invoiceService } from '../services/dataService';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
+import { deliveryNotesAPI, accountStatementsAPI } from '../services/api';
+import { notificationService } from '../services/notificationService';
+import { authService } from '../services/axiosAuthService';
+import { apiClient } from '../services/api';
+import { uuid } from '../utils/uuid';
+import { commissionService } from '../services/commissionService';
+import InvoicePreview from '../components/InvoicePreview';
+import DeleteInvoiceModal from '../components/DeleteInvoiceModal';
+import PaymentReminderModal from '../components/PaymentReminderModal';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
+import { generatePaymentReminder, getInvoiceReminderInfo } from '../utils/reminderUtils';
+import InvoiceStatusColumn from '../components/InvoiceStatusColumn';
+import { normalizeInvoices } from '../utils/invoiceNormalizer';
+import { guardInvoicesDev } from '../utils/devGuards';
+import { getInvoiceActionButtonConfig } from './invoiceActionsConfig';
 
 /**
  * ============================================================================
@@ -263,7 +263,7 @@ const assertPaymentConsistency = (invoice) => {
   }
 };
 
-const InvoiceList = ({ defaultStatusFilter = "all" }) => {
+const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
@@ -281,9 +281,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // DEBUG: Track component instance to detect multiple mounts
   const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [showDeleted, setShowDeleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -330,19 +330,19 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
   const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
     try {
-      console.log("🔄 Fetch START", { currentPage: page, pageSize: limit });
+      console.log('🔄 Fetch START', { currentPage: page, pageSize: limit });
       setLoading(true);
       const queryParams = {
-        page: page,
-        limit: limit,
+        page,
+        limit,
         search: search || undefined,
-        status: status === "all" ? undefined : status,
+        status: status === 'all' ? undefined : status,
         include_deleted: includeDeleted ? 'true' : undefined,
       };
 
       // Remove undefined values
       Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key]
+        (key) => queryParams[key] === undefined && delete queryParams[key],
       );
 
       // Use invoiceService to get ALL invoices (including draft and proforma)
@@ -372,13 +372,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // Process delivery note status from invoice data
       processDeliveryNoteStatus(invoicesData);
       
-      console.log("✅ Fetch DONE", { count: guardedInvoices.length });
+      console.log('✅ Fetch DONE', { count: guardedInvoices.length });
     } catch (error) {
       // Ignore abort errors
       if (error.name === 'AbortError' || error.message === 'canceled') {
         return;
       }
-      console.log("❌ Fetch ERROR", error);
+      console.log('❌ Fetch ERROR', error);
       setInvoices([]);
       setPagination(null);
     } finally {
@@ -393,7 +393,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // TRIGGERS: Runs when page, filters, or search changes
   // CLEANUP: Aborts pending requests when dependencies change
   useEffect(() => {
-    console.log("⚙️ useEffect(fetchInvoices) TRIGGERED", {
+    console.log('⚙️ useEffect(fetchInvoices) TRIGGERED', {
       currentPage,
       pageSize,
       searchTerm,
@@ -409,7 +409,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         searchTerm,
         statusFilter,
         showDeleted,
-        abortController.signal
+        abortController.signal,
       );
     }, searchTerm ? 500 : 0); // Debounce search by 500ms, others immediately
 
@@ -428,7 +428,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Initialize search from URL param
   useEffect(() => {
-    const q = searchParams.get("search") || "";
+    const q = searchParams.get('search') || '';
     if (q !== searchTerm) {
       setSearchTerm(q);
       setCurrentPage(1);
@@ -641,7 +641,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const hasValidItems = hasItems && invoice.items.every(item =>
       item.name && item.name.trim() !== '' &&
       item.quantity > 0 &&
-      item.rate > 0
+      item.rate > 0,
     );
     const hasDate = !!invoice.date;
     const hasDueDate = !!invoice.dueDate;
@@ -652,8 +652,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         customer: !hasCustomer,
         items: !hasItems || !hasValidItems,
         date: !hasDate,
-        dueDate: !hasDueDate
-      }
+        dueDate: !hasDueDate,
+      },
     };
   };
 
@@ -671,11 +671,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       if (validation.missing.dueDate) missingFields.push('Due Date');
 
       const statusLabel = invoice.status === 'draft' ? 'Draft' :
-                         invoice.status === 'proforma' ? 'Proforma' : 'Invoice';
+        invoice.status === 'proforma' ? 'Proforma' : 'Invoice';
 
       notificationService.warning(
         `${statusLabel} is incomplete. Missing: ${missingFields.join(', ')}. Please edit and complete all required fields before downloading PDF.`,
-        { duration: 6000 }
+        { duration: 6000 },
       );
       return;
     }
@@ -684,9 +684,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     try {
       // Use the backend PDF endpoint instead of regenerating
-      const { apiClient } = await import("../services/api");
+      const { apiClient } = await import('../services/api');
       const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
-        responseType: 'blob'
+        responseType: 'blob',
       });
 
       // Create download link
@@ -699,10 +699,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      notificationService.success("PDF downloaded successfully!");
+      notificationService.success('PDF downloaded successfully!');
     } catch (error) {
-      console.error("PDF download error:", error);
-      notificationService.error(error.message || "Failed to download PDF");
+      console.error('PDF download error:', error);
+      notificationService.error(error.message || 'Failed to download PDF');
     } finally {
       setDownloadingIds((prev) => {
         const newSet = new Set(prev);
@@ -734,8 +734,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         notificationService.error(result.error || 'Failed to generate reminder');
       }
     } catch (error) {
-      console.error("Reminder generation error:", error);
-      notificationService.error(error.message || "Failed to generate payment reminder");
+      console.error('Reminder generation error:', error);
+      notificationService.error(error.message || 'Failed to generate payment reminder');
     } finally {
       setSendingReminderIds((prev) => {
         const newSet = new Set(prev);
@@ -865,7 +865,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       payments: updatedPayments,
       received,
       outstanding: newOutstanding,
-      payment_status
+      payment_status,
     };
 
     // Update drawer immediately
@@ -886,14 +886,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         prevInvoices.map(invoice =>
           invoice.id === inv.id
             ? {
-                ...invoice,
-                payment_status: freshData.payment_status,
-                received: freshData.received,
-                outstanding: freshData.outstanding,
-                balance_due: freshData.outstanding
-              }
-            : invoice
-        )
+              ...invoice,
+              payment_status: freshData.payment_status,
+              received: freshData.received,
+              outstanding: freshData.outstanding,
+              balance_due: freshData.outstanding,
+            }
+            : invoice,
+        ),
       );
 
       // Auto-calculate commission if invoice is now fully paid and has a sales agent
@@ -930,7 +930,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     // Optimistic UI update
     const updatedPayments = inv.payments.map(p =>
-      p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p
+      p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p,
     );
     const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
     const outstanding = Math.max(0, +((inv.invoiceAmount || 0) - received).toFixed(2));
@@ -943,7 +943,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       payments: updatedPayments,
       received,
       outstanding,
-      status
+      status,
     };
 
     setPaymentDrawerInvoice(updatedInv);
@@ -962,14 +962,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         prevInvoices.map(invoice =>
           invoice.id === inv.id
             ? {
-                ...invoice,
-                payment_status: freshData.payment_status,
-                received: freshData.received,
-                outstanding: freshData.outstanding,
-                balance_due: freshData.outstanding
-              }
-            : invoice
-        )
+              ...invoice,
+              payment_status: freshData.payment_status,
+              received: freshData.received,
+              outstanding: freshData.outstanding,
+              balance_due: freshData.outstanding,
+            }
+            : invoice,
+        ),
       );
     } catch (error) {
       console.error('Error voiding payment:', error);
@@ -1023,7 +1023,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         title: 'Some Invoices Incomplete',
         message: `${invalidInvoices.length} incomplete invoice${invalidInvoices.length > 1 ? 's' : ''} will be skipped: ${invalidNumbers}\n\nProceed with downloading ${validInvoices.length} complete invoice${validInvoices.length > 1 ? 's' : ''}?`,
         confirmText: `Download ${validInvoices.length}`,
-        variant: 'warning'
+        variant: 'warning',
       });
       if (!confirmed) return;
     } else {
@@ -1033,9 +1033,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
       const confirmed = await confirm({
         title: 'Download PDFs',
-        message: message,
+        message,
         confirmText: 'Download',
-        variant: 'info'
+        variant: 'info',
       });
       if (!confirmed) return;
     }
@@ -1044,13 +1044,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     let failCount = 0;
 
     // Import apiClient for PDF downloads
-    const { apiClient } = await import("../services/api");
+    const { apiClient } = await import('../services/api');
 
     for (const invoice of validInvoices) {
       try {
         // Use backend PDF endpoint
         const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
-          responseType: 'blob'
+          responseType: 'blob',
         });
 
         // Create download link
@@ -1079,11 +1079,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     if (failCount === 0) {
       notificationService.success(
-        `Downloaded ${successCount} invoice PDF${successCount !== 1 ? 's' : ''} successfully!`
+        `Downloaded ${successCount} invoice PDF${successCount !== 1 ? 's' : ''} successfully!`,
       );
     } else {
       notificationService.warning(
-        `Downloaded ${successCount} PDF${successCount !== 1 ? 's' : ''}. ${failCount} failed.`
+        `Downloaded ${successCount} PDF${successCount !== 1 ? 's' : ''}. ${failCount} failed.`,
       );
     }
   };
@@ -1094,15 +1094,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         title: 'Create Delivery Note',
         message: `Create a delivery note for Invoice #${invoice.invoiceNumber}?\n\nNote: Only one delivery note is allowed per invoice.`,
         confirmText: 'Create',
-        variant: 'info'
+        variant: 'info',
       });
       if (!confirmed) return;
       // Create delivery note using axios client (auth + baseURL + refresh)
-      const { apiClient } = await import("../services/api");
+      const { apiClient } = await import('../services/api');
       const resp = await apiClient.post(`/invoices/${invoice.id}/generate-delivery-note`);
       const dn = resp?.deliveryNote || resp?.data?.deliveryNote || resp;
 
-      notificationService.createSuccess("Delivery note");
+      notificationService.createSuccess('Delivery note');
       // Open modal with the created delivery note
       if (dn && dn.id) {
         setCreatedDeliveryNote(dn);
@@ -1111,24 +1111,24 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // Refresh invoices to get updated status
       fetchInvoices();
     } catch (error) {
-      console.error("Error creating delivery note:", error);
+      console.error('Error creating delivery note:', error);
       // If a delivery note already exists, fetch it and open modal
-      const msg = error?.response?.data?.error || error?.message || "";
-      if (String(msg).toLowerCase().includes("already exists")) {
+      const msg = error?.response?.data?.error || error?.message || '';
+      if (String(msg).toLowerCase().includes('already exists')) {
         try {
           const list = await deliveryNotesAPI.getAll({ invoice_id: invoice.id, limit: 1, page: 1 });
           const dn = Array.isArray(list?.deliveryNotes) ? list.deliveryNotes[0] : (Array.isArray(list) ? list[0] : null);
           if (dn) {
             setCreatedDeliveryNote(dn);
             setShowDeliveryModal(true);
-            notificationService.warning("Delivery note already exists. Showing it.");
+            notificationService.warning('Delivery note already exists. Showing it.');
             return;
           }
         } catch (e) {
           // ignore and fall through to error toast
         }
       }
-      notificationService.createError("Delivery note", error);
+      notificationService.createError('Delivery note', error);
     }
   };
 
@@ -1142,7 +1142,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     try {
       await invoiceService.deleteInvoice(deleteData.invoiceId, {
         reason: deleteData.reason,
-        reasonCode: deleteData.reasonCode
+        reasonCode: deleteData.reasonCode,
       });
       notificationService.success('Invoice deleted successfully (soft delete with audit trail)');
 
@@ -1171,7 +1171,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       title: 'Restore Invoice',
       message: `Restore invoice ${number}?\n\nThis will undelete the invoice and make it active again.`,
       confirmText: 'Restore',
-      variant: 'info'
+      variant: 'info',
     });
     if (!confirmed) return;
 
@@ -1218,7 +1218,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       permissions,
       deliveryNoteStatus,
       getInvoiceReminderInfo,
-      validateInvoiceForDownload
+      validateInvoiceForDownload,
     );
 
     // DEV-ONLY: Log computed actions and assert icon invariants
@@ -1240,26 +1240,26 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       setPreviewInvoice(fullInvoice);
       setShowPreviewModal(true);
     } catch (error) {
-      console.error("Error fetching invoice:", error);
-      notificationService.error("Failed to load invoice details");
+      console.error('Error fetching invoice:', error);
+      notificationService.error('Failed to load invoice details');
     }
   };
 
   // SPINNER LOGIC: Show spinner ONLY when loading is true
   // Once loading is false, always show the invoice list (even if empty)
-  console.log("🌀 Spinner check", { loading, length: invoices?.length });
+  console.log('🌀 Spinner check', { loading, length: invoices?.length });
   
   if (loading) {
     return (
       <div
         className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
         }`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           <span
-            className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
           >
             Loading invoices...
           </span>
@@ -1349,7 +1349,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   return (
     <div
       className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${
-        isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
       }`}
     >
       {/* Invoice Preview Modal */}
@@ -1385,8 +1385,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-[#E0E0E0]"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-[#E0E0E0]'
         }`}
       >
         {/* Header Section */}
@@ -1394,12 +1394,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <div>
             <h1
               className={`text-2xl font-semibold mb-2 ${
-                isDarkMode ? "text-white" : "text-gray-900"
+                isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
               📄 All Invoices
             </h1>
-            <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Manage and track all your invoices
             </p>
           </div>
@@ -1426,11 +1426,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === 'outstanding'
                 ? isDarkMode
-                  ? "bg-orange-900/30 border-orange-600 ring-2 ring-orange-600"
-                  : "bg-orange-50 border-orange-500 ring-2 ring-orange-500"
+                  ? 'bg-orange-900/30 border-orange-600 ring-2 ring-orange-600'
+                  : 'bg-orange-50 border-orange-500 ring-2 ring-orange-500'
                 : isDarkMode
-                ? "bg-[#1E2328] border-[#37474F] hover:border-orange-600/50"
-                : "bg-white border-[#E0E0E0] hover:border-orange-500/50"
+                  ? 'bg-[#1E2328] border-[#37474F] hover:border-orange-600/50'
+                  : 'bg-white border-[#E0E0E0] hover:border-orange-500/50'
             }`}
           >
             <div className="py-4 px-3">
@@ -1442,7 +1442,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <p
                 className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 Click to filter
@@ -1456,11 +1456,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === 'overdue'
                 ? isDarkMode
-                  ? "bg-red-900/30 border-red-600 ring-2 ring-red-600"
-                  : "bg-red-50 border-red-500 ring-2 ring-red-500"
+                  ? 'bg-red-900/30 border-red-600 ring-2 ring-red-600'
+                  : 'bg-red-50 border-red-500 ring-2 ring-red-500'
                 : isDarkMode
-                ? "bg-[#1E2328] border-[#37474F] hover:border-red-600/50"
-                : "bg-white border-[#E0E0E0] hover:border-red-500/50"
+                  ? 'bg-[#1E2328] border-[#37474F] hover:border-red-600/50'
+                  : 'bg-white border-[#E0E0E0] hover:border-red-500/50'
             }`}
           >
             <div className="py-4 px-3">
@@ -1473,7 +1473,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <p
                 className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 {getOverdueMetrics().count} invoice{getOverdueMetrics().count !== 1 ? 's' : ''}
@@ -1487,11 +1487,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === 'due_soon'
                 ? isDarkMode
-                  ? "bg-yellow-900/30 border-yellow-600 ring-2 ring-yellow-600"
-                  : "bg-yellow-50 border-yellow-500 ring-2 ring-yellow-500"
+                  ? 'bg-yellow-900/30 border-yellow-600 ring-2 ring-yellow-600'
+                  : 'bg-yellow-50 border-yellow-500 ring-2 ring-yellow-500'
                 : isDarkMode
-                ? "bg-[#1E2328] border-[#37474F] hover:border-yellow-600/50"
-                : "bg-white border-[#E0E0E0] hover:border-yellow-500/50"
+                  ? 'bg-[#1E2328] border-[#37474F] hover:border-yellow-600/50'
+                  : 'bg-white border-[#E0E0E0] hover:border-yellow-500/50'
             }`}
           >
             <div className="py-4 px-3">
@@ -1504,7 +1504,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <p
                 className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 {getDueSoonMetrics(7).count} invoice{getDueSoonMetrics(7).count !== 1 ? 's' : ''}
@@ -1518,11 +1518,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === 'paid'
                 ? isDarkMode
-                  ? "bg-green-900/30 border-green-600 ring-2 ring-green-600"
-                  : "bg-green-50 border-green-500 ring-2 ring-green-500"
+                  ? 'bg-green-900/30 border-green-600 ring-2 ring-green-600'
+                  : 'bg-green-50 border-green-500 ring-2 ring-green-500'
                 : isDarkMode
-                ? "bg-[#1E2328] border-[#37474F] hover:border-green-600/50"
-                : "bg-white border-[#E0E0E0] hover:border-green-500/50"
+                  ? 'bg-[#1E2328] border-[#37474F] hover:border-green-600/50'
+                  : 'bg-white border-[#E0E0E0] hover:border-green-500/50'
             }`}
           >
             <div className="py-4 px-3">
@@ -1535,7 +1535,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </div>
               <p
                 className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 Click to filter
@@ -1548,18 +1548,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         {activeCardFilter && (
           <div className={`flex items-center justify-between px-4 py-3 mb-6 rounded-lg border ${
             isDarkMode
-              ? "bg-teal-900/20 border-teal-600/50"
-              : "bg-teal-50 border-teal-200"
+              ? 'bg-teal-900/20 border-teal-600/50'
+              : 'bg-teal-50 border-teal-200'
           }`}>
             <div className="flex items-center gap-2">
               <span className={`text-sm font-medium ${
-                isDarkMode ? "text-teal-300" : "text-teal-700"
+                isDarkMode ? 'text-teal-300' : 'text-teal-700'
               }`}>
                 Showing: {
                   activeCardFilter === 'outstanding' ? 'Outstanding Invoices' :
-                  activeCardFilter === 'overdue' ? 'Overdue Invoices' :
-                  activeCardFilter === 'due_soon' ? 'Invoices Due in 7 Days' :
-                  activeCardFilter === 'paid' ? 'Paid Invoices' : ''
+                    activeCardFilter === 'overdue' ? 'Overdue Invoices' :
+                      activeCardFilter === 'due_soon' ? 'Invoices Due in 7 Days' :
+                        activeCardFilter === 'paid' ? 'Paid Invoices' : ''
                 }
               </span>
             </div>
@@ -1571,8 +1571,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 isDarkMode
-                  ? "bg-teal-800 text-teal-100 hover:bg-teal-700"
-                  : "bg-teal-600 text-white hover:bg-teal-700"
+                  ? 'bg-teal-800 text-teal-100 hover:bg-teal-700'
+                  : 'bg-teal-600 text-white hover:bg-teal-700'
               }`}
             >
               <X size={16} />
@@ -1587,7 +1587,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search
                 size={20}
-                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
               />
             </div>
             <input
@@ -1597,8 +1597,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
             />
           </div>
@@ -1606,8 +1606,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <label
               className={`flex items-center gap-2 cursor-pointer px-4 py-3 border rounded-lg transition-colors duration-200 ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
-                  : "bg-white border-gray-300 text-gray-900 hover:bg-gray-50"
+                  ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700'
+                  : 'bg-white border-gray-300 text-gray-900 hover:bg-gray-50'
               }`}
             >
               <input
@@ -1625,8 +1625,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
               <option value="all">All Status</option>
@@ -1639,7 +1639,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown
                 size={20}
-                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
               />
             </div>
           </div>
@@ -1649,8 +1649,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               onChange={(e) => setPaymentStatusFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
               <option value="all">All Payments</option>
@@ -1661,7 +1661,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown
                 size={20}
-                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
               />
             </div>
           </div>
@@ -1671,8 +1671,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               onChange={handlePageSizeChange}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
               <option value={10}>10 per page</option>
@@ -1683,7 +1683,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown
                 size={20}
-                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
               />
             </div>
           </div>
@@ -1693,16 +1693,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         {selectedInvoiceIds.size > 0 && (
           <div className={`flex items-center justify-end px-4 py-3 mb-6 rounded-lg border ${
             isDarkMode
-              ? "bg-teal-900/20 border-teal-600/50"
-              : "bg-teal-50 border-teal-200"
+              ? 'bg-teal-900/20 border-teal-600/50'
+              : 'bg-teal-50 border-teal-200'
           }`}>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleBulkDownload(selectedInvoiceIds)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-teal-700 text-white hover:bg-teal-600"
-                    : "bg-teal-600 text-white hover:bg-teal-700"
+                    ? 'bg-teal-700 text-white hover:bg-teal-600'
+                    : 'bg-teal-600 text-white hover:bg-teal-700'
                 }`}
               >
                 <Download size={16} />
@@ -1712,8 +1712,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 onClick={() => setSelectedInvoiceIds(new Set())}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 <X size={16} />
@@ -1726,11 +1726,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         {/* Invoices Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
+            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
               <tr>
                 <th
                   className={`px-4 py-3 text-left ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   <input
@@ -1747,49 +1747,49 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Invoice #
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Customer
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Date
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Due Date
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Amount
                 </th>
                 <th
                   className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Status
                 </th>
                 <th
                   className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Actions
@@ -1798,7 +1798,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             </thead>
             <tbody
               className={`divide-y ${
-                isDarkMode ? "divide-gray-700" : "divide-gray-200"
+                isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
               }`}
             >
               {filteredInvoices.length === 0 ? (
@@ -1810,18 +1810,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       </div>
                       <div>
                         <h3 className={`text-lg font-semibold mb-2 ${
-                          isDarkMode ? "text-white" : "text-gray-900"
+                          isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}>
                           No Invoices Found
                         </h3>
                         <p className={`text-sm mb-4 ${
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}>
                           {activeCardFilter
-                            ? "No invoices match the selected filter. Try a different filter or clear it."
-                            : searchTerm || statusFilter !== "all" || paymentStatusFilter !== "all"
-                            ? "No invoices match your search criteria. Try adjusting your filters."
-                            : "Create your first invoice to get started"}
+                            ? 'No invoices match the selected filter. Try a different filter or clear it.'
+                            : searchTerm || statusFilter !== 'all' || paymentStatusFilter !== 'all'
+                              ? 'No invoices match your search criteria. Try adjusting your filters.'
+                              : 'Create your first invoice to get started'}
                         </p>
                         {activeCardFilter && (
                           <button
@@ -1832,15 +1832,15 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                             }}
                             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                               isDarkMode
-                                ? "bg-teal-800 text-teal-100 hover:bg-teal-700"
-                                : "bg-teal-600 text-white hover:bg-teal-700"
+                                ? 'bg-teal-800 text-teal-100 hover:bg-teal-700'
+                                : 'bg-teal-600 text-white hover:bg-teal-700'
                             }`}
                           >
                             <X size={16} />
                             Clear Dashboard Filter
                           </button>
                         )}
-                        {!activeCardFilter && !searchTerm && statusFilter === "all" && paymentStatusFilter === "all" && (
+                        {!activeCardFilter && !searchTerm && statusFilter === 'all' && paymentStatusFilter === 'all' && (
                           <Link
                             to="/create-invoice"
                             className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
@@ -1855,464 +1855,464 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 </tr>
               ) : (
                 filteredInvoices.map((invoice, index) => {
-                const isDeleted = invoice.deletedAt;
-                const isSelected = selectedInvoiceIds.has(invoice.id);
-                return (
-                <tr
-                  key={invoice.id}
-                  className={`hover:${
-                    isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"
-                  } transition-colors ${
-                    isDeleted
-                      ? isDarkMode
-                        ? 'bg-red-900/10 opacity-60'
-                        : 'bg-red-50/50 opacity-70'
-                      : isSelected
-                      ? isDarkMode
-                        ? 'bg-teal-900/20'
-                        : 'bg-teal-50'
-                      : ''
-                  }`}
-                >
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleSelectInvoice(invoice.id)}
-                      className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
-                      {invoice.invoiceNumber}
-                    </div>
-                    {isDeleted && (
-                      <div
-                        className={`text-xs mt-1 ${
-                          isDarkMode ? "text-red-400" : "text-red-600"
-                        }`}
-                        title={`Deleted: ${invoice.deletionReason || 'No reason provided'}`}
-                      >
+                  const isDeleted = invoice.deletedAt;
+                  const isSelected = selectedInvoiceIds.has(invoice.id);
+                  return (
+                    <tr
+                      key={invoice.id}
+                      className={`hover:${
+                        isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'
+                      } transition-colors ${
+                        isDeleted
+                          ? isDarkMode
+                            ? 'bg-red-900/10 opacity-60'
+                            : 'bg-red-50/50 opacity-70'
+                          : isSelected
+                            ? isDarkMode
+                              ? 'bg-teal-900/20'
+                              : 'bg-teal-50'
+                            : ''
+                      }`}
+                    >
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectInvoice(invoice.id)}
+                          className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
+                          {invoice.invoiceNumber}
+                        </div>
+                        {isDeleted && (
+                          <div
+                            className={`text-xs mt-1 ${
+                              isDarkMode ? 'text-red-400' : 'text-red-600'
+                            }`}
+                            title={`Deleted: ${invoice.deletionReason || 'No reason provided'}`}
+                          >
                         🗑️ DELETED
-                      </div>
-                    )}
-                    {invoice.recreatedFrom && (
-                      <div
-                        className={`text-xs mt-1 ${
-                          isDarkMode ? "text-yellow-400" : "text-yellow-600"
-                        }`}
-                      >
+                          </div>
+                        )}
+                        {invoice.recreatedFrom && (
+                          <div
+                            className={`text-xs mt-1 ${
+                              isDarkMode ? 'text-yellow-400' : 'text-yellow-600'
+                            }`}
+                          >
                         🔄 Recreated from {invoice.recreatedFrom}
-                      </div>
-                    )}
-                    {invoice.status === "cancelled" && (
-                      <div
-                        className={`text-xs mt-1 ${
-                          isDarkMode ? "text-red-400" : "text-red-600"
-                        }`}
-                      >
+                          </div>
+                        )}
+                        {invoice.status === 'cancelled' && (
+                          <div
+                            className={`text-xs mt-1 ${
+                              isDarkMode ? 'text-red-400' : 'text-red-600'
+                            }`}
+                          >
                         ❌ Cancelled & Recreated
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div
-                        className={`text-sm font-medium ${
-                          isDarkMode ? "text-white" : "text-gray-900"
-                        }`}
-                      >
-                        {invoice.customerDetails?.name || invoice.customer?.name}
-                      </div>
-                      <div
-                        className={`text-xs ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        {invoice.customerDetails?.email || invoice.customer?.email}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
-                      {formatDate(invoice.invoiceDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
-                      {formatDate(invoice.dueDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm font-semibold ${
-                        isDarkMode ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {formatCurrency(invoice.total)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <InvoiceStatusColumn
-                      invoice={invoice}
-                      isDarkMode={isDarkMode}
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="flex gap-0.5 justify-end">
-                      {(() => {
-                        const actions = getActionButtonConfig(invoice);
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div
+                            className={`text-sm font-medium ${
+                              isDarkMode ? 'text-white' : 'text-gray-900'
+                            }`}
+                          >
+                            {invoice.customerDetails?.name || invoice.customer?.name}
+                          </div>
+                          <div
+                            className={`text-xs ${
+                              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                            }`}
+                          >
+                            {invoice.customerDetails?.email || invoice.customer?.email}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`text-sm ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          {formatDate(invoice.invoiceDate)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`text-sm ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          {formatDate(invoice.dueDate)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`text-sm font-semibold ${
+                            isDarkMode ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {formatCurrency(invoice.total)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <InvoiceStatusColumn
+                          invoice={invoice}
+                          isDarkMode={isDarkMode}
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex gap-0.5 justify-end">
+                          {(() => {
+                            const actions = getActionButtonConfig(invoice);
 
-                        return (
-                          <>
-                            {/* Edit button - Always visible */}
-                            {actions.edit.enabled ? (
-                              <Link
-                                to={actions.edit.link}
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-blue-50 text-blue-600 bg-white"
-                                }`}
-                                title={actions.edit.tooltip}
-                              >
-                                <Edit size={18} />
-                              </Link>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.edit.tooltip}
-                              >
-                                <Edit size={18} />
-                              </button>
-                            )}
+                            return (
+                              <>
+                                {/* Edit button - Always visible */}
+                                {actions.edit.enabled ? (
+                                  <Link
+                                    to={actions.edit.link}
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-blue-50 text-blue-600 bg-white'
+                                    }`}
+                                    title={actions.edit.tooltip}
+                                  >
+                                    <Edit size={18} />
+                                  </Link>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.edit.tooltip}
+                                  >
+                                    <Edit size={18} />
+                                  </button>
+                                )}
 
-                            {/* Credit Note button - Always visible */}
-                            {actions.creditNote.enabled ? (
-                              <button
-                                onClick={() => navigate(actions.creditNote.link)}
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-purple-50 text-purple-600 bg-white"
-                                }`}
-                                title={actions.creditNote.tooltip}
-                              >
-                                <FileMinus size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.creditNote.tooltip}
-                              >
-                                <FileMinus size={18} />
-                              </button>
-                            )}
+                                {/* Credit Note button - Always visible */}
+                                {actions.creditNote.enabled ? (
+                                  <button
+                                    onClick={() => navigate(actions.creditNote.link)}
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-purple-50 text-purple-600 bg-white'
+                                    }`}
+                                    title={actions.creditNote.tooltip}
+                                  >
+                                    <FileMinus size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.creditNote.tooltip}
+                                  >
+                                    <FileMinus size={18} />
+                                  </button>
+                                )}
 
-                            {/* View button - Always enabled */}
-                            <button
-                              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                isDarkMode
-                                  ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                  : "hover:bg-cyan-50 text-cyan-600 bg-white"
-                              }`}
-                              title={actions.view.tooltip}
-                              onClick={() => handleViewInvoice(invoice)}
-                            >
-                              <Eye size={18} />
-                            </button>
-
-                            {/* Download button - Always visible */}
-                            {actions.download.enabled ? (
-                              <div className="relative">
+                                {/* View button - Always enabled */}
                                 <button
-                                  className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                    downloadingIds.has(invoice.id)
-                                      ? "bg-transparent"
-                                      : !actions.download.isValid
-                                      ? isDarkMode
-                                        ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                        : "hover:bg-orange-50 text-orange-600 bg-white"
-                                      : isDarkMode
-                                      ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                      : "hover:bg-green-50 text-green-600 bg-white"
+                                  className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                    isDarkMode
+                                      ? 'text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                      : 'hover:bg-cyan-50 text-cyan-600 bg-white'
                                   }`}
-                                  title={actions.download.tooltip}
-                                  onClick={() => handleDownloadPDF(invoice)}
-                                  disabled={downloadingIds.has(invoice.id)}
+                                  title={actions.view.tooltip}
+                                  onClick={() => handleViewInvoice(invoice)}
                                 >
-                                  {downloadingIds.has(invoice.id) ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                  ) : (
-                                    <Download size={18} />
-                                  )}
+                                  <Eye size={18} />
                                 </button>
-                                {!actions.download.isValid && (
-                                  <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
-                                    isDarkMode ? 'bg-orange-400' : 'bg-orange-500'
-                                  }`} title="Incomplete"></div>
-                                )}
-                              </div>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.download.tooltip}
-                              >
-                                <Download size={18} />
-                              </button>
-                            )}
 
-                            {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
-                            {actions.recordPayment.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  actions.recordPayment.isPaid
-                                    ? isDarkMode
-                                      ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                      : "hover:bg-blue-50 text-blue-600 bg-white"
-                                    : isDarkMode
-                                      ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                      : "hover:bg-emerald-50 text-emerald-600 bg-white"
-                                }`}
-                                title={actions.recordPayment.tooltip}
-                                onClick={() => handleRecordPayment(invoice)}
-                              >
-                                <CircleDollarSign size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.recordPayment.tooltip}
-                              >
-                                <CircleDollarSign size={18} />
-                              </button>
-                            )}
-
-                            {/* Commission button - Always visible */}
-                            {actions.commission.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                  calculatingCommissionIds.has(invoice.id)
-                                    ? "bg-transparent"
-                                    : isDarkMode
-                                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-blue-50 text-blue-600 bg-white"
-                                }`}
-                                title={actions.commission.tooltip}
-                                onClick={() => handleCalculateCommission(invoice)}
-                                disabled={calculatingCommissionIds.has(invoice.id)}
-                              >
-                                {calculatingCommissionIds.has(invoice.id) ? (
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                {/* Download button - Always visible */}
+                                {actions.download.enabled ? (
+                                  <div className="relative">
+                                    <button
+                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                        downloadingIds.has(invoice.id)
+                                          ? 'bg-transparent'
+                                          : !actions.download.isValid
+                                            ? isDarkMode
+                                              ? 'text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                              : 'hover:bg-orange-50 text-orange-600 bg-white'
+                                            : isDarkMode
+                                              ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                              : 'hover:bg-green-50 text-green-600 bg-white'
+                                      }`}
+                                      title={actions.download.tooltip}
+                                      onClick={() => handleDownloadPDF(invoice)}
+                                      disabled={downloadingIds.has(invoice.id)}
+                                    >
+                                      {downloadingIds.has(invoice.id) ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                      ) : (
+                                        <Download size={18} />
+                                      )}
+                                    </button>
+                                    {!actions.download.isValid && (
+                                      <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+                                        isDarkMode ? 'bg-orange-400' : 'bg-orange-500'
+                                      }`} title="Incomplete"></div>
+                                    )}
+                                  </div>
                                 ) : (
-                                  <Award size={18} />
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.download.tooltip}
+                                  >
+                                    <Download size={18} />
+                                  </button>
                                 )}
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.commission.tooltip}
-                              >
-                                <Award size={18} />
-                              </button>
-                            )}
 
-                            {/* Reminder button - Always visible */}
-                            {actions.reminder.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                  sendingReminderIds.has(invoice.id)
-                                    ? "bg-transparent"
-                                    : isDarkMode
-                                    ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-yellow-50 text-yellow-600 bg-white"
-                                }`}
-                                title={actions.reminder.tooltip}
-                                onClick={() => handleSendReminder(invoice)}
-                                disabled={sendingReminderIds.has(invoice.id)}
-                              >
-                                {sendingReminderIds.has(invoice.id) ? (
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
+                                {actions.recordPayment.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      actions.recordPayment.isPaid
+                                        ? isDarkMode
+                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
+                                        : isDarkMode
+                                          ? 'text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-emerald-50 text-emerald-600 bg-white'
+                                    }`}
+                                    title={actions.recordPayment.tooltip}
+                                    onClick={() => handleRecordPayment(invoice)}
+                                  >
+                                    <CircleDollarSign size={18} />
+                                  </button>
                                 ) : (
-                                  <Bell size={18} />
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.recordPayment.tooltip}
+                                  >
+                                    <CircleDollarSign size={18} />
+                                  </button>
                                 )}
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.reminder.tooltip}
-                              >
-                                <Bell size={18} />
-                              </button>
-                            )}
 
-                            {/* Phone button - Always visible */}
-                            {actions.phone.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-orange-50 text-orange-600 bg-white"
-                                }`}
-                                title={actions.phone.tooltip}
-                                onClick={() => handleOpenPaymentReminder(invoice)}
-                              >
-                                <Phone size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.phone.tooltip}
-                              >
-                                <Phone size={18} />
-                              </button>
-                            )}
+                                {/* Commission button - Always visible */}
+                                {actions.commission.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                      calculatingCommissionIds.has(invoice.id)
+                                        ? 'bg-transparent'
+                                        : isDarkMode
+                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
+                                    }`}
+                                    title={actions.commission.tooltip}
+                                    onClick={() => handleCalculateCommission(invoice)}
+                                    disabled={calculatingCommissionIds.has(invoice.id)}
+                                  >
+                                    {calculatingCommissionIds.has(invoice.id) ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                    ) : (
+                                      <Award size={18} />
+                                    )}
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.commission.tooltip}
+                                  >
+                                    <Award size={18} />
+                                  </button>
+                                )}
 
-                            {/* Statement button - Always visible */}
-                            {actions.statement.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-purple-50 text-purple-600 bg-white"
-                                }`}
-                                title={actions.statement.tooltip}
-                                onClick={() => handleGenerateStatement(invoice)}
-                              >
-                                <FileText size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.statement.tooltip}
-                              >
-                                <FileText size={18} />
-                              </button>
-                            )}
+                                {/* Reminder button - Always visible */}
+                                {actions.reminder.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                                      sendingReminderIds.has(invoice.id)
+                                        ? 'bg-transparent'
+                                        : isDarkMode
+                                          ? 'text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-yellow-50 text-yellow-600 bg-white'
+                                    }`}
+                                    title={actions.reminder.tooltip}
+                                    onClick={() => handleSendReminder(invoice)}
+                                    disabled={sendingReminderIds.has(invoice.id)}
+                                  >
+                                    {sendingReminderIds.has(invoice.id) ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                    ) : (
+                                      <Bell size={18} />
+                                    )}
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.reminder.tooltip}
+                                  >
+                                    <Bell size={18} />
+                                  </button>
+                                )}
 
-                            {/* Delivery Note button - Always visible */}
-                            {actions.deliveryNote.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  actions.deliveryNote.hasNotes
-                                    ? isDarkMode
-                                      ? "text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                      : "hover:bg-yellow-50 text-yellow-600 bg-white"
-                                    : isDarkMode
-                                    ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-green-50 text-green-600 bg-white"
-                                }`}
-                                title={actions.deliveryNote.tooltip}
-                                onClick={() =>
-                                  actions.deliveryNote.hasNotes
-                                    ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
-                                    : handleCreateDeliveryNote(invoice)
-                                }
-                              >
-                                <Truck size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.deliveryNote.tooltip}
-                              >
-                                <Truck size={18} />
-                              </button>
-                            )}
+                                {/* Phone button - Always visible */}
+                                {actions.phone.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-orange-50 text-orange-600 bg-white'
+                                    }`}
+                                    title={actions.phone.tooltip}
+                                    onClick={() => handleOpenPaymentReminder(invoice)}
+                                  >
+                                    <Phone size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.phone.tooltip}
+                                  >
+                                    <Phone size={18} />
+                                  </button>
+                                )}
 
-                            {/* Delete button - Always visible */}
-                            {actions.delete.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-red-50 text-red-600 bg-white"
-                                }`}
-                                title={actions.delete.tooltip}
-                                onClick={() => handleDeleteInvoice(invoice)}
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.delete.tooltip}
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            )}
+                                {/* Statement button - Always visible */}
+                                {actions.statement.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-purple-50 text-purple-600 bg-white'
+                                    }`}
+                                    title={actions.statement.tooltip}
+                                    onClick={() => handleGenerateStatement(invoice)}
+                                  >
+                                    <FileText size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.statement.tooltip}
+                                  >
+                                    <FileText size={18} />
+                                  </button>
+                                )}
 
-                            {/* Restore button - Always visible */}
-                            {actions.restore.enabled ? (
-                              <button
-                                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                  isDarkMode
-                                    ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                    : "hover:bg-green-50 text-green-600 bg-white"
-                                }`}
-                                title={actions.restore.tooltip}
-                                onClick={() => handleRestoreInvoice(invoice)}
-                              >
-                                <RotateCcw size={18} />
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                  isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                }`}
-                                title={actions.restore.tooltip}
-                              >
-                                <RotateCcw size={18} />
-                              </button>
-                            )}
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </td>
-                </tr>
-              );
-              })
+                                {/* Delivery Note button - Always visible */}
+                                {actions.deliveryNote.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      actions.deliveryNote.hasNotes
+                                        ? isDarkMode
+                                          ? 'text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-yellow-50 text-yellow-600 bg-white'
+                                        : isDarkMode
+                                          ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-green-50 text-green-600 bg-white'
+                                    }`}
+                                    title={actions.deliveryNote.tooltip}
+                                    onClick={() =>
+                                      actions.deliveryNote.hasNotes
+                                        ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
+                                        : handleCreateDeliveryNote(invoice)
+                                    }
+                                  >
+                                    <Truck size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.deliveryNote.tooltip}
+                                  >
+                                    <Truck size={18} />
+                                  </button>
+                                )}
+
+                                {/* Delete button - Always visible */}
+                                {actions.delete.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-red-50 text-red-600 bg-white'
+                                    }`}
+                                    title={actions.delete.tooltip}
+                                    onClick={() => handleDeleteInvoice(invoice)}
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.delete.tooltip}
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                )}
+
+                                {/* Restore button - Always visible */}
+                                {actions.restore.enabled ? (
+                                  <button
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-green-50 text-green-600 bg-white'
+                                    }`}
+                                    title={actions.restore.tooltip}
+                                    onClick={() => handleRestoreInvoice(invoice)}
+                                  >
+                                    <RotateCcw size={18} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.restore.tooltip}
+                                  >
+                                    <RotateCcw size={18} />
+                                  </button>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -2322,20 +2322,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         {pagination && pagination.totalPages > 1 && (
           <div
             className={`flex justify-between items-center mt-6 pt-4 border-t ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
             }`}
           >
             <div
               className={`text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-600"
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-              Showing {(pagination.currentPage - 1) * pagination.perPage + 1}{" "}
-              to{" "}
+              Showing {(pagination.currentPage - 1) * pagination.perPage + 1}{' '}
+              to{' '}
               {Math.min(
                 pagination.currentPage * pagination.perPage,
-                pagination.total
-              )}{" "}
+                pagination.total,
+              )}{' '}
               of {pagination.total} invoices
             </div>
             <div className="flex items-center gap-2">
@@ -2347,18 +2347,18 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   pagination.currentPage === 1
                     ? isDarkMode
-                      ? "text-gray-600 cursor-not-allowed"
-                      : "text-gray-400 cursor-not-allowed"
+                      ? 'text-gray-600 cursor-not-allowed'
+                      : 'text-gray-400 cursor-not-allowed'
                     : isDarkMode
-                    ? "text-gray-300 hover:text-white"
-                    : "text-gray-600 hover:bg-gray-100"
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 <ChevronLeft size={20} />
               </button>
               <span
                 className={`px-3 py-1 text-sm ${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}
               >
                 Page {pagination.currentPage} of {pagination.totalPages}
@@ -2371,11 +2371,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   pagination.currentPage === pagination.totalPages
                     ? isDarkMode
-                      ? "text-gray-600 cursor-not-allowed"
-                      : "text-gray-400 cursor-not-allowed"
+                      ? 'text-gray-600 cursor-not-allowed'
+                      : 'text-gray-400 cursor-not-allowed'
                     : isDarkMode
-                    ? "text-gray-300 hover:text-white"
-                    : "text-gray-600 hover:bg-gray-100"
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 <ChevronRight size={20} />
@@ -2414,11 +2414,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   paymentDrawerInvoice.paymentStatus === 'paid'
                     ? 'bg-green-100 text-green-800 border-green-300'
                     : paymentDrawerInvoice.paymentStatus === 'partially_paid'
-                    ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                    : 'bg-red-100 text-red-800 border-red-300'
+                      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                      : 'bg-red-100 text-red-800 border-red-300'
                 }`}>
                   {paymentDrawerInvoice.paymentStatus === 'paid' ? 'Paid' :
-                   paymentDrawerInvoice.paymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                    paymentDrawerInvoice.paymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
                 </span>
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>

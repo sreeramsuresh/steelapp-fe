@@ -61,7 +61,7 @@ export const shippingDocumentService = {
     try {
       const response = await api.patch(`/shipping-documents/${id}/status`, {
         status,
-        notes
+        notes,
       });
       return response.data;
     } catch (error) {
@@ -100,9 +100,9 @@ export const shippingDocumentService = {
       { value: 'in_transit', label: 'In Transit', color: 'yellow' },
       { value: 'arrived', label: 'Arrived', color: 'orange' },
       { value: 'delivered', label: 'Delivered', color: 'green' },
-      { value: 'cancelled', label: 'Cancelled', color: 'red' }
+      { value: 'cancelled', label: 'Cancelled', color: 'red' },
     ];
-  }
+  },
 };
 
 export default shippingDocumentService;

@@ -13,7 +13,7 @@ import {
   ShoppingCart,
   FileText,
   DollarSign,
-  Package
+  Package,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -39,8 +39,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Access to everything automatically',
         'Can grant temporary permissions to anyone',
         'Can override any restriction',
-        'All actions are logged for accountability'
-      ]
+        'All actions are logged for accountability',
+      ],
     },
     {
       name: 'Finance Manager',
@@ -54,8 +54,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Create, edit, and void invoices',
         'Record and manage payments',
         'Approve credit notes',
-        'Access financial reports'
-      ]
+        'Access financial reports',
+      ],
     },
     {
       name: 'Sales Manager',
@@ -69,8 +69,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Manage all customers',
         'Approve quotations',
         'Create and edit invoices',
-        'View sales reports'
-      ]
+        'View sales reports',
+      ],
     },
     {
       name: 'Warehouse Manager',
@@ -84,8 +84,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Manage inventory levels',
         'Approve stock adjustments',
         'Create delivery notes',
-        'Transfer between warehouses'
-      ]
+        'Transfer between warehouses',
+      ],
     },
     {
       name: 'Accountant',
@@ -99,8 +99,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Create invoices',
         'Record payments',
         'Generate reports',
-        'View customer accounts'
-      ]
+        'View customer accounts',
+      ],
     },
     {
       name: 'Sales Executive',
@@ -114,8 +114,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
         'Create quotations',
         'View assigned customers',
         'Create draft invoices',
-        'Basic customer management'
-      ]
+        'Basic customer management',
+      ],
     },
   ];
 
@@ -125,21 +125,21 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
       reason: 'Common in small/medium companies',
       benefit: 'One person can handle both customer orders and delivery coordination',
       icon: CheckCircle,
-      color: 'text-green-500'
+      color: 'text-green-500',
     },
     {
       roles: ['Sales Executive', 'Warehouse Staff'],
       reason: 'Small team flexibility',
       benefit: 'Sales person can also prepare deliveries',
       icon: CheckCircle,
-      color: 'text-green-500'
+      color: 'text-green-500',
     },
     {
       roles: ['Finance Manager', 'Sales Manager'],
       reason: 'Business oversight',
       benefit: 'Owner or senior manager overseeing multiple departments',
       icon: CheckCircle,
-      color: 'text-green-500'
+      color: 'text-green-500',
     },
   ];
 
@@ -151,7 +151,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
       why: 'Same person can create invoices AND record payments - fraud risk',
       impact: 'Could create fake invoices and record fake payments',
       icon: AlertTriangle,
-      color: 'text-red-500'
+      color: 'text-red-500',
     },
     {
       roles: ['Warehouse Manager', 'Accountant'],
@@ -160,7 +160,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
       why: 'Can adjust inventory AND record related financial transactions',
       impact: 'Could manipulate stock values and cover with accounting entries',
       icon: AlertTriangle,
-      color: 'text-orange-500'
+      color: 'text-orange-500',
     },
     {
       roles: ['Purchase Executive', 'Accountant'],
@@ -169,7 +169,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
       why: 'Can create purchase orders AND record payments',
       impact: 'Could create fake suppliers and payments',
       icon: AlertTriangle,
-      color: 'text-orange-500'
+      color: 'text-orange-500',
     },
   ];
 
@@ -177,27 +177,27 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
     {
       title: 'Start with Pre-defined Roles',
       description: 'Use the 10 built-in roles for 90% of cases. Only create custom roles for unique needs.',
-      icon: Shield
+      icon: Shield,
     },
     {
       title: 'Temporary Access for Special Cases',
       description: 'Instead of permanently changing roles, use temporary permissions with expiration dates.',
-      icon: Clock
+      icon: Clock,
     },
     {
       title: 'Review Regularly',
       description: 'Check user roles every quarter. Remove access that is no longer needed.',
-      icon: Users
+      icon: Users,
     },
     {
       title: 'Document Permission Grants',
       description: 'Always provide a clear reason when granting custom permissions.',
-      icon: FileText
+      icon: FileText,
     },
     {
       title: 'Use Audit Logs',
       description: 'Monitor the audit trail to detect unusual permission changes.',
-      icon: Database
+      icon: Database,
     },
   ];
 

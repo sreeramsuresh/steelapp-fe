@@ -30,7 +30,7 @@ class StockMovementService {
       productType,
       grade,
       size,
-      thickness
+      thickness,
     };
     return apiClient.get(`${this.endpoint}/by-product`, filters);
   }
@@ -38,7 +38,7 @@ class StockMovementService {
   async getMovementsByDateRange(startDate, endDate) {
     const filters = {
       startDate,
-      endDate
+      endDate,
     };
     return apiClient.get(`${this.endpoint}/by-date-range`, filters);
   }
@@ -53,7 +53,7 @@ class StockMovementService {
       grade,
       size,
       thickness,
-      finish
+      finish,
     };
     return apiClient.get(`${this.endpoint}/current-stock`, filters);
   }

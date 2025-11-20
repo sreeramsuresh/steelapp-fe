@@ -143,7 +143,7 @@ const ProductNamingSettings = ({ companyId }) => {
     finish: 'HL',
     width: '4',
     length: '8',
-    thickness: '1.2mm'
+    thickness: '1.2mm',
   });
 
   useEffect(() => {
@@ -185,7 +185,7 @@ const ProductNamingSettings = ({ companyId }) => {
       const response = await apiService.post(`/product-naming/${companyId}/preview`, {
         template,
         separator,
-        sample_product: sampleProduct
+        sample_product: sampleProduct,
       });
       setPreview(response.preview);
     } catch (error) {
@@ -207,7 +207,7 @@ const ProductNamingSettings = ({ companyId }) => {
       setShowConfirmModal(false);
       await apiService.patch(`/product-naming/${companyId}`, {
         product_name_template: template,
-        product_name_separator: separator
+        product_name_separator: separator,
       });
       setMessage({ type: 'success', text: 'Template saved successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -227,7 +227,7 @@ const ProductNamingSettings = ({ companyId }) => {
     try {
       await apiService.patch(`/products/${productId}`, {
         name: newName,
-        full_name: newName
+        full_name: newName,
       });
       setMessage({ type: 'success', text: 'Product name updated!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -261,8 +261,8 @@ const ProductNamingSettings = ({ companyId }) => {
           nb_size: product.nbSize,
           schedule: product.schedule,
           diameter: product.diameter,
-          size: product.size
-        }
+          size: product.size,
+        },
       });
 
       await handleSaveProductName(productId, response.preview);

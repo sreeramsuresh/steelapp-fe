@@ -19,7 +19,7 @@ import {
   Clock,
   Eye,
   RefreshCw,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { format, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, subMonths, subQuarters } from 'date-fns';
@@ -66,37 +66,37 @@ const SalesAnalytics = () => {
 
   const { data: dashboardData, loading: loadingDashboard, refetch: refetchDashboard } = useApiData(
     () => analyticsService.getDashboardData(dateParams),
-    [dateParams]
+    [dateParams],
   );
 
   const { data: salesTrends, loading: loadingSales } = useApiData(
     () => analyticsService.getSalesTrends(dateParams),
-    [dateParams]
+    [dateParams],
   );
 
   const { data: productPerformance, loading: loadingProducts } = useApiData(
     () => analyticsService.getProductPerformance(dateParams),
-    [dateParams]
+    [dateParams],
   );
 
   // Previous period datasets for growth comparisons
   const { data: dashboardPrev } = useApiData(
     () => analyticsService.getDashboardData(prevDateParams),
-    [prevDateParams]
+    [prevDateParams],
   );
   const { data: productPerformancePrev } = useApiData(
     () => analyticsService.getProductPerformance(prevDateParams),
-    [prevDateParams]
+    [prevDateParams],
   );
 
   const { data: customerAnalysis, loading: loadingCustomers } = useApiData(
     () => analyticsService.getCustomerAnalysis(dateParams),
-    [dateParams]
+    [dateParams],
   );
 
   const { data: inventoryInsights, loading: loadingInventory } = useApiData(
     analyticsService.getInventoryInsights,
-    []
+    [],
   );
 
 
@@ -115,7 +115,7 @@ const SalesAnalytics = () => {
         topProducts: [],
         topCustomers: [],
         categoryPerformance: [],
-        monthlyTrend: []
+        monthlyTrend: [],
       };
     }
 
@@ -127,14 +127,14 @@ const SalesAnalytics = () => {
     // Monthly trend from salesTrends (array of rows)
     const monthlyTrend = Array.isArray(salesTrends)
       ? salesTrends
-          .slice()
-          .sort((a, b) => new Date(a.period) - new Date(b.period))
-          .map((row) => ({
-            month: format(new Date(row.period), 'MMM yyyy'),
-            revenue: safeNum(row.revenue),
-            orders: parseInt(row.invoiceCount || 0),
-            customers: parseInt(row.uniqueCustomers || 0),
-          }))
+        .slice()
+        .sort((a, b) => new Date(a.period) - new Date(b.period))
+        .map((row) => ({
+          month: format(new Date(row.period), 'MMM yyyy'),
+          revenue: safeNum(row.revenue),
+          orders: parseInt(row.invoiceCount || 0),
+          customers: parseInt(row.uniqueCustomers || 0),
+        }))
       : [];
 
     // Compute growth vs previous point from trends
@@ -144,46 +144,46 @@ const SalesAnalytics = () => {
 
     // Build previous period map by product id for growth
     const prevMap = new Map(
-      (Array.isArray(productPerformancePrev) ? productPerformancePrev : []).map((p) => [p.id, p])
+      (Array.isArray(productPerformancePrev) ? productPerformancePrev : []).map((p) => [p.id, p]),
     );
 
     // Top products mapping from productPerformance array with growth vs previous period
     const topProductsArr = Array.isArray(productPerformance)
       ? productPerformance
-          .slice()
-          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-          .map((p) => {
-            const prev = prevMap.get(p.id) || {};
-            const revGrowth = (function () {
-              const c = safeNum(p.totalRevenue);
-              const pr = safeNum(prev.totalRevenue);
-              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-            })();
-            const qtyGrowth = (function () {
-              const c = safeNum(p.totalSold);
-              const pr = safeNum(prev.totalSold);
-              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-            })();
-            const ordGrowth = (function () {
-              const c = parseInt(p.timesSold || 0);
-              const pr = parseInt(prev.timesSold || 0);
-              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-            })();
-            return {
-              id: p.id,
-              product: p.name,
-              revenue: safeNum(p.totalRevenue),
-              orders: parseInt(p.timesSold || 0),
-              quantity: safeNum(p.totalSold),
-              category: p.category,
-              revenueGrowth: revGrowth,
-              quantityGrowth: qtyGrowth,
-              ordersGrowth: ordGrowth,
-              prevRevenue: safeNum(prev.totalRevenue),
-              prevQuantity: safeNum(prev.totalSold),
-              prevOrders: parseInt(prev.timesSold || 0),
-            };
-          })
+        .slice()
+        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+        .map((p) => {
+          const prev = prevMap.get(p.id) || {};
+          const revGrowth = (function () {
+            const c = safeNum(p.totalRevenue);
+            const pr = safeNum(prev.totalRevenue);
+            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+          })();
+          const qtyGrowth = (function () {
+            const c = safeNum(p.totalSold);
+            const pr = safeNum(prev.totalSold);
+            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+          })();
+          const ordGrowth = (function () {
+            const c = parseInt(p.timesSold || 0);
+            const pr = parseInt(prev.timesSold || 0);
+            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+          })();
+          return {
+            id: p.id,
+            product: p.name,
+            revenue: safeNum(p.totalRevenue),
+            orders: parseInt(p.timesSold || 0),
+            quantity: safeNum(p.totalSold),
+            category: p.category,
+            revenueGrowth: revGrowth,
+            quantityGrowth: qtyGrowth,
+            ordersGrowth: ordGrowth,
+            prevRevenue: safeNum(prev.totalRevenue),
+            prevQuantity: safeNum(prev.totalSold),
+            prevOrders: parseInt(prev.timesSold || 0),
+          };
+        })
       : [];
 
     // Category performance aggregated from productPerformance
@@ -206,13 +206,13 @@ const SalesAnalytics = () => {
     // Top customers mapping from customerAnalysis array
     const topCustomersArr = Array.isArray(customerAnalysis)
       ? customerAnalysis
-          .slice()
-          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-          .map((c) => ({
-            customer: c.name || c.company || 'Unknown',
-            revenue: safeNum(c.totalRevenue),
-            orders: parseInt(c.totalInvoices || 0),
-          }))
+        .slice()
+        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+        .map((c) => ({
+          customer: c.name || c.company || 'Unknown',
+          revenue: safeNum(c.totalRevenue),
+          orders: parseInt(c.totalInvoices || 0),
+        }))
       : [];
 
     const revMetrics = dashboardData.revenueMetrics || {};
@@ -248,7 +248,7 @@ const SalesAnalytics = () => {
       style: 'currency',
       currency: 'AED',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -337,8 +337,8 @@ const SalesAnalytics = () => {
                   analytics.revenueGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.revenueGrowth < 0 
-                    ? 'text-red-600' 
-                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                      ? 'text-red-600' 
+                      : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
                 }`}>
                   {formatGrowth(analytics.revenueGrowth)} vs last {dateRange}
                 </span>
@@ -365,8 +365,8 @@ const SalesAnalytics = () => {
                   analytics.ordersGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.ordersGrowth < 0 
-                    ? 'text-red-600' 
-                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                      ? 'text-red-600' 
+                      : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
                 }`}>
                   {formatGrowth(analytics.ordersGrowth)} vs last {dateRange}
                 </span>
@@ -393,8 +393,8 @@ const SalesAnalytics = () => {
                   analytics.customersGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.customersGrowth < 0 
-                    ? 'text-red-600' 
-                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                      ? 'text-red-600' 
+                      : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
                 }`}>
                   {formatGrowth(analytics.customersGrowth)} vs last {dateRange}
                 </span>
@@ -421,8 +421,8 @@ const SalesAnalytics = () => {
                   analytics.avgOrderGrowth > 0 
                     ? 'text-green-600' 
                     : analytics.avgOrderGrowth < 0 
-                    ? 'text-red-600' 
-                    : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                      ? 'text-red-600' 
+                      : (isDarkMode ? 'text-gray-400' : 'text-gray-600')
                 }`}>
                   {formatGrowth(analytics.avgOrderGrowth)} vs last {dateRange}
                 </span>
@@ -596,9 +596,9 @@ const SalesAnalytics = () => {
                       {/* Rank */}
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                         index === 0 ? 'bg-yellow-400 text-gray-900' : 
-                        index === 1 ? 'bg-gray-400 text-white' : 
-                        index === 2 ? 'bg-orange-600 text-white' : 
-                        (isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700')
+                          index === 1 ? 'bg-gray-400 text-white' : 
+                            index === 2 ? 'bg-orange-600 text-white' : 
+                              (isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700')
                       }`}>
                         {index < 3 ? (
                           <Award size={20} />
@@ -740,8 +740,8 @@ const SalesAnalytics = () => {
                           product.revenueGrowth > 0
                             ? 'border-green-300 bg-green-50 text-green-700'
                             : product.revenueGrowth < 0
-                            ? 'border-red-300 bg-red-50 text-red-700'
-                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                              ? 'border-red-300 bg-red-50 text-red-700'
+                              : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
                         }`}>
                           {getGrowthIcon(product.revenueGrowth)}
                           {formatGrowth(product.revenueGrowth)}
@@ -760,8 +760,8 @@ const SalesAnalytics = () => {
                           product.quantityGrowth > 0
                             ? 'border-green-300 bg-green-50 text-green-700'
                             : product.quantityGrowth < 0
-                            ? 'border-red-300 bg-red-50 text-red-700'
-                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                              ? 'border-red-300 bg-red-50 text-red-700'
+                              : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
                         }`}>
                           {getGrowthIcon(product.quantityGrowth)}
                           {formatGrowth(product.quantityGrowth)}
@@ -780,8 +780,8 @@ const SalesAnalytics = () => {
                           product.ordersGrowth > 0
                             ? 'border-green-300 bg-green-50 text-green-700'
                             : product.ordersGrowth < 0
-                            ? 'border-red-300 bg-red-50 text-red-700'
-                            : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                              ? 'border-red-300 bg-red-50 text-red-700'
+                              : (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
                         }`}>
                           {getGrowthIcon(product.ordersGrowth)}
                           {formatGrowth(product.ordersGrowth)}
@@ -839,7 +839,7 @@ const SalesAnalytics = () => {
                       .sort(([,a], [,b]) => b.revenue - a.revenue)[0][0]
                       .charAt(0).toUpperCase() + 
                      Object.entries(analytics.categoryPerformance)
-                      .sort(([,a], [,b]) => b.revenue - a.revenue)[0][0].slice(1)}
+                       .sort(([,a], [,b]) => b.revenue - a.revenue)[0][0].slice(1)}
                   </p>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {formatCurrency(Object.entries(analytics.categoryPerformance)
@@ -937,8 +937,8 @@ const SalesAnalytics = () => {
               </div>
               <p className={`text-2xl font-bold mb-2 ${
                 analytics.revenueGrowth > 0 ? 'text-green-600' : 
-                analytics.revenueGrowth < 0 ? 'text-red-600' : 
-                (isDarkMode ? 'text-white' : 'text-gray-900')
+                  analytics.revenueGrowth < 0 ? 'text-red-600' : 
+                    (isDarkMode ? 'text-white' : 'text-gray-900')
               }`}>
                 {analytics.revenueGrowth > 0 ? 'Above' : analytics.revenueGrowth < 0 ? 'Below' : 'On'} Target
               </p>
@@ -1061,8 +1061,8 @@ const SalesAnalytics = () => {
                             {index > 0 ? (
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
                                 growth > 0 ? 'border-green-300 bg-green-50 text-green-700' : 
-                                growth < 0 ? 'border-red-300 bg-red-50 text-red-700' : 
-                                (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
+                                  growth < 0 ? 'border-red-300 bg-red-50 text-red-700' : 
+                                    (isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-700')
                               }`}>
                                 {formatGrowth(growth)}
                               </span>
@@ -1112,11 +1112,11 @@ const SalesAnalytics = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'overview'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <BarChart3 size={18} />
@@ -1127,11 +1127,11 @@ const SalesAnalytics = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'customers'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Users size={18} />
@@ -1142,11 +1142,11 @@ const SalesAnalytics = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'products'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Package size={18} />
@@ -1157,11 +1157,11 @@ const SalesAnalytics = () => {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === 'reports'
                     ? (isDarkMode
-                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                        : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                     : (isDarkMode
-                        ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
                 }`}
               >
                 <Calendar size={18} />

@@ -66,7 +66,7 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
         <div style="margin-top:8px; line-height:1.3;">
           <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? ', ' + compAddr.emirate : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${  compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>

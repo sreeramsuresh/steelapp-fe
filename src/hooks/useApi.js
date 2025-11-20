@@ -33,7 +33,7 @@ export const useApi = (apiFunction, dependencies = []) => {
     loading,
     error,
     execute,
-    reset
+    reset,
   };
 };
 
@@ -73,6 +73,6 @@ export const useApiData = (apiFunction, dependencies = [], immediate = true) => 
     loading,
     error,
     refetch: execute,
-    reset
+    reset,
   };
 };

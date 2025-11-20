@@ -18,7 +18,7 @@ import {
   Stack,
   Tooltip,
   Alert,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -26,7 +26,7 @@ import {
   Delete as DeleteIcon,
   ContentCopy as CopyIcon,
   CheckCircle as ActiveIcon,
-  Cancel as InactiveIcon
+  Cancel as InactiveIcon,
 } from '@mui/icons-material';
 import pricelistService from '../services/pricelistService';
 import { toast } from 'react-toastify';

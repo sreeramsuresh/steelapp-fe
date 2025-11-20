@@ -25,7 +25,7 @@ export const createStockMovementsFromInvoice = async (invoice) => {
         invoiceNo: invoice.invoiceNumber,
         quantity: item.quantity,
         currentStock: 0, // Will be updated after checking current inventory
-        seller: invoice.customer?.name || ''
+        seller: invoice.customer?.name || '',
       };
 
       // Get current stock for this product
@@ -35,7 +35,7 @@ export const createStockMovementsFromInvoice = async (invoice) => {
           movement.grade,
           movement.size,
           movement.thickness,
-          movement.finish
+          movement.finish,
         );
         movement.currentStock = Math.max(0, (stockResponse.currentStock || 0) - movement.quantity);
       } catch (error) {
@@ -69,13 +69,13 @@ export const updateInventoryFromMovement = async (movement) => {
     // Find matching inventory items
     const inventoryResponse = await inventoryService.getItemsByProduct(
       movement.productType,
-      movement.grade
+      movement.grade,
     );
     
     const matchingItems = inventoryResponse.data?.filter(item => 
       item.size === movement.size && 
       item.thickness === movement.thickness &&
-      item.finish === movement.finish
+      item.finish === movement.finish,
     ) || [];
 
     for (const item of matchingItems) {
@@ -102,7 +102,7 @@ export const parseProductSpecification = (specification) => {
     grade: '',
     thickness: '',
     size: '',
-    finish: ''
+    finish: '',
   };
 
   // Product type detection
@@ -162,7 +162,7 @@ export const getInventorySummary = async () => {
       totalItems: 0,
       totalValue: 0,
       lowStockCount: 0,
-      categories: []
+      categories: [],
     };
   } catch (error) {
     console.error('Error fetching inventory summary:', error);
@@ -170,7 +170,7 @@ export const getInventorySummary = async () => {
       totalItems: 0,
       totalValue: 0,
       lowStockCount: 0,
-      categories: []
+      categories: [],
     };
   }
 };

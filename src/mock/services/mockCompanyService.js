@@ -21,7 +21,7 @@ export const companyService = {
     company = {
       ...company,
       ...companyData,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     return company;
   },
@@ -32,7 +32,7 @@ export const companyService = {
       ...company,
       ...companyData,
       id: parseInt(id),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     return company;
   },
@@ -77,7 +77,7 @@ export const companyService = {
     await delay();
     company.pdfSealUrl = null;
     return { message: 'Seal deleted successfully' };
-  }
+  },
 };
 
 export default companyService;

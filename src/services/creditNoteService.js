@@ -27,8 +27,8 @@ const transformCreditNoteForServer = (creditNoteData) => {
       vat_amount: parseFloat(item.vatAmount || 0),
       restocked_quantity: parseFloat(item.restockedQuantity || 0),
       damaged_quantity: parseFloat(item.damagedQuantity || 0),
-      defective_quantity: parseFloat(item.defectiveQuantity || 0)
-    }))
+      defective_quantity: parseFloat(item.defectiveQuantity || 0),
+    })),
   };
 };
 
@@ -45,7 +45,7 @@ const transformCreditNoteFromServer = (serverData) => {
       address: serverData.customerAddress || '',
       phone: serverData.customerPhone || '',
       email: serverData.customerEmail || '',
-      trn: serverData.customerTrn || ''
+      trn: serverData.customerTrn || '',
     },
     // Ensure numeric fields are numbers
     subtotal: parseFloat(serverData.subtotal || 0),
@@ -62,8 +62,8 @@ const transformCreditNoteFromServer = (serverData) => {
       vat_amount: parseFloat(item.vatAmount || 0),
       restocked_quantity: parseFloat(item.restockedQuantity || 0),
       damaged_quantity: parseFloat(item.damagedQuantity || 0),
-      defective_quantity: parseFloat(item.defectiveQuantity || 0)
-    }))
+      defective_quantity: parseFloat(item.defectiveQuantity || 0),
+    })),
   };
 };
 
@@ -82,12 +82,12 @@ class CreditNoteService {
       invoice_id: params.invoiceId || undefined,
       customer_id: params.customerId || undefined,
       start_date: params.startDate || undefined,
-      end_date: params.endDate || undefined
+      end_date: params.endDate || undefined,
     };
 
     // Remove undefined params
     Object.keys(queryParams).forEach(
-      (key) => queryParams[key] === undefined && delete queryParams[key]
+      (key) => queryParams[key] === undefined && delete queryParams[key],
     );
 
     const axiosConfig = {};
@@ -101,7 +101,7 @@ class CreditNoteService {
     if (response.data && Array.isArray(response.data)) {
       return {
         data: response.data.map(transformCreditNoteFromServer),
-        pagination: response.pagination || null
+        pagination: response.pagination || null,
       };
     }
 
@@ -109,7 +109,7 @@ class CreditNoteService {
     const creditNotes = Array.isArray(response) ? response : (response.data || []);
     return {
       data: creditNotes.map(transformCreditNoteFromServer),
-      pagination: null
+      pagination: null,
     };
   }
 
@@ -165,8 +165,8 @@ class CreditNoteService {
         restocked_quantity: inspectionData.restockedQuantity,
         damaged_quantity: inspectionData.damagedQuantity,
         defective_quantity: inspectionData.defectiveQuantity,
-        return_status: inspectionData.returnStatus
-      }
+        return_status: inspectionData.returnStatus,
+      },
     );
   }
 
@@ -178,8 +178,8 @@ class CreditNoteService {
       items: receivedData.items.map(item => ({
         item_id: item.itemId,
         quantity_received: item.quantityReceived,
-        condition_notes: item.conditionNotes
-      }))
+        condition_notes: item.conditionNotes,
+      })),
     });
   }
 
@@ -189,7 +189,7 @@ class CreditNoteService {
       refund_method: refundData.refundMethod,
       refund_date: refundData.refundDate,
       refund_reference: refundData.refundReference,
-      refund_amount: refundData.refundAmount
+      refund_amount: refundData.refundAmount,
     });
   }
 
@@ -200,8 +200,8 @@ class CreditNoteService {
         item_id: item.itemId,
         quantity_to_restock: item.quantityToRestock,
         warehouse_id: item.warehouseId,
-        stock_location: item.stockLocation
-      }))
+        stock_location: item.stockLocation,
+      })),
     });
   }
 
@@ -214,7 +214,7 @@ class CreditNoteService {
   async searchCreditNotes(searchTerm, filters = {}) {
     return apiClient.get(this.endpoint, {
       search: searchTerm,
-      ...filters
+      ...filters,
     });
   }
 }

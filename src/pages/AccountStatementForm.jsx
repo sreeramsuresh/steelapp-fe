@@ -14,7 +14,7 @@ const AccountStatementForm = () => {
     customer_id: '',
     start_date: '',
     end_date: '',
-    notes: ''
+    notes: '',
   });
   const [error, setError] = useState('');
 
@@ -64,7 +64,7 @@ const AccountStatementForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 

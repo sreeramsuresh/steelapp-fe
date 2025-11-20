@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  X
+  X,
 } from 'lucide-react';
 
 const AuditLogs = () => {
@@ -30,7 +30,7 @@ const AuditLogs = () => {
     status: '',
     startDate: '',
     endDate: '',
-    search: ''
+    search: '',
   });
 
   // Pagination
@@ -58,7 +58,7 @@ const AuditLogs = () => {
         ...(filters.action && { action: filters.action }),
         ...(filters.status && { status: filters.status }),
         ...(filters.startDate && { start_date: filters.startDate }),
-        ...(filters.endDate && { end_date: filters.endDate })
+        ...(filters.endDate && { end_date: filters.endDate }),
       };
 
       const response = await apiService.get('/audit-logs', { params });
@@ -96,7 +96,7 @@ const AuditLogs = () => {
       status: '',
       startDate: '',
       endDate: '',
-      search: ''
+      search: '',
     });
     setCurrentPage(1);
   };
@@ -113,12 +113,12 @@ const AuditLogs = () => {
       log.action,
       log.description || '-',
       log.status,
-      log.ipAddress || '-'
+      log.ipAddress || '-',
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...csvData.map(row => row.map(cell => `"${cell}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -139,7 +139,7 @@ const AuditLogs = () => {
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -151,7 +151,7 @@ const AuditLogs = () => {
       CUSTOMER: 'orange',
       STATEMENT: 'indigo',
       SETTINGS: 'red',
-      EXPORT: 'pink'
+      EXPORT: 'pink',
     };
     return colors[category] || 'gray';
   };
@@ -191,8 +191,8 @@ const AuditLogs = () => {
                 logs.length === 0
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : isDarkMode
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
               <Download size={18} />
@@ -494,8 +494,8 @@ const AuditLogs = () => {
                           currentPage === 1
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             : isDarkMode
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
                         }`}
                       >
                         <ChevronLeft size={16} />
@@ -508,8 +508,8 @@ const AuditLogs = () => {
                           currentPage === totalPages
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             : isDarkMode
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
                         }`}
                       >
                         Next

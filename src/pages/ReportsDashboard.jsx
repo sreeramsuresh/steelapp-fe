@@ -4,7 +4,7 @@ import {
   BarChart3,
   TrendingUp,
   FileText,
-  PieChart
+  PieChart,
 } from 'lucide-react';
 
 import SalesAnalytics from '../components/SalesAnalytics';
@@ -19,14 +19,14 @@ const ReportsDashboard = () => {
       id: 'analytics',
       label: 'Sales Analytics',
       icon: BarChart3,
-      component: SalesAnalytics
+      component: SalesAnalytics,
     },
     {
       id: 'trends',
       label: 'Revenue Trends',
       icon: TrendingUp,
-      component: RevenueTrends
-    }
+      component: RevenueTrends,
+    },
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

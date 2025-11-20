@@ -21,14 +21,14 @@ const DeliveryNoteDetails = () => {
   const [partialDialog, setPartialDialog] = useState({
     open: false,
     item: null,
-    quantity: ''
+    quantity: '',
   });
 
   const statusLabels = {
     pending: 'Pending',
     partial: 'Partial Delivery',
     completed: 'Completed',
-    cancelled: 'Cancelled'
+    cancelled: 'Cancelled',
   };
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const DeliveryNoteDetails = () => {
       const data = await deliveryNotesAPI.getById(id);
       setDeliveryNote(data);
     } catch (err) {
-      setError('Failed to load delivery note: ' + err.message);
+      setError(`Failed to load delivery note: ${  err.message}`);
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ const DeliveryNoteDetails = () => {
       setSuccess('PDF downloaded successfully');
     } catch (err) {
       console.error('Error downloading PDF:', err);
-      setError('Failed to download PDF: ' + err.message);
+      setError(`Failed to download PDF: ${  err.message}`);
     }
   };
 
@@ -75,14 +75,14 @@ const DeliveryNoteDetails = () => {
 
       await deliveryNotesAPI.updateDelivery(id, partialDialog.item.id, {
         quantity_delivered: quantity,
-        notes: `Additional delivery of ${quantity} ${partialDialog.item.unit}`
+        notes: `Additional delivery of ${quantity} ${partialDialog.item.unit}`,
       });
 
       setSuccess('Delivery quantity updated successfully');
       setPartialDialog({ open: false, item: null, quantity: '' });
       loadDeliveryNote(); // Refresh data
     } catch (err) {
-      setError('Failed to update delivery: ' + err.message);
+      setError(`Failed to update delivery: ${  err.message}`);
     }
   };
 
@@ -124,7 +124,7 @@ const DeliveryNoteDetails = () => {
       }
       loadDeliveryNote(); // Refresh data
     } catch (err) {
-      setError('Failed to update status: ' + err.message);
+      setError(`Failed to update status: ${  err.message}`);
     }
   };
 
@@ -132,7 +132,7 @@ const DeliveryNoteDetails = () => {
     return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -178,7 +178,7 @@ const DeliveryNoteDetails = () => {
     completed: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
     in_transit: isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-600' : 'bg-blue-100 text-blue-800 border-blue-300',
     delivered: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-600' : 'bg-green-100 text-green-800 border-green-300',
-    cancelled: isDarkMode ? 'bg-red-900/30 text-red-300 border-red-600' : 'bg-red-100 text-red-800 border-red-300'
+    cancelled: isDarkMode ? 'bg-red-900/30 text-red-300 border-red-600' : 'bg-red-100 text-red-800 border-red-300',
   };
 
   return (
@@ -417,7 +417,7 @@ const DeliveryNoteDetails = () => {
                             onClick={() => setPartialDialog({
                               open: true,
                               item,
-                              quantity: ''
+                              quantity: '',
                             })}
                             className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
                               isDarkMode 

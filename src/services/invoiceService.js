@@ -41,8 +41,8 @@ const transformInvoiceForServer = (invoiceData) => {
       quantity: item.quantity,
       rate: item.rate,
       vat_rate: item.vatRate,
-      amount: item.amount
-    })) || []
+      amount: item.amount,
+    })) || [],
   };
 };
 
@@ -62,7 +62,7 @@ const transformInvoiceFromServer = (serverData) => {
     vat_amount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
     // Ensure items is an array
-    items: Array.isArray(serverData.items) ? serverData.items : []
+    items: Array.isArray(serverData.items) ? serverData.items : [],
   };
 };
 
@@ -70,7 +70,7 @@ export const invoiceService = {
   async getInvoices(params = {}, signal = null) {
     // Separate signal from params and create proper axios config
     const axiosConfig = {
-      params: params
+      params,
     };
 
     // Add abort signal if provided
@@ -84,7 +84,7 @@ export const invoiceService = {
     if (response.invoices && response.pagination) {
       return {
         invoices: response.invoices.map(transformInvoiceFromServer),
-        pagination: response.pagination
+        pagination: response.pagination,
       };
     }
 
@@ -94,7 +94,7 @@ export const invoiceService = {
       invoices: Array.isArray(invoices)
         ? invoices.map(transformInvoiceFromServer)
         : [],
-      pagination: null
+      pagination: null,
     };
   },
 
@@ -141,7 +141,7 @@ export const invoiceService = {
   async searchInvoices(searchTerm, filters = {}) {
     return apiClient.get('/invoices', {
       search: searchTerm,
-      ...filters
+      ...filters,
     });
   },
 
@@ -158,7 +158,7 @@ export const invoiceService = {
   async getInvoicesByDateRange(startDate, endDate) {
     return apiClient.get('/invoices', {
       start_date: startDate,
-      end_date: endDate
+      end_date: endDate,
     });
   },
 
@@ -173,5 +173,5 @@ export const invoiceService = {
 
   async voidInvoicePayment(invoiceId, paymentId, reason) {
     return apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
-  }
+  },
 };

@@ -8,7 +8,7 @@ import {
   BarChart3,
   RotateCcw,
   FileText,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 
 import Payables from './Payables';
@@ -35,32 +35,32 @@ const FinanceDashboard = () => {
       id: 'receivables',
       label: 'Receivables',
       icon: TrendingUp,
-      component: Receivables
+      component: Receivables,
     },
     {
       id: 'payables',
       label: 'Payables',
       icon: TrendingDown,
-      component: Payables
+      component: Payables,
     },
     {
       id: 'statements',
       label: 'Statement of Accounts',
       icon: FileText,
-      component: AccountStatementList
+      component: AccountStatementList,
     },
     {
       id: 'credit-notes',
       label: 'Credit Notes',
       icon: RotateCcw,
-      component: CreditNoteList
+      component: CreditNoteList,
     },
     {
       id: 'commissions',
       label: 'Commissions',
       icon: DollarSign,
-      component: CommissionDashboard
-    }
+      component: CommissionDashboard,
+    },
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

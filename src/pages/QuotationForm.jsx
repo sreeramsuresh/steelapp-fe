@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Save,
   Plus,
@@ -17,13 +17,13 @@ import {
   AlertTriangle,
   Pin,
   Settings,
-  Loader2
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { quotationsAPI, customersAPI, productsAPI } from "../services/api";
-import { apiClient } from "../services/api";
-import { formatCurrency } from "../utils/invoiceUtils";
-import { STEEL_GRADES, FINISHES } from "../types";
+  Loader2,
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { quotationsAPI, customersAPI, productsAPI } from '../services/api';
+import { apiClient } from '../services/api';
+import { formatCurrency } from '../utils/invoiceUtils';
+import { STEEL_GRADES, FINISHES } from '../types';
 
 const QuotationForm = () => {
   const navigate = useNavigate();
@@ -36,43 +36,43 @@ const QuotationForm = () => {
     const saved = localStorage.getItem('quotationFormPreferences');
     return saved ? JSON.parse(saved) : {
       showSpeedButtons: true,
-      showValidationHighlighting: true
+      showValidationHighlighting: true,
     };
   });
 
   const [formData, setFormData] = useState({
-    quotationNumber: "",
-    customerId: "",
+    quotationNumber: '',
+    customerId: '',
     customerDetails: {
-      name: "",
-      company: "",
-      email: "",
-      phone: "",
+      name: '',
+      company: '',
+      email: '',
+      phone: '',
       address: {
-        street: "",
-        city: "",
-        emirate: "",
-        country: "UAE"
+        street: '',
+        city: '',
+        emirate: '',
+        country: 'UAE',
       },
-      vatNumber: ""
+      vatNumber: '',
     },
     quotationDate: new Date().toISOString().split('T')[0],
-    validUntil: "",
+    validUntil: '',
     // Customer PO fields
-    customerPurchaseOrderNumber: "",
-    customerPurchaseOrderDate: "",
+    customerPurchaseOrderNumber: '',
+    customerPurchaseOrderDate: '',
     // Warehouse
-    warehouseId: "",
-    warehouseName: "",
-    warehouseCode: "",
-    warehouseCity: "",
+    warehouseId: '',
+    warehouseName: '',
+    warehouseCode: '',
+    warehouseCity: '',
     // Currency
-    currency: "AED",
+    currency: 'AED',
     exchangeRate: 1,
-    deliveryTerms: "",
-    paymentTerms: "",
-    notes: "",
-    termsAndConditions: "",
+    deliveryTerms: '',
+    paymentTerms: '',
+    notes: '',
+    termsAndConditions: '',
     items: [],
     subtotal: 0,
     vatAmount: 0,
@@ -89,7 +89,7 @@ const QuotationForm = () => {
     discountPercentage: 0,
     discountAmount: 0,
     total: 0,
-    status: "draft"
+    status: 'draft',
   });
 
   const [customers, setCustomers] = useState([]);
@@ -97,8 +97,8 @@ const QuotationForm = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPreferences, setShowPreferences] = useState(false);
 
   // Pinned products (localStorage)
@@ -154,7 +154,7 @@ const QuotationForm = () => {
 
     setFieldValidation(prev => ({
       ...prev,
-      [fieldName]: isValid ? 'valid' : 'invalid'
+      [fieldName]: isValid ? 'valid' : 'invalid',
     }));
 
     return isValid;
@@ -167,7 +167,7 @@ const QuotationForm = () => {
         const [customersResponse, productsResponse, warehousesResponse] = await Promise.all([
           customersAPI.getAll({ limit: 1000 }),
           productsAPI.getAll({ limit: 1000 }),
-          apiClient.get("/warehouses")
+          apiClient.get('/warehouses'),
         ]);
 
         setCustomers(customersResponse.customers || []);
@@ -181,16 +181,16 @@ const QuotationForm = () => {
         if (!isEdit && activeWarehouses.length > 0 && !formData.warehouseId) {
           const sharjahWarehouse = activeWarehouses.find(w =>
             w.city?.toLowerCase().includes('sharjah') ||
-            w.name?.toLowerCase().includes('sharjah')
+            w.name?.toLowerCase().includes('sharjah'),
           );
           const defaultWarehouse = sharjahWarehouse || activeWarehouses[0];
 
           setFormData(prev => ({
             ...prev,
             warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || "",
-            warehouseCode: defaultWarehouse.code || "",
-            warehouseCity: defaultWarehouse.city || "",
+            warehouseName: defaultWarehouse.name || '',
+            warehouseCode: defaultWarehouse.code || '',
+            warehouseCity: defaultWarehouse.city || '',
           }));
         }
 
@@ -199,12 +199,12 @@ const QuotationForm = () => {
           const nextNumberResponse = await quotationsAPI.getNextNumber();
           setFormData(prev => ({
             ...prev,
-            quotationNumber: nextNumberResponse.nextQuotationNumber
+            quotationNumber: nextNumberResponse.nextQuotationNumber,
           }));
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load initial data");
+        console.error('Error fetching data:', err);
+        setError('Failed to load initial data');
       }
     };
 
@@ -221,51 +221,51 @@ const QuotationForm = () => {
 
           // Transform snake_case to camelCase
           setFormData({
-            quotationNumber: response.quotationNumber || "",
-            customerId: response.customerId || "",
+            quotationNumber: response.quotationNumber || '',
+            customerId: response.customerId || '',
             customerDetails: typeof response.customerDetails === 'string'
               ? JSON.parse(response.customerDetails)
               : response.customerDetails || {
-                  name: "",
-                  company: "",
-                  email: "",
-                  phone: "",
-                  address: { street: "", city: "", emirate: "", country: "UAE" },
-                  vatNumber: ""
-                },
-            quotationDate: response.quotationDate?.split('T')[0] || "",
-            validUntil: response.validUntil?.split('T')[0] || "",
-            customerPurchaseOrderNumber: response.customerPurchaseOrderNumber || "",
-            customerPurchaseOrderDate: response.customerPurchaseOrderDate?.split('T')[0] || "",
-            warehouseId: response.warehouseId?.toString() || "",
-            warehouseName: response.warehouseName || "",
-            warehouseCode: response.warehouseCode || "",
-            warehouseCity: response.warehouseCity || "",
-            currency: response.currency || "AED",
+                name: '',
+                company: '',
+                email: '',
+                phone: '',
+                address: { street: '', city: '', emirate: '', country: 'UAE' },
+                vatNumber: '',
+              },
+            quotationDate: response.quotationDate?.split('T')[0] || '',
+            validUntil: response.validUntil?.split('T')[0] || '',
+            customerPurchaseOrderNumber: response.customerPurchaseOrderNumber || '',
+            customerPurchaseOrderDate: response.customerPurchaseOrderDate?.split('T')[0] || '',
+            warehouseId: response.warehouseId?.toString() || '',
+            warehouseName: response.warehouseName || '',
+            warehouseCode: response.warehouseCode || '',
+            warehouseCity: response.warehouseCity || '',
+            currency: response.currency || 'AED',
             exchangeRate: response.exchangeRate || 1,
-            deliveryTerms: response.deliveryTerms || "",
-            paymentTerms: response.paymentTerms || "",
-            notes: response.notes || "",
-            termsAndConditions: response.termsAndConditions || "",
+            deliveryTerms: response.deliveryTerms || '',
+            paymentTerms: response.paymentTerms || '',
+            notes: response.notes || '',
+            termsAndConditions: response.termsAndConditions || '',
             items: (response.items || []).map(item => ({
-              productId: item.productId || "",
-              name: item.name || "",
-              specification: item.specification || "",
-              grade: item.grade || "",
-              finish: item.finish || "",
-              size: item.size || "",
-              thickness: item.thickness || "",
-              description: item.description || "",
-              hsnCode: item.hsnCode || "",
-              unit: item.unit || "pcs",
+              productId: item.productId || '',
+              name: item.name || '',
+              specification: item.specification || '',
+              grade: item.grade || '',
+              finish: item.finish || '',
+              size: item.size || '',
+              thickness: item.thickness || '',
+              description: item.description || '',
+              hsnCode: item.hsnCode || '',
+              unit: item.unit || 'pcs',
               quantity: item.quantity || 0,
               rate: item.rate || 0,
               discount: item.discount || 0,
-              discountType: item.discountType || "amount",
+              discountType: item.discountType || 'amount',
               taxableAmount: item.taxableAmount || 0,
               vatRate: item.vatRate || 5,
               amount: item.amount || 0,
-              netAmount: item.netAmount || 0
+              netAmount: item.netAmount || 0,
             })),
             subtotal: response.subtotal || 0,
             vatAmount: response.vatAmount || 0,
@@ -280,11 +280,11 @@ const QuotationForm = () => {
             discountPercentage: response.discountPercentage || 0,
             discountAmount: response.discountAmount || 0,
             total: response.total || 0,
-            status: response.status || "draft"
+            status: response.status || 'draft',
           });
         } catch (err) {
-          console.error("Error fetching quotation:", err);
-          setError("Failed to load quotation data");
+          console.error('Error fetching quotation:', err);
+          setError('Failed to load quotation data');
         } finally {
           setLoading(false);
         }
@@ -308,38 +308,38 @@ const QuotationForm = () => {
     if (customer) {
       setFormData(prev => ({
         ...prev,
-        customerId: customerId,
+        customerId,
         customerDetails: {
           name: customer.name,
-          company: customer.company || "",
-          email: customer.email || "",
-          phone: customer.phone || "",
+          company: customer.company || '',
+          email: customer.email || '',
+          phone: customer.phone || '',
           address: customer.address || {
-            street: "",
-            city: "",
-            emirate: "",
-            country: "UAE"
+            street: '',
+            city: '',
+            emirate: '',
+            country: 'UAE',
           },
-          vatNumber: customer.vatNumber || ""
-        }
+          vatNumber: customer.vatNumber || '',
+        },
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        customerId: customerId,
+        customerId,
         customerDetails: {
-          name: "",
-          company: "",
-          email: "",
-          phone: "",
+          name: '',
+          company: '',
+          email: '',
+          phone: '',
           address: {
-            street: "",
-            city: "",
-            emirate: "",
-            country: "UAE"
+            street: '',
+            city: '',
+            emirate: '',
+            country: 'UAE',
           },
-          vatNumber: ""
-        }
+          vatNumber: '',
+        },
       }));
     }
   };
@@ -369,24 +369,24 @@ const QuotationForm = () => {
   // Quick add item from speed button
   const quickAddItem = (product) => {
     const newItem = {
-      productId: product.id || "",
-      name: product.fullName || product.name || "",
-      specification: product.specifications?.specification || product.specifications?.size || "",
-      grade: product.specifications?.grade || product.grade || "",
-      finish: product.specifications?.finish || product.finish || "",
-      size: product.specifications?.size || product.size || "",
-      thickness: product.specifications?.thickness || product.thickness || "",
-      description: product.description || "",
-      hsnCode: product.hsnCode || "",
-      unit: product.unit || "kg",
+      productId: product.id || '',
+      name: product.fullName || product.name || '',
+      specification: product.specifications?.specification || product.specifications?.size || '',
+      grade: product.specifications?.grade || product.grade || '',
+      finish: product.specifications?.finish || product.finish || '',
+      size: product.specifications?.size || product.size || '',
+      thickness: product.specifications?.thickness || product.thickness || '',
+      description: product.description || '',
+      hsnCode: product.hsnCode || '',
+      unit: product.unit || 'kg',
       quantity: 1,
       rate: parseFloat(product.sellingPrice || product.price) || 0,
       discount: 0,
-      discountType: "amount",
+      discountType: 'amount',
       taxableAmount: 0,
       vatRate: 5,
       amount: 0,
-      netAmount: 0
+      netAmount: 0,
     };
 
     // Calculate amounts
@@ -399,7 +399,7 @@ const QuotationForm = () => {
 
     setFormData(prev => ({
       ...prev,
-      items: [...prev.items, newItem]
+      items: [...prev.items, newItem],
     }));
 
     setTimeout(calculateTotals, 0);
@@ -409,32 +409,32 @@ const QuotationForm = () => {
     setFormData(prev => ({
       ...prev,
       items: [...prev.items, {
-        productId: "",
-        name: "",
-        specification: "",
-        grade: "",
-        finish: "",
-        size: "",
-        thickness: "",
-        description: "",
-        hsnCode: "",
-        unit: "pcs",
+        productId: '',
+        name: '',
+        specification: '',
+        grade: '',
+        finish: '',
+        size: '',
+        thickness: '',
+        description: '',
+        hsnCode: '',
+        unit: 'pcs',
         quantity: 1,
         rate: 0,
         discount: 0,
-        discountType: "amount",
+        discountType: 'amount',
         taxableAmount: 0,
         vatRate: 5,
         amount: 0,
-        netAmount: 0
-      }]
+        netAmount: 0,
+      }],
     }));
   };
 
   const removeItem = (index) => {
     setFormData(prev => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index)
+      items: prev.items.filter((_, i) => i !== index),
     }));
     setTimeout(calculateTotals, 0);
   };
@@ -450,15 +450,15 @@ const QuotationForm = () => {
         newItems[index] = {
           ...newItems[index],
           name: product.fullName || product.name,
-          specification: product.specifications?.specification || product.specifications?.size || newItems[index].specification || "",
-          grade: product.specifications?.grade || product.grade || newItems[index].grade || "",
-          finish: product.specifications?.finish || product.finish || newItems[index].finish || "",
-          size: product.specifications?.size || product.size || newItems[index].size || "",
-          thickness: product.specifications?.thickness || product.thickness || newItems[index].thickness || "",
-          description: product.description || "",
-          hsnCode: product.hsnCode || "",
-          unit: product.unit || "pcs",
-          rate: product.sellingPrice || product.price || 0
+          specification: product.specifications?.specification || product.specifications?.size || newItems[index].specification || '',
+          grade: product.specifications?.grade || product.grade || newItems[index].grade || '',
+          finish: product.specifications?.finish || product.finish || newItems[index].finish || '',
+          size: product.specifications?.size || product.size || newItems[index].size || '',
+          thickness: product.specifications?.thickness || product.thickness || newItems[index].thickness || '',
+          description: product.description || '',
+          hsnCode: product.hsnCode || '',
+          unit: product.unit || 'pcs',
+          rate: product.sellingPrice || product.price || 0,
         };
       }
     }
@@ -481,9 +481,9 @@ const QuotationForm = () => {
 
     newItems[index] = {
       ...item,
-      taxableAmount: taxableAmount,
+      taxableAmount,
       amount: taxableAmount,
-      netAmount: netAmount
+      netAmount,
     };
 
     setFormData(prev => ({ ...prev, items: newItems }));
@@ -533,7 +533,7 @@ const QuotationForm = () => {
       subtotal,
       totalQuantity,
       vatAmount: vatAfterDiscount,
-      total
+      total,
     }));
   };
 
@@ -548,7 +548,7 @@ const QuotationForm = () => {
     formData.otherCharges,
     formData.discountType,
     formData.discountPercentage,
-    formData.discountAmount
+    formData.discountAmount,
   ]);
 
   const handleSubmit = async (e) => {
@@ -590,7 +590,7 @@ const QuotationForm = () => {
     setIsSaving(true);
 
     try {
-      setError("");
+      setError('');
 
       // Transform to backend format (snake_case)
       const dataToSubmit = {
@@ -599,37 +599,37 @@ const QuotationForm = () => {
         customer_details: formData.customerDetails,
         quotation_date: formData.quotationDate,
         valid_until: formData.validUntil || null,
-        customer_purchase_order_number: formData.customerPurchaseOrderNumber || "",
+        customer_purchase_order_number: formData.customerPurchaseOrderNumber || '',
         customer_purchase_order_date: formData.customerPurchaseOrderDate || null,
         warehouse_id: formData.warehouseId ? Number(formData.warehouseId) : null,
-        warehouse_name: formData.warehouseName || "",
-        warehouse_code: formData.warehouseCode || "",
-        warehouse_city: formData.warehouseCity || "",
-        currency: formData.currency || "AED",
+        warehouse_name: formData.warehouseName || '',
+        warehouse_code: formData.warehouseCode || '',
+        warehouse_city: formData.warehouseCity || '',
+        currency: formData.currency || 'AED',
         exchange_rate: formData.exchangeRate || 1,
-        delivery_terms: formData.deliveryTerms || "",
-        payment_terms: formData.paymentTerms || "",
-        notes: formData.notes || "",
-        terms_and_conditions: formData.termsAndConditions || "",
+        delivery_terms: formData.deliveryTerms || '',
+        payment_terms: formData.paymentTerms || '',
+        notes: formData.notes || '',
+        terms_and_conditions: formData.termsAndConditions || '',
         items: formData.items.map(item => ({
           product_id: item.productId ? Number(item.productId) : null,
           name: item.name,
-          specification: item.specification || "",
-          grade: item.grade || "",
-          finish: item.finish || "",
-          size: item.size || "",
-          thickness: item.thickness || "",
-          description: item.description || "",
-          hsn_code: item.hsnCode || "",
-          unit: item.unit || "pcs",
+          specification: item.specification || '',
+          grade: item.grade || '',
+          finish: item.finish || '',
+          size: item.size || '',
+          thickness: item.thickness || '',
+          description: item.description || '',
+          hsn_code: item.hsnCode || '',
+          unit: item.unit || 'pcs',
           quantity: parseFloat(item.quantity) || 0,
           rate: parseFloat(item.rate) || 0,
           discount: parseFloat(item.discount) || 0,
-          discount_type: item.discountType || "amount",
+          discount_type: item.discountType || 'amount',
           taxable_amount: parseFloat(item.taxableAmount) || 0,
           vat_rate: parseFloat(item.vatRate) || 0,
           amount: parseFloat(item.amount) || 0,
-          net_amount: parseFloat(item.netAmount) || 0
+          net_amount: parseFloat(item.netAmount) || 0,
         })),
         subtotal: parseFloat(formData.subtotal) || 0,
         vat_amount: parseFloat(formData.vatAmount) || 0,
@@ -644,24 +644,24 @@ const QuotationForm = () => {
         discount_percentage: parseFloat(formData.discountPercentage) || 0,
         discount_amount: parseFloat(formData.discountAmount) || 0,
         total: parseFloat(formData.total) || 0,
-        status: formData.status || 'draft'
+        status: formData.status || 'draft',
       };
 
       if (isEdit) {
         await quotationsAPI.update(id, dataToSubmit);
-        setSuccess("Quotation updated successfully");
+        setSuccess('Quotation updated successfully');
       } else {
         await quotationsAPI.create(dataToSubmit);
-        setSuccess("Quotation created successfully");
+        setSuccess('Quotation created successfully');
       }
 
       // Standardized smooth transition delay (300ms)
       setTimeout(() => {
-        navigate("/quotations");
+        navigate('/quotations');
       }, 300);
 
     } catch (err) {
-      console.error("Error saving quotation:", err);
+      console.error('Error saving quotation:', err);
       const apiErrors = err?.response?.data?.errors;
       if (Array.isArray(apiErrors) && apiErrors.length) {
         const msgs = apiErrors.map((e) => (typeof e === 'string' ? e : (e.message || JSON.stringify(e))));
@@ -671,7 +671,7 @@ const QuotationForm = () => {
       } else if (err?.message) {
         setError(err.message);
       } else {
-        setError("Failed to save quotation");
+        setError('Failed to save quotation');
       }
     } finally {
       setIsSaving(false);
@@ -696,7 +696,7 @@ const QuotationForm = () => {
   }
 
   // Input component with validation
-  const Input = ({ label, error, className = "", required = false, validationState = null, showValidation = true, ...props }) => {
+  const Input = ({ label, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
@@ -717,23 +717,23 @@ const QuotationForm = () => {
       <div className="space-y-0.5">
         {label && (
           <label className={`block text-xs font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}>
             {label}
           </label>
         )}
         <input
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
-            isDarkMode ? "text-white placeholder-gray-500" : "text-gray-900 placeholder-gray-400"
+            isDarkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'
           } ${getValidationClasses()} ${className}`}
           {...props}
         />
-        {error && <p className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}>{error}</p>}
+        {error && <p className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
       </div>
     );
   };
 
-  const Select = ({ label, children, error, className = "", required = false, validationState = null, showValidation = true, ...props }) => {
+  const Select = ({ label, children, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
@@ -754,20 +754,20 @@ const QuotationForm = () => {
       <div className="space-y-0.5">
         {label && (
           <label className={`block text-xs font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}>
             {label}
           </label>
         )}
         <select
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
-            isDarkMode ? "text-white" : "text-gray-900"
+            isDarkMode ? 'text-white' : 'text-gray-900'
           } ${getValidationClasses()} ${className}`}
           {...props}
         >
           {children}
         </select>
-        {error && <p className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}>{error}</p>}
+        {error && <p className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
       </div>
     );
   };
@@ -778,7 +778,7 @@ const QuotationForm = () => {
       <div className="mb-4 md:mb-6">
         <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
           <button
-            onClick={() => navigate("/quotations")}
+            onClick={() => navigate('/quotations')}
             className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
               isDarkMode
                 ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
@@ -851,7 +851,7 @@ const QuotationForm = () => {
         <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 text-sm">
           <AlertCircle size={18} className="flex-shrink-0" />
           <div className="flex-1 whitespace-pre-line">{error}</div>
-          <button onClick={() => setError("")} className="text-red-500 hover:text-red-700">
+          <button onClick={() => setError('')} className="text-red-500 hover:text-red-700">
             <X size={16} />
           </button>
         </div>
@@ -964,7 +964,7 @@ const QuotationForm = () => {
               onChange={(e) => {
                 setFormData(prev => ({
                   ...prev,
-                  customerDetails: { ...prev.customerDetails, name: e.target.value }
+                  customerDetails: { ...prev.customerDetails, name: e.target.value },
                 }));
                 validateField('customerName', e.target.value);
               }}
@@ -979,7 +979,7 @@ const QuotationForm = () => {
               value={formData.customerDetails.company}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                customerDetails: { ...prev.customerDetails, company: e.target.value }
+                customerDetails: { ...prev.customerDetails, company: e.target.value },
               }))}
             />
 
@@ -989,7 +989,7 @@ const QuotationForm = () => {
               value={formData.customerDetails.email}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                customerDetails: { ...prev.customerDetails, email: e.target.value }
+                customerDetails: { ...prev.customerDetails, email: e.target.value },
               }))}
             />
 
@@ -999,7 +999,7 @@ const QuotationForm = () => {
               value={formData.customerDetails.phone}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                customerDetails: { ...prev.customerDetails, phone: e.target.value }
+                customerDetails: { ...prev.customerDetails, phone: e.target.value },
               }))}
             />
 
@@ -1009,7 +1009,7 @@ const QuotationForm = () => {
               value={formData.customerDetails.vatNumber}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                customerDetails: { ...prev.customerDetails, vatNumber: e.target.value }
+                customerDetails: { ...prev.customerDetails, vatNumber: e.target.value },
               }))}
             />
 
@@ -1051,9 +1051,9 @@ const QuotationForm = () => {
                 setFormData(prev => ({
                   ...prev,
                   warehouseId: id,
-                  warehouseName: w ? w.name : "",
-                  warehouseCode: w ? w.code : "",
-                  warehouseCity: w ? w.city : "",
+                  warehouseName: w ? w.name : '',
+                  warehouseCode: w ? w.code : '',
+                  warehouseCity: w ? w.city : '',
                 }));
                 validateField('warehouse', id);
               }}
@@ -1114,7 +1114,7 @@ const QuotationForm = () => {
           {/* Speed Buttons */}
           {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
             <div className="mb-4">
-              <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Quick Add (Pinned & Top Products)
               </p>
               <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
@@ -1128,11 +1128,11 @@ const QuotationForm = () => {
                         className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
                           isPinned
                             ? isDarkMode
-                              ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
-                              : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
+                              ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg'
+                              : 'border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg'
                             : isDarkMode
-                            ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
-                            : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
+                              ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
+                              : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                         }`}
                       >
                         {product.fullName || product.name}
@@ -1143,13 +1143,13 @@ const QuotationForm = () => {
                         className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                           isPinned
                             ? isDarkMode
-                              ? "text-teal-300 hover:text-teal-200"
-                              : "text-teal-700 hover:text-teal-800"
+                              ? 'text-teal-300 hover:text-teal-200'
+                              : 'text-teal-700 hover:text-teal-800'
                             : isDarkMode
-                            ? "text-gray-400 hover:text-teal-400"
-                            : "text-gray-500 hover:text-teal-600"
+                              ? 'text-gray-400 hover:text-teal-400'
+                              : 'text-gray-500 hover:text-teal-600'
                         }`}
-                        title={isPinned ? "Unpin product" : "Pin product"}
+                        title={isPinned ? 'Unpin product' : 'Pin product'}
                       >
                         {isPinned ? <Pin size={12} fill="currentColor" className="md:hidden" /> : <Pin size={12} className="md:hidden" />}
                         {isPinned ? <Pin size={14} fill="currentColor" className="hidden md:block" /> : <Pin size={14} className="hidden md:block" />}
@@ -1203,7 +1203,7 @@ const QuotationForm = () => {
 
                     <Select
                       label="Grade"
-                      value={item.grade || ""}
+                      value={item.grade || ''}
                       onChange={(e) => updateItem(index, 'grade', e.target.value)}
                     >
                       <option value="">Select Grade</option>
@@ -1214,7 +1214,7 @@ const QuotationForm = () => {
 
                     <Select
                       label="Finish"
-                      value={item.finish || ""}
+                      value={item.finish || ''}
                       onChange={(e) => updateItem(index, 'finish', e.target.value)}
                     >
                       <option value="">Select Finish</option>
@@ -1226,7 +1226,7 @@ const QuotationForm = () => {
                     <Input
                       label="Size"
                       type="text"
-                      value={item.size || ""}
+                      value={item.size || ''}
                       onChange={(e) => updateItem(index, 'size', e.target.value)}
                       placeholder="e.g., 1220x2440"
                     />
@@ -1234,7 +1234,7 @@ const QuotationForm = () => {
                     <Input
                       label="Thickness"
                       type="text"
-                      value={item.thickness || ""}
+                      value={item.thickness || ''}
                       onChange={(e) => updateItem(index, 'thickness', e.target.value)}
                       placeholder="e.g., 1.2mm"
                     />
@@ -1502,7 +1502,7 @@ const QuotationForm = () => {
         <div className="sticky bottom-0 left-0 right-0 bg-opacity-95 backdrop-blur-sm p-2 md:p-0 md:relative flex justify-end gap-2 md:gap-4 z-10">
           <button
             type="button"
-            onClick={() => navigate("/quotations")}
+            onClick={() => navigate('/quotations')}
             className={`px-4 md:px-6 py-2 border rounded-lg transition-colors text-sm md:text-base ${
               isDarkMode
                 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 bg-[#1E2328]'

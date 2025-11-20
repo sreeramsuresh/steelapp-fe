@@ -3,9 +3,9 @@ import {
   calculateSubtotal,
   calculateTotal,
   calculateDiscountedTRN,
-  formatNumber
-} from "../../utils/invoiceUtils";
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+  formatNumber,
+} from '../../utils/invoiceUtils';
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Totals Section Component
@@ -21,7 +21,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor }) => {
     invoice.items || [],
     invoice.discountType,
     invoice.discountPercentage,
-    invoice.discountAmount
+    invoice.discountAmount,
   );
   const additionalCharges =
     (parseFloat(invoice.packingCharges) || 0) +
@@ -31,12 +31,12 @@ const InvoiceTotalsSection = ({ invoice, primaryColor }) => {
   const discountPercent = parseFloat(invoice.discountPercentage) || 0;
   const discountFlat = parseFloat(invoice.discountAmount) || 0;
   const computedDiscount =
-    (invoice.discountType === "percentage"
+    (invoice.discountType === 'percentage'
       ? (computedSubtotal * discountPercent) / 100
       : discountFlat) || 0;
   const computedTotal = calculateTotal(
     Math.max(0, computedSubtotal - computedDiscount) + additionalCharges,
-    computedVatAmount
+    computedVatAmount,
   );
 
   // Calculate advance and balance due

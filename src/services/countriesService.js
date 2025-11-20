@@ -38,7 +38,7 @@ export const countriesService = {
   async getCountryExchangeRates(id, base_currency = 'AED') {
     try {
       const response = await api.get(`/countries/${id}/exchange-rates`, {
-        params: { base_currency }
+        params: { base_currency },
       });
       return response.data;
     } catch (error) {
@@ -54,7 +54,7 @@ export const countriesService = {
       { value: 'asia_pacific', label: 'Asia Pacific' },
       { value: 'europe', label: 'Europe' },
       { value: 'north_america', label: 'North America' },
-      { value: 'africa', label: 'Africa' }
+      { value: 'africa', label: 'Africa' },
     ];
   },
 
@@ -63,7 +63,7 @@ export const countriesService = {
     const flagEmojis = {
       'ARE': '🇦🇪', 'USA': '🇺🇸', 'CHN': '🇨🇳', 'IND': '🇮🇳', 'JPN': '🇯🇵',
       'KOR': '🇰🇷', 'SGP': '🇸🇬', 'DEU': '🇩🇪', 'GBR': '🇬🇧', 'FRA': '🇫🇷',
-      'ITA': '🇮🇹', 'ESP': '🇪🇸', 'SAU': '🇸🇦', 'QAT': '🇶🇦', 'KWT': '🇰🇼'
+      'ITA': '🇮🇹', 'ESP': '🇪🇸', 'SAU': '🇸🇦', 'QAT': '🇶🇦', 'KWT': '🇰🇼',
     };
     
     const flag = flagEmojis[country.code] || '';
@@ -78,9 +78,9 @@ export const countriesService = {
       { value: 'land_port', label: 'Land Port' },
       { value: 'dry_port', label: 'Dry Port' },
       { value: 'container_port', label: 'Container Port' },
-      { value: 'bulk_port', label: 'Bulk Port' }
+      { value: 'bulk_port', label: 'Bulk Port' },
     ];
-  }
+  },
 };
 
 export default countriesService;

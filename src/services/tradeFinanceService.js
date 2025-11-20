@@ -61,7 +61,7 @@ export const tradeFinanceService = {
     try {
       const response = await api.patch(`/trade-finance/${id}/status`, {
         status,
-        notes
+        notes,
       });
       return response.data;
     } catch (error) {
@@ -74,7 +74,7 @@ export const tradeFinanceService = {
   async calculateCommission(id, commission_rate) {
     try {
       const response = await api.post(`/trade-finance/${id}/calculate-commission`, {
-        commission_rate
+        commission_rate,
       });
       return response.data;
     } catch (error) {
@@ -87,7 +87,7 @@ export const tradeFinanceService = {
   async getExpiringInstruments(days = 30) {
     try {
       const response = await api.get('/trade-finance/expiring', {
-        params: { days }
+        params: { days },
       });
       return response.data;
     } catch (error) {
@@ -111,7 +111,7 @@ export const tradeFinanceService = {
   async getDocumentRequirements(instrument_type) {
     try {
       const response = await api.get('/trade-finance/documents/requirements', {
-        params: { instrument_type }
+        params: { instrument_type },
       });
       return response.data;
     } catch (error) {
@@ -132,9 +132,9 @@ export const tradeFinanceService = {
       { value: 'paid', label: 'Paid', color: 'green' },
       { value: 'discrepant', label: 'Discrepant', color: 'red' },
       { value: 'rejected', label: 'Rejected', color: 'red' },
-      { value: 'expired', label: 'Expired', color: 'gray' }
+      { value: 'expired', label: 'Expired', color: 'gray' },
     ];
-  }
+  },
 };
 
 export default tradeFinanceService;

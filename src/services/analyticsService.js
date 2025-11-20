@@ -35,7 +35,7 @@ export const analyticsService = {
   async getRevenueMetrics(startDate, endDate) {
     return apiClient.get('/analytics/dashboard', {
       start_date: startDate,
-      end_date: endDate
+      end_date: endDate,
     });
   },
 
@@ -49,5 +49,5 @@ export const analyticsService = {
 
   async getTopProducts(limit = 10) {
     return apiClient.get('/analytics/product-performance', { limit });
-  }
+  },
 };

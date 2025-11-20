@@ -121,7 +121,7 @@ export function normalizePurchaseOrder(rawPO: any, source = 'unknown'): any | nu
       createdAt: parseDate(rawPO.created_at || rawPO.createdAt),
       updatedAt: parseDate(rawPO.updated_at || rawPO.updatedAt),
       createdBy: rawPO.created_by || rawPO.createdBy || undefined,
-      updatedBy: rawPO.updated_by || rawPO.updatedBy || undefined
+      updatedBy: rawPO.updated_by || rawPO.updatedBy || undefined,
     };
 
     // Log validation errors if any

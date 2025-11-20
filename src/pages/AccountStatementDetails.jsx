@@ -80,7 +80,7 @@ const AccountStatementDetails = () => {
         description: `Invoice ${invoice.invoiceNumber}`,
         debit: invoice.totalAmount || 0,
         credit: 0,
-        balance: runningBalance
+        balance: runningBalance,
       });
     });
   }
@@ -96,7 +96,7 @@ const AccountStatementDetails = () => {
         description: `Payment for ${payment.invoiceNumber}`,
         debit: 0,
         credit: payment.amount || 0,
-        balance: runningBalance
+        balance: runningBalance,
       });
     });
   }

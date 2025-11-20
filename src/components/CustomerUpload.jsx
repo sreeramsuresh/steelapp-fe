@@ -34,14 +34,14 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-excel',
-      'text/csv'
+      'text/csv',
     ];
     
     if (!allowedTypes.includes(file.type)) {
       addNotification({
         title: 'Invalid File Type',
         message: 'Please upload Excel (.xlsx, .xls) or CSV files only.',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -50,7 +50,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'File Too Large',
         message: 'Maximum allowed size is 5MB.',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -88,7 +88,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const downloadTemplate = async () => {
     try {
       const response = await api.get('/customers/upload/template', {
-        responseType: 'blob'
+        responseType: 'blob',
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -103,13 +103,13 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'Template Downloaded',
         message: 'Template downloaded successfully',
-        type: 'success'
+        type: 'success',
       });
     } catch (error) {
       addNotification({
         title: 'Download Failed',
         message: 'Failed to download template',
-        type: 'error'
+        type: 'error',
       });
     }
   };
@@ -119,7 +119,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
       addNotification({
         title: 'No File Selected',
         message: 'Please select a file to upload',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -131,8 +131,8 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
     try {
       const response = await api.post('/customers/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       setUploadResults(response.data.results);
@@ -141,7 +141,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
         addNotification({
           title: 'Upload Successful',
           message: response.data.message,
-          type: 'success'
+          type: 'success',
         });
         if (onUploadComplete) {
           onUploadComplete();
@@ -150,14 +150,14 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
         addNotification({
           title: 'Upload Warning',
           message: 'No customers were imported successfully',
-          type: 'warning'
+          type: 'warning',
         });
       }
     } catch (error) {
       addNotification({
         title: 'Upload Failed',
         message: error.response?.data?.error || 'Upload failed',
-        type: 'error'
+        type: 'error',
       });
     } finally {
       setUploading(false);

@@ -31,7 +31,7 @@ import {
   FaDollarSign,
   FaCalendarAlt,
   FaUpload,
-  FaArchive
+  FaArchive,
 } from 'react-icons/fa';
 import CustomerUpload from './CustomerUpload';
 
@@ -57,19 +57,19 @@ const CustomerManagement = () => {
       }
       return customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus });
     },
-    [searchTerm, filterStatus, canReadCustomers]
+    [searchTerm, filterStatus, canReadCustomers],
   );
 
   // Suppliers API hooks
   const { data: suppliersData, loading: loadingSuppliers, error: suppliersError, refetch: refetchSuppliers } = useApiData(
     () => supplierService.getSuppliers(),
-    []
+    [],
   );
 
   // Pricelists API hooks
   const { data: pricelistsData, loading: loadingPricelists } = useApiData(
     () => pricelistService.getAll({ include_items: false }),
-    []
+    [],
   );
   const { execute: createSupplier, loading: creatingSupplier } = useApi(supplierService.createSupplier);
   const { execute: updateSupplier, loading: updatingSupplier } = useApi(supplierService.updateSupplier);
@@ -104,7 +104,7 @@ const CustomerManagement = () => {
     address: {
       street: '',
       city: '',
-      country: 'UAE'
+      country: 'UAE',
     },
     company: '',
     credit_limit: 0,
@@ -114,7 +114,7 @@ const CustomerManagement = () => {
     trn_number: '',
     trade_license_number: '',
     trade_license_expiry: '',
-    pricelist_id: null
+    pricelist_id: null,
   });
 
   // TRN validation: UAE VAT TRN must start with "100" and be 15 digits.
@@ -133,7 +133,7 @@ const CustomerManagement = () => {
     type: 'call',
     subject: '',
     notes: '',
-    contact_date: new Date().toISOString().split('T')[0]
+    contact_date: new Date().toISOString().split('T')[0],
   });
 
   const filteredCustomers = customers.filter(c => showArchived ? true : (c.status !== 'archived'));
@@ -156,7 +156,7 @@ const CustomerManagement = () => {
       const customerData = {
         ...newCustomer,
         credit_limit: newCustomer.creditLimit === '' ? 0 : Number(newCustomer.creditLimit),
-        current_credit: newCustomer.currentCredit === '' ? 0 : Number(newCustomer.currentCredit)
+        current_credit: newCustomer.currentCredit === '' ? 0 : Number(newCustomer.currentCredit),
       };
       await createCustomer(customerData);
       setNewCustomer({
@@ -168,7 +168,7 @@ const CustomerManagement = () => {
         address: {
           street: '',
           city: '',
-          country: 'UAE'
+          country: 'UAE',
         },
         company: '',
         credit_limit: '',
@@ -178,7 +178,7 @@ const CustomerManagement = () => {
         trn_number: '',
         trade_license_number: '',
         trade_license_expiry: '',
-        pricelist_id: null
+        pricelist_id: null,
       });
       setShowAddModal(false);
       refetchCustomers();
@@ -198,7 +198,7 @@ const CustomerManagement = () => {
       const customerData = {
         ...selectedCustomer,
         credit_limit: selectedCustomer.creditLimit === '' ? 0 : Number(selectedCustomer.creditLimit),
-        current_credit: selectedCustomer.currentCredit === '' ? 0 : Number(selectedCustomer.currentCredit)
+        current_credit: selectedCustomer.currentCredit === '' ? 0 : Number(selectedCustomer.currentCredit),
       };
       await updateCustomer(selectedCustomer.id, customerData);
       setShowEditModal(false);
@@ -216,7 +216,7 @@ const CustomerManagement = () => {
       title: 'Archive Customer?',
       message: 'Archive this customer? You can restore later from the backend.',
       confirmText: 'Archive',
-      variant: 'warning'
+      variant: 'warning',
     });
 
     if (!confirmed) return;
@@ -243,7 +243,7 @@ const CustomerManagement = () => {
     default_currency: 'AED',
     contact_name: '',
     contact_email: '',
-    contact_phone: ''
+    contact_phone: '',
   });
 
   const handleAddSupplier = async () => {
@@ -280,7 +280,7 @@ const CustomerManagement = () => {
       title: 'Delete Supplier?',
       message: 'Are you sure you want to delete this supplier? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -303,21 +303,21 @@ const CustomerManagement = () => {
         contact_history: [...(prev.contactHistory || []), {
           ...newContact,
           id: Date.now().toString(),
-          created_at: new Date().toISOString()
-        }]
+          created_at: new Date().toISOString(),
+        }],
       }));
       
       setNewContact({
         type: 'call',
         subject: '',
         notes: '',
-        contact_date: new Date().toISOString().split('T')[0]
+        contact_date: new Date().toISOString().split('T')[0],
       });
       
       refetchCustomers();
       notificationService.success('Contact entry added successfully!');
     } catch (error) {
-      notificationService.error('Failed to add contact entry: ' + (error.message || 'Unknown error'));
+      notificationService.error(`Failed to add contact entry: ${  error.message || 'Unknown error'}`);
     }
   };
 
@@ -334,7 +334,7 @@ const CustomerManagement = () => {
       totalCreditLimit,
       totalCreditUsed,
       availableCredit: totalCreditLimit - totalCreditUsed,
-      avgCreditUtilization
+      avgCreditUtilization,
     };
   };
 
@@ -378,10 +378,10 @@ const CustomerManagement = () => {
             />
           </div>
           
-        {/* Status Filter */}
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          {/* Status Filter */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
             className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
               isDarkMode 
                 ? 'border-[#37474F] bg-[#1E2328] text-white' 
@@ -390,21 +390,21 @@ const CustomerManagement = () => {
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+            <option value="inactive">Inactive</option>
+          </select>
 
-        {/* Show Archived Toggle */}
-        <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${
+          {/* Show Archived Toggle */}
+          <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${
             isDarkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-          <input
-            type="checkbox"
-            checked={showArchived}
-            onChange={(e) => setShowArchived(e.target.checked)}
-            className="form-checkbox h-4 w-4 text-teal-600"
-          />
-          <span className="text-sm">Show archived</span>
-        </label>
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+              className="form-checkbox h-4 w-4 text-teal-600"
+            />
+            <span className="text-sm">Show archived</span>
+          </label>
         </div>
         
         {/* Action Buttons */}
@@ -526,7 +526,7 @@ const CustomerManagement = () => {
                   <div 
                     className="bg-[#008B8B] h-2 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%` 
+                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%`, 
                     }}
                   />
                 </div>
@@ -653,7 +653,7 @@ const CustomerManagement = () => {
                   <div 
                     className="bg-[#008B8B] h-3 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${customer.creditLimit > 0 ? (customer.currentCredit / customer.creditLimit) * 100 : 0}%` 
+                      width: `${customer.creditLimit > 0 ? (customer.currentCredit / customer.creditLimit) * 100 : 0}%`, 
                     }}
                   />
                 </div>
@@ -690,11 +690,11 @@ const CustomerManagement = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'profiles'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <FaUsers size={18} />
@@ -705,11 +705,11 @@ const CustomerManagement = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'suppliers'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <FaUsers size={18} />
@@ -720,11 +720,11 @@ const CustomerManagement = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'analytics'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <FaChartBar size={18} />
@@ -773,7 +773,7 @@ const CustomerManagement = () => {
         </div>
       </div>
 
-  {/* Add Customer Modal */}
+      {/* Add Customer Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className={`rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
@@ -1025,9 +1025,9 @@ const CustomerManagement = () => {
                 {creatingCustomer ? 'Adding...' : 'Add Customer'}
               </button>
             </div>
-      </div>
-    </div>
-  )}
+          </div>
+        </div>
+      )}
 
       {/* Add Supplier Modal */}
       {showAddSupplierModal && (

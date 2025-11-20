@@ -88,7 +88,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
 
   // Sort payments by date (newest first)
   const sortedPayments = [...payments].sort((a, b) =>
-    new Date(b.date) - new Date(a.date)
+    new Date(b.date) - new Date(a.date),
   );
 
   return (
@@ -322,7 +322,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                     >
                       {payment.notes
                         ? payment.notes.length > 30
-                          ? payment.notes.substring(0, 30) + '...'
+                          ? `${payment.notes.substring(0, 30)  }...`
                           : payment.notes
                         : '-'}
                     </td>
@@ -337,8 +337,8 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                             printingReceiptId === payment.id
                               ? 'opacity-50 cursor-not-allowed'
                               : isDarkMode
-                              ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
-                              : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                                ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
+                                : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
                           }`}
                           title="Print payment receipt"
                         >
@@ -351,8 +351,8 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                             downloadingReceiptId === payment.id
                               ? 'opacity-50 cursor-not-allowed'
                               : isDarkMode
-                              ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
-                              : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                                ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
+                                : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
                           }`}
                           title="Download payment receipt"
                         >
@@ -365,8 +365,8 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                             isFullyPaid
                               ? 'opacity-50 cursor-not-allowed text-gray-400'
                               : isDarkMode
-                              ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
-                              : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                                ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
+                                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
                           }`}
                           title={isFullyPaid ? 'Cannot edit - invoice fully paid' : 'Edit payment'}
                         >

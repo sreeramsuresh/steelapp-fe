@@ -36,7 +36,7 @@ export const productService = {
   async searchProducts(searchTerm, filters = {}) {
     return apiClient.get('/products', {
       search: searchTerm,
-      ...filters
+      ...filters,
     });
   },
 
@@ -66,5 +66,5 @@ export const productService = {
     document.body.removeChild(link);
     
     window.URL.revokeObjectURL(downloadUrl);
-  }
+  },
 };

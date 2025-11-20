@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Plus as Add,
   Edit,
@@ -16,19 +16,19 @@ import {
   AlertCircle,
   ChevronDown,
   Upload,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { inventoryService } from "../services/inventoryService";
-import { productService } from "../services/productService";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { inventoryService } from '../services/inventoryService';
+import { productService } from '../services/productService';
 import {
   createInventoryItem,
   PRODUCT_TYPES,
   STEEL_GRADES,
   FINISHES,
-} from "../types";
-import InventoryUpload from "./InventoryUpload";
-import ConfirmDialog from "./ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+} from '../types';
+import InventoryUpload from './InventoryUpload';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 const InventoryList = () => {
   const { isDarkMode } = useTheme();
@@ -37,25 +37,25 @@ const InventoryList = () => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
-  const [productQuery, setProductQuery] = useState("");
+  const [productQuery, setProductQuery] = useState('');
   const [productOptions, setProductOptions] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
       ...item,
-      quantity: "",
-      pricePurchased: "",
-      sellingPrice: "",
-      landedCost: "",
-      warehouseId: "",
-      warehouseName: "",
+      quantity: '',
+      pricePurchased: '',
+      sellingPrice: '',
+      landedCost: '',
+      warehouseId: '',
+      warehouseName: '',
       productId: null,
-      productName: "",
+      productName: '',
     };
   });
 
@@ -70,8 +70,8 @@ const InventoryList = () => {
       const response = await inventoryService.getAllItems();
       setInventory(response.data || []);
     } catch (error) {
-      console.error("Error fetching inventory:", error);
-      setError("Failed to load inventory");
+      console.error('Error fetching inventory:', error);
+      setError('Failed to load inventory');
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ const InventoryList = () => {
           name: w.name,
           code: w.code,
           city: w.city,
-          isActive: w.isActive !== false
+          isActive: w.isActive !== false,
         }));
       
       setWarehouses(transformedWarehouses);
@@ -110,25 +110,25 @@ const InventoryList = () => {
       setFormData({
         ...item,
         productId: item.productId || null,
-        productName: item.productName || "",
+        productName: item.productName || '',
       });
-      setProductQuery("");
+      setProductQuery('');
       setProductOptions([]);
     } else {
       setEditingItem(null);
       const item = createInventoryItem();
       setFormData({
         ...item,
-        quantity: "",
-        pricePurchased: "",
-        sellingPrice: "",
-        landedCost: "",
-        warehouseId: "",
-        warehouseName: "",
+        quantity: '',
+        pricePurchased: '',
+        sellingPrice: '',
+        landedCost: '',
+        warehouseId: '',
+        warehouseName: '',
         productId: null,
-        productName: "",
+        productName: '',
       });
-      setProductQuery("");
+      setProductQuery('');
       setProductOptions([]);
     }
     setOpenDialog(true);
@@ -140,29 +140,29 @@ const InventoryList = () => {
     const item = createInventoryItem();
     setFormData({
       ...item,
-      quantity: "",
-      pricePurchased: "",
-      sellingPrice: "",
-      landedCost: "",
-      warehouseId: "",
-      warehouseName: "",
+      quantity: '',
+      pricePurchased: '',
+      sellingPrice: '',
+      landedCost: '',
+      warehouseId: '',
+      warehouseName: '',
       productId: null,
-      productName: "",
+      productName: '',
     });
-    setError("");
+    setError('');
   };
 
   const handleSubmit = async () => {
     try {
       const itemData = {
         ...formData,
-        quantity: formData.quantity === "" ? 0 : Number(formData.quantity),
+        quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
         pricePurchased:
-          formData.pricePurchased === "" ? 0 : Number(formData.pricePurchased),
+          formData.pricePurchased === '' ? 0 : Number(formData.pricePurchased),
         sellingPrice:
-          formData.sellingPrice === "" ? 0 : Number(formData.sellingPrice),
+          formData.sellingPrice === '' ? 0 : Number(formData.sellingPrice),
         landedCost:
-          formData.landedCost === "" ? 0 : Number(formData.landedCost),
+          formData.landedCost === '' ? 0 : Number(formData.landedCost),
       };
 
       if (editingItem) {
@@ -173,8 +173,8 @@ const InventoryList = () => {
       await fetchInventory();
       handleCloseDialog();
     } catch (error) {
-      console.error("Error saving inventory item:", error);
-      setError("Failed to save inventory item");
+      console.error('Error saving inventory item:', error);
+      setError('Failed to save inventory item');
     }
   };
 
@@ -183,7 +183,7 @@ const InventoryList = () => {
       title: 'Delete Inventory Item?',
       message: 'Are you sure you want to delete this inventory item? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -192,8 +192,8 @@ const InventoryList = () => {
       await inventoryService.deleteItem(id);
       await fetchInventory();
     } catch (error) {
-      console.error("Error deleting inventory item:", error);
-      setError("Failed to delete inventory item");
+      console.error('Error deleting inventory item:', error);
+      setError('Failed to delete inventory item');
     }
   };
 
@@ -208,8 +208,8 @@ const InventoryList = () => {
     const selectedWarehouse = warehouses.find(w => w.id.toString() === warehouseId);
     setFormData((prev) => ({
       ...prev,
-      warehouseId: warehouseId,
-      warehouseName: selectedWarehouse ? `${selectedWarehouse.name} (${selectedWarehouse.city})` : "",
+      warehouseId,
+      warehouseName: selectedWarehouse ? `${selectedWarehouse.name} (${selectedWarehouse.city})` : '',
       location: selectedWarehouse ? `${selectedWarehouse.name} - ${selectedWarehouse.city}` : prev.location,
     }));
   };
@@ -244,30 +244,30 @@ const InventoryList = () => {
       productId: product.id,
       productName: product.fullName || product.name,
     }));
-    setProductQuery("");
+    setProductQuery('');
     setProductOptions([]);
   };
 
   const clearLinkedProduct = () => {
-    setFormData((prev) => ({ ...prev, productId: null, productName: "" }));
+    setFormData((prev) => ({ ...prev, productId: null, productName: '' }));
   };
 
   const filteredInventory = inventory
-    // Note: We don't filter out items based on transit PO names anymore
-    // because items can have the same name but different statuses
-    // (one in transit, one actually in inventory from retain POs)
+  // Note: We don't filter out items based on transit PO names anymore
+  // because items can have the same name but different statuses
+  // (one in transit, one actually in inventory from retain POs)
     
     // Apply local search filter
     .filter((item) =>
       Object.values(item).some((value) =>
-        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      )
+        value?.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
     );
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
     }).format(amount);
   };
@@ -279,7 +279,7 @@ const InventoryList = () => {
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
     if (item.thickness) parts.push(`${item.thickness}MM`);
-    return parts.join(" ");
+    return parts.join(' ');
   };
 
   if (loading) {
@@ -314,7 +314,7 @@ const InventoryList = () => {
             isDarkMode ? 'bg-red-900/20 border-red-700 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
           }`}>
             <span>{error}</span>
-            <button onClick={() => setError("")} className="ml-4">
+            <button onClick={() => setError('')} className="ml-4">
               <X size={16} />
             </button>
           </div>
@@ -498,19 +498,19 @@ const InventoryList = () => {
                     <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.pricePurchased
                         ? formatCurrency(item.pricePurchased)
-                        : "-"}
+                        : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-semibold text-green-600`}>
                       {item.sellingPrice
                         ? formatCurrency(item.sellingPrice)
-                        : "-"}
+                        : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {item.landedCost ? formatCurrency(item.landedCost) : "-"}
+                      {item.landedCost ? formatCurrency(item.landedCost) : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -567,8 +567,8 @@ const InventoryList = () => {
                       </h3>
                       <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {searchTerm
-                          ? "Try adjusting your search term"
-                          : "Add your first inventory item to get started"}
+                          ? 'Try adjusting your search term'
+                          : 'Add your first inventory item to get started'}
                       </p>
                       {!searchTerm && (
                         <button
@@ -597,7 +597,7 @@ const InventoryList = () => {
                 isDarkMode ? 'border-gray-700' : 'border-gray-200'
               }`}>
                 <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {editingItem ? "Edit Inventory Item" : "Add Inventory Item"}
+                  {editingItem ? 'Edit Inventory Item' : 'Add Inventory Item'}
                 </h3>
               </div>
               <div className="p-6">
@@ -660,7 +660,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
                       placeholder="Auto-generated if empty"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
@@ -676,7 +676,7 @@ const InventoryList = () => {
                     <div className="relative">
                       <select
                         value={formData.productType}
-                        onChange={(e) => handleInputChange("productType", e.target.value)}
+                        onChange={(e) => handleInputChange('productType', e.target.value)}
                         className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                           isDarkMode 
                             ? 'bg-gray-800 border-gray-600 text-white' 
@@ -702,7 +702,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.grade}
-                      onChange={(e) => handleInputChange("grade", e.target.value)}
+                      onChange={(e) => handleInputChange('grade', e.target.value)}
                       placeholder="e.g., 304, 316L"
                       list="steel-grades"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -727,7 +727,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.finish}
-                      onChange={(e) => handleInputChange("finish", e.target.value)}
+                      onChange={(e) => handleInputChange('finish', e.target.value)}
                       placeholder="e.g., Mirror, HL, 2B"
                       list="finishes"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -752,7 +752,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.size}
-                      onChange={(e) => handleInputChange("size", e.target.value)}
+                      onChange={(e) => handleInputChange('size', e.target.value)}
                       placeholder="e.g., 4x8"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
@@ -768,7 +768,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.thickness}
-                      onChange={(e) => handleInputChange("thickness", e.target.value)}
+                      onChange={(e) => handleInputChange('thickness', e.target.value)}
                       placeholder="e.g., 0.8, 1.2"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
@@ -783,11 +783,11 @@ const InventoryList = () => {
                     </label>
                     <input
                       type="number"
-                      value={formData.quantity || ""}
+                      value={formData.quantity || ''}
                       onChange={(e) =>
                         handleInputChange(
-                          "quantity",
-                          e.target.value === "" ? "" : parseInt(e.target.value) || ""
+                          'quantity',
+                          e.target.value === '' ? '' : parseInt(e.target.value) || '',
                         )
                       }
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -803,11 +803,11 @@ const InventoryList = () => {
                     </label>
                     <input
                       type="number"
-                      value={formData.minStock || ""}
+                      value={formData.minStock || ''}
                       onChange={(e) =>
                         handleInputChange(
-                          "minStock",
-                          e.target.value === "" ? "" : parseInt(e.target.value) || ""
+                          'minStock',
+                          e.target.value === '' ? '' : parseInt(e.target.value) || '',
                         )
                       }
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -829,13 +829,13 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
-                        value={formData.pricePurchased || ""}
+                        value={formData.pricePurchased || ''}
                         onChange={(e) =>
                           handleInputChange(
-                            "pricePurchased",
-                            e.target.value === ""
-                              ? ""
-                              : parseFloat(e.target.value) || ""
+                            'pricePurchased',
+                            e.target.value === ''
+                              ? ''
+                              : parseFloat(e.target.value) || '',
                           )
                         }
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -858,13 +858,13 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
-                        value={formData.sellingPrice || ""}
+                        value={formData.sellingPrice || ''}
                         onChange={(e) =>
                           handleInputChange(
-                            "sellingPrice",
-                            e.target.value === ""
-                              ? ""
-                              : parseFloat(e.target.value) || ""
+                            'sellingPrice',
+                            e.target.value === ''
+                              ? ''
+                              : parseFloat(e.target.value) || '',
                           )
                         }
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -887,13 +887,13 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
-                        value={formData.landedCost || ""}
+                        value={formData.landedCost || ''}
                         onChange={(e) =>
                           handleInputChange(
-                            "landedCost",
-                            e.target.value === ""
-                              ? ""
-                              : parseFloat(e.target.value) || ""
+                            'landedCost',
+                            e.target.value === ''
+                              ? ''
+                              : parseFloat(e.target.value) || '',
                           )
                         }
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -937,7 +937,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.location}
-                      onChange={(e) => handleInputChange("location", e.target.value)}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
                       placeholder="e.g., Section A, Row 3, Shelf 2"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode 
@@ -965,7 +965,7 @@ const InventoryList = () => {
                   onClick={handleSubmit}
                   className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
-                  {editingItem ? "Update Item" : "Add Item"}
+                  {editingItem ? 'Update Item' : 'Add Item'}
                 </button>
               </div>
             </div>

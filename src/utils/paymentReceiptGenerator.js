@@ -50,7 +50,7 @@ const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, page
     date: margin + 28,
     method: margin + 55,
     refNo: margin + 85,
-    amount: pageWidth - margin - 32  // Increased space from right edge
+    amount: pageWidth - margin - 32,  // Increased space from right edge
   };
 
   pdf.text('Receipt No', colX.receiptNo, yPos);
@@ -94,7 +94,7 @@ const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, page
     pdf.text(dateStr, colX.date, yPos);
 
     const pmtFormatted = formatPaymentDisplay(pmt);
-    const methodText = pmtFormatted.modeLabel.length > 10 ? pmtFormatted.modeLabel.substring(0, 8) + '..' : pmtFormatted.modeLabel;
+    const methodText = pmtFormatted.modeLabel.length > 10 ? `${pmtFormatted.modeLabel.substring(0, 8)  }..` : pmtFormatted.modeLabel;
     pdf.text(methodText, colX.method, yPos);
 
     // Allow more space for reference numbers (up to 20 characters)

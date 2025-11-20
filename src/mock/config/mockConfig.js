@@ -26,5 +26,5 @@ if (USE_MOCK_DATA) {
 export default {
   USE_MOCK_DATA,
   MOCK_SCENARIO,
-  MOCK_DELAY
+  MOCK_DELAY,
 };

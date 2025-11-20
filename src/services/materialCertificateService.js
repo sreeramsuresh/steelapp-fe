@@ -61,7 +61,7 @@ export const materialCertificateService = {
     try {
       const response = await api.patch(`/material-certificates/${id}/verify`, {
         verification_status,
-        notes
+        notes,
       });
       return response.data;
     } catch (error) {
@@ -98,9 +98,9 @@ export const materialCertificateService = {
       { value: 'pending', label: 'Pending', color: 'yellow' },
       { value: 'verified', label: 'Verified', color: 'green' },
       { value: 'rejected', label: 'Rejected', color: 'red' },
-      { value: 'expired', label: 'Expired', color: 'gray' }
+      { value: 'expired', label: 'Expired', color: 'gray' },
     ];
-  }
+  },
 };
 
 export default materialCertificateService;

@@ -4,7 +4,7 @@
 
 import quotationsData from '../data/quotations.json';
 
-let quotations = [...quotationsData];
+const quotations = [...quotationsData];
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
 const quotationService = {
@@ -22,7 +22,7 @@ const quotationService = {
       const s = search.toLowerCase();
       filtered = filtered.filter(q =>
         q.quotationNumber?.toLowerCase().includes(s) ||
-        q.customerName?.toLowerCase().includes(s)
+        q.customerName?.toLowerCase().includes(s),
       );
     }
     
@@ -33,7 +33,7 @@ const quotationService = {
     
     return {
       quotations: paginatedData,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages }
+      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages },
     };
   },
 
@@ -52,7 +52,7 @@ const quotationService = {
       id: Math.max(...quotations.map(q => q.id), 0) + 1,
       ...data,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     quotations.push(newQuotation);
     return newQuotation;
@@ -67,7 +67,7 @@ const quotationService = {
     quotations[index] = {
       ...quotations[index],
       ...data,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     return quotations[index];
   },
@@ -80,7 +80,7 @@ const quotationService = {
     }
     quotations.splice(index, 1);
     return { message: 'Quotation deleted successfully' };
-  }
+  },
 };
 
 export default quotationService;

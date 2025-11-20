@@ -77,7 +77,7 @@ class InventoryService {
   async getItemsByProduct(productType, grade) {
     const filters = {
       productType,
-      grade
+      grade,
     };
     return apiClient.get(`${this.endpoint}/by-product`, filters);
   }
@@ -85,7 +85,7 @@ class InventoryService {
   async updateQuantity(id, quantity, operation = 'set') {
     return apiClient.patch(`${this.endpoint}/${id}/quantity`, {
       quantity,
-      operation // 'set', 'add', 'subtract'
+      operation, // 'set', 'add', 'subtract'
     });
   }
 

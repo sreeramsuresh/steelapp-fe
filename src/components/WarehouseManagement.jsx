@@ -14,7 +14,7 @@ import {
   Building,
   Map,
   Phone,
-  Mail
+  Mail,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -45,7 +45,7 @@ const WarehouseManagement = () => {
     email: '',
     capacity: '',
     description: '',
-    is_active: true
+    is_active: true,
   });
 
   // Fetch warehouses from API
@@ -72,7 +72,7 @@ const WarehouseManagement = () => {
         description: warehouse.description || '',
         isActive: warehouse.isActive !== false,
         itemsCount: warehouse.inventoryCount || 0,
-        utilizationPercent: Math.floor(Math.random() * 100) // Calculate actual utilization based on capacity
+        utilizationPercent: Math.floor(Math.random() * 100), // Calculate actual utilization based on capacity
       }));
       
       setWarehouses(transformedData);
@@ -105,7 +105,7 @@ const WarehouseManagement = () => {
         email: warehouse.email,
         capacity: warehouse.capacity,
         description: warehouse.description,
-        is_active: warehouse.isActive
+        is_active: warehouse.isActive,
       });
     } else {
       setEditingWarehouse(null);
@@ -122,7 +122,7 @@ const WarehouseManagement = () => {
         email: '',
         capacity: '',
         description: '',
-        is_active: true
+        is_active: true,
       });
     }
     setOpenDialog(true);
@@ -169,7 +169,7 @@ const WarehouseManagement = () => {
       title: 'Delete Warehouse?',
       message: 'Are you sure you want to delete this warehouse? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -196,14 +196,14 @@ const WarehouseManagement = () => {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const filteredWarehouses = warehouses.filter(warehouse =>
     Object.values(warehouse).some(value =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const getUtilizationColor = (percent) => {
@@ -407,7 +407,7 @@ const WarehouseManagement = () => {
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${
                       warehouse.utilizationPercent >= 80 ? 'bg-red-500' :
-                      warehouse.utilizationPercent >= 60 ? 'bg-yellow-500' : 'bg-green-500'
+                        warehouse.utilizationPercent >= 60 ? 'bg-yellow-500' : 'bg-green-500'
                     }`} />
                     <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {warehouse.utilizationPercent}%

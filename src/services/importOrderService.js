@@ -61,7 +61,7 @@ export const importOrderService = {
     try {
       const response = await api.patch(`/import-orders/${id}/status`, {
         status,
-        notes
+        notes,
       });
       return response.data;
     } catch (error) {
@@ -96,7 +96,7 @@ export const importOrderService = {
   async searchImportOrders(query) {
     try {
       const response = await api.get('/import-orders/search', {
-        params: { query }
+        params: { query },
       });
       return response.data;
     } catch (error) {
@@ -115,7 +115,7 @@ export const importOrderService = {
       { value: 'arrived', label: 'Arrived', color: 'purple' },
       { value: 'customs_clearance', label: 'Customs Clearance', color: 'indigo' },
       { value: 'completed', label: 'Completed', color: 'green' },
-      { value: 'cancelled', label: 'Cancelled', color: 'red' }
+      { value: 'cancelled', label: 'Cancelled', color: 'red' },
     ];
   },
 
@@ -132,7 +132,7 @@ export const importOrderService = {
       { value: 'FAS', label: 'FAS - Free Alongside Ship' },
       { value: 'FOB', label: 'FOB - Free On Board' },
       { value: 'CFR', label: 'CFR - Cost & Freight' },
-      { value: 'CIF', label: 'CIF - Cost, Insurance & Freight' }
+      { value: 'CIF', label: 'CIF - Cost, Insurance & Freight' },
     ];
   },
 
@@ -145,9 +145,9 @@ export const importOrderService = {
       { value: 'documents_against_payment', label: 'Documents Against Payment' },
       { value: 'documents_against_acceptance', label: 'Documents Against Acceptance' },
       { value: 'bank_guarantee', label: 'Bank Guarantee' },
-      { value: 'escrow', label: 'Escrow' }
+      { value: 'escrow', label: 'Escrow' },
     ];
-  }
+  },
 };
 
 export default importOrderService;

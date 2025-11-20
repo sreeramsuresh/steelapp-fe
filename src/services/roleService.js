@@ -75,7 +75,7 @@ export const roleService = {
    */
   async assignRoles(userId, roleIds) {
     const response = await apiClient.post(`/roles/users/${userId}/roles`, {
-      role_ids: roleIds
+      role_ids: roleIds,
     });
     return response;
   },
@@ -85,7 +85,7 @@ export const roleService = {
    */
   async replaceUserRoles(userId, roleIds) {
     const response = await apiClient.put(`/roles/users/${userId}/roles`, {
-      role_ids: roleIds
+      role_ids: roleIds,
     });
     return response;
   },
@@ -105,7 +105,7 @@ export const roleService = {
     const response = await apiClient.post(`/roles/users/${userId}/permissions/grant`, {
       permission_key: permissionKey,
       reason,
-      expires_at: expiresAt
+      expires_at: expiresAt,
     });
     return response;
   },
@@ -115,7 +115,7 @@ export const roleService = {
    */
   async revokeCustomPermission(userId, permissionKey, reason = null) {
     const response = await apiClient.delete(`/roles/users/${userId}/permissions/${permissionKey}`, {
-      data: { reason }
+      data: { reason },
     });
     return response;
   },
@@ -125,8 +125,8 @@ export const roleService = {
    */
   async getAuditLog(userId, limit = 100) {
     const response = await apiClient.get(`/roles/users/${userId}/audit-log`, {
-      params: { limit }
+      params: { limit },
     });
     return response;
-  }
+  },
 };

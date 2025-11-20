@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -10,11 +10,11 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-} from "lucide-react";
-import { invoicesAPI } from "../services/api";
-import { analyticsService } from "../services/analyticsService";
-import { useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
+} from 'lucide-react';
+import { invoicesAPI } from '../services/api';
+import { analyticsService } from '../services/analyticsService';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
@@ -141,7 +141,7 @@ const Dashboard = () => {
       const invoicesChange = percentChange(current?.invoiceCount, previous?.invoiceCount);
       const customersChange = percentChange(
         current?.uniqueCustomers,
-        previous?.uniqueCustomers
+        previous?.uniqueCustomers,
       );
 
       setStats({
@@ -161,16 +161,16 @@ const Dashboard = () => {
       // Top products from analytics
       const tops = Array.isArray(dashboard?.topProducts)
         ? dashboard.topProducts.slice(0, 5).map((p) => ({
-            id: p.id,
-            name: p.name,
-            category: p.category,
-            sales: safeNum(p.totalSold),
-            revenue: safeNum(p.totalRevenue),
-          }))
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          sales: safeNum(p.totalSold),
+          revenue: safeNum(p.totalRevenue),
+        }))
         : [];
       setTopProducts(tops);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -181,18 +181,18 @@ const Dashboard = () => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
     
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
     }).format(safeAmount);
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+    return new Date(dateString).toLocaleDateString('en-AE', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     });
   };
 
@@ -444,7 +444,7 @@ const Dashboard = () => {
                         'from-indigo-500 to-purple-600',
                         'from-emerald-500 to-green-600', 
                         'from-amber-500 to-orange-600',
-                        'from-red-500 to-red-600'
+                        'from-red-500 to-red-600',
                       ];
                       return gradients[index % 4];
                     };
@@ -563,7 +563,7 @@ const Dashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {invoice.customerDetails?.name || "Unknown Customer"}
+                              {invoice.customerDetails?.name || 'Unknown Customer'}
                             </div>
                             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                               {invoice.customerDetails?.email}
@@ -582,13 +582,13 @@ const Dashboard = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                            invoice.status === "paid"
+                            invoice.status === 'paid'
                               ? 'bg-green-100 text-green-800 border-green-200'
-                              : invoice.status === "pending"
-                              ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                              : invoice.status === "overdue"
-                              ? 'bg-red-100 text-red-800 border-red-200'
-                              : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
+                              : invoice.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                : invoice.status === 'overdue'
+                                  ? 'bg-red-100 text-red-800 border-red-200'
+                                  : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
                           }`}>
                             {invoice.status}
                           </span>

@@ -1,154 +1,154 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import MarketingLayout from "./MarketingLayout";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import MarketingLayout from './MarketingLayout';
 
 const Products = () => {
   const metalSupplies = [
     {
-      title: "Steel Coils",
+      title: 'Steel Coils',
       description:
-        "High-quality coils for manufacturing and industrial applications.",
+        'High-quality coils for manufacturing and industrial applications.',
       image:
-        "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Sheets",
+      title: 'Steel Sheets',
       description:
-        "Premium sheets for diverse construction and design purposes.",
+        'Premium sheets for diverse construction and design purposes.',
       image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
     },
     {
-      title: "Stainless Steel Pipes",
+      title: 'Stainless Steel Pipes',
       description:
-        "Precision-made stainless steel pipes for superior durability.",
+        'Precision-made stainless steel pipes for superior durability.',
       image:
-        "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Bars",
-      description: "Durable and versatile for structural applications.",
+      title: 'Steel Bars',
+      description: 'Durable and versatile for structural applications.',
       image:
-        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Rods",
-      description: "Strong and reliable for various industrial uses.",
+      title: 'Steel Rods',
+      description: 'Strong and reliable for various industrial uses.',
       image:
-        "https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Plates",
-      description: "Robust and corrosion-resistant for multiple applications.",
+      title: 'Steel Plates',
+      description: 'Robust and corrosion-resistant for multiple applications.',
       image:
-        "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Angles",
+      title: 'Steel Angles',
       description:
-        "Provides excellent support in framing and structural projects.",
+        'Provides excellent support in framing and structural projects.',
       image:
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Channels",
-      description: "Ideal for construction and fabrication needs.",
+      title: 'Steel Channels',
+      description: 'Ideal for construction and fabrication needs.',
       image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
     },
     {
-      title: "Steel Beams",
-      description: "Precision-engineered for strength and stability.",
+      title: 'Steel Beams',
+      description: 'Precision-engineered for strength and stability.',
       image:
-        "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop",
+        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop',
     },
   ];
 
   const decorativeProducts = [
     {
-      title: "Gold Finish PVD",
+      title: 'Gold Finish PVD',
       image:
-        "https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop',
     },
     {
-      title: "Rose Gold PVD",
+      title: 'Rose Gold PVD',
       image:
-        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop',
     },
     {
-      title: "Black Chrome PVD",
+      title: 'Black Chrome PVD',
       image:
-        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
     },
     {
-      title: "Bronze PVD",
+      title: 'Bronze PVD',
       image:
-        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=300&fit=crop',
     },
   ];
 
   const kitchenSolutions = [
     {
       image:
-        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1556909055-6f35a1b7e96c?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1556909055-6f35a1b7e96c?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
     },
   ];
 
   const elevationSolutions = [
     {
       image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300&h=300&fit=crop',
     },
     {
       image:
-        "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=300&h=300&fit=crop",
+        'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=300&h=300&fit=crop',
     },
   ];
 
   const industries = [
     {
-      title: "Construction & Infrastructure",
-      icon: "🏗️",
+      title: 'Construction & Infrastructure',
+      icon: '🏗️',
       image:
-        "https://images.unsplash.com/photo-1541976590-713941681591?w=150&h=150&fit=crop",
+        'https://images.unsplash.com/photo-1541976590-713941681591?w=150&h=150&fit=crop',
     },
     {
-      title: "Manufacturing & Engineering",
-      icon: "⚙️",
+      title: 'Manufacturing & Engineering',
+      icon: '⚙️',
       image:
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=150&h=150&fit=crop",
+        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=150&h=150&fit=crop',
     },
     {
-      title: "Marine & Shipbuilding",
-      icon: "🚢",
+      title: 'Marine & Shipbuilding',
+      icon: '🚢',
       image:
-        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop",
+        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop',
     },
     {
-      title: "Heavy Equipment",
-      icon: "🏭",
+      title: 'Heavy Equipment',
+      icon: '🏭',
       image:
-        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=150&h=150&fit=crop",
+        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=150&h=150&fit=crop',
     },
   ];
 

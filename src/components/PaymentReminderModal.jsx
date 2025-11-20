@@ -28,7 +28,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
     contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
     notes: '',
     promised_amount: '',
-    promised_date: ''
+    promised_date: '',
   });
   const notesTextareaRef = React.useRef(null);
 
@@ -87,7 +87,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           contact_date: new Date().toISOString().slice(0, 16),
           notes: '',
           promised_amount: '',
-          promised_date: ''
+          promised_date: '',
         });
         setEditingId(null);
         notificationService.success('Note updated successfully');
@@ -103,7 +103,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
           contact_date: new Date().toISOString().slice(0, 16),
           notes: '',
           promised_amount: '',
-          promised_date: ''
+          promised_date: '',
         });
         setEditingId(null);
 
@@ -131,7 +131,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
       contact_date: new Date(reminder.contactDate).toISOString().slice(0, 16),
       notes: reminder.notes,
       promised_amount: reminder.promisedAmount || '',
-      promised_date: reminder.promisedDate || ''
+      promised_date: reminder.promisedDate || '',
     });
   };
 
@@ -166,7 +166,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
       contact_date: new Date().toISOString().slice(0, 16),
       notes: '',
       promised_amount: '',
-      promised_date: ''
+      promised_date: '',
     });
   };
 
@@ -313,7 +313,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
                             {new Date(reminder.promisedDate).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
-                              day: 'numeric'
+                              day: 'numeric',
                             })}
                           </span>
                         </div>
@@ -327,119 +327,119 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave }) => {
 
           {/* Form - Always Visible */}
           <form onSubmit={handleSubmit} className="p-5 bg-white dark:bg-gray-800/50 rounded-lg shadow-lg border-2 border-orange-400 dark:border-orange-600">
-              <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-4 flex items-center gap-2">
-                {editingId ? <Edit2 size={18} className="text-orange-600 dark:text-orange-400" /> : <Plus size={18} className="text-orange-600 dark:text-orange-400" />}
-                {editingId ? 'Edit Call Note' : 'New Call Note'}
-              </h3>
+            <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-4 flex items-center gap-2">
+              {editingId ? <Edit2 size={18} className="text-orange-600 dark:text-orange-400" /> : <Plus size={18} className="text-orange-600 dark:text-orange-400" />}
+              {editingId ? 'Edit Call Note' : 'New Call Note'}
+            </h3>
 
-              <div className="space-y-4">
-                {/* Date & Time */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                    <Calendar size={16} />
+            <div className="space-y-4">
+              {/* Date & Time */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <Calendar size={16} />
                     Date & Time of Call
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={formData.contactDate}
-                    onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
-                    required
-                  />
-                </div>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.contactDate}
+                  onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
+                  required
+                />
+              </div>
 
-                {/* Notes */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Call Notes
-                  </label>
-                  <textarea
-                    ref={notesTextareaRef}
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Enter call notes - what was discussed, customer response, concerns, etc..."
-                    rows={3}
-                    maxLength={200}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent resize-y min-h-[60px] overflow-hidden"
-                    required
-                  />
-                  <div className="flex justify-between items-center text-xs mt-1">
-                    <span className="text-gray-500 dark:text-gray-400">
+                </label>
+                <textarea
+                  ref={notesTextareaRef}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Enter call notes - what was discussed, customer response, concerns, etc..."
+                  rows={3}
+                  maxLength={200}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent resize-y min-h-[60px] overflow-hidden"
+                  required
+                />
+                <div className="flex justify-between items-center text-xs mt-1">
+                  <span className="text-gray-500 dark:text-gray-400">
                       Auto-expands as you type
-                    </span>
-                    <span className={`font-medium ${formData.notes.length > 180 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                      {formData.notes.length}/200
-                    </span>
-                  </div>
-                </div>
-
-                {/* Promised Amount (Optional) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                    <span>💰</span>
-                    Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.promisedAmount}
-                    onChange={(e) => setFormData({ ...formData, promised_amount: e.target.value })}
-                    placeholder="e.g., 5000"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Promised Payment Date (Important) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                    <span>📅</span>
-                    When Will Customer Pay? <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.promisedDate}
-                    onChange={(e) => setFormData({ ...formData, promised_date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
-                  />
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Leave empty if no specific date promised
-                  </div>
+                  </span>
+                  <span className={`font-medium ${formData.notes.length > 180 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {formData.notes.length}/200
+                  </span>
                 </div>
               </div>
 
-              {/* Form Actions */}
-              <div className="flex gap-2 mt-4">
+              {/* Promised Amount (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <span>💰</span>
+                    Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.promisedAmount}
+                  onChange={(e) => setFormData({ ...formData, promised_amount: e.target.value })}
+                  placeholder="e.g., 5000"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
+                />
+              </div>
+
+              {/* Promised Payment Date (Important) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <span>📅</span>
+                    When Will Customer Pay? <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.promisedDate}
+                  onChange={(e) => setFormData({ ...formData, promised_date: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
+                />
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Leave empty if no specific date promised
+                </div>
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex gap-2 mt-4">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className={`flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
+                  isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+                }`}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Saving...
+                  </>
+                ) : (
+                  `${editingId ? 'Update' : 'Save'} Note`
+                )}
+              </button>
+              {editingId && (
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleCancel}
                   disabled={isSaving}
-                  className={`flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
-                    isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+                  className={`flex-1 px-4 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
+                    isSaving ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                      Saving...
-                    </>
-                  ) : (
-                    `${editingId ? 'Update' : 'Save'} Note`
-                  )}
-                </button>
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                    className={`flex-1 px-4 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
-                      isSaving ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
                     Cancel
-                  </button>
-                )}
-              </div>
-            </form>
+                </button>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </div>

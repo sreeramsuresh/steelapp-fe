@@ -59,7 +59,7 @@ export const commissionService = {
 
   async approveTransactions(transactionIds) {
     const response = await axiosApi.post(`${API_BASE}/transactions/approve`, {
-      transaction_ids: transactionIds
+      transaction_ids: transactionIds,
     });
     return response.data;
   },
@@ -67,7 +67,7 @@ export const commissionService = {
   async markTransactionsPaid(transactionIds, paymentData) {
     const response = await axiosApi.post(`${API_BASE}/transactions/mark-paid`, {
       transaction_ids: transactionIds,
-      ...paymentData
+      ...paymentData,
     });
     return response.data;
   },
@@ -96,7 +96,7 @@ export const commissionService = {
   async getDashboard(filters = {}) {
     const response = await axiosApi.get(`${API_BASE}/dashboard`, { params: filters });
     return response.data;
-  }
+  },
 };
 
 export default commissionService;

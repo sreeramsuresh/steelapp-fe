@@ -8,7 +8,7 @@ import {
   Clock,
   Award,
   FileText,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
@@ -46,7 +46,7 @@ const AgentCommissionDashboard = () => {
       setLoading(true);
       const [summaryRes, transactionsRes] = await Promise.all([
         commissionService.getAgentSummary(currentUser.id),
-        commissionService.getTransactions({ agent_id: currentUser.id })
+        commissionService.getTransactions({ agent_id: currentUser.id }),
       ]);
       setSummary(summaryRes.data || {});
       setTransactions(transactionsRes.data || {});
@@ -62,7 +62,7 @@ const AgentCommissionDashboard = () => {
     const statusConfig = {
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
       approved: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Approved' },
-      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' }
+      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -126,7 +126,7 @@ const AgentCommissionDashboard = () => {
           <div className="flex space-x-1">
             {[
               { id: 'overview', label: 'Overview', icon: TrendingUp },
-              { id: 'transactions', label: 'My Transactions', icon: FileText }
+              { id: 'transactions', label: 'My Transactions', icon: FileText },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;

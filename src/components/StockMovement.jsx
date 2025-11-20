@@ -12,7 +12,7 @@ import {
   Filter,
   X,
   AlertCircle,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
@@ -68,7 +68,7 @@ const StockMovement = () => {
       // Backend doesn't expose transit_status; use stock_status === 'transit'
       // and exclude ones already received/cancelled.
       const inTransitPOs = allPOs.filter(po =>
-        (po.stockStatus === 'transit') && po.status !== 'received' && po.status !== 'cancelled'
+        (po.stockStatus === 'transit') && po.status !== 'received' && po.status !== 'cancelled',
       );
       console.log('Found in-transit POs:', inTransitPOs);
       
@@ -132,7 +132,7 @@ const StockMovement = () => {
       const movementData = {
         ...formData,
         quantity: formData.quantity === '' ? 0 : Number(formData.quantity),
-        currentStock: formData.currentStock === '' ? 0 : Number(formData.currentStock)
+        currentStock: formData.currentStock === '' ? 0 : Number(formData.currentStock),
       };
 
       if (editingMovement) {
@@ -153,7 +153,7 @@ const StockMovement = () => {
       title: 'Delete Stock Movement?',
       message: 'Are you sure you want to delete this stock movement? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -170,14 +170,14 @@ const StockMovement = () => {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const filteredMovements = movements.filter(movement =>
     Object.values(movement).some(value =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const formatDate = (dateString) => {

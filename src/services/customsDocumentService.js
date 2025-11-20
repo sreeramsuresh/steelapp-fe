@@ -62,7 +62,7 @@ export const customsDocumentService = {
       const response = await api.patch(`/customs-documents/${id}/clearance`, {
         clearance_status,
         notes,
-        clearance_date
+        clearance_date,
       });
       return response.data;
     } catch (error) {
@@ -112,9 +112,9 @@ export const customsDocumentService = {
       { value: 'under_review', label: 'Under Review', color: 'yellow' },
       { value: 'cleared', label: 'Cleared', color: 'green' },
       { value: 'rejected', label: 'Rejected', color: 'red' },
-      { value: 'on_hold', label: 'On Hold', color: 'orange' }
+      { value: 'on_hold', label: 'On Hold', color: 'orange' },
     ];
-  }
+  },
 };
 
 export default customsDocumentService;

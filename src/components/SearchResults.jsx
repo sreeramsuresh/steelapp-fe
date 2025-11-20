@@ -39,7 +39,7 @@ const SearchResults = () => {
       try {
         const [inv, cust] = await Promise.all([
           q ? invoiceService.searchInvoices(q) : Promise.resolve({ invoices: [] }),
-          q ? customerService.searchCustomers(q) : Promise.resolve({ customers: [] })
+          q ? customerService.searchCustomers(q) : Promise.resolve({ customers: [] }),
         ]);
         if (cancelled) return;
         const invoices = Array.isArray(inv?.invoices) ? inv.invoices : Array.isArray(inv) ? inv : [];

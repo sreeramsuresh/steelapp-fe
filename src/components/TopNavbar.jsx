@@ -5,7 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
 
 
-const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" }) => {
+const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = 'Dashboard' }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -59,7 +59,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
     <header 
       style={{
         backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-        borderBottomColor: isDarkMode ? '#374151' : '#e5e7eb'
+        borderBottomColor: isDarkMode ? '#374151' : '#e5e7eb',
       }}
       className="sticky top-0 z-[1001] h-16 sm:h-14 md:h-16 border-b shadow-sm"
     >
@@ -70,7 +70,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
             onClick={onToggleSidebar}
             style={{
               color: isDarkMode ? '#d1d5db' : '#374151',
-              backgroundColor: 'transparent'
+              backgroundColor: 'transparent',
             }}
             className="md:hidden p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
           >
@@ -95,7 +95,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
           <div 
             style={{
               backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
-              borderColor: isDarkMode ? '#4b5563' : '#d1d5db'
+              borderColor: isDarkMode ? '#4b5563' : '#d1d5db',
             }}
             className="relative w-full max-w-md rounded-2xl border transition-all duration-300 hover:border-teal-500 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20"
           >
@@ -110,7 +110,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               placeholder="Search invoices, customers..."
               style={{
                 color: isDarkMode ? '#ffffff' : '#111827',
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
               className="w-full pl-10 pr-20 py-3 border-none outline-none transition-all duration-300 placeholder-gray-400 sm:w-80 focus:w-96 lg:w-96 focus:lg:w-[28rem] xl:w-[30rem] focus:xl:w-[35rem]"
               value={searchQuery}
@@ -141,7 +141,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
               style={{
                 color: isDarkMode ? '#d1d5db' : '#065f46',
-                backgroundColor: isDarkMode ? '#4b5563' : '#d1fae5'
+                backgroundColor: isDarkMode ? '#4b5563' : '#d1fae5',
               }}
             >
               Go
@@ -156,7 +156,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
             onClick={toggleTheme}
             style={{
               color: isDarkMode ? '#d1d5db' : '#374151',
-              backgroundColor: 'transparent'
+              backgroundColor: 'transparent',
             }}
             className="p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
             title={themeMode === 'dark' ? 'Dark Mode' : 'Light Mode'}
@@ -174,7 +174,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               onClick={handleNotificationClick}
               style={{
                 color: isDarkMode ? '#d1d5db' : '#374151',
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
               className="relative p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
             >
@@ -191,7 +191,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               <div 
                 style={{
                   backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-                  borderColor: isDarkMode ? '#374151' : '#e5e7eb'
+                  borderColor: isDarkMode ? '#374151' : '#e5e7eb',
                 }}
                 className="absolute right-0 top-full mt-2 w-80 max-w-sm rounded-2xl border shadow-xl z-50"
               >
@@ -254,7 +254,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
             <button 
               onClick={handleProfileClick}
               style={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
               className="flex items-center gap-2 p-2 rounded-xl transition-all duration-200 hover:opacity-75"
             >
@@ -289,7 +289,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = "Dashboard" 
               <div 
                 style={{
                   backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-                  borderColor: isDarkMode ? '#374151' : '#e5e7eb'
+                  borderColor: isDarkMode ? '#374151' : '#e5e7eb',
                 }}
                 className="absolute right-0 top-full mt-2 w-72 rounded-2xl border shadow-xl z-50"
               >

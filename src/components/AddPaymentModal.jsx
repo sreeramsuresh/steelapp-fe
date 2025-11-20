@@ -6,7 +6,7 @@ import {
   PAYMENT_MODES,
   generatePaymentId,
   validatePayment,
-  calculateBalanceDue
+  calculateBalanceDue,
 } from '../utils/paymentUtils';
 
 const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPayments = [], editingPayment = null }) => {
@@ -18,7 +18,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     amount: '',
     payment_mode: 'cash',
     reference_number: '',
-    notes: ''
+    notes: '',
   });
 
   const [errors, setErrors] = useState([]);
@@ -30,7 +30,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     if (editingPayment) {
       setPayment({
         ...editingPayment,
-        date: formatDateForInput(editingPayment.date)
+        date: formatDateForInput(editingPayment.date),
       });
     } else {
       setPayment({
@@ -39,7 +39,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
         amount: '',
         payment_mode: 'cash',
         reference_number: '',
-        notes: ''
+        notes: '',
       });
     }
     setErrors([]);
@@ -61,7 +61,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     onSave({
       ...payment,
       amount: parseFloat(payment.amount),
-      created_at: editingPayment?.createdAt || new Date().toISOString()
+      created_at: editingPayment?.createdAt || new Date().toISOString(),
     });
 
     // Close modal with smooth transition delay (300ms for React state to settle)
@@ -117,7 +117,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                     ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer hover:scale-105'
                     : 'text-blue-600 dark:text-blue-400 cursor-default'
                 }`}
-                title={!editingPayment ? "Click to apply this amount to payment" : ""}
+                title={!editingPayment ? 'Click to apply this amount to payment' : ''}
               >
                 {formatCurrency(balanceDue)}
                 {!editingPayment && (
@@ -232,7 +232,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                 setPayment((prev) => ({
                   ...prev,
                   payment_mode: e.target.value,
-                  reference_number: '' // Clear reference when mode changes
+                  reference_number: '', // Clear reference when mode changes
                 }))
               }
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -267,7 +267,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               onChange={(e) =>
                 setPayment((prev) => ({
                   ...prev,
-                  reference_number: e.target.value
+                  reference_number: e.target.value,
                 }))
               }
               placeholder={

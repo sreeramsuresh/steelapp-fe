@@ -104,7 +104,7 @@ export const exchangeRateService = {
   async getRateHistory(from, to, days = 30) {
     try {
       const response = await api.get(`/exchange-rates/history/${from}/${to}`, {
-        params: { days }
+        params: { days },
       });
       return response.data;
     } catch (error) {
@@ -117,7 +117,7 @@ export const exchangeRateService = {
   formatCurrency(amount, currency = 'AED') {
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: currency,
+      currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -126,7 +126,7 @@ export const exchangeRateService = {
   // Get exchange rate display with symbol
   formatRate(rate, fromCurrency, toCurrency) {
     return `1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`;
-  }
+  },
 };
 
 export default exchangeRateService;

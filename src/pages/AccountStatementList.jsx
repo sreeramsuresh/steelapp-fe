@@ -76,7 +76,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
       // Auto-select the customer and open generate modal
       setSelectedCustomer({
         id: parseInt(preSelectedCustomerId),
-        name: preSelectedCustomerName
+        name: preSelectedCustomerName,
       });
       setShowGenerateModal(true);
       setHasProcessedPreSelection(true);
@@ -373,7 +373,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                           onClick={() => setDeleteDialog({
                             open: true,
                             id: statement.id,
-                            number: statement.statementNumber
+                            number: statement.statementNumber,
                           })}
                           title="Archive Statement"
                         >

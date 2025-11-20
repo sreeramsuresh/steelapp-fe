@@ -1,6 +1,6 @@
 import React from 'react';
-import { formatDateDMY } from "../../utils/invoiceUtils";
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import { formatDateDMY } from '../../utils/invoiceUtils';
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Header Component
@@ -33,12 +33,12 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor }) => {
         {/* Company Info - Left */}
         <div>
           <h1 className="text-lg font-bold text-gray-900">
-            {company?.name || "Ultimate Steels Building Materials Trading"}
+            {company?.name || 'Ultimate Steels Building Materials Trading'}
           </h1>
           <div className="text-sm text-gray-600 mt-1">
             {compAddr.street && <p>{compAddr.street}</p>}
             {(compAddr.city || compAddr.country) && (
-              <p>{[compAddr.city, compAddr.country].filter(Boolean).join(", ")}</p>
+              <p>{[compAddr.city, compAddr.country].filter(Boolean).join(', ')}</p>
             )}
             {company?.phone && <p>Mobile: {company.phone}</p>}
             {company?.email && <p>Email: {company.email}</p>}
@@ -74,7 +74,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor }) => {
               {invoice.customer?.name && <p className="font-medium">{invoice.customer.name}</p>}
               {invoice.customer?.address?.street && <p>{invoice.customer.address.street}</p>}
               {(invoice.customer?.address?.city || invoice.customer?.address?.country) && (
-                <p>{[invoice.customer.address.city, invoice.customer.address.country].filter(Boolean).join(", ")}</p>
+                <p>{[invoice.customer.address.city, invoice.customer.address.country].filter(Boolean).join(', ')}</p>
               )}
               {invoice.customer?.email && <p><span className="font-semibold">Email:</span> {invoice.customer.email}</p>}
               {invoice.customer?.phone && <p>Phone: {invoice.customer.phone}</p>}
@@ -86,7 +86,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor }) => {
           <div className="border" style={{ borderColor: color }}>
             <div className="text-white px-3 py-1.5 flex justify-between items-center" style={{ backgroundColor: color }}>
               <span className="font-bold">Invoice No:</span>
-              <span className="font-bold">{invoice.invoiceNumber || ""}</span>
+              <span className="font-bold">{invoice.invoiceNumber || ''}</span>
             </div>
             <div className="px-3 py-2 text-sm space-y-1.5">
               <div className="flex justify-between">

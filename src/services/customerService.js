@@ -84,7 +84,7 @@ export const customerService = {
   async searchCustomers(searchTerm, filters = {}) {
     return apiClient.get('/customers', {
       search: searchTerm,
-      ...filters
+      ...filters,
     });
-  }
+  },
 };

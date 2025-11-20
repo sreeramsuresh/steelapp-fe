@@ -95,7 +95,7 @@ export function normalizeProduct(rawProduct: any, source = 'unknown'): any | nul
       // Related Data
       supplier: rawProduct.supplier || undefined,
       product: rawProduct.product || undefined,
-      image: rawProduct.image || undefined
+      image: rawProduct.image || undefined,
     };
 
     // Log validation errors if any

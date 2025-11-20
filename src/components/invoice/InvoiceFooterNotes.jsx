@@ -30,7 +30,7 @@ const InvoiceFooterNotes = ({ invoice }) => {
           <div className="flex items-start">
             <span className="mr-2">•</span>
             <div>
-              <span className="font-semibold">Place of Supply (Warehouse):</span> {[invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(", ")}
+              <span className="font-semibold">Place of Supply (Warehouse):</span> {[invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(', ')}
             </div>
           </div>
         )}
@@ -62,9 +62,9 @@ const InvoiceFooterNotes = ({ invoice }) => {
               {invoice.payments.map((payment, index) => (
                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                   <td className="px-2 py-1.5 text-sm">{index + 1}</td>
-                  <td className="px-2 py-1.5 text-sm">{payment.date || ""}</td>
-                  <td className="px-2 py-1.5 text-sm">{payment.method || ""}</td>
-                  <td className="px-2 py-1.5 text-sm">{payment.reference || ""}</td>
+                  <td className="px-2 py-1.5 text-sm">{payment.date || ''}</td>
+                  <td className="px-2 py-1.5 text-sm">{payment.method || ''}</td>
+                  <td className="px-2 py-1.5 text-sm">{payment.reference || ''}</td>
                   <td className="px-2 py-1.5 text-sm text-right">AED {payment.amount || 0}</td>
                 </tr>
               ))}

@@ -12,7 +12,7 @@ import {
   ChevronRight,
   X,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
 import { authService } from '../services/axiosAuthService';
@@ -45,27 +45,27 @@ const DeliveryNoteList = () => {
     const statusConfig = {
       pending: { 
         className: isDarkMode 
-          ? "bg-orange-900/30 text-orange-300 border-orange-600" 
-          : "bg-orange-100 text-orange-800 border-orange-300", 
-        label: "Pending" 
+          ? 'bg-orange-900/30 text-orange-300 border-orange-600' 
+          : 'bg-orange-100 text-orange-800 border-orange-300', 
+        label: 'Pending', 
       },
       partial: { 
         className: isDarkMode 
-          ? "bg-blue-900/30 text-blue-300 border-blue-600" 
-          : "bg-blue-100 text-blue-800 border-blue-300", 
-        label: "Partial Delivery" 
+          ? 'bg-blue-900/30 text-blue-300 border-blue-600' 
+          : 'bg-blue-100 text-blue-800 border-blue-300', 
+        label: 'Partial Delivery', 
       },
       completed: { 
         className: isDarkMode 
-          ? "bg-green-900/30 text-green-300 border-green-600" 
-          : "bg-green-100 text-green-800 border-green-300", 
-        label: "Completed" 
+          ? 'bg-green-900/30 text-green-300 border-green-600' 
+          : 'bg-green-100 text-green-800 border-green-300', 
+        label: 'Completed', 
       },
       cancelled: { 
         className: isDarkMode 
-          ? "bg-red-900/30 text-red-300 border-red-600" 
-          : "bg-red-100 text-red-800 border-red-300", 
-        label: "Cancelled" 
+          ? 'bg-red-900/30 text-red-300 border-red-600' 
+          : 'bg-red-100 text-red-800 border-red-300', 
+        label: 'Cancelled', 
       },
     };
 
@@ -94,7 +94,7 @@ const DeliveryNoteList = () => {
       setDeliveryNotes(response.deliveryNotes || []);
       setTotalCount(response.pagination?.total || 0);
     } catch (err) {
-      setError('Failed to fetch delivery notes: ' + err.message);
+      setError(`Failed to fetch delivery notes: ${  err.message}`);
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ const DeliveryNoteList = () => {
       await deliveryNotesAPI.downloadPDF(id);
       setSuccess('PDF downloaded successfully');
     } catch (err) {
-      setError('Failed to download PDF: ' + err.message);
+      setError(`Failed to download PDF: ${  err.message}`);
     }
   };
 
@@ -120,7 +120,7 @@ const DeliveryNoteList = () => {
       setDeleteDialog({ open: false, id: null, number: '' });
       fetchDeliveryNotes();
     } catch (err) {
-      setError('Failed to delete delivery note: ' + err.message);
+      setError(`Failed to delete delivery note: ${  err.message}`);
     }
   };
 
@@ -137,7 +137,7 @@ const DeliveryNoteList = () => {
     return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -351,52 +351,52 @@ const DeliveryNoteList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
                         {authService.hasPermission('delivery_notes','read') && (
-                        <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
-                            isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
-                          }`}
-                          onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
-                          title="View Details"
-                        >
-                          <ViewIcon size={16} />
-                        </button>
+                          <button
+                            className={`p-2 rounded transition-colors bg-transparent ${
+                              isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
+                            }`}
+                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
+                            title="View Details"
+                          >
+                            <ViewIcon size={16} />
+                          </button>
                         )}
                         {authService.hasPermission('delivery_notes','update') && (
-                        <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
-                            isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
-                          }`}
-                          onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
-                          title="Edit"
-                        >
-                          <EditIcon size={16} />
-                        </button>
+                          <button
+                            className={`p-2 rounded transition-colors bg-transparent ${
+                              isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
+                            }`}
+                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
+                            title="Edit"
+                          >
+                            <EditIcon size={16} />
+                          </button>
                         )}
                         {authService.hasPermission('delivery_notes','read') && (
-                        <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
-                            isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
-                          }`}
-                          onClick={() => handleDownloadPDF(deliveryNote.id)}
-                          title="Download PDF"
-                        >
-                          <DownloadIcon size={16} />
-                        </button>
+                          <button
+                            className={`p-2 rounded transition-colors bg-transparent ${
+                              isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
+                            }`}
+                            onClick={() => handleDownloadPDF(deliveryNote.id)}
+                            title="Download PDF"
+                          >
+                            <DownloadIcon size={16} />
+                          </button>
                         )}
                         {authService.hasPermission('delivery_notes','delete') && (
-                        <button
-                          className={`p-2 rounded transition-colors bg-transparent ${
-                            isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
-                          }`}
-                          onClick={() => setDeleteDialog({
-                            open: true,
-                            id: deliveryNote.id,
-                            number: deliveryNote.deliveryNoteNumber
-                          })}
-                          title="Delete"
-                        >
-                          <DeleteIcon size={16} />
-                        </button>
+                          <button
+                            className={`p-2 rounded transition-colors bg-transparent ${
+                              isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
+                            }`}
+                            onClick={() => setDeleteDialog({
+                              open: true,
+                              id: deliveryNote.id,
+                              number: deliveryNote.deliveryNoteNumber,
+                            })}
+                            title="Delete"
+                          >
+                            <DeleteIcon size={16} />
+                          </button>
                         )}
                       </div>
                     </td>

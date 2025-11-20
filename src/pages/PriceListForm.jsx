@@ -26,7 +26,7 @@ import {
   DialogActions,
   MenuItem,
   InputAdornment,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
@@ -35,7 +35,7 @@ import {
   Delete as DeleteIcon,
   TrendingUp as IncreaseIcon,
   TrendingDown as DecreaseIcon,
-  ContentCopy as CopyIcon
+  ContentCopy as CopyIcon,
 } from '@mui/icons-material';
 import pricelistService from '../services/pricelistService';
 import { productService } from '../services/dataService';
@@ -58,13 +58,13 @@ export default function PriceListForm() {
     isDefault: false,
     effectiveFrom: '',
     effectiveTo: '',
-    items: []
+    items: [],
   });
 
   const [bulkDialog, setBulkDialog] = useState(false);
   const [bulkOperation, setBulkOperation] = useState({
     type: 'increase',
-    percentage: 0
+    percentage: 0,
   });
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function PriceListForm() {
         isDefault: pricelist.isDefault,
         effectiveFrom: pricelist.effectiveFrom || '',
         effectiveTo: pricelist.effectiveTo || '',
-        items: pricelist.items || []
+        items: pricelist.items || [],
       });
     } catch (error) {
       console.error('Error fetching pricelist:', error);
@@ -124,7 +124,7 @@ export default function PriceListForm() {
         isDefault: false,
         effectiveFrom: '',
         effectiveTo: '',
-        items: source.items || []
+        items: source.items || [],
       });
     } catch (error) {
       console.error('Error copying pricelist:', error);
@@ -146,7 +146,7 @@ export default function PriceListForm() {
         const updatedItems = [...prev.items];
         updatedItems[existingIndex] = {
           ...updatedItems[existingIndex],
-          sellingPrice: parseFloat(newPrice) || 0
+          sellingPrice: parseFloat(newPrice) || 0,
         };
         return { ...prev, items: updatedItems };
       } else {
@@ -157,8 +157,8 @@ export default function PriceListForm() {
             productId,
             productName: product?.name,
             sellingPrice: parseFloat(newPrice) || 0,
-            minQuantity: 1
-          }]
+            minQuantity: 1,
+          }],
         };
       }
     });
@@ -172,8 +172,8 @@ export default function PriceListForm() {
       ...prev,
       items: prev.items.map(item => ({
         ...item,
-        sellingPrice: parseFloat((item.sellingPrice * multiplier).toFixed(2))
-      }))
+        sellingPrice: parseFloat((item.sellingPrice * multiplier).toFixed(2)),
+      })),
     }));
 
     toast.success(`Applied ${percentage}% ${type} to all prices`);
@@ -196,8 +196,8 @@ export default function PriceListForm() {
         items: formData.items.map(item => ({
           product_id: item.productId,
           selling_price: item.sellingPrice,
-          min_quantity: item.minQuantity || 1
-        }))
+          min_quantity: item.minQuantity || 1,
+        })),
       };
 
       if (isEdit) {
@@ -397,7 +397,7 @@ export default function PriceListForm() {
                                     <InputAdornment position="start">
                                       {formData.currency}
                                     </InputAdornment>
-                                  )
+                                  ),
                                 }}
                                 sx={{ width: 150 }}
                               />
@@ -503,7 +503,7 @@ export default function PriceListForm() {
                 value={bulkOperation.percentage}
                 onChange={(e) => setBulkOperation({ ...bulkOperation, percentage: parseFloat(e.target.value) })}
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>
+                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
                 }}
               />
             </Grid>

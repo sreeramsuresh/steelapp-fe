@@ -15,7 +15,7 @@ import {
   Warehouse,
   Move,
   ChevronDown,
-  Upload
+  Upload,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/dataService';
@@ -90,7 +90,7 @@ const Input = ({ label, error, className = '', type = 'text', ...props }) => {
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = '' }) => {
+const Select = ({ label, options, value, onChange, placeholder = 'Select...', className = '' }) => {
   const { isDarkMode } = useTheme();
   
   return (
@@ -180,9 +180,9 @@ const SteelProducts = () => {
       search: searchTerm, 
       category: categoryFilter === 'all' ? undefined : categoryFilter,
       stock_status: stockFilter === 'all' ? undefined : stockFilter,
-      limit: 1000
+      limit: 1000,
     }),
-    [searchTerm, categoryFilter, stockFilter]
+    [searchTerm, categoryFilter, stockFilter],
   );
   
   const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
@@ -209,7 +209,7 @@ const SteelProducts = () => {
     productsData,
     productsArray: products,
     productsLength: products.length,
-    sampleProduct: products[0]
+    sampleProduct: products[0],
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -245,8 +245,8 @@ const SteelProducts = () => {
       yieldStrength: '',
       carbonContent: '',
       coating: '',
-      standard: ''
-    }
+      standard: '',
+    },
   });
 
 
@@ -259,14 +259,14 @@ const SteelProducts = () => {
     { value: 'flat_bar', label: 'Flat Bar' },
     { value: 'angle_bar', label: 'Angle Bar' },
     { value: 'square_bar', label: 'Square Bar' },
-    { value: 'coil', label: 'Coil' }
+    { value: 'coil', label: 'Coil' },
   ];
 
   const grades = [
     'Fe415', 'Fe500', 'Fe550', 'Fe600',
     'IS2062', 'ASTM A36', 'ASTM A572',
     '201', '304', '316', '316L', '310', '321', '347',
-    'MS', 'Galvanized'
+    'MS', 'Galvanized',
   ];
 
 
@@ -328,7 +328,7 @@ const SteelProducts = () => {
         selling_price: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),
         supplier: newProduct.supplier,
         location: newProduct.location,
-        specifications: newProduct.specifications
+        specifications: newProduct.specifications,
       };
       await createProduct(productData);
       setNewProduct({
@@ -353,8 +353,8 @@ const SteelProducts = () => {
         specifications: {
           length: '', width: '', thickness: '', diameter: '',
           tensileStrength: '', yieldStrength: '', carbonContent: '',
-          coating: '', standard: ''
-        }
+          coating: '', standard: '',
+        },
       });
       setShowAddModal(false);
       refetchProducts();
@@ -379,7 +379,7 @@ const SteelProducts = () => {
     if (newProduct.finish) parts.push(String(newProduct.finish).trim());
     const isPipeOrTube = /pipe/i.test(newProduct.category || '');
     if (isPipeOrTube) {
-      if (newProduct.sizeInch) parts.push(String(newProduct.sizeInch).trim() + '"');
+      if (newProduct.sizeInch) parts.push(`${String(newProduct.sizeInch).trim()  }"`);
     } else {
       if (newProduct.size) parts.push(String(newProduct.size).trim());
     }
@@ -416,12 +416,12 @@ const SteelProducts = () => {
         location: selectedProduct.location,
         specifications: {
           ...(selectedProduct.specifications || {}),
-          thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || ''
-        }
+          thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || '',
+        },
       };
       
       console.log('📤 Sending product data:', productData);
-      console.log('🔗 API URL would be: PUT /api/products/' + selectedProduct.id);
+      console.log(`🔗 API URL would be: PUT /api/products/${  selectedProduct.id}`);
       
       const result = await updateProduct(selectedProduct.id, productData);
       console.log('✅ Product updated successfully:', result);
@@ -460,7 +460,7 @@ const SteelProducts = () => {
       title: 'Delete Product?',
       message: 'Are you sure you want to delete this product? This action cannot be undone.',
       confirmText: 'Delete',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -522,7 +522,7 @@ const SteelProducts = () => {
             { value: 'all', label: 'All Stock' },
             { value: 'low', label: 'Low Stock' },
             { value: 'normal', label: 'Normal' },
-            { value: 'high', label: 'High Stock' }
+            { value: 'high', label: 'High Stock' },
           ]}
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
@@ -660,7 +660,7 @@ const SteelProducts = () => {
                           costPrice: product.costPrice,
                           cost_price: product.costPrice,
                           selling_price: product.sellingPrice,
-                          sellingPrice: product.sellingPrice
+                          sellingPrice: product.sellingPrice,
                         });
                         
                         // Convert snake_case to camelCase for form and normalize strings
@@ -674,7 +674,7 @@ const SteelProducts = () => {
                           minStock: product.minStock,
                           maxStock: product.maxStock,
                           costPrice: product.costPrice,
-                          sellingPrice: product.sellingPrice
+                          sellingPrice: product.sellingPrice,
                         };
                         
                         console.log('🔄 Formatted product for form:', formattedProduct);
@@ -736,12 +736,12 @@ const SteelProducts = () => {
                       stockStatus === 'low' 
                         ? (isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200')
                         : stockStatus === 'high' 
-                        ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
-                        : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
+                          ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
+                          : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
                     }`}>
                       {stockStatus === 'low' ? <AlertTriangle size={12} /> :
-                       stockStatus === 'high' ? <Package size={12} /> :
-                       <CheckCircle size={12} />}
+                        stockStatus === 'high' ? <Package size={12} /> :
+                          <CheckCircle size={12} />}
                       {stockStatus.toUpperCase()}
                     </span>
                   </div>
@@ -818,11 +818,11 @@ const SteelProducts = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'catalog'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <Package size={18} />
@@ -833,11 +833,11 @@ const SteelProducts = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'inventory'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <Warehouse size={18} />
@@ -848,11 +848,11 @@ const SteelProducts = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'movements'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <Move size={18} />
@@ -863,11 +863,11 @@ const SteelProducts = () => {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === 'warehouses'
                   ? (isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
                   : (isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
               }`}
             >
               <Warehouse size={18} />
@@ -1075,7 +1075,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.length}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, length: e.target.value}
+                        specifications: {...newProduct.specifications, length: e.target.value},
                       })}
                       placeholder="Enter length"
                     />
@@ -1084,7 +1084,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.width}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, width: e.target.value}
+                        specifications: {...newProduct.specifications, width: e.target.value},
                       })}
                       placeholder="Enter width"
                     />
@@ -1093,7 +1093,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.thickness}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, thickness: e.target.value}
+                        specifications: {...newProduct.specifications, thickness: e.target.value},
                       })}
                       placeholder="Enter thickness"
                     />
@@ -1102,7 +1102,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.diameter}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, diameter: e.target.value}
+                        specifications: {...newProduct.specifications, diameter: e.target.value},
                       })}
                       placeholder="Enter diameter"
                     />
@@ -1111,7 +1111,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.tensileStrength}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, tensileStrength: e.target.value}
+                        specifications: {...newProduct.specifications, tensileStrength: e.target.value},
                       })}
                       placeholder="Enter tensile strength"
                     />
@@ -1120,7 +1120,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.yieldStrength}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, yieldStrength: e.target.value}
+                        specifications: {...newProduct.specifications, yieldStrength: e.target.value},
                       })}
                       placeholder="Enter yield strength"
                     />
@@ -1129,7 +1129,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.carbonContent}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, carbonContent: e.target.value}
+                        specifications: {...newProduct.specifications, carbonContent: e.target.value},
                       })}
                       placeholder="Enter carbon content"
                     />
@@ -1138,7 +1138,7 @@ const SteelProducts = () => {
                       value={newProduct.specifications.coating}
                       onChange={(e) => setNewProduct({
                         ...newProduct,
-                        specifications: {...newProduct.specifications, coating: e.target.value}
+                        specifications: {...newProduct.specifications, coating: e.target.value},
                       })}
                       placeholder="Enter coating type"
                     />
@@ -1148,7 +1148,7 @@ const SteelProducts = () => {
                         value={newProduct.specifications.standard}
                         onChange={(e) => setNewProduct({
                           ...newProduct,
-                          specifications: {...newProduct.specifications, standard: e.target.value}
+                          specifications: {...newProduct.specifications, standard: e.target.value},
                         })}
                         placeholder="Enter applicable standard"
                       />

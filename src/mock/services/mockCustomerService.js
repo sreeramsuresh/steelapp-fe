@@ -4,7 +4,7 @@
 
 import customersData from '../data/customers.json';
 
-let customers = [...customersData];
+const customers = [...customersData];
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const customerService = {
@@ -23,7 +23,7 @@ export const customerService = {
       filtered = filtered.filter(c =>
         c.name?.toLowerCase().includes(s) ||
         c.email?.toLowerCase().includes(s) ||
-        c.phone?.includes(s)
+        c.phone?.includes(s),
       );
     }
     
@@ -34,7 +34,7 @@ export const customerService = {
     
     return {
       customers: paginatedData,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages }
+      pagination: { total, page: parseInt(page), limit: parseInt(limit), totalPages },
     };
   },
 
@@ -53,7 +53,7 @@ export const customerService = {
       id: Math.max(...customers.map(c => c.id), 0) + 1,
       ...customerData,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     customers.push(newCustomer);
     return newCustomer;
@@ -68,7 +68,7 @@ export const customerService = {
     customers[index] = {
       ...customers[index],
       ...customerData,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
     return customers[index];
   },
@@ -103,7 +103,7 @@ export const customerService = {
     customers[index].status = 'active';
     customers[index].updatedAt = new Date().toISOString();
     return customers[index];
-  }
+  },
 };
 
 export default customerService;

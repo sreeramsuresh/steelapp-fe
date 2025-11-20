@@ -45,7 +45,7 @@ function normalizeInvoiceStatus(rawStatus: any): string {
         receivedStatus: rawStatus,
         knownGrpcEnums: Object.keys(statusMap),
         defaultingTo: 'draft',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
     return 'draft'; // Safe default
@@ -92,7 +92,7 @@ function normalizePaymentStatus(rawStatus: any): string {
         receivedStatus: rawStatus,
         knownGrpcEnums: Object.keys(paymentStatusMap),
         defaultingTo: 'unpaid',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
     return 'unpaid'; // Safe default
@@ -151,7 +151,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       if (!raw) {
         return {
           id: 0,
-          name: 'Unknown Customer'
+          name: 'Unknown Customer',
         };
       }
 
@@ -161,7 +161,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
         email: raw.email || undefined,
         phone: raw.phone || undefined,
         address: raw.address || undefined,
-        gstNumber: raw.gstNumber || raw.gstNumber || undefined
+        gstNumber: raw.gstNumber || raw.gstNumber || undefined,
       };
     };
 
@@ -179,7 +179,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
         unit: item.unit || undefined,
         amount: parseNumber(item.amount, 0),
         vatRate: parseNumber(item.vatRate || item.vatRate, 0),
-        vatAmount: parseNumber(item.vatAmount || item.vatAmount, 0)
+        vatAmount: parseNumber(item.vatAmount || item.vatAmount, 0),
       }));
     };
 
@@ -193,7 +193,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
         paymentDate: parseDate(payment.paymentDate || payment.paymentDate, 'paymentDate'),
         paymentMethod: payment.paymentMethod || payment.paymentMethod || undefined,
         notes: payment.notes || undefined,
-        createdAt: payment.createdAt || payment.createdAt || undefined
+        createdAt: payment.createdAt || payment.createdAt || undefined,
       }));
     };
 
@@ -204,13 +204,13 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       return {
         hasNotes: Boolean(status.hasNotes || status.hasNotes),
         count: parseNumber(status.count, 0),
-        lastDeliveryDate: status.lastDeliveryDate || status.lastDeliveryDate || undefined
+        lastDeliveryDate: status.lastDeliveryDate || status.lastDeliveryDate || undefined,
       };
     };
 
     // Build the normalized Invoice object (EXPLICIT snake_case → camelCase conversion)
     const customerDetailsNormalized = normalizeCustomerDetails(
-      rawInvoice.customerDetails || rawInvoice.customerDetails || rawInvoice.customer
+      rawInvoice.customerDetails || rawInvoice.customerDetails || rawInvoice.customer,
     );
     const invoiceDateParsed = parseDate(rawInvoice.invoiceDate || rawInvoice.invoiceDate, 'invoiceDate');
     
@@ -302,7 +302,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       termsAndConditions: rawInvoice.termsAndConditions || rawInvoice.terms_and_conditions || rawInvoice.terms || undefined,  // Backend/legacy alias
       
       // Company details
-      companyDetails: rawInvoice.companyDetails || rawInvoice.companyDetails || undefined
+      companyDetails: rawInvoice.companyDetails || rawInvoice.companyDetails || undefined,
     };
 
     // Log validation errors if any

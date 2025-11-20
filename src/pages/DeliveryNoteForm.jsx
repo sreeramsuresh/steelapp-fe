@@ -32,13 +32,13 @@ const DeliveryNoteForm = () => {
     delivery_address: {
       street: '',
       city: '',
-      po_box: ''
+      po_box: '',
     },
     vehicle_number: '',
     driver_name: '',
     driver_phone: '',
     notes: '',
-    items: []
+    items: [],
   });
 
   // Invoice selection
@@ -82,13 +82,13 @@ const DeliveryNoteForm = () => {
         delivery_address: deliveryNote.deliveryAddress || {
           street: '',
           city: '',
-          po_box: ''
+          po_box: '',
         },
         vehicle_number: deliveryNote.vehicleNumber || '',
         driver_name: deliveryNote.driverName || '',
         driver_phone: deliveryNote.driverPhone || '',
         notes: deliveryNote.notes || '',
-        items: deliveryNote.items || []
+        items: deliveryNote.items || [],
       });
 
       // Load the related invoice
@@ -97,7 +97,7 @@ const DeliveryNoteForm = () => {
         setSelectedInvoice(invoice);
       }
     } catch (err) {
-      setError('Failed to load delivery note: ' + err.message);
+      setError(`Failed to load delivery note: ${  err.message}`);
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,7 @@ const DeliveryNoteForm = () => {
     try {
       const response = await invoicesAPI.getAll({ 
         status: 'paid',
-        limit: 100 
+        limit: 100, 
       });
       setInvoices(response.invoices || []);
     } catch (err) {
@@ -120,7 +120,7 @@ const DeliveryNoteForm = () => {
       const response = await deliveryNotesAPI.getNextNumber();
       setFormData(prev => ({
         ...prev,
-        delivery_note_number: response.nextDeliveryNoteNumber
+        delivery_note_number: response.nextDeliveryNoteNumber,
       }));
     } catch (err) {
       console.error('Failed to generate delivery note number:', err);
@@ -143,12 +143,12 @@ const DeliveryNoteForm = () => {
           unit: item.unit,
           ordered_quantity: item.quantity,
           delivered_quantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity
-          remaining_quantity: isEdit ? item.quantity : 0
-        })) || []
+          remaining_quantity: isEdit ? item.quantity : 0,
+        })) || [],
       }));
       setShowInvoiceDialog(false);
     } catch (err) {
-      setError('Failed to load invoice details: ' + err.message);
+      setError(`Failed to load invoice details: ${  err.message}`);
     }
   };
 
@@ -159,13 +159,13 @@ const DeliveryNoteForm = () => {
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
@@ -176,7 +176,7 @@ const DeliveryNoteForm = () => {
     
     updatedItems[index] = {
       ...updatedItems[index],
-      [field]: numValue
+      [field]: numValue,
     };
 
     // Calculate remaining quantity
@@ -187,7 +187,7 @@ const DeliveryNoteForm = () => {
 
     setFormData(prev => ({
       ...prev,
-      items: updatedItems
+      items: updatedItems,
     }));
   };
 
@@ -271,8 +271,8 @@ const DeliveryNoteForm = () => {
         ...formData,
         items: formData.items.map(item => ({
           invoice_item_id: item.invoiceItemId,
-          delivered_quantity: item.deliveredQuantity
-        }))
+          delivered_quantity: item.deliveredQuantity,
+        })),
       };
 
       if (isEdit) {
@@ -287,7 +287,7 @@ const DeliveryNoteForm = () => {
         navigate('/delivery-notes');
       }, 2000);
     } catch (err) {
-      setError('Failed to save delivery note: ' + err.message);
+      setError(`Failed to save delivery note: ${  err.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -579,12 +579,12 @@ const DeliveryNoteForm = () => {
               id="validation-errors-alert"
               className={`mb-6 p-4 rounded-lg border-2 ${
                 isDarkMode
-                  ? "bg-red-900/20 border-red-600 text-red-200"
-                  : "bg-red-50 border-red-500 text-red-800"
+                  ? 'bg-red-900/20 border-red-600 text-red-200'
+                  : 'bg-red-50 border-red-500 text-red-800'
               }`}
             >
               <div className="flex items-start gap-3">
-                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`} size={24} />
                 <div className="flex-1">
                   <h4 className="font-bold text-lg mb-2">
                     Please fix the following errors:
@@ -601,8 +601,8 @@ const DeliveryNoteForm = () => {
                     }}
                     className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                       isDarkMode
-                        ? "bg-red-800 hover:bg-red-700 text-white"
-                        : "bg-red-600 hover:bg-red-700 text-white"
+                        ? 'bg-red-800 hover:bg-red-700 text-white'
+                        : 'bg-red-600 hover:bg-red-700 text-white'
                     }`}
                   >
                     Dismiss

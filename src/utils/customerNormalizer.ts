@@ -51,7 +51,7 @@ export function normalizeCustomer(rawCustomer: any, source = 'unknown'): any | n
       // Metadata
       status: rawCustomer.status || undefined,
       orders: parseNumber(rawCustomer.orders, undefined),
-      customer: rawCustomer.customer || undefined
+      customer: rawCustomer.customer || undefined,
     };
 
     // Log validation errors if any

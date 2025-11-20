@@ -16,13 +16,13 @@ import {
   Button,
   Stack,
   Chip,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
   TrendingUp as ProfitIcon,
   AttachMoney as RevenueIcon,
-  ShoppingCart as SalesIcon
+  ShoppingCart as SalesIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 import { toast } from 'react-toastify';
@@ -31,7 +31,7 @@ export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
+    endDate: new Date().toISOString().split('T')[0],
   });
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState({
@@ -39,7 +39,7 @@ export default function ProfitAnalysisReport() {
     totalCost: 0,
     totalProfit: 0,
     averageMargin: 0,
-    totalQuantity: 0
+    totalQuantity: 0,
   });
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function ProfitAnalysisReport() {
 
       const response = await api.post('/query', {
         query,
-        params: [dateRange.startDate, dateRange.endDate]
+        params: [dateRange.startDate, dateRange.endDate],
       });
 
       const results = response.data?.results || [];
@@ -85,7 +85,7 @@ export default function ProfitAnalysisReport() {
         totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || 0),
         totalCost: acc.totalCost + parseFloat(row.totalCost || 0),
         totalProfit: acc.totalProfit + parseFloat(row.totalProfit || 0),
-        totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0)
+        totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0),
       }), { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 });
 
       const averageMargin = totals.totalRevenue > 0
@@ -94,7 +94,7 @@ export default function ProfitAnalysisReport() {
 
       setSummary({
         ...totals,
-        averageMargin: parseFloat(averageMargin)
+        averageMargin: parseFloat(averageMargin),
       });
 
     } catch (error) {
@@ -115,12 +115,12 @@ export default function ProfitAnalysisReport() {
       row.totalRevenue,
       row.totalCost,
       row.totalProfit,
-      row.avgMargin
+      row.avgMargin,
     ]);
 
     const csv = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => row.join(',')),
     ].join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv' });

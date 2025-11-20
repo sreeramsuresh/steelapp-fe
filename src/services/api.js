@@ -1,4 +1,4 @@
-import { apiService } from "./axiosApi";
+import { apiService } from './axiosApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -6,18 +6,18 @@ class ApiClient {
   constructor() {
     this.baseURL = API_BASE_URL;
     this.defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
   }
 
   setAuthHeader(token) {
-    this.defaultHeaders["Authorization"] = `Bearer ${token}`;
+    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
     // Also set on axios-based service so interceptors use it
     apiService.setAuthToken(token);
   }
 
   removeAuthHeader() {
-    delete this.defaultHeaders["Authorization"];
+    delete this.defaultHeaders['Authorization'];
     apiService.removeAuthToken();
   }
 
@@ -25,23 +25,23 @@ class ApiClient {
   // New code should use the axios-based methods below which benefit from interceptors
   async request(endpoint, options = {}) {
     // Delegate to axios-based apiService
-    const method = (options.method || "GET").toUpperCase();
+    const method = (options.method || 'GET').toUpperCase();
     const data =
       options.body instanceof FormData
         ? options.body
-        : typeof options.body === "string"
-        ? JSON.parse(options.body)
-        : options.body;
+        : typeof options.body === 'string'
+          ? JSON.parse(options.body)
+          : options.body;
     switch (method) {
-      case "GET":
+      case 'GET':
         return apiService.get(endpoint);
-      case "POST":
+      case 'POST':
         return apiService.post(endpoint, data);
-      case "PUT":
+      case 'PUT':
         return apiService.put(endpoint, data);
-      case "PATCH":
+      case 'PATCH':
         return apiService.patch(endpoint, data);
-      case "DELETE":
+      case 'DELETE':
         return apiService.delete(endpoint);
       default:
         return apiService.request({ method, url: endpoint, data });
@@ -75,7 +75,7 @@ export const apiClient = new ApiClient();
 export const deliveryNotesAPI = {
   // Get all delivery notes with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/delivery-notes", params);
+    return apiClient.get('/delivery-notes', params);
   },
 
   // Get delivery note by ID
@@ -85,14 +85,14 @@ export const deliveryNotesAPI = {
 
   // Create delivery note from invoice
   create: (deliveryNoteData) => {
-    return apiClient.post("/delivery-notes", deliveryNoteData);
+    return apiClient.post('/delivery-notes', deliveryNoteData);
   },
 
   // Update delivery quantities (partial delivery)
   updateDelivery: (deliveryNoteId, itemId, deliveryData) => {
     return apiClient.patch(
       `/delivery-notes/${deliveryNoteId}/items/${itemId}/deliver`,
-      deliveryData
+      deliveryData,
     );
   },
 
@@ -108,16 +108,16 @@ export const deliveryNotesAPI = {
 
   // Get next delivery note number
   getNextNumber: () => {
-    return apiClient.get("/delivery-notes/number/next");
+    return apiClient.get('/delivery-notes/number/next');
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     // Use axios-based service to leverage interceptors and auth headers
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/delivery-notes/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const downloadUrl = window.URL.createObjectURL(blob);
 
@@ -126,7 +126,7 @@ export const deliveryNotesAPI = {
     const filename = `delivery-note-${deliveryNote.deliveryNoteNumber}.pdf`;
 
     // Create download link
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -142,7 +142,7 @@ export const deliveryNotesAPI = {
 export const invoicesAPI = {
   // Get all invoices with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/invoices", params);
+    return apiClient.get('/invoices', params);
   },
 
   // Get invoice by ID
@@ -152,7 +152,7 @@ export const invoicesAPI = {
 
   // Create invoice
   create: (invoiceData) => {
-    return apiClient.post("/invoices", invoiceData);
+    return apiClient.post('/invoices', invoiceData);
   },
 
   // Update invoice
@@ -172,20 +172,20 @@ export const invoicesAPI = {
 
   // Get next invoice number
   getNextNumber: () => {
-    return apiClient.get("/invoices/number/next");
+    return apiClient.get('/invoices/number/next');
   },
 
   // Get analytics
   getAnalytics: (params = {}) => {
-    return apiClient.get("/invoices/analytics", params);
+    return apiClient.get('/invoices/analytics', params);
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/invoices/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const downloadUrl = window.URL.createObjectURL(blob);
 
@@ -194,7 +194,7 @@ export const invoicesAPI = {
     const filename = `invoice-${invoice.invoiceNumber}.pdf`;
 
     // Create download link
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -210,7 +210,7 @@ export const invoicesAPI = {
 export const purchaseOrdersAPI = {
   // Get all purchase orders with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/purchase-orders", params);
+    return apiClient.get('/purchase-orders', params);
   },
 
   // Get purchase order by ID
@@ -220,7 +220,7 @@ export const purchaseOrdersAPI = {
 
   // Create purchase order
   create: (poData) => {
-    return apiClient.post("/purchase-orders", poData);
+    return apiClient.post('/purchase-orders', poData);
   },
 
   // Update purchase order
@@ -253,30 +253,30 @@ export const purchaseOrdersAPI = {
 
   // Get next PO number
   getNextNumber: () => {
-    return apiClient.get("/purchase-orders/number/next");
+    return apiClient.get('/purchase-orders/number/next');
   },
 
   // Get warehouses
   getWarehouses: () => {
-    return apiClient.get("/warehouses");
+    return apiClient.get('/warehouses');
   },
 
   // Seed warehouses
   seedWarehouses: () => {
-    return apiClient.post("/warehouses/seed");
+    return apiClient.post('/warehouses/seed');
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import("./axiosApi");
+    const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/purchase-orders/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `PurchaseOrder-${id}.pdf`;
     document.body.appendChild(a);
@@ -290,7 +290,7 @@ export const purchaseOrdersAPI = {
 export const accountStatementsAPI = {
   // Get all account statements with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/account-statements", params);
+    return apiClient.get('/account-statements', params);
   },
 
   // Get account statement by ID
@@ -300,7 +300,7 @@ export const accountStatementsAPI = {
 
   // Create account statement
   create: (data) => {
-    return apiClient.post("/account-statements", data);
+    return apiClient.post('/account-statements', data);
   },
 
   // Update account statement
@@ -315,15 +315,15 @@ export const accountStatementsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import("./axiosApi");
+    const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/account-statements/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `AccountStatement-${id}.pdf`;
     document.body.appendChild(a);
@@ -334,16 +334,16 @@ export const accountStatementsAPI = {
 
   // Generate statement on-the-fly without saving
   generateOnTheFly: async (data) => {
-    const { apiService } = await import("./axiosApi");
+    const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({
-      method: "POST",
-      url: "/account-statements/generate",
+      method: 'POST',
+      url: '/account-statements/generate',
       data,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     const fileName = `Statement-${data.customerId || 'Customer'}-${data.startDate}-to-${data.endDate}.pdf`;
     a.download = fileName;
@@ -359,7 +359,7 @@ export const transitAPI = {
   // Get all items in transit
   getAll: (params = {}) => {
     // This combines data from invoices and purchase orders that are in transit
-    return apiClient.get("/transit", params);
+    return apiClient.get('/transit', params);
   },
 
   // Get transit tracking for specific item
@@ -377,7 +377,7 @@ export const transitAPI = {
 export const customersAPI = {
   // Get all customers with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/customers", params);
+    return apiClient.get('/customers', params);
   },
 
   // Get customer by ID
@@ -387,7 +387,7 @@ export const customersAPI = {
 
   // Create customer
   create: (customerData) => {
-    return apiClient.post("/customers", customerData);
+    return apiClient.post('/customers', customerData);
   },
 
   // Update customer
@@ -402,7 +402,7 @@ export const customersAPI = {
 
   // Search customers
   search: (query) => {
-    return apiClient.get("/customers/search", { query });
+    return apiClient.get('/customers/search', { query });
   },
 };
 
@@ -410,7 +410,7 @@ export const customersAPI = {
 export const productsAPI = {
   // Get all products with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/products", params);
+    return apiClient.get('/products', params);
   },
 
   // Get product by ID
@@ -420,7 +420,7 @@ export const productsAPI = {
 
   // Create product
   create: (productData) => {
-    return apiClient.post("/products", productData);
+    return apiClient.post('/products', productData);
   },
 
   // Update product
@@ -435,12 +435,12 @@ export const productsAPI = {
 
   // Search products
   search: (query) => {
-    return apiClient.get("/products/search", { query });
+    return apiClient.get('/products/search', { query });
   },
 
   // Get product categories
   getCategories: () => {
-    return apiClient.get("/products/categories");
+    return apiClient.get('/products/categories');
   },
 
   // Get products by category
@@ -453,7 +453,7 @@ export const productsAPI = {
 export const quotationsAPI = {
   // Get all quotations with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/quotations", params);
+    return apiClient.get('/quotations', params);
   },
 
   // Get quotation by ID
@@ -463,7 +463,7 @@ export const quotationsAPI = {
 
   // Create quotation
   create: (data) => {
-    return apiClient.post("/quotations", data);
+    return apiClient.post('/quotations', data);
   },
 
   // Update quotation
@@ -488,20 +488,20 @@ export const quotationsAPI = {
 
   // Get next quotation number
   getNextNumber: () => {
-    return apiClient.get("/quotations/number/next");
+    return apiClient.get('/quotations/number/next');
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import("./axiosApi");
+    const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/quotations/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `Quotation-${id}.pdf`;
     document.body.appendChild(a);
@@ -518,7 +518,7 @@ export const api = apiClient;
 export const suppliersAPI = {
   // Get all suppliers with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/suppliers", params);
+    return apiClient.get('/suppliers', params);
   },
 
   // Get supplier by ID
@@ -528,7 +528,7 @@ export const suppliersAPI = {
 
   // Create supplier
   create: (supplierData) => {
-    return apiClient.post("/suppliers", supplierData);
+    return apiClient.post('/suppliers', supplierData);
   },
 
   // Update supplier
@@ -543,7 +543,7 @@ export const suppliersAPI = {
 
   // Search suppliers
   search: (query) => {
-    return apiClient.get("/suppliers/search", { query });
+    return apiClient.get('/suppliers/search', { query });
   },
 
   // Get suppliers by category
@@ -580,7 +580,7 @@ export const suppliersAPI = {
   uploadFile: (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post("/suppliers/upload", formData, {
+    return apiClient.post('/suppliers/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -589,7 +589,7 @@ export const suppliersAPI = {
 
   // Download upload template
   downloadTemplate: () => {
-    return apiClient.get("/suppliers/upload/template", {
+    return apiClient.get('/suppliers/upload/template', {
       responseType: 'blob',
     });
   },

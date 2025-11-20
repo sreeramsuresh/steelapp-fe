@@ -32,20 +32,20 @@ const formatDateTime = (date) => date.toISOString();
 const uaeCities = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah'];
 const streets = [
   'Sheikh Zayed Road', 'Al Maktoum Road', 'Khalifa Street', 'Airport Road',
-  'Emirates Road', 'Al Wahda Street', 'Corniche Road', 'Industrial Area'
+  'Emirates Road', 'Al Wahda Street', 'Corniche Road', 'Industrial Area',
 ];
 const companyTypes = ['LLC', 'FZE', 'FZCO', 'PLC', 'Est'];
 const arabicNames = [
   'Ahmed', 'Mohammed', 'Ali', 'Omar', 'Hassan', 'Khalid', 'Rashid', 'Salem',
-  'Abdullah', 'Hamad', 'Saeed', 'Sultan', 'Majid', 'Tariq', 'Youssef'
+  'Abdullah', 'Hamad', 'Saeed', 'Sultan', 'Majid', 'Tariq', 'Youssef',
 ];
 const businessNames = [
   'Emirates', 'Gulf', 'Al Noor', 'United', 'International', 'National',
-  'Modern', 'Advanced', 'Premier', 'Royal', 'Elite', 'Global'
+  'Modern', 'Advanced', 'Premier', 'Royal', 'Elite', 'Global',
 ];
 const industries = [
   'Trading', 'Steel', 'Construction', 'Manufacturing', 'Industrial',
-  'Engineering', 'Metals', 'Building Materials', 'Fabrication'
+  'Engineering', 'Metals', 'Building Materials', 'Fabrication',
 ];
 
 // ============================================
@@ -83,10 +83,10 @@ function generateCustomers(count = 50) {
       trn: `100${randomInt(100000000000, 999999999999)}`,
       address: {
         street: `${randomChoice(streets)}, Building ${randomInt(1, 50)}`,
-        city: city,
+        city,
         state: city,
         postalCode: `${randomInt(10000, 99999)}`,
-        country: 'UAE'
+        country: 'UAE',
       },
       creditLimit,
       currentCredit,
@@ -100,7 +100,7 @@ function generateCustomers(count = 50) {
       lastOrderDate: formatDateTime(lastOrderDate),
       totalOrders,
       outstandingBalance,
-      notes: status === 'active' && creditLimit > 500000 ? 'VIP customer - monthly credit review required' : ''
+      notes: status === 'active' && creditLimit > 500000 ? 'VIP customer - monthly credit review required' : '',
     });
   }
 
@@ -108,7 +108,7 @@ function generateCustomers(count = 50) {
 }
 
 function weightedChoice(items, weights) {
-  let totalWeight = weights.reduce((a, b) => a + b, 0);
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
   let random = Math.random() * totalWeight;
   for (let i = 0; i < items.length; i++) {
     if (random < weights[i]) return items[i];
@@ -125,7 +125,7 @@ if (!fs.existsSync(dataDir)) {
 }
 fs.writeFileSync(
   path.join(dataDir, 'customers.json'),
-  JSON.stringify(customers, null, 2)
+  JSON.stringify(customers, null, 2),
 );
 
 console.log('✅ Generated 50 customers');
@@ -231,7 +231,7 @@ function generateProducts(count = 100) {
       status,
       companyId: 1,
       createdAt: formatDateTime(randomDate(730, 365)),
-      updatedAt: formatDateTime(randomDate(30, 0))
+      updatedAt: formatDateTime(randomDate(30, 0)),
     });
   }
 
@@ -241,7 +241,7 @@ function generateProducts(count = 100) {
 const products = generateProducts(100);
 fs.writeFileSync(
   path.join(dataDir, 'products.json'),
-  JSON.stringify(products, null, 2)
+  JSON.stringify(products, null, 2),
 );
 
 console.log('✅ Generated 100 products');
@@ -271,8 +271,8 @@ function generateInvoices(count = 200, customers, products) {
     const invoiceDate = randomDate(365, 0);
     const dueDate = new Date(invoiceDate);
     dueDate.setDate(dueDate.getDate() + (customer.paymentTerms === 'NET_7' ? 7 : 
-                     customer.paymentTerms === 'NET_15' ? 15 :
-                     customer.paymentTerms === 'NET_30' ? 30 : 60));
+      customer.paymentTerms === 'NET_15' ? 15 :
+        customer.paymentTerms === 'NET_30' ? 30 : 60));
     
     const status = weightedChoice(statuses, statusWeights);
     const paymentStatus = weightedChoice(paymentStatuses, paymentWeights);
@@ -299,7 +299,7 @@ function generateInvoices(count = 200, customers, products) {
         unitPrice,
         discount,
         taxRate,
-        amount
+        amount,
       });
       
       subtotal += amount;
@@ -337,7 +337,7 @@ function generateInvoices(count = 200, customers, products) {
           amount: paymentAmount,
           method: randomChoice(paymentMethods),
           reference: `TXN-UAE-2024-${randomInt(100000, 999999)}`,
-          notes: k === 0 ? 'Payment received' : 'Additional payment'
+          notes: k === 0 ? 'Payment received' : 'Additional payment',
         });
       }
     }
@@ -351,7 +351,7 @@ function generateInvoices(count = 200, customers, products) {
         email: customer.email,
         phone: customer.phone,
         trn: customer.trn,
-        address: customer.address
+        address: customer.address,
       },
       invoiceDate: formatDate(invoiceDate),
       dueDate: formatDate(dueDate),
@@ -386,7 +386,7 @@ function generateInvoices(count = 200, customers, products) {
       createdAt: formatDateTime(invoiceDate),
       updatedAt: formatDateTime(randomDate(Math.max(0, Math.floor((Date.now() - invoiceDate.getTime()) / (1000 * 60 * 60 * 24)) - 7), 0)),
       pdfGenerated: status !== 'draft',
-      pdfGeneratedAt: status !== 'draft' ? formatDateTime(invoiceDate) : null
+      pdfGeneratedAt: status !== 'draft' ? formatDateTime(invoiceDate) : null,
     });
   }
 
@@ -396,7 +396,7 @@ function generateInvoices(count = 200, customers, products) {
 const invoices = generateInvoices(200, customers, products);
 fs.writeFileSync(
   path.join(dataDir, 'invoices.json'),
-  JSON.stringify(invoices, null, 2)
+  JSON.stringify(invoices, null, 2),
 );
 
 console.log('✅ Generated 200 invoices');

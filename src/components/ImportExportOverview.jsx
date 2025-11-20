@@ -10,24 +10,24 @@ const ImportExportOverview = () => {
       total: 0,
       active: 0,
       pending: 0,
-      completed: 0
+      completed: 0,
     },
     exportOrders: {
       total: 0,
       active: 0,
       pending: 0,
-      completed: 0
+      completed: 0,
     },
     shipments: {
       inTransit: 0,
       arrived: 0,
-      pending: 0
+      pending: 0,
     },
     certificates: {
       pending: 0,
       verified: 0,
-      expiring: 0
-    }
+      expiring: 0,
+    },
   });
   const [loading, setLoading] = useState(true);
 
@@ -40,24 +40,24 @@ const ImportExportOverview = () => {
           total: 45,
           active: 12,
           pending: 8,
-          completed: 25
+          completed: 25,
         },
         exportOrders: {
           total: 38,
           active: 15,
           pending: 6,
-          completed: 17
+          completed: 17,
         },
         shipments: {
           inTransit: 23,
           arrived: 8,
-          pending: 14
+          pending: 14,
         },
         certificates: {
           pending: 7,
           verified: 34,
-          expiring: 3
-        }
+          expiring: 3,
+        },
       });
       setLoading(false);
     }, 1000);

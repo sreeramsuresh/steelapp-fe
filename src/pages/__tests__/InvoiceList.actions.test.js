@@ -51,7 +51,7 @@ const validateInvoiceForDownload = (invoice) => {
   const hasValidItems = hasItems && invoice.items.every(item =>
     item.name && item.name.trim() !== '' &&
     item.quantity > 0 &&
-    item.rate > 0
+    item.rate > 0,
   );
   const hasDate = !!invoice.date;
   const hasDueDate = !!invoice.dueDate;
@@ -62,8 +62,8 @@ const validateInvoiceForDownload = (invoice) => {
       customer: !hasCustomer,
       items: !hasItems || !hasValidItems,
       date: !hasDate,
-      dueDate: !hasDueDate
-    }
+      dueDate: !hasDueDate,
+    },
   };
 };
 
@@ -578,8 +578,8 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       invoiceNumber: 'INV-TC010',
       status: 'issued',
       paymentStatus: 'paid',
-      salesAgentId: "0",  // String zero (common from API)
-      deletedAt: null
+      salesAgentId: '0',  // String zero (common from API)
+      deletedAt: null,
     };
 
     const permissions = {
@@ -597,7 +597,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload
+      validateInvoiceForDownload,
     );
 
     // Commission should be DISABLED for string "0"
@@ -616,7 +616,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       status: 'issued',
       paymentStatus: 'paid',
       salesAgentId: 0,  // Numeric zero
-      deletedAt: null
+      deletedAt: null,
     };
 
     const permissions = {
@@ -634,7 +634,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload
+      validateInvoiceForDownload,
     );
 
     expect(config.commission.enabled).toBe(false);
@@ -652,7 +652,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       status: 'issued',
       paymentStatus: 'paid',
       salesAgentId: null,
-      deletedAt: null
+      deletedAt: null,
     };
 
     const permissions = {
@@ -670,7 +670,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload
+      validateInvoiceForDownload,
     );
 
     expect(config.commission.enabled).toBe(false);
@@ -687,8 +687,8 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       invoiceNumber: 'INV-TC013',
       status: 'issued',
       paymentStatus: 'paid',
-      salesAgentId: "5",  // Valid string ID
-      deletedAt: null
+      salesAgentId: '5',  // Valid string ID
+      deletedAt: null,
     };
 
     const permissions = {
@@ -706,7 +706,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload
+      validateInvoiceForDownload,
     );
 
     expect(config.commission.enabled).toBe(true);

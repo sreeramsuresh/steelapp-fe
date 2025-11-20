@@ -19,7 +19,7 @@ export function getInvoiceActionButtonConfig(
   permissions,
   deliveryNoteStatus,
   getInvoiceReminderInfo,
-  validateInvoiceForDownload
+  validateInvoiceForDownload,
 ) {
   const isDeleted = invoice.deletedAt !== null;
   const {
@@ -47,7 +47,7 @@ export function getInvoiceActionButtonConfig(
           : nonEditableStatuses.includes(invoice.status)
             ? `Cannot edit ${invoice.status} invoice`
             : 'Edit Invoice',
-      link: `/edit/${invoice.id}`
+      link: `/edit/${invoice.id}`,
     },
     creditNote: {
       enabled: canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status),
@@ -58,11 +58,11 @@ export function getInvoiceActionButtonConfig(
           : !creditNoteAllowedStatuses.includes(invoice.status)
             ? 'Only available for issued/sent invoices'
             : 'Create Credit Note',
-      link: `/credit-notes/new?invoiceId=${invoice.id}`
+      link: `/credit-notes/new?invoiceId=${invoice.id}`,
     },
     view: {
       enabled: true,
-      tooltip: 'View Invoice'
+      tooltip: 'View Invoice',
     },
     download: {
       enabled: canRead,
@@ -71,7 +71,7 @@ export function getInvoiceActionButtonConfig(
         : !validateInvoiceForDownload(invoice).isValid
           ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
           : 'Download PDF',
-      isValid: validateInvoiceForDownload(invoice).isValid
+      isValid: validateInvoiceForDownload(invoice).isValid,
     },
     recordPayment: {
       enabled: !isDeleted,
@@ -81,7 +81,7 @@ export function getInvoiceActionButtonConfig(
           ? 'View Payment History'
           : 'Record Payment',
       isPaid: invoice.paymentStatus === 'paid',
-      canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && invoice.status !== 'cancelled' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
+      canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && invoice.status !== 'cancelled' && (invoice.balanceDue === undefined || invoice.balanceDue > 0),
     },
     commission: {
       enabled: !!(
@@ -96,25 +96,25 @@ export function getInvoiceActionButtonConfig(
           ? 'No sales agent assigned'
           : isDeleted
             ? 'Cannot calculate for deleted invoice'
-            : 'Calculate Commission'
+            : 'Calculate Commission',
     },
     reminder: {
       enabled: getInvoiceReminderInfo(invoice)?.shouldShowReminder || false,
       tooltip: getInvoiceReminderInfo(invoice)?.shouldShowReminder
         ? `Send payment reminder (${getInvoiceReminderInfo(invoice)?.config?.label || ''})`
-        : 'No reminder needed'
+        : 'No reminder needed',
     },
     phone: {
       enabled: !isDeleted,
       tooltip: isDeleted
         ? 'Cannot add notes to deleted invoice'
-        : 'Payment Reminder - Phone Call Notes'
+        : 'Payment Reminder - Phone Call Notes',
     },
     statement: {
       enabled: canReadCustomers,
       tooltip: canReadCustomers
         ? 'Generate Statement of Accounts'
-        : 'No permission to generate statements'
+        : 'No permission to generate statements',
     },
     deliveryNote: {
       enabled: deliveryNoteAllowedStatuses.includes(invoice.status) && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
@@ -125,7 +125,7 @@ export function getInvoiceActionButtonConfig(
           : !canCreateDeliveryNotes
             ? 'No permission to create delivery notes'
             : 'Create delivery note',
-      hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes
+      hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes,
     },
     delete: {
       enabled: canDelete && !isDeleted,
@@ -133,7 +133,7 @@ export function getInvoiceActionButtonConfig(
         ? 'No permission to delete'
         : isDeleted
           ? 'Invoice already deleted'
-          : 'Delete Invoice'
+          : 'Delete Invoice',
     },
     restore: {
       enabled: isDeleted && canUpdate,
@@ -141,7 +141,7 @@ export function getInvoiceActionButtonConfig(
         ? 'Invoice not deleted'
         : !canUpdate
           ? 'No permission to restore'
-          : 'Restore Invoice'
-    }
+          : 'Restore Invoice',
+    },
   };
 }

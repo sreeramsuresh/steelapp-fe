@@ -25,7 +25,7 @@ export function uuid() {
       hex.slice(4, 6).join(''),
       hex.slice(6, 8).join(''),
       hex.slice(8,10).join(''),
-      hex.slice(10,16).join('')
+      hex.slice(10,16).join(''),
     ].join('-');
   }
 
