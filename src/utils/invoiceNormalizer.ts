@@ -7,6 +7,101 @@
 import type { Invoice, CustomerDetails, InvoiceItem, PaymentRecord, DeliveryStatus } from '../types/invoice';
 
 /**
+ * Normalize invoice status from gRPC enum to frontend string
+ * Maps Protocol Buffer enum constants to lowercase frontend values
+ * @param rawStatus - Raw status from API (e.g., "STATUS_DRAFT", "STATUS_ISSUED")
+ * @returns Normalized status: 'draft' | 'proforma' | 'issued' | 'sent' | 'cancelled'
+ */
+function normalizeInvoiceStatus(rawStatus: any): string {
+  // Handle null/undefined/empty
+  if (!rawStatus || rawStatus === '') {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('INVOICE_NORMALIZER: Received null/empty status, defaulting to "draft"');
+    }
+    return 'draft';
+  }
+
+  // If already normalized (lowercase), return as-is
+  if (rawStatus === rawStatus.toLowerCase()) {
+    return rawStatus;
+  }
+
+  // Map gRPC enum constants to frontend strings
+  const statusMap: Record<string, string> = {
+    'STATUS_DRAFT': 'draft',
+    'STATUS_UNSPECIFIED': 'draft', // Treat unspecified as draft
+    'STATUS_PROFORMA': 'proforma',
+    'STATUS_ISSUED': 'issued',
+    'STATUS_SENT': 'sent',
+    'STATUS_CANCELLED': 'cancelled',
+  };
+
+  const normalized = statusMap[rawStatus];
+
+  if (!normalized) {
+    // Unknown enum - log SCHEMA_MISMATCH and return safe default
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status', {
+        receivedStatus: rawStatus,
+        knownGrpcEnums: Object.keys(statusMap),
+        defaultingTo: 'draft',
+        timestamp: new Date().toISOString()
+      });
+    }
+    return 'draft'; // Safe default
+  }
+
+  return normalized;
+}
+
+/**
+ * Normalize payment status from gRPC enum to frontend string
+ * Maps Protocol Buffer enum constants to lowercase frontend values
+ * @param rawStatus - Raw payment status from API (e.g., "PAYMENT_STATUS_UNPAID")
+ * @returns Normalized payment status: 'unpaid' | 'partially_paid' | 'paid' | 'fully_paid'
+ */
+function normalizePaymentStatus(rawStatus: any): string {
+  // Handle null/undefined/empty
+  if (!rawStatus || rawStatus === '') {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('INVOICE_NORMALIZER: Received null/empty payment status, defaulting to "unpaid"');
+    }
+    return 'unpaid';
+  }
+
+  // If already normalized (lowercase with underscores), return as-is
+  if (rawStatus === rawStatus.toLowerCase()) {
+    return rawStatus;
+  }
+
+  // Map gRPC enum constants to frontend strings
+  const paymentStatusMap: Record<string, string> = {
+    'PAYMENT_STATUS_UNPAID': 'unpaid',
+    'PAYMENT_STATUS_UNSPECIFIED': 'unpaid', // Treat unspecified as unpaid
+    'PAYMENT_STATUS_PARTIALLY_PAID': 'partially_paid',
+    'PAYMENT_STATUS_PAID': 'paid',
+    'PAYMENT_STATUS_FULLY_PAID': 'fully_paid',
+  };
+
+  const normalized = paymentStatusMap[rawStatus];
+
+  if (!normalized) {
+    // Unknown enum - log SCHEMA_MISMATCH and return safe default
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status', {
+        receivedStatus: rawStatus,
+        knownGrpcEnums: Object.keys(paymentStatusMap),
+        defaultingTo: 'unpaid',
+        timestamp: new Date().toISOString()
+      });
+    }
+    return 'unpaid'; // Safe default
+  }
+
+  return normalized;
+}
+
+/**
  * Convert snake_case API response to camelCase Invoice object
  * @param rawInvoice - Raw invoice data from API (snake_case)
  * @param source - Source of the data for debugging
@@ -167,9 +262,9 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       otherCharges: parseNumber(rawInvoice.otherCharges || rawInvoice.other_charges, undefined),
       taxNotes: rawInvoice.taxNotes || rawInvoice.tax_notes || undefined,
       
-      // Status
-      status: rawInvoice.status || 'draft',
-      paymentStatus: rawInvoice.paymentStatus || rawInvoice.paymentStatus || 'unpaid',
+      // Status (normalized from gRPC enums)
+      status: normalizeInvoiceStatus(rawInvoice.status),
+      paymentStatus: normalizePaymentStatus(rawInvoice.paymentStatus || rawInvoice.paymentStatus),
       
       // Items
       items: normalizeItems(rawInvoice.items || []),

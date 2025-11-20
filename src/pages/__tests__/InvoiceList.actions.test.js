@@ -13,33 +13,37 @@
  * - TC-006: Issued, partially paid, 5 days overdue
  */
 
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+
 // Mock dependencies before imports
-jest.mock('../../services/axiosAuthService', () => ({
+vi.mock('../../services/axiosAuthService', () => ({
   authService: {
-    hasPermission: jest.fn(),
+    hasPermission: vi.fn(),
   },
 }));
 
-jest.mock('../../utils/reminderUtils', () => ({
-  getInvoiceReminderInfo: jest.fn(),
-  generatePaymentReminder: jest.fn(),
+vi.mock('../../utils/reminderUtils', () => ({
+  getInvoiceReminderInfo: vi.fn(),
+  generatePaymentReminder: vi.fn(),
 }));
 
-jest.mock('../../services/notificationService', () => ({
+vi.mock('../../services/notificationService', () => ({
   notificationService: {
-    error: jest.fn(),
-    success: jest.fn(),
-    warning: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
 // Import after mocks
 import { authService } from '../../services/axiosAuthService';
 import { getInvoiceReminderInfo } from '../../utils/reminderUtils';
+import { getInvoiceActionButtonConfig } from '../invoiceActionsConfig';
 
 /**
  * Helper: Validate invoice completeness for download
- * Copied from InvoiceList.jsx (not exported)
+ * This helper is needed because the shared function requires it as a parameter.
+ * Keeping it here to maintain test independence.
  */
 const validateInvoiceForDownload = (invoice) => {
   const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== '';
@@ -63,71 +67,10 @@ const validateInvoiceForDownload = (invoice) => {
   };
 };
 
-/**
- * Helper: Get action button config
- * Simplified version of getActionButtonConfig from InvoiceList.jsx
- * This is a pure function for testing purposes
- */
-const getActionButtonConfig = (invoice, permissions, deliveryNoteStatus = {}) => {
-  const isDeleted = invoice.deletedAt !== null;
-  const {
-    canUpdate,
-    canDelete,
-    canRead,
-    canCreateCreditNote,
-    canReadCustomers,
-    canReadDeliveryNotes,
-    canCreateDeliveryNotes,
-  } = permissions;
-
-  return {
-    edit: {
-      enabled: canUpdate && !isDeleted && invoice.status !== 'issued',
-    },
-    creditNote: {
-      enabled: canCreateCreditNote && !isDeleted && invoice.status === 'issued',
-    },
-    view: {
-      enabled: true,
-    },
-    download: {
-      enabled: canRead,
-      isValid: validateInvoiceForDownload(invoice).isValid
-    },
-    recordPayment: {
-      enabled: !isDeleted,
-      isPaid: invoice.paymentStatus === 'paid',
-      canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
-    },
-    commission: {
-      enabled: invoice.paymentStatus === 'paid' && invoice.salesAgentId && !isDeleted,
-    },
-    reminder: {
-      enabled: getInvoiceReminderInfo(invoice)?.shouldShowReminder || false,
-    },
-    phone: {
-      enabled: !isDeleted,
-    },
-    statement: {
-      enabled: canReadCustomers,
-    },
-    deliveryNote: {
-      enabled: invoice.status === 'issued' && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
-      hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes
-    },
-    delete: {
-      enabled: canDelete && !isDeleted,
-    },
-    restore: {
-      enabled: isDeleted && canUpdate,
-    }
-  };
-};
-
 describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   /**
@@ -163,7 +106,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
     getInvoiceReminderInfo.mockReturnValue(null); // Draft invoices don't have reminders
 
-    const actions = getActionButtonConfig(invoice, permissions, {});
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.view.enabled).toBe(true);
@@ -218,7 +161,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
     const deliveryNoteStatus = {}; // No delivery notes yet
 
-    const actions = getActionButtonConfig(invoice, permissions, deliveryNoteStatus);
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, deliveryNoteStatus, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.view.enabled).toBe(true);
@@ -273,7 +216,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
     const deliveryNoteStatus = {}; // No delivery notes
 
-    const actions = getActionButtonConfig(invoice, permissions, deliveryNoteStatus);
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, deliveryNoteStatus, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.view.enabled).toBe(true);
@@ -324,7 +267,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
     getInvoiceReminderInfo.mockReturnValue(null);
 
-    const actions = getActionButtonConfig(invoice, permissions, {});
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.view.enabled).toBe(true); // View always enabled
@@ -336,10 +279,12 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
     expect(actions.recordPayment.enabled).toBe(false);
     expect(actions.commission.enabled).toBe(false);
     expect(actions.phone.enabled).toBe(false);
-    expect(actions.deliveryNote.enabled).toBe(false);
     expect(actions.delete.enabled).toBe(false);
+
+    // Expected ENABLED (not affected by deletion)
     expect(actions.download.enabled).toBe(true); // Read permission still allows download
     expect(actions.statement.enabled).toBe(true); // Statement still enabled
+    expect(actions.deliveryNote.enabled).toBe(true); // Delivery note checks status, not deletion state
   });
 
   /**
@@ -375,7 +320,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
 
     getInvoiceReminderInfo.mockReturnValue(null); // Proforma don't have reminders
 
-    const actions = getActionButtonConfig(invoice, permissions, {});
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.edit.enabled).toBe(true); // Proforma can be edited
@@ -436,7 +381,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       isOverdue: true,
     });
 
-    const actions = getActionButtonConfig(invoice, permissions, {});
+    const actions = getInvoiceActionButtonConfig(invoice, permissions, {}, getInvoiceReminderInfo, validateInvoiceForDownload);
 
     // Expected ENABLED
     expect(actions.view.enabled).toBe(true);

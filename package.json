@@ -8,6 +8,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "cypress": "cypress open",
@@ -35,6 +39,9 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
     "cssnano": "^7.1.1",
@@ -42,11 +49,13 @@
     "eslint": "^8.57.1",
     "eslint-plugin-local-rules": "^3.0.2",
     "eslint-plugin-react": "^7.37.5",
+    "jsdom": "^27.2.0",
     "postcss": "^8.5.6",
     "postcss-preset-env": "^10.4.0",
     "rollup": "^4.19.0",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.9.3",
-    "vite": "^5.4.0"
+    "vite": "^5.4.0",
+    "vitest": "^4.0.10"
   }
 }

@@ -43,6 +43,7 @@ import { generatePaymentReminder, getInvoiceReminderInfo } from "../utils/remind
 import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 import { normalizeInvoices } from "../utils/invoiceNormalizer";
 import { guardInvoicesDev } from "../utils/devGuards";
+import { getInvoiceActionButtonConfig } from "./invoiceActionsConfig";
 
 /**
  * ============================================================================
@@ -1176,7 +1177,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Helper function to get action button configurations
   const getActionButtonConfig = (invoice) => {
-    const isDeleted = invoice.deletedAt !== null;
+    // Gather all permissions from authService
     const canUpdate = authService.hasPermission('invoices', 'update');
     const canDelete = authService.hasPermission('invoices', 'delete');
     const canRead = authService.hasPermission('invoices', 'read');
@@ -1185,7 +1186,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     const canReadDeliveryNotes = authService.hasPermission('delivery_notes', 'read');
     const canCreateDeliveryNotes = authService.hasPermission('delivery_notes', 'create');
 
-    // DEV-ONLY: Collect permissions for debug logging
     const permissions = {
       canUpdate,
       canDelete,
@@ -1196,116 +1196,22 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       canCreateDeliveryNotes,
     };
 
-    // DEV-ONLY: Log invoice state and check payment consistency
+    // DEV-ONLY: Debug logging and payment consistency check
     if (process.env.NODE_ENV !== 'production') {
       debugInvoiceRow(invoice, permissions, deliveryNoteStatus);
       assertPaymentConsistency(invoice);
     }
 
-    const actions = {
-      edit: {
-        enabled: canUpdate && !isDeleted && invoice.status !== 'issued',
-        tooltip: !canUpdate
-          ? 'No permission to edit'
-          : isDeleted
-            ? 'Cannot edit deleted invoice'
-            : invoice.status === 'issued'
-              ? 'Cannot edit issued invoice'
-              : 'Edit Invoice',
-        link: `/edit/${invoice.id}`
-      },
-      creditNote: {
-        enabled: canCreateCreditNote && !isDeleted && invoice.status === 'issued',
-        tooltip: !canCreateCreditNote
-          ? 'No permission to create credit notes'
-          : isDeleted
-            ? 'Cannot create credit note for deleted invoice'
-            : invoice.status !== 'issued'
-              ? 'Only available for issued invoices'
-              : 'Create Credit Note',
-        link: `/credit-notes/new?invoiceId=${invoice.id}`
-      },
-      view: {
-        enabled: true,
-        tooltip: 'View Invoice'
-      },
-      download: {
-        enabled: canRead,
-        tooltip: !canRead
-          ? 'No permission to download'
-          : !validateInvoiceForDownload(invoice).isValid
-            ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
-            : 'Download PDF',
-        isValid: validateInvoiceForDownload(invoice).isValid
-      },
-      recordPayment: {
-        enabled: !isDeleted,
-        tooltip: isDeleted
-          ? 'Cannot view payments for deleted invoice'
-          : invoice.paymentStatus === 'paid'
-            ? 'View Payment History'
-            : 'Record Payment',
-        isPaid: invoice.paymentStatus === 'paid',
-        canAddPayment: canUpdate && invoice.paymentStatus !== 'paid' && (invoice.balanceDue === undefined || invoice.balanceDue > 0)
-      },
-      commission: {
-        enabled: invoice.paymentStatus === 'paid' && invoice.salesAgentId && !isDeleted,
-        tooltip: invoice.paymentStatus !== 'paid'
-          ? 'Only available for paid invoices'
-          : !invoice.salesAgentId
-            ? 'No sales agent assigned'
-            : isDeleted
-              ? 'Cannot calculate for deleted invoice'
-              : 'Calculate Commission'
-      },
-      reminder: {
-        enabled: getInvoiceReminderInfo(invoice)?.shouldShowReminder,
-        tooltip: getInvoiceReminderInfo(invoice)?.shouldShowReminder
-          ? `Send payment reminder (${getInvoiceReminderInfo(invoice)?.config.label})`
-          : 'No reminder needed'
-      },
-      phone: {
-        enabled: !isDeleted,
-        tooltip: isDeleted
-          ? 'Cannot add notes to deleted invoice'
-          : 'Payment Reminder - Phone Call Notes'
-      },
-      statement: {
-        enabled: canReadCustomers,
-        tooltip: canReadCustomers
-          ? 'Generate Statement of Accounts'
-          : 'No permission to generate statements'
-      },
-      deliveryNote: {
-        enabled: invoice.status === 'issued' && (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
-        tooltip: invoice.status !== 'issued'
-          ? 'Only available for issued invoices'
-          : deliveryNoteStatus[invoice.id]?.hasNotes
-            ? `View Delivery Notes (${deliveryNoteStatus[invoice.id]?.count})`
-            : !canCreateDeliveryNotes
-              ? 'No permission to create delivery notes'
-              : 'Create delivery note',
-        hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes
-      },
-      delete: {
-        enabled: canDelete && !isDeleted,
-        tooltip: !canDelete
-          ? 'No permission to delete'
-          : isDeleted
-            ? 'Invoice already deleted'
-            : 'Delete Invoice'
-      },
-      restore: {
-        enabled: isDeleted && canUpdate,
-        tooltip: !isDeleted
-          ? 'Invoice not deleted'
-          : !canUpdate
-            ? 'No permission to restore'
-            : 'Restore Invoice'
-      }
-    };
+    // Call shared pure function to compute action states
+    const actions = getInvoiceActionButtonConfig(
+      invoice,
+      permissions,
+      deliveryNoteStatus,
+      getInvoiceReminderInfo,
+      validateInvoiceForDownload
+    );
 
-    // DEV-ONLY: Log computed actions and assert invariants
+    // DEV-ONLY: Log computed actions and assert icon invariants
     if (process.env.NODE_ENV !== 'production') {
       console.log('ACTION_CONFIG_DEBUG', invoice.id, actions);
 
