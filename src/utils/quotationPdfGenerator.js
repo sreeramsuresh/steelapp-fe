@@ -86,8 +86,8 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
         <div style="margin-bottom:10px;">
           <p style="margin:2px 0;"><strong>Quotation #:</strong> ${safe(q.quotationNumber)}</p>
           <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(q.quotationDate)}</p>
-          ${q.validUntil ? `<p style=\"margin:2px 0;\"><strong>Valid Until:</strong> ${formatDate(q.validUntil)}</p>` : ''}
-          ${q.status ? `<p style=\"margin:2px 0; line-height:1.5;\"><strong>Status:</strong> <span style=\"color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;\">${safe(q.status)}</span></p>` : ''}
+          ${q.validUntil ? `<p style="margin:2px 0;"><strong>Valid Until:</strong> ${formatDate(q.validUntil)}</p>` : ''}
+          ${q.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(q.status)}</span></p>` : ''}
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
           <span>${formatCurrency(gstAmount)}</span>
         </div>
         ${(parseFloat(q.otherCharges)||0) ? `
-        <div style=\"display:flex; justify-content:space-between; padding:8px 0;\">
+        <div style="display:flex; justify-content:space-between; padding:8px 0;">
           <span>Other Charges:</span>
           <span>${formatCurrency(parseFloat(q.otherCharges)||0)}</span>
         </div>` : ''}
