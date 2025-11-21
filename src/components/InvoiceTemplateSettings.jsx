@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Palette,
   Layout,
   Type,
   Eye,
@@ -10,9 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
-  CheckCircle,
-  Upload,
-  Download,
   X,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -76,7 +72,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   // UI state
   const [activeSection, setActiveSection] = useState('basic');
   const [expandedSections, setExpandedSections] = useState({
-    colors: false,
     layout: false,
     typography: false,
     branding: false,
@@ -133,11 +128,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       }
 
       current[keys[keys.length - 1]] = value;
-
-      // Auto-sync: When primary color changes, update table header background color to match
-      if (path === 'colors.primary') {
-        newSettings.table.headerBgColor = value;
-      }
 
       return newSettings;
     });
@@ -276,37 +266,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       [section]: !prev[section],
     }));
   };
-
-  // Color input component
-  const ColorInput = ({ label, value, onChange, description }) => (
-    <div className="mb-4">
-      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-        {label}
-      </label>
-      {description && (
-        <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
-      )}
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-10 w-20 rounded cursor-pointer"
-        />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`flex-1 px-3 py-2 border rounded-lg ${
-            isDarkMode
-              ? 'bg-gray-700 border-gray-600 text-white'
-              : 'bg-white border-gray-300 text-gray-900'
-          }`}
-          placeholder="#000000"
-        />
-      </div>
-    </div>
-  );
 
   // Number input component
   const NumberInput = ({ label, value, onChange, min, max, step = 1, unit = '', description }) => (
@@ -490,17 +449,30 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 Click "Save Changes" to apply your modifications, or "Reset to Defaults" to discard them.
               </p>
             </div>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
-                isDarkMode
-                  ? 'bg-yellow-600 text-white hover:bg-yellow-500'
-                  : 'bg-yellow-600 text-white hover:bg-yellow-700'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isSaving ? 'Saving...' : 'Save Now'}
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                  isDarkMode
+                    ? 'bg-yellow-600 text-white hover:bg-yellow-500'
+                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isSaving ? 'Saving...' : 'Save Now'}
+              </button>
+              <button
+                onClick={handleDiscardChanges}
+                title="Discard changes"
+                className={`p-1.5 rounded transition-colors ${
+                  isDarkMode
+                    ? 'text-yellow-400 hover:bg-yellow-900/50'
+                    : 'text-yellow-700 hover:bg-yellow-100'
+                }`}
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -540,19 +512,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {/* BASIC SETTINGS TAB */}
       {activeSection === 'basic' && (
         <div className="space-y-6">
-          {/* Primary Color */}
-          <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              Primary Color
-            </h3>
-            <ColorInput
-              label="Primary Color"
-              value={settings.colors.primary}
-              onChange={(val) => updateSetting('colors.primary', val)}
-              description="Main color for headers, lines, and accents"
-            />
-          </div>
-
           {/* Logo & Branding */}
           <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -638,58 +597,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 </p>
               </div>
             </div>
-          </div>
-
-          {/* Colors Section */}
-          <div>
-            <SectionHeader
-              title="Colors"
-              icon={Palette}
-              expanded={expandedSections.colors}
-              onToggle={() => toggleSection('colors')}
-            />
-            {expandedSections.colors && (
-              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ColorInput
-                    label="Primary Color"
-                    value={settings.colors.primary}
-                    onChange={(val) => updateSetting('colors.primary', val)}
-                    description="Headers, lines, accents"
-                  />
-                  <ColorInput
-                    label="Text Primary"
-                    value={settings.colors.textPrimary}
-                    onChange={(val) => updateSetting('colors.textPrimary', val)}
-                    description="Main body text"
-                  />
-                  <ColorInput
-                    label="Text Secondary"
-                    value={settings.colors.textSecondary}
-                    onChange={(val) => updateSetting('colors.textSecondary', val)}
-                    description="Secondary labels"
-                  />
-                  <ColorInput
-                    label="Text Light"
-                    value={settings.colors.textLight}
-                    onChange={(val) => updateSetting('colors.textLight', val)}
-                    description="Footnotes, hints"
-                  />
-                  <ColorInput
-                    label="Table Even Row"
-                    value={settings.colors.tableBgEven}
-                    onChange={(val) => updateSetting('colors.tableBgEven', val)}
-                    description="Alternating row color"
-                  />
-                  <ColorInput
-                    label="Border Color"
-                    value={settings.colors.borderColor}
-                    onChange={(val) => updateSetting('colors.borderColor', val)}
-                    description="Table and section borders"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Layout Section */}
@@ -983,23 +890,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             />
             {expandedSections.table && (
               <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                <ColorInput
-                  label="Table Header Background"
-                  value={settings.table.headerBgColor}
-                  onChange={(val) => updateSetting('table.headerBgColor', val)}
-                  description="Color of table header row"
-                />
-                <ColorInput
-                  label="Table Header Text"
-                  value={settings.table.headerTextColor}
-                  onChange={(val) => updateSetting('table.headerTextColor', val)}
-                  description="Text color in table header"
-                />
-                <CheckboxInput
-                  label="Show Alternating Row Colors"
-                  checked={settings.table.showAlternatingRows}
-                  onChange={(val) => updateSetting('table.showAlternatingRows', val)}
-                />
                 <NumberInput
                   label="Row Height"
                   value={settings.table.rowHeight}

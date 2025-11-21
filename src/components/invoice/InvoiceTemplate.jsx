@@ -1,4 +1,3 @@
-import React from 'react';
 import InvoiceHeader from './InvoiceHeader';
 import InvoiceFooter from './InvoiceFooter';
 import InvoiceItemsTable from './InvoiceItemsTable';
@@ -34,9 +33,10 @@ const InvoiceTemplate = ({
   isLastPage,
   showSignature = false,
   showTotals = false,
+  template = null,
 }) => {
-  // Get template colors from company settings or use defaults
-  const templateSettings = company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
+  // Get template colors - prioritize passed template, then company settings, then defaults
+  const templateSettings = template || company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
   const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
   return (
@@ -59,6 +59,7 @@ const InvoiceTemplate = ({
         invoice={invoice}
         isFirstPage={isFirstPage}
         primaryColor={primaryColor}
+        template={templateSettings}
       />
 
       {/* Items table - with continued indicator on pages after first */}
@@ -68,6 +69,7 @@ const InvoiceTemplate = ({
         isFirstPage={isFirstPage}
         isContinued={!isFirstPage}
         primaryColor={primaryColor}
+        template={templateSettings}
       />
 
       {/* Totals - only on last page */}
@@ -75,17 +77,18 @@ const InvoiceTemplate = ({
         <InvoiceTotalsSection
           invoice={invoice}
           primaryColor={primaryColor}
+          template={templateSettings}
         />
       )}
 
       {/* Terms & Notes - only on last page */}
       {isLastPage && (
-        <InvoiceFooterNotes invoice={invoice} />
+        <InvoiceFooterNotes invoice={invoice} template={templateSettings} />
       )}
 
       {/* Signature - only on last page */}
       {isLastPage && showSignature && (
-        <InvoiceSignatureSection company={company} />
+        <InvoiceSignatureSection company={company} template={templateSettings} />
       )}
 
       {/* Page footer - appears on every page */}
@@ -94,6 +97,7 @@ const InvoiceTemplate = ({
         pageNumber={pageNumber}
         totalPages={totalPages}
         primaryColor={primaryColor}
+        template={templateSettings}
       />
     </div>
   );

@@ -1146,8 +1146,11 @@ const InvoiceForm = ({ onSave }) => {
   const {
     selectedTemplateId,
     currentTemplate,
+    customColors,
     templates: availableTemplates,
     selectTemplate,
+    updateColors,
+    resetColors,
     recurringSettings,
     toggleRecurring,
     updateRecurringSettings,
@@ -2281,6 +2284,7 @@ const InvoiceForm = ({ onSave }) => {
         onSave={handleSaveFromPreview}
         isSaving={savingInvoice || updatingInvoice || isSaving}
         isFormValid={isFormValidForSave}
+        template={currentTemplate}
       />
     );
   }
@@ -2432,8 +2436,10 @@ const InvoiceForm = ({ onSave }) => {
                       selectedId={selectedTemplateId}
                       onSelect={(id) => {
                         selectTemplate(id);
-                        setShowTemplateSettings(false);
+                        setTimeout(() => setShowTemplateSettings(false), 100);
                       }}
+                      customColor={customColors}
+                      onColorChange={updateColors}
                       isDarkMode={isDarkMode}
                     />
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">

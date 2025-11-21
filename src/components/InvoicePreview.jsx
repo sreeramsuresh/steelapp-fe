@@ -5,7 +5,7 @@ import InvoiceTemplate from './invoice/InvoiceTemplate';
 import { calculatePagination, splitItemsIntoPages } from '../utils/invoicePagination';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../constants/defaultTemplateSettings';
 
-const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true }) => {
+const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving, isFormValid = true, template = null }) => {
   const { isDarkMode } = useTheme();
 
   // Handle save with error handling
@@ -140,6 +140,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                 isLastPage={page.isLastPage}
                 showSignature={page.isLastPage}
                 showTotals={page.isLastPage}
+                template={template}
               />
 
               {/* Page Break Indicator - Only between pages, not after last */}

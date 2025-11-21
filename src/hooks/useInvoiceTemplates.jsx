@@ -1,114 +1,122 @@
 /**
  * useInvoiceTemplates Hook
- * 
+ *
  * Manages invoice template selection, styling, and recurring invoice settings.
  * Stores preferences in localStorage.
- * 
- * Templates: Standard, Modern, Minimal, Professional
+ *
+ * Templates: Classic, Modern, Elegant, Print Ready (B&W)
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 
-// Template definitions
+// Template definitions with vibrant colors + one B&W print option
 export const INVOICE_TEMPLATES = {
   standard: {
     id: 'standard',
-    name: 'Standard',
-    description: 'Classic professional layout',
+    name: 'Classic',
+    description: 'Traditional business style with teal accents',
     preview: '📄',
     colors: {
-      primary: '#0d9488', // teal-600
-      secondary: '#6b7280', // gray-500
-      accent: '#f3f4f6', // gray-100
-      text: '#111827', // gray-900
-      border: '#e5e7eb', // gray-200
+      primary: '#0d9488', // Teal - brand color
+      secondary: '#475569', // Slate gray
+      accent: '#f0fdfa', // Light teal tint for rows
+      text: '#1e293b', // Dark slate for body
+      border: '#cbd5e1', // Slate border
+      headerBg: '#0d9488', // Teal header background
     },
     fonts: {
       heading: 'Inter, system-ui, sans-serif',
       body: 'Inter, system-ui, sans-serif',
     },
     layout: {
-      headerStyle: 'centered',
-      itemsStyle: 'table',
+      headerStyle: 'default', // Original side-by-side layout
+      itemsStyle: 'full-grid', // Full table borders
       totalsPosition: 'right',
       showLogo: true,
       showWatermark: false,
       compactMode: false,
+      alternatingRows: true,
     },
   },
   modern: {
     id: 'modern',
-    name: 'Modern',
-    description: 'Clean minimal design with bold accents',
+    name: 'Custom',
+    description: 'Customizable color scheme - pick your brand color',
     preview: '🎨',
     colors: {
-      primary: '#2563eb', // blue-600
-      secondary: '#64748b', // slate-500
-      accent: '#eff6ff', // blue-50
-      text: '#0f172a', // slate-900
-      border: '#e2e8f0', // slate-200
+      primary: '#2563eb', // Blue (default - customizable)
+      secondary: '#64748b', // Slate
+      accent: '#eff6ff', // Light blue tint
+      text: '#1e293b', // Dark slate
+      border: '#93c5fd', // Light blue border
+      headerBg: '#2563eb', // Blue header (customizable)
     },
     fonts: {
       heading: 'Poppins, Inter, system-ui, sans-serif',
       body: 'Inter, system-ui, sans-serif',
     },
     layout: {
-      headerStyle: 'left-aligned',
-      itemsStyle: 'cards',
+      headerStyle: 'default', // Side-by-side layout
+      itemsStyle: 'horizontal-lines', // Only horizontal dividers
       totalsPosition: 'right',
       showLogo: true,
       showWatermark: false,
       compactMode: false,
+      alternatingRows: false,
     },
   },
   minimal: {
     id: 'minimal',
-    name: 'Minimal',
-    description: 'Simple and clean, focuses on content',
+    name: 'Elegant',
+    description: 'Refined navy blue with gold accents',
     preview: '✨',
     colors: {
-      primary: '#18181b', // zinc-900
-      secondary: '#71717a', // zinc-500
-      accent: '#fafafa', // zinc-50
-      text: '#27272a', // zinc-800
-      border: '#d4d4d8', // zinc-300
-    },
-    fonts: {
-      heading: 'Inter, system-ui, sans-serif',
-      body: 'Inter, system-ui, sans-serif',
-    },
-    layout: {
-      headerStyle: 'left-aligned',
-      itemsStyle: 'simple',
-      totalsPosition: 'right',
-      showLogo: false,
-      showWatermark: false,
-      compactMode: true,
-    },
-  },
-  professional: {
-    id: 'professional',
-    name: 'Professional',
-    description: 'Formal business style with letterhead',
-    preview: '💼',
-    colors: {
-      primary: '#1e40af', // blue-800
-      secondary: '#374151', // gray-700
-      accent: '#f9fafb', // gray-50
-      text: '#111827', // gray-900
-      border: '#d1d5db', // gray-300
+      primary: '#1e3a5f', // Navy blue
+      secondary: '#64748b', // Slate
+      accent: '#fef3c7', // Light gold tint
+      text: '#1e293b', // Dark slate
+      border: '#1e3a5f', // Navy border
+      headerBg: '#1e3a5f', // Navy header
     },
     fonts: {
       heading: 'Georgia, Times, serif',
       body: 'Inter, system-ui, sans-serif',
     },
     layout: {
-      headerStyle: 'letterhead',
-      itemsStyle: 'table',
+      headerStyle: 'default', // Side-by-side layout
+      itemsStyle: 'no-borders', // Clean, minimal borders
+      totalsPosition: 'right',
+      showLogo: true,
+      showWatermark: false,
+      compactMode: false,
+      alternatingRows: false,
+    },
+  },
+  professional: {
+    id: 'professional',
+    name: 'Print Ready',
+    description: 'Optimized for B&W printing',
+    preview: '🖨️',
+    colors: {
+      primary: '#1a1a1a', // Near black
+      secondary: '#4a4a4a', // Dark gray
+      accent: '#f5f5f5', // Very light gray
+      text: '#000000', // Pure black
+      border: '#666666', // Medium gray
+      headerBg: '#e0e0e0', // Light gray header
+    },
+    fonts: {
+      heading: 'Inter, system-ui, sans-serif',
+      body: 'Inter, system-ui, sans-serif',
+    },
+    layout: {
+      headerStyle: 'default', // Side-by-side layout
+      itemsStyle: 'bold-header', // Bold header row, light grid
       totalsPosition: 'right',
       showLogo: true,
       showWatermark: true,
       compactMode: false,
+      alternatingRows: true,
     },
   },
 };
@@ -145,12 +153,12 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
 
   // Template selection state
   const [selectedTemplateId, setSelectedTemplateId] = useState(
-    savedPrefs?.templateId || initialTemplate
+    savedPrefs?.templateId || initialTemplate,
   );
 
   // Custom colors override
   const [customColors, setCustomColors] = useState(
-    savedPrefs?.customColors || null
+    savedPrefs?.customColors || null,
   );
 
   // Recurring invoice settings (frontend-only prep)
@@ -300,64 +308,156 @@ export default useInvoiceTemplates;
 /**
  * Template selector component
  */
+// Dark color presets for Custom template - ensures white text is visible
+const COLOR_PRESETS = [
+  { name: 'Blue', value: '#1e40af' },       // Deep blue
+  { name: 'Indigo', value: '#4338ca' },     // Indigo
+  { name: 'Purple', value: '#6d28d9' },     // Purple
+  { name: 'Teal', value: '#0f766e' },       // Dark teal
+  { name: 'Green', value: '#15803d' },      // Dark green
+  { name: 'Red', value: '#b91c1c' },        // Dark red
+  { name: 'Orange', value: '#c2410c' },     // Dark orange
+  { name: 'Navy', value: '#1e3a5f' },       // Navy
+  { name: 'Slate', value: '#334155' },      // Slate
+  { name: 'Rose', value: '#9f1239' },       // Dark rose
+];
+
 export const TemplateSelector = ({
   templates,
   selectedId,
   onSelect,
+  customColor,
+  onColorChange,
   isDarkMode = false,
   className = '',
   columns = 2,
 }) => {
   return (
-    <div className={`grid gap-3 ${columns === 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2'} ${className}`}>
-      {templates.map((template) => (
-        <button
-          type="button"
-          key={template.id}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (onSelect) onSelect(template.id);
-          }}
-          className={`
-            p-3 rounded-lg border-2 text-left transition-all duration-200 min-w-0
-            ${selectedId === template.id
-              ? isDarkMode
-                ? 'border-teal-500 bg-teal-900/30'
-                : 'border-teal-500 bg-teal-50'
-              : isDarkMode
-                ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
-                : 'border-gray-200 bg-white hover:border-gray-300'
-            }
-          `}
-        >
-          <div className="text-xl mb-1">{template.preview}</div>
-          <div className={`font-medium text-sm truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            {template.name}
+    <div className={className}>
+      <div className={`grid gap-3 ${columns === 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2'}`}>
+        {templates.map((template) => (
+          <button
+            type="button"
+            key={template.id}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onSelect) onSelect(template.id);
+            }}
+            className={`
+              p-3 rounded-lg border-2 text-left transition-all duration-200 min-w-0
+              ${selectedId === template.id
+            ? isDarkMode
+              ? 'border-teal-500 bg-teal-900/30'
+              : 'border-teal-500 bg-teal-50'
+            : isDarkMode
+              ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+              : 'border-gray-200 bg-white hover:border-gray-300'
+          }
+            `}
+          >
+            <div className="text-xl mb-1">{template.preview}</div>
+            <div className={`font-medium text-sm truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              {template.name}
+            </div>
+            <div className={`text-xs mt-1 line-clamp-2 leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} style={{ minHeight: '2rem' }}>
+              {template.description}
+            </div>
+            {/* Color preview dots */}
+            <div className="flex gap-1 mt-1.5">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: template.colors.primary }}
+              />
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: template.colors.secondary }}
+              />
+              <div
+                className="w-3 h-3 rounded-full border"
+                style={{
+                  backgroundColor: template.colors.accent,
+                  borderColor: template.colors.border,
+                }}
+              />
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Color customization - only show for Custom template */}
+      {onColorChange && selectedId === 'modern' && (
+        <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Custom Color
           </div>
-          <div className={`text-xs mt-1 line-clamp-2 leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} style={{ minHeight: '2rem' }}>
-            {template.description}
+          <div className="flex flex-wrap gap-2">
+            {COLOR_PRESETS.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // Apply primary color to all key color properties
+                  onColorChange({
+                    primary: color.value,
+                    headerBg: color.value,
+                    border: color.value,
+                  });
+                }}
+                className={`
+                  w-7 h-7 rounded-full border-2 transition-all
+                  ${customColor?.primary === color.value
+                ? 'border-gray-900 scale-110 ring-2 ring-offset-1 ring-gray-400'
+                : isDarkMode ? 'border-gray-600' : 'border-gray-300'
+              }
+                `}
+                style={{ backgroundColor: color.value }}
+                title={color.name}
+              />
+            ))}
+            {/* Custom color input */}
+            <label className="relative cursor-pointer" aria-label="Pick custom color">
+              <span className="sr-only">Pick custom color</span>
+              <input
+                type="color"
+                value={customColor?.primary || '#2563eb'}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  onColorChange({
+                    primary: e.target.value,
+                    headerBg: e.target.value,
+                    border: e.target.value,
+                  });
+                }}
+                className="absolute inset-0 w-7 h-7 opacity-0 cursor-pointer"
+                aria-label="Custom color picker"
+              />
+              <div
+                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center ${isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-100'}`}
+                title="Pick custom color"
+                aria-hidden="true"
+              >
+                <span className="text-xs">+</span>
+              </div>
+            </label>
           </div>
-          {/* Color preview dots */}
-          <div className="flex gap-1 mt-1.5">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: template.colors.primary }}
-            />
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: template.colors.secondary }}
-            />
-            <div 
-              className="w-3 h-3 rounded-full border" 
-              style={{ 
-                backgroundColor: template.colors.accent,
-                borderColor: template.colors.border,
+          {customColor && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onColorChange(null);
               }}
-            />
-          </div>
-        </button>
-      ))}
+              className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Reset to default
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -389,9 +489,9 @@ export const RecurringInvoiceSettings = ({
           className={`
             relative w-11 h-6 rounded-full transition-colors duration-200
             ${settings.enabled
-              ? 'bg-teal-500'
-              : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
-            }
+      ? 'bg-teal-500'
+      : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
+    }
           `}
           role="switch"
           aria-checked={settings.enabled}
@@ -414,18 +514,19 @@ export const RecurringInvoiceSettings = ({
         `}>
           {/* Frequency */}
           <div>
-            <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <label htmlFor="recurring-frequency" className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Frequency
             </label>
             <select
+              id="recurring-frequency"
               value={settings.frequency}
               onChange={(e) => onUpdate({ frequency: e.target.value })}
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-                }
+          ? 'bg-gray-700 border-gray-600 text-white'
+          : 'bg-white border-gray-300 text-gray-900'
+        }
               `}
             >
               {RECURRING_FREQUENCIES.map((freq) => (
@@ -438,29 +539,31 @@ export const RecurringInvoiceSettings = ({
 
           {/* Start Date */}
           <div>
-            <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <label htmlFor="recurring-start-date" className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Start Date
             </label>
             <input
+              id="recurring-start-date"
               type="date"
               value={settings.startDate || ''}
               onChange={(e) => onUpdate({ startDate: e.target.value })}
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-                }
+          ? 'bg-gray-700 border-gray-600 text-white'
+          : 'bg-white border-gray-300 text-gray-900'
+        }
               `}
             />
           </div>
 
           {/* End Date (Optional) */}
           <div>
-            <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <label htmlFor="recurring-end-date" className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               End Date (Optional)
             </label>
             <input
+              id="recurring-end-date"
               type="date"
               value={settings.endDate || ''}
               onChange={(e) => onUpdate({ endDate: e.target.value })}
@@ -468,9 +571,9 @@ export const RecurringInvoiceSettings = ({
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-                }
+          ? 'bg-gray-700 border-gray-600 text-white'
+          : 'bg-white border-gray-300 text-gray-900'
+        }
               `}
             />
           </div>
@@ -485,9 +588,9 @@ export const RecurringInvoiceSettings = ({
               className={`
                 relative w-9 h-5 rounded-full transition-colors duration-200
                 ${settings.sendAutomatically
-                  ? 'bg-teal-500'
-                  : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
-                }
+          ? 'bg-teal-500'
+          : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
+        }
               `}
               role="switch"
               aria-checked={settings.sendAutomatically}
