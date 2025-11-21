@@ -171,6 +171,11 @@ export const invoiceService = {
     return apiClient.post(`/invoices/${id}/payments`, payload);
   },
 
+  async addInvoicePaymentsBatch(id, payload) {
+    // payload: { payments: [{ payment_date, amount, method, reference_no, notes }], idempotency_key? }
+    return apiClient.post(`/invoices/${id}/payments/batch`, payload);
+  },
+
   async voidInvoicePayment(invoiceId, paymentId, reason) {
     return apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
   },

@@ -45,6 +45,7 @@ import InvoiceStatusColumn from '../components/InvoiceStatusColumn';
 import { normalizeInvoices } from '../utils/invoiceNormalizer';
 import { guardInvoicesDev } from '../utils/devGuards';
 import { getInvoiceActionButtonConfig } from './invoiceActionsConfig';
+import { useInvoicePresence } from '../hooks/useInvoicePresence';
 
 /**
  * ============================================================================
@@ -305,6 +306,13 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [paymentReminderInvoice, setPaymentReminderInvoice] = useState(null);
   const [showRecordPaymentDrawer, setShowRecordPaymentDrawer] = useState(false);
   const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
+  // Presence tracking for payment drawer
+  const { otherSessions, updateMode } = useInvoicePresence(
+    showRecordPaymentDrawer ? paymentDrawerInvoice?.id : null,
+    'payment'
+  );
 
   const company = createCompany();
 
@@ -819,6 +827,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   };
 
   const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+    // Guard against double-submit
+    if (isSavingPayment) return;
+    
     const inv = paymentDrawerInvoice;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
@@ -830,6 +841,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       notificationService.error('Amount exceeds outstanding balance');
       return;
     }
+    
+    setIsSavingPayment(true);
 
     // Normalize to camelCase for API Gateway (which converts to snake_case for backend)
     const paymentPayload = {
@@ -917,6 +930,57 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       } catch (e) {
         console.error('Error reloading invoice:', e);
       }
+    } finally {
+      setIsSavingPayment(false);
+    }
+  };
+
+  const handleAddPaymentBatch = async ({ payments }) => {
+    // Guard against double-submit
+    if (isSavingPayment) return;
+    
+    const inv = paymentDrawerInvoice;
+    if (!inv || !payments || payments.length === 0) return;
+
+    setIsSavingPayment(true);
+
+    try {
+      // Call batch API
+      await invoiceService.addInvoicePaymentsBatch(inv.id, { payments });
+
+      notificationService.success(`${payments.length} payment(s) recorded successfully!`);
+
+      // Fetch fresh drawer data
+      const freshData = await invoiceService.getInvoice(inv.id);
+      setPaymentDrawerInvoice(freshData);
+
+      // Update the invoice in the list
+      setInvoices(prevInvoices =>
+        prevInvoices.map(invoice =>
+          invoice.id === inv.id
+            ? {
+              ...invoice,
+              payment_status: freshData.payment_status,
+              received: freshData.received,
+              outstanding: freshData.outstanding,
+              balance_due: freshData.outstanding,
+            }
+            : invoice,
+        ),
+      );
+    } catch (error) {
+      console.error('Error recording batch payments:', error);
+      notificationService.error(error?.response?.data?.error || 'Failed to record payments');
+
+      // Reload drawer on error
+      try {
+        const freshData = await invoiceService.getInvoice(inv.id);
+        setPaymentDrawerInvoice(freshData);
+      } catch (e) {
+        console.error('Error reloading invoice:', e);
+      }
+    } finally {
+      setIsSavingPayment(false);
     }
   };
 
@@ -2393,11 +2457,16 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         onSave={handlePaymentReminderSaved}
       />
 
-      {/* Record Payment Drawer - Exact replica from Receivables */}
+      {/* Record Payment Drawer - Mobile responsive */}
       {showRecordPaymentDrawer && paymentDrawerInvoice && (
         <div className="fixed inset-0 z-[1100] flex">
-          <div className="flex-1 bg-black/30" onClick={handleCloseRecordPaymentDrawer}></div>
-          <div className={`w-full max-w-md h-full overflow-auto ${
+          {/* Backdrop: absolute overlay on mobile, flex-1 on desktop */}
+          <div 
+            className="absolute inset-0 bg-black/30 sm:relative sm:flex-1" 
+            onClick={handleCloseRecordPaymentDrawer}
+          ></div>
+          {/* Drawer: full width on mobile, max-w-xl on desktop */}
+          <div className={`relative z-10 w-full sm:max-w-xl h-full overflow-auto ${
             isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
           } shadow-xl`}>
             <div className="p-4 border-b flex items-center justify-between">
@@ -2425,6 +2494,19 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 </button>
               </div>
             </div>
+            {/* Presence Banner - Shows other users viewing/editing this invoice */}
+            {otherSessions.length > 0 && (
+              <div className="mx-4 mt-3 px-3 py-2 rounded-lg border bg-amber-50 border-amber-200 text-amber-800 text-sm flex items-center gap-2">
+                <span>⚠️</span>
+                <span>
+                  Currently being edited by{' '}
+                  <strong>
+                    {[...new Set(otherSessions.map((s) => s.userName))].join(', ')}
+                  </strong>
+                  . Your changes may conflict.
+                </span>
+              </div>
+            )}
             <div className="p-4 space-y-4">
               {/* Invoice Summary Section */}
               <div className={`p-4 rounded-lg border-2 ${
@@ -2520,6 +2602,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 <AddPaymentForm
                   outstanding={paymentDrawerInvoice.outstanding || 0}
                   onSave={handleAddPayment}
+                  onSaveBatch={handleAddPaymentBatch}
                 />
               ) : (
                 <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
@@ -2561,165 +2644,292 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   );
 };
 
-// Payment Form Component - Exact replica from Receivables
-const AddPaymentForm = ({ outstanding = 0, onSave }) => {
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0,10));
-  const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState('cash');
-  const [reference, setReference] = useState('');
-  const [notes, setNotes] = useState('');
+// Multi-Payment Form Component - supports multiple payment entries
+const AddPaymentForm = ({ outstanding = 0, onSave, onSaveBatch }) => {
+  const defaultPayment = () => ({
+    id: Date.now(),
+    date: new Date().toISOString().slice(0,10),
+    amount: '',
+    method: 'cash',
+    reference: '',
+    notes: '',
+  });
+
+  const [payments, setPayments] = useState([defaultPayment()]);
   const [isSaving, setIsSaving] = useState(false);
 
-  const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
   const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
 
-  const canSave =
-    Number(amount) > 0 &&
-    Number(amount) <= Number(outstanding || 0) &&
-    (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
+  const updatePayment = (id, field, value) => {
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const addPaymentRow = () => {
+    setPayments(prev => [...prev, defaultPayment()]);
+  };
+
+  const removePaymentRow = (id) => {
+    if (payments.length > 1) {
+      setPayments(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
+  // Calculate totals
+  const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const remainingAfterBatch = Math.max(0, outstanding - totalAmount);
+
+  // Validation for each payment row
+  const isPaymentValid = (p) => {
+    const modeConfig = PAYMENT_MODES[p.method] || PAYMENT_MODES.cash;
+    return (
+      Number(p.amount) > 0 &&
+      (!modeConfig.requiresRef || (p.reference && p.reference.trim() !== ''))
+    );
+  };
+
+  // Overall validation
+  const validPayments = payments.filter(isPaymentValid);
+  const canSave = 
+    validPayments.length > 0 &&
+    totalAmount > 0 &&
+    totalAmount <= outstanding &&
     !isSaving;
 
   const handleSave = async () => {
     if (!canSave) return;
     setIsSaving(true);
     try {
-      await onSave({ amount: Number(amount), method, reference_no: reference, notes, payment_date: date });
+      if (validPayments.length === 1 && onSave) {
+        // Single payment - use existing API with snake_case for backward compatibility
+        const p = validPayments[0];
+        await onSave({
+          payment_date: p.date,
+          amount: Number(p.amount),
+          method: p.method,
+          reference_no: p.reference || null,
+          notes: p.notes || null,
+        });
+      } else if (validPayments.length > 1 && onSaveBatch) {
+        // Multiple payments - use batch API with camelCase (middleware converts)
+        const paymentData = validPayments.map(p => ({
+          paymentDate: p.date,
+          amount: Number(p.amount),
+          method: p.method,
+          referenceNo: p.reference || null,
+          notes: p.notes || null,
+        }));
+        await onSaveBatch({ payments: paymentData });
+      } else if (onSave) {
+        // Fallback: send one by one with snake_case
+        for (const p of validPayments) {
+          await onSave({
+            payment_date: p.date,
+            amount: Number(p.amount),
+            method: p.method,
+            reference_no: p.reference || null,
+            notes: p.notes || null,
+          });
+        }
+      }
+
       // Clear form after successful save
-      setDate(new Date().toISOString().slice(0,10));
-      setAmount('');
-      setMethod('cash');
-      setReference('');
-      setNotes('');
+      setPayments([defaultPayment()]);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
-      <div className="font-semibold mb-3 text-teal-900 flex items-center gap-2">
-        <CircleDollarSign size={18} />
-        Record Payment Details
+    <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/60 shadow-lg shadow-emerald-100/50">
+      {/* Modern gradient header */}
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-emerald-200/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-200">
+            <CircleDollarSign size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-800 text-base">Record Payment{payments.length > 1 ? 's' : ''}</h3>
+            <p className="text-xs text-emerald-600 font-medium">{payments.length} payment{payments.length > 1 ? 's' : ''} pending</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={addPaymentRow}
+          className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+          title="Add another payment"
+        >
+          + Add Payment
+        </button>
       </div>
-      {outstanding > 0 && (
-        <>
-          <div className="mb-3 px-3 py-2 bg-blue-100 text-blue-800 text-sm rounded-lg flex justify-between items-center border border-blue-200">
-            <span className="font-semibold">Outstanding Balance:</span>
-            <button
-              type="button"
-              onClick={() => setAmount(outstanding.toString())}
-              className="font-bold text-blue-800 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group px-2 py-1 rounded hover:bg-blue-200"
-              title="Click to apply this amount to payment"
-            >
-              {formatCurrency(outstanding)}
-              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                ✓ Apply
-              </span>
-            </button>
-          </div>
-          <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="text-xs text-amber-800">
-              <strong>📋 Note:</strong> All payment details are required for proper accounting records. Click the balance amount above to auto-fill the payment amount.
-            </div>
-          </div>
-        </>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium mb-1.5">
-            Payment Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-            value={date}
-            onChange={e=>setDate(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium mb-1.5">
-            Amount <span className="text-red-500">*</span>
-            <span className="text-gray-500 font-normal ml-1">(max: {formatCurrency(outstanding)})</span>
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            max={outstanding}
-            className={`px-3 py-2.5 rounded-lg border w-full focus:ring-2 focus:ring-teal-500 transition-all ${
-              Number(amount) > Number(outstanding)
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-teal-500'
-            }`}
-            value={amount}
-            onChange={e=>setAmount(numberInput(e.target.value))}
-            placeholder="0.00"
-            required
-          />
-          {Number(amount) > Number(outstanding) && (
-            <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
-              <span>⚠️</span> Amount cannot exceed outstanding balance
-            </div>
-          )}
-        </div>
-        <div>
-          <label className="block text-xs font-medium mb-1.5">
-            Payment Method <span className="text-red-500">*</span>
-          </label>
-          <select
-            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-            value={method}
-            onChange={e=>{setMethod(e.target.value); setReference('');}}
-            required
+
+      {/* Modern summary card with glassmorphism */}
+      <div className="mb-4 p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-inner">
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">Outstanding Balance</span>
+          <button
+            type="button"
+            onClick={() => {
+              const firstEmpty = payments.find(p => !p.amount || Number(p.amount) === 0);
+              if (firstEmpty) {
+                updatePayment(firstEmpty.id, 'amount', outstanding.toString());
+              } else if (payments.length > 0) {
+                updatePayment(payments[0].id, 'amount', outstanding.toString());
+              }
+            }}
+            className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent hover:scale-105 transition-all duration-200 flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-emerald-50"
+            title="Click to apply this amount to payment"
           >
-            {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
-          </select>
+            {formatCurrency(outstanding)}
+            <span className="text-xs text-gray-400 font-medium">
+              ← Apply
+            </span>
+          </button>
         </div>
-        <div>
-          <label className="block text-xs font-medium mb-1.5">
-            {modeConfig.refLabel || 'Reference #'}
-            {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
-            {!modeConfig.requiresRef && <span className="text-gray-500 font-normal ml-1">(Optional)</span>}
-          </label>
-          <input
-            className={`px-3 py-2.5 rounded-lg border w-full focus:ring-2 transition-all ${
-              modeConfig.requiresRef && (!reference || reference.trim() === '')
-                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500'
-            }`}
-            value={reference}
-            onChange={e=>setReference(e.target.value)}
-            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || 'reference'} (required)` : 'Optional'}
-            required={modeConfig.requiresRef}
-          />
-          {modeConfig.requiresRef && (!reference || reference.trim() === '') && (
-            <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
-              <span>⚠️</span> Required for {modeConfig.label}
-            </div>
-          )}
-        </div>
-        <div className="sm:col-span-2">
-          <label className="block text-xs font-medium mb-1.5">
-            Notes <span className="text-gray-500 font-normal">(Optional)</span>
-          </label>
-          <textarea
-            className="px-3 py-2.5 rounded-lg border border-gray-300 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all resize-y min-h-[60px]"
-            rows={2}
-            value={notes}
-            onChange={e=>setNotes(e.target.value)}
-            placeholder="Add any additional notes about this payment..."
-            maxLength={200}
-          />
-          <div className="text-xs text-gray-500 mt-1 text-right">
-            {notes.length}/200
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200/50 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500">Batch Total:</span>
+            <span className={`font-bold ${totalAmount > outstanding ? 'text-red-500' : 'text-emerald-600'}`}>
+              {formatCurrency(totalAmount)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500">Remaining:</span>
+            <span className="font-bold text-amber-600">{formatCurrency(remainingAfterBatch)}</span>
           </div>
         </div>
+        {totalAmount > outstanding && (
+          <div className="mt-2 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600 font-medium flex items-center gap-1">
+            <AlertCircle size={14} /> Total exceeds outstanding balance!
+          </div>
+        )}
       </div>
-      <div className="mt-4 flex justify-end">
+
+      {/* Payment rows with modern cards */}
+      <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+        {payments.map((p, idx) => {
+          const modeConfig = PAYMENT_MODES[p.method] || PAYMENT_MODES.cash;
+          const isValid = isPaymentValid(p);
+          return (
+            <div key={p.id} className={`p-4 rounded-xl transition-all duration-200 ${
+              isValid 
+                ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 shadow-md shadow-emerald-100/50' 
+                : 'bg-white/80 border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300'
+            }`}>
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                    isValid ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    #{idx + 1}
+                  </span>
+                  {isValid && <CheckCircle size={14} className="text-emerald-500" />}
+                </div>
+                {payments.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removePaymentRow(p.id)}
+                    className="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                  >
+                    ✕ Remove
+                  </button>
+                )}
+              </div>
+              {/* Row 1: Date and Amount */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
+                    📅 Date <span className="text-red-500 text-base font-bold">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                    value={p.date}
+                    onChange={e => updatePayment(p.id, 'date', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
+                    💰 Amount (AED) <span className="text-red-500 text-base font-bold">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="1000000"
+                    required
+                    placeholder="0.00"
+                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 font-semibold focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                    value={p.amount}
+                    onChange={e => updatePayment(p.id, 'amount', numberInput(e.target.value))}
+                  />
+                </div>
+              </div>
+              {/* Row 2: Method and Reference */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
+                    💳 Payment Method <span className="text-red-500 text-base font-bold">*</span>
+                  </label>
+                  <select
+                    required
+                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all cursor-pointer"
+                    value={p.method}
+                    onChange={e => { updatePayment(p.id, 'method', e.target.value); updatePayment(p.id, 'reference', ''); }}
+                  >
+                    {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
+                    🔗 {modeConfig.requiresRef ? modeConfig.refLabel : 'Reference'}
+                    {modeConfig.requiresRef && <span className="text-red-500 text-base font-bold">*</span>}
+                  </label>
+                  <input
+                    placeholder={modeConfig.requiresRef ? 'Required' : 'Optional'}
+                    required={modeConfig.requiresRef}
+                    className={`px-3 py-2.5 text-sm rounded-lg border-2 w-full bg-white/80 focus:ring-2 focus:outline-none transition-all ${
+                      modeConfig.requiresRef && !p.reference 
+                        ? 'border-amber-300 focus:border-amber-400 focus:ring-amber-100' 
+                        : 'border-gray-200 focus:border-emerald-400 focus:ring-emerald-100'
+                    }`}
+                    value={p.reference}
+                    onChange={e => updatePayment(p.id, 'reference', e.target.value)}
+                  />
+                </div>
+              </div>
+              {/* Row 3: Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
+                  📝 Notes <span className="font-normal text-gray-400">(optional)</span>
+                </label>
+                <input
+                  placeholder="Add any notes about this payment"
+                  className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                  value={p.notes}
+                  onChange={e => updatePayment(p.id, 'notes', e.target.value)}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-emerald-200/50 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${validPayments.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`}></div>
+          <span className="text-sm text-gray-600">
+            <strong className={validPayments.length > 0 ? 'text-emerald-600' : 'text-gray-500'}>{validPayments.length}</strong> of {payments.length} valid
+          </span>
+        </div>
         <button
           disabled={!canSave}
           onClick={handleSave}
-          className={`px-4 py-2.5 rounded-lg font-semibold transition-all inline-flex items-center gap-2 ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+          className={`px-5 py-2.5 rounded-xl font-bold transition-all duration-200 inline-flex items-center gap-2 ${
+            canSave 
+              ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-xl hover:shadow-emerald-300/50 hover:scale-105 active:scale-95' 
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+          }`}
         >
           {isSaving ? (
             <>
@@ -2728,7 +2938,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
             </>
           ) : (
             <>
-              💾 Save Payment
+              💾 Save {validPayments.length > 1 ? `${validPayments.length} Payments` : 'Payment'}
             </>
           )}
         </button>

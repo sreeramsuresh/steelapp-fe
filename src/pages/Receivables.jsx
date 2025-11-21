@@ -72,7 +72,7 @@ const downloadBlob = (blob, filename) => {
   }
 };
 
-const AddPaymentForm = ({ outstanding = 0, onSave }) => {
+const AddPaymentForm = ({ outstanding = 0, onSave, isSaving = false }) => {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0,10));
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('cash');
@@ -82,8 +82,9 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
   // Get current payment mode config
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
-  // Validation: amount must be > 0, <= outstanding, and reference required for non-cash
+  // Validation: amount must be > 0, <= outstanding, reference required for non-cash, and not already saving
   const canSave =
+    !isSaving &&
     Number(amount) > 0 &&
     Number(amount) <= Number(outstanding || 0) &&
     (!modeConfig.requiresRef || (reference && reference.trim() !== ''));
@@ -167,7 +168,7 @@ const AddPaymentForm = ({ outstanding = 0, onSave }) => {
       </div>
       <div className="mt-4 flex justify-end">
         <button disabled={!canSave} onClick={handleSave} className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${canSave ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>
-          💾 Save Payment
+          {isSaving ? '⏳ Saving...' : '💾 Save Payment'}
         </button>
       </div>
     </div>
@@ -193,6 +194,7 @@ const Receivables = () => {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(new Set());
   const [drawer, setDrawer] = useState({ open: false, item: null });
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const page = Number(filters.page || 1);
@@ -245,11 +247,17 @@ const Receivables = () => {
   const closeDrawer = () => setDrawer({ open: false, item: null });
 
   const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
+    // Guard against double-submit
+    if (isSavingPayment) return;
+    
     const inv = drawer.item;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
     if (!(Number(amount) > 0)) return alert('Amount must be > 0');
     if (Number(amount) > outstanding) return alert('Amount exceeds outstanding');
+    
+    setIsSavingPayment(true);
+    
     const newPayment = {
       id: uuid(),
       paymentDate: paymentDate || new Date().toISOString().slice(0,10),
@@ -267,6 +275,8 @@ const Receivables = () => {
     } catch (e) { 
       // Ignore - optimistic UI already updated, backend error doesn't affect display
       console.warn('Failed to persist payment to backend:', e.message);
+    } finally {
+      setIsSavingPayment(false);
     }
   };
 
@@ -621,7 +631,7 @@ const Receivables = () => {
 
               {/* Add Payment */}
               {canManage && drawer.item.outstanding > 0 ? (
-                <AddPaymentForm outstanding={drawer.item.outstanding || 0} onSave={handleAddPayment} />
+                <AddPaymentForm outstanding={drawer.item.outstanding || 0} onSave={handleAddPayment} isSaving={isSavingPayment} />
               ) : drawer.item.outstanding === 0 ? (
                 <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
                   <CheckCircle size={18} />
