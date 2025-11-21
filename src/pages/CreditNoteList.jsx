@@ -28,7 +28,7 @@ const STATUS_COLORS = {
   completed: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', label: 'Completed' },
 };
 
-const CreditNoteList = () => {
+const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
@@ -40,6 +40,13 @@ const CreditNoteList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [pagination, setPagination] = useState(null);
+
+  // Auto-navigate to credit note form if invoiceId is provided (from invoice list)
+  useEffect(() => {
+    if (preSelectedInvoiceId) {
+      navigate(`/credit-notes/new?invoiceId=${preSelectedInvoiceId}`, { replace: true });
+    }
+  }, [preSelectedInvoiceId, navigate]);
 
   useEffect(() => {
     loadCreditNotes();

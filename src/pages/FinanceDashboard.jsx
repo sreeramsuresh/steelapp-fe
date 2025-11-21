@@ -22,11 +22,11 @@ const FinanceDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('receivables');
 
-  // Auto-open statements tab if navigated from invoice list
+  // Auto-open tab if navigated with tab parameter
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'statements') {
-      setActiveTab('statements');
+    if (tabParam && ['receivables', 'payables', 'statements', 'credit-notes', 'commissions'].includes(tabParam)) {
+      setActiveTab(tabParam);
     }
   }, [searchParams]);
 
@@ -119,6 +119,7 @@ const FinanceDashboard = () => {
           <ActiveComponent
             preSelectedCustomerId={searchParams.get('customerId')}
             preSelectedCustomerName={searchParams.get('customerName')}
+            preSelectedInvoiceId={searchParams.get('invoiceId')}
           />
         )}
       </div>

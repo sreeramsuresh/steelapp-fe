@@ -2038,53 +2038,42 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
                             return (
                               <>
-                                {/* Edit button - Always visible */}
-                                {actions.edit.enabled ? (
-                                  <Link
-                                    to={actions.edit.link}
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-blue-50 text-blue-600 bg-white'
-                                    }`}
-                                    title={actions.edit.tooltip}
-                                  >
-                                    <Edit size={18} />
-                                  </Link>
+                                {/* Primary Action: Edit (draft/proforma) OR Credit Note (issued/sent) */}
+                                {actions.primaryAction.enabled ? (
+                                  actions.primaryAction.type === 'edit' ? (
+                                    <Link
+                                      to={actions.primaryAction.link}
+                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                        isDarkMode
+                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
+                                      }`}
+                                      title={actions.primaryAction.tooltip}
+                                    >
+                                      <Edit size={18} />
+                                    </Link>
+                                  ) : (
+                                    <button
+                                      onClick={() => navigate(actions.primaryAction.link)}
+                                      className={`p-2 rounded transition-all shadow-md hover:shadow-lg ${
+                                        isDarkMode
+                                          ? 'bg-green-500 hover:bg-green-400 text-white'
+                                          : 'bg-green-400 hover:bg-green-500 text-white'
+                                      }`}
+                                      title={actions.primaryAction.tooltip}
+                                    >
+                                      <FileMinus size={18} />
+                                    </button>
+                                  )
                                 ) : (
                                   <button
                                     disabled
                                     className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
                                       isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
                                     }`}
-                                    title={actions.edit.tooltip}
+                                    title={actions.primaryAction.tooltip}
                                   >
                                     <Edit size={18} />
-                                  </button>
-                                )}
-
-                                {/* Credit Note button - Always visible */}
-                                {actions.creditNote.enabled ? (
-                                  <button
-                                    onClick={() => navigate(actions.creditNote.link)}
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-purple-50 text-purple-600 bg-white'
-                                    }`}
-                                    title={actions.creditNote.tooltip}
-                                  >
-                                    <FileMinus size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.creditNote.tooltip}
-                                  >
-                                    <FileMinus size={18} />
                                   </button>
                                 )}
 

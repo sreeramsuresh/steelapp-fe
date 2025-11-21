@@ -58,7 +58,7 @@ export function getInvoiceActionButtonConfig(
           : !creditNoteAllowedStatuses.includes(invoice.status)
             ? 'Only available for issued/sent invoices'
             : 'Create Credit Note',
-      link: `/credit-notes/new?invoiceId=${invoice.id}`,
+      link: `/finance?tab=credit-notes&invoiceId=${invoice.id}`,
     },
     view: {
       enabled: true,
@@ -143,5 +143,44 @@ export function getInvoiceActionButtonConfig(
           ? 'No permission to restore'
           : 'Restore Invoice',
     },
+
+    // PRIMARY ACTION: Consolidated edit/credit note action
+    // Shows edit for draft/proforma, credit note for issued/sent, none for cancelled/deleted
+    primaryAction: (() => {
+      const isEditable = canUpdate && !isDeleted && !nonEditableStatuses.includes(invoice.status);
+      const canCreateCN = canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status);
+      
+      if (isEditable) {
+        return {
+          type: 'edit',
+          enabled: true,
+          tooltip: 'Edit Invoice',
+          link: `/edit/${invoice.id}`,
+        };
+      } else if (canCreateCN) {
+        return {
+          type: 'creditNote',
+          enabled: true,
+          tooltip: 'Create Credit Note',
+          link: `/finance?tab=credit-notes&invoiceId=${invoice.id}`,
+        };
+      } else {
+        // Cancelled, deleted, or no permission
+        return {
+          type: 'none',
+          enabled: false,
+          tooltip: isDeleted
+            ? 'Cannot modify deleted invoice'
+            : invoice.status === 'cancelled'
+              ? 'Cannot modify cancelled invoice'
+              : !canUpdate && !canCreateCreditNote
+                ? 'No permission to modify'
+                : nonEditableStatuses.includes(invoice.status)
+                  ? 'No permission to create credit notes'
+                  : 'No modifications available',
+          link: null,
+        };
+      }
+    })(),
   };
 }
