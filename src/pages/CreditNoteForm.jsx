@@ -48,6 +48,11 @@ const REFUND_METHODS = [
   { value: 'credit_card', label: 'Credit Card' },
 ];
 
+const CREDIT_NOTE_TYPES = [
+  { value: 'ACCOUNTING_ONLY', label: 'Accounting Only', description: 'Financial adjustment without physical return' },
+  { value: 'RETURN_WITH_QC', label: 'Return with QC', description: 'Physical return requiring quality inspection' },
+];
+
 const CreditNoteForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -73,6 +78,7 @@ const CreditNoteForm = () => {
     },
     creditNoteDate: formatDateForInput(new Date()),
     status: 'draft',
+    creditNoteType: 'ACCOUNTING_ONLY',
     reasonForReturn: '',
     items: [],
     subtotal: 0,
@@ -83,6 +89,11 @@ const CreditNoteForm = () => {
     refundMethod: '',
     refundDate: '',
     refundReference: '',
+    // QC Information (for RETURN_WITH_QC type)
+    qcResult: null,
+    qcNotes: '',
+    qcInspectedAt: null,
+    qcInspectedBy: null,
     // Return Logistics
     expectedReturnDate: '',
     warehouseId: null,
@@ -861,6 +872,34 @@ const CreditNoteForm = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Credit Note Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={creditNote.creditNoteType}
+                    onChange={(e) => setCreditNote(prev => ({ ...prev, creditNoteType: e.target.value }))}
+                    disabled={id && creditNote.status !== 'draft'}
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      id && creditNote.status !== 'draft'
+                        ? isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-gray-500'
+                          : 'border-gray-300 bg-gray-100 text-gray-500'
+                        : isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  >
+                    {CREDIT_NOTE_TYPES.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {CREDIT_NOTE_TYPES.find(t => t.value === creditNote.creditNoteType)?.description}
+                  </p>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -997,6 +1036,62 @@ const CreditNoteForm = () => {
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* QC Information - shown for RETURN_WITH_QC type after inspection */}
+            {creditNote.creditNoteType === 'RETURN_WITH_QC' && 
+             ['items_inspected', 'applied', 'refunded', 'completed'].includes(creditNote.status) && (
+              <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+                <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  QC Inspection Results
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        QC Result
+                      </label>
+                      <div className={`px-4 py-2 rounded-lg border ${
+                        isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'
+                      }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          creditNote.qcResult === 'GOOD' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                            : creditNote.qcResult === 'BAD'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                        }`}>
+                          {creditNote.qcResult || 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+                    {creditNote.qcInspectedAt && (
+                      <div className="flex-1">
+                        <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Inspected At
+                        </label>
+                        <div className={`px-4 py-2 rounded-lg border text-sm ${
+                          isDarkMode ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-600'
+                        }`}>
+                          {new Date(creditNote.qcInspectedAt).toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {creditNote.qcNotes && (
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        QC Notes
+                      </label>
+                      <div className={`px-4 py-3 rounded-lg border text-sm ${
+                        isDarkMode ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-600'
+                      }`}>
+                        {creditNote.qcNotes}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

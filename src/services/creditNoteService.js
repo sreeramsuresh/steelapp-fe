@@ -138,9 +138,44 @@ class CreditNoteService {
     return apiClient.delete(`${this.endpoint}/${id}`);
   }
 
-  // Update credit note status
+  // Update credit note status (legacy - use specific transition methods instead)
   async updateCreditNoteStatus(id, status) {
     return apiClient.patch(`${this.endpoint}/${id}/status`, { status });
+  }
+
+  // ============================================
+  // Status Transition Methods (NEW)
+  // ============================================
+
+  // Get allowed status transitions for a credit note
+  async getAllowedTransitions(id) {
+    return apiClient.get(`${this.endpoint}/${id}/allowed-transitions`);
+  }
+
+  // Issue a draft credit note (draft -> issued)
+  async issueCreditNote(id) {
+    const response = await apiClient.post(`${this.endpoint}/${id}/issue`);
+    return transformCreditNoteFromServer(response);
+  }
+
+  // Apply credit to customer account (issued/items_inspected -> applied)
+  async applyCreditNote(id, notes = '') {
+    const response = await apiClient.post(`${this.endpoint}/${id}/apply`, { notes });
+    return transformCreditNoteFromServer(response);
+  }
+
+  // Complete the credit note (applied/refunded -> completed)
+  async completeCreditNote(id, notes = '') {
+    const response = await apiClient.post(`${this.endpoint}/${id}/complete`, { notes });
+    return transformCreditNoteFromServer(response);
+  }
+
+  // Cancel the credit note (any except completed -> cancelled)
+  async cancelCreditNote(id, cancellationReason = '') {
+    const response = await apiClient.post(`${this.endpoint}/${id}/cancel`, { 
+      cancellation_reason: cancellationReason 
+    });
+    return transformCreditNoteFromServer(response);
   }
 
   // Get credit notes for a specific invoice
@@ -170,39 +205,47 @@ class CreditNoteService {
     );
   }
 
-  // Mark items as received
-  async markItemsReceived(creditNoteId, receivedData) {
-    return apiClient.patch(`${this.endpoint}/${creditNoteId}/receive`, {
-      received_date: receivedData.receivedDate,
-      received_by: receivedData.receivedBy,
-      items: receivedData.items.map(item => ({
-        item_id: item.itemId,
+  // Mark items as received (issued -> items_received) - RETURN_WITH_QC only
+  async markItemsReceived(creditNoteId, receivedData = {}) {
+    const response = await apiClient.post(`${this.endpoint}/${creditNoteId}/receive-items`, {
+      notes: receivedData.notes || '',
+      items: (receivedData.items || []).map(item => ({
+        credit_note_item_id: item.creditNoteItemId || item.id,
         quantity_received: item.quantityReceived,
-        condition_notes: item.conditionNotes,
-      })),
-    });
-  }
-
-  // Process refund
-  async processRefund(creditNoteId, refundData) {
-    return apiClient.patch(`${this.endpoint}/${creditNoteId}/refund`, {
-      refund_method: refundData.refundMethod,
-      refund_date: refundData.refundDate,
-      refund_reference: refundData.refundReference,
-      refund_amount: refundData.refundAmount,
-    });
-  }
-
-  // Restock items (after inspection approval)
-  async restockItems(creditNoteId, restockData) {
-    return apiClient.post(`${this.endpoint}/${creditNoteId}/restock`, {
-      items: restockData.items.map(item => ({
-        item_id: item.itemId,
-        quantity_to_restock: item.quantityToRestock,
         warehouse_id: item.warehouseId,
-        stock_location: item.stockLocation,
       })),
     });
+    return transformCreditNoteFromServer(response);
+  }
+
+  // Mark items as inspected with QC results (items_received -> items_inspected)
+  // Handles inventory restock and scrap creation
+  async markItemsInspected(creditNoteId, inspectionData) {
+    const response = await apiClient.post(`${this.endpoint}/${creditNoteId}/inspect-items`, {
+      qc_result: inspectionData.qcResult, // 'GOOD', 'BAD', or 'PARTIAL'
+      qc_notes: inspectionData.qcNotes || '',
+      item_results: (inspectionData.itemResults || []).map(item => ({
+        credit_note_item_id: item.creditNoteItemId || item.id,
+        restocked_quantity: item.restockedQuantity || 0,
+        damaged_quantity: item.damagedQuantity || 0,
+        defective_quantity: item.defectiveQuantity || 0,
+        inspection_notes: item.inspectionNotes || '',
+        warehouse_id: item.warehouseId || 0,
+        scrap_reason_category: item.scrapReasonCategory || 'OTHER',
+        scrap_reason: item.scrapReason || '',
+      })),
+    });
+    return transformCreditNoteFromServer(response);
+  }
+
+  // Process refund (issued/items_inspected -> refunded)
+  async refundCreditNote(creditNoteId, refundData = {}) {
+    const response = await apiClient.post(`${this.endpoint}/${creditNoteId}/refund`, {
+      refund_method: refundData.refundMethod || '',
+      refund_reference: refundData.refundReference || '',
+      notes: refundData.notes || '',
+    });
+    return transformCreditNoteFromServer(response);
   }
 
   // Get credit note analytics
@@ -216,6 +259,29 @@ class CreditNoteService {
       search: searchTerm,
       ...filters,
     });
+  }
+
+  // ============================================
+  // Scrap Items Methods (NEW)
+  // ============================================
+
+  // Get all scrap items with filters
+  async getScrapItems(params = {}) {
+    const queryParams = {
+      page: params.page || 1,
+      limit: params.limit || 50,
+      product_id: params.productId || undefined,
+      reason_category: params.reasonCategory || undefined,
+    };
+    Object.keys(queryParams).forEach(
+      (key) => queryParams[key] === undefined && delete queryParams[key],
+    );
+    return apiClient.get(`${this.endpoint}/scrap-items`, queryParams);
+  }
+
+  // Get scrap items for a specific credit note
+  async getScrapItemsByCreditNote(creditNoteId) {
+    return apiClient.get(`${this.endpoint}/${creditNoteId}/scrap-items`);
   }
 }
 

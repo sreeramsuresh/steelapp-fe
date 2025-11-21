@@ -77,17 +77,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = 'Dashboard' 
             <Menu size={20} />
           </button>
           
-          <div className="hidden sm:block">
-            <h1 className="text-lg font-semibold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent leading-tight">
-              {currentPage}
-            </h1>
-            <p 
-              style={{ color: isDarkMode ? '#9ca3af' : '#6b7280' }}
-              className="text-xs -mt-1"
-            >
-              ULTIMATE STEELS
-            </p>
-          </div>
+
         </div>
 
         {/* Center Section - Search */}

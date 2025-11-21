@@ -29,10 +29,10 @@ const DeliveryNoteForm = () => {
     delivery_note_number: '',
     invoice_id: '',
     delivery_date: new Date().toISOString().split('T')[0],
-    delivery_address: {
+    deliveryAddress: {
       street: '',
       city: '',
-      po_box: '',
+      poBox: '',
     },
     vehicle_number: '',
     driver_name: '',
@@ -79,10 +79,10 @@ const DeliveryNoteForm = () => {
         delivery_note_number: deliveryNote.deliveryNoteNumber,
         invoice_id: deliveryNote.invoiceId,
         delivery_date: deliveryNote.deliveryDate,
-        delivery_address: deliveryNote.deliveryAddress || {
+        deliveryAddress: deliveryNote.deliveryAddress || {
           street: '',
           city: '',
-          po_box: '',
+          poBox: '',
         },
         vehicle_number: deliveryNote.vehicleNumber || '',
         driver_name: deliveryNote.driverName || '',
@@ -135,7 +135,7 @@ const DeliveryNoteForm = () => {
       setFormData(prev => ({
         ...prev,
         invoice_id: invoice.id,
-        delivery_address: invoice.customerDetails?.address || prev.deliveryAddress,
+        deliveryAddress: invoice.customerDetails?.address || prev.deliveryAddress,
         items: invoice.items?.map(item => ({
           invoice_item_id: item.id,
           name: item.name,
@@ -400,7 +400,7 @@ const DeliveryNoteForm = () => {
                 <input
                   type="text"
                   value={formData.deliveryAddress.street}
-                  onChange={(e) => handleInputChange('delivery_address.street', e.target.value)}
+                  onChange={(e) => handleInputChange('deliveryAddress.street', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode 
                       ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
@@ -416,7 +416,7 @@ const DeliveryNoteForm = () => {
                   <input
                     type="text"
                     value={formData.deliveryAddress.city}
-                    onChange={(e) => handleInputChange('delivery_address.city', e.target.value)}
+                    onChange={(e) => handleInputChange('deliveryAddress.city', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
                         ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
@@ -431,7 +431,7 @@ const DeliveryNoteForm = () => {
                   <input
                     type="text"
                     value={formData.deliveryAddress.poBox}
-                    onChange={(e) => handleInputChange('delivery_address.poBox', e.target.value)}
+                    onChange={(e) => handleInputChange('deliveryAddress.poBox', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode 
                         ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 

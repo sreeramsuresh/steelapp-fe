@@ -18,14 +18,23 @@ import { notificationService } from '../services/notificationService';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
+import CreditNoteStatusActions from '../components/credit-notes/CreditNoteStatusActions';
+import QCInspectionModal from '../components/credit-notes/QCInspectionModal';
 
 const STATUS_COLORS = {
   draft: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Draft' },
   issued: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', label: 'Issued' },
   items_received: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300', label: 'Items Received' },
   items_inspected: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', label: 'Items Inspected' },
-  refunded: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', label: 'Refunded' },
+  applied: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', label: 'Applied' },
+  refunded: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Refunded' },
   completed: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', label: 'Completed' },
+  cancelled: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'Cancelled' },
+};
+
+const TYPE_LABELS = {
+  ACCOUNTING_ONLY: { label: 'Accounting', color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
+  RETURN_WITH_QC: { label: 'Return + QC', color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20' },
 };
 
 const CreditNoteList = ({ preSelectedInvoiceId }) => {
@@ -35,11 +44,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   const [creditNotes, setCreditNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [pagination, setPagination] = useState(null);
+  const [qcModalOpen, setQcModalOpen] = useState(false);
+  const [selectedCreditNote, setSelectedCreditNote] = useState(null);
 
   // Auto-navigate to credit note form if invoiceId is provided (from invoice list)
   useEffect(() => {
@@ -48,9 +61,17 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     }
   }, [preSelectedInvoiceId, navigate]);
 
+  // Debounce search term - wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     loadCreditNotes();
-  }, [currentPage, pageSize, searchTerm, statusFilter]);
+  }, [currentPage, pageSize, debouncedSearch, statusFilter]);
 
   const loadCreditNotes = async () => {
     try {
@@ -58,7 +79,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       const response = await creditNoteService.getAllCreditNotes({
         page: currentPage,
         limit: pageSize,
-        search: searchTerm,
+        search: debouncedSearch,
         status: statusFilter,
       });
 
@@ -69,6 +90,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       notificationService.error('Failed to load credit notes');
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -101,7 +123,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     );
   };
 
-  if (loading && creditNotes.length === 0) {
+  // Only show full-page spinner for initial load, not for search/filter operations
+  if (initialLoading) {
     return (
       <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="text-center">
@@ -180,18 +203,13 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
             <div className="p-12 text-center">
               <FileText className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
               <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                No credit notes found
+                {debouncedSearch || statusFilter ? 'No matching credit notes' : 'No credit notes found'}
               </h3>
-              <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Get started by creating your first credit note
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {debouncedSearch || statusFilter 
+                  ? 'Try adjusting your search or filter criteria'
+                  : 'Use the button above to create your first credit note'}
               </p>
-              <button
-                onClick={() => navigate('/credit-notes/new')}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                New Credit Note
-              </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -214,10 +232,16 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                       Total Credit
                     </th>
                     <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Type
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Status
                     </th>
-                    <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Actions
+                    </th>
+                    <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      
                     </th>
                   </tr>
                 </thead>
@@ -244,7 +268,41 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         -{formatCurrency(creditNote.totalCredit)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        {(() => {
+                          const typeConfig = TYPE_LABELS[creditNote.creditNoteType || creditNote.credit_note_type] || TYPE_LABELS.RETURN_WITH_QC;
+                          return (
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeConfig.color}`}>
+                              {typeConfig.label}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(creditNote.status)}
+                      </td>
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        <CreditNoteStatusActions
+                          creditNoteId={creditNote.id}
+                          currentStatus={creditNote.status}
+                          onStatusChange={() => loadCreditNotes()}
+                          onOpenQCModal={() => {
+                            setSelectedCreditNote(creditNote);
+                            setQcModalOpen(true);
+                          }}
+                          onOpenRefundModal={() => {
+                            // Simple refund - use prompt for now
+                            const method = window.prompt('Refund method (cash, bank_transfer, cheque):');
+                            if (method) {
+                              creditNoteService.refundCreditNote(creditNote.id, { refundMethod: method })
+                                .then(() => {
+                                  notificationService.success('Refund processed');
+                                  loadCreditNotes();
+                                })
+                                .catch(err => notificationService.error(err.message));
+                            }
+                          }}
+                          compact
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
@@ -322,6 +380,21 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         cancelText={dialogState.cancelText}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
+      />
+
+      {/* QC Inspection Modal */}
+      <QCInspectionModal
+        isOpen={qcModalOpen}
+        onClose={() => {
+          setQcModalOpen(false);
+          setSelectedCreditNote(null);
+        }}
+        creditNote={selectedCreditNote}
+        onSuccess={() => {
+          loadCreditNotes();
+          setQcModalOpen(false);
+          setSelectedCreditNote(null);
+        }}
       />
     </div>
   );

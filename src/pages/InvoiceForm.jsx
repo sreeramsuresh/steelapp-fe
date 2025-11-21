@@ -55,6 +55,12 @@ import { pinnedProductsService } from '../services/pinnedProductsService';
 import pricelistService from '../services/pricelistService';
 import { invoicesAPI } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
+import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from '../hooks/useKeyboardShortcuts';
+import useAutoSave, { getAutoSaveStatusDisplay } from '../hooks/useAutoSave';
+import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
+import useBulkActions, { BulkCheckbox, BulkActionsToolbar } from '../hooks/useBulkActions';
+import useInvoiceTemplates, { TemplateSelector, RecurringInvoiceSettings } from '../hooks/useInvoiceTemplates';
+import useAccessibility, { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import PaymentSummary from '../components/PaymentSummary';
 import PaymentLedger from '../components/PaymentLedger';
@@ -836,6 +842,7 @@ const InvoiceForm = ({ onSave }) => {
   });
   const [selectedProductForRow, setSelectedProductForRow] = useState(-1);
   const [searchInputs, setSearchInputs] = useState({});
+  const [customerSearchInput, setCustomerSearchInput] = useState('');
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
 
@@ -864,6 +871,14 @@ const InvoiceForm = ({ onSave }) => {
   useEffect(() => {
     localStorage.setItem('invoiceFormPreferences', JSON.stringify(formPreferences));
   }, [formPreferences]);
+
+  // ============================================================
+  // PHASE 1 UI IMPROVEMENTS: Keyboard Shortcuts & Auto-Save
+  // ============================================================
+  
+  // Draft recovery modal state
+  const [showDraftRecoveryModal, setShowDraftRecoveryModal] = useState(false);
+  const [recoveredDraft, setRecoveredDraft] = useState(null);
 
   // Form validation state
   const [validationErrors, setValidationErrors] = useState([]);
@@ -1058,6 +1073,88 @@ const InvoiceForm = ({ onSave }) => {
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
   const [pricelistName, setPricelistName] = useState(null);
+
+  // ============================================================
+  // AUTO-SAVE HOOK - Saves drafts to localStorage for recovery
+  // ============================================================
+  const {
+    status: autoSaveStatus,
+    lastSavedFormatted,
+    isDirty: hasUnsavedChanges,
+    saveNow: saveLocalDraft,
+    clearLocalDraft,
+    checkForRecoverableDraft,
+  } = useAutoSave(
+    invoice,
+    id,
+    {
+      enabled: !id, // Only auto-save for new invoices (editing has server-side drafts)
+      debounceMs: 30000, // 30 seconds
+      onRecover: (recovered) => {
+        if (recovered && recovered.data && !id) {
+          setRecoveredDraft(recovered);
+          setShowDraftRecoveryModal(true);
+        }
+      },
+    }
+  );
+
+  // Get auto-save status display for UI
+  const autoSaveStatusDisplay = getAutoSaveStatusDisplay(autoSaveStatus, lastSavedFormatted);
+
+  // ============================================================
+  // PHASE 2-5 UI IMPROVEMENTS
+  // ============================================================
+
+  // Reduced motion preference for accessibility
+  const prefersReducedMotion = useReducedMotion();
+
+  // Drag reorder for line items
+  const handleItemsReorder = useCallback((newItems) => {
+    setInvoice(prev => ({ ...prev, items: newItems }));
+  }, []);
+
+  const {
+    getDragHandleProps,
+    isDropTarget,
+    isDragSource,
+  } = useDragReorder({
+    items: invoice.items,
+    onReorder: handleItemsReorder,
+    enabled: true,
+  });
+
+  // Bulk selection for line items
+  const {
+    selectedIds: selectedItemIds,
+    isSelected: isItemSelected,
+    toggleSelect: toggleItemSelect,
+    selectAll: selectAllItems,
+    clearSelection: clearItemSelection,
+    toggleSelectAll: toggleSelectAllItems,
+    deleteSelected: deleteSelectedItems,
+    selectedCount: selectedItemCount,
+    isAllSelected: isAllItemsSelected,
+    isSomeSelected: isSomeItemsSelected,
+  } = useBulkActions({
+    items: invoice.items,
+    onUpdate: handleItemsReorder,
+    getId: (item) => item.id,
+  });
+
+  // Invoice templates
+  const {
+    selectedTemplateId,
+    currentTemplate,
+    templates: availableTemplates,
+    selectTemplate,
+    recurringSettings,
+    toggleRecurring,
+    updateRecurringSettings,
+  } = useInvoiceTemplates('standard');
+
+  // Template settings modal
+  const [showTemplateSettings, setShowTemplateSettings] = useState(false);
 
   // Update pinned products when data loads
   useEffect(() => {
@@ -2130,6 +2227,50 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [pdfPending, loadingCompany]);
 
+  // ============================================================
+  // KEYBOARD SHORTCUTS - Scoped to this page only
+  // ============================================================
+  useKeyboardShortcuts(
+    {
+      [INVOICE_SHORTCUTS.SAVE]: (e) => {
+        // Ctrl+S - Save invoice
+        if (!isSaving && !savingInvoice && !updatingInvoice) {
+          handleSave();
+        }
+      },
+      [INVOICE_SHORTCUTS.PREVIEW]: (e) => {
+        // Ctrl+P - Preview invoice (override browser print)
+        if (!showPreview) {
+          handlePreviewClick();
+        }
+      },
+      [INVOICE_SHORTCUTS.CLOSE]: (e) => {
+        // Escape - Close modals or go back
+        if (showSuccessModal) {
+          handleSuccessModalClose();
+        } else if (showSaveConfirmDialog) {
+          handleCancelSave();
+        } else if (showDraftRecoveryModal) {
+          setShowDraftRecoveryModal(false);
+        } else if (showFormSettings) {
+          setShowFormSettings(false);
+        }
+      },
+    },
+    {
+      enabled: !showPreview, // Disable when preview is open (it has its own handlers)
+      allowInInputs: ['escape'], // Allow Escape in inputs to close modals
+    }
+  );
+
+  // Clear local draft when invoice is saved successfully to server
+  useEffect(() => {
+    if (createdInvoiceId && !id) {
+      // Invoice was just created, clear the local draft
+      clearLocalDraft();
+    }
+  }, [createdInvoiceId, id, clearLocalDraft]);
+
   if (showPreview) {
     return (
       <InvoicePreview
@@ -2208,7 +2349,38 @@ const InvoiceForm = ({ onSave }) => {
                   </p>
                 </div>
               </div>
+              
+              {/* Auto-save Status Indicator - Only for new invoices */}
+              {!id && autoSaveStatus && (
+                <div className={`hidden md:flex items-center gap-1.5 px-2 py-1 rounded-md text-xs ${
+                  isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                }`}>
+                  <span className={autoSaveStatusDisplay.color}>
+                    {autoSaveStatusDisplay.icon}
+                  </span>
+                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+                    {autoSaveStatusDisplay.text}
+                  </span>
+                </div>
+              )}
+              
               <div className="hidden md:flex gap-2 items-center relative">
+                {/* Template Selector */}
+                <button
+                  onClick={() => setShowTemplateSettings(!showTemplateSettings)}
+                  className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                    isDarkMode
+                      ? 'text-gray-300 hover:bg-gray-700 border border-gray-600'
+                      : 'text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                  aria-label="Invoice template"
+                  title="Invoice Template"
+                >
+                  <span>{currentTemplate.preview}</span>
+                  <span className="hidden lg:inline">{currentTemplate.name}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+
                 {/* Settings Icon */}
                 <button
                   onClick={() => setShowFormSettings(!showFormSettings)}
@@ -2236,6 +2408,45 @@ const InvoiceForm = ({ onSave }) => {
                   }}
                 />
 
+                {/* Template Settings Panel */}
+                {showTemplateSettings && (
+                  <div 
+                    className={`absolute right-0 top-full mt-2 w-96 p-4 rounded-lg shadow-xl border z-50 ${
+                      isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    }`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Invoice Template
+                      </h3>
+                      <button
+                        onClick={() => setShowTemplateSettings(false)}
+                        className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <TemplateSelector
+                      templates={availableTemplates}
+                      selectedId={selectedTemplateId}
+                      onSelect={(id) => {
+                        selectTemplate(id);
+                        setShowTemplateSettings(false);
+                      }}
+                      isDarkMode={isDarkMode}
+                    />
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <RecurringInvoiceSettings
+                        settings={recurringSettings}
+                        onToggle={toggleRecurring}
+                        onUpdate={updateRecurringSettings}
+                        isDarkMode={isDarkMode}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <Button
                   variant="outline"
                   onClick={handlePreviewClick}
@@ -2247,6 +2458,7 @@ const InvoiceForm = ({ onSave }) => {
                 <Button
                   onClick={handleSave}
                   disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
+                  title={`Save invoice (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`}
                 >
                   {savingInvoice || updatingInvoice || isSaving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -2254,6 +2466,9 @@ const InvoiceForm = ({ onSave }) => {
                     <Save className="h-4 w-4" />
                   )}
                   {savingInvoice || updatingInvoice || isSaving ? 'Saving...' : 'Save'}
+                  <span className={`ml-1 text-xs opacity-60 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    ({getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})
+                  </span>
                 </Button>
               </div>
             </div>
@@ -2391,25 +2606,45 @@ const InvoiceForm = ({ onSave }) => {
                 }`}>
                     Customer Information
                 </h3>
-                {/* Customer Selector - Priority #1 Field */}
-                <Select
-                  label="Select Customer"
-                  value={invoice.customer.id || ''}
-                  onChange={(e) => handleCustomerSelect(e.target.value)}
-                  disabled={loadingCustomers}
-                  required={true}
-                  validationState={fieldValidation.customer}
-                  showValidation={formPreferences.showValidationHighlighting}
-                  error={invalidFields.has('customer.name')}
-                  className="text-base min-h-[44px]"
-                >
-                  <option value="">Select a customer</option>
-                  {(customersData?.customers || []).map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {titleCase(normalizeLLC(customer.name))} - {customer.email}
-                    </option>
-                  ))}
-                </Select>
+                {/* Customer Selector - Enhanced with Search */}
+                <div className="space-y-0.5">
+                  <label className={`block text-xs font-medium ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                  } after:content-["*"] after:ml-1 after:text-red-500`}>
+                    Select Customer
+                  </label>
+                  <Autocomplete
+                    options={(customersData?.customers || []).map(c => ({
+                      id: c.id,
+                      label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
+                      name: c.name,
+                      email: c.email,
+                      phone: c.phone,
+                    }))}
+                    value={invoice.customer.id ? {
+                      id: invoice.customer.id,
+                      label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
+                    } : null}
+                    onChange={(e, selected) => {
+                      if (selected?.id) {
+                        handleCustomerSelect(selected.id);
+                        setCustomerSearchInput('');
+                      }
+                    }}
+                    inputValue={customerSearchInput}
+                    onInputChange={(e, value) => setCustomerSearchInput(value)}
+                    placeholder="Search customers by name or email..."
+                    disabled={loadingCustomers}
+                    noOptionsText={loadingCustomers ? 'Loading customers...' : 'No customers found'}
+                    error={invalidFields.has('customer.name')}
+                    className="text-base"
+                  />
+                  {invalidFields.has('customer.name') && (
+                    <p className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                      Customer is required
+                    </p>
+                  )}
+                </div>
 
                 {/* Display selected customer details */}
                 {invoice.customer.name && (
@@ -2879,6 +3114,17 @@ const InvoiceForm = ({ onSave }) => {
               </Button>
             </div>
 
+            {/* Bulk Actions Toolbar */}
+            {selectedItemCount > 0 && (
+              <BulkActionsToolbar
+                selectedCount={selectedItemCount}
+                onDelete={deleteSelectedItems}
+                onClear={clearItemSelection}
+                isDarkMode={isDarkMode}
+                className="mb-3"
+              />
+            )}
+
             {/* Items Table - Desktop & Tablet */}
             <div className="hidden md:block overflow-x-auto">
               <table
@@ -2888,11 +3134,24 @@ const InvoiceForm = ({ onSave }) => {
               >
                 <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
+                    {/* Bulk Select & Drag Handle */}
+                    <th className="px-1 py-2 w-16">
+                      <div className="flex items-center gap-1">
+                        <BulkCheckbox
+                          checked={isAllItemsSelected}
+                          indeterminate={isSomeItemsSelected}
+                          onChange={toggleSelectAllItems}
+                          isDarkMode={isDarkMode}
+                          size="sm"
+                          aria-label="Select all items"
+                        />
+                      </div>
+                    </th>
                     <th
                       className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
                         isDarkMode ? 'text-gray-100' : 'text-gray-700'
                       }`}
-                      style={{ width: '40%' }}
+                      style={{ width: '38%' }}
                     >
                         Product
                     </th>
@@ -2969,7 +3228,34 @@ const InvoiceForm = ({ onSave }) => {
                       item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                     ].filter(Boolean).join('\n');
                     return (
-                      <tr key={item.id}>
+                      <tr 
+                        key={item.id}
+                        className={`
+                          ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
+                          ${isDragSource(index) ? 'opacity-50' : ''}
+                          ${isItemSelected(item) ? (isDarkMode ? 'bg-teal-900/20' : 'bg-teal-50/50') : ''}
+                          transition-colors duration-150
+                        `}
+                      >
+                        {/* Checkbox & Drag Handle */}
+                        <td className="px-1 py-2 align-middle">
+                          <div className="flex items-center gap-1">
+                            <BulkCheckbox
+                              checked={isItemSelected(item)}
+                              onChange={() => toggleItemSelect(item)}
+                              isDarkMode={isDarkMode}
+                              size="sm"
+                            />
+                            <div
+                              {...getDragHandleProps(index)}
+                              className={`cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                              }`}
+                            >
+                              <DragHandleIcon size={14} />
+                            </div>
+                          </div>
+                        </td>
                         <td className="px-2 py-2 align-middle">
                           <div className="w-full">
                             <Autocomplete
@@ -3829,6 +4115,71 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         );
       })()}
+
+      {/* Draft Recovery Modal */}
+      {showDraftRecoveryModal && recoveredDraft && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowDraftRecoveryModal(false)}
+        >
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start mb-4">
+              <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-full p-3 mr-4">
+                <span className="text-2xl">↺</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-2">
+                  Recover Unsaved Draft?
+                </h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  We found an unsaved draft from{' '}
+                  {recoveredDraft.timestamp 
+                    ? new Date(recoveredDraft.timestamp).toLocaleString()
+                    : 'earlier'
+                  }.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  if (recoveredDraft.data) {
+                    setInvoice(recoveredDraft.data);
+                  }
+                  setShowDraftRecoveryModal(false);
+                  setRecoveredDraft(null);
+                  notificationService.success('Draft recovered successfully');
+                }}
+                className="flex-1 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Restore Draft
+              </button>
+              <button
+                onClick={() => {
+                  clearLocalDraft();
+                  setShowDraftRecoveryModal(false);
+                  setRecoveredDraft(null);
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                }`}
+              >
+                Start Fresh
+              </button>
+            </div>
+            <p className={`text-xs mt-3 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Press Escape to dismiss
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit Payment Modal */}
       <AddPaymentModal
