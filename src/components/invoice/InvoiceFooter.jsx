@@ -1,4 +1,3 @@
-import React from 'react';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**

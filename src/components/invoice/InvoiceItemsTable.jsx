@@ -1,4 +1,3 @@
-import React from 'react';
 import { calculateTRN, formatNumber } from '../../utils/invoiceUtils';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 

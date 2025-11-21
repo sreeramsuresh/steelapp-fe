@@ -409,6 +409,9 @@ const Autocomplete = ({
   className = '',
   title,
   error,
+  required = false,
+  validationState = null,
+  showValidation = true,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -546,6 +549,9 @@ const Autocomplete = ({
           className={className}
           title={title}
           error={error}
+          required={required}
+          validationState={validationState}
+          showValidation={showValidation}
         />
       </div>
 
@@ -2365,6 +2371,26 @@ const InvoiceForm = ({ onSave }) => {
                   <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                     {autoSaveStatusDisplay.text}
                   </span>
+                  {/* X button to discard changes - only show when unsaved */}
+                  {autoSaveStatus === 'unsaved' && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Discard all changes to this invoice? This cannot be undone.')) {
+                          clearLocalDraft();
+                          setInvoice(createEmptyInvoice());
+                          notificationService.info('Changes discarded');
+                        }
+                      }}
+                      title="Discard all changes"
+                      className={`ml-1 p-0.5 rounded transition-colors ${
+                        isDarkMode
+                          ? 'text-gray-400 hover:text-red-400 hover:bg-gray-600'
+                          : 'text-gray-500 hover:text-red-500 hover:bg-gray-200'
+                      }`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
                 </div>
               )}
               
@@ -2436,7 +2462,7 @@ const InvoiceForm = ({ onSave }) => {
                       selectedId={selectedTemplateId}
                       onSelect={(id) => {
                         selectTemplate(id);
-                        setTimeout(() => setShowTemplateSettings(false), 100);
+                        // Palette stays open until X button is clicked or user clicks outside
                       }}
                       customColor={customColors}
                       onColorChange={updateColors}
@@ -2614,12 +2640,8 @@ const InvoiceForm = ({ onSave }) => {
                 </h3>
                 {/* Customer Selector - Enhanced with Search */}
                 <div className="space-y-0.5">
-                  <label className={`block text-xs font-medium ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-700'
-                  } after:content-["*"] after:ml-1 after:text-red-500`}>
-                    Select Customer
-                  </label>
                   <Autocomplete
+                    label="Select Customer"
                     options={(customersData?.customers || []).map(c => ({
                       id: c.id,
                       label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
@@ -2644,6 +2666,9 @@ const InvoiceForm = ({ onSave }) => {
                     noOptionsText={loadingCustomers ? 'Loading customers...' : 'No customers found'}
                     error={invalidFields.has('customer.name')}
                     className="text-base"
+                    required={true}
+                    validationState={fieldValidation.customer}
+                    showValidation={formPreferences.showValidationHighlighting}
                   />
                   {invalidFields.has('customer.name') && (
                     <p className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>

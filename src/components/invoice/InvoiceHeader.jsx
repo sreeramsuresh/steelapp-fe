@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatDateDMY } from '../../utils/invoiceUtils';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 

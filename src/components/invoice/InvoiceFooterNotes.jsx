@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Invoice Footer Notes Component
  * Displays payment terms, notes, and warehouse information
@@ -11,10 +9,10 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
   const fonts = template?.fonts || {};
 
   const textColor = colors.text || '#333333';
-  const secondaryColor = colors.secondary || '#666666';
+  const _secondaryColor = colors.secondary || '#666666'; // Reserved for future use
   const primaryColor = colors.primary || '#000000';
   const borderColor = colors.border || '#cccccc';
-  const headerBg = colors.headerBg || '#e8e8e8';
+  const _headerBg = colors.headerBg || '#e8e8e8'; // Reserved for future use
   const accentColor = colors.accent || '#f5f5f5';
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 

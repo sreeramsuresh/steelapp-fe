@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   calculateSubtotal,
   calculateTotal,
@@ -74,7 +73,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
             <span>AED {formatNumber(computedVatAmount)}</span>
           </div>
           <div className="flex justify-between font-bold border-t pt-2" style={{
-            borderColor: borderColor,
+            borderColor,
             color: primaryTextColor,
           }}>
             <span>TOTAL</span>

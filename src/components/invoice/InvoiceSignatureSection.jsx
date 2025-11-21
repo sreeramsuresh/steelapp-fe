@@ -13,6 +13,7 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
   // Get template colors
   const colors = template?.colors || {};
   const primaryColor = colors.primary || '#1a1a1a';
+  const secondaryColor = colors.secondary || '#6b7280';
   const textColor = colors.text || '#1f2937';
 
   // Get seal from company profile
@@ -34,12 +35,12 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
         {/* Company Seal - Left */}
         <div className="flex flex-col items-center gap-1">
           <img src={companySeal} alt="Company Seal" className="w-28 h-28 object-contain" />
-          <p className="text-xs font-medium" style={{ color: textColor }}>Company Seal</p>
+          <p className="text-xs" style={{ color: secondaryColor, opacity: 0.6 }}>Company Seal</p>
         </div>
 
         {/* Authorized Signatory - Right */}
         <div className="flex flex-col items-center min-w-[200px]">
-          <p className="text-sm font-bold mb-6" style={{ color: textColor }}>Authorized Signatory</p>
+          <p className="text-sm mb-6" style={{ color: secondaryColor, opacity: 0.6 }}>Authorised Signatory</p>
           <div className="w-full border-b-2 mb-3" style={{ borderColor: primaryColor }}></div>
           <div className="text-center">
             <p className="text-xs font-bold leading-tight" style={{ color: primaryColor }}>ULTIMATE STEELS</p>
