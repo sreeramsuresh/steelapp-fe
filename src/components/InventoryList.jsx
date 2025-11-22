@@ -433,7 +433,19 @@ const InventoryList = () => {
                     <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {item.productName ? (
                         <div>
-                          <div className="font-medium text-teal-600">{item.productName}</div>
+                          <div className="font-medium text-teal-600 flex items-center gap-2">
+                            {item.productName}
+                            {/* Origin badge - show for non-UAE products */}
+                            {item.origin && item.origin !== 'UAE' && (
+                              <span className={`px-1.5 py-0.5 text-xs rounded border font-medium ${
+                                isDarkMode 
+                                  ? 'bg-amber-900/30 text-amber-300 border-amber-700' 
+                                  : 'bg-amber-100 text-amber-800 border-amber-200'
+                              }`}>
+                                {item.origin}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-500">From Catalog</div>
                         </div>
                       ) : (

@@ -2,6 +2,24 @@ import { calculateTRN, formatNumber } from '../../utils/invoiceUtils';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
+ * Get display name for invoice line item
+ * UAE products: show only name (display_name)
+ * Non-UAE products: show name + " - " + origin
+ */
+const getItemDisplayName = (item) => {
+  const name = item.name || item.displayName || item.display_name || '';
+  const origin = item.origin || item.productOrigin || '';
+  
+  // If origin is UAE or empty, just show the name
+  if (!origin || origin.toUpperCase() === 'UAE') {
+    return name;
+  }
+  
+  // For non-UAE products, append origin
+  return `${name} - ${origin}`;
+};
+
+/**
  * Invoice Items Table Component
  * Displays line items for current page
  * Supports different table styles based on template
@@ -115,7 +133,7 @@ const InvoiceItemsTable = ({
             return (
               <tr key={index} style={styles.bodyRow(index)}>
                 <td className="px-2 py-2 text-xs" style={styles.bodyCell}>{globalIndex + 1}</td>
-                <td className="px-2 py-2 text-xs font-medium" style={styles.bodyCell}>{item.name || ''}</td>
+                <td className="px-2 py-2 text-xs font-medium" style={styles.bodyCell}>{getItemDisplayName(item)}</td>
                 <td className="px-2 py-2 text-xs text-center" style={styles.bodyCell}>{item.quantity || 0}</td>
                 <td className="px-2 py-2 text-xs text-right" style={styles.bodyCell}>{formatNumber(item.rate || 0)}</td>
                 <td className="px-2 py-2 text-xs text-right" style={styles.bodyCell}>{formatNumber(amountNum)}</td>

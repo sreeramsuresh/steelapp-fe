@@ -249,6 +249,7 @@ const SteelProducts = () => {
     sellingPrice: '',
     supplier: '',
     location: '',
+    origin: 'UAE',  // Country of origin - default UAE
     specifications: {
       length: '',
       width: '',
@@ -261,6 +262,28 @@ const SteelProducts = () => {
       standard: '',
     },
   });
+
+  // Origin options for dropdown
+  const originOptions = [
+    { value: 'UAE', label: 'UAE' },
+    { value: 'India', label: 'India' },
+    { value: 'China', label: 'China' },
+    { value: 'Taiwan', label: 'Taiwan' },
+    { value: 'Korea', label: 'Korea' },
+    { value: 'Japan', label: 'Japan' },
+    { value: 'Malaysia', label: 'Malaysia' },
+    { value: 'Indonesia', label: 'Indonesia' },
+    { value: 'Vietnam', label: 'Vietnam' },
+    { value: 'Thailand', label: 'Thailand' },
+    { value: 'Germany', label: 'Germany' },
+    { value: 'Italy', label: 'Italy' },
+    { value: 'Spain', label: 'Spain' },
+    { value: 'USA', label: 'USA' },
+    { value: 'UK', label: 'UK' },
+    { value: 'Belgium', label: 'Belgium' },
+    { value: 'Netherlands', label: 'Netherlands' },
+    { value: 'Turkey', label: 'Turkey' },
+  ];
 
 
   // Comprehensive SS Trading Product Categories
@@ -459,6 +482,7 @@ const SteelProducts = () => {
         selling_price: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),
         supplier: newProduct.supplier,
         location: newProduct.location,
+        origin: newProduct.origin || 'UAE',  // Country of origin
         specifications: newProduct.specifications,
       };
       await createProduct(productData);
@@ -481,6 +505,7 @@ const SteelProducts = () => {
         sellingPrice: '',
         supplier: '',
         location: '',
+        origin: 'UAE',  // Reset to default
         specifications: {
           length: '', width: '', thickness: '', diameter: '',
           tensileStrength: '', yieldStrength: '', carbonContent: '',
@@ -549,6 +574,7 @@ const SteelProducts = () => {
         selling_price: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),
         supplier: selectedProduct.supplier,
         location: selectedProduct.location,
+        origin: selectedProduct.origin || 'UAE',  // Country of origin
         specifications: {
           ...(selectedProduct.specifications || {}),
           thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || '',
@@ -875,6 +901,16 @@ const SteelProducts = () => {
                           {product.size}
                         </span>
                       )}
+                      {/* Origin Badge - Show for non-UAE products */}
+                      {product.origin && product.origin !== 'UAE' && (
+                        <span className={`px-2 py-1 text-xs rounded-md border font-medium ${
+                          isDarkMode 
+                            ? 'bg-amber-900/30 text-amber-300 border-amber-700' 
+                            : 'bg-amber-100 text-amber-800 border-amber-200'
+                        }`}>
+                          {product.origin}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -1146,6 +1182,13 @@ const SteelProducts = () => {
                       options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
                       value={(newProduct.finish || '').trim()}
                       onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
+                    />
+                    <Select
+                      label="Origin (Country)"
+                      options={originOptions}
+                      value={newProduct.origin || 'UAE'}
+                      onChange={(e) => setNewProduct({ ...newProduct, origin: e.target.value })}
+                      placeholder="Select origin..."
                     />
                     {(/pipe|tube/i.test(newProduct.category || '')) ? (
                       <>
@@ -1445,6 +1488,13 @@ const SteelProducts = () => {
                     options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
                     value={(selectedProduct.finish || '').trim()}
                     onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim() })}
+                  />
+                  <Select
+                    label="Origin (Country)"
+                    options={originOptions}
+                    value={selectedProduct.origin || 'UAE'}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, origin: e.target.value })}
+                    placeholder="Select origin..."
                   />
                   {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                     <>
