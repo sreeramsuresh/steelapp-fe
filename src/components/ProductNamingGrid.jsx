@@ -139,6 +139,7 @@ const ProductNamingGrid = ({
   // Filter products
   const filteredProducts = products.filter(p => {
     const matchesSearch = !searchTerm ||
+      p.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.commodity?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -164,7 +165,7 @@ const ProductNamingGrid = ({
   // === INLINE EDITING ===
   const handleStartEdit = (product) => {
     setEditingId(product.id);
-    setEditValue(product.fullName || product.name || '');
+    setEditValue(product.displayName || product.fullName || product.name || '');
   };
 
   const handleSave = async (productId) => {
@@ -175,13 +176,13 @@ const ProductNamingGrid = ({
 
     try {
       setSaving(productId);
+      // Update display_name only - unique_name is managed by DB trigger
       await apiService.patch(`/products/${productId}`, {
-        name: editValue,
-        full_name: editValue,
+        display_name: editValue,
       });
 
       setProducts(products.map(p =>
-        p.id === productId ? { ...p, name: editValue, full_name: editValue } : p,
+        p.id === productId ? { ...p, displayName: editValue, display_name: editValue } : p,
       ));
 
       setEditingId(null);
@@ -246,7 +247,7 @@ const ProductNamingGrid = ({
 
     const previews = productsToCheck
       .map(product => {
-        const currentName = product.fullName || product.name || '';
+        const currentName = product.displayName || product.fullName || product.name || '';
         let newName;
 
         if (caseSensitive) {
@@ -346,7 +347,7 @@ const ProductNamingGrid = ({
       : filteredProducts;
 
     const previews = productsToModify.map(product => {
-      const currentName = product.fullName || product.name || '';
+      const currentName = product.displayName || product.fullName || product.name || '';
       const newName = `${prefixText}${currentName}${suffixText}`;
 
       return {

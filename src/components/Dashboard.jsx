@@ -461,7 +461,7 @@ const Dashboard = () => {
                             <p className={`text-sm font-semibold mb-1 ${
                               isDarkMode ? 'text-white' : 'text-gray-900'
                             }`}>
-                              {product.name}
+                              {product.displayName || product.name}
                             </p>
                             <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                               {product.category}

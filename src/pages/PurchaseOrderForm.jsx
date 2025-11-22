@@ -567,7 +567,7 @@ const PurchaseOrderForm = () => {
   const productOptions = useMemo(() => {
     return (availableProducts || []).map((product) => ({
       ...product,
-      label: product.name,
+      label: product.displayName || product.name,
       subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
         product.sellingPrice || 0
       }`,
@@ -578,7 +578,7 @@ const PurchaseOrderForm = () => {
     const list = searchInputs?.__results || [];
     return list.map((product) => ({
       ...product,
-      label: product.name,
+      label: product.displayName || product.name,
       subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
         product.sellingPrice || 0
       }`,
@@ -799,8 +799,8 @@ const PurchaseOrderForm = () => {
       
       updatedItems[index] = {
         ...updatedItems[index],
-        productType: product.name,
-        name: product.name,
+        productType: product.displayName || product.name,
+        name: product.displayName || product.name,
         grade: product.grade || product.steelGrade || '',
         finish,
         size: product.size || product.dimensions || '',

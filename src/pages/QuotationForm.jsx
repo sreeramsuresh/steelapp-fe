@@ -370,7 +370,7 @@ const QuotationForm = () => {
   const quickAddItem = (product) => {
     const newItem = {
       productId: product.id || '',
-      name: product.fullName || product.name || '',
+      name: product.displayName || product.fullName || product.name || '',
       specification: product.specifications?.specification || product.specifications?.size || '',
       grade: product.specifications?.grade || product.grade || '',
       finish: product.specifications?.finish || product.finish || '',
@@ -449,7 +449,7 @@ const QuotationForm = () => {
       if (product) {
         newItems[index] = {
           ...newItems[index],
-          name: product.fullName || product.name,
+          name: product.displayName || product.fullName || product.name,
           specification: product.specifications?.specification || product.specifications?.size || newItems[index].specification || '',
           grade: product.specifications?.grade || product.grade || newItems[index].grade || '',
           finish: product.specifications?.finish || product.finish || newItems[index].finish || '',
@@ -1135,7 +1135,7 @@ const QuotationForm = () => {
                               : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                         }`}
                       >
-                        {product.fullName || product.name}
+                        {product.displayName || product.fullName || product.name}
                       </button>
                       <button
                         type="button"
@@ -1188,7 +1188,7 @@ const QuotationForm = () => {
                         <option value="">Select or enter manually</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.fullName || product.name}
+                            {product.displayName || product.fullName || product.name}
                           </option>
                         ))}
                       </Select>

@@ -155,7 +155,7 @@ export default function PriceListForm() {
           ...prev,
           items: [...prev.items, {
             productId,
-            productName: product?.name,
+            productName: product?.displayName || product?.name,
             sellingPrice: parseFloat(newPrice) || 0,
             minQuantity: 1,
           }],
@@ -378,7 +378,7 @@ export default function PriceListForm() {
                         return (
                           <TableRow key={product.id}>
                             <TableCell>
-                              <Typography variant="body2">{product.name}</Typography>
+                              <Typography variant="body2">{product.displayName || product.name}</Typography>
                               <Typography variant="caption" color="textSecondary">
                                 {product.category} | {product.grade}
                               </Typography>

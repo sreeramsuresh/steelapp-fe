@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Package,
   Plus,
@@ -170,10 +171,22 @@ const StockProgressBar = ({ value, stockStatus }) => {
 const SteelProducts = () => {
   const { isDarkMode } = useTheme();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
-  const [activeTab, setActiveTab] = useState('catalog');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // URL-based tab state for persistence across refreshes
+  const activeTab = searchParams.get('tab') || 'catalog';
+  const setActiveTab = (tab) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('tab', tab);
+      return newParams;
+    }, { replace: true });
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
+  const [showSpeedButtons, setShowSpeedButtons] = useState(true);
   
   const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
     () => productService.getProducts({ 
@@ -250,28 +263,137 @@ const SteelProducts = () => {
   });
 
 
+  // Comprehensive SS Trading Product Categories
   const categories = [
-    { value: 'sheet', label: 'Sheet' },
-    { value: 'square_tube', label: 'Square Tube' },
-    { value: 'rectangular_tube', label: 'Rectangular Tube' },
-    { value: 'pol_pipe', label: 'Pol Pipe' },
-    { value: 'round_bar', label: 'Round Bar' },
-    { value: 'flat_bar', label: 'Flat Bar' },
-    { value: 'angle_bar', label: 'Angle Bar' },
-    { value: 'square_bar', label: 'Square Bar' },
-    { value: 'coil', label: 'Coil' },
+    // Flat Products
+    { value: 'sheet', label: 'Sheet', group: 'flat', icon: '📄' },
+    { value: 'plate', label: 'Plate', group: 'flat', icon: '📋' },
+    { value: 'coil', label: 'Coil', group: 'flat', icon: '🔄' },
+    // Tubes (Hollow Sections)
+    { value: 'square_tube', label: 'Square Tube', group: 'tube', icon: '⬜' },
+    { value: 'rectangular_tube', label: 'Rectangular Tube', group: 'tube', icon: '▭' },
+    { value: 'round_tube', label: 'Round Tube', group: 'tube', icon: '⭕' },
+    { value: 'tube', label: 'Tube (General)', group: 'tube', icon: '🔲' },
+    // Pipes
+    { value: 'seamless_pipe', label: 'Seamless Pipe', group: 'pipe', icon: '🔵' },
+    { value: 'erw_pipe', label: 'ERW Pipe', group: 'pipe', icon: '🔴' },
+    { value: 'pol_pipe', label: 'Polished Pipe', group: 'pipe', icon: '✨' },
+    { value: 'pipe', label: 'Pipe (General)', group: 'pipe', icon: '⚫' },
+    // Bars
+    { value: 'round_bar', label: 'Round Bar', group: 'bar', icon: '●' },
+    { value: 'flat_bar', label: 'Flat Bar', group: 'bar', icon: '▬' },
+    { value: 'square_bar', label: 'Square Bar', group: 'bar', icon: '■' },
+    { value: 'hex_bar', label: 'Hex Bar', group: 'bar', icon: '⬡' },
+    { value: 'angle_bar', label: 'Angle Bar', group: 'bar', icon: '∟' },
+    { value: 'bar', label: 'Bar (General)', group: 'bar', icon: '▪' },
+    // Fittings & Others
+    { value: 'fittings', label: 'Fittings', group: 'fittings', icon: '🔧' },
+    { value: 'flange', label: 'Flange', group: 'fittings', icon: '⚙️' },
+    { value: 'fasteners', label: 'Fasteners', group: 'fittings', icon: '🔩' },
+    { value: 'wire', label: 'Wire', group: 'other', icon: '〰️' },
   ];
 
-  const grades = [
-    'Fe415', 'Fe500', 'Fe550', 'Fe600',
-    'IS2062', 'ASTM A36', 'ASTM A572',
-    '201', '304', '316', '316L', '310', '321', '347',
-    'MS', 'Galvanized',
+  // Category group definitions (static structure)
+  const categoryGroupDefs = [
+    { id: 'flat', label: 'Flat Products', icon: '📄', categories: ['sheet', 'plate', 'coil'] },
+    { id: 'tube', label: 'Tubes', icon: '🔲', categories: ['square_tube', 'rectangular_tube', 'round_tube', 'tube'] },
+    { id: 'pipe', label: 'Pipes', icon: '⚫', categories: ['seamless_pipe', 'erw_pipe', 'pol_pipe', 'pipe'] },
+    { id: 'bar', label: 'Bars', icon: '▬', categories: ['round_bar', 'flat_bar', 'square_bar', 'hex_bar', 'angle_bar', 'bar'] },
+    { id: 'fittings', label: 'Fittings', icon: '🔧', categories: ['fittings', 'flange', 'fasteners'] },
+    { id: 'wire', label: 'Wire & Other', icon: '〰️', categories: ['wire'] },
   ];
+
+  // Dynamic category groups - only show groups that have matching products
+  const categoryGroups = useMemo(() => {
+    const dynamicGroups = categoryGroupDefs.map(group => {
+      const count = products.filter(p => {
+        const productCategory = (p?.category || '').toLowerCase();
+        return group.categories.some(cat => productCategory === cat.toLowerCase());
+      }).length;
+      return { ...group, count };
+    }).filter(group => group.count > 0); // Only show groups with products
+
+    // Get categories that don't fit any group
+    const allGroupedCategories = categoryGroupDefs.flatMap(g => g.categories.map(cat => cat.toLowerCase()));
+    const otherProducts = products.filter(p => {
+      const productCategory = (p?.category || '').toLowerCase();
+      if (!productCategory) return false;
+      return !allGroupedCategories.includes(productCategory);
+    });
+
+    if (otherProducts.length > 0) {
+      // Extract unique "other" categories
+      const otherCategories = [...new Set(otherProducts.map(p => p.category).filter(Boolean))];
+      dynamicGroups.push({ id: 'other', label: 'Other', icon: '📋', categories: otherCategories, count: otherProducts.length });
+    }
+
+    return [{ id: 'all', label: 'All', icon: '📦', count: products.length }, ...dynamicGroups];
+  }, [products]);
+
+  // Active category group for speed buttons
+  const [activeCategoryGroup, setActiveCategoryGroup] = useState('all');
+
+  // Comprehensive SS Trading Grades
+  const grades = [
+    // Austenitic Stainless Steel (most common)
+    '201', '202', '301', '304', '304L', '304H',
+    '316', '316L', '316Ti', '317', '317L',
+    '310', '310S', '321', '321H', '347', '347H',
+    // Ferritic Stainless Steel
+    '409', '410', '430', '434', '436', '439', '444',
+    // Duplex Stainless Steel
+    '2205', '2507', '2304',
+    // Martensitic
+    '410', '420', '440A', '440B', '440C',
+    // Carbon/Mild Steel
+    'MS', 'Galvanized', 'GI',
+    // Standards
+    'IS2062', 'ASTM A36', 'ASTM A572',
+    'Fe415', 'Fe500', 'Fe550', 'Fe600',
+  ];
+
+  // Grade group definitions (static structure)
+  const gradeGroupDefs = [
+    { id: '304', label: '304 Series', grades: ['304', '304L', '304H'] },
+    { id: '316', label: '316 Series', grades: ['316', '316L', '316Ti'] },
+    { id: '200', label: '200 Series', grades: ['201', '202'] },
+    { id: 'duplex', label: 'Duplex', grades: ['2205', '2507', '2304'] },
+    { id: 'ms', label: 'MS/GI', grades: ['MS', 'Galvanized', 'GI'] },
+    { id: 'ferritic', label: 'Ferritic', grades: ['409', '410', '430', '434', '436', '439', '444'] },
+  ];
+
+  // Dynamic grade groups - only show groups that have matching products
+  const gradeGroups = useMemo(() => {
+    const dynamicGroups = gradeGroupDefs.map(group => {
+      const count = products.filter(p => {
+        const productGrade = (p?.grade || '').toLowerCase();
+        return group.grades.some(g => productGrade.includes(g.toLowerCase()));
+      }).length;
+      return { ...group, count };
+    }).filter(group => group.count > 0); // Only show groups with products
+
+    // Get grades that don't fit any group
+    const allGroupedGrades = gradeGroupDefs.flatMap(g => g.grades.map(grade => grade.toLowerCase()));
+    const otherProducts = products.filter(p => {
+      const productGrade = (p?.grade || '').toLowerCase();
+      if (!productGrade) return false;
+      return !allGroupedGrades.some(g => productGrade.includes(g));
+    });
+
+    if (otherProducts.length > 0) {
+      // Extract unique "other" grades
+      const otherGrades = [...new Set(otherProducts.map(p => p.grade).filter(Boolean))];
+      dynamicGroups.push({ id: 'other', label: 'Other', grades: otherGrades, count: otherProducts.length });
+    }
+
+    return [{ id: 'all', label: 'All Grades', count: products.length }, ...dynamicGroups];
+  }, [products]);
+
+  const [activeGradeGroup, setActiveGradeGroup] = useState('all');
 
 
   const filteredProducts = products.filter(product => {
-    const name = (product?.name ?? '').toString().toLowerCase();
+    const name = (product?.displayName ?? product?.fullName ?? product?.name ?? '').toString().toLowerCase();
     const grade = (product?.grade ?? '').toString().toLowerCase();
     const category = (product?.category ?? '').toString().toLowerCase();
     const finish = (product?.finish ?? '').toString().toLowerCase();
@@ -284,7 +406,11 @@ const SteelProducts = () => {
                           (!!finish && finish.includes(needle)) ||
                           (!!thickness && thickness.includes(needle));
 
-    const matchesCategory = categoryFilter === 'all' || product?.category === categoryFilter;
+    // Match by individual category OR by category group
+    const activeGroup = categoryGroups.find(g => g.id === activeCategoryGroup);
+    const matchesCategoryGroup = activeCategoryGroup === 'all' || 
+      (activeGroup?.categories?.some(cat => product?.category?.toLowerCase() === cat.toLowerCase()));
+    const matchesCategory = (categoryFilter === 'all' || product?.category === categoryFilter) && matchesCategoryGroup;
 
     const current = Number(product?.currentStock ?? product?.currentStock ?? 0);
     const min = Number(product?.minStock ?? product?.minStock ?? 0);
@@ -295,14 +421,19 @@ const SteelProducts = () => {
                          (stockFilter === 'normal' && current > min && current < max * 0.8) ||
                          (stockFilter === 'high' && current >= max * 0.8);
 
-    return matchesSearch && matchesCategory && matchesStock;
+    // Match by grade group
+    const activeGrade = gradeGroups.find(g => g.id === activeGradeGroup);
+    const matchesGradeGroup = activeGradeGroup === 'all' || 
+      (activeGrade?.grades?.some(g => grade.includes(g.toLowerCase())));
+
+    return matchesSearch && matchesCategory && matchesStock && matchesGradeGroup;
   });
 
   const handleAddProduct = async () => {
     try {
-      const isPipeOrTube = /pipe/i.test(newProduct.category || '');
+      const isPipeOrTube = /pipe|tube/i.test(newProduct.category || '');
       if (isPipeOrTube) {
-        if (!newProduct.sizeInch || !newProduct.od || !newProduct.length) {
+        if (!newProduct.sizeInch && !newProduct.od && !newProduct.size) {
           notificationService.error('For Pipe/Tube, Size (inch), OD, and Length are required.');
           return;
         }
@@ -377,16 +508,20 @@ const SteelProducts = () => {
       parts.push(m ? `GR${m[1]}` : `GR${g}`);
     }
     if (newProduct.finish) parts.push(String(newProduct.finish).trim());
-    const isPipeOrTube = /pipe/i.test(newProduct.category || '');
+    const isPipeOrTube = /pipe|tube/i.test(newProduct.category || '');
     if (isPipeOrTube) {
-      if (newProduct.sizeInch) parts.push(`${String(newProduct.sizeInch).trim()  }"`);
+      // For pipes/tubes: include size (inch), OD, and length
+      if (newProduct.sizeInch) parts.push(`${String(newProduct.sizeInch).trim()}"`);
+      if (newProduct.od) parts.push(`OD${String(newProduct.od).trim()}`);
+      if (newProduct.length) parts.push(`L${String(newProduct.length).trim()}`);
     } else {
+      // For sheets/bars/etc: include size and thickness
       if (newProduct.size) parts.push(String(newProduct.size).trim());
     }
     if (newProduct.thickness) parts.push(String(newProduct.thickness).trim());
     const composed = parts.join(' ');
     setNewProduct(prev => ({ ...prev, name: composed }));
-  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.thickness]);
+  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness]);
 
   const handleEditProduct = async () => {
     try {
@@ -492,19 +627,120 @@ const SteelProducts = () => {
 
 
   const renderCatalog = () => (
-    <div>
-      {/* Controls */}
-      <div className="flex flex-wrap gap-4 mb-6 items-center">
-        <div className="relative flex-1 min-w-80">
-          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+    <div className="p-4">
+      {/* Quick Filters Header with Toggle - Compact */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+          Quick Filters
+        </span>
+        <button
+          onClick={() => setShowSpeedButtons(!showSpeedButtons)}
+          className={`
+            relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200
+            ${showSpeedButtons
+              ? 'bg-teal-500'
+              : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
+            }
+          `}
+          title={showSpeedButtons ? 'Hide quick filters' : 'Show quick filters'}
+        >
+          <span
+            className={`
+              inline-block h-3 w-3 transform rounded-full bg-white shadow-sm transition-transform duration-200
+              ${showSpeedButtons ? 'translate-x-3.5' : 'translate-x-0.5'}
+            `}
+          />
+        </button>
+      </div>
+
+      {/* Speed Buttons Container - Collapsible & Compact */}
+      {showSpeedButtons && (
+        <div className="space-y-2 mb-3">
+          {/* Category Speed Buttons */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Category:</span>
+            {categoryGroups.map((group) => {
+              const isActive = activeCategoryGroup === group.id;
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => { setActiveCategoryGroup(group.id); setCategoryFilter('all'); }}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all border ${
+                    isActive
+                      ? 'bg-teal-500 text-white border-teal-400'
+                      : isDarkMode
+                        ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-sm">{group.icon}</span>
+                  <span>{group.label}</span>
+                  <span className={`px-1 rounded text-xs ${isActive ? 'bg-white/20' : isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
+                    {group.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Grade Speed Buttons */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Grade:</span>
+            {gradeGroups.map((group) => {
+              const isActive = activeGradeGroup === group.id;
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => setActiveGradeGroup(group.id)}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-all border ${
+                    isActive
+                      ? 'bg-teal-500 text-white border-teal-400'
+                      : isDarkMode
+                        ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>{group.label}</span>
+                  <span className={`px-1 rounded text-xs ${isActive ? 'bg-white/20' : isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
+                    {group.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Product Stats Summary - Compact inline */}
+      <div className={`flex flex-wrap items-center gap-4 py-2 mb-3 text-xs border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="flex items-center gap-1">
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Showing:</span>
+          <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{filteredProducts.length}</span>
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>of {products.length}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Low:</span>
+          <span className="font-semibold text-red-500">{products.filter(p => (p.currentStock || 0) <= (p.minStock || 0)).length}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>OK:</span>
+          <span className="font-semibold text-green-500">{products.filter(p => (p.currentStock || 0) > (p.minStock || 0)).length}</span>
+        </div>
+      </div>
+
+      {/* Controls - Compact row */}
+      <div className="flex flex-wrap gap-2 mb-3 items-center">
+        <div className="relative flex-1 min-w-64">
+          <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
           <input
             type="text"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-10 pr-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-              isDarkMode 
-                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+            className={`w-full pl-8 pr-3 py-1.5 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
             }`}
           />
@@ -514,7 +750,7 @@ const SteelProducts = () => {
           options={[{ value: 'all', label: 'All Categories' }, ...categories]}
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="min-w-40"
+          className="min-w-36"
         />
         <Select
           label="Stock"
@@ -526,9 +762,9 @@ const SteelProducts = () => {
           ]}
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
-          className="min-w-32"
+          className="min-w-28"
         />
-        <Button 
+        <Button
           onClick={async () => {
             try {
               await productService.downloadProducts();
@@ -538,25 +774,27 @@ const SteelProducts = () => {
             }
           }}
           variant="outline"
+          size="sm"
         >
-          <Package size={20} />
-          Download Products
+          <Package size={16} />
+          Download
         </Button>
-        <Button 
+        <Button
           onClick={() => setShowUploadModal(true)}
-          className="bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          size="sm"
+          className="bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600"
         >
-          <Upload size={20} />
-          Upload Products
+          <Upload size={16} />
+          Upload
         </Button>
-        <Button onClick={() => setShowAddModal(true)}>
-          <Plus size={20} />
+        <Button onClick={() => setShowAddModal(true)} size="sm">
+          <Plus size={16} />
           Add Product
         </Button>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Products Grid - Compact */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredProducts.map(product => {
           const stockStatus = getStockStatus(product);
           return (
@@ -570,7 +808,7 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.fullName || product.name}
+                      {product.displayName || product.fullName || product.name}
                     </h3>
                     <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {categories.find(c => c.value === product.category)?.label}
@@ -597,7 +835,7 @@ const SteelProducts = () => {
                           {(() => { const f=(product.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : ''; })()}
                         </span>
                       )}
-                      {(/pipe/i.test(product.category || '')) ? (
+                      {(/pipe|tube/i.test(product.category || '')) ? (
                         <>
                           {product.sizeInch && (
                             <span className={`px-2 py-1 text-xs rounded-md border ${
@@ -797,87 +1035,53 @@ const SteelProducts = () => {
       <div className={`rounded-xl border p-6 ${
         isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
       }`}>
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Package size={28} className="text-teal-600" />
-            <h1 className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+        {/* Header - Compact */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Package size={24} className="text-teal-600" />
+            <h1 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               🏗️ Stainless Steel Products
             </h1>
           </div>
-          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Manage your steel product catalog, inventory, and pricing
           </p>
         </div>
 
-        {/* Tabs - Pill style */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveTab('catalog')}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === 'catalog'
-                  ? (isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
-                  : (isDarkMode
-                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
-              }`}
-            >
-              <Package size={18} />
-              Product Catalog
-            </button>
-            <button
-              onClick={() => setActiveTab('inventory')}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === 'inventory'
-                  ? (isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
-                  : (isDarkMode
-                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
-              }`}
-            >
-              <Warehouse size={18} />
-              Inventory Management
-            </button>
-            <button
-              onClick={() => setActiveTab('movements')}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === 'movements'
-                  ? (isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
-                  : (isDarkMode
-                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
-              }`}
-            >
-              <Move size={18} />
-              Stock Movements
-            </button>
-            <button
-              onClick={() => setActiveTab('warehouses')}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === 'warehouses'
-                  ? (isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800')
-                  : (isDarkMode
-                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900')
-              }`}
-            >
-              <Warehouse size={18} />
-              Warehouses
-            </button>
-          </div>
+        {/* Tabs - Folder style that connects to content */}
+        <div className="flex flex-wrap gap-1 relative">
+          {[
+            { id: 'catalog', label: 'Product Catalog', icon: Package },
+            { id: 'inventory', label: 'Inventory Management', icon: Warehouse },
+            { id: 'movements', label: 'Stock Movements', icon: Move },
+            { id: 'warehouses', label: 'Warehouses', icon: Warehouse },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-t-lg border-t border-l border-r relative ${
+                  isActive
+                    ? (isDarkMode
+                      ? 'bg-gray-800 text-teal-400 border-gray-700 z-10'
+                      : 'bg-gray-50 text-teal-700 border-gray-200 z-10')
+                    : (isDarkMode
+                      ? 'bg-gray-900/50 text-gray-400 border-gray-800 hover:text-gray-200 hover:bg-gray-800/50'
+                      : 'bg-gray-100/50 text-gray-600 border-gray-200 hover:text-gray-900 hover:bg-gray-100')
+                }`}
+                style={isActive ? { marginBottom: '-1px' } : {}}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Tab Content */}
-        <div>
+        {/* Tab Content - Connected to tabs */}
+        <div className={`border rounded-b-lg rounded-tr-lg ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
           {activeTab === 'catalog' && renderCatalog()}
           {activeTab === 'inventory' && renderInventoryManagement()}
           {activeTab === 'movements' && <StockMovement />}
@@ -920,10 +1124,10 @@ const SteelProducts = () => {
                       placeholder="e.g., SS"
                     />
                     <Input
-                      label="Product Name (auto-generated)"
-                      value={newProduct.name}
+                      label="Product Name Preview (auto-generated)"
+                      value={newProduct.name || '(Fill fields above to generate)'}
                       readOnly
-                      placeholder="Auto-generated"
+                      className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
                     />
                     <Select
                       label="Category"
@@ -943,7 +1147,7 @@ const SteelProducts = () => {
                       value={(newProduct.finish || '').trim()}
                       onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
                     />
-                    {(/pipe/i.test(newProduct.category || '')) ? (
+                    {(/pipe|tube/i.test(newProduct.category || '')) ? (
                       <>
                         <Input
                           label={'Size (inch \" )'}
@@ -977,6 +1181,12 @@ const SteelProducts = () => {
                       value={newProduct.thickness}
                       onChange={(e) => setNewProduct({...newProduct, thickness: e.target.value})}
                       placeholder="e.g., 1.2mm"
+                    />
+                    <Input
+                      label="Weight (kg/pc or kg/m)"
+                      value={newProduct.weight}
+                      onChange={(e) => setNewProduct({...newProduct, weight: e.target.value})}
+                      placeholder="e.g., 25.5"
                     />
                     <div className="sm:col-span-2">
                       <Textarea
@@ -1203,9 +1413,16 @@ const SteelProducts = () => {
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
-                    label="Product Name (auto-generated)"
-                    value={selectedProduct.name}
+                    label="Display Name (editable)"
+                    value={selectedProduct.displayName || selectedProduct.fullName || selectedProduct.name || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, displayName: e.target.value, display_name: e.target.value})}
+                    placeholder="User-visible product name"
+                  />
+                  <Input
+                    label="Technical ID (auto-generated)"
+                    value={selectedProduct.uniqueName || selectedProduct.fullName || ''}
                     readOnly
+                    className="text-gray-500"
                   />
                   <Select
                     label="Category"
@@ -1229,7 +1446,7 @@ const SteelProducts = () => {
                     value={(selectedProduct.finish || '').trim()}
                     onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim() })}
                   />
-                  {(/pipe/i.test(selectedProduct.category || '')) ? (
+                  {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                     <>
                       <Input
                         label={'Size (inch \" )'}
@@ -1411,7 +1628,7 @@ const SteelProducts = () => {
                         </span>
                       </div>
                     )}
-                    {(/pipe/i.test(selectedProduct.category || '')) ? (
+                    {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                       <>
                         {(selectedProduct.sizeInch || selectedProduct.sizeInch) && (
                           <div className="flex justify-between py-2">

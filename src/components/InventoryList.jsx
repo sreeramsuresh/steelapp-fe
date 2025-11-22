@@ -242,7 +242,7 @@ const InventoryList = () => {
     setFormData((prev) => ({
       ...prev,
       productId: product.id,
-      productName: product.fullName || product.name,
+      productName: product.displayName || product.fullName || product.name,
     }));
     setProductQuery('');
     setProductOptions([]);
@@ -641,7 +641,7 @@ const InventoryList = () => {
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                               >
-                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.name}</div>
+                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.displayName || p.name}</div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.category} {p.grade ? `• GR${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
                               </button>
                             ))}

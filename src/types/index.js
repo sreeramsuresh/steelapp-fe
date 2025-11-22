@@ -176,5 +176,19 @@ export const createInventoryItem = () => ({
 
 export const PRODUCT_TYPES = ['Sheet', 'Square Tube', 'Rectangular Tube', 'Pol Pipe', 'Round Bar', 'Flat Bar', 'Angle Bar', 'Square Bar', 'Coil'];
 export const STEEL_GRADES = ['201', '304', '316', '316L', '310', '321', '347'];
-export const FINISHES = ['Brush', 'Black Mirror', 'Gold Mirror', 'Gold Brush', 'HL', 'Mill', 'Mirror', '2B', 'BA'];
+// Comprehensive SS Trading Finishes
+export const FINISHES = [
+  // Standard Mill Finishes
+  '2B', '2D', 'BA', 'Mill', 'No.1', 'No.3', 'No.4',
+  // Polished Finishes
+  'HL', 'Hairline', 'Scotch Brite', 'Satin',
+  'Mirror', '8K Mirror', 'Super Mirror',
+  'Brush', 'Duplo',
+  // Color/Decorative Finishes
+  'Black Mirror', 'Gold Mirror', 'Gold Brush', 'Rose Gold',
+  'PVD Coating', 'Etched', 'Embossed', 'Vibration',
+  'Anti-Fingerprint', 'AFP',
+  // Special
+  'Sandblast', 'Bead Blast', 'Checkered', 'Diamond',
+];
 export const MOVEMENT_TYPES = ['IN', 'OUT'];

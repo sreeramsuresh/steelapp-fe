@@ -6,7 +6,7 @@ import ProductNamingGrid from './ProductNamingGrid';
 
 // Product Row Component for individual editing
 const ProductRow = ({ product, presets, isDarkMode, isEditing, onEdit, onSave, onApplyPreset, onCancel }) => {
-  const [editedName, setEditedName] = useState(product.fullName || product.name);
+  const [editedName, setEditedName] = useState(product.displayName || product.fullName || product.name);
   const [showPresets, setShowPresets] = useState(false);
 
   return (
@@ -65,7 +65,7 @@ const ProductRow = ({ product, presets, isDarkMode, isEditing, onEdit, onSave, o
             </div>
           ) : (
             <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {product.fullName || product.name}
+              {product.displayName || product.fullName || product.name}
             </div>
           )}
         </div>
@@ -225,11 +225,12 @@ const ProductNamingSettings = ({ companyId }) => {
 
   const handleSaveProductName = async (productId, newName) => {
     try {
+      // Update display_name (user-editable name)
+      // unique_name is auto-managed by the database trigger
       await apiService.patch(`/products/${productId}`, {
-        name: newName,
-        full_name: newName,
+        display_name: newName,
       });
-      setMessage({ type: 'success', text: 'Product name updated!' });
+      setMessage({ type: 'success', text: 'Display name updated!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       fetchProducts();
       setEditingProductId(null);

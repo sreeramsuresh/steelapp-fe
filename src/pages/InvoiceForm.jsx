@@ -1517,7 +1517,7 @@ const InvoiceForm = ({ onSave }) => {
         newItems[index] = {
           ...newItems[index],
           productId: product.id,
-          name: product.name,
+          name: product.displayName || product.name,
           category: product.category || '',
           commodity: product.commodity || 'SS',
           grade: product.grade || '',
@@ -1594,7 +1594,7 @@ const InvoiceForm = ({ onSave }) => {
       const searchValue = searchInputs[index] || '';
       const products = productsData?.products || [];
       return products.some(
-        (product) => product.name.toLowerCase() === searchValue.toLowerCase(),
+        (product) => (product.displayName || product.name).toLowerCase() === searchValue.toLowerCase(),
       );
     },
     [productsData, searchInputs],
@@ -1635,7 +1635,7 @@ const InvoiceForm = ({ onSave }) => {
     const list = productsData?.products || [];
     return list.map((product) => ({
       ...product,
-      label: product.name,
+      label: product.displayName || product.name,
       subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
         product.sellingPrice || 0
       }`,
@@ -1646,7 +1646,7 @@ const InvoiceForm = ({ onSave }) => {
     const list = searchInputs?.__results || [];
     return list.map((product) => ({
       ...product,
-      label: product.name,
+      label: product.displayName || product.name,
       subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
         product.sellingPrice || 0
       }`,
@@ -3080,7 +3080,7 @@ const InvoiceForm = ({ onSave }) => {
                           onClick={() => {
                             const newItem = createSteelItem();
                             newItem.productId = product.id;
-                            newItem.name = product.fullName || product.name;
+                            newItem.name = product.displayName || product.fullName || product.name;
                             newItem.unit = product.unit || 'kg';
                             newItem.rate = parseFloat(product.price) || 0;
                             newItem.hsnCode = product.hsnCode || '';
@@ -3107,7 +3107,7 @@ const InvoiceForm = ({ onSave }) => {
                           }`}
                           style={{ maxWidth: 'fit-content' }}
                         >
-                          {product.fullName || product.name}
+                          {product.displayName || product.fullName || product.name}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}
