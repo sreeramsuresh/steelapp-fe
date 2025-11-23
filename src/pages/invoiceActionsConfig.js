@@ -36,17 +36,66 @@ export function getInvoiceActionButtonConfig(
   const nonEditableStatuses = ['issued', 'sent', 'completed', 'cancelled'];
   const creditNoteAllowedStatuses = ['issued', 'sent'];
   const deliveryNoteAllowedStatuses = ['issued', 'sent'];
+  
+  // 24-hour edit window calculation for issued invoices
+  const isIssuedStatus = ['issued', 'sent'].includes(invoice.status);
+  const issuedAt = invoice.issuedAt ? new Date(invoice.issuedAt) : null;
+  const now = new Date();
+  const hoursSinceIssued = issuedAt ? (now - issuedAt) / (1000 * 60 * 60) : Infinity;
+  const withinEditWindow = hoursSinceIssued < 24;
 
   return {
+    // Edit/Lock action for the first actions column
+    // Draft/Proforma: Always editable
+    // Issued (within 24h): Editable (creates revision)
+    // Issued (after 24h): Locked
+    editOrLock: (() => {
+      // Draft/proforma are always editable
+      if (!isIssuedStatus && !isDeleted && canUpdate) {
+        return {
+          type: 'edit',
+          enabled: true,
+          tooltip: 'Edit Invoice',
+          link: `/edit/${invoice.id}`,
+        };
+      }
+      // Issued/sent invoices: check 24-hour window
+      if (isIssuedStatus && !isDeleted && canUpdate && withinEditWindow) {
+        const hoursRemaining = Math.ceil(24 - hoursSinceIssued);
+        return {
+          type: 'edit',
+          enabled: true,
+          tooltip: `Edit Invoice (${hoursRemaining}h remaining)`,
+          link: `/edit/${invoice.id}`,
+        };
+      }
+      // Locked: after 24h, deleted, cancelled, or no permission
+      return {
+        type: 'lock',
+        enabled: false,
+        tooltip: isDeleted
+          ? 'Deleted invoice'
+          : !canUpdate
+            ? 'No permission to edit'
+            : isIssuedStatus && !withinEditWindow
+              ? 'Edit window expired (24h)'
+              : invoice.status === 'cancelled'
+                ? 'Cancelled invoice'
+                : 'Invoice locked',
+        link: null,
+      };
+    })(),
     edit: {
-      enabled: canUpdate && !isDeleted && !nonEditableStatuses.includes(invoice.status),
+      enabled: canUpdate && !isDeleted && (!nonEditableStatuses.includes(invoice.status) || (isIssuedStatus && withinEditWindow)),
       tooltip: !canUpdate
         ? 'No permission to edit'
         : isDeleted
           ? 'Cannot edit deleted invoice'
-          : nonEditableStatuses.includes(invoice.status)
-            ? `Cannot edit ${invoice.status} invoice`
-            : 'Edit Invoice',
+          : isIssuedStatus && !withinEditWindow
+            ? 'Edit window expired (24h)'
+            : nonEditableStatuses.includes(invoice.status) && !withinEditWindow
+              ? `Cannot edit ${invoice.status} invoice`
+              : 'Edit Invoice',
       link: `/edit/${invoice.id}`,
     },
     creditNote: {
@@ -151,43 +200,25 @@ export function getInvoiceActionButtonConfig(
           : 'Restore Invoice',
     },
 
-    // PRIMARY ACTION: Consolidated edit/credit note action
-    // Shows edit for draft/proforma, credit note for issued/sent, none for cancelled/deleted
+    // DEPRECATED: Use editOrLock and creditNote separately
+    // Kept for backward compatibility
     primaryAction: (() => {
-      const isEditable = canUpdate && !isDeleted && !nonEditableStatuses.includes(invoice.status);
-      const canCreateCN = canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status);
-      
-      if (isEditable) {
+      // Draft/proforma or issued within 24h: Edit
+      if (canUpdate && !isDeleted && (!nonEditableStatuses.includes(invoice.status) || (isIssuedStatus && withinEditWindow))) {
         return {
           type: 'edit',
           enabled: true,
           tooltip: 'Edit Invoice',
           link: `/edit/${invoice.id}`,
         };
-      } else if (canCreateCN) {
-        return {
-          type: 'creditNote',
-          enabled: true,
-          tooltip: 'Create Credit Note',
-          link: `/finance?tab=credit-notes&invoiceId=${invoice.id}`,
-        };
-      } else {
-        // Cancelled, deleted, or no permission
-        return {
-          type: 'none',
-          enabled: false,
-          tooltip: isDeleted
-            ? 'Cannot modify deleted invoice'
-            : invoice.status === 'cancelled'
-              ? 'Cannot modify cancelled invoice'
-              : !canUpdate && !canCreateCreditNote
-                ? 'No permission to modify'
-                : nonEditableStatuses.includes(invoice.status)
-                  ? 'No permission to create credit notes'
-                  : 'No modifications available',
-          link: null,
-        };
       }
+      // Locked
+      return {
+        type: 'lock',
+        enabled: false,
+        tooltip: 'Invoice locked',
+        link: null,
+      };
     })(),
   };
 }

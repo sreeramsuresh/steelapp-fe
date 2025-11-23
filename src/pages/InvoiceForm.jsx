@@ -72,7 +72,6 @@ import {
   calculatePaymentStatus,
   getLastPaymentDate,
 } from '../utils/paymentUtils';
-import { getInvoiceReminderInfo, formatDaysMessage } from '../utils/reminderUtils';
 
 // Custom Tailwind Components
 const Button = ({
@@ -416,8 +415,14 @@ const Autocomplete = ({
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Reset highlighted index when options change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [filteredOptions]);
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
   const norm = (s) => (s || '').toString().toLowerCase().trim();
@@ -501,6 +506,44 @@ const Autocomplete = ({
   const handleOptionSelect = (option) => {
     onChange?.(null, option);
     setIsOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!isOpen) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        setIsOpen(true);
+        return;
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+          handleOptionSelect(filteredOptions[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        setHighlightedIndex(-1);
+        break;
+      default:
+        break;
+    }
   };
 
   const updateDropdownPosition = () => {
@@ -544,6 +587,7 @@ const Autocomplete = ({
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
           className={className}
@@ -569,11 +613,16 @@ const Autocomplete = ({
               <div
                 key={option.id || index}
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
-                  isDarkMode
-                    ? 'hover:bg-gray-700 text-white border-gray-700'
-                    : 'hover:bg-gray-50 text-gray-900 border-gray-100'
+                  index === highlightedIndex
+                    ? isDarkMode
+                      ? 'bg-teal-700 text-white border-gray-700'
+                      : 'bg-teal-100 text-gray-900 border-gray-100'
+                    : isDarkMode
+                      ? 'hover:bg-gray-700 text-white border-gray-700'
+                      : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                 }`}
                 onMouseDown={() => handleOptionSelect(option)}
+                onMouseEnter={() => setHighlightedIndex(index)}
               >
                 {renderOption ? (
                   renderOption(option)
@@ -813,6 +862,63 @@ const InvoiceForm = ({ onSave }) => {
   // Debounce timeout refs for charges fields
   const chargesTimeout = useRef(null);
 
+  // Field refs for scroll-to-field functionality (Option C Hybrid UX)
+  const customerRef = useRef(null);
+  const dateRef = useRef(null);
+  const dueDateRef = useRef(null);
+  const itemsRef = useRef(null);
+  
+  // Additional refs for auto-focus navigation through mandatory fields
+  const paymentModeRef = useRef(null);
+  const addItemButtonRef = useRef(null);
+  const saveButtonRef = useRef(null);
+
+  // Scroll to field function - maps error field names to refs
+  const scrollToField = useCallback((fieldName) => {
+    let targetRef = null;
+    let targetElement = null;
+
+    // Map field names to refs
+    if (fieldName === 'customer.name' || fieldName === 'customer') {
+      targetRef = customerRef;
+    } else if (fieldName === 'date') {
+      targetRef = dateRef;
+    } else if (fieldName === 'dueDate') {
+      targetRef = dueDateRef;
+    } else if (fieldName.startsWith('item.')) {
+      // Extract item index: 'item.0.rate' -> 0
+      const match = fieldName.match(/item\.(\d+)\./);
+      if (match) {
+        const itemIndex = parseInt(match[1], 10);
+        // Try to find the line item element by index
+        targetElement = document.querySelector(`[data-item-index="${itemIndex}"]`);
+      }
+      if (!targetElement) {
+        targetRef = itemsRef; // Fallback to items section
+      }
+    }
+
+    // Scroll to the target
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Highlight the element briefly
+      targetElement.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+      setTimeout(() => {
+        targetElement.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+      }, 2000);
+    } else if (targetRef?.current) {
+      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Highlight the element briefly
+      targetRef.current.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+      setTimeout(() => {
+        targetRef.current.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+      }, 2000);
+    }
+
+    // Clear validation errors after scrolling (user is addressing them)
+    // Don't clear - let user fix and re-save
+  }, []);
+
   const [showPreview, setShowPreview] = useState(false);
   const [isFormValidForSave, setIsFormValidForSave] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -1026,6 +1132,81 @@ const InvoiceForm = ({ onSave }) => {
     newInvoice.invoiceNumber = '(Auto-assigned on save)';
     return newInvoice;
   });
+
+  // UAE VAT COMPLIANCE: Check if invoice is locked
+  // Issued invoices can be edited within 24 hours of issuance (creates revision)
+  // After 24 hours, invoice is permanently locked
+  const isLocked = useMemo(() => {
+    const status = (invoice?.status || '').toLowerCase().replace('status_', '');
+    if (status !== 'issued') return false;
+    
+    // Check 24-hour edit window
+    const issuedAt = invoice?.issuedAt;
+    if (!issuedAt) return true; // No issuedAt means legacy invoice, treat as locked
+    
+    const issuedDate = new Date(issuedAt);
+    const now = new Date();
+    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
+    
+    return hoursSinceIssued >= 24; // Locked if 24+ hours since issued
+  }, [invoice?.status, invoice?.issuedAt]);
+  
+  // Calculate if we're in revision mode (editing issued invoice within 24h)
+  const isRevisionMode = useMemo(() => {
+    const status = (invoice?.status || '').toLowerCase().replace('status_', '');
+    if (status !== 'issued') return false;
+    
+    const issuedAt = invoice?.issuedAt;
+    if (!issuedAt) return false;
+    
+    const issuedDate = new Date(issuedAt);
+    const now = new Date();
+    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
+    
+    return hoursSinceIssued < 24; // In revision mode if within 24 hours
+  }, [invoice?.status, invoice?.issuedAt]);
+  
+  // Calculate hours remaining in edit window
+  const hoursRemainingInEditWindow = useMemo(() => {
+    if (!isRevisionMode || !invoice?.issuedAt) return 0;
+    
+    const issuedDate = new Date(invoice.issuedAt);
+    const now = new Date();
+    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
+    
+    return Math.max(0, Math.ceil(24 - hoursSinceIssued));
+  }, [isRevisionMode, invoice?.issuedAt]);
+
+  // Auto-focus to next mandatory field
+  const focusNextMandatoryField = useCallback(() => {
+    // Check mandatory fields in order and focus the first unfilled one
+    // 1. Customer (mandatory)
+    if (!invoice.customer?.id) {
+      customerRef.current?.querySelector('input')?.focus();
+      return;
+    }
+    
+    // 2. Payment Mode (mandatory)
+    if (!invoice.modeOfPayment) {
+      paymentModeRef.current?.focus();
+      return;
+    }
+    
+    // 3. At least one item with valid product, quantity, and rate (mandatory)
+    const hasValidItem = invoice.items?.some(item => 
+      item.productId && item.quantity > 0 && item.rate > 0
+    );
+    if (!hasValidItem) {
+      // Focus Add Item button if no items, or focus the items section
+      addItemButtonRef.current?.focus();
+      addItemButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    
+    // All mandatory fields filled - focus Save button
+    saveButtonRef.current?.focus();
+    saveButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [invoice.customer?.id, invoice.modeOfPayment, invoice.items]);
 
   // No extra payment terms fields; Due Date remains directly editable
 
@@ -1350,7 +1531,12 @@ const InvoiceForm = ({ onSave }) => {
         navigate('/invoices');
         return;
       }
-      setInvoice(existingInvoice);
+      // Auto-populate date to today if empty (common in Odoo/Zoho)
+      const invoiceWithDate = {
+        ...existingInvoice,
+        date: existingInvoice.date || new Date().toISOString().split('T')[0],
+      };
+      setInvoice(invoiceWithDate);
     }
   }, [existingInvoice, id, navigate]);
 
@@ -1407,7 +1593,8 @@ const InvoiceForm = ({ onSave }) => {
         const licenseStatus = await resp.json();
         setTradeLicenseStatus(licenseStatus);
       } catch (fallbackErr) {
-        console.error('Error checking trade license status:', fallbackErr);
+        // Silently ignore - trade license check is optional feature, route may not exist
+        // console.debug('Trade license check unavailable:', fallbackErr.message);
       }
     }
   };
@@ -1443,7 +1630,8 @@ const InvoiceForm = ({ onSave }) => {
             setSelectedPricelistId(selectedCustomer.pricelistId);
             setPricelistName(response.data.name);
           } catch (error) {
-            console.error('Error fetching pricelist:', error);
+            // Silently ignore - pricelist is optional, may not be configured
+            // console.debug('Pricelist fetch failed:', error.message);
             setSelectedPricelistId(null);
             setPricelistName(null);
           }
@@ -1458,9 +1646,21 @@ const InvoiceForm = ({ onSave }) => {
 
         // Validate customer field
         validateField('customer', { id: selectedCustomer.id, name: selectedCustomer.name });
+
+        // Clear customer-related validation errors since user has now selected a customer
+        setValidationErrors(prev => prev.filter(err => !err.toLowerCase().includes('customer')));
+        setInvalidFields(prev => {
+          const newSet = new Set(prev);
+          newSet.delete('customer');
+          newSet.delete('customer.name');
+          return newSet;
+        });
+
+        // Auto-focus to next mandatory field after customer selection
+        setTimeout(() => focusNextMandatoryField(), 100);
       }
     },
-    [customersData, validateField],
+    [customersData, validateField, focusNextMandatoryField],
   );
 
   const handleSalesAgentSelect = useCallback(
@@ -1625,6 +1825,14 @@ const InvoiceForm = ({ onSave }) => {
         );
       }
 
+      // Check if item is now complete (has product, quantity > 0, rate > 0)
+      const updatedItem = newItems[index];
+      if (updatedItem.productId && updatedItem.quantity > 0 && updatedItem.rate > 0) {
+        // Clear item-related validation errors
+        setValidationErrors(errors => errors.filter(err => !err.toLowerCase().includes('item')));
+        // Note: Don't auto-focus away - user may want to add more items
+      }
+
       return {
         ...prev,
         items: newItems,
@@ -1703,6 +1911,8 @@ const InvoiceForm = ({ onSave }) => {
       ...prev,
       items: [...prev.items, createSteelItem()],
     }));
+    // Clear item-related validation errors since user is adding an item
+    setValidationErrors(prev => prev.filter(err => !err.toLowerCase().includes('item is required')));
   }, []);
 
   const removeItem = useCallback((index) => {
@@ -1846,7 +2056,58 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('dueDate');
     }
 
+    // Note: Cheque number is optional at invoice creation time
+    // It's captured later when payment is actually received via "Record Payment" flow
+
     return { isValid: errors.length === 0, errors, invalidFields: invalidFieldsSet };
+  };
+
+  // UAE VAT COMPLIANCE: Issue Final Tax Invoice
+  // This action is IRREVERSIBLE - invoice becomes a legal tax document
+  const handleIssueInvoice = async () => {
+    if (!invoice?.id) {
+      notificationService.error('Please save the invoice first before issuing.');
+      return;
+    }
+
+    if (isLocked) {
+      notificationService.warning('This invoice has already been issued.');
+      return;
+    }
+
+    // Confirm with user - this is irreversible
+    const confirmed = window.confirm(
+      'Issue Final Tax Invoice?\n\n' +
+      'WARNING: Once issued, this invoice cannot be modified.\n' +
+      'Any corrections must be made via Credit Note.\n\n' +
+      'This action cannot be undone.\n\n' +
+      'Are you sure you want to proceed?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsSaving(true);
+      const issuedInvoice = await invoiceService.issueInvoice(invoice.id);
+      
+      // Update local state with the issued invoice
+      setInvoice(prev => ({
+        ...prev,
+        ...issuedInvoice,
+        status: 'issued',
+      }));
+      
+      notificationService.success(
+        'Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.'
+      );
+    } catch (error) {
+      console.error('Failed to issue invoice:', error);
+      notificationService.error(
+        'Failed to issue invoice: ' + (error.response?.data?.message || error.message)
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Handler for preview button - validates before opening preview
@@ -2395,7 +2656,7 @@ const InvoiceForm = ({ onSave }) => {
                 </div>
               )}
               
-              <div className="hidden md:flex gap-2 items-center relative">
+              <div className="hidden md:flex gap-2 items-start relative">
                 {/* Template Selector */}
                 <button
                   onClick={() => setShowTemplateSettings(!showTemplateSettings)}
@@ -2488,21 +2749,45 @@ const InvoiceForm = ({ onSave }) => {
                   <Eye className="h-4 w-4" />
                 Preview
                 </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
-                  title={`Save invoice (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`}
-                >
-                  {savingInvoice || updatingInvoice || isSaving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
+                <div className="flex flex-col items-start">
+                  <Button
+                    ref={saveButtonRef}
+                    onClick={handleSave}
+                    disabled={savingInvoice || updatingInvoice || isSaving || isLocked}
+                    title={isLocked ? 'Invoice is locked (24h edit window expired)' : isRevisionMode ? `Save revision (${hoursRemainingInEditWindow}h remaining)` : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`}
+                  >
+                    {savingInvoice || updatingInvoice || isSaving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    {savingInvoice || updatingInvoice || isSaving ? 'Saving...' : isRevisionMode ? 'Save Revision' : 'Save Draft'}
+                  </Button>
+                  {isRevisionMode && (
+                    <span className={`text-[10px] mt-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                      {hoursRemainingInEditWindow}h left to edit
+                    </span>
                   )}
-                  {savingInvoice || updatingInvoice || isSaving ? 'Saving...' : 'Save'}
-                  <span className={`ml-1 text-xs opacity-60 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    ({getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})
-                  </span>
-                </Button>
+                </div>
+                
+                {/* UAE VAT: Issue Final Tax Invoice Button - Only for drafts, not revisions */}
+                {id && !isLocked && !isRevisionMode && invoice.status !== 'issued' && (
+                  <div className="flex flex-col items-center">
+                    <Button
+                      variant="success"
+                      onClick={handleIssueInvoice}
+                      disabled={savingInvoice || updatingInvoice || isSaving}
+                      title="Issue as Final Tax Invoice (locks invoice permanently)"
+                      className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                    >
+                      <Download className="h-4 w-4" />
+                      Issue Final Invoice
+                    </Button>
+                    <span className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Once issued, cannot be edited
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2510,6 +2795,34 @@ const InvoiceForm = ({ onSave }) => {
 
         {/* Main Content - Single Column Layout */}
         <main className="max-w-6xl mx-auto px-4 py-4 space-y-4">
+          {/* UAE VAT COMPLIANCE: Locked Invoice Warning Banner */}
+          {isLocked && (
+            <div
+              className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
+                isDarkMode
+                  ? 'bg-amber-900/20 border-amber-600 text-amber-200'
+                  : 'bg-amber-50 border-amber-500 text-amber-800'
+              }`}
+            >
+              <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} size={24} />
+              <div className="flex-1">
+                <h4 className="font-bold text-lg">Final Tax Invoice - Locked</h4>
+                <p className="text-sm mt-1">
+                  This invoice has been issued as a Final Tax Invoice and cannot be modified.
+                  UAE VAT compliance requires any corrections to be made via Credit Note.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => navigate('/credit-notes/new?invoiceId=' + invoice.id)}
+                >
+                  Create Credit Note
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Validation Errors Alert */}
           {validationErrors.length > 0 && (
             <div
@@ -2526,10 +2839,39 @@ const InvoiceForm = ({ onSave }) => {
                   <h4 className="font-bold text-lg mb-2">
                     Please fix the following errors:
                   </h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
+                  <ul className="space-y-1 text-sm">
+                    {validationErrors.map((error, index) => {
+                      // Parse error to extract field name for scrolling
+                      let fieldName = null;
+                      if (error.includes('Customer')) fieldName = 'customer.name';
+                      else if (error.includes('Invoice date')) fieldName = 'date';
+                      else if (error.includes('Due date')) fieldName = 'dueDate';
+                      else if (error.match(/Item \d+/)) {
+                        const match = error.match(/Item (\d+)/);
+                        if (match) {
+                          const itemNum = parseInt(match[1], 10) - 1; // Convert to 0-indexed
+                          if (error.includes('Rate')) fieldName = `item.${itemNum}.rate`;
+                          else if (error.includes('Quantity')) fieldName = `item.${itemNum}.quantity`;
+                          else if (error.includes('Product')) fieldName = `item.${itemNum}.name`;
+                          else fieldName = `item.${itemNum}`;
+                        }
+                      }
+                      
+                      return (
+                        <li 
+                          key={index}
+                          onClick={() => fieldName && scrollToField(fieldName)}
+                          className={`flex items-center gap-2 ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : ''}`}
+                          title={fieldName ? 'Click to scroll to field' : ''}
+                        >
+                          <span className="text-red-500">•</span>
+                          <span>{error}</span>
+                          {fieldName && (
+                            <span className="text-xs opacity-60">↓</span>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                   <button
                     onClick={() => {
@@ -2549,83 +2891,6 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           )}
 
-          {/* Final Tax Invoice Lock Warning - Only show when editing a Final Tax Invoice */}
-          {id && invoice.status === 'issued' && (
-            <Alert variant="info" className="mt-6">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">🔒</span>
-                <div className="flex-1">
-                  <h4 className="font-bold text-lg mb-2">
-                    Final Tax Invoice is Locked
-                  </h4>
-                  <p className="text-sm mb-2">
-                    This invoice has been finalized and cannot be edited to maintain compliance and audit integrity.
-                  </p>
-                  <p className="text-xs opacity-90">
-                    <strong>Note:</strong> To correct this invoice, create a credit note or issue a new invoice instead.
-                  </p>
-                </div>
-              </div>
-            </Alert>
-          )}
-
-          {/* Payment Reminder Alert - Only show for existing invoices */}
-          {(() => {
-            const reminderInfo = getInvoiceReminderInfo(invoice);
-            if (!reminderInfo || !reminderInfo.shouldShowReminder || !id) return null;
-
-            const { config, daysUntilDue, balanceDue, isOverdue } = reminderInfo;
-            const daysMessage = formatDaysMessage(daysUntilDue);
-
-            return (
-              <Alert
-                variant={isOverdue ? 'danger' : 'warning'}
-                className="mt-6"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">{config.icon}</span>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-lg mb-2">
-                      {config.label}: {daysMessage}
-                    </h4>
-                    <p className="text-sm mb-3">
-                      This invoice {isOverdue ? 'is overdue' : 'will be due soon'}.
-                      Outstanding balance: <strong>{formatCurrency(balanceDue)}</strong>
-                    </p>
-                    <div className="text-xs opacity-90">
-                      <p><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
-                      <p><strong>Due Date:</strong> {formatDateDMY(invoice.dueDate)}</p>
-                      {isOverdue && (
-                        <p className="mt-2 font-semibold">
-                          ⚡ Action Required: Consider sending a payment reminder to the customer.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Alert>
-            );
-          })()}
-
-          {/* Edit Invoice Warning */}
-          {id && (
-            <Alert variant="warning">
-              <div>
-                <h4 className="font-medium mb-2">Invoice Editing Policy</h4>
-                <p className="text-sm">
-                    🔄 To maintain audit trails and inventory accuracy, editing
-                    will:
-                  <br />• Cancel the original invoice and reverse its
-                    inventory impact
-                  <br />• Create a new invoice with your updated data
-                  <br />• Apply new inventory movements
-                  <br />• Note: Delivery notes are managed separately and are
-                    not auto-created on save.
-                </p>
-              </div>
-            </Alert>
-          )}
-
           {/* Two-Column Header Layout - Customer/Sales + Invoice Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* LEFT COLUMN: Customer & Sales Information */}
@@ -2633,7 +2898,7 @@ const InvoiceForm = ({ onSave }) => {
               isDarkMode ? 'bg-gray-800' : 'bg-white'
             }`}>
               {/* Customer Selection - Priority #1 */}
-              <div className="mb-4">
+              <div className="mb-4" ref={customerRef}>
                 <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
@@ -2657,7 +2922,8 @@ const InvoiceForm = ({ onSave }) => {
                     onChange={(e, selected) => {
                       if (selected?.id) {
                         handleCustomerSelect(selected.id);
-                        setCustomerSearchInput('');
+                        // Show selected customer name in the input field
+                        setCustomerSearchInput(titleCase(normalizeLLC(selected.name || '')));
                       }
                     }}
                     inputValue={customerSearchInput}
@@ -2856,6 +3122,7 @@ const InvoiceForm = ({ onSave }) => {
                     error={invalidFields.has('date')}
                     className="text-base"
                   />
+                  <div ref={dueDateRef}>
                   <Input
                     label="Due Date"
                     type="date"
@@ -2876,6 +3143,7 @@ const InvoiceForm = ({ onSave }) => {
                     }}
                     className="text-base min-h-[44px]"
                   />
+                  </div>
                 </div>
 
                 {/* Status and Payment */}
@@ -2902,6 +3170,7 @@ const InvoiceForm = ({ onSave }) => {
                     <option value="issued">Final Tax Invoice</option>
                   </Select>
                   <Select
+                    ref={paymentModeRef}
                     label="Payment Mode"
                     value={invoice.modeOfPayment || ''}
                     required={true}
@@ -2914,6 +3183,10 @@ const InvoiceForm = ({ onSave }) => {
                         modeOfPayment: value,
                       }));
                       validateField('paymentMode', value);
+                      // Auto-focus to next mandatory field after payment mode selection
+                      if (value) {
+                        setTimeout(() => focusNextMandatoryField(), 100);
+                      }
                     }}
                     className="text-base min-h-[44px]"
                   >
@@ -2926,13 +3199,13 @@ const InvoiceForm = ({ onSave }) => {
                   </Select>
                 </div>
 
-                {/* Cheque Number - Conditional */}
+                {/* Cheque Number - Optional, captured here if already known or via Record Payment later */}
                 {(invoice.modeOfPayment === 'Cheque' || invoice.modeOfPayment === 'CDC' || invoice.modeOfPayment === 'PDC') && (
                   <Input
-                    label="Cheque Number"
+                    label="Cheque Number (Optional)"
                     value={invoice.chequeNumber || ''}
                     onChange={(e) => setInvoice(prev => ({ ...prev, chequeNumber: e.target.value }))}
-                    placeholder="Enter cheque reference number"
+                    placeholder="Enter if cheque already received"
                     className="text-base min-h-[44px]"
                   />
                 )}
@@ -3057,7 +3330,7 @@ const InvoiceForm = ({ onSave }) => {
 
 
           {/* Items Section - Responsive */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`} ref={itemsRef}>
             <div className="mb-4">
               <h3 className={`text-xs font-semibold uppercase tracking-wide ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -3072,8 +3345,8 @@ const InvoiceForm = ({ onSave }) => {
                 <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Quick Add (Pinned & Top Products)
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {sortedProducts.map((product) => {
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {sortedProducts.slice(0, 8).map((product) => {
                     const isPinned = pinnedProductIds.includes(product.id);
                     return (
                       <div key={product.id} className="relative group">
@@ -3097,7 +3370,7 @@ const InvoiceForm = ({ onSave }) => {
                               items: [...prev.items, newItem],
                             }));
                           }}
-                          className={`px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
+                          className={`w-full px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
                             isPinned
                               ? isDarkMode
                                 ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg'
@@ -3106,7 +3379,7 @@ const InvoiceForm = ({ onSave }) => {
                                 ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
-                          style={{ maxWidth: 'fit-content' }}
+                          title={product.displayName || product.fullName || product.name}
                         >
                           {product.displayName || product.fullName || product.name}
                         </button>
@@ -3135,6 +3408,7 @@ const InvoiceForm = ({ onSave }) => {
             {/* Add Item Button */}
             <div className="mb-4">
               <Button
+                ref={addItemButtonRef}
                 onClick={addItem}
                 variant="primary"
                 size="sm"
@@ -3262,6 +3536,7 @@ const InvoiceForm = ({ onSave }) => {
                     return (
                       <tr 
                         key={item.id}
+                        data-item-index={index}
                         className={`
                           ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
                           ${isDragSource(index) ? 'opacity-50' : ''}
@@ -3484,7 +3759,7 @@ const InvoiceForm = ({ onSave }) => {
                   item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                 ].filter(Boolean).join('\n');
                 return (
-                  <Card key={item.id} className="p-4">
+                  <Card key={item.id} className="p-4" data-item-index={index}>
                     <div className="flex justify-between items-start mb-4">
                       <h4
                         className={`font-medium ${

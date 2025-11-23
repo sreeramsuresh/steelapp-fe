@@ -46,20 +46,26 @@ const transformInvoiceForServer = (invoiceData) => {
   };
 };
 
-// Backend returns pure snake_case - no transformation needed
-// Field validators enforce snake_case consistency
+// Backend returns camelCase (after API conversion) - map to form field names
 const transformInvoiceFromServer = (serverData) => {
   return {
     ...serverData,
+    // Date field mapping: invoiceDate -> date (legacy alias used by form)
+    date: serverData.invoiceDate || serverData.date || null,
     // Ensure customer_details is parsed if it's a string
     customer: typeof serverData.customerDetails === 'string'
       ? JSON.parse(serverData.customerDetails)
       : serverData.customerDetails || serverData.customer || {},
+    // Payment mode mapping
+    modeOfPayment: serverData.modeOfPayment || serverData.mode_of_payment || null,
+    // Warehouse mapping
+    warehouseId: serverData.warehouseId || serverData.warehouse_id || null,
+    warehouseName: serverData.warehouseName || serverData.warehouse_name || '',
     // Ensure numeric fields are numbers
     received: serverData.received !== undefined ? Number(serverData.received) : 0,
     outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
     subtotal: serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
-    vat_amount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
+    vatAmount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
     // Ensure items is an array
     items: Array.isArray(serverData.items) ? serverData.items : [],
@@ -128,6 +134,23 @@ export const invoiceService = {
 
   async updateInvoiceStatus(id, status) {
     return apiClient.patch(`/invoices/${id}/status`, { status });
+  },
+
+  /**
+   * Issue Final Tax Invoice - locks invoice permanently
+   * 
+   * UAE VAT COMPLIANCE (Rules 3, 4, 8):
+   * - Once issued, invoice becomes a legal tax document
+   * - Cannot be modified after issuing
+   * - Corrections must be made via Credit Note
+   * - This action is IRREVERSIBLE
+   * 
+   * @param {number} invoiceId - ID of invoice to issue
+   * @returns {Promise<Object>} Issued invoice with isLocked flag
+   */
+  async issueInvoice(invoiceId) {
+    const response = await apiClient.post(`/invoices/${invoiceId}/issue`);
+    return transformInvoiceFromServer(response);
   },
 
   async getNextInvoiceNumber() {

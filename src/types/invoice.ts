@@ -61,6 +61,15 @@ export interface Invoice {
   updatedAt?: string;
   deletedAt?: string | null;
   
+  // Invoice Revision Tracking (24-hour edit grace period)
+  issuedAt?: string | null;        // When invoice was issued (for 24h edit window)
+  revisionNumber?: number;          // 1 = original, 2+ = revisions
+  revisedAt?: string | null;        // Timestamp of last revision
+  originalInvoiceId?: number | null; // Reference to original invoice (for revisions)
+  supersededAt?: string | null;     // When this invoice was superseded
+  supersededBy?: number | null;     // ID of revision that superseded this
+  supersededReason?: string | null; // REVISED, CANCELLED, etc.
+  
   // Customer information
   customerId: number;
   customerDetails: CustomerDetails;

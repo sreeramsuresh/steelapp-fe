@@ -23,6 +23,7 @@ import {
   FileMinus,
   Award,
   ReceiptText,
+  Lock,
 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -2053,43 +2054,51 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
                             return (
                               <>
-                                {/* Primary Action: Edit (draft/proforma) OR Credit Note (issued/sent) */}
-                                {actions.primaryAction.enabled ? (
-                                  actions.primaryAction.type === 'edit' ? (
-                                    <Link
-                                      to={actions.primaryAction.link}
-                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                        isDarkMode
-                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
-                                      }`}
-                                      title={actions.primaryAction.tooltip}
-                                    >
-                                      <Edit size={18} />
-                                    </Link>
-                                  ) : (
-                                    <button
-                                      onClick={() => navigate(actions.primaryAction.link)}
-                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                        isDarkMode
-                                          ? 'text-teal-400 hover:text-teal-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-teal-50 text-teal-600 bg-white'
-                                      }`}
-                                      title={actions.primaryAction.tooltip}
-                                    >
-                                      <ReceiptText size={18} />
-                                    </button>
-                                  )
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                {/* Edit/Lock Action: Edit (within 24h) or Lock (after 24h) */}
+                                {actions.editOrLock.enabled ? (
+                                  <Link
+                                    to={actions.editOrLock.link}
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-blue-50 text-blue-600 bg-white'
                                     }`}
-                                    title={actions.primaryAction.tooltip}
+                                    title={actions.editOrLock.tooltip}
                                   >
                                     <Edit size={18} />
+                                  </Link>
+                                ) : (
+                                  <span
+                                    className={`p-2 rounded shadow-sm ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                  >
+                                    <Lock size={18} />
+                                  </span>
+                                )}
+
+                                {/* Credit Note Action: Separate column for issued invoices */}
+                                {actions.creditNote.enabled ? (
+                                  <button
+                                    onClick={() => navigate(actions.creditNote.link)}
+                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      isDarkMode
+                                        ? 'text-teal-400 hover:text-teal-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                        : 'hover:bg-teal-50 text-teal-600 bg-white'
+                                    }`}
+                                    title={actions.creditNote.tooltip}
+                                  >
+                                    <ReceiptText size={18} />
                                   </button>
+                                ) : (
+                                  <span
+                                    className={`p-2 rounded shadow-sm ${
+                                      isDarkMode ? 'bg-gray-800/30 text-gray-600' : 'bg-gray-50 text-gray-300'
+                                    }`}
+                                    title="Credit note not available"
+                                  >
+                                    <span className="text-xs">-</span>
+                                  </span>
                                 )}
 
                                 {/* View button - Always enabled */}
@@ -2402,9 +2411,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
               to{' '}
               {Math.min(
                 pagination.currentPage * pagination.perPage,
-                pagination.total,
+                pagination.totalItems,
               )}{' '}
-              of {pagination.total} invoices
+              of {pagination.totalItems} invoices
             </div>
             <div className="flex items-center gap-2">
               <button

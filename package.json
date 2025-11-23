@@ -8,10 +8,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "generate-types": "echo 'Types are generated from proto files - see src/types/generated/'",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck && vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "npm run typecheck && vitest run --coverage",
+    "test:contracts": "vitest run --testPathPattern='contract|schemas'",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "cypress": "cypress open",
@@ -36,7 +39,8 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

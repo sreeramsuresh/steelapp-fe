@@ -228,6 +228,15 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       updatedAt: rawInvoice.audit?.updatedAt ?? rawInvoice.updatedAt ?? undefined,
       deletedAt: rawInvoice.audit?.deletedAt ?? rawInvoice.deletedAt ?? null,
       
+      // Invoice Revision Tracking (24-hour edit grace period)
+      issuedAt: rawInvoice.issuedAt ? parseDate(rawInvoice.issuedAt, 'issuedAt') : null,
+      revisionNumber: parseNumber(rawInvoice.revisionNumber, 1),
+      revisedAt: rawInvoice.revisedAt ? parseDate(rawInvoice.revisedAt, 'revisedAt') : null,
+      originalInvoiceId: rawInvoice.originalInvoiceId || null,
+      supersededAt: rawInvoice.supersededAt ? parseDate(rawInvoice.supersededAt, 'supersededAt') : null,
+      supersededBy: rawInvoice.supersededBy || null,
+      supersededReason: rawInvoice.supersededReason || null,
+      
       // Customer information
       customerId: rawInvoice.customerId || rawInvoice.customerId || 0,
       customerDetails: customerDetailsNormalized,

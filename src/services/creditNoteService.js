@@ -283,6 +283,64 @@ class CreditNoteService {
   async getScrapItemsByCreditNote(creditNoteId) {
     return apiClient.get(`${this.endpoint}/${creditNoteId}/scrap-items`);
   }
+
+  // ============================================
+  // PDF Generation Methods (UAE VAT Compliance)
+  // ============================================
+
+  /**
+   * Download credit note PDF
+   * Rule 2: PREVIEW = On-demand PDF, never stored
+   * Rule 6: Consistent preview path
+   * Rule 7: Data = Single source of truth
+   */
+  async downloadPDF(id, creditNoteNumber = null) {
+    try {
+      const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
+        responseType: 'blob',
+      });
+
+      // Create download link
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `credit-note-${creditNoteNumber || id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return true;
+    } catch (error) {
+      console.error('[CreditNoteService] PDF download failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Open credit note PDF in new tab for preview/print
+   */
+  async previewPDF(id) {
+    try {
+      const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
+        responseType: 'blob',
+      });
+
+      // Open in new tab
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+
+      // Clean up after delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 30000);
+
+      return true;
+    } catch (error) {
+      console.error('[CreditNoteService] PDF preview failed:', error);
+      throw error;
+    }
+  }
 }
 
 export const creditNoteService = new CreditNoteService();
