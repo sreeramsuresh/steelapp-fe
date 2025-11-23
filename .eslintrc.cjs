@@ -1,5 +1,26 @@
+/**
+ * ESLint Configuration for Steel App Frontend (steelapp-fe)
+ *
+ * NAMING CONVENTION RULES:
+ * ========================
+ * FRONTEND: camelCase ONLY - snake_case DISALLOWED
+ *
+ * Applies to:
+ *   - React components
+ *   - Props
+ *   - Hooks
+ *   - State variables
+ *   - UI logic
+ *   - Any data model used inside React
+ *
+ * Architecture Flow:
+ *   Frontend (camelCase) → API Gateway (converts) → Backend (snake_case) → DB (snake_case)
+ *
+ * The API Gateway automatically handles camelCase ↔ snake_case conversion,
+ * so frontend code should NEVER use snake_case directly.
+ */
 module.exports = {
-  root: true,  // Self-contained, don't look for parent configs
+  root: true,
   env: {
     browser: true,
     es2021: true,
@@ -35,13 +56,13 @@ module.exports = {
     'react-hooks',
     // 'import', // Disabled - causing performance issues
     'jsx-a11y',
-    // 'local-rules', // Disabled temporarily for testing
   ],
   rules: {
-    // Custom snake_case detection rule
-    // 'local-rules/no-snakecase-props': 'error', // Disabled temporarily for testing
-
-    // Naming conventions
+    // ============================================
+    // NAMING CONVENTIONS - camelCase ENFORCED
+    // ============================================
+    // Frontend MUST use camelCase only
+    // API Gateway handles conversion to snake_case for backend
     'camelcase': ['error', {
       properties: 'never',
       ignoreDestructuring: false,
