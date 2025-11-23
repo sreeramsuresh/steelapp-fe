@@ -69,8 +69,8 @@ const InventoryList = () => {
       setLoading(true);
       const response = await inventoryService.getAllItems();
       setInventory(response.data || []);
-    } catch (error) {
-      console.error('Error fetching inventory:', error);
+    } catch (fetchError) {
+      console.error('Error fetching inventory:', fetchError);
       setError('Failed to load inventory');
     } finally {
       setLoading(false);
@@ -97,8 +97,8 @@ const InventoryList = () => {
         }));
       
       setWarehouses(transformedWarehouses);
-    } catch (error) {
-      console.warn('Failed to fetch warehouses:', error);
+    } catch (warehouseError) {
+      console.warn('Failed to fetch warehouses:', warehouseError);
       // Fallback to empty array - user can still add inventory without warehouse
       setWarehouses([]);
     }
@@ -116,9 +116,9 @@ const InventoryList = () => {
       setProductOptions([]);
     } else {
       setEditingItem(null);
-      const item = createInventoryItem();
+      const newItem = createInventoryItem();
       setFormData({
-        ...item,
+        ...newItem,
         quantity: '',
         pricePurchased: '',
         sellingPrice: '',
@@ -172,8 +172,8 @@ const InventoryList = () => {
       }
       await fetchInventory();
       handleCloseDialog();
-    } catch (error) {
-      console.error('Error saving inventory item:', error);
+    } catch (saveError) {
+      console.error('Error saving inventory item:', saveError);
       setError('Failed to save inventory item');
     }
   };
@@ -191,8 +191,8 @@ const InventoryList = () => {
     try {
       await inventoryService.deleteItem(id);
       await fetchInventory();
-    } catch (error) {
-      console.error('Error deleting inventory item:', error);
+    } catch (deleteError) {
+      console.error('Error deleting inventory item:', deleteError);
       setError('Failed to delete inventory item');
     }
   };

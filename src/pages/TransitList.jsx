@@ -163,7 +163,7 @@ const TransitList = () => {
           <p
             className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
-            Purchase orders with "Transit" stock status will appear here
+            Purchase orders with &quot;Transit&quot; stock status will appear here
           </p>
         </div>
       </div>

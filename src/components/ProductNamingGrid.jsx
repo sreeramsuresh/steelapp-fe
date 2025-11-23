@@ -285,16 +285,16 @@ const ProductNamingGrid = ({
       let successCount = 0;
       let errorCount = 0;
 
-      for (const preview of replacePreviews) {
+      for (const previewItem of replacePreviews) {
         try {
-          await apiService.patch(`/products/${preview.id}`, {
-            name: preview.newName,
-            full_name: preview.newName,
+          await apiService.patch(`/products/${previewItem.id}`, {
+            name: previewItem.newName,
+            full_name: previewItem.newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p,
+              p.id === previewItem.id ? { ...p, name: previewItem.newName, full_name: previewItem.newName } : p,
             ),
           );
 
@@ -374,16 +374,16 @@ const ProductNamingGrid = ({
       let successCount = 0;
       let errorCount = 0;
 
-      for (const preview of prefixSuffixPreviews) {
+      for (const previewItem of prefixSuffixPreviews) {
         try {
-          await apiService.patch(`/products/${preview.id}`, {
-            name: preview.newName,
-            full_name: preview.newName,
+          await apiService.patch(`/products/${previewItem.id}`, {
+            name: previewItem.newName,
+            full_name: previewItem.newName,
           });
 
           setProducts(prevProducts =>
             prevProducts.map(p =>
-              p.id === preview.id ? { ...p, name: preview.newName, full_name: preview.newName } : p,
+              p.id === previewItem.id ? { ...p, name: previewItem.newName, full_name: previewItem.newName } : p,
             ),
           );
 
@@ -1457,22 +1457,22 @@ const ProductNamingGrid = ({
                         </div>
                       ) : (
                         <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {replacePreviews.slice(0, 10).map((preview) => (
+                          {replacePreviews.slice(0, 10).map((previewItem) => (
                             <div
-                              key={preview.id}
+                              key={previewItem.id}
                               className={`p-3 rounded border ${
                                 isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
                               }`}
                             >
                               <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                                {preview.commodity} {preview.grade} • {preview.category}
+                                {previewItem.commodity} {previewItem.grade} • {previewItem.category}
                               </div>
                               <div className="flex flex-col gap-1 text-xs">
                                 <span className={`line-through ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
-                                  {preview.currentName}
+                                  {previewItem.currentName}
                                 </span>
                                 <span className={`font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                                  → {preview.newName}
+                                  → {previewItem.newName}
                                 </span>
                               </div>
                             </div>
@@ -1551,22 +1551,22 @@ const ProductNamingGrid = ({
                         </div>
                       ) : (
                         <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {prefixSuffixPreviews.slice(0, 10).map((preview) => (
+                          {prefixSuffixPreviews.slice(0, 10).map((previewItem) => (
                             <div
-                              key={preview.id}
+                              key={previewItem.id}
                               className={`p-3 rounded border ${
                                 isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
                               }`}
                             >
                               <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                                {preview.commodity} {preview.grade} • {preview.category}
+                                {previewItem.commodity} {previewItem.grade} • {previewItem.category}
                               </div>
                               <div className="flex flex-col gap-1 text-xs">
                                 <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                                  {preview.currentName}
+                                  {previewItem.currentName}
                                 </span>
                                 <span className={`font-medium ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>
-                                  → {preview.newName}
+                                  → {previewItem.newName}
                                 </span>
                               </div>
                             </div>
@@ -1789,7 +1789,7 @@ const ProductNamingGrid = ({
                       <strong className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Instructions:</strong>
                       <ol className="mt-2 ml-4 list-decimal space-y-1">
                         <li>Export products to CSV</li>
-                        <li>Edit the "New Name (Edit This)" column in Excel/Sheets</li>
+                        <li>Edit the &quot;New Name (Edit This)&quot; column in Excel/Sheets</li>
                         <li>Save the file as CSV</li>
                         <li>Import the updated CSV here</li>
                       </ol>

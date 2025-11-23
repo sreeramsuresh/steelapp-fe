@@ -70,13 +70,13 @@ const Contact = () => {
             {/* Let's Build Something Strong Together */}
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
-              Let's Build Something Strong Together!
+              Let&apos;s Build Something Strong Together!
               </h2>
               <p className="text-xl text-gray-700 max-w-5xl mx-auto leading-relaxed">
               At Ultimate Steels, we are more than just metal, we are the
               backbone of industries, the foundation of innovation, and your
               trusted partner in steel solutions. Whether you have a question,
-              need a quote, or want to discuss a custom project, we're here to
+              need a quote, or want to discuss a custom project, we&apos;re here to
               help
               </p>
             </div>

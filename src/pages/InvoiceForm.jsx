@@ -448,9 +448,9 @@ const Autocomplete = ({
     return dpPrev[lb];
   };
 
-  const tokenMatch = (token, label) => {
+  const tokenMatch = (token, optLabel) => {
     const t = norm(token);
-    const l = norm(label);
+    const l = norm(optLabel);
     if (!t) return true;
     if (l.includes(t)) return true;
     // fuzzy: split label into words and check any word within edit distance 1
@@ -467,14 +467,14 @@ const Autocomplete = ({
     const tokens = q.split(/\s+/).filter(Boolean);
     const scored = [];
     for (const o of opts) {
-      const label = norm(o.label || o.name || '');
-      if (!label) continue;
+      const optLabel = norm(o.label || o.name || '');
+      if (!optLabel) continue;
       let ok = true;
       let score = 0;
       for (const t of tokens) {
-        if (!tokenMatch(t, label)) { ok = false; break; }
+        if (!tokenMatch(t, optLabel)) { ok = false; break; }
         // basic score: shorter distance preferred
-        const idx = label.indexOf(norm(t));
+        const idx = optLabel.indexOf(norm(t));
         score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
       }
       if (ok) scored.push({ o, score });
@@ -1178,7 +1178,7 @@ const InvoiceForm = ({ onSave }) => {
     try {
       if (pinnedProductIds.includes(productId)) {
         await pinnedProductsService.unpinProduct(productId);
-        setPinnedProductIds(prev => prev.filter(id => id !== productId));
+        setPinnedProductIds(prev => prev.filter(pinnedId => pinnedId !== productId));
       } else {
         if (pinnedProductIds.length >= 10) {
           notificationService.error('Maximum 10 products can be pinned');
@@ -2460,8 +2460,8 @@ const InvoiceForm = ({ onSave }) => {
                     <TemplateSelector
                       templates={availableTemplates}
                       selectedId={selectedTemplateId}
-                      onSelect={(id) => {
-                        selectTemplate(id);
+                      onSelect={(templateId) => {
+                        selectTemplate(templateId);
                         // Palette stays open until X button is clicked or user clicks outside
                       }}
                       customColor={customColors}
@@ -2956,16 +2956,16 @@ const InvoiceForm = ({ onSave }) => {
                   validationState={fieldValidation.warehouse}
                   showValidation={formPreferences.showValidationHighlighting}
                   onChange={(e) => {
-                    const id = e.target.value;
-                    const w = warehouses.find((wh) => wh.id.toString() === id);
+                    const warehouseId = e.target.value;
+                    const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
                     setInvoice((prev) => ({
                       ...prev,
-                      warehouseId: id,
+                      warehouseId,
                       warehouseName: w ? w.name : '',
                       warehouseCode: w ? w.code : '',
                       warehouseCity: w ? w.city : '',
                     }));
-                    validateField('warehouse', id);
+                    validateField('warehouse', warehouseId);
                   }}
                   className="text-base min-h-[44px]"
                 >

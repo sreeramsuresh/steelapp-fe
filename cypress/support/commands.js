@@ -38,7 +38,7 @@ Cypress.Commands.add('navigateTo', (page) => {
     invoices: '/invoices',
     customers: '/customers',
     products: '/products',
-    payments: '/payments'
+    payments: '/payments',
   };
   
   cy.visit(routes[page] || `/${page}`);

@@ -429,7 +429,7 @@ const ProductNamingSettings = ({ companyId }) => {
                 <div>
                   <p className="font-medium">Note:</p>
                   <p className="mt-0.5">
-                    Existing products will keep their current names. Use "Regenerate All Names" to update them.
+                    Existing products will keep their current names. Use &quot;Regenerate All Names&quot; to update them.
                   </p>
                 </div>
               </div>

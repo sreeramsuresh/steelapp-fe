@@ -112,7 +112,7 @@ const InvoicesTab = ({ canManage }) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { items } = await payablesService.getInvoices({
+    const { items: fetchedItems } = await payablesService.getInvoices({
       search: filters.q || undefined,
       status: filters.status === 'all' ? undefined : filters.status,
       start_date: filters.start || undefined,
@@ -124,7 +124,7 @@ const InvoicesTab = ({ canManage }) => {
       page,
       limit: size,
     });
-    setItems(items);
+    setItems(fetchedItems);
     setLoading(false);
   };
 
@@ -543,7 +543,7 @@ const InvoicesTab = ({ canManage }) => {
                   <span className="font-medium">Invoice Fully Paid</span>
                 </div>
               ) : (
-                <div className="text-sm opacity-70">You don't have permission to add payments.</div>
+                <div className="text-sm opacity-70">You don&apos;t have permission to add payments.</div>
               )}
 
               {/* Quick Actions */}
@@ -694,7 +694,7 @@ const POTab = ({ canManage }) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { items } = await payablesService.getPOs({
+    const { items: fetchedPOs } = await payablesService.getPOs({
       search: filters.q || undefined,
       status: filters.status === 'all' ? undefined : filters.status,
       start_date: filters.start || undefined,
@@ -703,7 +703,7 @@ const POTab = ({ canManage }) => {
       min_balance: filters.minBal || undefined,
       max_balance: filters.maxBal || undefined,
     });
-    setItems(items); setLoading(false);
+    setItems(fetchedPOs); setLoading(false);
   };
   useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.vendor, filters.minBal, filters.maxBal]);
 
@@ -1073,7 +1073,7 @@ const POTab = ({ canManage }) => {
                   <span className="font-medium">Purchase Order Fully Paid</span>
                 </div>
               ) : (
-                <div className="text-sm opacity-70">You don't have permission to add payments.</div>
+                <div className="text-sm opacity-70">You don&apos;t have permission to add payments.</div>
               )}
 
               {/* Quick Actions */}

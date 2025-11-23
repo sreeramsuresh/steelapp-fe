@@ -228,9 +228,9 @@ const Autocomplete = ({
     return dpPrev[lb];
   };
 
-  const tokenMatch = (token, label) => {
+  const tokenMatch = (token, optLabel) => {
     const t = norm(token);
-    const l = norm(label);
+    const l = norm(optLabel);
     if (!t) return true;
     if (l.includes(t)) return true;
     // fuzzy: split label into words and check any word within edit distance 1
@@ -247,14 +247,14 @@ const Autocomplete = ({
     const tokens = q.split(/\s+/).filter(Boolean);
     const scored = [];
     for (const o of opts) {
-      const label = norm(o.label || o.name || '');
-      if (!label) continue;
+      const optLabel = norm(o.label || o.name || '');
+      if (!optLabel) continue;
       let ok = true;
       let score = 0;
       for (const t of tokens) {
-        if (!tokenMatch(t, label)) { ok = false; break; }
+        if (!tokenMatch(t, optLabel)) { ok = false; break; }
         // basic score: shorter distance preferred
-        const idx = label.indexOf(norm(t));
+        const idx = optLabel.indexOf(norm(t));
         score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
       }
       if (ok) scored.push({ o, score });
@@ -994,55 +994,55 @@ const PurchaseOrderForm = () => {
 
   const handleSubmit = async (status = 'draft') => {
     // STEP 1: Validate all required fields
-    const errors = [];
+    const submitValidationErrors = [];
     const invalidFieldsSet = new Set();
 
     const poData = { ...purchaseOrder, status };
 
     // Supplier validation
     if (!poData.supplierName || poData.supplierName.trim() === '') {
-      errors.push('Supplier name is required');
+      submitValidationErrors.push('Supplier name is required');
       invalidFieldsSet.add('supplierName');
     }
 
     // Warehouse validation
     if (!selectedWarehouse) {
-      errors.push('Please select a destination warehouse');
+      submitValidationErrors.push('Please select a destination warehouse');
       invalidFieldsSet.add('warehouse');
     }
 
     // Items validation
     if (!poData.items || poData.items.length === 0) {
-      errors.push('At least one item is required');
+      submitValidationErrors.push('At least one item is required');
     } else {
       let hasValidItem = false;
       poData.items.forEach((item, index) => {
         if (!item.name || item.name.trim() === '') {
-          errors.push(`Item ${index + 1}: Product name is required`);
+          submitValidationErrors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
         } else if (item.quantity > 0) {
           hasValidItem = true;
         }
 
         if (!item.quantity || item.quantity <= 0) {
-          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+          submitValidationErrors.push(`Item ${index + 1}: Quantity must be greater than 0`);
           invalidFieldsSet.add(`item.${index}.quantity`);
         }
 
         if (!item.rate || item.rate <= 0) {
-          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+          submitValidationErrors.push(`Item ${index + 1}: Rate must be greater than 0`);
           invalidFieldsSet.add(`item.${index}.rate`);
         }
       });
 
       if (!hasValidItem) {
-        errors.push('At least one item must have a valid quantity');
+        submitValidationErrors.push('At least one item must have a valid quantity');
       }
     }
 
     // If errors exist, show them and STOP
-    if (errors.length > 0) {
-      setValidationErrors(errors);
+    if (submitValidationErrors.length > 0) {
+      setValidationErrors(submitValidationErrors);
       setInvalidFields(invalidFieldsSet);
 
       // Auto-scroll to error alert
@@ -2486,7 +2486,7 @@ const PurchaseOrderForm = () => {
               <div className={`text-center py-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 <AlertCircle size={24} className="mx-auto mb-2 opacity-50" />
                 <p>No payments recorded yet</p>
-                <p className="text-sm">Click "Add Payment" to record advance payments or deposits</p>
+                <p className="text-sm">Click &quot;Add Payment&quot; to record advance payments or deposits</p>
               </div>
             )}
           </div>

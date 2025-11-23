@@ -349,7 +349,7 @@ const QuotationForm = () => {
     e.stopPropagation();
     setPinnedProductIds(prev => {
       const newPinned = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
+        ? prev.filter(pinnedId => pinnedId !== productId)
         : [...prev, productId];
       localStorage.setItem('quotationPinnedProducts', JSON.stringify(newPinned));
       return newPinned;
@@ -664,7 +664,7 @@ const QuotationForm = () => {
       console.error('Error saving quotation:', err);
       const apiErrors = err?.response?.data?.errors;
       if (Array.isArray(apiErrors) && apiErrors.length) {
-        const msgs = apiErrors.map((e) => (typeof e === 'string' ? e : (e.message || JSON.stringify(e))));
+        const msgs = apiErrors.map((apiErr) => (typeof apiErr === 'string' ? apiErr : (apiErr.message || JSON.stringify(apiErr))));
         setError(msgs.join('\n'));
       } else if (err?.response?.data?.message) {
         setError(err.response.data.message);
@@ -696,12 +696,12 @@ const QuotationForm = () => {
   }
 
   // Input component with validation
-  const Input = ({ label, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+  const Input = ({ label, inputError, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
       }
-      if (error || validationState === 'invalid') {
+      if (inputError || validationState === 'invalid') {
         return isDarkMode ? 'border-red-500 bg-red-900/10' : 'border-red-500 bg-red-50';
       }
       if (validationState === 'valid') {
@@ -733,12 +733,12 @@ const QuotationForm = () => {
     );
   };
 
-  const Select = ({ label, children, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+  const Select = ({ label, children, selectError, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
       }
-      if (error || validationState === 'invalid') {
+      if (selectError || validationState === 'invalid') {
         return isDarkMode ? 'border-red-500 bg-red-900/10' : 'border-red-500 bg-red-50';
       }
       if (validationState === 'valid') {
@@ -1046,16 +1046,16 @@ const QuotationForm = () => {
               label="Warehouse"
               value={formData.warehouseId}
               onChange={(e) => {
-                const id = e.target.value;
-                const w = warehouses.find((wh) => wh.id.toString() === id);
+                const warehouseId = e.target.value;
+                const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
                 setFormData(prev => ({
                   ...prev,
-                  warehouseId: id,
+                  warehouseId,
                   warehouseName: w ? w.name : '',
                   warehouseCode: w ? w.code : '',
                   warehouseCity: w ? w.city : '',
                 }));
-                validateField('warehouse', id);
+                validateField('warehouse', warehouseId);
               }}
               required={formData.status !== 'draft'}
               validationState={fieldValidation.warehouse}
@@ -1169,7 +1169,7 @@ const QuotationForm = () => {
                 No items added yet
               </p>
               <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Click "Add Item" or use Quick Add buttons
+                Click &quot;Add Item&quot; or use Quick Add buttons
               </p>
             </div>
           ) : (

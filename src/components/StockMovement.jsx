@@ -101,8 +101,8 @@ const StockMovement = () => {
       });
 
       setMovements(combined);
-    } catch (error) {
-      console.error('Error fetching stock movements:', error);
+    } catch (fetchError) {
+      console.error('Error fetching stock movements:', fetchError);
       setError('Failed to load stock movements');
     } finally {
       setLoading(false);
@@ -142,8 +142,8 @@ const StockMovement = () => {
       }
       await fetchMovements();
       handleCloseDialog();
-    } catch (error) {
-      console.error('Error saving stock movement:', error);
+    } catch (saveError) {
+      console.error('Error saving stock movement:', saveError);
       setError('Failed to save stock movement');
     }
   };
@@ -161,8 +161,8 @@ const StockMovement = () => {
     try {
       await stockMovementService.deleteMovement(id);
       await fetchMovements();
-    } catch (error) {
-      console.error('Error deleting stock movement:', error);
+    } catch (deleteError) {
+      console.error('Error deleting stock movement:', deleteError);
       setError('Failed to delete stock movement');
     }
   };

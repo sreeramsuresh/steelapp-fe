@@ -76,8 +76,8 @@ const WarehouseManagement = () => {
       }));
       
       setWarehouses(transformedData);
-    } catch (error) {
-      console.error('Error fetching warehouses:', error);
+    } catch (fetchError) {
+      console.error('Error fetching warehouses:', fetchError);
       notificationService.error('Failed to load warehouses');
     } finally {
       setLoading(false);
@@ -154,10 +154,10 @@ const WarehouseManagement = () => {
       // Refresh the warehouse list
       await fetchWarehouses();
       handleCloseDialog();
-    } catch (error) {
-      console.error('Error saving warehouse:', error);
-      if (error.response?.data?.error) {
-        setError(error.response.data.error);
+    } catch (saveError) {
+      console.error('Error saving warehouse:', saveError);
+      if (saveError.response?.data?.error) {
+        setError(saveError.response.data.error);
       } else {
         setError('Failed to save warehouse');
       }
@@ -181,10 +181,10 @@ const WarehouseManagement = () => {
       // Remove from local state immediately for better UX
       setWarehouses(prev => prev.filter(w => w.id !== id));
       notificationService.success('Warehouse deleted successfully');
-    } catch (error) {
-      console.error('Error deleting warehouse:', error);
-      if (error.response?.data?.error) {
-        notificationService.error(error.response.data.error);
+    } catch (deleteError) {
+      console.error('Error deleting warehouse:', deleteError);
+      if (deleteError.response?.data?.error) {
+        notificationService.error(deleteError.response.data.error);
       } else {
         notificationService.error('Failed to delete warehouse');
       }
@@ -283,8 +283,8 @@ const WarehouseManagement = () => {
                 console.log('Seed response:', response);
                 notificationService.success(`Seeded ${response.warehousesInserted} warehouses successfully`);
                 await fetchWarehouses();
-              } catch (error) {
-                console.error('Error seeding warehouses:', error);
+              } catch (seedError) {
+                console.error('Error seeding warehouses:', seedError);
                 notificationService.error('Failed to seed warehouses');
               } finally {
                 setLoading(false);
@@ -301,8 +301,8 @@ const WarehouseManagement = () => {
                 const response = await apiClient.get('/warehouses/debug');
                 console.log('Debug response:', response);
                 notificationService.success(`Found ${response.companyCount} companies and ${response.warehouseCount} warehouses`);
-              } catch (error) {
-                console.error('Error fetching debug data:', error);
+              } catch (debugError) {
+                console.error('Error fetching debug data:', debugError);
                 notificationService.error('Failed to fetch debug data');
               }
             }}

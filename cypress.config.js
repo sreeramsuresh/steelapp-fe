@@ -27,7 +27,7 @@ export default defineConfig({
     env: {
       apiUrl: 'http://localhost:3000',
       testUserEmail: 'test@steelapp.com',
-      testUserPassword: 'testpassword123'
+      testUserPassword: 'testpassword123',
     },
     
     setupNodeEvents(on, config) {

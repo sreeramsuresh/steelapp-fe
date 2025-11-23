@@ -84,7 +84,7 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
           <p style="margin:2px 0;"><strong>Delivery Note #:</strong> ${safe(dn.deliveryNoteNumber || dn.id)}</p>
           <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoiceNumber || '')}</p>
           <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(dn.deliveryDate || dn.createdAt || new Date())}</p>
-          ${dn.status ? `<p style=\"margin:2px 0; line-height:1.5;\"><strong>Status:</strong> <span style=\"color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;\">${safe(dn.status)}</span></p>` : ''}
+          ${dn.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(dn.status)}</span></p>` : ''}
         </div>
       </div>
     </div>

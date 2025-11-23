@@ -259,7 +259,7 @@ console.log(`   - Out of stock: ${products.filter(p => p.quantityInStock === 0).
 // PHASE 1: INVOICES (200 records)
 // ============================================
 
-function generateInvoices(count = 200, customers, products) {
+function generateInvoices(count = 200, customerList, productList) {
   const invoices = [];
   const statuses = ['draft', 'proforma', 'sent', 'issued', 'overdue', 'cancelled'];
   const statusWeights = [40, 30, 40, 50, 30, 10];
@@ -267,7 +267,7 @@ function generateInvoices(count = 200, customers, products) {
   const paymentWeights = [80, 70, 50];
 
   for (let i = 1; i <= count; i++) {
-    const customer = randomChoice(customers.filter(c => c.status === 'active'));
+    const customer = randomChoice(customerList.filter(c => c.status === 'active'));
     const invoiceDate = randomDate(365, 0);
     const dueDate = new Date(invoiceDate);
     dueDate.setDate(dueDate.getDate() + (customer.paymentTerms === 'NET_7' ? 7 : 
@@ -278,12 +278,12 @@ function generateInvoices(count = 200, customers, products) {
     const paymentStatus = weightedChoice(paymentStatuses, paymentWeights);
     
     // Generate invoice items (1-15 products)
-    const itemCount = randomInt(1, Math.min(15, products.length));
+    const itemCount = randomInt(1, Math.min(15, productList.length));
     const items = [];
     let subtotal = 0;
     
     for (let j = 0; j < itemCount; j++) {
-      const product = randomChoice(products.filter(p => p.status === 'active'));
+      const product = randomChoice(productList.filter(p => p.status === 'active'));
       const quantity = randomInt(1, 100);
       const unitPrice = product.unitPrice;
       const discount = randomFloat(0, unitPrice * quantity * 0.1, 2);

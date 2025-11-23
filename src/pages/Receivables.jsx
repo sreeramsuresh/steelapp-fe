@@ -206,7 +206,7 @@ const Receivables = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { items } = await payablesService.getInvoices({
+    const { items: fetchedItems } = await payablesService.getInvoices({
       search: filters.q || undefined,
       status: filters.status === 'all' ? undefined : filters.status,
       start_date: filters.start || undefined,
@@ -218,7 +218,7 @@ const Receivables = () => {
       page,
       limit: size,
     });
-    setItems(items);
+    setItems(fetchedItems);
     setLoading(false);
   };
 
@@ -638,7 +638,7 @@ const Receivables = () => {
                   <span className="font-medium">Invoice Fully Paid</span>
                 </div>
               ) : (
-                <div className="text-sm opacity-70">You don't have permission to add payments.</div>
+                <div className="text-sm opacity-70">You don&apos;t have permission to add payments.</div>
               )}
 
               {/* Quick Actions */}

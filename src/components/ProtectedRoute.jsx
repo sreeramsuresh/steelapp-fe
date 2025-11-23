@@ -58,7 +58,7 @@ const ProtectedRoute = ({
           Access Denied
         </h1>
         <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          You don't have the required role ({requiredRole}) to access this page.
+          You don&apos;t have the required role ({requiredRole}) to access this page.
         </p>
         <div className={`mb-6 max-w-md p-4 rounded-lg border ${isDarkMode ? 'bg-yellow-900/20 border-yellow-700 text-yellow-300' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
           <p className="mb-2">
@@ -96,7 +96,7 @@ const ProtectedRoute = ({
             Insufficient Permissions
           </h1>
           <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            You don't have permission to {action} {resource}.
+            You don&apos;t have permission to {action} {resource}.
           </p>
           <div className={`mb-6 max-w-md p-4 rounded-lg border ${isDarkMode ? 'bg-blue-900/20 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
             <p className="mb-2">

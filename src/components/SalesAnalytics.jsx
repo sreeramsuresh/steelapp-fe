@@ -153,20 +153,20 @@ const SalesAnalytics = () => {
         .slice()
         .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
         .map((p) => {
-          const prev = prevMap.get(p.id) || {};
+          const prevProduct = prevMap.get(p.id) || {};
           const revGrowth = (function () {
             const c = safeNum(p.totalRevenue);
-            const pr = safeNum(prev.totalRevenue);
+            const pr = safeNum(prevProduct.totalRevenue);
             return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
           })();
           const qtyGrowth = (function () {
             const c = safeNum(p.totalSold);
-            const pr = safeNum(prev.totalSold);
+            const pr = safeNum(prevProduct.totalSold);
             return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
           })();
           const ordGrowth = (function () {
             const c = parseInt(p.timesSold || 0);
-            const pr = parseInt(prev.timesSold || 0);
+            const pr = parseInt(prevProduct.timesSold || 0);
             return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
           })();
           return {

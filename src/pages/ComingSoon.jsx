@@ -8,9 +8,9 @@ const ComingSoon = ({ title }) => {
       <div className="coming-soon-content">
         <Construction size={64} className="coming-soon-icon" />
         <h1>{title}</h1>
-        <p>This feature is coming soon! We're working hard to bring you the best steel business management tools.</p>
+        <p>This feature is coming soon! We&apos;re working hard to bring you the best steel business management tools.</p>
         <div className="coming-soon-features">
-          <h3>What's planned:</h3>
+          <h3>What&apos;s planned:</h3>
           <ul>
             {title === 'Customer Management' && (
               <>

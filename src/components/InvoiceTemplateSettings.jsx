@@ -446,7 +446,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               <p className={`text-xs ${
                 isDarkMode ? 'text-yellow-400/80' : 'text-yellow-700'
               }`}>
-                Click "Save Changes" to apply your modifications, or "Reset to Defaults" to discard them.
+                Click &quot;Save Changes&quot; to apply your modifications, or &quot;Reset to Defaults&quot; to discard them.
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -593,7 +593,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 <h4 className="font-semibold text-yellow-800 mb-1">Advanced Settings</h4>
                 <p className="text-sm text-yellow-700">
                   These settings control the detailed appearance of your invoices. Incorrect values may cause layout issues.
-                  Use the "Preview PDF" button to test your changes before saving.
+                  Use the &quot;Preview PDF&quot; button to test your changes before saving.
                 </p>
               </div>
             </div>

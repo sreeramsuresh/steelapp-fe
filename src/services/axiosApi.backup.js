@@ -27,7 +27,7 @@ const cookie = {
     const match = document.cookie.match(
       new RegExp(
         `(?:^|; )${ 
-          name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') 
+          name.replace(/([.$?*|{}()[\]/+^])/g, '\\$1') 
         }=([^;]*)`,
       ),
     );

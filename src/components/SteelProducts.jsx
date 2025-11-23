@@ -1705,7 +1705,7 @@ const SteelProducts = () => {
                         )}
                         {(selectedProduct.length) && (
                           <div className="flex justify-between py-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length ("):</span>
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length (&quot;):</span>
                             <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {selectedProduct.length}
                             </span>

@@ -268,8 +268,8 @@ export const purchaseOrdersAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import('./axiosApi');
-    const blob = await apiService.request({
+    const { apiService: pdfApiService } = await import('./axiosApi');
+    const blob = await pdfApiService.request({
       method: 'GET',
       url: `/purchase-orders/${id}/pdf`,
       responseType: 'blob',
@@ -315,8 +315,8 @@ export const accountStatementsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import('./axiosApi');
-    const blob = await apiService.request({
+    const { apiService: stmtApiService } = await import('./axiosApi');
+    const blob = await stmtApiService.request({
       method: 'GET',
       url: `/account-statements/${id}/pdf`,
       responseType: 'blob',
@@ -334,8 +334,8 @@ export const accountStatementsAPI = {
 
   // Generate statement on-the-fly without saving
   generateOnTheFly: async (data) => {
-    const { apiService } = await import('./axiosApi');
-    const blob = await apiService.request({
+    const { apiService: genApiService } = await import('./axiosApi');
+    const blob = await genApiService.request({
       method: 'POST',
       url: '/account-statements/generate',
       data,
@@ -493,8 +493,8 @@ export const quotationsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService } = await import('./axiosApi');
-    const blob = await apiService.request({
+    const { apiService: quotationApiService } = await import('./axiosApi');
+    const blob = await quotationApiService.request({
       method: 'GET',
       url: `/quotations/${id}/pdf`,
       responseType: 'blob',

@@ -670,7 +670,7 @@ const CreditNoteForm = () => {
                       <div className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
                         isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-300 text-gray-600'
                       }`}>
-                        No issued invoices found matching "{searchQuery}"
+                        No issued invoices found matching &quot;{searchQuery}&quot;
                       </div>
                     )}
 

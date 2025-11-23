@@ -16,21 +16,21 @@ export const companyService = {
     return company;
   },
 
-  async updateCompany(companyData) {
+  async updateCompany(updateData) {
     await delay();
     company = {
       ...company,
-      ...companyData,
+      ...updateData,
       updatedAt: new Date().toISOString(),
     };
     return company;
   },
 
-  async updateCompanyById(id, companyData) {
+  async updateCompanyById(id, updateData) {
     await delay();
     company = {
       ...company,
-      ...companyData,
+      ...updateData,
       id: parseInt(id),
       updatedAt: new Date().toISOString(),
     };

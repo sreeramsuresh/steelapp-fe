@@ -128,7 +128,7 @@ const DeliveryNoteDetails = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDateLocal = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'long',

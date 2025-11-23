@@ -218,7 +218,7 @@ const Dashboard = () => {
             📊 Dashboard
           </h1>
           <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Welcome back! Here's what's happening with your business.
+            Welcome back! Here&apos;s what&apos;s happening with your business.
           </p>
         </div>
       </div>
@@ -439,7 +439,7 @@ const Dashboard = () => {
               <div className="flex-1 max-h-48 md:max-h-64 overflow-y-auto pr-0 sm:pr-2">
                 {topProducts.length > 0 ? (
                   topProducts.map((product, index) => {
-                    const getGradient = (index) => {
+                    const getGradient = (gradientIndex) => {
                       const gradients = [
                         'from-indigo-500 to-purple-600',
                         'from-emerald-500 to-green-600', 

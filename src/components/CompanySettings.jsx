@@ -719,7 +719,7 @@ const CompanySettings = () => {
         return;
       }
 
-      const companyData = {
+      const updateData = {
         name: companyProfile.name.trim(),
         address: {
           street: companyProfile.address || '',
@@ -741,9 +741,9 @@ const CompanySettings = () => {
         },
       };
       
-      console.log('Sending company data:', companyData);
+      console.log('Sending company data:', updateData);
       
-      await updateCompany(companyData);
+      await updateCompany(updateData);
       notificationService.success('Company profile saved successfully!');
       refetchCompany();
     } catch (error) {
@@ -858,7 +858,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, logo_url: newLogoUrl }));
 
       // Save to database
-      const companyData = {
+      const logoUpdateData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -878,7 +878,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(logoUpdateData);
 
       notificationService.success('Logo uploaded successfully!');
       refetchCompany();
@@ -907,7 +907,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, logo_url: null }));
 
       // Save to database
-      const companyData = {
+      const logoDeleteData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -924,7 +924,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(logoDeleteData);
 
       notificationService.success('Logo deleted successfully!');
       refetchCompany();
@@ -977,7 +977,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, brandmark_url: relativeBrandmarkUrl }));
 
       // Save to database (store relative path only)
-      const companyData = {
+      const brandmarkUpdateData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -995,7 +995,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(brandmarkUpdateData);
 
       notificationService.success('Brandmark uploaded successfully!');
       refetchCompany();
@@ -1026,7 +1026,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
 
       // Save to database
-      const companyData = {
+      const brandmarkDeleteData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -1046,7 +1046,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(brandmarkDeleteData);
 
       notificationService.success('Brandmark deleted successfully!');
       refetchCompany();
@@ -1102,7 +1102,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, pdf_seal_url: relativeSealUrl }));
 
       // Save to database (store relative path only)
-      const companyData = {
+      const sealUpdateData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -1122,7 +1122,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(sealUpdateData);
 
       notificationService.success('Company seal uploaded successfully!');
       refetchCompany();
@@ -1160,7 +1160,7 @@ const CompanySettings = () => {
       setCompanyProfile(prev => ({ ...prev, pdf_seal_url: null }));
 
       // Save to database
-      const companyData = {
+      const sealDeleteData = {
         name: companyProfile.name,
         address: {
           street: companyProfile.address,
@@ -1180,7 +1180,7 @@ const CompanySettings = () => {
           iban: '',
         },
       };
-      await updateCompany(companyData);
+      await updateCompany(sealDeleteData);
 
       notificationService.success('Company seal deleted successfully!');
       refetchCompany();
@@ -1309,15 +1309,15 @@ const CompanySettings = () => {
       const newStatus = u.status === 'active' ? 'inactive' : 'active';
       await userAdminAPI.update(userId, { status: newStatus });
       const remoteUsers = await userAdminAPI.list();
-      const mapped = remoteUsers.map(u => ({
-        id: String(u.id),
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        status: u.status || 'active',
-        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.lastLogin || u.lastLogin || null,
-        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+      const mapped = remoteUsers.map(user => ({
+        id: String(user.id),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status || 'active',
+        createdAt: (user.createdAt || user.createdAt || '').toString().substring(0,10),
+        lastLogin: user.lastLogin || user.lastLogin || null,
+        permissions: typeof user.permissions === 'string' ? JSON.parse(user.permissions) : (user.permissions || {}),
       }));
       setUsers(mapped);
       notificationService.success('User status updated');
@@ -3409,8 +3409,8 @@ const CompanySettings = () => {
             <div className="flex items-start gap-3">
               <AlertCircle size={20} className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-yellow-800 dark:text-yellow-300">
-                <strong>Note:</strong> Printer selection works when using the browser's print dialog.
-              For automatic printing, configure your browser's default printer settings.
+                <strong>Note:</strong> Printer selection works when using the browser&apos;s print dialog.
+              For automatic printing, configure your browser&apos;s default printer settings.
               </div>
             </div>
           </div>

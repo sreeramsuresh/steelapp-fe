@@ -555,9 +555,9 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                 <div>
                   <div className="text-sm font-semibold mb-2">How to Do It:</div>
                   <div className={`p-3 rounded text-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    <div>1. Click on user's custom permissions</div>
-                    <div>2. Grant "Void Invoices" permission</div>
-                    <div>3. Set reason: "Year-end cleanup"</div>
+                    <div>1. Click on user&apos;s custom permissions</div>
+                    <div>2. Grant &quot;Void Invoices&quot; permission</div>
+                    <div>3. Set reason: &quot;Year-end cleanup&quot;</div>
                     <div>4. Set expiry: December 31, 2025</div>
                     <div className="mt-2 pt-2 border-t border-purple-500/30 text-green-400">
                       ✓ Permission automatically expires

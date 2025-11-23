@@ -590,8 +590,8 @@ const DeliveryNoteForm = () => {
                     Please fix the following errors:
                   </h4>
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
+                    {validationErrors.map((validationError, index) => (
+                      <li key={index}>{validationError}</li>
                     ))}
                   </ul>
                   <button

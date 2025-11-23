@@ -22,6 +22,7 @@ import {
   CircleDollarSign,
   FileMinus,
   Award,
+  ReceiptText,
 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -317,10 +318,10 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const company = createCompany();
 
   // Process delivery note status from invoice data
-  const processDeliveryNoteStatus = (invoices) => {
+  const processDeliveryNoteStatus = (invoiceList) => {
     const statusMap = {};
 
-    invoices.forEach((invoice) => {
+    invoiceList.forEach((invoice) => {
       if (invoice.deliveryStatus) {
         statusMap[invoice.id] = {
           hasNotes: invoice.deliveryStatus.hasNotes,
@@ -692,8 +693,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
     try {
       // Use the backend PDF endpoint instead of regenerating
-      const { apiClient } = await import('../services/api');
-      const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
+      const { apiClient: pdfClient } = await import('../services/api');
+      const response = await pdfClient.get(`/invoices/${invoice.id}/pdf`, {
         responseType: 'blob',
       });
 
@@ -1108,12 +1109,12 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     let failCount = 0;
 
     // Import apiClient for PDF downloads
-    const { apiClient } = await import('../services/api');
+    const { apiClient: bulkPdfClient } = await import('../services/api');
 
     for (const invoice of validInvoices) {
       try {
         // Use backend PDF endpoint
-        const response = await apiClient.get(`/invoices/${invoice.id}/pdf`, {
+        const response = await bulkPdfClient.get(`/invoices/${invoice.id}/pdf`, {
           responseType: 'blob',
         });
 
@@ -1162,8 +1163,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       });
       if (!confirmed) return;
       // Create delivery note using axios client (auth + baseURL + refresh)
-      const { apiClient } = await import('../services/api');
-      const resp = await apiClient.post(`/invoices/${invoice.id}/generate-delivery-note`);
+      const { apiClient: deliveryClient } = await import('../services/api');
+      const resp = await deliveryClient.post(`/invoices/${invoice.id}/generate-delivery-note`);
       const dn = resp?.deliveryNote || resp?.data?.deliveryNote || resp;
 
       notificationService.createSuccess('Delivery note');
@@ -2055,14 +2056,14 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   ) : (
                                     <button
                                       onClick={() => navigate(actions.primaryAction.link)}
-                                      className={`p-2 rounded transition-all shadow-md hover:shadow-lg ${
+                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                                         isDarkMode
-                                          ? 'bg-green-500 hover:bg-green-400 text-white'
-                                          : 'bg-green-400 hover:bg-green-500 text-white'
+                                          ? 'text-teal-400 hover:text-teal-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-teal-50 text-teal-600 bg-white'
                                       }`}
                                       title={actions.primaryAction.tooltip}
                                     >
-                                      <FileMinus size={18} />
+                                      <ReceiptText size={18} />
                                     </button>
                                   )
                                 ) : (
@@ -2444,6 +2445,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         onClose={handleClosePaymentReminder}
         invoice={paymentReminderInvoice}
         onSave={handlePaymentReminderSaved}
+        isViewOnly={paymentReminderInvoice?.paymentStatus === 'paid'}
       />
 
       {/* Record Payment Drawer - Mobile responsive */}

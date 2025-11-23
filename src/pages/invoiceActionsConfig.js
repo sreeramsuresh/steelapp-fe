@@ -105,10 +105,17 @@ export function getInvoiceActionButtonConfig(
         : 'No reminder needed',
     },
     phone: {
-      enabled: !isDeleted,
+      // Disable for deleted invoices
+      // For fully paid invoices: only enable if reminders exist (view-only mode)
+      enabled: !isDeleted && !(invoice.paymentStatus === 'paid' && (invoice.reminderCount === 0 || invoice.reminderCount === undefined)),
       tooltip: isDeleted
         ? 'Cannot add notes to deleted invoice'
-        : 'Payment Reminder - Phone Call Notes',
+        : invoice.paymentStatus === 'paid' && (invoice.reminderCount === 0 || invoice.reminderCount === undefined)
+          ? 'No payment reminders for this paid invoice'
+          : invoice.paymentStatus === 'paid'
+            ? 'View Payment Reminder Notes (Read-only)'
+            : 'Payment Reminder - Phone Call Notes',
+      isViewOnly: invoice.paymentStatus === 'paid',
     },
     statement: {
       enabled: canReadCustomers,

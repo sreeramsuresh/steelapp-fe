@@ -90,8 +90,8 @@ const Login = ({ onLoginSuccess }) => {
         if (onLoginSuccess) {
           onLoginSuccess(response.user);
         }
-      } catch (error) {
-        console.error('❌ Auto-login failed:', error.message);
+      } catch (autoLoginError) {
+        console.error('❌ Auto-login failed:', autoLoginError.message);
         // Don't show error to user, just let them login manually
       } finally {
         setLoading(false);
@@ -112,8 +112,8 @@ const Login = ({ onLoginSuccess }) => {
       if (onLoginSuccess) {
         onLoginSuccess(response.user);
       }
-    } catch (error) {
-      setError(error.message || 'Authentication failed');
+    } catch (loginError) {
+      setError(loginError.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }

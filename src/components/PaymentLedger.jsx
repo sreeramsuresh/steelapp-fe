@@ -155,7 +155,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
               isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}
           >
-            No payments recorded yet. Click "Add Payment" to record a payment.
+            No payments recorded yet. Click &quot;Add Payment&quot; to record a payment.
           </p>
         </div>
       ) : (

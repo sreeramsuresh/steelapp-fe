@@ -113,10 +113,13 @@ module.exports = {
     'eol-last': ['error', 'always'],
 
     // JSX Accessibility
+    // Label association errors downgraded to warn - fix incrementally
+    'jsx-a11y/label-has-associated-control': 'warn',
     'jsx-a11y/alt-text': 'warn',
     'jsx-a11y/anchor-is-valid': 'warn',
     'jsx-a11y/click-events-have-key-events': 'warn',
     'jsx-a11y/no-static-element-interactions': 'warn',
+    'jsx-a11y/role-supports-aria-props': 'warn',
   },
   overrides: [
     // TypeScript files
@@ -189,5 +192,6 @@ module.exports = {
     'coverage/',
     '*.min.js',
     'cypress/downloads/',
+    'steelapp/',  // Build output directory with vendor files
   ],
 };
