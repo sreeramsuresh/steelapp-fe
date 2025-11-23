@@ -28,7 +28,7 @@ export const NotificationCenterProvider = ({ children }) => {
 
   const persist = (next) => {
     setNotifications(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore storage errors */ }
   };
 
   const normalize = (list = []) => list.map(n => ({

@@ -30,10 +30,9 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { createCompany } from '../types';
 import { invoiceService } from '../services/dataService';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
-import { deliveryNotesAPI, accountStatementsAPI } from '../services/api';
+import { deliveryNotesAPI, accountStatementsAPI, apiClient } from '../services/api';
 import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
-import { apiClient } from '../services/api';
 import { uuid } from '../utils/uuid';
 import { commissionService } from '../services/commissionService';
 import InvoicePreview from '../components/InvoicePreview';
@@ -288,7 +287,18 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [showDeleted, setShowDeleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  // Page size: default 10, max 30, persisted in sessionStorage
+  const [pageSize, setPageSize] = useState(() => {
+    const stored = sessionStorage.getItem('invoiceListPageSize');
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      // Normalize to valid options: 10, 20, 30
+      if (parsed >= 30) return 30;
+      if (parsed >= 20) return 20;
+      return 10;
+    }
+    return 10; // Default
+  });
   const [downloadingIds, setDownloadingIds] = useState(new Set());
   const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
   const [calculatingCommissionIds, setCalculatingCommissionIds] = useState(new Set());
@@ -535,8 +545,13 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   };
 
   const handlePageSizeChange = (event) => {
-    setPageSize(event.target.value);
+    const newSize = parseInt(event.target.value, 10);
+    // Clamp to valid options: 10, 20, 30
+    const validSize = newSize >= 30 ? 30 : (newSize >= 20 ? 20 : 10);
+    setPageSize(validSize);
     setCurrentPage(1);
+    // Persist to sessionStorage
+    sessionStorage.setItem('invoiceListPageSize', validSize.toString());
   };
 
 
@@ -1741,9 +1756,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
               }`}
             >
               <option value={10}>10 per page</option>
-              <option value={15}>15 per page</option>
               <option value={20}>20 per page</option>
-              <option value={25}>25 per page</option>
+              <option value={30}>30 per page</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ChevronDown

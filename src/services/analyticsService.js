@@ -5,10 +5,15 @@ export const analyticsService = {
   normalizeParams(params = {}) {
     if (!params) return {};
     const p = { ...params };
-    if (p.startDate && !p.startDate) p.startDate = p.startDate;
-    if (p.endDate && !p.endDate) p.endDate = p.endDate;
-    delete p.startDate;
-    delete p.endDate;
+    // Convert camelCase date params to snake_case if present
+    if (p.startDate) {
+      p.start_date = p.startDate;
+      delete p.startDate;
+    }
+    if (p.endDate) {
+      p.end_date = p.endDate;
+      delete p.endDate;
+    }
     return p;
   },
 

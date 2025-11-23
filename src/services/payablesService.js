@@ -13,7 +13,7 @@ const ls = {
     try { return JSON.parse(localStorage.getItem(LS_KEYS[scope]) || '{}'); } catch { return {}; }
   },
   saveAll(scope, data) {
-    try { localStorage.setItem(LS_KEYS[scope], JSON.stringify(data)); } catch {}
+    try { localStorage.setItem(LS_KEYS[scope], JSON.stringify(data)); } catch { /* ignore storage errors */ }
   },
   get(scope, id) {
     const all = ls.getAll(scope); return all[id] || [];

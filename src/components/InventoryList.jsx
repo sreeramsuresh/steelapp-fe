@@ -216,14 +216,13 @@ const InventoryList = () => {
 
   // Product catalog search with simple debounce
   useEffect(() => {
-    let t;
     if (!openDialog) return;
     if (!productQuery || productQuery.trim().length < 2) {
       setProductOptions([]);
       return;
     }
     setProductSearching(true);
-    t = setTimeout(async () => {
+    const t = setTimeout(async () => {
       try {
         const res = await productService.searchProducts(productQuery, { limit: 10 });
         const rows = res?.data || res?.products || res || [];

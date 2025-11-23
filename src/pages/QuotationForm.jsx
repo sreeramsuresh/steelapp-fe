@@ -20,8 +20,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { quotationsAPI, customersAPI, productsAPI } from '../services/api';
-import { apiClient } from '../services/api';
+import { quotationsAPI, customersAPI, productsAPI, apiClient } from '../services/api';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
 

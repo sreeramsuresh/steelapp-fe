@@ -354,7 +354,7 @@ export default function PriceListForm() {
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                   <Typography variant="h6">Product Prices</Typography>
                   <Button
-                    startIcon={<TrendingUp />}
+                    startIcon={<IncreaseIcon />}
                     onClick={() => setBulkDialog(true)}
                   >
                     Bulk Price Adjustment

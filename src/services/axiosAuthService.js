@@ -167,6 +167,8 @@ class AuthService {
   clearSession() {
     console.log('[Auth] Clearing session - User will be logged out');
     tokenUtils.clearSession();
+    // Clear page size preferences on logout
+    sessionStorage.removeItem('invoiceListPageSize');
   }
 
   // Authentication status

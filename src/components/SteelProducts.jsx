@@ -1193,22 +1193,22 @@ const SteelProducts = () => {
                     {(/pipe|tube/i.test(newProduct.category || '')) ? (
                       <>
                         <Input
-                          label={'Size (inch \" )'}
+                          label={'Size (inch " )'}
                           value={newProduct.sizeInch}
                           onChange={(e) => setNewProduct({ ...newProduct, sizeInch: e.target.value })}
-                          placeholder={'e.g., 2\"'}
+                          placeholder={'e.g., 2"'}
                         />
                         <Input
-                          label={'OD (\")'}
+                          label={'OD (")'}
                           value={newProduct.od}
                           onChange={(e) => setNewProduct({ ...newProduct, od: e.target.value })}
-                          placeholder={'e.g., 2\"'}
+                          placeholder={'e.g., 2"'}
                         />
                         <Input
-                          label={'Length (\")'}
+                          label={'Length (")'}
                           value={newProduct.length}
                           onChange={(e) => setNewProduct({ ...newProduct, length: e.target.value })}
-                          placeholder={'e.g., 96\"'}
+                          placeholder={'e.g., 96"'}
                         />
                       </>
                     ) : (
@@ -1499,17 +1499,17 @@ const SteelProducts = () => {
                   {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                     <>
                       <Input
-                        label={'Size (inch \" )'}
+                        label={'Size (inch " )'}
                         value={selectedProduct.sizeInch || ''}
                         onChange={(e) => setSelectedProduct({ ...selectedProduct, sizeInch: e.target.value })}
                       />
                       <Input
-                        label={'OD (\")'}
+                        label={'OD (")'}
                         value={selectedProduct.od || ''}
                         onChange={(e) => setSelectedProduct({ ...selectedProduct, od: e.target.value })}
                       />
                       <Input
-                        label={'Length (\")'}
+                        label={'Length (")'}
                         value={selectedProduct.length || ''}
                         onChange={(e) => setSelectedProduct({ ...selectedProduct, length: e.target.value })}
                       />

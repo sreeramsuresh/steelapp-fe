@@ -4,7 +4,7 @@ const LS_KEY = 'steel-app-suppliers';
 
 const ls = {
   all() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } },
-  save(list) { try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch {} },
+  save(list) { try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch { /* ignore storage errors */ } },
   upsert(s) { const list = ls.all(); const idx = list.findIndex(x => x.id === s.id); if (idx >= 0) list[idx] = s; else list.push(s); ls.save(list); return s; },
   remove(id) { const list = ls.all().filter(x => x.id !== id); ls.save(list); },
 };

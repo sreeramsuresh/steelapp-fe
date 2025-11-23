@@ -50,6 +50,7 @@ const ProtectedRoute = ({
 
   // DEVELOPMENT MODE: Skip role check
   // Check role-based access
+  // eslint-disable-next-line no-constant-condition
   if (false && requiredRole && !authService.hasRole(requiredRole)) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
@@ -85,6 +86,7 @@ const ProtectedRoute = ({
 
   // DEVELOPMENT MODE: Skip permission check
   // Check permission-based access
+  // eslint-disable-next-line no-constant-condition
   if (false && requiredPermission) {
     const [resource, action] = requiredPermission.split('.');
 

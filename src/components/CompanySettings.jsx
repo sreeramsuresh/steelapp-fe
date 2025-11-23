@@ -969,7 +969,7 @@ const CompanySettings = () => {
       console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
 
       // Save only the relative path to database (not the full URL)
-      const relativeBrandmarkUrl = brandmarkUrl.startsWith('/uploads/') ? brandmarkUrl : brandmarkUrl.replace(/^https?:\/\/[^\/]+/, '');
+      const relativeBrandmarkUrl = brandmarkUrl.startsWith('/uploads/') ? brandmarkUrl : brandmarkUrl.replace(/^https?:\/\/[^/]+/, '');
 
       console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
 
@@ -1094,7 +1094,7 @@ const CompanySettings = () => {
 
       // Save only the relative path to database (not the full URL)
       // This ensures consistency when fetching from database later
-      const relativeSealUrl = sealUrl.startsWith('/uploads/') ? sealUrl : sealUrl.replace(/^https?:\/\/[^\/]+/, '');
+      const relativeSealUrl = sealUrl.startsWith('/uploads/') ? sealUrl : sealUrl.replace(/^https?:\/\/[^/]+/, '');
 
       console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
 

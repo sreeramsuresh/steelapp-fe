@@ -277,11 +277,24 @@ const muiTheme = createTheme({
                 opacity: 1,
               },
             },
+            '& input[type="number"]': {
+              appearance: 'textfield',
+              '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                appearance: 'none',
+                margin: 0,
+              },
+            },
           },
           '& .MuiInputLabel-root': {
             color: '#78909C',
+            transform: 'translate(14px, 16px) scale(1)',
             '&.Mui-focused': {
               color: '#008B8B',
+            },
+            '&.MuiInputLabel-shrink': {
+              transform: 'translate(14px, -9px) scale(0.75)',
+              backgroundColor: 'transparent',
+              padding: '0 4px',
             },
           },
           '& .MuiOutlinedInput-input': {
@@ -429,29 +442,6 @@ const muiTheme = createTheme({
         select: {
           color: '#FFFFFF !important',
           backgroundColor: 'transparent !important',
-        },
-      },
-    },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiInputLabel-root': {
-            transform: 'translate(14px, 16px) scale(1)',
-            '&.MuiInputLabel-shrink': {
-              transform: 'translate(14px, -9px) scale(0.75)',
-              backgroundColor: 'transparent',
-              padding: '0 4px',
-            },
-          },
-          '& .MuiOutlinedInput-root': {
-            '& input[type="number"]': {
-              appearance: 'textfield',
-              '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                appearance: 'none',
-                margin: 0,
-              },
-            },
-          },
         },
       },
     },

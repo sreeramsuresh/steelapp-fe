@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, FileText, ChevronDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { accountStatementsAPI } from '../services/api';
-import { apiClient } from '../services/api';
+import { accountStatementsAPI, apiClient } from '../services/api';
 
 const AccountStatementForm = () => {
   const navigate = useNavigate();

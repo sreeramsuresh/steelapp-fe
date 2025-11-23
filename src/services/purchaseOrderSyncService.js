@@ -114,15 +114,10 @@ class PurchaseOrderSyncService {
    * @param {string} warehouseId - Warehouse ID
    * @returns {Array} - Array of matching inventory items
    */
-  async findExistingInventoryItem(item, warehouseId) {
-    try {
-      // This would ideally use a search API endpoint
-      // For now, we'll create new items to avoid complexity
-      return [];
-    } catch (error) {
-      console.warn('Error finding existing inventory item:', error);
-      return [];
-    }
+  async findExistingInventoryItem(_item, _warehouseId) {
+    // This would ideally use a search API endpoint
+    // For now, we'll create new items to avoid complexity
+    return [];
   }
   
   /**

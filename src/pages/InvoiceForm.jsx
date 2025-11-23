@@ -910,7 +910,7 @@ const InvoiceForm = ({ onSave }) => {
       case 'paymentMode':
         isValid = value && value.trim() !== '';
         break;
-      case 'warehouse':
+      case 'warehouse': {
         // Warehouse is optional for drafts, required for issued/proforma
         const invoiceStatus = invoice?.status || 'draft';
         if (invoiceStatus === 'draft') {
@@ -919,6 +919,7 @@ const InvoiceForm = ({ onSave }) => {
           isValid = value && String(value).trim() !== '';
         }
         break;
+      }
       case 'currency':
         isValid = value && value.trim() !== '';
         break;
@@ -1047,7 +1048,7 @@ const InvoiceForm = ({ onSave }) => {
     [id],
     !!id,
   );
-  const { data: nextInvoiceData } = useApiData(
+  const { data: nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
     () => invoiceService.getNextInvoiceNumber(),
     [],
     !id,
@@ -2377,7 +2378,7 @@ const InvoiceForm = ({ onSave }) => {
                       onClick={() => {
                         if (window.confirm('Discard all changes to this invoice? This cannot be undone.')) {
                           clearLocalDraft();
-                          setInvoice(createEmptyInvoice());
+                          setInvoice(createInvoice());
                           notificationService.info('Changes discarded');
                         }
                       }}
