@@ -173,7 +173,7 @@ class CreditNoteService {
   // Cancel the credit note (any except completed -> cancelled)
   async cancelCreditNote(id, cancellationReason = '') {
     const response = await apiClient.post(`${this.endpoint}/${id}/cancel`, { 
-      cancellation_reason: cancellationReason 
+      cancellation_reason: cancellationReason, 
     });
     return transformCreditNoteFromServer(response);
   }

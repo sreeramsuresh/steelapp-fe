@@ -69,7 +69,7 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
 
   // Filter out current user's sessions
   const otherSessions = activeSessions.filter(
-    (s) => String(s.userId) !== String(currentUser?.id)
+    (s) => String(s.userId) !== String(currentUser?.id),
   );
 
   // Lifecycle: start session, heartbeat, fetch sessions

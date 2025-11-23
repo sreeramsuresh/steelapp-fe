@@ -46,7 +46,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
           warehouseId: item.warehouseId || item.warehouse_id || 0,
           scrapReasonCategory: 'OTHER',
           scrapReason: '',
-        }))
+        })),
       );
     }
   }, [creditNote]);

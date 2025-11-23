@@ -96,7 +96,7 @@ const useKeyboardShortcuts = (
     enabled = true, 
     enableInInputs = false,
     allowInInputs = ['escape', 'esc'],
-  } = {}
+  } = {},
 ) => {
   // Store shortcuts in ref to avoid re-registering on every render
   const shortcutsRef = useRef(shortcuts);
@@ -126,7 +126,7 @@ const useKeyboardShortcuts = (
         if (isEditable && !enableInInputs) {
           const shortcutLower = shortcutKey.toLowerCase();
           const isAllowed = allowInInputs.some(
-            allowed => shortcutLower.includes(allowed.toLowerCase())
+            allowed => shortcutLower.includes(allowed.toLowerCase()),
           );
           if (!isAllowed) continue;
         }

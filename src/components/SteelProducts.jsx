@@ -664,9 +664,9 @@ const SteelProducts = () => {
           className={`
             relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200
             ${showSpeedButtons
-              ? 'bg-teal-500'
-              : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
-            }
+      ? 'bg-teal-500'
+      : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
+    }
           `}
           title={showSpeedButtons ? 'Hide quick filters' : 'Show quick filters'}
         >

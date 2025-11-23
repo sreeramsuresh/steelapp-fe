@@ -1102,7 +1102,7 @@ const InvoiceForm = ({ onSave }) => {
           setShowDraftRecoveryModal(true);
         }
       },
-    }
+    },
   );
 
   // Get auto-save status display for UI
@@ -2269,7 +2269,7 @@ const InvoiceForm = ({ onSave }) => {
     {
       enabled: !showPreview, // Disable when preview is open (it has its own handlers)
       allowInInputs: ['escape'], // Allow Escape in inputs to close modals
-    }
+    },
   );
 
   // Clear local draft when invoice is saved successfully to server

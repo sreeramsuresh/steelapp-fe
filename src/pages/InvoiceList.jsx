@@ -311,7 +311,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   // Presence tracking for payment drawer
   const { otherSessions, updateMode } = useInvoicePresence(
     showRecordPaymentDrawer ? paymentDrawerInvoice?.id : null,
-    'payment'
+    'payment',
   );
 
   const company = createCompany();

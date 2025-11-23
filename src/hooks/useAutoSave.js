@@ -80,7 +80,7 @@ const useAutoSave = (
     enabled = true,
     debounceMs = DEFAULT_DEBOUNCE_MS,
     onRecover = null,
-  } = {}
+  } = {},
 ) => {
   // State
   const [status, setStatus] = useState('saved'); // 'saved' | 'saving' | 'unsaved' | 'recovered'
