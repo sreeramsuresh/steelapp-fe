@@ -527,6 +527,9 @@ const CompanySettings = () => {
 
   const [savingPrintingSettings, setSavingPrintingSettings] = useState(false);
 
+  // Image section collapse state
+  const [imagesExpanded, setImagesExpanded] = useState(false);
+
   // Formatters
   const formatDateTime = (value) => {
     if (!value) return 'Never';
@@ -1574,8 +1577,8 @@ const CompanySettings = () => {
 
   const renderProfile = () => (
     <SettingsPaper>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
           <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Company Profile
           </h3>
@@ -1589,261 +1592,10 @@ const CompanySettings = () => {
           </Button>
         </div>
 
-        <div className="space-y-6">
-          {/* Logo, Brandmark, and Seal Section - Side by Side */}
-          <SettingsCard>
-            <div className="p-6">
-              <h4 className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Company Images
-              </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Logo Section */}
-                <div className="flex flex-col">
-                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Company Logo
-                  </h5>
-                  <div className="flex flex-col space-y-4">
-                    <LogoContainer>
-                      {uploadingLogo ? (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
-                        </div>
-                      ) : companyProfile.logoUrl ? (
-                        <div className="relative w-full h-full">
-                          {console.log('Rendering logo with URL:', companyProfile.logoUrl)}
-                          <img 
-                            src={`${companyProfile.logoUrl}?t=${Date.now()}`}
-                            alt="Company Logo"
-                            className="w-full h-full object-contain rounded-lg"
-                            crossOrigin="anonymous"
-                            onLoad={() => console.log('Logo loaded successfully:', companyProfile.logoUrl)}
-                            onError={(e) => {
-                              console.error('Logo failed to load:', companyProfile.logoUrl, e);
-                              console.error('Image load error details:', e.type, e.target?.src);
-                              // Try to reload without cache-busting query first
-                              if (e.target.src.includes('?t=')) {
-                                console.log('Retrying without cache-busting query...');
-                                e.target.src = companyProfile.logoUrl;
-                              } else {
-                                // If that also fails, show upload option
-                                setCompanyProfile(prev => ({ ...prev, logoUrl: null }));
-                              }
-                            }}
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                          />
-                          <button
-                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                            onClick={handleLogoDelete}
-                            title="Delete logo"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Logo</span>
-                        </div>
-                      )}
-                    </LogoContainer>
-
-                    <div className="space-y-2">
-                      <input
-                        type="file"
-                        id="logo-upload"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                      />
-                      <label htmlFor="logo-upload" className="cursor-pointer">
-                        <Button
-                          as="span"
-                          variant="outline"
-                          size="sm"
-                          startIcon={uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
-                          disabled={uploadingLogo}
-                        >
-                          {uploadingLogo ? 'Uploading...' : 'Upload'}
-                        </Button>
-                      </label>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Max: 50KB
-                      </p>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={companyProfile.useLogoInPdf || false}
-                          onChange={(e) => {
-                            const useInPdf = e.target.checked;
-                            setCompanyProfile(prev => ({
-                              ...prev,
-                              useLogoInPdf: useInPdf,
-                              pdfLogoUrl: useInPdf ? prev.logoUrl : null,
-                            }));
-                          }}
-                          className="mr-2"
-                        />
-                        <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      Use in PDFs
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Brandmark Section */}
-                <div className="flex flex-col">
-                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Company Brandmark
-                  </h5>
-                  <div className="flex flex-col space-y-4">
-                    <LogoContainer>
-                      {uploadingBrandmark ? (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
-                        </div>
-                      ) : companyProfile.brandmarkUrl ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={`${companyProfile.brandmarkUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
-                            alt="Company Brandmark"
-                            className="w-full h-full object-contain rounded-lg"
-                            crossOrigin="anonymous"
-                            onError={(e) => {
-                              if (e.target.src.includes('?t=')) {
-                                const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
-                                e.target.src = companyProfile.brandmarkUrl.startsWith('/') ? baseUrl + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl;
-                              } else {
-                                setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
-                              }
-                            }}
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                          />
-                          <button
-                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                            onClick={handleBrandmarkDelete}
-                            title="Delete brandmark"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Brandmark</span>
-                        </div>
-                      )}
-                    </LogoContainer>
-
-                    <div className="space-y-2">
-                      <input
-                        type="file"
-                        id="brandmark-upload"
-                        accept="image/*"
-                        onChange={handleBrandmarkUpload}
-                        className="hidden"
-                      />
-                      <label htmlFor="brandmark-upload" className="cursor-pointer">
-                        <Button
-                          as="span"
-                          variant="outline"
-                          size="sm"
-                          startIcon={uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
-                          disabled={uploadingBrandmark}
-                        >
-                          {uploadingBrandmark ? 'Uploading...' : 'Upload'}
-                        </Button>
-                      </label>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Max: 50KB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Seal Section */}
-                <div className="flex flex-col">
-                  <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Company Seal
-                  </h5>
-                  <div className="flex flex-col space-y-4">
-                    <LogoContainer>
-                      {uploadingSeal ? (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
-                        </div>
-                      ) : companyProfile.pdfSealUrl ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={`${companyProfile.pdfSealUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
-                            alt="Company Seal"
-                            className="w-full h-full object-contain rounded-lg"
-                            crossOrigin="anonymous"
-                            onError={(e) => {
-                              if (e.target.src.includes('?t=')) {
-                                const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
-                                e.target.src = companyProfile.pdfSealUrl.startsWith('/') ? baseUrl + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl;
-                              } else {
-                                setCompanyProfile(prev => ({ ...prev, pdf_seal_url: null }));
-                              }
-                            }}
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                          />
-                          <button
-                            className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                            onClick={handleSealDelete}
-                            title="Delete seal"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Seal</span>
-                        </div>
-                      )}
-                    </LogoContainer>
-
-                    <div className="space-y-2">
-                      <input
-                        type="file"
-                        id="seal-upload"
-                        accept="image/*"
-                        onChange={handleSealUpload}
-                        className="hidden"
-                      />
-                      <label htmlFor="seal-upload" className="cursor-pointer">
-                        <Button
-                          as="span"
-                          variant="outline"
-                          size="sm"
-                          startIcon={uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
-                          disabled={uploadingSeal}
-                        >
-                          {uploadingSeal ? 'Uploading...' : 'Upload'}
-                        </Button>
-                      </label>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Max: 50KB
-                      </p>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        For PDFs
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SettingsCard>
-
+        <div className="space-y-4">
           {/* Basic Information */}
           <SettingsCard>
-            <div className="p-6">
+            <div className="p-4">
               <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Basic Information
               </h4>
@@ -1885,7 +1637,7 @@ const CompanySettings = () => {
 
           {/* Address Information */}
           <SettingsCard>
-            <div className="p-6">
+            <div className="p-4">
               <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Address Information
               </h4>
@@ -1925,7 +1677,7 @@ const CompanySettings = () => {
 
           {/* VAT Registration */}
           <SettingsCard>
-            <div className="p-6">
+            <div className="p-4">
               <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 VAT Registration
               </h4>
@@ -1943,11 +1695,11 @@ const CompanySettings = () => {
 
           {/* Bank Details */}
           <SettingsCard>
-            <div className="p-6">
+            <div className="p-4">
               <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Bank Details
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Bank Name"
@@ -1977,6 +1729,269 @@ const CompanySettings = () => {
                   placeholder="Enter IBAN"
                 />
               </div>
+            </div>
+          </SettingsCard>
+
+          {/* Company Images - Collapsible */}
+          <SettingsCard>
+            <div className="p-4">
+              <button
+                onClick={() => setImagesExpanded(!imagesExpanded)}
+                className="flex items-center justify-between w-full text-left"
+              >
+                <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Company Images (Logo, Brandmark, Seal)
+                </h4>
+                {imagesExpanded ? (
+                  <ChevronUp size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                ) : (
+                  <ChevronDown size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                )}
+              </button>
+
+              {imagesExpanded && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Logo Section */}
+                  <div className="flex flex-col">
+                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Company Logo
+                    </h5>
+                    <div className="flex flex-col space-y-4">
+                      <LogoContainer>
+                        {uploadingLogo ? (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                          </div>
+                        ) : companyProfile.logoUrl ? (
+                          <div className="relative w-full h-full">
+                            {console.log('Rendering logo with URL:', companyProfile.logoUrl)}
+                            <img
+                              src={`${companyProfile.logoUrl}?t=${Date.now()}`}
+                              alt="Company Logo"
+                              className="w-full h-full object-contain rounded-lg"
+                              crossOrigin="anonymous"
+                              onLoad={() => console.log('Logo loaded successfully:', companyProfile.logoUrl)}
+                              onError={(e) => {
+                                console.error('Logo failed to load:', companyProfile.logoUrl, e);
+                                console.error('Image load error details:', e.type, e.target?.src);
+                                // Try to reload without cache-busting query first
+                                if (e.target.src.includes('?t=')) {
+                                  console.log('Retrying without cache-busting query...');
+                                  e.target.src = companyProfile.logoUrl;
+                                } else {
+                                  // If that also fails, show upload option
+                                  setCompanyProfile(prev => ({ ...prev, logoUrl: null }));
+                                }
+                              }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
+                            />
+                            <button
+                              className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                              onClick={handleLogoDelete}
+                              title="Delete logo"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Logo</span>
+                          </div>
+                        )}
+                      </LogoContainer>
+
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          id="logo-upload"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                        />
+                        <label htmlFor="logo-upload" className="cursor-pointer">
+                          <Button
+                            as="span"
+                            variant="outline"
+                            size="sm"
+                            startIcon={uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                            disabled={uploadingLogo}
+                          >
+                            {uploadingLogo ? 'Uploading...' : 'Upload'}
+                          </Button>
+                        </label>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Max: 50KB
+                        </p>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={companyProfile.useLogoInPdf || false}
+                            onChange={(e) => {
+                              const useInPdf = e.target.checked;
+                              setCompanyProfile(prev => ({
+                                ...prev,
+                                useLogoInPdf: useInPdf,
+                                pdfLogoUrl: useInPdf ? prev.logoUrl : null,
+                              }));
+                            }}
+                            className="mr-2"
+                          />
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            Use in PDFs
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Brandmark Section */}
+                  <div className="flex flex-col">
+                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Company Brandmark
+                    </h5>
+                    <div className="flex flex-col space-y-4">
+                      <LogoContainer>
+                        {uploadingBrandmark ? (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                          </div>
+                        ) : companyProfile.brandmarkUrl ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={`${companyProfile.brandmarkUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
+                              alt="Company Brandmark"
+                              className="w-full h-full object-contain rounded-lg"
+                              crossOrigin="anonymous"
+                              onError={(e) => {
+                                if (e.target.src.includes('?t=')) {
+                                  const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
+                                  e.target.src = companyProfile.brandmarkUrl.startsWith('/') ? baseUrl + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl;
+                                } else {
+                                  setCompanyProfile(prev => ({ ...prev, brandmark_url: null }));
+                                }
+                              }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
+                            />
+                            <button
+                              className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                              onClick={handleBrandmarkDelete}
+                              title="Delete brandmark"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Brandmark</span>
+                          </div>
+                        )}
+                      </LogoContainer>
+
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          id="brandmark-upload"
+                          accept="image/*"
+                          onChange={handleBrandmarkUpload}
+                          className="hidden"
+                        />
+                        <label htmlFor="brandmark-upload" className="cursor-pointer">
+                          <Button
+                            as="span"
+                            variant="outline"
+                            size="sm"
+                            startIcon={uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                            disabled={uploadingBrandmark}
+                          >
+                            {uploadingBrandmark ? 'Uploading...' : 'Upload'}
+                          </Button>
+                        </label>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Max: 50KB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seal Section */}
+                  <div className="flex flex-col">
+                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Company Seal
+                    </h5>
+                    <div className="flex flex-col space-y-4">
+                      <LogoContainer>
+                        {uploadingSeal ? (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <CircularProgress size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Uploading...</span>
+                          </div>
+                        ) : companyProfile.pdfSealUrl ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={`${companyProfile.pdfSealUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
+                              alt="Company Seal"
+                              className="w-full h-full object-contain rounded-lg"
+                              crossOrigin="anonymous"
+                              onError={(e) => {
+                                if (e.target.src.includes('?t=')) {
+                                  const baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000');
+                                  e.target.src = companyProfile.pdfSealUrl.startsWith('/') ? baseUrl + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl;
+                                } else {
+                                  setCompanyProfile(prev => ({ ...prev, pdf_seal_url: null }));
+                                }
+                              }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
+                            />
+                            <button
+                              className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                              onClick={handleSealDelete}
+                              title="Delete seal"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center space-y-2">
+                            <Camera size={32} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upload Seal</span>
+                          </div>
+                        )}
+                      </LogoContainer>
+
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          id="seal-upload"
+                          accept="image/*"
+                          onChange={handleSealUpload}
+                          className="hidden"
+                        />
+                        <label htmlFor="seal-upload" className="cursor-pointer">
+                          <Button
+                            as="span"
+                            variant="outline"
+                            size="sm"
+                            startIcon={uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />}
+                            disabled={uploadingSeal}
+                          >
+                            {uploadingSeal ? 'Uploading...' : 'Upload'}
+                          </Button>
+                        </label>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Max: 50KB
+                        </p>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          For PDFs
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </SettingsCard>
         </div>

@@ -245,7 +245,7 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
         </div>
 
         {/* Validation Warnings Footer */}
-        {!validation.isValid && validation.errors.length > 0 && (
+        {!validation.isValid && validation.warnings && validation.warnings.length > 0 && (
           <div className={`p-4 border-t ${isDarkMode ? 'border-gray-700 bg-yellow-900/20' : 'border-gray-200 bg-yellow-50'}`}>
             <div className="flex items-start gap-2">
               <AlertTriangle className="text-yellow-500 flex-shrink-0 mt-0.5" size={18} />
@@ -254,8 +254,8 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                   Incomplete record - Cannot download until resolved:
                 </p>
                 <ul className={`text-sm mt-1 list-disc list-inside ${isDarkMode ? 'text-yellow-200' : 'text-yellow-700'}`}>
-                  {validation.errors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                  {validation.warnings.map((warning, index) => (
+                    <li key={index}>{warning}</li>
                   ))}
                 </ul>
               </div>
