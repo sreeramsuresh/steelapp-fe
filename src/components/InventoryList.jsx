@@ -44,6 +44,7 @@ const InventoryList = () => {
   const [productQuery, setProductQuery] = useState('');
   const [productOptions, setProductOptions] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(''); // ERP: Filter by inventory status
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
@@ -56,6 +57,15 @@ const InventoryList = () => {
       warehouseName: '',
       productId: null,
       productName: '',
+      // ERP fields
+      quantityOnHand: '',
+      quantityReserved: '',
+      status: 'AVAILABLE',
+      batchNumber: '',
+      coilNumber: '',
+      heatNumber: '',
+      bundleNumber: '',
+      unitCost: '',
     };
   });
 
@@ -64,10 +74,19 @@ const InventoryList = () => {
     fetchWarehouses();
   }, []);
 
+  // Refetch when status filter changes
+  useEffect(() => {
+    fetchInventory();
+  }, [statusFilter]);
+
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const response = await inventoryService.getAllItems();
+      const params = {};
+      if (statusFilter) {
+        params.status = statusFilter;
+      }
+      const response = await inventoryService.getAllItems(params);
       setInventory(response.data || []);
     } catch (fetchError) {
       console.error('Error fetching inventory:', fetchError);
@@ -111,6 +130,15 @@ const InventoryList = () => {
         ...item,
         productId: item.productId || null,
         productName: item.productName || '',
+        // ERP fields
+        quantityOnHand: item.quantityOnHand || '',
+        quantityReserved: item.quantityReserved || '',
+        status: item.status || 'AVAILABLE',
+        batchNumber: item.batchNumber || '',
+        coilNumber: item.coilNumber || '',
+        heatNumber: item.heatNumber || '',
+        bundleNumber: item.bundleNumber || '',
+        unitCost: item.unitCost || '',
       });
       setProductQuery('');
       setProductOptions([]);
@@ -127,6 +155,15 @@ const InventoryList = () => {
         warehouseName: '',
         productId: null,
         productName: '',
+        // ERP fields
+        quantityOnHand: '',
+        quantityReserved: '',
+        status: 'AVAILABLE',
+        batchNumber: '',
+        coilNumber: '',
+        heatNumber: '',
+        bundleNumber: '',
+        unitCost: '',
       });
       setProductQuery('');
       setProductOptions([]);
@@ -148,6 +185,15 @@ const InventoryList = () => {
       warehouseName: '',
       productId: null,
       productName: '',
+      // ERP fields
+      quantityOnHand: '',
+      quantityReserved: '',
+      status: 'AVAILABLE',
+      batchNumber: '',
+      coilNumber: '',
+      heatNumber: '',
+      bundleNumber: '',
+      unitCost: '',
     });
     setError('');
   };
@@ -339,16 +385,26 @@ const InventoryList = () => {
                 }`}
               />
             </div>
-            <button
-              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
-                isDarkMode 
-                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
-              }`}
-            >
-              <Filter size={16} />
-              Filter
-            </button>
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors appearance-none pr-10 ${
+                  isDarkMode
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                <option value="">All Status</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="RESERVED">Reserved</option>
+                <option value="BLOCKED">Blocked</option>
+                <option value="SCRAP">Scrap</option>
+              </select>
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+              </div>
+            </div>
             <button
               onClick={() => handleOpenDialog()}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
@@ -405,6 +461,18 @@ const InventoryList = () => {
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Warehouse & Location
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Batch/Heat No.
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Reserved Qty
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Available Qty
                 </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Actions
@@ -539,6 +607,72 @@ const InventoryList = () => {
                       {!item.warehouseName && !item.location && '-'}
                     </div>
                   </td>
+
+                  {/* Status Badge */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+                      item.status === 'AVAILABLE'
+                        ? isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-100 text-green-800 border-green-200'
+                        : item.status === 'RESERVED'
+                        ? isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-100 text-blue-800 border-blue-200'
+                        : item.status === 'BLOCKED'
+                        ? isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-100 text-red-800 border-red-200'
+                        : isDarkMode ? 'bg-gray-900/30 text-gray-300 border-gray-700' : 'bg-gray-100 text-gray-800 border-gray-200'
+                    }`}>
+                      {item.status || 'AVAILABLE'}
+                    </span>
+                  </td>
+
+                  {/* Batch/Heat Numbers */}
+                  <td className="px-6 py-4">
+                    <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {item.batchNumber && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-500">Batch:</span>
+                          <span className="font-medium">{item.batchNumber}</span>
+                        </div>
+                      )}
+                      {item.heatNumber && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-500">Heat:</span>
+                          <span className="font-medium">{item.heatNumber}</span>
+                        </div>
+                      )}
+                      {item.coilNumber && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          Coil: {item.coilNumber}
+                        </div>
+                      )}
+                      {!item.batchNumber && !item.heatNumber && !item.coilNumber && (
+                        <span className="text-gray-400 text-xs">—</span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Reserved Quantity */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {item.quantityReserved > 0 ? (
+                        <span className="text-blue-600">{item.quantityReserved.toFixed(3)} {item.unit || 'KG'}</span>
+                      ) : (
+                        <span className="text-gray-400">0.000 {item.unit || 'KG'}</span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Available Quantity */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      <span className="text-green-600">{item.quantityAvailable.toFixed(3)} {item.unit || 'KG'}</span>
+                    </div>
+                    {item.isLowStock && (
+                      <div className="flex items-center gap-1 text-xs text-orange-500 mt-1">
+                        <AlertTriangle size={12} />
+                        Low Stock
+                      </div>
+                    )}
+                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
                       <button
@@ -566,7 +700,7 @@ const InventoryList = () => {
               ))}
               {filteredInventory.length === 0 && (
                 <tr>
-                  <td colSpan={12} className="px-6 py-12 text-center">
+                  <td colSpan={16} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
                         isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
@@ -951,10 +1085,167 @@ const InventoryList = () => {
                       onChange={(e) => handleInputChange('location', e.target.value)}
                       placeholder="e.g., Section A, Row 3, Shelf 2"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                        isDarkMode 
-                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                           : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                       }`}
+                    />
+                  </div>
+
+                  {/* ERP Fields Section */}
+                  <div className="col-span-2">
+                    <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      📊 ERP Inventory Management
+                    </h3>
+                  </div>
+
+                  {/* Status Dropdown */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Status
+                    </label>
+                    <select
+                      value={formData.status || 'AVAILABLE'}
+                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      <option value="AVAILABLE">Available</option>
+                      <option value="RESERVED">Reserved</option>
+                      <option value="BLOCKED">Blocked</option>
+                      <option value="SCRAP">Scrap</option>
+                    </select>
+                  </div>
+
+                  {/* Quantity On Hand */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Quantity On Hand (KG)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={formData.quantityOnHand}
+                      onChange={(e) => handleInputChange('quantityOnHand', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="0.000"
+                    />
+                  </div>
+
+                  {/* Quantity Reserved */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Quantity Reserved (KG)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={formData.quantityReserved}
+                      onChange={(e) => handleInputChange('quantityReserved', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="0.000"
+                    />
+                  </div>
+
+                  {/* Unit Cost */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Unit Cost (AED/KG)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.unitCost}
+                      onChange={(e) => handleInputChange('unitCost', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  {/* Batch Number */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Batch Number
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.batchNumber}
+                      onChange={(e) => handleInputChange('batchNumber', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="BATCH-2025-001"
+                    />
+                  </div>
+
+                  {/* Coil Number */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Coil Number
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.coilNumber}
+                      onChange={(e) => handleInputChange('coilNumber', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="COIL-2025-001"
+                    />
+                  </div>
+
+                  {/* Heat Number */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Heat Number (Mill Certificate)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heatNumber}
+                      onChange={(e) => handleInputChange('heatNumber', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="HEAT-2025-001"
+                    />
+                  </div>
+
+                  {/* Bundle Number */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Bundle Number
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.bundleNumber}
+                      onChange={(e) => handleInputChange('bundleNumber', e.target.value)}
+                      className={`w-full px-4 py-3 border rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="BUNDLE-2025-001"
                     />
                   </div>
                 </div>

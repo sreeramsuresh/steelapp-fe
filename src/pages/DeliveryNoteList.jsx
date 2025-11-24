@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus as AddIcon,
   Download as DownloadIcon,
@@ -88,7 +88,7 @@ const DeliveryNoteList = () => {
     );
   };
 
-  const fetchDeliveryNotes = async () => {
+  const fetchDeliveryNotes = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -101,18 +101,18 @@ const DeliveryNoteList = () => {
       };
 
       const response = await deliveryNotesAPI.getAll(params);
-      setDeliveryNotes(response.deliveryNotes || []);
+      setDeliveryNotes(response.deliveryNotes || response.data || []);
       setTotalCount(response.pagination?.total || 0);
     } catch (err) {
-      setError(`Failed to fetch delivery notes: ${  err.message}`);
+      setError(`Failed to fetch delivery notes: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, rowsPerPage, search, statusFilter, dateFilter, invoiceIdFromUrl]);
 
   useEffect(() => {
     fetchDeliveryNotes();
-  }, [page, rowsPerPage, search, statusFilter, dateFilter]);
+  }, [fetchDeliveryNotes]);
 
   const handleDownloadPDF = async (deliveryNote) => {
     // Validate before download

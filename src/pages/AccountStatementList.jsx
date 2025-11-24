@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Eye, Download, Archive, Search, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Users, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -15,7 +15,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
   const [statements, setStatements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [customerFilter, setCustomerFilter] = useState('');
+  const [customerFilter, _setCustomerFilter] = useState(''); // Reserved for future filter UI
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
@@ -24,6 +24,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
 
   // Preview modal state
   const [previewStatement, setPreviewStatement] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   // Download validation warning state
   const [downloadWarning, setDownloadWarning] = useState({ open: false, statement: null, warnings: [] });
@@ -37,7 +38,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
   const [hasProcessedPreSelection, setHasProcessedPreSelection] = useState(false);
 
   // Fetch account statements
-  const fetchStatements = async () => {
+  const fetchStatements = useCallback(async () => {
     try {
       setLoading(true);
       const response = await accountStatementsAPI.getAll({
@@ -46,10 +47,10 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
         search: searchTerm || undefined,
         customer_id: customerFilter || undefined,
       });
-      
-      setStatements(response.accountStatements || []);
+
+      setStatements(response.data || response.accountStatements || []);
       if (response.pagination) {
-        setTotalPages(response.pagination.totalPages);
+        setTotalPages(response.pagination.totalPages || response.pagination.total_pages || 1);
       }
     } catch (err) {
       console.error('Error fetching account statements:', err);
@@ -57,27 +58,27 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm, customerFilter]);
 
   useEffect(() => {
     fetchStatements();
-  }, [page, searchTerm, customerFilter]);
+  }, [fetchStatements]);
 
   // Fetch customers for selection
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       const response = await customersAPI.getAll({ limit: 1000, search: customerSearchTerm });
-      setCustomers(response.customers || []);
+      setCustomers(response.customers || response.data || []);
     } catch (err) {
       console.error('Error fetching customers:', err);
     }
-  };
+  }, [customerSearchTerm]);
 
   useEffect(() => {
     if (showCustomerModal) {
       fetchCustomers();
     }
-  }, [showCustomerModal, customerSearchTerm]);
+  }, [showCustomerModal, fetchCustomers]);
 
   // Handle pre-selected customer from Invoice List
   useEffect(() => {
@@ -114,6 +115,21 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
     setSelectedCustomer(null);
     // Refresh the statements list
     fetchStatements();
+  };
+
+  // Fetch full statement for preview (includes transactions and company info)
+  const handlePreview = async (statement) => {
+    try {
+      setPreviewLoading(true);
+      const fullStatement = await accountStatementsAPI.getById(statement.id);
+      setPreviewStatement(fullStatement);
+    } catch (err) {
+      console.error('Error fetching statement for preview:', err);
+      // Fallback to list data if fetch fails
+      setPreviewStatement(statement);
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const handleDownloadPDF = async (statement) => {
@@ -382,7 +398,8 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
                           }`}
-                          onClick={() => setPreviewStatement(statement)}
+                          onClick={() => handlePreview(statement)}
+                          disabled={previewLoading}
                           title="Preview"
                         >
                           <Eye size={18} />
@@ -627,7 +644,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
       {previewStatement && (
         <AccountStatementPreview
           statement={previewStatement}
-          company={{}}
+          company={previewStatement.company || {}}
           onClose={() => setPreviewStatement(null)}
         />
       )}

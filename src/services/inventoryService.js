@@ -17,6 +17,15 @@ const toServer = (item = {}) => ({
   min_stock: item.minStock !== null && item.minStock !== undefined ? Number(item.minStock) : 0,
   product_id: item.productId ? Number(item.productId) : null,
   product_name: item.productName || null,
+  // ERP fields
+  quantity_on_hand: typeof item.quantityOnHand === 'number' ? item.quantityOnHand : (parseFloat(item.quantityOnHand) || 0),
+  quantity_reserved: typeof item.quantityReserved === 'number' ? item.quantityReserved : (parseFloat(item.quantityReserved) || 0),
+  status: item.status || 'AVAILABLE',
+  batch_number: item.batchNumber || '',
+  coil_number: item.coilNumber || '',
+  heat_number: item.heatNumber || '',
+  bundle_number: item.bundleNumber || '',
+  unit_cost: typeof item.unitCost === 'number' ? item.unitCost : (parseFloat(item.unitCost) || 0),
 });
 
 // Map server record -> UI model (camelCase)
@@ -40,6 +49,20 @@ const fromServer = (rec = {}) => ({
   minStock: rec.minStock || 0,
   productId: rec.productId || null,
   productName: rec.productName || null,
+  productOrigin: rec.productOrigin || '',
+  // ERP fields
+  quantityOnHand: parseFloat(rec.quantityOnHand) || 0,
+  quantityReserved: parseFloat(rec.quantityReserved) || 0,
+  quantityAvailable: parseFloat(rec.quantityAvailable) || 0,
+  unit: rec.unit || 'KG',
+  status: rec.status || 'AVAILABLE',
+  batchNumber: rec.batchNumber || '',
+  coilNumber: rec.coilNumber || '',
+  heatNumber: rec.heatNumber || '',
+  bundleNumber: rec.bundleNumber || '',
+  unitCost: parseFloat(rec.unitCost) || 0,
+  totalValue: parseFloat(rec.totalValue) || 0,
+  isLowStock: rec.isLowStock || false,
 });
 
 class InventoryService {
@@ -47,8 +70,9 @@ class InventoryService {
     this.endpoint = '/inventory';
   }
 
-  async getAllItems(filters = {}) {
-    const res = await apiClient.get(this.endpoint, filters);
+  async getAllItems(params = {}) {
+    // Support query parameters: page, limit, warehouse_id, product_id, low_stock_only, status
+    const res = await apiClient.get(this.endpoint, params);
     const rows = res?.data || res || [];
     return { data: rows.map(fromServer) };
   }
