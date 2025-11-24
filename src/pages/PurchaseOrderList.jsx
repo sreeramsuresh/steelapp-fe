@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Edit, 
-  Eye, 
-  Download, 
-  Trash2, 
-  Search, 
-  Plus, 
-  ShoppingCart, 
+import {
+  Edit,
+  Eye,
+  Download,
+  Trash2,
+  Search,
+  Plus,
+  ShoppingCart,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   X,
   AlertCircle,
   CheckCircle,
+  Loader2,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
@@ -24,6 +25,9 @@ import { useApiData } from '../hooks/useApi';
 import { notificationService } from '../services/notificationService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
+import { NewBadge } from '../components/shared';
+import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
+import { validatePurchaseOrderForDownload } from '../utils/recordUtils';
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate();
@@ -37,6 +41,9 @@ const PurchaseOrderList = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewPO, setPreviewPO] = useState(null);
+  const [downloadingIds, setDownloadingIds] = useState(new Set());
 
   const getStatusBadge = (status = 'draft') => {
     const statusConfig = {
@@ -168,14 +175,37 @@ const PurchaseOrderList = () => {
 
   const { data: company } = useApiData(companyService.getCompany, [], true);
 
-  const handleDownloadPDF = async (id) => {
+  // Preview handler
+  const handlePreview = (po) => {
+    setPreviewPO(po);
+    setShowPreview(true);
+  };
+
+  // Download handler with validation
+  const handleDownloadPDF = async (po) => {
+    // Validate before download
+    const validation = validatePurchaseOrderForDownload(po);
+    if (!validation.isValid) {
+      notificationService.error(`Cannot download: ${validation.errors.join(', ')}`);
+      return;
+    }
+
+    // Set loading state
+    setDownloadingIds((prev) => new Set([...prev, po.id]));
+
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
-      await purchaseOrdersAPI.downloadPDF(id);
-      setSuccess('PDF downloaded successfully');
+      await purchaseOrdersAPI.downloadPDF(po.id);
+      notificationService.success('PDF downloaded successfully');
     } catch (err) {
       console.error('Error downloading PDF:', err);
-      setError('Failed to download PDF');
+      notificationService.error('Failed to download PDF');
+    } finally {
+      setDownloadingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(po.id);
+        return newSet;
+      });
     }
   };
 
@@ -344,6 +374,7 @@ const PurchaseOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {po.poNumber}
+                        <NewBadge createdAt={po.createdAt} hoursThreshold={2} />
                       </div>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -370,8 +401,8 @@ const PurchaseOrderList = () => {
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
                             }`}
-                            onClick={() => navigate(`/purchase-orders/${po.id}`)}
-                            title="View"
+                            onClick={() => handlePreview(po)}
+                            title="Preview"
                           >
                             <Eye size={18} />
                           </button>
@@ -390,12 +421,19 @@ const PurchaseOrderList = () => {
                         {authService.hasPermission('purchase_orders','read') && (
                           <button
                             className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
+                              downloadingIds.has(po.id)
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
                             }`}
-                            onClick={() => handleDownloadPDF(po.id)}
+                            onClick={() => handleDownloadPDF(po)}
+                            disabled={downloadingIds.has(po.id)}
                             title="Download PDF"
                           >
-                            <Download size={18} />
+                            {downloadingIds.has(po.id) ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                              <Download size={18} />
+                            )}
                           </button>
                         )}
                         {authService.hasPermission('purchase_orders','delete') && (
@@ -502,6 +540,18 @@ const PurchaseOrderList = () => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+
+      {/* Preview Modal */}
+      {showPreview && previewPO && (
+        <PurchaseOrderPreview
+          purchaseOrder={previewPO}
+          company={company || {}}
+          onClose={() => {
+            setShowPreview(false);
+            setPreviewPO(null);
+          }}
+        />
+      )}
     </div>
   );
 };

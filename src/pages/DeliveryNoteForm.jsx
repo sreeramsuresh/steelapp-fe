@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 
 const DeliveryNoteForm = () => {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ const DeliveryNoteForm = () => {
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
+
+  // Preview modal state
+  const [showPreview, setShowPreview] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -612,6 +616,19 @@ const DeliveryNoteForm = () => {
             </div>
           )}
 
+          {/* Preview Button */}
+          <button
+            onClick={() => setShowPreview(true)}
+            className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md mb-4 ${
+              isDarkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600'
+                : 'bg-white hover:bg-gray-50 text-gray-800 border border-gray-300'
+            }`}
+          >
+            <Eye size={20} />
+            Preview
+          </button>
+
           <button
             onClick={handleSubmit}
             disabled={isSaving || !selectedInvoice}
@@ -635,6 +652,28 @@ const DeliveryNoteForm = () => {
       </div>
 
       {/* Invoice Selection Dialog removed during UI de-MUI cleanup */}
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <DeliveryNotePreview
+          deliveryNote={{
+            deliveryNoteNumber: formData.delivery_note_number,
+            invoiceNumber: selectedInvoice?.invoiceNumber,
+            invoiceId: formData.invoice_id,
+            deliveryDate: formData.delivery_date,
+            deliveryAddress: formData.deliveryAddress,
+            vehicleNumber: formData.vehicle_number,
+            driverName: formData.driver_name,
+            driverPhone: formData.driver_phone,
+            notes: formData.notes,
+            items: formData.items,
+            status: 'pending',
+            customerDetails: selectedInvoice?.customerDetails,
+          }}
+          company={{}}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
 
       {/* Success/Error Notifications - will be converted later */}
       {error && (

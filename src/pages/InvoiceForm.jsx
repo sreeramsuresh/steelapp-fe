@@ -64,6 +64,7 @@ import useAccessibility, { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import PaymentSummary from '../components/PaymentSummary';
 import PaymentLedger from '../components/PaymentLedger';
+import InvoiceCreditNotesSection from '../components/invoice/InvoiceCreditNotesSection';
 import AddPaymentModal from '../components/AddPaymentModal';
 import LoadingOverlay from '../components/LoadingOverlay';
 import {
@@ -522,13 +523,13 @@ const Autocomplete = ({
       case 'ArrowDown':
         e.preventDefault();
         setHighlightedIndex(prev => 
-          prev < filteredOptions.length - 1 ? prev + 1 : 0
+          prev < filteredOptions.length - 1 ? prev + 1 : 0,
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
         setHighlightedIndex(prev => 
-          prev > 0 ? prev - 1 : filteredOptions.length - 1
+          prev > 0 ? prev - 1 : filteredOptions.length - 1,
         );
         break;
       case 'Enter':
@@ -1203,7 +1204,7 @@ const InvoiceForm = ({ onSave }) => {
     
     // 3. At least one item with valid product, quantity, and rate (mandatory)
     const hasValidItem = invoice.items?.some(item => 
-      item.productId && item.quantity > 0 && item.rate > 0
+      item.productId && item.quantity > 0 && item.rate > 0,
     );
     if (!hasValidItem) {
       // Focus Add Item button if no items, or focus the items section
@@ -2090,7 +2091,7 @@ const InvoiceForm = ({ onSave }) => {
       'WARNING: Once issued, this invoice cannot be modified.\n' +
       'Any corrections must be made via Credit Note.\n\n' +
       'This action cannot be undone.\n\n' +
-      'Are you sure you want to proceed?'
+      'Are you sure you want to proceed?',
     );
 
     if (!confirmed) return;
@@ -2107,12 +2108,12 @@ const InvoiceForm = ({ onSave }) => {
       }));
       
       notificationService.success(
-        'Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.'
+        'Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.',
       );
     } catch (error) {
       console.error('Failed to issue invoice:', error);
       notificationService.error(
-        'Failed to issue invoice: ' + (error.response?.data?.message || error.message)
+        `Failed to issue invoice: ${  error.response?.data?.message || error.message}`,
       );
     } finally {
       setIsSaving(false);
@@ -2552,15 +2553,14 @@ const InvoiceForm = ({ onSave }) => {
   }, [createdInvoiceId, id, clearLocalDraft]);
 
   if (showPreview) {
+    // Preview is view-only - no Save button per unified design rules
+    // User must close preview and save from form
     return (
       <InvoicePreview
         invoice={invoice}
         company={company || {}}
         onClose={() => setShowPreview(false)}
         invoiceId={id}
-        onSave={handleSaveFromPreview}
-        isSaving={savingInvoice || updatingInvoice || isSaving}
-        isFormValid={isFormValidForSave}
         template={currentTemplate}
       />
     );
@@ -2824,7 +2824,7 @@ const InvoiceForm = ({ onSave }) => {
                   variant="outline"
                   size="sm"
                   className="mt-3"
-                  onClick={() => navigate('/credit-notes/new?invoiceId=' + invoice.id)}
+                  onClick={() => navigate(`/credit-notes/new?invoiceId=${  invoice.id}`)}
                 >
                   Create Credit Note
                 </Button>
@@ -3132,26 +3132,26 @@ const InvoiceForm = ({ onSave }) => {
                     className="text-base"
                   />
                   <div ref={dueDateRef}>
-                  <Input
-                    label="Due Date"
-                    type="date"
-                    value={formatDateForInput(invoice.dueDate)}
-                    min={dueMinStr}
-                    max={dueMaxStr}
-                    required={true}
-                    validationState={fieldValidation.dueDate}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('dueDate')}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      let validatedValue = v;
-                      if (v && v < dueMinStr) validatedValue = dueMinStr;
-                      if (v && v > dueMaxStr) validatedValue = dueMaxStr;
-                      setInvoice((prev) => ({ ...prev, dueDate: validatedValue }));
-                      validateField('dueDate', validatedValue);
-                    }}
-                    className="text-base min-h-[44px]"
-                  />
+                    <Input
+                      label="Due Date"
+                      type="date"
+                      value={formatDateForInput(invoice.dueDate)}
+                      min={dueMinStr}
+                      max={dueMaxStr}
+                      required={true}
+                      validationState={fieldValidation.dueDate}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      error={invalidFields.has('dueDate')}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        let validatedValue = v;
+                        if (v && v < dueMinStr) validatedValue = dueMinStr;
+                        if (v && v > dueMaxStr) validatedValue = dueMaxStr;
+                        setInvoice((prev) => ({ ...prev, dueDate: validatedValue }));
+                        validateField('dueDate', validatedValue);
+                      }}
+                      className="text-base min-h-[44px]"
+                    />
                   </div>
                 </div>
 
@@ -4180,6 +4180,17 @@ const InvoiceForm = ({ onSave }) => {
                 onDeletePayment={handleDeletePayment}
               />
             </Card>
+          )}
+
+          {/* Credit Notes Section - Only for existing invoices */}
+          {id && (
+            <div className="mb-4 md:mb-6">
+              <InvoiceCreditNotesSection
+                invoiceId={id}
+                invoiceStatus={invoice.status}
+                isDarkMode={isDarkMode}
+              />
+            </div>
           )}
 
           {/* Two-Column Notes Footer - General Notes + VAT Tax Notes (left) | Payment Terms (right) */}

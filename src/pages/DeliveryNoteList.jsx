@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus as AddIcon,
   Download as DownloadIcon,
@@ -13,11 +13,15 @@ import {
   X,
   AlertCircle,
   CheckCircle,
+  AlertTriangle,
 } from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
 import { authService } from '../services/axiosAuthService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
+import NewBadge from '../components/shared/NewBadge';
+import { validateDeliveryNoteForDownload } from '../utils/recordUtils';
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
@@ -40,6 +44,12 @@ const DeliveryNoteList = () => {
 
   // Dialog states
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, number: '' });
+
+  // Preview modal state
+  const [previewDeliveryNote, setPreviewDeliveryNote] = useState(null);
+
+  // Download validation warning state
+  const [downloadWarning, setDownloadWarning] = useState({ open: false, deliveryNote: null, warnings: [] });
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -104,12 +114,32 @@ const DeliveryNoteList = () => {
     fetchDeliveryNotes();
   }, [page, rowsPerPage, search, statusFilter, dateFilter]);
 
-  const handleDownloadPDF = async (id) => {
+  const handleDownloadPDF = async (deliveryNote) => {
+    // Validate before download
+    const validation = validateDeliveryNoteForDownload(deliveryNote);
+    if (!validation.isValid) {
+      setDownloadWarning({ open: true, deliveryNote, warnings: validation.warnings });
+      return;
+    }
+
     try {
-      await deliveryNotesAPI.downloadPDF(id);
+      await deliveryNotesAPI.downloadPDF(deliveryNote.id);
       setSuccess('PDF downloaded successfully');
     } catch (err) {
       setError(`Failed to download PDF: ${  err.message}`);
+    }
+  };
+
+  // Force download for incomplete records (user chose to proceed)
+  const handleForceDownload = async () => {
+    if (!downloadWarning.deliveryNote) return;
+    try {
+      await deliveryNotesAPI.downloadPDF(downloadWarning.deliveryNote.id);
+      setSuccess('PDF downloaded successfully');
+    } catch (err) {
+      setError(`Failed to download PDF: ${  err.message}`);
+    } finally {
+      setDownloadWarning({ open: false, deliveryNote: null, warnings: [] });
     }
   };
 
@@ -306,8 +336,9 @@ const DeliveryNoteList = () => {
                 deliveryNotes.map((deliveryNote) => (
                   <tr key={deliveryNote.id} className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center gap-2`}>
                         {deliveryNote.deliveryNoteNumber}
+                        <NewBadge createdAt={deliveryNote.audit?.createdAt || deliveryNote.createdAt} />
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -355,8 +386,8 @@ const DeliveryNoteList = () => {
                             className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
                             }`}
-                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
-                            title="View Details"
+                            onClick={() => setPreviewDeliveryNote(deliveryNote)}
+                            title="Preview"
                           >
                             <ViewIcon size={16} />
                           </button>
@@ -377,7 +408,7 @@ const DeliveryNoteList = () => {
                             className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? 'text-green-400 hover:text-green-300' : 'hover:bg-gray-100 text-green-600'
                             }`}
-                            onClick={() => handleDownloadPDF(deliveryNote.id)}
+                            onClick={() => handleDownloadPDF(deliveryNote)}
                             title="Download PDF"
                           >
                             <DownloadIcon size={16} />
@@ -500,6 +531,68 @@ const DeliveryNoteList = () => {
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewDeliveryNote && (
+        <DeliveryNotePreview
+          deliveryNote={previewDeliveryNote}
+          company={{}}
+          onClose={() => setPreviewDeliveryNote(null)}
+        />
+      )}
+
+      {/* Download Warning Dialog */}
+      {downloadWarning.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className={`rounded-xl max-w-md w-full ${
+            isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+          }`}>
+            <div className={`p-6 border-b ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="text-yellow-500" size={24} />
+                <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Incomplete Delivery Note
+                </h3>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                This delivery note is missing required information:
+              </p>
+              <ul className={`list-disc list-inside mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {downloadWarning.warnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                You can still download, but the PDF may be incomplete.
+              </p>
+            </div>
+            <div className={`p-6 border-t flex justify-end gap-3 ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <button
+                onClick={() => setDownloadWarning({ open: false, deliveryNote: null, warnings: [] })}
+                className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
+                  isDarkMode
+                    ? 'text-white hover:text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-800'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleForceDownload}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+              >
+                Download Anyway
               </button>
             </div>
           </div>

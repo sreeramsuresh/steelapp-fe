@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Edit, 
-  Eye, 
-  Download, 
-  Trash2, 
-  Search, 
-  Plus, 
-  FileText, 
+import {
+  Edit,
+  Eye,
+  Download,
+  Trash2,
+  Search,
+  Plus,
+  FileText,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -20,6 +20,7 @@ import {
   Clock,
   Ban,
   FileCheck,
+  Loader2,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
@@ -28,6 +29,10 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { quotationsAPI } from '../services/api';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
+import { NewBadge } from '../components/shared';
+import QuotationPreview from '../components/quotations/QuotationPreview';
+import { validateQuotationForDownload } from '../utils/recordUtils';
+import { notificationService } from '../services/notificationService';
 
 const QuotationList = () => {
   const navigate = useNavigate();
@@ -41,6 +46,9 @@ const QuotationList = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewQuotation, setPreviewQuotation] = useState(null);
+  const [downloadingIds, setDownloadingIds] = useState(new Set());
 
   const getStatusBadge = (status = 'draft') => {
     const statusConfig = {
@@ -170,16 +178,37 @@ const QuotationList = () => {
     }
   };
 
-  const handleDownloadPDF = async (id) => {
+  // Preview handler
+  const handlePreview = (quotation) => {
+    setPreviewQuotation(quotation);
+    setShowPreview(true);
+  };
+
+  // Download handler with validation
+  const handleDownloadPDF = async (quotation) => {
+    // Validate before download
+    const validation = validateQuotationForDownload(quotation);
+    if (!validation.isValid) {
+      notificationService.error(`Cannot download: ${validation.errors.join(', ')}`);
+      return;
+    }
+
+    // Set loading state
+    setDownloadingIds((prev) => new Set([...prev, quotation.id]));
+
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
-      await quotationsAPI.downloadPDF(id);
-      setSuccess('PDF downloaded successfully');
-      setTimeout(() => setSuccess(''), 3000);
+      await quotationsAPI.downloadPDF(quotation.id);
+      notificationService.success('PDF downloaded successfully');
     } catch (err) {
       console.error('Error downloading PDF:', err);
-      setError(err.message || 'Failed to download PDF');
-      setTimeout(() => setError(''), 3000);
+      notificationService.error(err.message || 'Failed to download PDF');
+    } finally {
+      setDownloadingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(quotation.id);
+        return newSet;
+      });
     }
   };
 
@@ -373,6 +402,7 @@ const QuotationList = () => {
                       <div>
                         <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           {quotation.quotationNumber}
+                          <NewBadge createdAt={quotation.createdAt} hoursThreshold={2} />
                         </div>
                         <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {quotation.items?.length || 0} items
@@ -423,24 +453,24 @@ const QuotationList = () => {
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {authService.hasPermission('quotations','read') && (
-                          <Link
-                            to={`/quotations/${quotation.id}`}
+                          <button
+                            onClick={() => handlePreview(quotation)}
                             className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode 
-                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                              isDarkMode
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700'
                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                             }`}
-                            title="View Quotation"
+                            title="Preview Quotation"
                           >
                             <Eye size={16} />
-                          </Link>
+                          </button>
                         )}
                         {authService.hasPermission('quotations','update') && (
                           <Link
                             to={`/quotations/${quotation.id}/edit`}
                             className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode 
-                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                              isDarkMode
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-700'
                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                             }`}
                             title="Edit Quotation"
@@ -450,15 +480,22 @@ const QuotationList = () => {
                         )}
                         {authService.hasPermission('quotations','read') && (
                           <button
-                            onClick={() => handleDownloadPDF(quotation.id)}
+                            onClick={() => handleDownloadPDF(quotation)}
+                            disabled={downloadingIds.has(quotation.id)}
                             className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode 
-                                ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                              downloadingIds.has(quotation.id)
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode
+                                  ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                             }`}
                             title="Download PDF"
                           >
-                            <Download size={16} />
+                            {downloadingIds.has(quotation.id) ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <Download size={16} />
+                            )}
                           </button>
                         )}
                         
@@ -615,6 +652,18 @@ const QuotationList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && previewQuotation && (
+        <QuotationPreview
+          quotation={previewQuotation}
+          company={company || {}}
+          onClose={() => {
+            setShowPreview(false);
+            setPreviewQuotation(null);
+          }}
+        />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   formatCurrency,
@@ -18,6 +18,7 @@ import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from '../types';
 import { useApiData } from '../hooks/useApi';
 import { supplierService } from '../services/supplierService';
 import { notificationService } from '../services/notificationService';
+import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
 const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
@@ -477,6 +478,7 @@ const PurchaseOrderForm = () => {
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [expandedItems, setExpandedItems] = useState({});
+  const [showPreview, setShowPreview] = useState(false);
 
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
@@ -1226,6 +1228,18 @@ const PurchaseOrderForm = () => {
               </h1>
             </div>
             <div className="flex gap-3">
+              <button
+                onClick={() => setShowPreview(true)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
+                title="Preview Purchase Order"
+              >
+                <Eye size={18} />
+                Preview
+              </button>
               <button
                 onClick={() => handleSubmit('draft')}
                 disabled={isSaving}
@@ -2623,6 +2637,15 @@ const PurchaseOrderForm = () => {
           totalAmount={purchaseOrder.total}
           paidAmount={payments.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)}
           isDarkMode={isDarkMode}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <PurchaseOrderPreview
+          purchaseOrder={purchaseOrder}
+          company={{}}
+          onClose={() => setShowPreview(false)}
         />
       )}
     </div>

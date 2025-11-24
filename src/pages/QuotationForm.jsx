@@ -18,11 +18,13 @@ import {
   Pin,
   Settings,
   Loader2,
+  Eye,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { quotationsAPI, customersAPI, productsAPI, apiClient } from '../services/api';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
+import QuotationPreview from '../components/quotations/QuotationPreview';
 
 const QuotationForm = () => {
   const navigate = useNavigate();
@@ -99,6 +101,7 @@ const QuotationForm = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Pinned products (localStorage)
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
@@ -1511,6 +1514,20 @@ const QuotationForm = () => {
             Cancel
           </button>
           <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 border rounded-lg transition-colors text-sm md:text-base ${
+              isDarkMode
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700 bg-[#1E2328]'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50 bg-white'
+            }`}
+            title="Preview quotation"
+          >
+            <Eye size={14} className="md:hidden" />
+            <Eye size={16} className="hidden md:block" />
+            Preview
+          </button>
+          <button
             type="submit"
             disabled={isSaving}
             className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 text-sm md:text-base ${
@@ -1532,6 +1549,15 @@ const QuotationForm = () => {
           </button>
         </div>
       </form>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <QuotationPreview
+          quotation={formData}
+          company={{}}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   );
 };

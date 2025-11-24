@@ -48,6 +48,7 @@ import { normalizeInvoices } from '../utils/invoiceNormalizer';
 import { guardInvoicesDev } from '../utils/devGuards';
 import { getInvoiceActionButtonConfig } from './invoiceActionsConfig';
 import { useInvoicePresence } from '../hooks/useInvoicePresence';
+import { NewBadge } from '../components/shared';
 
 /**
  * ============================================================================
@@ -2032,14 +2033,21 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className={`flex items-center gap-2 text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
-                          {isRecentlyModified(invoice) && (
-                            <CheckCircle 
-                              size={16} 
-                              className="text-green-500 flex-shrink-0" 
-                              title="Recently created (within last hour)"
-                            />
-                          )}
                           {invoice.invoiceNumber}
+                          <NewBadge createdAt={invoice.createdAt} hoursThreshold={2} />
+                          {/* Credit Note Badge */}
+                          {(invoice.creditNotesCount > 0 || invoice.hasCreditNotes) && (
+                            <span 
+                              className={`ml-1 px-1.5 py-0.5 text-xs font-medium rounded ${
+                                isDarkMode 
+                                  ? 'bg-purple-900/50 text-purple-300' 
+                                  : 'bg-purple-100 text-purple-700'
+                              }`}
+                              title={`${invoice.creditNotesCount || 1} Credit Note(s)`}
+                            >
+                              CN
+                            </span>
+                          )}
                         </div>
                         {isDeleted && (
                           <div
