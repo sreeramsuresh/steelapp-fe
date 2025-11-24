@@ -1142,7 +1142,16 @@ const InvoiceForm = ({ onSave }) => {
     
     // Check 24-hour edit window
     const issuedAt = invoice?.issuedAt;
-    if (!issuedAt) return true; // No issuedAt means legacy invoice, treat as locked
+    if (!issuedAt) {
+      // No issuedAt could mean:
+      // 1. User just changed dropdown to 'issued' but hasn't saved yet (NOT locked)
+      // 2. Legacy invoice that was issued before edit window feature (LOCKED)
+      // We differentiate by checking if invoice number starts with INV- (actual issued invoice)
+      const invoiceNumber = (invoice?.invoiceNumber || invoice?.invoice_number || '').toUpperCase();
+      // Only lock if it has INV- prefix (actually saved as issued invoice)
+      // DFT- or PRO- means it's still a draft/proforma and not locked yet
+      return invoiceNumber.startsWith('INV-');
+    }
     
     const issuedDate = new Date(issuedAt);
     const now = new Date();
@@ -3281,7 +3290,7 @@ const InvoiceForm = ({ onSave }) => {
               {/* Exchange Rate - Conditional */}
               {invoice.currency && invoice.currency !== 'AED' && (
                 <Input
-                  label={`Exchange Rate (1 ${invoice.currency} = ? AED)`}
+                  label="Exchange Rate"
                   type="number"
                   value={invoice.exchangeRate || ''}
                   onChange={(e) =>

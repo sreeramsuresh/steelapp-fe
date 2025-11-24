@@ -23,6 +23,15 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   'createdAt',
   'updatedAt',
   'deletedAt',
+  'issuedAt',          // When invoice was issued (for 24h edit window)
+  'revisedAt',         // Timestamp of last revision
+  'supersededAt',      // When this invoice was superseded
+  
+  // Revision tracking
+  'revisionNumber',      // 1 = original, 2+ = revisions
+  'originalInvoiceId',   // Reference to original invoice (for revisions)
+  'supersededBy',        // ID of revision that superseded this
+  'supersededReason',    // REVISED, CANCELLED, etc.
   
   // Customer information
   'customerId',

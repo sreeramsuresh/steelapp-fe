@@ -117,10 +117,14 @@ export function getInvoiceActionButtonConfig(
       enabled: canRead,
       tooltip: !canRead
         ? 'No permission to download'
-        : !validateInvoiceForDownload(invoice).isValid
-          ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
-          : 'Download PDF',
-      isValid: validateInvoiceForDownload(invoice).isValid,
+        // Fully paid or issued invoices are considered complete - skip validation warning
+        : (invoice.paymentStatus === 'paid' || ['issued', 'sent'].includes(invoice.status))
+          ? 'Download PDF'
+          : !validateInvoiceForDownload(invoice).isValid
+            ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
+            : 'Download PDF',
+      // Paid/issued invoices are always valid, otherwise check validation
+      isValid: invoice.paymentStatus === 'paid' || ['issued', 'sent'].includes(invoice.status) || validateInvoiceForDownload(invoice).isValid,
     },
     recordPayment: {
       enabled: !isDeleted,

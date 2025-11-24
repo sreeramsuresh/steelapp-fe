@@ -151,17 +151,10 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
       )}
 
-      {/* CURRENCY & EXCHANGE RATE SECTION (UAE VAT Compliance) - Only on first page */}
+      {/* CURRENCY & EXCHANGE RATE - Compact one-liner (UAE VAT Compliance) - Only on first page */}
       {isFirstPage && invoice.currency && invoice.currency !== 'AED' && (
-        <div className="mb-4 p-3 text-sm" style={{
-          backgroundColor: colors.accent || '#f5f5f5',
-          borderLeft: `4px solid ${colors.border || '#999999'}`,
-        }}>
-          <div className="font-semibold mb-1" style={{ color: colors.primary || '#000000' }}>Currency Information:</div>
-          <div className="space-y-1" style={{ color: colors.text || '#333333' }}>
-            <div><span className="font-semibold">Currency:</span> {invoice.currency}</div>
-            <div><span className="font-semibold">Exchange Rate:</span> 1 {invoice.currency} = {invoice.exchangeRate || 1} AED</div>
-          </div>
+        <div className="mb-2 text-xs" style={{ color: colors.text || '#666666' }}>
+          <span className="italic">Exchange Rate: 1 {invoice.currency} = {invoice.exchangeRate || 1} AED</span>
         </div>
       )}
     </div>

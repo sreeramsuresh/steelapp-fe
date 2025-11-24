@@ -140,11 +140,17 @@ export const getReminderType = (daysUntilDue) => {
  * @returns {Object|null} - Reminder info or null if no reminder needed
  */
 export const getInvoiceReminderInfo = (invoice) => {
-  // Only issued invoices need reminders
-  if (invoice.status !== 'issued') return null;
+  // Normalize status to handle both 'issued' and 'STATUS_ISSUED' formats
+  const normalizedStatus = (invoice.status || '').toLowerCase().replace('status_', '');
+  
+  // Only issued/sent invoices need reminders (not draft, proforma, cancelled)
+  if (!['issued', 'sent'].includes(normalizedStatus)) return null;
 
   // Use backend payment status if available (gold standard), otherwise calculate
-  const paymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
+  const rawPaymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
+  
+  // Normalize payment status to handle 'PAYMENT_STATUS_PAID' format
+  const paymentStatus = (rawPaymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
 
   // Only unpaid or partially paid invoices need reminders
   if (paymentStatus === 'fully_paid' || paymentStatus === 'paid') return null;
@@ -195,14 +201,20 @@ export const formatDaysMessage = (daysUntilDue) => {
  * @returns {Object|null} - Promise info or null if no promise
  */
 export const getPromiseIndicatorInfo = (invoice, latestReminder) => {
-  // Only show for issued invoices
-  if (invoice.status !== 'issued') return null;
+  // Normalize status to handle both 'issued' and 'STATUS_ISSUED' formats
+  const normalizedStatus = (invoice.status || '').toLowerCase().replace('status_', '');
+  
+  // Only show for issued/sent invoices
+  if (!['issued', 'sent'].includes(normalizedStatus)) return null;
 
   // Only show if reminder has a promised_date
   if (!latestReminder || !latestReminder.promisedDate) return null;
 
   // Use backend payment status if available (gold standard), otherwise calculate
-  const paymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
+  const rawPaymentStatus = invoice.paymentStatus || calculatePaymentStatus(invoice.total, invoice.payments || []);
+  
+  // Normalize payment status to handle 'PAYMENT_STATUS_PAID' format
+  const paymentStatus = (rawPaymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
 
   // Only unpaid or partially paid invoices need promise indicators
   if (paymentStatus === 'fully_paid' || paymentStatus === 'paid') return null;

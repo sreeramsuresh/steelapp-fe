@@ -24,6 +24,7 @@ import {
   Award,
   ReceiptText,
   Lock,
+  MoreVertical,
 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -265,6 +266,31 @@ const assertPaymentConsistency = (invoice) => {
   }
 };
 
+/**
+ * Check if an invoice was recently created or updated (within last hour)
+ * Uses updatedAt to catch both new invoices AND recently edited ones
+ * @param {Object} invoice - Invoice object with updatedAt/createdAt timestamp
+ * @returns {boolean} True if created/updated within last hour
+ */
+const isRecentlyModified = (invoice) => {
+  // Try updatedAt first (covers edits), then fallback to createdAt
+  const timestamp = invoice.updatedAt || invoice.createdAt;
+  if (!timestamp) return false;
+  
+  // Handle both ISO string and gRPC timestamp {seconds, nanos} format
+  let timeMs;
+  if (typeof timestamp === 'object' && timestamp.seconds) {
+    timeMs = timestamp.seconds * 1000;
+  } else {
+    timeMs = new Date(timestamp).getTime();
+  }
+  
+  if (isNaN(timeMs)) return false;
+  
+  const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour in milliseconds
+  return timeMs > oneHourAgo;
+};
+
 const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -319,6 +345,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [showRecordPaymentDrawer, setShowRecordPaymentDrawer] = useState(false);
   const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
   const [isSavingPayment, setIsSavingPayment] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   // Presence tracking for payment drawer
   const { otherSessions, updateMode } = useInvoicePresence(
@@ -460,6 +487,17 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     setSelectedInvoiceIds(new Set());
   }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted, activeCardFilter]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdownId && !event.target.closest('.actions-dropdown')) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdownId]);
+
   // Client-side payment status and card filtering
   // GOLD STANDARD: Use backend-provided payment status instead of calculating
   /** @type {import('../types/invoice').Invoice[]} */
@@ -469,33 +507,55 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     // Apply payment status filter
     if (paymentStatusFilter !== 'all') {
       filtered = filtered.filter((invoice) => {
-        // Only apply payment filter to issued invoices
-        if (invoice.status !== 'issued') {
-          return true; // Show non-issued invoices regardless of payment filter
+        // Normalize status to handle both 'issued' and 'STATUS_ISSUED' formats
+        const normalizedStatus = (invoice.status || '').toLowerCase().replace('status_', '');
+        
+        // For "paid" filter, only show ISSUED invoices that are fully paid
+        // DRAFT invoices cannot be "fully paid"
+        if (paymentStatusFilter === 'paid') {
+          if (normalizedStatus !== 'issued') return false;
+          const paymentStatus = (invoice.paymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
+          return paymentStatus === 'paid';
+        }
+        
+        // For unpaid filter, include DRAFT invoices (they are technically unpaid)
+        if (paymentStatusFilter === 'unpaid') {
+          if (normalizedStatus !== 'issued') return true; // DRAFT = unpaid
+          const paymentStatus = (invoice.paymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
+          return paymentStatus === 'unpaid';
+        }
+        
+        // For partially_paid filter, only show ISSUED invoices
+        if (paymentStatusFilter === 'partially_paid') {
+          if (normalizedStatus !== 'issued') return false;
+          const paymentStatus = (invoice.paymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
+          return paymentStatus === 'partially_paid';
         }
 
         // Use backend-provided payment status (GOLD STANDARD)
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = (invoice.paymentStatus || 'unpaid').toLowerCase().replace('payment_status_', '');
         return paymentStatus === paymentStatusFilter;
       });
     }
 
     // Apply card-specific filters
+    // Helper for normalization within useMemo scope
+    const normStatus = (s) => (s || '').toLowerCase().replace('status_', '');
+    const normPayStatus = (ps) => (ps || 'unpaid').toLowerCase().replace('payment_status_', '');
+
     if (activeCardFilter === 'outstanding') {
       filtered = filtered.filter(invoice => {
-        if (invoice.status !== 'issued') return false;
-        // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        if (normStatus(invoice.status) !== 'issued') return false;
+        const paymentStatus = normPayStatus(invoice.paymentStatus);
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       });
     } else if (activeCardFilter === 'overdue') {
       filtered = filtered.filter(invoice => {
-        if (invoice.status !== 'issued') return false;
+        if (normStatus(invoice.status) !== 'issued') return false;
         const dueDate = new Date(invoice.dueDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = normPayStatus(invoice.paymentStatus);
         return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
       });
     } else if (activeCardFilter === 'due_soon') {
@@ -505,11 +565,15 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       futureDate.setDate(today.getDate() + 7);
 
       filtered = filtered.filter(invoice => {
-        if (invoice.status !== 'issued') return false;
+        if (normStatus(invoice.status) !== 'issued') return false;
         const dueDate = new Date(invoice.dueDate);
-        // Use backend-provided payment status
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        const paymentStatus = normPayStatus(invoice.paymentStatus);
         return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+      });
+    } else if (activeCardFilter === 'paid') {
+      filtered = filtered.filter(invoice => {
+        if (normStatus(invoice.status) !== 'issued') return false;
+        return normPayStatus(invoice.paymentStatus) === 'paid';
       });
     }
 
@@ -562,11 +626,15 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
   // Dashboard metric calculations
   // GOLD STANDARD: Use backend-provided payment data (no client-side calculation)
+  // Helper to normalize status/paymentStatus from API format variations
+  const normalizeStatus = (status) => (status || '').toLowerCase().replace('status_', '');
+  const normalizePaymentStatus = (ps) => (ps || 'unpaid').toLowerCase().replace('payment_status_', '');
+
   const getOutstandingAmount = () => {
     return invoices
       .filter(invoice => {
-        if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
+        if (normalizeStatus(invoice.status) !== 'issued') return false;
+        const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
         return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
       })
       .reduce((sum, invoice) => {
@@ -577,11 +645,11 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
   const getOverdueMetrics = () => {
     const overdueInvoices = invoices.filter(invoice => {
-      if (invoice.status !== 'issued') return false;
+      if (normalizeStatus(invoice.status) !== 'issued') return false;
       const dueDate = new Date(invoice.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const paymentStatus = invoice.paymentStatus || 'unpaid';
+      const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
       return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -600,9 +668,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     futureDate.setDate(today.getDate() + days);
 
     const dueSoonInvoices = invoices.filter(invoice => {
-      if (invoice.status !== 'issued') return false;
+      if (normalizeStatus(invoice.status) !== 'issued') return false;
       const dueDate = new Date(invoice.dueDate);
-      const paymentStatus = invoice.paymentStatus || 'unpaid';
+      const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
       return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
     });
 
@@ -617,11 +685,10 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const getPaidAmount = () => {
     return invoices
       .filter(invoice => {
-        if (invoice.status !== 'issued') return false;
-        const paymentStatus = invoice.paymentStatus || 'unpaid';
-        return paymentStatus === 'paid';
+        if (normalizeStatus(invoice.status) !== 'issued') return false;
+        return normalizePaymentStatus(invoice.paymentStatus) === 'paid';
       })
-      .reduce((sum, invoice) => sum + invoice.total, 0);
+      .reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
   };
 
   // Handle dashboard card clicks to filter invoices
@@ -1964,7 +2031,14 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
+                        <div className={`flex items-center gap-2 text-sm font-semibold ${isDeleted ? 'line-through' : ''} text-teal-600`}>
+                          {isRecentlyModified(invoice) && (
+                            <CheckCircle 
+                              size={16} 
+                              className="text-green-500 flex-shrink-0" 
+                              title="Recently created (within last hour)"
+                            />
+                          )}
                           {invoice.invoiceNumber}
                         </div>
                         {isDeleted && (
@@ -2077,29 +2151,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   </span>
                                 )}
 
-                                {/* Credit Note Action: Separate column for issued invoices */}
-                                {actions.creditNote.enabled ? (
-                                  <button
-                                    onClick={() => navigate(actions.creditNote.link)}
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-teal-400 hover:text-teal-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-teal-50 text-teal-600 bg-white'
-                                    }`}
-                                    title={actions.creditNote.tooltip}
-                                  >
-                                    <ReceiptText size={18} />
-                                  </button>
-                                ) : (
-                                  <span
-                                    className={`p-2 rounded shadow-sm ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-600' : 'bg-gray-50 text-gray-300'
-                                    }`}
-                                    title="Credit note not available"
-                                  >
-                                    <span className="text-xs">-</span>
-                                  </span>
-                                )}
+                                {/* Credit Note moved to More dropdown */}
 
                                 {/* View button - Always enabled */}
                                 <button
@@ -2157,6 +2209,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   </button>
                                 )}
 
+                                {/* Separator: Core Actions | Payment Group */}
+                                <div className={`w-px h-5 mx-1 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
+
                                 {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
                                 {actions.recordPayment.enabled ? (
                                   <button
@@ -2186,201 +2241,149 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   </button>
                                 )}
 
-                                {/* Commission button - Always visible */}
-                                {actions.commission.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                      calculatingCommissionIds.has(invoice.id)
-                                        ? 'bg-transparent'
-                                        : isDarkMode
-                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
-                                    }`}
-                                    title={actions.commission.tooltip}
-                                    onClick={() => handleCalculateCommission(invoice)}
-                                    disabled={calculatingCommissionIds.has(invoice.id)}
-                                  >
-                                    {calculatingCommissionIds.has(invoice.id) ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                    ) : (
-                                      <Award size={18} />
+                                {/* More Actions Dropdown */}
+                                {(actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled || actions.deliveryNote.enabled || actions.delete.enabled || actions.restore.enabled) && (
+                                  <div className="relative actions-dropdown">
+                                    <button
+                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                        isDarkMode
+                                          ? 'text-gray-400 hover:text-gray-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-gray-100 text-gray-600 bg-white'
+                                      }`}
+                                      title="More actions"
+                                      onClick={() => setOpenDropdownId(openDropdownId === invoice.id ? null : invoice.id)}
+                                    >
+                                      <MoreVertical size={18} />
+                                    </button>
+                                    
+                                    {openDropdownId === invoice.id && (
+                                      <div className={`absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-lg shadow-lg border ${
+                                        isDarkMode 
+                                          ? 'bg-gray-800 border-gray-700' 
+                                          : 'bg-white border-gray-200'
+                                      }`}>
+                                        {/* Credit Note */}
+                                        {actions.creditNote.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              navigate(actions.creditNote.link);
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              isDarkMode
+                                                ? 'text-teal-400 hover:bg-gray-700'
+                                                : 'text-teal-600 hover:bg-teal-50'
+                                            }`}
+                                          >
+                                            <ReceiptText size={16} />
+                                            <span>Credit Note</span>
+                                          </button>
+                                        )}
+                                        
+                                        {/* Payment Reminder */}
+                                        {actions.reminder.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              handleSendReminder(invoice);
+                                            }}
+                                            disabled={sendingReminderIds.has(invoice.id)}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              isDarkMode
+                                                ? 'text-yellow-400 hover:bg-gray-700'
+                                                : 'text-yellow-600 hover:bg-yellow-50'
+                                            } ${sendingReminderIds.has(invoice.id) ? 'opacity-50' : ''}`}
+                                          >
+                                            <Bell size={16} />
+                                            <span>Send Reminder</span>
+                                          </button>
+                                        )}
+                                        
+                                        {/* Phone Notes */}
+                                        {actions.phone.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              handleOpenPaymentReminder(invoice);
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              isDarkMode
+                                                ? 'text-orange-400 hover:bg-gray-700'
+                                                : 'text-orange-600 hover:bg-orange-50'
+                                            }`}
+                                          >
+                                            <Phone size={16} />
+                                            <span>Phone Notes</span>
+                                          </button>
+                                        )}
+                                        
+                                        {/* Delivery Note */}
+                                        {actions.deliveryNote.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              actions.deliveryNote.hasNotes
+                                                ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
+                                                : handleCreateDeliveryNote(invoice);
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              actions.deliveryNote.hasNotes
+                                                ? isDarkMode
+                                                  ? 'text-yellow-400 hover:bg-gray-700'
+                                                  : 'text-yellow-600 hover:bg-yellow-50'
+                                                : isDarkMode
+                                                  ? 'text-green-400 hover:bg-gray-700'
+                                                  : 'text-green-600 hover:bg-green-50'
+                                            }`}
+                                          >
+                                            <Truck size={16} />
+                                            <span>{actions.deliveryNote.hasNotes ? 'View Delivery Notes' : 'Create Delivery Note'}</span>
+                                          </button>
+                                        )}
+                                        
+                                        {/* Divider before danger zone */}
+                                        {(actions.delete.enabled || actions.restore.enabled) && (actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled || actions.deliveryNote.enabled) && (
+                                          <div className={`my-1 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                                        )}
+                                        
+                                        {/* Delete */}
+                                        {actions.delete.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              handleDeleteInvoice(invoice);
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              isDarkMode
+                                                ? 'text-red-400 hover:bg-gray-700'
+                                                : 'text-red-600 hover:bg-red-50'
+                                            }`}
+                                          >
+                                            <Trash2 size={16} />
+                                            <span>Delete</span>
+                                          </button>
+                                        )}
+                                        
+                                        {/* Restore */}
+                                        {actions.restore.enabled && (
+                                          <button
+                                            onClick={() => {
+                                              setOpenDropdownId(null);
+                                              handleRestoreInvoice(invoice);
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                              isDarkMode
+                                                ? 'text-green-400 hover:bg-gray-700'
+                                                : 'text-green-600 hover:bg-green-50'
+                                            }`}
+                                          >
+                                            <RotateCcw size={16} />
+                                            <span>Restore</span>
+                                          </button>
+                                        )}
+                                      </div>
                                     )}
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.commission.tooltip}
-                                  >
-                                    <Award size={18} />
-                                  </button>
-                                )}
-
-                                {/* Reminder button - Always visible */}
-                                {actions.reminder.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                      sendingReminderIds.has(invoice.id)
-                                        ? 'bg-transparent'
-                                        : isDarkMode
-                                          ? 'text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-yellow-50 text-yellow-600 bg-white'
-                                    }`}
-                                    title={actions.reminder.tooltip}
-                                    onClick={() => handleSendReminder(invoice)}
-                                    disabled={sendingReminderIds.has(invoice.id)}
-                                  >
-                                    {sendingReminderIds.has(invoice.id) ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                    ) : (
-                                      <Bell size={18} />
-                                    )}
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.reminder.tooltip}
-                                  >
-                                    <Bell size={18} />
-                                  </button>
-                                )}
-
-                                {/* Phone button - Always visible */}
-                                {actions.phone.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-orange-50 text-orange-600 bg-white'
-                                    }`}
-                                    title={actions.phone.tooltip}
-                                    onClick={() => handleOpenPaymentReminder(invoice)}
-                                  >
-                                    <Phone size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.phone.tooltip}
-                                  >
-                                    <Phone size={18} />
-                                  </button>
-                                )}
-
-                                {/* Statement button - Always visible */}
-                                {actions.statement.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-purple-400 hover:text-purple-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-purple-50 text-purple-600 bg-white'
-                                    }`}
-                                    title={actions.statement.tooltip}
-                                    onClick={() => handleGenerateStatement(invoice)}
-                                  >
-                                    <FileText size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.statement.tooltip}
-                                  >
-                                    <FileText size={18} />
-                                  </button>
-                                )}
-
-                                {/* Delivery Note button - Always visible */}
-                                {actions.deliveryNote.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      actions.deliveryNote.hasNotes
-                                        ? isDarkMode
-                                          ? 'text-yellow-400 hover:text-yellow-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-yellow-50 text-yellow-600 bg-white'
-                                        : isDarkMode
-                                          ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                          : 'hover:bg-green-50 text-green-600 bg-white'
-                                    }`}
-                                    title={actions.deliveryNote.tooltip}
-                                    onClick={() =>
-                                      actions.deliveryNote.hasNotes
-                                        ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
-                                        : handleCreateDeliveryNote(invoice)
-                                    }
-                                  >
-                                    <Truck size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.deliveryNote.tooltip}
-                                  >
-                                    <Truck size={18} />
-                                  </button>
-                                )}
-
-                                {/* Delete button - Always visible */}
-                                {actions.delete.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-red-400 hover:text-red-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-red-50 text-red-600 bg-white'
-                                    }`}
-                                    title={actions.delete.tooltip}
-                                    onClick={() => handleDeleteInvoice(invoice)}
-                                  >
-                                    <Trash2 size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.delete.tooltip}
-                                  >
-                                    <Trash2 size={18} />
-                                  </button>
-                                )}
-
-                                {/* Restore button - Always visible */}
-                                {actions.restore.enabled ? (
-                                  <button
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
-                                        : 'hover:bg-green-50 text-green-600 bg-white'
-                                    }`}
-                                    title={actions.restore.tooltip}
-                                    onClick={() => handleRestoreInvoice(invoice)}
-                                  >
-                                    <RotateCcw size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
-                                    }`}
-                                    title={actions.restore.tooltip}
-                                  >
-                                    <RotateCcw size={18} />
-                                  </button>
+                                  </div>
                                 )}
                               </>
                             );
@@ -2493,16 +2496,24 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                  paymentDrawerInvoice.paymentStatus === 'paid'
-                    ? 'bg-green-100 text-green-800 border-green-300'
-                    : paymentDrawerInvoice.paymentStatus === 'partially_paid'
-                      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                      : 'bg-red-100 text-red-800 border-red-300'
-                }`}>
-                  {paymentDrawerInvoice.paymentStatus === 'paid' ? 'Paid' :
-                    paymentDrawerInvoice.paymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
-                </span>
+                {/* Normalize payment status to handle API format variations */}
+                {(() => {
+                  const normalizedPaymentStatus = (paymentDrawerInvoice.paymentStatus || 'unpaid')
+                    .toLowerCase()
+                    .replace('payment_status_', '');
+                  return (
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
+                      normalizedPaymentStatus === 'paid'
+                        ? 'bg-green-100 text-green-800 border-green-300'
+                        : normalizedPaymentStatus === 'partially_paid'
+                          ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                          : 'bg-red-100 text-red-800 border-red-300'
+                    }`}>
+                      {normalizedPaymentStatus === 'paid' ? 'Paid' :
+                        normalizedPaymentStatus === 'partially_paid' ? 'Partially Paid' : 'Unpaid'}
+                    </span>
+                  );
+                })()}
                 <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18}/>
                 </button>

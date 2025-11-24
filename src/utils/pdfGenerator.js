@@ -281,41 +281,16 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   currentY = Math.max(currentY, rightY) + 8;
 
-  // ==================== CURRENCY INFO (UAE VAT Compliance) ====================
+  // ==================== CURRENCY INFO (Compact one-liner) ====================
   if (invoice.currency && invoice.currency !== 'AED') {
-    const currencyBoxHeight = 18;
-
-    // Light blue background box
-    pdf.setFillColor(239, 246, 255); // bg-blue-50
-    pdf.rect(margin, currentY, pageWidth - 2 * margin, currencyBoxHeight, 'F');
-
-    // Thick left border (blue-500)
-    pdf.setDrawColor(59, 130, 246);
-    pdf.setLineWidth(2);
-    pdf.line(margin, currentY, margin, currentY + currencyBoxHeight);
-
-    // Reset line width for other elements
-    pdf.setLineWidth(0.3);
-
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(30, 58, 138); // text-blue-900
-    pdf.text('Currency Information:', margin + 3, currentY + 5);
-
     pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(30, 64, 175); // text-blue-800
-
-    pdf.text(`Currency: ${invoice.currency}`, margin + 3, currentY + 9);
-    pdf.text(`Exchange Rate: 1 ${invoice.currency} = ${formatNumber(invoice.exchangeRate || 1)} AED`, margin + 50, currentY + 9);
-    const totalForeign = (invoice.total || 0) / (invoice.exchangeRate || 1);
-    pdf.text(`Total (${invoice.currency}): ${formatNumber(totalForeign)}`, margin + 3, currentY + 13);
-    pdf.text(`Total (AED): AED ${formatNumber(invoice.total || 0)}`, margin + 50, currentY + 13);
-
+    pdf.setFont('helvetica', 'italic');
+    pdf.setTextColor(100, 100, 100); // Gray text
+    pdf.text(`Exchange Rate: 1 ${invoice.currency} = ${formatNumber(invoice.exchangeRate || 1)} AED`, margin, currentY + 3);
+    
     // Reset text color
     setTextPrimary();
-
-    currentY += currencyBoxHeight + 5;
+    currentY += 8;
   }
 
   // ==================== TABLE SECTION (UAE VAT Compliant) ====================

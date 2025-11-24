@@ -255,7 +255,9 @@ const CreditNoteForm = () => {
       const invoice = await invoiceService.getInvoice(invoiceId);
 
       // Only allow credit notes for issued invoices
-      if (invoice.status !== 'issued') {
+      // Handle both 'issued' and 'STATUS_ISSUED' formats from API
+      const normalizedStatus = invoice.status?.toLowerCase().replace('status_', '');
+      if (normalizedStatus !== 'issued') {
         notificationService.warning('Credit notes can only be created for Final Tax Invoices');
         return;
       }
