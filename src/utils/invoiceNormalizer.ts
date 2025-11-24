@@ -224,9 +224,9 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, 'dueDate'),
       date: invoiceDateParsed,  // Legacy alias for invoiceDate
       promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null,  // Promise/delivery date
-      createdAt: rawInvoice.audit?.createdAt ?? rawInvoice.createdAt ?? undefined,
-      updatedAt: rawInvoice.audit?.updatedAt ?? rawInvoice.updatedAt ?? undefined,
-      deletedAt: rawInvoice.audit?.deletedAt ?? rawInvoice.deletedAt ?? null,
+      createdAt: rawInvoice.audit?.createdAt ?? rawInvoice.audit?.created_at ?? rawInvoice.createdAt ?? rawInvoice.created_at ?? undefined,
+      updatedAt: rawInvoice.audit?.updatedAt ?? rawInvoice.audit?.updated_at ?? rawInvoice.updatedAt ?? rawInvoice.updated_at ?? undefined,
+      deletedAt: rawInvoice.audit?.deletedAt ?? rawInvoice.audit?.deleted_at ?? rawInvoice.deletedAt ?? rawInvoice.deleted_at ?? null,
       
       // Invoice Revision Tracking (24-hour edit grace period)
       issuedAt: rawInvoice.issuedAt ? parseDate(rawInvoice.issuedAt, 'issuedAt') : null,
@@ -301,8 +301,8 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
       
       // Soft delete & recreation
-      deletionReason: rawInvoice.audit?.deletionReason ?? rawInvoice.deletionReason ?? null,
-      deletedBy: rawInvoice.audit?.deletedBy ?? rawInvoice.deletedBy ?? null,
+      deletionReason: rawInvoice.audit?.deletionReason ?? rawInvoice.audit?.deletion_reason ?? rawInvoice.deletionReason ?? rawInvoice.deletion_reason ?? null,
+      deletedBy: rawInvoice.audit?.deletedBy ?? rawInvoice.audit?.deleted_by ?? rawInvoice.deletedBy ?? rawInvoice.deleted_by ?? null,
       recreatedFrom: rawInvoice.recreatedFrom || rawInvoice.recreatedFrom || null,
       
       // Notes & Terms
