@@ -18,6 +18,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
+import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
 import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
 import useCreditNoteDrafts, { getDraftStatusMessage } from '../hooks/useCreditNoteDrafts';
@@ -94,6 +95,7 @@ const CreditNoteForm = () => {
   const [saving, setSaving] = useState(false);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [company, setCompany] = useState(null);
 
   // Form state
   const [creditNote, setCreditNote] = useState({
@@ -103,7 +105,13 @@ const CreditNoteForm = () => {
     customer: {
       id: null,
       name: '',
-      address: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        country: '',
+      },
       phone: '',
       email: '',
       trn: '',
@@ -255,6 +263,19 @@ const CreditNoteForm = () => {
     currentInvoiceId: currentInvoiceId ? parseInt(currentInvoiceId) : null,
     onConflict: handleDraftConflict,
   });
+
+  // Fetch company data for preview
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const companyData = await companyService.getCompany();
+        setCompany(companyData);
+      } catch (error) {
+        console.error('Failed to fetch company data:', error);
+      }
+    };
+    fetchCompany();
+  }, []);
 
   // Load credit note if editing, or load invoice from query param
   useEffect(() => {
@@ -1720,7 +1741,7 @@ const CreditNoteForm = () => {
       {showPreview && (
         <CreditNotePreview
           creditNote={creditNote}
-          company={null}
+          company={company}
           onClose={() => setShowPreview(false)}
         />
       )}

@@ -32,38 +32,50 @@ const transformCreditNoteForServer = (creditNoteData) => {
   };
 };
 
-// Backend returns pure snake_case - pass through with minimal processing
+// Backend returns data - transform to consistent camelCase for frontend
 const transformCreditNoteFromServer = (serverData) => {
   if (!serverData) return null;
 
+  // Transform items if present
+  const items = (serverData.items || []).map(item => ({
+    id: item.id,
+    productId: item.productId || item.product_id,
+    productName: item.productName || item.product_name || item.description || '',
+    description: item.description || item.productName || item.product_name || '',
+    quantity: parseFloat(item.quantity || 0),
+    quantityReturned: parseFloat(item.quantityReturned || item.quantity_returned || 0),
+    unitPrice: parseFloat(item.unitPrice || item.unit_price || item.rate || 0),
+    amount: parseFloat(item.amount || item.total || 0),
+    selected: (item.quantityReturned || item.quantity_returned || 0) > 0,
+  }));
+
   return {
-    ...serverData,
-    // Build customer object from flat fields
+    id: serverData.id,
+    creditNoteNumber: serverData.creditNoteNumber || serverData.credit_note_number || '',
+    invoiceId: serverData.invoiceId || serverData.invoice_id,
+    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || '',
+    customerId: serverData.customerId || serverData.customer_id,
+    customerName: serverData.customerName || serverData.customer_name || '',
     customer: {
-      id: serverData.customerId,
-      name: serverData.customerName || '',
-      address: serverData.customerAddress || '',
-      phone: serverData.customerPhone || '',
-      email: serverData.customerEmail || '',
-      trn: serverData.customerTrn || '',
+      id: serverData.customerId || serverData.customer_id,
+      name: serverData.customerName || serverData.customer_name || '',
+      address: serverData.customerAddress || serverData.customer_address || {},
+      phone: serverData.customerPhone || serverData.customer_phone || '',
+      email: serverData.customerEmail || serverData.customer_email || '',
+      trn: serverData.customerTrn || serverData.customer_trn || '',
     },
-    // Ensure numeric fields are numbers
-    subtotal: parseFloat(serverData.subtotal || 0),
-    vat_amount: parseFloat(serverData.vatAmount || 0),
-    total_credit: parseFloat(serverData.totalCredit || 0),
-    // Ensure items is array
-    items: (serverData.items || []).map(item => ({
-      ...item,
-      quantity_returned: parseFloat(item.quantityReturned || item.quantity || 0),
-      original_quantity: parseFloat(item.originalQuantity || 0),
-      rate: parseFloat(item.rate || 0),
-      amount: parseFloat(item.amount || 0),
-      vat_rate: parseFloat(item.vatRate || 5),
-      vat_amount: parseFloat(item.vatAmount || 0),
-      restocked_quantity: parseFloat(item.restockedQuantity || 0),
-      damaged_quantity: parseFloat(item.damagedQuantity || 0),
-      defective_quantity: parseFloat(item.defectiveQuantity || 0),
-    })),
+    creditNoteDate: serverData.creditNoteDate || serverData.credit_note_date || new Date().toISOString().split('T')[0],
+    status: serverData.status || 'draft',
+    creditNoteType: serverData.creditNoteType || serverData.credit_note_type || 'RETURN_WITH_QC',
+    reasonForReturn: serverData.reasonForReturn || serverData.reason_for_return || '',
+    items: items,
+    subtotal: parseFloat(serverData.subtotal || serverData.sub_total || 0),
+    vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
+    totalCredit: parseFloat(serverData.totalCredit || serverData.total_credit || 0),
+    manualCreditAmount: parseFloat(serverData.manualCreditAmount || serverData.manual_credit_amount || 0),
+    notes: serverData.notes || '',
+    createdAt: serverData.createdAt || serverData.created_at,
+    updatedAt: serverData.updatedAt || serverData.updated_at,
   };
 };
 

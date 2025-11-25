@@ -53,10 +53,14 @@ export const validateCreditNoteForDownload = (creditNote) => {
     warnings.push('Linked Invoice');
   }
 
-  // Check items or manual credit amount
-  const hasItems = creditNote.items && creditNote.items.length > 0;
-  const hasManualAmount = creditNote.manual_credit_amount > 0 || creditNote.manualCreditAmount > 0;
-  if (!hasItems && !hasManualAmount) {
+  // Check for items with actual returned quantities
+  const hasValidItems = creditNote.items && creditNote.items.some(item =>
+    (item.quantityReturned || item.quantity_returned || 0) > 0,
+  );
+  const hasManualAmount = (creditNote.manual_credit_amount || creditNote.manualCreditAmount || 0) > 0;
+  const hasTotalCredit = (creditNote.totalCredit || creditNote.total_credit || 0) > 0;
+
+  if (!hasValidItems && !hasManualAmount && !hasTotalCredit) {
     missing.items = true;
     warnings.push('Items or Manual Credit Amount');
   }

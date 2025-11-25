@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye, Pin, PinOff } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   formatCurrency,
@@ -18,16 +18,17 @@ import { PRODUCT_TYPES, STEEL_GRADES, FINISHES } from '../types';
 import { useApiData } from '../hooks/useApi';
 import { supplierService } from '../services/supplierService';
 import { notificationService } from '../services/notificationService';
+import { pinnedProductsService } from '../services/pinnedProductsService';
 import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
 const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
 const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }) => {
   const [formData, setFormData] = useState({
-    payment_date: new Date().toISOString().slice(0, 10),
+    paymentDate: new Date().toISOString().slice(0, 10),
     amount: '',
-    payment_method: 'cash',
-    reference_number: '',
+    paymentMethod: 'cash',
+    referenceNumber: '',
     notes: '',
   });
 
@@ -66,7 +67,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
             <input
               type="date"
               value={formData.paymentDate}
-              onChange={(e) => setFormData({...formData, payment_date: e.target.value})}
+              onChange={(e) => setFormData({...formData, paymentDate: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode 
                   ? 'bg-gray-800 border-gray-600 text-white' 
@@ -105,7 +106,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
             </label>
             <select
               value={formData.paymentMethod}
-              onChange={(e) => setFormData({...formData, payment_method: e.target.value})}
+              onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
                   ? 'bg-gray-800 border-gray-600 text-white'
@@ -127,7 +128,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
             <input
               type="text"
               value={formData.referenceNumber}
-              onChange={(e) => setFormData({...formData, reference_number: e.target.value})}
+              onChange={(e) => setFormData({...formData, referenceNumber: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode 
                   ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
@@ -428,6 +429,7 @@ const PurchaseOrderForm = () => {
       {
         productType: '',
         name: '', // This will be same as productType for consistency
+        productId: null, // Product ID for lookup
         grade: '',
         thickness: '',
         size: '',
@@ -441,6 +443,7 @@ const PurchaseOrderForm = () => {
         discountType: 'amount', // amount or percentage
         discount: 0,
         vatRate: 5, // Configurable VAT rate per item (default 5%)
+        supplyType: 'standard', // standard, zero_rated, exempt (matching Invoice form)
         amount: 0,
       },
     ],
@@ -483,7 +486,105 @@ const PurchaseOrderForm = () => {
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
-  
+
+  // Pinned products state (matching Invoice form)
+  const [pinnedProductIds, setPinnedProductIds] = useState([]);
+  const { data: pinnedData, refetch: refetchPinned } = useApiData(
+    () => pinnedProductsService.getPinnedProducts(),
+    [],
+  );
+
+  // Form preferences state (with localStorage persistence)
+  const [formPreferences, setFormPreferences] = useState(() => {
+    const saved = localStorage.getItem('purchaseOrderFormPreferences');
+    return saved ? JSON.parse(saved) : {
+      showSpeedButtons: true,
+    };
+  });
+
+  // Save preferences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('purchaseOrderFormPreferences', JSON.stringify(formPreferences));
+  }, [formPreferences]);
+
+  // Update pinned products when data loads
+  useEffect(() => {
+    if (pinnedData?.pinnedProducts) {
+      setPinnedProductIds(pinnedData.pinnedProducts);
+    }
+  }, [pinnedData]);
+
+  // Handle pin/unpin
+  const handleTogglePin = async (e, productId) => {
+    e.stopPropagation(); // Prevent adding item to PO
+    try {
+      if (pinnedProductIds.includes(productId)) {
+        await pinnedProductsService.unpinProduct(productId);
+        setPinnedProductIds(prev => prev.filter(pinnedId => pinnedId !== productId));
+      } else {
+        if (pinnedProductIds.length >= 10) {
+          notificationService.error('Maximum 10 products can be pinned');
+          return;
+        }
+        await pinnedProductsService.pinProduct(productId);
+        setPinnedProductIds(prev => [...prev, productId]);
+      }
+    } catch (error) {
+      notificationService.error(error.message || 'Failed to update pin');
+    }
+  };
+
+  // Get sorted products: pinned first, then top sold (matching Invoice form)
+  const sortedProducts = useMemo(() => {
+    const allProducts = availableProducts || [];
+    const pinned = allProducts.filter(p => pinnedProductIds.includes(p.id));
+    const unpinned = allProducts.filter(p => !pinnedProductIds.includes(p.id));
+    return [...pinned, ...unpinned].slice(0, 10);
+  }, [availableProducts, pinnedProductIds]);
+
+  // Quick add item from speed button (matching Invoice form)
+  const handleQuickAddItem = useCallback((product) => {
+    const newItem = {
+      productType: product.displayName || product.name,
+      name: product.displayName || product.name,
+      productId: product.id,
+      grade: product.grade || '',
+      finish: product.finish || '',
+      size: product.size || '',
+      thickness: product.thickness || '',
+      specification: product.specification || product.description || '',
+      itemDescription: '',
+      hsnCode: product.hsnCode || '',
+      unit: product.unit || 'kg',
+      quantity: 0,
+      rate: product.sellingPrice || product.purchasePrice || 0,
+      discountType: 'amount',
+      discount: 0,
+      vatRate: 5,
+      supplyType: 'standard',
+      amount: 0,
+    };
+
+    setPurchaseOrder((prev) => {
+      const updatedItems = [...prev.items, newItem];
+      const subtotal = calculateSubtotal(updatedItems);
+      const vatAmount = updatedItems.reduce((sum, item) => {
+        const itemAmount = item.amount || 0;
+        const vatRate = item.vatRate || 0;
+        return sum + (itemAmount * vatRate / 100);
+      }, 0);
+      const total = subtotal + vatAmount;
+
+      return {
+        ...prev,
+        items: updatedItems,
+        subtotal,
+        vatAmount,
+        total,
+      };
+    });
+  }, []);
+
   // Payment calculation functions
   const updatePaymentStatus = (paymentList, total) => {
     const totalPaid = paymentList.filter(p => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
@@ -803,12 +904,17 @@ const PurchaseOrderForm = () => {
         ...updatedItems[index],
         productType: product.displayName || product.name,
         name: product.displayName || product.name,
+        productId: product.id,
         grade: product.grade || product.steelGrade || '',
         finish,
         size: product.size || product.dimensions || '',
         thickness,
         specification: product.specification || product.description || '',
+        hsnCode: product.hsnCode || '',
+        unit: product.unit || 'kg',
         rate: product.sellingPrice || product.purchasePrice || product.price || 0,
+        supplyType: updatedItems[index].supplyType || 'standard',
+        vatRate: updatedItems[index].vatRate || 5,
       };
 
       // Calculate amount if quantity exists
@@ -816,9 +922,13 @@ const PurchaseOrderForm = () => {
         updatedItems[index].amount = updatedItems[index].quantity * (product.sellingPrice || product.purchasePrice || 0);
       }
 
-      // Recalculate totals
+      // Recalculate totals with item-level VAT rates
       const subtotal = calculateSubtotal(updatedItems);
-      const vatAmount = subtotal * 0.05; // 5% TRN
+      const vatAmount = updatedItems.reduce((sum, item) => {
+        const itemAmount = item.amount || 0;
+        const vatRate = item.vatRate || 0;
+        return sum + (itemAmount * vatRate / 100);
+      }, 0);
       const total = subtotal + vatAmount;
 
       setPurchaseOrder((prev) => ({
@@ -882,8 +992,17 @@ const PurchaseOrderForm = () => {
       [field]: value,
     };
 
+    // Auto-update VAT rate based on supply type (matching Invoice form)
+    if (field === 'supplyType') {
+      if (value === 'standard') {
+        updatedItems[index].vatRate = 5;
+      } else if (value === 'zero_rated' || value === 'exempt') {
+        updatedItems[index].vatRate = 0;
+      }
+    }
+
     // Calculate amount when quantity, rate, discount, or VAT changes
-    if (field === 'quantity' || field === 'rate' || field === 'discount' || field === 'discountType' || field === 'vatRate') {
+    if (field === 'quantity' || field === 'rate' || field === 'discount' || field === 'discountType' || field === 'vatRate' || field === 'supplyType') {
       const item = updatedItems[index];
       const quantity = field === 'quantity' ? (parseFloat(value) || 0) : item.quantity;
       const rate = field === 'rate' ? (parseFloat(value) || 0) : item.rate;
@@ -951,6 +1070,7 @@ const PurchaseOrderForm = () => {
         {
           productType: '',
           name: '',
+          productId: null,
           grade: '',
           thickness: '',
           size: '',
@@ -964,6 +1084,7 @@ const PurchaseOrderForm = () => {
           discountType: 'amount',
           discount: 0,
           vatRate: 5,
+          supplyType: 'standard',
           amount: 0,
         },
       ],
@@ -1079,6 +1200,7 @@ const PurchaseOrderForm = () => {
         supplier_email: poData.supplierEmail || null,
         supplier_phone: poData.supplierPhone || null,
         supplier_address: poData.supplierAddress || null,
+        supplier_trn: poData.supplierTRN || null,
         po_date: poData.poDate,
         expected_delivery_date: poData.expectedDeliveryDate || null,
         status: poData.status,
@@ -1089,6 +1211,24 @@ const PurchaseOrderForm = () => {
         supplier_contact_name: poData.supplierContactName || null,
         supplier_contact_email: poData.supplierContactEmail || null,
         supplier_contact_phone: poData.supplierContactPhone || null,
+        // Buyer fields
+        buyer_name: poData.buyerName || null,
+        buyer_email: poData.buyerEmail || null,
+        buyer_phone: poData.buyerPhone || null,
+        buyer_department: poData.buyerDepartment || null,
+        // Trade terms
+        incoterms: poData.incoterms || null,
+        // Approval workflow
+        approval_status: poData.approvalStatus || 'pending',
+        // Additional charges
+        freight_charges: parseFloat(poData.freightCharges) || 0,
+        shipping_charges: parseFloat(poData.shippingCharges) || 0,
+        handling_charges: parseFloat(poData.handlingCharges) || 0,
+        other_charges: parseFloat(poData.otherCharges) || 0,
+        // Order-level discount
+        discount_type: poData.discountType || 'amount',
+        discount_percentage: parseFloat(poData.discountPercentage) || 0,
+        discount_amount: parseFloat(poData.discountAmount) || 0,
         // Only include warehouse_id if it's a real warehouse from API
         ...(useApiWarehouse ? { warehouse_id: parseInt(selectedWarehouse) } : {}),
         warehouse_name: selectedWarehouseDetails ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})` : '',
@@ -1122,12 +1262,11 @@ const PurchaseOrderForm = () => {
           quantity: parseFloat(item.quantity) || 0,
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0,
+          vat_rate: parseFloat(item.vatRate) || 5,
+          unit: item.unit || 'kg',
         })),
       };
-      
-      // Log the full data structure for debugging
-      console.log('Submitting PO data:', JSON.stringify(transformedData, null, 2));
-      
+
       let savedPO;
       if (id) {
         // Update existing purchase order
@@ -1143,13 +1282,11 @@ const PurchaseOrderForm = () => {
           const stockStatusResponse = await (await import('../services/api')).apiClient.patch(`/purchase-orders/${savedPO.id}/stock-status`, {
             stock_status: 'received',
           });
-          console.log('Stock status updated and inventory created:', stockStatusResponse);
-          
+
           if (stockStatusResponse.inventoryCreated) {
             notificationService.success('Inventory items created successfully!');
           }
         } catch (stockError) {
-          console.error('Error updating stock status:', stockError);
           notificationService.warning('Purchase order saved but inventory creation failed. Please check the inventory manually.');
         }
       }
@@ -1160,7 +1297,6 @@ const PurchaseOrderForm = () => {
       
       navigate('/purchase-orders');
     } catch (error) {
-      console.error('Error saving purchase order:', error);
       const action = id ? 'update' : 'create';
       
       // Extract more detailed error message
@@ -1186,10 +1322,7 @@ const PurchaseOrderForm = () => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
-      console.log('Detailed error:', errorData);
-      console.log('Error messages:', errorData?.errors);
-      
+
       // Handle specific warehouse foreign key error
       if (errorData?.message && errorData.message.includes('Warehouse with ID')) {
         notificationService.error(
@@ -1799,78 +1932,127 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
 
-          {/* Items */}
+          {/* Line Items - Matching Invoice Form Structure */}
           <div className={`p-6 mt-6 rounded-xl border ${
             isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
           }`}>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Items
+            <div className="mb-4">
+              <h2 className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Line Items
               </h2>
+            </div>
+
+            {/* Quick Add Speed Buttons - Pinned & Top Products (matching Invoice form) */}
+            {formPreferences.showSpeedButtons && (
+              <div className="mb-4">
+                <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Quick Add (Pinned & Top Products)
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {sortedProducts.slice(0, 8).map((product) => {
+                    const isPinned = pinnedProductIds.includes(product.id);
+                    return (
+                      <div key={product.id} className="relative group">
+                        <button
+                          onClick={() => handleQuickAddItem(product)}
+                          className={`w-full px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
+                            isPinned
+                              ? isDarkMode
+                                ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg'
+                                : 'border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg'
+                              : isDarkMode
+                                ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
+                                : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
+                          }`}
+                          title={product.displayName || product.name}
+                        >
+                          {product.displayName || product.name}
+                        </button>
+                        <button
+                          onClick={(e) => handleTogglePin(e, product.id)}
+                          className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
+                            isPinned
+                              ? isDarkMode
+                                ? 'text-teal-300 hover:text-teal-200'
+                                : 'text-teal-700 hover:text-teal-800'
+                              : isDarkMode
+                                ? 'text-gray-400 hover:text-teal-400'
+                                : 'text-gray-500 hover:text-teal-600'
+                          }`}
+                          title={isPinned ? 'Unpin product' : 'Pin product'}
+                        >
+                          {isPinned ? <Pin size={14} fill="currentColor" /> : <Pin size={14} />}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Add Item Button */}
+            <div className="mb-4">
               <button
                 onClick={addItem}
-                className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-colors ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
-                }`}
+                className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md min-h-[44px]"
               >
                 <Plus size={18} />
-                Add Item
+                <span className="hidden sm:inline">Add Item</span>
+                <span className="sm:hidden">Add</span>
               </button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+            {/* Items Table - Desktop (Matching Invoice Form Columns) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full table-fixed divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}">
+                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Product Type
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '38%' }}>
+                      Product
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Grade
-                    </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Thickness
-                    </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Size
-                    </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Finish
-                    </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
                       Qty
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
                       Rate
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
+                      Supply Type
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                      VAT %
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '14%' }}>
                       Amount
                     </th>
-                    <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Actions
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                      Action
                     </th>
                   </tr>
                 </thead>
-                <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                  {purchaseOrder.items.map((item, index) => (
-                    <React.Fragment key={index}>
-                      <tr>
-                        <td className="px-4 py-3">
-                          <div className="w-48">
+                <tbody className={`divide-y ${isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'}`}>
+                  {purchaseOrder.items.map((item, index) => {
+                    const tooltip = [
+                      item.name ? `Name: ${item.name}` : '',
+                      item.grade ? `Grade: ${item.grade}` : '',
+                      item.finish ? `Finish: ${item.finish}` : '',
+                      item.size ? `Size: ${item.size}` : '',
+                      item.thickness ? `Thickness: ${item.thickness}` : '',
+                      item.unit ? `Unit: ${item.unit}` : '',
+                      item.hsnCode ? `HSN: ${item.hsnCode}` : '',
+                    ].filter(Boolean).join('\n');
+                    return (
+                      <tr key={index} data-item-index={index}>
+                        <td className="px-2 py-2 align-middle">
+                          <div className="w-full">
                             <Autocomplete
                               options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
                               value={
                                 item.productId
-                                  ? productOptions.find(
-                                    (p) => p.id === item.productId,
-                                  )
+                                  ? productOptions.find((p) => p.id === item.productId)
                                   : null
                               }
-                              inputValue={
-                                searchInputs[index] || item.name || ''
-                              }
+                              inputValue={searchInputs[index] || item.name || ''}
                               onInputChange={(event, newInputValue) => {
                                 handleSearchInputChange(index, newInputValue);
                               }}
@@ -1885,275 +2067,245 @@ const PurchaseOrderForm = () => {
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">{option.name}</div>
-                                  <div
-                                    className={`text-sm ${
-                                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                                    }`}
-                                  >
+                                  <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     {option.subtitle}
                                   </div>
                                 </div>
                               )}
+                              noOptionsText="No products found"
                             />
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="relative">
-                            <select
-                              value={item.grade}
-                              onChange={(e) => handleItemChange(index, 'grade', e.target.value)}
-                              className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                                isDarkMode 
-                                  ? 'bg-gray-800 border-gray-600 text-white' 
-                                  : 'bg-white border-gray-300 text-gray-900'
-                              }`}
-                            >
-                              <option value="">Select Grade</option>
-                              {STEEL_GRADES.map((grade) => (
-                                <option key={grade} value={grade}>
-                                  {grade}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                              <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            value={item.thickness}
-                            onChange={(e) => handleItemChange(index, 'thickness', e.target.value)}
-                            placeholder="e.g., 12mm"
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                              isDarkMode 
-                                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                            }`}
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            value={item.size}
-                            onChange={(e) => handleItemChange(index, 'size', e.target.value)}
-                            placeholder="e.g., 4x8"
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                              isDarkMode 
-                                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                            }`}
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="relative">
-                            <select
-                              value={item.finish}
-                              onChange={(e) => handleItemChange(index, 'finish', e.target.value)}
-                              className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                                isDarkMode 
-                                  ? 'bg-gray-800 border-gray-600 text-white' 
-                                  : 'bg-white border-gray-300 text-gray-900'
-                              }`}
-                            >
-                              <option value="">Select Finish</option>
-                              {FINISHES.map((finish) => (
-                                <option key={finish} value={finish}>
-                                  {finish}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                              <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.quantity}
-                            onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            value={item.quantity || ''}
+                            onChange={(e) => handleItemChange(index, 'quantity', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                            min="0"
+                            step="1"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
                               isDarkMode
                                 ? 'bg-gray-800 border-gray-600 text-white'
                                 : 'bg-white border-gray-300 text-gray-900'
                             } ${invalidFields.has(`item.${index}.quantity`) ? 'border-red-500' : ''}`}
                           />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.rate}
-                            onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
-                            className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            value={item.rate || ''}
+                            onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            min="0"
+                            step="0.01"
+                            className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
                               isDarkMode
                                 ? 'bg-gray-800 border-gray-600 text-white'
                                 : 'bg-white border-gray-300 text-gray-900'
                             } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
                           />
                         </td>
-                        <td className="px-4 py-3">
-                          <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <td className="px-2 py-2 align-middle">
+                          <select
+                            value={item.supplyType || 'standard'}
+                            onChange={(e) => handleItemChange(index, 'supplyType', e.target.value)}
+                            className={`w-full px-2 py-1 border rounded text-xs ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="standard">Standard (5%)</option>
+                            <option value="zero_rated">Zero-Rated (0%)</option>
+                            <option value="exempt">Exempt</option>
+                          </select>
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <input
+                            type="number"
+                            value={item.vatRate || ''}
+                            onChange={(e) => handleItemChange(index, 'vatRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            min="0"
+                            max="15"
+                            step="0.01"
+                            placeholder="5.00"
+                            className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
+                              isDarkMode
+                                ? 'bg-gray-800 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          />
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <div className={`font-medium text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             {formatCurrency(item.amount)}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => setExpandedItems(prev => ({ ...prev, [index]: !prev[index] }))}
-                              className={`p-2 rounded transition-colors ${
-                                isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-                              }`}
-                              title="More Details"
-                            >
-                              <ChevronDown
-                                size={16}
-                                className={`transition-transform ${expandedItems[index] ? 'rotate-180' : ''}`}
-                              />
-                            </button>
-                            <button
-                              onClick={() => removeItem(index)}
-                              disabled={purchaseOrder.items.length === 1}
-                              className={`p-2 rounded transition-colors ${
-                                purchaseOrder.items.length === 1
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'
-                              }`}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
+                        <td className="px-2 py-2 align-middle text-center">
+                          <button
+                            onClick={() => removeItem(index)}
+                            disabled={purchaseOrder.items.length === 1}
+                            className={`hover:text-red-300 ${
+                              isDarkMode
+                                ? 'text-red-400 disabled:text-gray-600'
+                                : 'text-red-500 disabled:text-gray-400'
+                            }`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </td>
                       </tr>
-                      {expandedItems[index] && (
-                        <tr>
-                          <td colSpan="9" className={`px-4 py-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Item Description
-                                </label>
-                                <textarea
-                                  rows={2}
-                                  value={item.itemDescription}
-                                  onChange={(e) => handleItemChange(index, 'itemDescription', e.target.value)}
-                                  placeholder="Detailed description of the item"
-                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                  }`}
-                                />
-                              </div>
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                HSN/SAC Code
-                                </label>
-                                <input
-                                  type="text"
-                                  value={item.hsnCode}
-                                  onChange={(e) => handleItemChange(index, 'hsnCode', e.target.value)}
-                                  placeholder="e.g., 72101100"
-                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                  }`}
-                                />
-                              </div>
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Unit of Measure
-                                </label>
-                                <div className="relative">
-                                  <select
-                                    value={item.unit}
-                                    onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                                      isDarkMode
-                                        ? 'bg-gray-700 border-gray-600 text-white'
-                                        : 'bg-white border-gray-300 text-gray-900'
-                                    }`}
-                                  >
-                                    <option value="kg">kg - Kilograms</option>
-                                    <option value="mt">mt - Metric Ton</option>
-                                    <option value="pcs">pcs - Pieces</option>
-                                    <option value="sqm">sqm - Square Meters</option>
-                                    <option value="sqft">sqft - Square Feet</option>
-                                    <option value="ltr">ltr - Liters</option>
-                                  </select>
-                                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                                  </div>
-                                </div>
-                              </div>
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Discount Type
-                                </label>
-                                <div className="relative">
-                                  <select
-                                    value={item.discountType}
-                                    onChange={(e) => handleItemChange(index, 'discountType', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                                      isDarkMode
-                                        ? 'bg-gray-700 border-gray-600 text-white'
-                                        : 'bg-white border-gray-300 text-gray-900'
-                                    }`}
-                                  >
-                                    <option value="amount">Amount</option>
-                                    <option value="percentage">Percentage</option>
-                                  </select>
-                                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                                  </div>
-                                </div>
-                              </div>
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Discount {item.discountType === 'percentage' ? '(%)' : `(${purchaseOrder.currency})`}
-                                </label>
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  value={item.discount}
-                                  onChange={(e) => handleItemChange(index, 'discount', e.target.value)}
-                                  placeholder="0.00"
-                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                  }`}
-                                />
-                              </div>
-                              <div>
-                                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                VAT Rate (%)
-                                </label>
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  max="100"
-                                  value={item.vatRate}
-                                  onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
-                                  placeholder="5.00"
-                                  className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                  }`}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Items Cards - Mobile (Matching Invoice Form) */}
+            <div className="md:hidden space-y-4">
+              {purchaseOrder.items.map((item, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border ${
+                    isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                  }`}
+                  data-item-index={index}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Item #{index + 1}
+                    </h4>
+                    <button
+                      onClick={() => removeItem(index)}
+                      disabled={purchaseOrder.items.length === 1}
+                      className={`hover:text-red-300 ${
+                        isDarkMode
+                          ? 'text-red-400 disabled:text-gray-600'
+                          : 'text-red-500 disabled:text-gray-400'
+                      }`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Autocomplete
+                      options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
+                      value={
+                        item.productId
+                          ? productOptions.find((p) => p.id === item.productId)
+                          : null
+                      }
+                      inputValue={searchInputs[index] || item.name || ''}
+                      onInputChange={(event, newInputValue) => {
+                        handleSearchInputChange(index, newInputValue);
+                      }}
+                      onChange={(event, newValue) => {
+                        if (newValue) {
+                          handleProductSelect(index, newValue.name);
+                        }
+                      }}
+                      label="Product"
+                      placeholder="Search products..."
+                      disabled={loading}
+                      error={invalidFields.has(`item.${index}.name`)}
+                      renderOption={(option) => (
+                        <div>
+                          <div className="font-medium">{option.name}</div>
+                          <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {option.subtitle}
+                          </div>
+                        </div>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Quantity
+                        </label>
+                        <input
+                          type="number"
+                          value={item.quantity || ''}
+                          onChange={(e) => handleItemChange(index, 'quantity', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                          min="0"
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${invalidFields.has(`item.${index}.quantity`) ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Rate
+                        </label>
+                        <input
+                          type="number"
+                          value={item.rate || ''}
+                          onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                          min="0"
+                          step="0.01"
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Supply Type
+                        </label>
+                        <select
+                          value={item.supplyType || 'standard'}
+                          onChange={(e) => handleItemChange(index, 'supplyType', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        >
+                          <option value="standard">Standard (5%)</option>
+                          <option value="zero_rated">Zero-Rated (0%)</option>
+                          <option value="exempt">Exempt</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          VAT %
+                        </label>
+                        <input
+                          type="number"
+                          value={item.vatRate || ''}
+                          onChange={(e) => handleItemChange(index, 'vatRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                          min="0"
+                          max="15"
+                          step="0.01"
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <div className="flex justify-between items-center">
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Amount</span>
+                        <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(item.amount)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />

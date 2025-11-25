@@ -12,7 +12,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
+import { formatCurrency, formatDate, formatAddress } from '../../utils/invoiceUtils';
 import { validateCreditNoteForDownload } from '../../utils/recordUtils';
 
 const CreditNotePreview = ({ creditNote, company, onClose }) => {
@@ -47,10 +47,11 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
     return labels[type] || type;
   };
 
-  // Calculate totals
+  // Calculate totals - handle both naming conventions
   const subtotal = creditNote.subtotal || creditNote.sub_total || 0;
   const vatAmount = creditNote.vatAmount || creditNote.vat_amount || 0;
-  const totalCredit = creditNote.totalCredit || creditNote.total_credit || 0;
+  const totalCredit = creditNote.totalCredit || creditNote.total_credit ||
+                      (parseFloat(subtotal) + parseFloat(vatAmount)) || 0;
   const manualAmount = creditNote.manualCreditAmount || creditNote.manual_credit_amount || 0;
 
   return (
@@ -88,9 +89,18 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">{company?.name || 'Company Name'}</p>
-                  <p className="text-sm text-red-100">{company?.address || ''}</p>
-                  <p className="text-sm text-red-100">{company?.phone || ''}</p>
+                  <p className="font-semibold">{company?.name || 'Ultimate Steel Trading LLC'}</p>
+                  {(() => {
+                    const addr = formatAddress(company?.address);
+                    return (
+                      <>
+                        {addr.line1 && <p className="text-sm text-red-100">{addr.line1}</p>}
+                        {addr.line2 && <p className="text-sm text-red-100">{addr.line2}</p>}
+                      </>
+                    );
+                  })()}
+                  {company?.phone && <p className="text-sm text-red-100">{company.phone}</p>}
+                  {company?.vatNumber && <p className="text-sm text-red-100 font-semibold mt-1">TRN: {company.vatNumber}</p>}
                 </div>
               </div>
             </div>
@@ -105,7 +115,16 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     Customer
                   </h3>
                   <p className="font-medium">{creditNote.customer?.name || 'N/A'}</p>
-                  <p className="text-sm">{creditNote.customer?.address || ''}</p>
+                  {/* Customer address - handle both object and string */}
+                  {(() => {
+                    const addr = formatAddress(creditNote.customer?.address);
+                    return (
+                      <>
+                        {addr.line1 && <p className="text-sm">{addr.line1}</p>}
+                        {addr.line2 && <p className="text-sm">{addr.line2}</p>}
+                      </>
+                    );
+                  })()}
                   <p className="text-sm">{creditNote.customer?.phone || ''}</p>
                   {creditNote.customer?.trn && (
                     <p className="text-sm">TRN: {creditNote.customer.trn}</p>
@@ -167,7 +186,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                       </thead>
                       <tbody>
                         {creditNote.items
-                          .filter(item => item.selected || item.quantityReturned > 0 || item.quantity_returned > 0)
+                          .filter(item => (item.quantityReturned || item.quantity_returned || 0) > 0)
                           .map((item, index) => {
                             const qty = item.quantityReturned || item.quantity_returned || 0;
                             const price = item.unitPrice || item.unit_price || item.rate || 0;
@@ -273,7 +292,16 @@ CreditNotePreview.propTypes = {
     invoice_number: PropTypes.string,
     customer: PropTypes.shape({
       name: PropTypes.string,
-      address: PropTypes.string,
+      address: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.shape({
+          street: PropTypes.string,
+          city: PropTypes.string,
+          state: PropTypes.string,
+          postal_code: PropTypes.string,
+          country: PropTypes.string,
+        }),
+      ]),
       phone: PropTypes.string,
       trn: PropTypes.string,
     }),

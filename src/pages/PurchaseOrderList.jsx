@@ -136,7 +136,6 @@ const PurchaseOrderList = () => {
       };
       
       const response = await purchaseOrdersAPI.getAll(params);
-      console.log('PO List API Response:', response);
       
       // Handle different response formats
       let orders = [];
@@ -159,7 +158,6 @@ const PurchaseOrderList = () => {
       setPurchaseOrders(orders);
       setTotalPages(Math.ceil(total / 10));
     } catch (err) {
-      console.error('Error fetching purchase orders:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch purchase orders';
       setError(errorMessage);
       notificationService.error(errorMessage);
@@ -186,7 +184,7 @@ const PurchaseOrderList = () => {
     // Validate before download
     const validation = validatePurchaseOrderForDownload(po);
     if (!validation.isValid) {
-      notificationService.error(`Cannot download: ${validation.errors.join(', ')}`);
+      notificationService.error(`Cannot download: ${validation.warnings.join(', ')}`);
       return;
     }
 
@@ -198,7 +196,6 @@ const PurchaseOrderList = () => {
       await purchaseOrdersAPI.downloadPDF(po.id);
       notificationService.success('PDF downloaded successfully');
     } catch (err) {
-      console.error('Error downloading PDF:', err);
       notificationService.error('Failed to download PDF');
     } finally {
       setDownloadingIds((prev) => {
@@ -354,6 +351,9 @@ const PurchaseOrderList = () => {
                   Total
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Transit Status
                 </th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -364,7 +364,7 @@ const PurchaseOrderList = () => {
             <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {purchaseOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <td colSpan={8} className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No purchase orders found
                   </td>
                 </tr>
@@ -378,7 +378,7 @@ const PurchaseOrderList = () => {
                       </div>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {po.supplierName}
+                      {po.supplierName || po.supplierDetails?.name || po.supplierDetails?.companyName || '-'}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {formatDate(po.poDate)}
@@ -387,9 +387,10 @@ const PurchaseOrderList = () => {
                       {po.items?.length || 0} items
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(
-                        po.items?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0,
-                      )}
+                      {formatCurrency(po.total || po.subtotal || po.items?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0, po.currency)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(po.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getTransitStatusBadge(po)}

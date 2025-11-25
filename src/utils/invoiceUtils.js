@@ -245,3 +245,29 @@ export const getCompanyImages = (company) => {
   
   return { logoUrl, sealUrl };
 };
+
+/**
+ * Format an address object to displayable strings
+ * @param {Object|string} address - Address object or string
+ * @returns {Object} { line1, line2, full }
+ */
+export const formatAddress = (address) => {
+  if (!address) return { line1: '', line2: '', full: '' };
+
+  // If already a string, return as-is
+  if (typeof address === 'string') {
+    return { line1: address, line2: '', full: address };
+  }
+
+  const line1 = address.street || '';
+  const cityParts = [address.city, address.state, address.postal_code].filter(Boolean);
+  const line2Parts = [...cityParts];
+  if (address.country) line2Parts.push(address.country);
+  const line2 = line2Parts.join(', ');
+
+  return {
+    line1,
+    line2,
+    full: [line1, line2].filter(Boolean).join(', '),
+  };
+};

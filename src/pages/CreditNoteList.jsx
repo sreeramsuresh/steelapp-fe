@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
+import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -39,8 +40,16 @@ const STATUS_COLORS = {
 };
 
 const TYPE_LABELS = {
-  ACCOUNTING_ONLY: { label: 'Accounting', color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
-  RETURN_WITH_QC: { label: 'Return + QC', color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20' },
+  ACCOUNTING_ONLY: {
+    label: 'Accounting',
+    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+    text: 'text-cyan-700 dark:text-cyan-300',
+  },
+  RETURN_WITH_QC: {
+    label: 'Return + QC',
+    bg: 'bg-purple-100 dark:bg-purple-900/30',
+    text: 'text-purple-700 dark:text-purple-300',
+  },
 };
 
 const CreditNoteList = ({ preSelectedInvoiceId }) => {
@@ -65,6 +74,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const [previewCreditNote, setPreviewCreditNote] = useState(null);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
 
+  // Company data for preview
+  const [company, setCompany] = useState(null);
+
   // Draft management
   const { allDrafts, hasDrafts, deleteDraft, refreshDrafts } = useCreditNoteDrafts();
 
@@ -85,6 +97,19 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       notificationService.info('Draft discarded');
     }
   };
+
+  // Fetch company data for preview
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const companyData = await companyService.getCompany();
+        setCompany(companyData);
+      } catch (error) {
+        console.error('Failed to fetch company data:', error);
+      }
+    };
+    fetchCompany();
+  }, []);
 
   // Auto-navigate to credit note form if invoiceId is provided (from invoice list)
   useEffect(() => {
@@ -146,10 +171,19 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     }
   };
 
-  // Handle preview - opens preview modal
-  const handlePreview = (creditNote) => {
-    setPreviewCreditNote(creditNote);
-    setShowPreview(true);
+  // Handle preview - opens preview modal with full credit note data
+  const handlePreview = async (creditNote) => {
+    try {
+      // Fetch full credit note with items
+      const fullCreditNote = await creditNoteService.getCreditNote(creditNote.id);
+      setPreviewCreditNote(fullCreditNote);
+      setShowPreview(true);
+    } catch (error) {
+      console.error('Failed to load credit note details:', error);
+      // Fallback to existing data
+      setPreviewCreditNote(creditNote);
+      setShowPreview(true);
+    }
   };
 
   // Handle PDF download with validation
@@ -420,7 +454,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         {(() => {
                           const typeConfig = TYPE_LABELS[creditNote.creditNoteType || creditNote.credit_note_type] || TYPE_LABELS.RETURN_WITH_QC;
                           return (
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeConfig.color}`}>
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeConfig.bg} ${typeConfig.text}`}>
                               {typeConfig.label}
                             </span>
                           );
@@ -577,7 +611,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       {showPreview && previewCreditNote && (
         <CreditNotePreview
           creditNote={previewCreditNote}
-          company={null}
+          company={company}
           onClose={() => {
             setShowPreview(false);
             setPreviewCreditNote(null);
