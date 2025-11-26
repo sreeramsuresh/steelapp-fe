@@ -29,8 +29,8 @@ import {
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import { createCompany } from '../types';
 import { invoiceService } from '../services/dataService';
+import { companyService } from '../services';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
 import { deliveryNotesAPI, accountStatementsAPI, apiClient } from '../services/api';
 import { notificationService } from '../services/notificationService';
@@ -275,7 +275,8 @@ const assertPaymentConsistency = (invoice) => {
  */
 const isRecentlyModified = (invoice) => {
   // Try updatedAt first (covers edits), then fallback to createdAt
-  const timestamp = invoice.updatedAt || invoice.createdAt;
+  // Support both camelCase and snake_case field formats from API
+  const timestamp = invoice.updatedAt || invoice.updated_at || invoice.createdAt || invoice.created_at;
   if (!timestamp) return false;
   
   // Handle both ISO string and gRPC timestamp {seconds, nanos} format
@@ -354,9 +355,26 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     'payment',
   );
 
-  const company = createCompany();
+  // Company data for invoice preview - fetch real data including logo and template settings
+  const [company, setCompany] = useState(null);
+
+  // Fetch company data on mount (required for invoice preview to show logo and correct template)
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const companyData = await companyService.getCompany();
+        setCompany(companyData);
+      } catch (error) {
+        console.error('Failed to fetch company data:', error);
+        // Fallback to empty object - InvoicePreview will use DEFAULT_TEMPLATE_SETTINGS
+        setCompany({});
+      }
+    };
+    fetchCompany();
+  }, []);
 
   // Process delivery note status from invoice data
+  // Enhanced to include firstId and isFullyDelivered for smart navigation
   const processDeliveryNoteStatus = (invoiceList) => {
     const statusMap = {};
 
@@ -365,9 +383,11 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         statusMap[invoice.id] = {
           hasNotes: invoice.deliveryStatus.hasNotes,
           count: invoice.deliveryStatus.count,
+          firstId: invoice.deliveryStatus.firstId || null,
+          isFullyDelivered: invoice.deliveryStatus.isFullyDelivered || false,
         };
       } else {
-        statusMap[invoice.id] = { hasNotes: false, count: 0 };
+        statusMap[invoice.id] = { hasNotes: false, count: 0, firstId: null, isFullyDelivered: false };
       }
     });
 
@@ -1281,6 +1301,27 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
+  /**
+   * Smart Delivery Note Navigation
+   * - No DN: Navigate to create form with invoice pre-selected
+   * - 1 DN: Navigate directly to that DN details
+   * - Multiple DNs: Navigate to filtered list
+   */
+  const handleDeliveryNoteClick = (invoice, actions) => {
+    if (actions.deliveryNote.hasNotes) {
+      if (actions.deliveryNote.count === 1 && actions.deliveryNote.firstId) {
+        // Single DN - navigate directly to it
+        navigate(`/delivery-notes/${actions.deliveryNote.firstId}`);
+      } else {
+        // Multiple DNs - show filtered list
+        navigate(`/delivery-notes?invoiceId=${invoice.id}`);
+      }
+    } else {
+      // No DN - navigate to create form with invoice pre-selected
+      navigate('/delivery-notes/new', { state: { selectedInvoiceId: invoice.id } });
+    }
+  };
+
   const handleDeleteInvoice = (invoice) => {
     // Open modal to collect deletion reason
     setInvoiceToDelete(invoice);
@@ -1388,6 +1429,18 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       const fullInvoice = await invoiceService.getInvoice(invoice.id);
       setPreviewInvoice(fullInvoice);
       setShowPreviewModal(true);
+
+      // If company data not loaded yet, fetch it now
+      // This ensures preview shows correct logo and template settings
+      if (!company) {
+        try {
+          const companyData = await companyService.getCompany();
+          setCompany(companyData);
+        } catch (companyError) {
+          console.warn('Failed to fetch company data for preview:', companyError);
+          // Continue showing preview with defaults
+        }
+      }
     } catch (error) {
       console.error('Error fetching invoice:', error);
       notificationService.error('Failed to load invoice details');
@@ -1501,13 +1554,16 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
       }`}
     >
-      {/* Invoice Preview Modal */}
+      {/* Invoice Preview Modal
+          Uses company data for template settings (colors, logo, fonts).
+          Falls back to DEFAULT_TEMPLATE_SETTINGS if company not loaded.
+          This ensures preview matches final PDF appearance. */}
       {showPreviewModal && previewInvoice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <InvoicePreview
               invoice={previewInvoice}
-              company={company}
+              company={company || {}}
               onClose={() => {
                 setShowPreviewModal(false);
                 setPreviewInvoice(null);
@@ -2217,6 +2273,56 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   </button>
                                 )}
 
+                                {/* Delivery Note Direct Action - Smart Navigation with Badge */}
+                                {/* Icon colors: Green truck = no DN (create mode), Blue truck = has DN (view mode) */}
+                                {actions.deliveryNote.enabled ? (
+                                  <button
+                                    onClick={() => handleDeliveryNoteClick(invoice, actions)}
+                                    className={`relative p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                                      actions.deliveryNote.hasNotes
+                                        ? isDarkMode
+                                          ? 'text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-blue-50 text-blue-600 bg-white'
+                                        : isDarkMode
+                                          ? 'text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50'
+                                          : 'hover:bg-green-50 text-green-600 bg-white'
+                                    }`}
+                                    title={
+                                      !actions.deliveryNote.hasNotes
+                                        ? 'Create Delivery Note'
+                                        : actions.deliveryNote.count === 1
+                                          ? 'View Delivery Note'
+                                          : `View ${actions.deliveryNote.count} Delivery Notes`
+                                    }
+                                  >
+                                    <Truck size={18} />
+                                    {/* Badge with count and color */}
+                                    {actions.deliveryNote.hasNotes && (
+                                      <span
+                                        className={`absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] font-bold rounded-full ${
+                                          actions.deliveryNote.isFullyDelivered
+                                            ? 'bg-green-500 text-white'
+                                            : 'bg-yellow-500 text-gray-900'
+                                        }`}
+                                      >
+                                        {actions.deliveryNote.count}
+                                      </span>
+                                    )}
+                                  </button>
+                                ) : (
+                                  // Show disabled truck for non-issued invoices
+                                  ['issued', 'sent'].includes(invoice.status) ? null : (
+                                    <span
+                                      className={`p-2 rounded shadow-sm opacity-30 ${
+                                        isDarkMode ? 'bg-gray-800/30 text-gray-500' : 'bg-gray-100 text-gray-400'
+                                      }`}
+                                      title={actions.deliveryNote.tooltip}
+                                    >
+                                      <Truck size={18} />
+                                    </span>
+                                  )
+                                )}
+
                                 {/* Separator: Core Actions | Payment Group */}
                                 <div className={`w-px h-5 mx-1 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
 
@@ -2249,8 +2355,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                   </button>
                                 )}
 
-                                {/* More Actions Dropdown */}
-                                {(actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled || actions.deliveryNote.enabled || actions.delete.enabled || actions.restore.enabled) && (
+                                {/* More Actions Dropdown - Delivery Note removed (now direct action) */}
+                                {(actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled || actions.delete.enabled || actions.restore.enabled) && (
                                   <div className="relative actions-dropdown">
                                     <button
                                       className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
@@ -2324,33 +2430,11 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                             <span>Phone Notes</span>
                                           </button>
                                         )}
-                                        
-                                        {/* Delivery Note */}
-                                        {actions.deliveryNote.enabled && (
-                                          <button
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              actions.deliveryNote.hasNotes
-                                                ? navigate(`/delivery-notes?invoiceId=${invoice.id}`)
-                                                : handleCreateDeliveryNote(invoice);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              actions.deliveryNote.hasNotes
-                                                ? isDarkMode
-                                                  ? 'text-yellow-400 hover:bg-gray-700'
-                                                  : 'text-yellow-600 hover:bg-yellow-50'
-                                                : isDarkMode
-                                                  ? 'text-green-400 hover:bg-gray-700'
-                                                  : 'text-green-600 hover:bg-green-50'
-                                            }`}
-                                          >
-                                            <Truck size={16} />
-                                            <span>{actions.deliveryNote.hasNotes ? 'View Delivery Notes' : 'Create Delivery Note'}</span>
-                                          </button>
-                                        )}
-                                        
+
+                                        {/* Delivery Note moved to direct action button - no longer in dropdown */}
+
                                         {/* Divider before danger zone */}
-                                        {(actions.delete.enabled || actions.restore.enabled) && (actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled || actions.deliveryNote.enabled) && (
+                                        {(actions.delete.enabled || actions.restore.enabled) && (actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled) && (
                                           <div className={`my-1 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
                                         )}
                                         

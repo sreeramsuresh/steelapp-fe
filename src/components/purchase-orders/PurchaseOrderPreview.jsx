@@ -14,9 +14,15 @@ import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
 import { validatePurchaseOrderForDownload } from '../../utils/recordUtils';
+import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
 const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
   const { isDarkMode } = useTheme();
+
+  // Get the template color for purchase orders
+  const templateColor = useMemo(() => {
+    return getDocumentTemplateColor('purchaseOrder', company);
+  }, [company]);
 
   // Validate purchase order and get warnings
   const validation = useMemo(() => {
@@ -87,18 +93,18 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
           {/* Document Container */}
           <div className={`max-w-3xl mx-auto ${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}>
             {/* Document Header */}
-            <div className="bg-blue-600 text-white p-6">
+            <div className="text-white p-6" style={{ backgroundColor: templateColor }}>
               <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-2xl font-bold">PURCHASE ORDER</h1>
-                  <p className="text-blue-100 mt-1">
+                  <p className="text-white/80 mt-1">
                     {purchaseOrder.poNumber || purchaseOrder.po_number || 'PO-DRAFT'}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">{company?.name || 'Company Name'}</p>
-                  <p className="text-sm text-blue-100">{company?.address?.street || ''}</p>
-                  <p className="text-sm text-blue-100">{company?.phone || ''}</p>
+                  <p className="text-sm text-white/80">{company?.address?.street || ''}</p>
+                  <p className="text-sm text-white/80">{company?.phone || ''}</p>
                 </div>
               </div>
             </div>
@@ -216,7 +222,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                 )}
                 <div className={`flex justify-between py-2 mt-2 border-t font-bold text-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
                   <span>Total:</span>
-                  <span className="text-blue-600">{formatCurrency(total)}</span>
+                  <span style={{ color: templateColor }}>{formatCurrency(total)}</span>
                 </div>
               </div>
 

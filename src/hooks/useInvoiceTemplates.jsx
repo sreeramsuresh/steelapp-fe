@@ -2,12 +2,14 @@
  * useInvoiceTemplates Hook
  *
  * Manages invoice template selection, styling, and recurring invoice settings.
- * Stores preferences in localStorage.
+ * Syncs with company settings in database (via companyService).
+ * Falls back to localStorage for offline/initial state.
  *
  * Templates: Classic, Modern, Elegant, Print Ready (B&W)
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { companyService } from '../services/companyService';
 
 // Template definitions with vibrant colors + one B&W print option
 export const INVOICE_TEMPLATES = {
@@ -134,9 +136,14 @@ const STORAGE_KEY = 'steelapp_invoice_template_prefs';
 
 /**
  * Custom hook for invoice template management
+ * Now syncs with company settings in database
  */
-const useInvoiceTemplates = (initialTemplate = 'standard') => {
-  // Load saved preferences
+const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = null) => {
+  // Track if we've loaded from company settings
+  const [loadedFromCompany, setLoadedFromCompany] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load saved preferences from localStorage (fallback/cache)
   const loadSavedPrefs = () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -151,7 +158,7 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
 
   const savedPrefs = loadSavedPrefs();
 
-  // Template selection state
+  // Template selection state - initialize from localStorage first
   const [selectedTemplateId, setSelectedTemplateId] = useState(
     savedPrefs?.templateId || initialTemplate,
   );
@@ -172,6 +179,40 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
     ...savedPrefs?.recurringSettings,
   });
 
+  // Load settings from company data when available
+  useEffect(() => {
+    const loadCompanySettings = async () => {
+      try {
+        // If companySettings is passed as prop, use it
+        if (companySettings?.settings) {
+          if (companySettings.settings.selectedTemplate) {
+            setSelectedTemplateId(companySettings.settings.selectedTemplate);
+          }
+          if (companySettings.settings.templateCustomColors) {
+            setCustomColors(companySettings.settings.templateCustomColors);
+          }
+          setLoadedFromCompany(true);
+          return;
+        }
+
+        // Otherwise, fetch from API
+        const company = await companyService.getCompany();
+        if (company?.settings?.selectedTemplate) {
+          setSelectedTemplateId(company.settings.selectedTemplate);
+        }
+        if (company?.settings?.templateCustomColors) {
+          setCustomColors(company.settings.templateCustomColors);
+        }
+        setLoadedFromCompany(true);
+      } catch (error) {
+        console.warn('Failed to load company template settings, using localStorage:', error);
+        // Keep using localStorage values (already set)
+      }
+    };
+
+    loadCompanySettings();
+  }, [companySettings?.settings?.selectedTemplate, companySettings?.settings?.templateCustomColors]);
+
   // Get current template
   const currentTemplate = useMemo(() => {
     const base = INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
@@ -184,8 +225,9 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
     return base;
   }, [selectedTemplateId, customColors]);
 
-  // Save preferences to localStorage
+  // Save preferences to both localStorage (cache) AND company settings (database)
   useEffect(() => {
+    // Always save to localStorage as cache
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         templateId: selectedTemplateId,
@@ -193,30 +235,61 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
         recurringSettings,
       }));
     } catch (e) {
-      console.warn('Failed to save template preferences:', e);
+      console.warn('Failed to save template preferences to localStorage:', e);
     }
   }, [selectedTemplateId, customColors, recurringSettings]);
 
-  // Select a template
+  // Save to company settings (database) when template changes
+  const saveToCompanySettings = useCallback(async (templateId, colors) => {
+    if (isSaving) return;
+
+    setIsSaving(true);
+    try {
+      const company = await companyService.getCompany();
+      const updatedCompany = {
+        ...company,
+        settings: {
+          ...company.settings,
+          selectedTemplate: templateId,
+          templateCustomColors: colors,
+        },
+      };
+      await companyService.updateCompany(updatedCompany);
+    } catch (error) {
+      console.warn('Failed to save template to company settings:', error);
+      // Don't throw - localStorage is already updated as fallback
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isSaving]);
+
+  // Select a template - saves to database
   const selectTemplate = useCallback((templateId) => {
     if (INVOICE_TEMPLATES[templateId]) {
       setSelectedTemplateId(templateId);
-      setCustomColors(null); // Reset custom colors when changing template
+      const newColors = templateId !== 'modern' ? null : customColors;
+      setCustomColors(newColors);
+      // Save to database
+      saveToCompanySettings(templateId, newColors);
     }
-  }, []);
+  }, [customColors, saveToCompanySettings]);
 
-  // Update custom colors
+  // Update custom colors - saves to database
   const updateColors = useCallback((colorUpdates) => {
-    setCustomColors(prev => ({
-      ...(prev || {}),
+    const newColors = colorUpdates === null ? null : {
+      ...(customColors || {}),
       ...colorUpdates,
-    }));
-  }, []);
+    };
+    setCustomColors(newColors);
+    // Save to database
+    saveToCompanySettings(selectedTemplateId, newColors);
+  }, [customColors, selectedTemplateId, saveToCompanySettings]);
 
   // Reset to template defaults
   const resetColors = useCallback(() => {
     setCustomColors(null);
-  }, []);
+    saveToCompanySettings(selectedTemplateId, null);
+  }, [selectedTemplateId, saveToCompanySettings]);
 
   // Toggle recurring invoice
   const toggleRecurring = useCallback((enabled) => {
@@ -286,6 +359,8 @@ const useInvoiceTemplates = (initialTemplate = 'standard') => {
     customColors,
     recurringSettings,
     templates,
+    isSaving,
+    loadedFromCompany,
 
     // Template methods
     selectTemplate,

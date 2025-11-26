@@ -287,7 +287,7 @@ const InventoryList = () => {
     setFormData((prev) => ({
       ...prev,
       productId: product.id,
-      productName: product.displayName || product.fullName || product.name,
+      productName: product.displayName || product.display_name || product.fullName || product.full_name || product.name,
     }));
     setProductQuery('');
     setProductOptions([]);
@@ -555,19 +555,43 @@ const InventoryList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {(() => {
-                      const isLow = (item.minStock === 0 ? item.quantity <= 5 : item.quantity <= item.minStock);
+                      // Consistent stock status logic
+                      const qty = Number(item.quantity) || 0;
+                      const minStock = Number(item.minStock) || 0;
+                      const effectiveMin = minStock > 0 ? minStock : 5;
+
+                      let stockStatus = 'normal';
+                      if (qty <= 0) stockStatus = 'out_of_stock';
+                      else if (qty <= effectiveMin) stockStatus = 'low';
+
+                      const statusConfig = {
+                        out_of_stock: {
+                          bgClass: isDarkMode ? 'bg-red-950/50 text-red-400' : 'bg-red-100 text-red-800',
+                          label: 'OUT OF STOCK',
+                          icon: <AlertTriangle size={14} />,
+                        },
+                        low: {
+                          bgClass: isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800',
+                          label: null, // show qty
+                          icon: <AlertTriangle size={14} />,
+                        },
+                        normal: {
+                          bgClass: isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800',
+                          label: null, // show qty
+                          icon: <TrendingUp size={14} />,
+                        },
+                      };
+
+                      const config = statusConfig[stockStatus];
+
                       return (
                         <div>
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                            isLow
-                              ? (isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-800')
-                              : (isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-800')
-                          }`}>
-                            {isLow ? <AlertTriangle size={14} /> : <TrendingUp size={14} />}
-                            {item.quantity}
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${config.bgClass}`}>
+                            {config.icon}
+                            {config.label || qty}
                           </span>
                           <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            Min: {item.minStock || 0}
+                            Min: {minStock}
                           </div>
                         </div>
                       );
@@ -786,7 +810,7 @@ const InventoryList = () => {
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                               >
-                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.displayName || p.name}</div>
+                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.displayName || p.display_name || p.fullName || p.full_name || p.name}</div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.category} {p.grade ? `• GR${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
                               </button>
                             ))}

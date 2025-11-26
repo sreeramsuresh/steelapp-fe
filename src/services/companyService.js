@@ -67,4 +67,20 @@ export const companyService = {
   async deleteSeal(filename) {
     return apiClient.delete(`/company/seal/${filename}`);
   },
+
+  /**
+   * Update invoice template settings
+   * @param {Object} templateSettings - Template settings including selectedTemplate and advanced settings
+   */
+  async updateTemplateSettings(templateSettings) {
+    return apiClient.post('/company/template-settings', templateSettings);
+  },
+
+  /**
+   * Get invoice template settings
+   * @returns {Object} Template settings
+   */
+  async getTemplateSettings() {
+    return apiClient.get('/company/template-settings');
+  },
 };

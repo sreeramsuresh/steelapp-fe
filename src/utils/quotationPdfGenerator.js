@@ -1,12 +1,15 @@
 import { formatCurrency, formatDate, calculateTRN, getCompanyImages } from './invoiceUtils';
 import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
+import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
 
 export const generateQuotationPDF = async (quotation, company) => {
   try {
     const { jsPDF } = await import('jspdf');
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
-    const el = createQuotationElement(quotation, company, logoUrl, sealUrl);
+    // Get the template color for quotations
+    const templateColor = getDocumentTemplateColor('quotation', company);
+    const el = createQuotationElement(quotation, company, logoUrl, sealUrl, templateColor);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -33,7 +36,7 @@ export const generateQuotationPDF = async (quotation, company) => {
   }
 };
 
-const createQuotationElement = (q, company, logoCompany, sealImage) => {
+const createQuotationElement = (q, company, logoCompany, sealImage, templateColor = '#009999') => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;
@@ -92,14 +95,14 @@ const createQuotationElement = (q, company, logoCompany, sealImage) => {
       </div>
     </div>
 
-    <div style="width:100%; background-color:#009999; color:#ffffff; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
+    <div style="width:100%; background-color:${templateColor}; color:#ffffff; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
       <h2 style="margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; color:#ffffff;">QUOTATION</h2>
     </div>
 
     <div style="margin-bottom:30px;">
       <table style="width:100%; border-collapse:collapse; font-size:11px;">
         <thead>
-          <tr style="background-color:#009999; color:#ffffff;">
+          <tr style="background-color:${templateColor}; color:#ffffff;">
             <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Product</th>
             ${hasDescription ? '<th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Description</th>' : ''}
             <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Unit</th>

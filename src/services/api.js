@@ -88,6 +88,11 @@ export const deliveryNotesAPI = {
     return apiClient.post('/delivery-notes', deliveryNoteData);
   },
 
+  // Update delivery note (full update)
+  update: (id, deliveryNoteData) => {
+    return apiClient.put(`/delivery-notes/${id}`, deliveryNoteData);
+  },
+
   // Update delivery quantities (partial delivery)
   updateDelivery: (deliveryNoteId, itemId, deliveryData) => {
     return apiClient.patch(
@@ -97,8 +102,8 @@ export const deliveryNotesAPI = {
   },
 
   // Update delivery note status
-  updateStatus: (id, status) => {
-    return apiClient.patch(`/delivery-notes/${id}/status`, { status });
+  updateStatus: (id, status, notes = '') => {
+    return apiClient.patch(`/delivery-notes/${id}/status`, { status, notes });
   },
 
   // Delete delivery note
@@ -123,7 +128,7 @@ export const deliveryNotesAPI = {
 
     // Get delivery note number for filename
     const deliveryNote = await deliveryNotesAPI.getById(id);
-    const filename = `delivery-note-${deliveryNote.deliveryNoteNumber}.pdf`;
+    const filename = `DN-${deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id}.pdf`;
 
     // Create download link
     const link = document.createElement('a');

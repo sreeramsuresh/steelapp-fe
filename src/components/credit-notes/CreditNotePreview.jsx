@@ -14,9 +14,15 @@ import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatCurrency, formatDate, formatAddress } from '../../utils/invoiceUtils';
 import { validateCreditNoteForDownload } from '../../utils/recordUtils';
+import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
 const CreditNotePreview = ({ creditNote, company, onClose }) => {
   const { isDarkMode } = useTheme();
+
+  // Get the template color for credit notes
+  const templateColor = useMemo(() => {
+    return getDocumentTemplateColor('creditNote', company);
+  }, [company]);
 
   // Validate credit note and get warnings
   const validation = useMemo(() => {
@@ -80,11 +86,11 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
           {/* Document Container */}
           <div className={`max-w-3xl mx-auto ${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}>
             {/* Document Header */}
-            <div className="bg-red-600 text-white p-6">
+            <div className="text-white p-6" style={{ backgroundColor: templateColor }}>
               <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-2xl font-bold">CREDIT NOTE</h1>
-                  <p className="text-red-100 mt-1">
+                  <p className="text-white/80 mt-1">
                     {creditNote.creditNoteNumber || creditNote.credit_note_number || 'CN-DRAFT'}
                   </p>
                 </div>
@@ -94,13 +100,13 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     const addr = formatAddress(company?.address);
                     return (
                       <>
-                        {addr.line1 && <p className="text-sm text-red-100">{addr.line1}</p>}
-                        {addr.line2 && <p className="text-sm text-red-100">{addr.line2}</p>}
+                        {addr.line1 && <p className="text-sm text-white/80">{addr.line1}</p>}
+                        {addr.line2 && <p className="text-sm text-white/80">{addr.line2}</p>}
                       </>
                     );
                   })()}
-                  {company?.phone && <p className="text-sm text-red-100">{company.phone}</p>}
-                  {company?.vatNumber && <p className="text-sm text-red-100 font-semibold mt-1">TRN: {company.vatNumber}</p>}
+                  {company?.phone && <p className="text-sm text-white/80">{company.phone}</p>}
+                  {company?.vatNumber && <p className="text-sm text-white/80 font-semibold mt-1">TRN: {company.vatNumber}</p>}
                 </div>
               </div>
             </div>
@@ -216,7 +222,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   <h3 className={`text-sm font-semibold uppercase mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Manual Credit Amount
                   </h3>
-                  <p className="text-xl font-bold text-red-600">-{formatCurrency(manualAmount)}</p>
+                  <p className="text-xl font-bold" style={{ color: templateColor }}>-{formatCurrency(manualAmount)}</p>
                 </div>
               ) : null}
 
@@ -237,7 +243,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                       <span>-{formatCurrency(creditNote.restockingFee || creditNote.restocking_fee)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between py-3 text-lg font-bold text-red-600">
+                  <div className="flex justify-between py-3 text-lg font-bold" style={{ color: templateColor }}>
                     <span>Total Credit:</span>
                     <span>-{formatCurrency(totalCredit || manualAmount)}</span>
                   </div>

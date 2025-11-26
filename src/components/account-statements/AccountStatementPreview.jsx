@@ -14,9 +14,15 @@ import { X, AlertTriangle, FileText } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
 import { validateAccountStatementForDownload } from '../../utils/recordUtils';
+import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
 const AccountStatementPreview = ({ statement, company, onClose }) => {
   const { isDarkMode } = useTheme();
+
+  // Get the template color for statements
+  const templateColor = useMemo(() => {
+    return getDocumentTemplateColor('statement', company);
+  }, [company]);
 
   // Validate statement and get warnings
   const validation = useMemo(() => {
@@ -55,21 +61,21 @@ const AccountStatementPreview = ({ statement, company, onClose }) => {
           {/* Document Container */}
           <div className={`max-w-3xl mx-auto ${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}>
             {/* Document Header */}
-            <div className="bg-indigo-600 text-white p-6">
+            <div className="text-white p-6" style={{ backgroundColor: templateColor }}>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <FileText size={32} />
                   <div>
                     <h1 className="text-2xl font-bold">STATEMENT OF ACCOUNT</h1>
-                    <p className="text-indigo-100 mt-1">
+                    <p className="text-white/80 mt-1">
                       {statement.statementNumber || statement.statement_number || 'SOA-DRAFT'}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">{company?.name || 'Company Name'}</p>
-                  <p className="text-sm text-indigo-100">{company?.address?.street || ''}</p>
-                  <p className="text-sm text-indigo-100">{company?.phone || ''}</p>
+                  <p className="text-sm text-white/80">{company?.address?.street || ''}</p>
+                  <p className="text-sm text-white/80">{company?.phone || ''}</p>
                 </div>
               </div>
             </div>

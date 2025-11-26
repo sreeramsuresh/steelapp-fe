@@ -110,7 +110,14 @@ export const invoiceService = {
   },
 
   async createInvoice(invoiceData) {
+    // DEBUG: Log incoming status before transformation
+    console.log('[invoiceService.createInvoice] Incoming invoiceData.status:', invoiceData.status);
+
     const transformedData = transformInvoiceForServer(invoiceData);
+
+    // DEBUG: Log status after transformation
+    console.log('[invoiceService.createInvoice] After transform - transformedData.status:', transformedData.status);
+
     const response = await apiClient.post('/invoices', transformedData);
     return transformInvoiceFromServer(response);
   },

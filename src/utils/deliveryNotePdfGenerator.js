@@ -1,12 +1,15 @@
 import { formatDate, getCompanyImages } from './invoiceUtils';
 import { escapeHtml } from './htmlEscape';
+import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
 
 export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   try {
     const { jsPDF } = await import('jspdf');
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
-    const el = createDNElement(deliveryNote, company, logoUrl, sealUrl);
+    // Get the template color for delivery notes
+    const templateColor = getDocumentTemplateColor('deliveryNote', company);
+    const el = createDNElement(deliveryNote, company, logoUrl, sealUrl, templateColor);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -34,7 +37,7 @@ export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   }
 };
 
-const createDNElement = (dn, company, logoCompany, sealImage) => {
+const createDNElement = (dn, company, logoCompany, sealImage, templateColor = '#0d9488') => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;
@@ -89,14 +92,14 @@ const createDNElement = (dn, company, logoCompany, sealImage) => {
       </div>
     </div>
 
-    <div style="width: 100%; background-color: #009999; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 15px 0;">
+    <div style="width: 100%; background-color: ${templateColor}; color: #ffffff; text-align: center; margin: 10px 0 20px 0; padding: 15px 0;">
       <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff;">DELIVERY NOTE</h2>
     </div>
 
     <div style="margin-bottom: 30px;">
       <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
-          <tr style="background-color: #009999; color: #ffffff;">
+          <tr style="background-color: ${templateColor}; color: #ffffff;">
             <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600;">Product</th>
             <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600;">Specification</th>
             <th style="padding: 10px 8px; text-align: left; border: 1px solid #007d7d; font-weight: 600;">Unit</th>

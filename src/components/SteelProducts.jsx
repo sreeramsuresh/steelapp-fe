@@ -16,6 +16,7 @@ import {
   Warehouse,
   Move,
   ChevronDown,
+  ChevronRight,
   Upload,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -149,21 +150,79 @@ const Textarea = ({ label, error, className = '', ...props }) => {
 
 const StockProgressBar = ({ value, stockStatus }) => {
   const { isDarkMode } = useTheme();
-  
+
   const getColor = () => {
     switch (stockStatus) {
+      case 'out_of_stock': return 'bg-red-900'; // Dark red for out of stock
       case 'low': return 'bg-red-500';
       case 'high': return 'bg-green-500';
       default: return 'bg-blue-500';
     }
   };
 
+  // For out of stock, show a thin bar to indicate empty state
+  const displayValue = stockStatus === 'out_of_stock' ? 3 : Math.min(value, 100);
+
   return (
     <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-      <div 
+      <div
         className={`h-2 rounded-full transition-all duration-300 ${getColor()}`}
-        style={{ width: `${Math.min(value, 100)}%` }}
+        style={{ width: `${displayValue}%` }}
       />
+    </div>
+  );
+};
+
+// Accordion component for Zoho-style drawer
+const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
+  const { isDarkMode } = useTheme();
+
+  // Don't render if section is empty
+  if (isEmpty) return null;
+
+  return (
+    <div className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <button
+        onClick={onToggle}
+        className={`w-full flex items-center justify-between p-4 hover:bg-opacity-50 transition-colors ${
+          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+        }`}
+      >
+        <span className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          {title}
+        </span>
+        {isOpen ? (
+          <ChevronDown className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+        ) : (
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+        )}
+      </button>
+      {isOpen && (
+        <div className={`px-4 pb-4 ${isDarkMode ? 'bg-gray-800/30' : 'bg-gray-50/50'}`}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Row component for label-value pairs
+const SpecRow = ({ label, value, badge, className = '' }) => {
+  const { isDarkMode } = useTheme();
+
+  if (!value && value !== 0) return null;
+
+  return (
+    <div className={`flex justify-between items-center py-2 ${className}`}>
+      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          {value}
+        </span>
+        {badge}
+      </div>
     </div>
   );
 };
@@ -416,7 +475,7 @@ const SteelProducts = () => {
 
 
   const filteredProducts = products.filter(product => {
-    const name = (product?.displayName ?? product?.fullName ?? product?.name ?? '').toString().toLowerCase();
+    const name = (product?.displayName ?? product?.display_name ?? product?.fullName ?? product?.full_name ?? product?.name ?? '').toString().toLowerCase();
     const grade = (product?.grade ?? '').toString().toLowerCase();
     const category = (product?.category ?? '').toString().toLowerCase();
     const finish = (product?.finish ?? '').toString().toLowerCase();
@@ -431,18 +490,25 @@ const SteelProducts = () => {
 
     // Match by individual category OR by category group
     const activeGroup = categoryGroups.find(g => g.id === activeCategoryGroup);
-    const matchesCategoryGroup = activeCategoryGroup === 'all' || 
+    const matchesCategoryGroup = activeCategoryGroup === 'all' ||
       (activeGroup?.categories?.some(cat => product?.category?.toLowerCase() === cat.toLowerCase()));
     const matchesCategory = (categoryFilter === 'all' || product?.category === categoryFilter) && matchesCategoryGroup;
 
-    const current = Number(product?.currentStock ?? product?.currentStock ?? 0);
-    const min = Number(product?.minStock ?? product?.minStock ?? 0);
-    const max = Number(product?.maxStock ?? product?.maxStock ?? 1) || 1;
+    const current = Number(product?.currentStock ?? product?.current_stock ?? 0);
+    const min = Number(product?.minStock ?? product?.min_stock ?? 0);
+    const max = Number(product?.maxStock ?? product?.max_stock ?? 0);
 
-    const matchesStock = stockFilter === 'all' || 
-                         (stockFilter === 'low' && current <= min) ||
-                         (stockFilter === 'normal' && current > min && current < max * 0.8) ||
-                         (stockFilter === 'high' && current >= max * 0.8);
+    // Calculate stock status for filtering (must match getStockStatus logic)
+    const effectiveMin = min > 0 ? min : 5;
+    let productStockStatus = 'normal';
+    if (current <= 0) productStockStatus = 'out_of_stock';
+    else if (current <= effectiveMin) productStockStatus = 'low';
+    else if (max > 0 && current >= max * 0.8) productStockStatus = 'high';
+
+    const matchesStock = stockFilter === 'all' ||
+                         (stockFilter === 'low' && (productStockStatus === 'low' || productStockStatus === 'out_of_stock')) ||
+                         (stockFilter === 'normal' && productStockStatus === 'normal') ||
+                         (stockFilter === 'high' && productStockStatus === 'high');
 
     // Match by grade group
     const activeGrade = gradeGroups.find(g => g.id === activeGradeGroup);
@@ -461,7 +527,7 @@ const SteelProducts = () => {
           return;
         }
       }
-      // Convert camelCase to snake_case and handle default values
+      // API Gateway auto-converts camelCase → snake_case, so send camelCase
       const productData = {
         name: newProduct.name,
         category: newProduct.category,
@@ -469,17 +535,17 @@ const SteelProducts = () => {
         grade: newProduct.grade,
         finish: newProduct.finish,
         size: newProduct.size,
-        size_inch: newProduct.sizeInch || undefined,
+        sizeInch: newProduct.sizeInch || undefined,  // API Gateway converts to size_inch
         od: newProduct.od || undefined,
         length: newProduct.length || undefined,
         thickness: newProduct.thickness,
         weight: newProduct.weight,
         description: newProduct.description,
-        current_stock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),
-        min_stock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),
-        max_stock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),
-        cost_price: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),
-        selling_price: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),
+        currentStock: newProduct.currentStock === '' ? 0 : Number(newProduct.currentStock),  // API Gateway converts to current_stock
+        minStock: newProduct.minStock === '' ? 10 : Number(newProduct.minStock),  // API Gateway converts to min_stock
+        maxStock: newProduct.maxStock === '' ? 1000 : Number(newProduct.maxStock),  // API Gateway converts to max_stock
+        costPrice: newProduct.costPrice === '' ? 0 : Number(newProduct.costPrice),  // API Gateway converts to cost_price
+        sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),  // API Gateway converts to selling_price
         supplier: newProduct.supplier,
         location: newProduct.location,
         origin: newProduct.origin || 'UAE',  // Country of origin
@@ -548,30 +614,96 @@ const SteelProducts = () => {
     setNewProduct(prev => ({ ...prev, name: composed }));
   }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness]);
 
+  // Auto-regenerate displayName and fullName when editing product details
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    // Only auto-generate names for NEW products, not when editing existing ones
+    if (selectedProduct.id) return; // Don't regenerate for existing products
+
+    const parts = [];
+    if (selectedProduct.commodity) parts.push(String(selectedProduct.commodity).trim());
+    const catLabel = categories.find(c => c.value === selectedProduct.category)?.label;
+    if (catLabel) parts.push(catLabel);
+    if (selectedProduct.grade) {
+      const g = String(selectedProduct.grade).trim();
+      const m = g.match(/^gr\s*(.+)$/i);
+      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+    }
+    if (selectedProduct.finish) parts.push(String(selectedProduct.finish).trim());
+
+    const isPipeOrTube = /pipe|tube/i.test(selectedProduct.category || '');
+    if (isPipeOrTube) {
+      // For pipes/tubes: include size (inch), OD, and length
+      if (selectedProduct.sizeInch) parts.push(`${String(selectedProduct.sizeInch).trim()}"`);
+      if (selectedProduct.od) parts.push(`OD${String(selectedProduct.od).trim()}`);
+      if (selectedProduct.length) parts.push(`L${String(selectedProduct.length).trim()}`);
+    } else {
+      // For sheets/bars/etc: include size
+      if (selectedProduct.size) parts.push(String(selectedProduct.size).trim());
+    }
+    if (selectedProduct.thickness) parts.push(String(selectedProduct.thickness).trim());
+
+    const displayName = parts.join('-');
+
+    // Generate fullName with origin appended
+    const fullNameParts = [...parts];
+    if (selectedProduct.origin) fullNameParts.push(String(selectedProduct.origin).trim());
+    const fullName = fullNameParts.join('-');
+
+    // Only update if the generated names are different from current ones
+    if (selectedProduct.displayName !== displayName || selectedProduct.fullName !== fullName) {
+      setSelectedProduct(prev => ({
+        ...prev,
+        displayName: displayName,
+        display_name: displayName,
+        fullName: fullName,
+        full_name: fullName,
+        name: displayName // Update name field as well
+      }));
+    }
+  }, [
+    selectedProduct?.commodity,
+    selectedProduct?.category,
+    selectedProduct?.grade,
+    selectedProduct?.finish,
+    selectedProduct?.size,
+    selectedProduct?.sizeInch,
+    selectedProduct?.od,
+    selectedProduct?.length,
+    selectedProduct?.thickness,
+    selectedProduct?.origin,
+    selectedProduct?.displayName,
+    selectedProduct?.fullName
+  ]);
+
   const handleEditProduct = async () => {
     try {
       console.log('🔄 Starting product edit...', selectedProduct);
-      
-      // Convert empty strings to appropriate default values and map field names to backend format
+
+      // API Gateway auto-converts camelCase → snake_case, so send camelCase
+      // Convert empty strings to appropriate default values
       const productData = {
-        name: selectedProduct.name,
+        name: selectedProduct.displayName || selectedProduct.name, // Use auto-generated displayName
+        displayName: selectedProduct.displayName, // Include displayName
+        fullName: selectedProduct.fullName, // Include fullName
         category: selectedProduct.category,
         commodity: selectedProduct.commodity || 'SS',
         grade: selectedProduct.grade,
         finish: selectedProduct.finish,
         size: selectedProduct.size,
-        size_inch: selectedProduct.sizeInch,
-        od: selectedProduct.od,
-        length: selectedProduct.length,
+        sizeInch: selectedProduct.sizeInch || '',  // API Gateway converts to size_inch
+        od: selectedProduct.od || '',
+        length: selectedProduct.length || '',
         thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || undefined,
         weight: selectedProduct.weight,
         unit: selectedProduct.unit,
         description: selectedProduct.description,
-        current_stock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),
-        min_stock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),
-        max_stock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),
-        cost_price: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice),
-        selling_price: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),
+        currentStock: selectedProduct.currentStock === '' ? 0 : Number(selectedProduct.currentStock),  // API Gateway converts to current_stock
+        minStock: selectedProduct.minStock === '' ? 0 : Number(selectedProduct.minStock),  // API Gateway converts to min_stock
+        maxStock: selectedProduct.maxStock === '' ? 1000 : Number(selectedProduct.maxStock),  // API Gateway converts to max_stock
+        costPrice: selectedProduct.costPrice === '' ? 0 : Number(selectedProduct.costPrice),  // API Gateway converts to cost_price
+        sellingPrice: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),  // API Gateway converts to selling_price
         supplier: selectedProduct.supplier,
         location: selectedProduct.location,
         origin: selectedProduct.origin || 'UAE',  // Country of origin
@@ -580,23 +712,23 @@ const SteelProducts = () => {
           thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || '',
         },
       };
-      
-      console.log('📤 Sending product data:', productData);
-      console.log(`🔗 API URL would be: PUT /api/products/${  selectedProduct.id}`);
-      
+
+      console.log('📤 Sending product data (camelCase):', productData);
+      console.log(`🔗 API URL: PUT /api/products/${selectedProduct.id}`);
+
       const result = await updateProduct(selectedProduct.id, productData);
       console.log('✅ Product updated successfully:', result);
-      
+
       console.log('🔄 Starting products refetch...');
       console.log('📊 Current products data before refetch:', productsData);
-      
+
       const freshData = await refetchProducts();
       console.log('📨 Fresh data from refetch:', freshData);
-      
+
       // Check if the updated product is in the fresh data
       const updatedProductInFreshData = freshData?.products?.find(p => p.id === selectedProduct.id);
       console.log('🔎 Updated product in fresh data:', updatedProductInFreshData);
-      
+
       // Small delay to ensure state has updated
       setTimeout(() => {
         console.log('📊 Products data after state update:', productsData);
@@ -637,17 +769,56 @@ const SteelProducts = () => {
   };
 
 
+  /**
+   * Determine stock status with proper edge case handling
+   * - OUT_OF_STOCK: quantity is 0 or negative (always takes priority)
+   * - LOW: quantity > 0 but <= minStock (or <= 5 if minStock is 0)
+   * - HIGH: quantity >= maxStock * 0.8 (only if maxStock > 0)
+   * - NORMAL: everything else
+   */
   const getStockStatus = (product) => {
-    if (product.currentStock <= product.minStock) return 'low';
-    if (product.currentStock >= product.maxStock * 0.8) return 'high';
+    // Safely parse values with fallbacks to 0
+    const currentStock = Number(product.currentStock) || 0;
+    const minStock = Number(product.minStock) || 0;
+    const maxStock = Number(product.maxStock) || 0;
+
+    // CRITICAL: Out of stock takes priority over everything
+    if (currentStock <= 0) {
+      return 'out_of_stock';
+    }
+
+    // Low stock check
+    // If minStock is 0 (not set), use 5 as default threshold
+    const effectiveMinStock = minStock > 0 ? minStock : 5;
+    if (currentStock <= effectiveMinStock) {
+      return 'low';
+    }
+
+    // High stock check - only if maxStock is defined and > 0
+    // Prevent false positives when maxStock is 0 or undefined
+    if (maxStock > 0 && currentStock >= maxStock * 0.8) {
+      return 'high';
+    }
+
     return 'normal';
   };
 
   const getStockStatusColor = (status) => {
     switch (status) {
-      case 'low': return '#dc2626';
-      case 'high': return '#059669';
-      default: return '#2563eb';
+      case 'out_of_stock': return '#7f1d1d'; // dark red for out of stock
+      case 'low': return '#dc2626'; // red
+      case 'high': return '#059669'; // green
+      default: return '#2563eb'; // blue for normal
+    }
+  };
+
+  // Helper to get display text for stock status
+  const getStockStatusLabel = (status) => {
+    switch (status) {
+      case 'out_of_stock': return 'OUT OF STOCK';
+      case 'low': return 'LOW';
+      case 'high': return 'HIGH';
+      default: return 'NORMAL';
     }
   };
 
@@ -834,7 +1005,7 @@ const SteelProducts = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.displayName || product.fullName || product.name}
+                      {product.displayName || product.display_name || product.fullName || product.full_name || product.name}
                     </h3>
                     <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {categories.find(c => c.value === product.category)?.label}
@@ -901,11 +1072,11 @@ const SteelProducts = () => {
                           {product.size}
                         </span>
                       )}
-                      {/* Origin Badge - Show for non-UAE products */}
-                      {product.origin && product.origin !== 'UAE' && (
+                      {/* Origin Badge - Show country of origin */}
+                      {product.origin && (
                         <span className={`px-2 py-1 text-xs rounded-md border font-medium ${
-                          isDarkMode 
-                            ? 'bg-amber-900/30 text-amber-300 border-amber-700' 
+                          isDarkMode
+                            ? 'bg-amber-900/30 text-amber-300 border-amber-700'
                             : 'bg-amber-100 text-amber-800 border-amber-200'
                         }`}>
                           {product.origin}
@@ -932,25 +1103,35 @@ const SteelProducts = () => {
                         console.log('🔍 Product fields available:', Object.keys(product));
                         console.log('💰 Cost price field values:', {
                           costPrice: product.costPrice,
-                          cost_price: product.costPrice,
-                          selling_price: product.sellingPrice,
+                          cost_price: product.cost_price,
+                          selling_price: product.selling_price,
                           sellingPrice: product.sellingPrice,
                         });
-                        
-                        // Convert snake_case to camelCase for form and normalize strings
+
+                        // Convert ALL snake_case to camelCase for form and normalize strings
+                        // Handle both snake_case and camelCase from backend
                         const formattedProduct = {
                           ...product,
-                          sizeInch: product.sizeInch,
-                          od: product.od,
-                          length: product.length,
+                          // Size fields - handle both naming conventions
+                          sizeInch: product.sizeInch || product.size_inch || '',
+                          od: product.od || '',
+                          length: product.length || '',
+                          thickness: product.thickness || '',
+                          // Finish field
                           finish: product.finish ? String(product.finish).trim() : '',
-                          currentStock: product.currentStock,
-                          minStock: product.minStock,
-                          maxStock: product.maxStock,
-                          costPrice: product.costPrice,
-                          sellingPrice: product.sellingPrice,
+                          // Stock fields - handle both naming conventions
+                          currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || '',
+                          minStock: product.minStock !== undefined ? product.minStock : product.min_stock || '',
+                          maxStock: product.maxStock !== undefined ? product.maxStock : product.max_stock || '',
+                          // Price fields - handle both naming conventions
+                          costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || '',
+                          sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || '',
+                          // Other fields
+                          displayName: product.displayName || product.display_name || '',
+                          uniqueName: product.uniqueName || product.unique_name || '',
+                          fullName: product.fullName || product.full_name || product.name || '',
                         };
-                        
+
                         console.log('🔄 Formatted product for form:', formattedProduct);
                         setSelectedProduct(formattedProduct);
                         setShowEditModal(true);
@@ -1007,26 +1188,33 @@ const SteelProducts = () => {
                   <div className="flex justify-between items-center mb-2">
                     <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock Level</span>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
-                      stockStatus === 'low' 
-                        ? (isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200')
-                        : stockStatus === 'high' 
-                          ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
-                          : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
+                      stockStatus === 'out_of_stock'
+                        ? (isDarkMode ? 'bg-red-950/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800 border-red-300')
+                        : stockStatus === 'low'
+                          ? (isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200')
+                          : stockStatus === 'high'
+                            ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
+                            : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
                     }`}>
-                      {stockStatus === 'low' ? <AlertTriangle size={12} /> :
-                        stockStatus === 'high' ? <Package size={12} /> :
-                          <CheckCircle size={12} />}
-                      {stockStatus.toUpperCase()}
+                      {stockStatus === 'out_of_stock' ? <AlertTriangle size={12} /> :
+                        stockStatus === 'low' ? <AlertTriangle size={12} /> :
+                          stockStatus === 'high' ? <Package size={12} /> :
+                            <CheckCircle size={12} />}
+                      {getStockStatusLabel(stockStatus)}
                     </span>
                   </div>
-                  <h4 className={`text-xl font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {product.currentStock}
+                  <h4 className={`text-xl font-semibold mb-1 ${
+                    stockStatus === 'out_of_stock'
+                      ? 'text-red-500'
+                      : isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {product.currentStock || 0}
                   </h4>
                   <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Min: {product.minStock} | Max: {product.maxStock}
+                    Min: {product.minStock || 0} | Max: {product.maxStock || 0}
                   </p>
-                  <StockProgressBar 
-                    value={Math.min((product.currentStock / product.maxStock) * 100, 100)}
+                  <StockProgressBar
+                    value={product.maxStock > 0 ? Math.min((product.currentStock / product.maxStock) * 100, 100) : 0}
                     stockStatus={stockStatus}
                   />
                 </div>
@@ -1456,16 +1644,18 @@ const SteelProducts = () => {
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
-                    label="Display Name (editable)"
-                    value={selectedProduct.displayName || selectedProduct.fullName || selectedProduct.name || ''}
-                    onChange={(e) => setSelectedProduct({...selectedProduct, displayName: e.target.value, display_name: e.target.value})}
-                    placeholder="User-visible product name"
+                    label="Display Name (auto-generated)"
+                    value={selectedProduct.displayName || selectedProduct.display_name || selectedProduct.fullName || selectedProduct.full_name || selectedProduct.name || ''}
+                    readOnly
+                    className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
+                    placeholder="Auto-generated from fields below"
                   />
                   <Input
-                    label="Technical ID (auto-generated)"
-                    value={selectedProduct.uniqueName || selectedProduct.fullName || ''}
+                    label="Full Name with Origin (auto-generated)"
+                    value={selectedProduct.fullName || ''}
                     readOnly
-                    className="text-gray-500"
+                    className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium text-sm`}
+                    placeholder="Auto-generated with origin"
                   />
                   <Select
                     label="Category"
@@ -1618,207 +1808,262 @@ const SteelProducts = () => {
         )}
 
 
-        {/* Specifications Modal */}
-        {showSpecModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className={`rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-            }`}>
-              {/* Modal Header */}
-              <div className={`flex justify-between items-center p-6 border-b ${
-                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-              }`}>
-                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Product Specifications - {selectedProduct.name}
-                </h2>
-                <button
-                  onClick={() => setShowSpecModal(false)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-                </button>
-              </div>
+        {/* Specifications Modal - Zoho-Style Accordion Drawer */}
+        {showSpecModal && selectedProduct && (() => {
+          // State for accordion sections
+          const [accordionState, setAccordionState] = React.useState({
+            classification: true,  // Default expanded
+            inventory: true,        // Default expanded
+            pricing: true,          // Default expanded
+            description: false,     // Collapsed if has data
+            technical: false,       // Collapsed if has data
+          });
 
-              {/* Modal Content */}
-              <div className="p-6 space-y-6">
-                {/* Basic Information */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Product Name:</span>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Category:</span>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {categories.find(c => c.value === selectedProduct.category)?.label}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Grade:</span>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {(() => {
-                          const g = (selectedProduct.grade || '').toString().trim();
-                          if (!g) return '';
-                          const m = g.match(/^gr\s*(.+)$/i);
-                          return m ? `GR${m[1]}` : `GR${g}`;
-                        })()}
-                      </span>
-                    </div>
-                    {selectedProduct.finish && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Finish:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {(() => { const f=(selectedProduct.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : ''; })()}
-                        </span>
-                      </div>
-                    )}
-                    {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
-                      <>
-                        {(selectedProduct.sizeInch || selectedProduct.sizeInch) && (
-                          <div className="flex justify-between py-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size (in):</span>
-                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {selectedProduct.sizeInch || selectedProduct.sizeInch}
-                            </span>
-                          </div>
-                        )}
-                        {(selectedProduct.od || selectedProduct.OD) && (
-                          <div className="flex justify-between py-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>OD:</span>
-                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {(() => {
-                                const hay = [selectedProduct.size, selectedProduct.sizeInch, selectedProduct.name, selectedProduct.description]
-                                  .filter(Boolean)
-                                  .join(' ');
-                                const hasDia = /dia\b/i.test(hay) || /[øØ∅φΦ]/.test(hay);
-                                const odText = String(selectedProduct.od || selectedProduct.OD || '').replace(/"/g, '').toUpperCase();
-                                return `(${odText})${hasDia ? 'DIA' : ''}`;
-                              })()}
-                            </span>
-                          </div>
-                        )}
-                        {(selectedProduct.length) && (
-                          <div className="flex justify-between py-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length (&quot;):</span>
-                            <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {selectedProduct.length}
-                            </span>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Size (MM):</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.size}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex justify-between py-2">
-                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Qty:</span>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedProduct.currentStock}
-                      </span>
-                    </div>
+          const toggleSection = (section) => {
+            setAccordionState(prev => ({ ...prev, [section]: !prev[section] }));
+          };
+
+          // Format grade with GR prefix
+          const getFormattedGrade = () => {
+            const g = (selectedProduct.grade || '').toString().trim();
+            return g ? (g.match(/^gr\s*(.+)$/i)?.[1] ? `GR${g.match(/^gr\s*(.+)$/i)[1]}` : `GR${g}`) : '';
+          };
+
+          // Format finish with "Finish" suffix
+          const getFormattedFinish = () => {
+            const f = (selectedProduct.finish || '').toString().trim();
+            return f ? (/\bfinish$/i.test(f) ? f : `${f} Finish`) : '';
+          };
+
+          // Get stock status badge
+          const getStockBadge = () => {
+            const current = selectedProduct.currentStock || 0;
+            const min = selectedProduct.minStock || 0;
+
+            if (current === 0) {
+              return (
+                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-500 text-white">
+                  Out of Stock
+                </span>
+              );
+            } else if (min && current <= min) {
+              return (
+                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500 text-white">
+                  Low Stock
+                </span>
+              );
+            } else {
+              return (
+                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-500 text-white">
+                  OK
+                </span>
+              );
+            }
+          };
+
+          // Check if sections have data
+          const specs = selectedProduct.specifications || {};
+          const hasTechnicalSpecs = specs.thickness || specs.width || specs.length || specs.diameter ||
+                                    specs.tensileStrength || specs.yieldStrength || specs.carbonContent ||
+                                    specs.coating || specs.standard;
+          const hasDescription = selectedProduct.description && selectedProduct.description.trim();
+
+          // Calculate margin
+          const margin = (selectedProduct.costPrice > 0 && selectedProduct.sellingPrice > 0)
+            ? Math.round(((selectedProduct.sellingPrice - selectedProduct.costPrice) / selectedProduct.costPrice) * 100)
+            : null;
+
+          const isPipeOrTube = /pipe|tube/i.test(selectedProduct.category || '');
+
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className={`rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
+                isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+              } shadow-2xl`}>
+                {/* Modal Header */}
+                <div className={`sticky top-0 z-10 flex justify-between items-center px-6 py-4 border-b ${
+                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+                }`}>
+                  <div className="flex-1">
+                    <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Product Specifications
+                    </h2>
+                    <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Complete product information
+                    </p>
                   </div>
+                  <button
+                    onClick={() => setShowSpecModal(false)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
 
-                {/* Technical Specifications */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Technical Specifications</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {selectedProduct.specifications?.length && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Length:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.length}
-                        </span>
-                      </div>
+                {/* Product Identity Header */}
+                <div className="px-6 py-4">
+                  <h3 className={`text-lg font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {selectedProduct.displayName || selectedProduct.display_name || selectedProduct.name}
+                  </h3>
+                  {(selectedProduct.fullName || selectedProduct.full_name) && (selectedProduct.fullName || selectedProduct.full_name) !== (selectedProduct.displayName || selectedProduct.display_name) && (
+                    <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {selectedProduct.fullName || selectedProduct.full_name}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProduct.category && (
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
+                        isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-100 text-blue-700 border-blue-200'
+                      }`}>
+                        {categories.find(c => c.value === selectedProduct.category)?.label || selectedProduct.category}
+                      </span>
                     )}
-                    {selectedProduct.specifications?.width && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Width:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.width}
-                        </span>
-                      </div>
+                    {selectedProduct.origin && (
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
+                        isDarkMode ? 'bg-amber-900/30 text-amber-300 border-amber-700' : 'bg-amber-100 text-amber-700 border-amber-200'
+                      }`}>
+                        {selectedProduct.origin}
+                      </span>
                     )}
-                    {selectedProduct.specifications?.thickness && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Thickness:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.thickness}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.diameter && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Diameter:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.diameter}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.tensileStrength && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Tensile Strength:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.tensileStrength}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.yieldStrength && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Yield Strength:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.yieldStrength}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.carbonContent && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Carbon Content:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.carbonContent}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.coating && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Coating:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.coating}
-                        </span>
-                      </div>
-                    )}
-                    {selectedProduct.specifications?.standard && (
-                      <div className="flex justify-between py-2">
-                        <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Standard:</span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedProduct.specifications.standard}
-                        </span>
-                      </div>
+                    {selectedProduct.commodity && (
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
+                        isDarkMode ? 'bg-purple-900/30 text-purple-300 border-purple-700' : 'bg-purple-100 text-purple-700 border-purple-200'
+                      }`}>
+                        {selectedProduct.commodity}
+                      </span>
                     )}
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Accordion Sections */}
                 <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Description</h3>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {selectedProduct.description}
-                  </p>
+                  {/* Classification & Specs Section */}
+                  <AccordionSection
+                    title="Classification & Specs"
+                    isOpen={accordionState.classification}
+                    onToggle={() => toggleSection('classification')}
+                    isEmpty={!getFormattedGrade() && !getFormattedFinish() && !selectedProduct.size}
+                  >
+                    <div className="space-y-0">
+                      <SpecRow label="Grade" value={getFormattedGrade()} />
+                      <SpecRow label="Finish" value={getFormattedFinish()} />
+                      {isPipeOrTube ? (
+                        <>
+                          <SpecRow label="Size (Inch)" value={selectedProduct.sizeInch ? `${selectedProduct.sizeInch}"` : null} />
+                          <SpecRow label="OD" value={selectedProduct.od ? `(${selectedProduct.od})` : null} />
+                          <SpecRow label="Length" value={selectedProduct.length ? `L: ${selectedProduct.length}` : null} />
+                        </>
+                      ) : (
+                        <SpecRow label="Size" value={selectedProduct.size} />
+                      )}
+                      <SpecRow label="Thickness" value={selectedProduct.thickness} />
+                      <SpecRow label="Weight" value={selectedProduct.weight ? `${selectedProduct.weight} kg` : null} />
+                    </div>
+                  </AccordionSection>
+
+                  {/* Inventory Section */}
+                  <AccordionSection
+                    title="Inventory"
+                    isOpen={accordionState.inventory}
+                    onToggle={() => toggleSection('inventory')}
+                    isEmpty={selectedProduct.currentStock === undefined && !selectedProduct.minStock && !selectedProduct.maxStock && !selectedProduct.location}
+                  >
+                    <div className="space-y-0">
+                      <SpecRow
+                        label="Current Stock"
+                        value={selectedProduct.currentStock !== undefined ? selectedProduct.currentStock : null}
+                        badge={getStockBadge()}
+                      />
+                      <SpecRow label="Min Stock" value={selectedProduct.minStock} />
+                      <SpecRow label="Max Stock" value={selectedProduct.maxStock} />
+                      <SpecRow label="Location" value={selectedProduct.location} />
+                    </div>
+                  </AccordionSection>
+
+                  {/* Pricing Section */}
+                  <AccordionSection
+                    title="Pricing"
+                    isOpen={accordionState.pricing}
+                    onToggle={() => toggleSection('pricing')}
+                    isEmpty={!selectedProduct.costPrice && !selectedProduct.sellingPrice && !selectedProduct.supplier}
+                  >
+                    <div className="space-y-0">
+                      <SpecRow
+                        label="Cost Price"
+                        value={selectedProduct.costPrice ? `${Number(selectedProduct.costPrice).toFixed(2)} د.إ` : null}
+                      />
+                      <SpecRow
+                        label="Selling Price"
+                        value={selectedProduct.sellingPrice ? `${Number(selectedProduct.sellingPrice).toFixed(2)} د.إ` : null}
+                      />
+                      {margin !== null && (
+                        <SpecRow
+                          label="Margin"
+                          value={`${margin}%`}
+                          className="border-t border-gray-600/20 pt-2 mt-2"
+                        />
+                      )}
+                      {selectedProduct.supplier && (
+                        <SpecRow
+                          label="Supplier"
+                          value={selectedProduct.supplier}
+                          className="border-t border-gray-600/20 pt-2 mt-2"
+                        />
+                      )}
+                    </div>
+                  </AccordionSection>
+
+                  {/* Description Section - Only show if has data */}
+                  {hasDescription && (
+                    <AccordionSection
+                      title="Description"
+                      isOpen={accordionState.description}
+                      onToggle={() => toggleSection('description')}
+                    >
+                      <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {selectedProduct.description}
+                      </p>
+                    </AccordionSection>
+                  )}
+
+                  {/* Technical Specs Section - Only show if has data */}
+                  {hasTechnicalSpecs && (
+                    <AccordionSection
+                      title="Technical Specs"
+                      isOpen={accordionState.technical}
+                      onToggle={() => toggleSection('technical')}
+                    >
+                      <div className="space-y-0">
+                        <SpecRow label="Length" value={specs.length} />
+                        <SpecRow label="Width" value={specs.width} />
+                        <SpecRow label="Thickness" value={specs.thickness} />
+                        <SpecRow label="Diameter" value={specs.diameter} />
+                        <SpecRow label="Tensile Strength" value={specs.tensileStrength} />
+                        <SpecRow label="Yield Strength" value={specs.yieldStrength} />
+                        <SpecRow label="Carbon Content" value={specs.carbonContent} />
+                        <SpecRow label="Coating" value={specs.coating} />
+                        <SpecRow label="Standard" value={specs.standard} />
+                      </div>
+                    </AccordionSection>
+                  )}
+                </div>
+
+                {/* Modal Footer */}
+                <div className={`sticky bottom-0 px-6 py-3 border-t ${
+                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <div className="flex justify-end">
+                    <Button onClick={() => setShowSpecModal(false)} variant="secondary" size="sm">
+                      Close
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Product Upload Modal */}
         <ProductUpload

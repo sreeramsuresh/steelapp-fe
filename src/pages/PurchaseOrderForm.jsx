@@ -544,9 +544,10 @@ const PurchaseOrderForm = () => {
 
   // Quick add item from speed button (matching Invoice form)
   const handleQuickAddItem = useCallback((product) => {
+    const productDisplayName = product.displayName || product.display_name || product.name;
     const newItem = {
-      productType: product.displayName || product.name,
-      name: product.displayName || product.name,
+      productType: productDisplayName,
+      name: productDisplayName,
       productId: product.id,
       grade: product.grade || '',
       finish: product.finish || '',
@@ -668,24 +669,42 @@ const PurchaseOrderForm = () => {
 
   // Product options for autocomplete
   const productOptions = useMemo(() => {
-    return (availableProducts || []).map((product) => ({
-      ...product,
-      label: product.displayName || product.name,
-      subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
-        product.sellingPrice || 0
-      }`,
-    }));
+    return (availableProducts || []).map((product) => {
+      // Handle both camelCase and snake_case from API
+      const fullName = product.fullName || product.full_name;
+      const displayName = product.displayName || product.display_name;
+      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
+      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
+      const label = fullName || displayName || product.name;
+      return {
+        ...product,
+        label,
+        searchDisplay: label,
+        fullName: fullName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+      };
+    });
   }, [availableProducts]);
 
   const searchOptions = useMemo(() => {
     const list = searchInputs?.__results || [];
-    return list.map((product) => ({
-      ...product,
-      label: product.displayName || product.name,
-      subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
-        product.sellingPrice || 0
-      }`,
-    }));
+    return list.map((product) => {
+      // Handle both camelCase and snake_case from API
+      const fullName = product.fullName || product.full_name;
+      const displayName = product.displayName || product.display_name;
+      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
+      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
+      const label = fullName || displayName || product.name;
+      return {
+        ...product,
+        label,
+        searchDisplay: label,
+        fullName: fullName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+      };
+    });
   }, [searchInputs.__results]);
 
   // Load existing purchase order when editing
@@ -900,10 +919,11 @@ const PurchaseOrderForm = () => {
       
       const thickness = product.thickness || product.thick || getThickness(product);
       
+      const productDisplayName = product.displayName || product.display_name || product.name;
       updatedItems[index] = {
         ...updatedItems[index],
-        productType: product.displayName || product.name,
-        name: product.displayName || product.name,
+        productType: productDisplayName,
+        name: productDisplayName,
         productId: product.id,
         grade: product.grade || product.steelGrade || '',
         finish,
@@ -1964,9 +1984,9 @@ const PurchaseOrderForm = () => {
                                 ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
-                          title={product.displayName || product.name}
+                          title={product.displayName || product.display_name || product.name}
                         >
-                          {product.displayName || product.name}
+                          {product.displayName || product.display_name || product.name}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}

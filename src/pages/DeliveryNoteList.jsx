@@ -14,6 +14,9 @@ import {
   AlertCircle,
   CheckCircle,
   AlertTriangle,
+  Clock,
+  RefreshCw,
+  XCircle,
 } from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
 import { authService } from '../services/axiosAuthService';
@@ -27,7 +30,8 @@ const DeliveryNoteList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
-  const invoiceIdFromUrl = searchParams.get('invoice_id');
+  // Support both camelCase (invoiceId) and snake_case (invoice_id) for flexibility
+  const invoiceIdFromUrl = searchParams.get('invoiceId') || searchParams.get('invoice_id');
   
   const [deliveryNotes, setDeliveryNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,36 +57,55 @@ const DeliveryNoteList = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { 
-        className: isDarkMode 
-          ? 'bg-orange-900/30 text-orange-300 border-orange-600' 
-          : 'bg-orange-100 text-orange-800 border-orange-300', 
-        label: 'Pending', 
+      pending: {
+        className: isDarkMode
+          ? 'bg-amber-900/30 text-amber-300 border-amber-600'
+          : 'bg-amber-100 text-amber-800 border-amber-300',
+        label: 'Pending',
+        icon: <Clock size={12} />,
       },
-      partial: { 
-        className: isDarkMode 
-          ? 'bg-blue-900/30 text-blue-300 border-blue-600' 
-          : 'bg-blue-100 text-blue-800 border-blue-300', 
-        label: 'Partial Delivery', 
+      in_transit: {
+        className: isDarkMode
+          ? 'bg-orange-900/30 text-orange-300 border-orange-600'
+          : 'bg-orange-100 text-orange-800 border-orange-300',
+        label: 'In Transit',
+        icon: <TruckIcon size={12} />,
       },
-      completed: { 
-        className: isDarkMode 
-          ? 'bg-green-900/30 text-green-300 border-green-600' 
-          : 'bg-green-100 text-green-800 border-green-300', 
-        label: 'Completed', 
+      partial: {
+        className: isDarkMode
+          ? 'bg-blue-900/30 text-blue-300 border-blue-600'
+          : 'bg-blue-100 text-blue-800 border-blue-300',
+        label: 'Partial Delivery',
+        icon: <RefreshCw size={12} />,
       },
-      cancelled: { 
-        className: isDarkMode 
-          ? 'bg-red-900/30 text-red-300 border-red-600' 
-          : 'bg-red-100 text-red-800 border-red-300', 
-        label: 'Cancelled', 
+      delivered: {
+        className: isDarkMode
+          ? 'bg-green-900/30 text-green-300 border-green-600'
+          : 'bg-green-100 text-green-800 border-green-300',
+        label: 'Delivered',
+        icon: <CheckCircle size={12} />,
+      },
+      completed: {
+        className: isDarkMode
+          ? 'bg-green-900/30 text-green-300 border-green-600'
+          : 'bg-green-100 text-green-800 border-green-300',
+        label: 'Completed',
+        icon: <CheckCircle size={12} />,
+      },
+      cancelled: {
+        className: isDarkMode
+          ? 'bg-red-900/30 text-red-300 border-red-600'
+          : 'bg-red-100 text-red-800 border-red-300',
+        label: 'Cancelled',
+        icon: <XCircle size={12} />,
       },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
 
     return (
-      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${config.className}`}>
+        {config.icon}
         {config.label}
       </span>
     );
@@ -96,13 +119,45 @@ const DeliveryNoteList = () => {
         limit: rowsPerPage,
         search: search || undefined,
         status: statusFilter || undefined,
-        start_date: dateFilter || undefined,
-        invoice_id: invoiceIdFromUrl || undefined,
+        startDate: dateFilter || undefined,
+        invoiceId: invoiceIdFromUrl || undefined,
       };
 
       const response = await deliveryNotesAPI.getAll(params);
-      setDeliveryNotes(response.deliveryNotes || response.data || []);
-      setTotalCount(response.pagination?.total || 0);
+
+      // Handle different response formats (camelCase from API Gateway auto-conversion)
+      const notes = response.deliveryNotes || response.delivery_notes || response.data || [];
+
+      // Transform to ensure consistent camelCase in frontend
+      const transformedNotes = notes.map(note => ({
+        id: note.id,
+        deliveryNoteNumber: note.deliveryNoteNumber || note.delivery_note_number,
+        invoiceId: note.invoiceId || note.invoice_id,
+        invoiceNumber: note.invoiceNumber || note.invoice_number,
+        customerId: note.customerId || note.customer_id,
+        customerDetails: typeof note.customerDetails === 'string'
+          ? JSON.parse(note.customerDetails)
+          : (note.customerDetails || note.customer_details || {}),
+        deliveryDate: note.deliveryDate || note.delivery_date,
+        deliveryAddress: typeof note.deliveryAddress === 'string'
+          ? JSON.parse(note.deliveryAddress)
+          : (note.deliveryAddress || note.delivery_address || {}),
+        vehicleNumber: note.vehicleNumber || note.vehicle_number,
+        driverName: note.driverName || note.driver_name,
+        driverPhone: note.driverPhone || note.driver_phone,
+        status: note.status,
+        isPartial: note.isPartial || note.is_partial,
+        notes: note.notes,
+        items: note.items || [],
+        audit: note.audit || {},
+        createdAt: note.createdAt || note.created_at,
+      }));
+
+      setDeliveryNotes(transformedNotes);
+
+      // Handle pagination - support both camelCase and snake_case
+      const pageInfo = response.pageInfo || response.page_info || response.pagination;
+      setTotalCount(pageInfo?.totalItems || pageInfo?.total_items || pageInfo?.total || 0);
     } catch (err) {
       setError(`Failed to fetch delivery notes: ${err.message}`);
     } finally {
@@ -163,8 +218,24 @@ const DeliveryNoteList = () => {
     setPage(0);
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-AE', {
+  const formatDate = (dateValue) => {
+    if (!dateValue) return '-';
+
+    // Handle gRPC timestamp format { seconds: number }
+    let dateObj;
+    if (dateValue.seconds) {
+      dateObj = new Date(dateValue.seconds * 1000);
+    } else if (typeof dateValue === 'string') {
+      dateObj = new Date(dateValue);
+    } else if (typeof dateValue === 'number') {
+      dateObj = new Date(dateValue);
+    } else {
+      dateObj = new Date(dateValue);
+    }
+
+    if (isNaN(dateObj.getTime())) return '-';
+
+    return dateObj.toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -236,14 +307,16 @@ const DeliveryNoteList = () => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                isDarkMode 
-                  ? 'bg-gray-800 border-gray-600 text-white' 
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
                   : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
+              <option value="in_transit">In Transit</option>
               <option value="partial">Partial</option>
+              <option value="delivered">Delivered</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>

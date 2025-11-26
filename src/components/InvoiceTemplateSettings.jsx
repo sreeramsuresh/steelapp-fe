@@ -10,13 +10,27 @@ import {
   ChevronUp,
   AlertTriangle,
   X,
+  Palette,
+  FileText,
+  ShoppingCart,
+  Truck,
+  CreditCard,
+  FileBarChart,
+  Link2,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { getDefaultTemplateSettings, validateTemplateSettings, mergeTemplateSettings } from '../constants/defaultTemplateSettings';
+import {
+  getDefaultTemplateSettings,
+  validateTemplateSettings,
+  mergeTemplateSettings,
+  DEFAULT_DOCUMENT_TEMPLATE_COLORS,
+  mergeDocumentTemplateSettings,
+} from '../constants/defaultTemplateSettings';
 import { generateConfigurablePDF } from '../utils/configurablePdfGenerator';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { notificationService } from '../services/notificationService';
+import { INVOICE_TEMPLATES, TemplateSelector } from '../hooks/useInvoiceTemplates';
 
 // Error Boundary for graceful error handling
 class ErrorBoundary extends React.Component {
@@ -69,6 +83,18 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
 
+  // Selected template state (Classic, Custom, Elegant, Print Ready)
+  const [selectedTemplateId, setSelectedTemplateId] = useState('standard');
+  const [originalTemplateId, setOriginalTemplateId] = useState('standard');
+  const [customColors, setCustomColors] = useState(null);
+  const [originalCustomColors, setOriginalCustomColors] = useState(null);
+
+  // Document template colors state
+  const [documentTemplates, setDocumentTemplates] = useState(
+    JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)),
+  );
+  const [originalDocumentTemplates, setOriginalDocumentTemplates] = useState(null);
+
   // UI state
   const [activeSection, setActiveSection] = useState('basic');
   const [expandedSections, setExpandedSections] = useState({
@@ -92,15 +118,39 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setSettings(defaults);
       setOriginalSettings(defaults);
     }
-  }, [company?.id, company?.settings?.invoiceTemplate]); // Only re-run when company ID or template changes
+
+    // Load selected template (Classic, Custom, Elegant, Print Ready)
+    if (company?.settings?.selectedTemplate) {
+      setSelectedTemplateId(company.settings.selectedTemplate);
+      setOriginalTemplateId(company.settings.selectedTemplate);
+    }
+    if (company?.settings?.templateCustomColors) {
+      setCustomColors(company.settings.templateCustomColors);
+      setOriginalCustomColors(company.settings.templateCustomColors);
+    }
+
+    // Load document template colors
+    if (company?.settings?.documentTemplates) {
+      const mergedDocTemplates = mergeDocumentTemplateSettings(company.settings.documentTemplates);
+      setDocumentTemplates(mergedDocTemplates);
+      setOriginalDocumentTemplates(mergedDocTemplates);
+    } else {
+      const defaultDocTemplates = JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS));
+      setDocumentTemplates(defaultDocTemplates);
+      setOriginalDocumentTemplates(defaultDocTemplates);
+    }
+  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.selectedTemplate, company?.settings?.templateCustomColors, company?.settings?.documentTemplates]); // Only re-run when company ID or template changes
 
   // Check for changes
   useEffect(() => {
     if (originalSettings) {
-      const changed = JSON.stringify(settings) !== JSON.stringify(originalSettings);
-      setHasChanges(changed);
+      const settingsChanged = JSON.stringify(settings) !== JSON.stringify(originalSettings);
+      const templateChanged = selectedTemplateId !== originalTemplateId;
+      const colorsChanged = JSON.stringify(customColors) !== JSON.stringify(originalCustomColors);
+      const docTemplatesChanged = JSON.stringify(documentTemplates) !== JSON.stringify(originalDocumentTemplates);
+      setHasChanges(settingsChanged || templateChanged || colorsChanged || docTemplatesChanged);
     }
-  }, [settings, originalSettings]);
+  }, [settings, originalSettings, selectedTemplateId, originalTemplateId, customColors, originalCustomColors, documentTemplates, originalDocumentTemplates]);
 
   // Warn user before leaving page with unsaved changes
   useEffect(() => {
@@ -148,6 +198,13 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setSettings(JSON.parse(JSON.stringify(originalSettings)));
       setValidationErrors([]);
     }
+    // Also reset template selection
+    setSelectedTemplateId(originalTemplateId);
+    setCustomColors(originalCustomColors);
+    // Reset document templates
+    if (originalDocumentTemplates) {
+      setDocumentTemplates(JSON.parse(JSON.stringify(originalDocumentTemplates)));
+    }
   };
 
   // Reset to defaults
@@ -164,7 +221,36 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     const defaults = getDefaultTemplateSettings();
     setSettings(defaults);
     setValidationErrors([]);
+    // Reset template selection to default (Classic)
+    setSelectedTemplateId('standard');
+    setCustomColors(null);
+    // Reset document templates to defaults
+    setDocumentTemplates(JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)));
   };
+
+  // Handle template selection change
+  const handleTemplateSelect = (templateId) => {
+    setSelectedTemplateId(templateId);
+    // Reset custom colors when changing template (unless it's the Custom template)
+    if (templateId !== 'modern') {
+      setCustomColors(null);
+    }
+  };
+
+  // Handle custom color changes (for Custom template)
+  const handleColorChange = (colorUpdates) => {
+    if (colorUpdates === null) {
+      setCustomColors(null);
+    } else {
+      setCustomColors(prev => ({
+        ...(prev || {}),
+        ...colorUpdates,
+      }));
+    }
+  };
+
+  // Get list of templates for selector
+  const availableTemplates = Object.values(INVOICE_TEMPLATES);
 
   // Save settings
   const handleSave = async () => {
@@ -180,8 +266,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     setIsSaving(true);
 
     try {
-      await onSave({ invoice_template: settings });
+      // Save both advanced settings AND selected template AND document templates
+      await onSave({
+        invoice_template: settings,
+        selectedTemplate: selectedTemplateId,
+        templateCustomColors: customColors,
+        documentTemplates: documentTemplates,
+      });
       setOriginalSettings(settings);
+      setOriginalTemplateId(selectedTemplateId);
+      setOriginalCustomColors(customColors);
+      setOriginalDocumentTemplates(JSON.parse(JSON.stringify(documentTemplates)));
       setHasChanges(false);
       notificationService.success('Template settings saved successfully!');
     } catch (error) {
@@ -190,6 +285,49 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // Handle document template color change
+  const handleDocTemplateColorChange = (docType, color) => {
+    setDocumentTemplates(prev => ({
+      ...prev,
+      [docType]: {
+        ...prev[docType],
+        primaryColor: color,
+      },
+    }));
+  };
+
+  // Handle document template sync toggle
+  const handleDocTemplateSync = (docType, useInvoice) => {
+    setDocumentTemplates(prev => ({
+      ...prev,
+      [docType]: {
+        ...prev[docType],
+        useInvoiceSettings: useInvoice,
+      },
+    }));
+  };
+
+  // Sync all document templates to invoice settings
+  const handleSyncAllToInvoice = () => {
+    setDocumentTemplates(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(docType => {
+        updated[docType] = {
+          ...updated[docType],
+          useInvoiceSettings: true,
+        };
+      });
+      return updated;
+    });
+  };
+
+  // Get the current invoice template color
+  const getInvoiceColor = () => {
+    return customColors?.primary
+      || settings?.colors?.primary
+      || '#0d9488';
   };
 
   // Preview PDF
@@ -342,11 +480,265 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {/* Header */}
       <div className="mb-6">
         <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          Invoice Template Customization
+          Document Template Settings
         </h2>
         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          Customize your invoice template appearance and layout. Changes will apply to all future PDFs.
+          Customize appearance and colors for invoices, quotations, purchase orders, delivery notes, credit notes, and statements.
         </p>
+      </div>
+
+      {/* Template Style Selector - 4 Templates (Classic, Custom, Elegant, Print Ready) */}
+      <div className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Palette size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Template Style
+          </h3>
+        </div>
+        <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Choose a base template style for your invoices. This selection syncs with the Create Invoice page.
+        </p>
+        <TemplateSelector
+          templates={availableTemplates}
+          selectedId={selectedTemplateId}
+          onSelect={handleTemplateSelect}
+          customColor={customColors}
+          onColorChange={handleColorChange}
+          isDarkMode={isDarkMode}
+          columns={4}
+        />
+      </div>
+
+      {/* Document Type Colors Section */}
+      <div className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FileText size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+            <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Document Type Colors
+            </h3>
+          </div>
+          <button
+            onClick={handleSyncAllToInvoice}
+            className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              isDarkMode
+                ? 'bg-teal-700 text-white hover:bg-teal-600'
+                : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+            }`}
+          >
+            <Link2 size={14} />
+            Sync All to Invoice Settings
+          </button>
+        </div>
+        <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Customize the header/accent color for each document type. Toggle &quot;Use Invoice Color&quot; to sync with the main invoice template.
+        </p>
+
+        {/* Invoice Color Reference */}
+        <div className={`mb-4 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-md border-2 border-white shadow-sm"
+              style={{ backgroundColor: getInvoiceColor() }}
+            />
+            <div>
+              <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                Invoice Template Color
+              </span>
+              <span className={`text-xs ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                (from template style above)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Document Type Color List - Grid layout for compact display */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* Quotation */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <FileText size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Quotation</span>
+            <div
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              style={{
+                backgroundColor: documentTemplates.quotation?.useInvoiceSettings
+                  ? getInvoiceColor()
+                  : documentTemplates.quotation?.primaryColor,
+              }}
+            >
+              <input
+                type="color"
+                value={documentTemplates.quotation?.primaryColor || '#009999'}
+                onChange={(e) => handleDocTemplateColorChange('quotation', e.target.value)}
+                disabled={documentTemplates.quotation?.useInvoiceSettings}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Pick a color"
+              />
+            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {documentTemplates.quotation?.useInvoiceSettings ? getInvoiceColor() : documentTemplates.quotation?.primaryColor}
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
+              <input
+                type="checkbox"
+                checked={documentTemplates.quotation?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync('quotation', e.target.checked)}
+                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+              />
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Use Invoice Color
+              </span>
+            </label>
+          </div>
+
+          {/* Purchase Order */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <ShoppingCart size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Purchase Order</span>
+            <div
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              style={{
+                backgroundColor: documentTemplates.purchaseOrder?.useInvoiceSettings
+                  ? getInvoiceColor()
+                  : documentTemplates.purchaseOrder?.primaryColor,
+              }}
+            >
+              <input
+                type="color"
+                value={documentTemplates.purchaseOrder?.primaryColor || '#2563eb'}
+                onChange={(e) => handleDocTemplateColorChange('purchaseOrder', e.target.value)}
+                disabled={documentTemplates.purchaseOrder?.useInvoiceSettings}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Pick a color"
+              />
+            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {documentTemplates.purchaseOrder?.useInvoiceSettings ? getInvoiceColor() : documentTemplates.purchaseOrder?.primaryColor}
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
+              <input
+                type="checkbox"
+                checked={documentTemplates.purchaseOrder?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync('purchaseOrder', e.target.checked)}
+                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+              />
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Use Invoice Color
+              </span>
+            </label>
+          </div>
+
+          {/* Delivery Note */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <Truck size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Delivery Note</span>
+            <div
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              style={{
+                backgroundColor: documentTemplates.deliveryNote?.useInvoiceSettings
+                  ? getInvoiceColor()
+                  : documentTemplates.deliveryNote?.primaryColor,
+              }}
+            >
+              <input
+                type="color"
+                value={documentTemplates.deliveryNote?.primaryColor || '#0d9488'}
+                onChange={(e) => handleDocTemplateColorChange('deliveryNote', e.target.value)}
+                disabled={documentTemplates.deliveryNote?.useInvoiceSettings}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Pick a color"
+              />
+            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {documentTemplates.deliveryNote?.useInvoiceSettings ? getInvoiceColor() : documentTemplates.deliveryNote?.primaryColor}
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
+              <input
+                type="checkbox"
+                checked={documentTemplates.deliveryNote?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync('deliveryNote', e.target.checked)}
+                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+              />
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Use Invoice Color
+              </span>
+            </label>
+          </div>
+
+          {/* Credit Note */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <CreditCard size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Credit Note</span>
+            <div
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              style={{
+                backgroundColor: documentTemplates.creditNote?.useInvoiceSettings
+                  ? getInvoiceColor()
+                  : documentTemplates.creditNote?.primaryColor,
+              }}
+            >
+              <input
+                type="color"
+                value={documentTemplates.creditNote?.primaryColor || '#dc2626'}
+                onChange={(e) => handleDocTemplateColorChange('creditNote', e.target.value)}
+                disabled={documentTemplates.creditNote?.useInvoiceSettings}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Pick a color"
+              />
+            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {documentTemplates.creditNote?.useInvoiceSettings ? getInvoiceColor() : documentTemplates.creditNote?.primaryColor}
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
+              <input
+                type="checkbox"
+                checked={documentTemplates.creditNote?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync('creditNote', e.target.checked)}
+                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+              />
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Use Invoice Color
+              </span>
+            </label>
+          </div>
+
+          {/* Statement */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <FileBarChart size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Statement</span>
+            <div
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              style={{
+                backgroundColor: documentTemplates.statement?.useInvoiceSettings
+                  ? getInvoiceColor()
+                  : documentTemplates.statement?.primaryColor,
+              }}
+            >
+              <input
+                type="color"
+                value={documentTemplates.statement?.primaryColor || '#4f46e5'}
+                onChange={(e) => handleDocTemplateColorChange('statement', e.target.value)}
+                disabled={documentTemplates.statement?.useInvoiceSettings}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Pick a color"
+              />
+            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {documentTemplates.statement?.useInvoiceSettings ? getInvoiceColor() : documentTemplates.statement?.primaryColor}
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
+              <input
+                type="checkbox"
+                checked={documentTemplates.statement?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync('statement', e.target.checked)}
+                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+              />
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Use Invoice Color
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
 
       {/* Validation Errors */}
@@ -547,11 +939,6 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Show/Hide Sections
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CheckboxInput
-                label="Payment History"
-                checked={settings.visibility.showPaymentHistory}
-                onChange={(val) => updateSetting('visibility.showPaymentHistory', val)}
-              />
               <CheckboxInput
                 label="Notes"
                 checked={settings.visibility.showNotes}

@@ -370,9 +370,11 @@ const QuotationForm = () => {
 
   // Quick add item from speed button
   const quickAddItem = (product) => {
+    // Handle both camelCase and snake_case field names
+    const productDisplayName = product.displayName || product.display_name || product.fullName || product.full_name || product.name || '';
     const newItem = {
       productId: product.id || '',
-      name: product.displayName || product.fullName || product.name || '',
+      name: productDisplayName,
       specification: product.specifications?.specification || product.specifications?.size || '',
       grade: product.specifications?.grade || product.grade || '',
       finish: product.specifications?.finish || product.finish || '',
@@ -449,9 +451,10 @@ const QuotationForm = () => {
     if (field === 'productId' && value) {
       const product = products.find(p => p.id === parseInt(value));
       if (product) {
+        const productDisplayName = product.displayName || product.display_name || product.fullName || product.full_name || product.name;
         newItems[index] = {
           ...newItems[index],
-          name: product.displayName || product.fullName || product.name,
+          name: productDisplayName,
           specification: product.specifications?.specification || product.specifications?.size || newItems[index].specification || '',
           grade: product.specifications?.grade || product.grade || newItems[index].grade || '',
           finish: product.specifications?.finish || product.finish || newItems[index].finish || '',
@@ -1137,7 +1140,7 @@ const QuotationForm = () => {
                               : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                         }`}
                       >
-                        {product.displayName || product.fullName || product.name}
+                        {product.displayName || product.display_name || product.fullName || product.full_name || product.name}
                       </button>
                       <button
                         type="button"
@@ -1190,7 +1193,7 @@ const QuotationForm = () => {
                         <option value="">Select or enter manually</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.displayName || product.fullName || product.name}
+                            {product.displayName || product.display_name || product.fullName || product.full_name || product.name}
                           </option>
                         ))}
                       </Select>

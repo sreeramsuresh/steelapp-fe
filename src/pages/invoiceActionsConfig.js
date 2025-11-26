@@ -185,7 +185,10 @@ export function getInvoiceActionButtonConfig(
           : !canCreateDeliveryNotes
             ? 'No permission to create delivery notes'
             : 'Create delivery note',
-      hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes,
+      hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes || false,
+      count: deliveryNoteStatus[invoice.id]?.count || 0,
+      firstId: deliveryNoteStatus[invoice.id]?.firstId || null,
+      isFullyDelivered: deliveryNoteStatus[invoice.id]?.isFullyDelivered || false,
     },
     delete: {
       enabled: canDelete && !isDeleted,

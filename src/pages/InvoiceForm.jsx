@@ -56,23 +56,13 @@ import pricelistService from '../services/pricelistService';
 import { invoicesAPI } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from '../hooks/useKeyboardShortcuts';
-import useAutoSave, { getAutoSaveStatusDisplay } from '../hooks/useAutoSave';
+// AutoSave removed - was causing status bug on new invoices
 import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
 import useBulkActions, { BulkCheckbox, BulkActionsToolbar } from '../hooks/useBulkActions';
 import useInvoiceTemplates, { TemplateSelector, RecurringInvoiceSettings } from '../hooks/useInvoiceTemplates';
 import useAccessibility, { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
-import PaymentSummary from '../components/PaymentSummary';
-import PaymentLedger from '../components/PaymentLedger';
-import InvoiceCreditNotesSection from '../components/invoice/InvoiceCreditNotesSection';
-import AddPaymentModal from '../components/AddPaymentModal';
 import LoadingOverlay from '../components/LoadingOverlay';
-import {
-  calculateTotalPaid,
-  calculateBalanceDue,
-  calculatePaymentStatus,
-  getLastPaymentDate,
-} from '../utils/paymentUtils';
 
 // Custom Tailwind Components
 const Button = ({
@@ -966,10 +956,6 @@ const InvoiceForm = ({ onSave }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
 
-  // Payment tracking management
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [editingPayment, setEditingPayment] = useState(null);
-
   // Form preferences state (with localStorage persistence)
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [formPreferences, setFormPreferences] = useState(() => {
@@ -989,9 +975,7 @@ const InvoiceForm = ({ onSave }) => {
   // PHASE 1 UI IMPROVEMENTS: Keyboard Shortcuts & Auto-Save
   // ============================================================
   
-  // Draft recovery modal state
-  const [showDraftRecoveryModal, setShowDraftRecoveryModal] = useState(false);
-  const [recoveredDraft, setRecoveredDraft] = useState(null);
+  // Draft recovery removed - autosave was causing status bug
 
   // Form validation state
   const [validationErrors, setValidationErrors] = useState([]);
@@ -1134,32 +1118,70 @@ const InvoiceForm = ({ onSave }) => {
     return newInvoice;
   });
 
+  // Track if form has unsaved changes (for navigation warning)
+  const [formDirty, setFormDirty] = useState(false);
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+
+  // Mark form as dirty whenever invoice changes (except initial load)
+  const initialLoadRef = useRef(true);
+  useEffect(() => {
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      return;
+    }
+    // Only mark dirty for new invoices or if editing and changes were made
+    if (!id || invoice) {
+      setFormDirty(true);
+    }
+  }, [invoice, id]);
+
+  // Reset dirty flag when invoice is saved successfully
+  useEffect(() => {
+    if (createdInvoiceId) {
+      setFormDirty(false);
+    }
+  }, [createdInvoiceId]);
+
+  // Warn before browser close/refresh if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (formDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [formDirty]);
+
   // UAE VAT COMPLIANCE: Check if invoice is locked
   // Issued invoices can be edited within 24 hours of issuance (creates revision)
   // After 24 hours, invoice is permanently locked
+  // IMPORTANT: New invoices (no id) are NEVER locked, even if status is 'issued'
   const isLocked = useMemo(() => {
+    // NEW INVOICES ARE NEVER LOCKED - they haven't been saved yet
+    // The 'id' parameter from useParams() is only present when editing an existing invoice
+    if (!id) return false;
+
     const status = (invoice?.status || '').toLowerCase().replace('status_', '');
     if (status !== 'issued') return false;
-    
+
     // Check 24-hour edit window
     const issuedAt = invoice?.issuedAt;
     if (!issuedAt) {
-      // No issuedAt could mean:
-      // 1. User just changed dropdown to 'issued' but hasn't saved yet (NOT locked)
-      // 2. Legacy invoice that was issued before edit window feature (LOCKED)
-      // We differentiate by checking if invoice number starts with INV- (actual issued invoice)
-      const invoiceNumber = (invoice?.invoiceNumber || invoice?.invoice_number || '').toUpperCase();
-      // Only lock if it has INV- prefix (actually saved as issued invoice)
-      // DFT- or PRO- means it's still a draft/proforma and not locked yet
-      return invoiceNumber.startsWith('INV-');
+      // No issuedAt means this is a legacy invoice that was issued before edit window feature
+      // These are considered locked (cannot edit without credit note)
+      return true;
     }
-    
+
     const issuedDate = new Date(issuedAt);
     const now = new Date();
     const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-    
+
     return hoursSinceIssued >= 24; // Locked if 24+ hours since issued
-  }, [invoice?.status, invoice?.issuedAt]);
+  }, [id, invoice?.status, invoice?.issuedAt]);
   
   // Calculate if we're in revision mode (editing issued invoice within 24h)
   const isRevisionMode = useMemo(() => {
@@ -1273,32 +1295,8 @@ const InvoiceForm = ({ onSave }) => {
   const [pricelistName, setPricelistName] = useState(null);
 
   // ============================================================
-  // AUTO-SAVE HOOK - Saves drafts to localStorage for recovery
+  // AUTO-SAVE REMOVED - Was causing status bug on new invoices
   // ============================================================
-  const {
-    status: autoSaveStatus,
-    lastSavedFormatted,
-    isDirty: hasUnsavedChanges,
-    saveNow: saveLocalDraft,
-    clearLocalDraft,
-    checkForRecoverableDraft,
-  } = useAutoSave(
-    invoice,
-    id,
-    {
-      enabled: !id, // Only auto-save for new invoices (editing has server-side drafts)
-      debounceMs: 30000, // 30 seconds
-      onRecover: (recovered) => {
-        if (recovered && recovered.data && !id) {
-          setRecoveredDraft(recovered);
-          setShowDraftRecoveryModal(true);
-        }
-      },
-    },
-  );
-
-  // Get auto-save status display for UI
-  const autoSaveStatusDisplay = getAutoSaveStatusDisplay(autoSaveStatus, lastSavedFormatted);
 
   // ============================================================
   // PHASE 2-5 UI IMPROVEMENTS
@@ -1340,7 +1338,7 @@ const InvoiceForm = ({ onSave }) => {
     getId: (item) => item.id,
   });
 
-  // Invoice templates
+  // Invoice templates - synced with company settings
   const {
     selectedTemplateId,
     currentTemplate,
@@ -1352,7 +1350,8 @@ const InvoiceForm = ({ onSave }) => {
     recurringSettings,
     toggleRecurring,
     updateRecurringSettings,
-  } = useInvoiceTemplates('standard');
+    isSaving: isSavingTemplate,
+  } = useInvoiceTemplates('standard', company);
 
   // Template settings modal
   const [showTemplateSettings, setShowTemplateSettings] = useState(false);
@@ -1728,7 +1727,8 @@ const InvoiceForm = ({ onSave }) => {
         newItems[index] = {
           ...newItems[index],
           productId: product.id,
-          name: product.displayName || product.name,
+          // Use displayName (without origin) for invoice line items
+          name: product.displayName || product.display_name || product.name,
           category: product.category || '',
           commodity: product.commodity || 'SS',
           grade: product.grade || '',
@@ -1805,7 +1805,7 @@ const InvoiceForm = ({ onSave }) => {
       const searchValue = searchInputs[index] || '';
       const products = productsData?.products || [];
       return products.some(
-        (product) => (product.displayName || product.name).toLowerCase() === searchValue.toLowerCase(),
+        (product) => (product.displayName || product.display_name || product.name).toLowerCase() === searchValue.toLowerCase(),
       );
     },
     [productsData, searchInputs],
@@ -1852,24 +1852,44 @@ const InvoiceForm = ({ onSave }) => {
 
   const productOptions = useMemo(() => {
     const list = productsData?.products || [];
-    return list.map((product) => ({
-      ...product,
-      label: product.displayName || product.name,
-      subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
-        product.sellingPrice || 0
-      }`,
-    }));
+    return list.map((product) => {
+      // Handle both camelCase and snake_case field names from API
+      const fullName = product.fullName || product.full_name;
+      const displayName = product.displayName || product.display_name;
+      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
+      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
+      const label = fullName || displayName || product.name;
+      return {
+        ...product,
+        label,
+        searchDisplay: label,
+        // Normalize fields for consistent access
+        fullName: fullName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+      };
+    });
   }, [productsData]);
 
   const searchOptions = useMemo(() => {
     const list = searchInputs?.__results || [];
-    return list.map((product) => ({
-      ...product,
-      label: product.displayName || product.name,
-      subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${
-        product.sellingPrice || 0
-      }`,
-    }));
+    return list.map((product) => {
+      // Handle both camelCase and snake_case field names from API
+      const fullName = product.fullName || product.full_name;
+      const displayName = product.displayName || product.display_name;
+      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
+      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
+      const label = fullName || displayName || product.name;
+      return {
+        ...product,
+        label,
+        searchDisplay: label,
+        // Normalize fields for consistent access
+        fullName: fullName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+      };
+    });
   }, [searchInputs.__results]);
 
   // Dynamic option lists augmented from products data
@@ -1931,77 +1951,6 @@ const InvoiceForm = ({ onSave }) => {
       items: prev.items.filter((_, i) => i !== index),
     }));
   }, []);
-
-  // Payment management handlers
-  const handleAddPayment = () => {
-    setEditingPayment(null);
-    setShowPaymentModal(true);
-  };
-
-  const handleEditPayment = (payment) => {
-    setEditingPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handleSavePayment = (paymentData) => {
-    setInvoice((prev) => {
-      let updatedPayments;
-
-      if (editingPayment) {
-        // Update existing payment
-        updatedPayments = prev.payments.map((p) =>
-          p.id === paymentData.id ? paymentData : p,
-        );
-      } else {
-        // Add new payment
-        updatedPayments = [...prev.payments, paymentData];
-      }
-
-      // Recalculate payment fields
-      const totalPaid = calculateTotalPaid(updatedPayments);
-      const balanceDue = calculateBalanceDue(prev.total, updatedPayments);
-      const paymentStatus = calculatePaymentStatus(prev.total, updatedPayments);
-      const lastPaymentDate = getLastPaymentDate(updatedPayments);
-
-      return {
-        ...prev,
-        payments: updatedPayments,
-        total_paid: totalPaid,
-        balance_due: balanceDue,
-        payment_status: paymentStatus,
-        last_payment_date: lastPaymentDate,
-      };
-    });
-
-    // Modal will close itself via onClose(), just clean up editing state
-    setEditingPayment(null);
-    notificationService.success(
-      editingPayment ? 'Payment updated successfully!' : 'Payment added successfully!',
-    );
-  };
-
-  const handleDeletePayment = (paymentId) => {
-    setInvoice((prev) => {
-      const updatedPayments = prev.payments.filter((p) => p.id !== paymentId);
-
-      // Recalculate payment fields
-      const totalPaid = calculateTotalPaid(updatedPayments);
-      const balanceDue = calculateBalanceDue(prev.total, updatedPayments);
-      const paymentStatus = calculatePaymentStatus(prev.total, updatedPayments);
-      const lastPaymentDate = getLastPaymentDate(updatedPayments);
-
-      return {
-        ...prev,
-        payments: updatedPayments,
-        total_paid: totalPaid,
-        balance_due: balanceDue,
-        payment_status: paymentStatus,
-        last_payment_date: lastPaymentDate,
-      };
-    });
-
-    notificationService.success('Payment deleted successfully!');
-  };
 
   const handleSave = async () => {
     console.log('🔍 handleSave called - id:', id, 'status:', invoice.status);
@@ -2192,12 +2141,22 @@ const InvoiceForm = ({ onSave }) => {
     await performSave();
   };
 
-  const performSave = async () => {
+  const performSave = async (statusOverride = null) => {
     // Prevent double-saves
     if (isSaving) {
       console.log('Save already in progress, skipping duplicate save');
       return;
     }
+
+    // Use statusOverride if provided (for Final Tax Invoice confirmation flow)
+    // This ensures the status is correct regardless of React state timing issues
+    const effectiveStatus = statusOverride || invoice.status;
+
+    // DEBUG: Log status at start of performSave
+    console.log('📋 [performSave] Starting save - invoice.status:', invoice.status);
+    console.log('📋 [performSave] statusOverride:', statusOverride);
+    console.log('📋 [performSave] effectiveStatus:', effectiveStatus);
+    console.log('📋 [performSave] Is new invoice (no id):', !id);
 
     // Filter out blank items before validation
     const nonBlankItems = (invoice.items || []).filter(item => {
@@ -2275,8 +2234,10 @@ const InvoiceForm = ({ onSave }) => {
     setIsSaving(true);
     try {
       // Convert empty string values to numbers before saving
+      // IMPORTANT: Use effectiveStatus to ensure correct status for Final Tax Invoice flow
       const processedInvoice = {
         ...invoice,
+        status: effectiveStatus,  // Use effectiveStatus, not invoice.status (fixes DFT- prefix bug)
         discountAmount:
           invoice.discountAmount === '' ? 0 : Number(invoice.discountAmount),
         discountPercentage:
@@ -2320,6 +2281,7 @@ const InvoiceForm = ({ onSave }) => {
         }
       } else {
         // Create new invoice
+        console.log('📤 Creating new invoice - processedInvoice.status:', processedInvoice.status);
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
 
@@ -2404,8 +2366,12 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleConfirmSave = async () => {
+    console.log('🔐 handleConfirmSave called - invoice.status:', invoice.status);
     setShowSaveConfirmDialog(false);
-    await performSave();
+
+    // Pass 'issued' explicitly since user confirmed Final Tax Invoice dialog
+    // This ensures status is correct regardless of React state timing
+    await performSave('issued');
   };
 
   const handleCancelSave = () => {
@@ -2531,8 +2497,6 @@ const InvoiceForm = ({ onSave }) => {
           handleSuccessModalClose();
         } else if (showSaveConfirmDialog) {
           handleCancelSave();
-        } else if (showDraftRecoveryModal) {
-          setShowDraftRecoveryModal(false);
         } else if (showFormSettings) {
           setShowFormSettings(false);
         }
@@ -2543,14 +2507,6 @@ const InvoiceForm = ({ onSave }) => {
       allowInInputs: ['escape'], // Allow Escape in inputs to close modals
     },
   );
-
-  // Clear local draft when invoice is saved successfully to server
-  useEffect(() => {
-    if (createdInvoiceId && !id) {
-      // Invoice was just created, clear the local draft
-      clearLocalDraft();
-    }
-  }, [createdInvoiceId, id, clearLocalDraft]);
 
   if (showPreview) {
     // Preview is view-only - no Save button per unified design rules
@@ -2630,40 +2586,6 @@ const InvoiceForm = ({ onSave }) => {
                   </p>
                 </div>
               </div>
-              
-              {/* Auto-save Status Indicator - Only for new invoices */}
-              {!id && autoSaveStatus && (
-                <div className={`hidden md:flex items-center gap-1.5 px-2 py-1 rounded-md text-xs ${
-                  isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
-                }`}>
-                  <span className={autoSaveStatusDisplay.color}>
-                    {autoSaveStatusDisplay.icon}
-                  </span>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    {autoSaveStatusDisplay.text}
-                  </span>
-                  {/* X button to discard changes - only show when unsaved */}
-                  {autoSaveStatus === 'unsaved' && (
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Discard all changes to this invoice? This cannot be undone.')) {
-                          clearLocalDraft();
-                          setInvoice(createInvoice());
-                          notificationService.info('Changes discarded');
-                        }
-                      }}
-                      title="Discard all changes"
-                      className={`ml-1 p-0.5 rounded transition-colors ${
-                        isDarkMode
-                          ? 'text-gray-400 hover:text-red-400 hover:bg-gray-600'
-                          : 'text-gray-500 hover:text-red-500 hover:bg-gray-200'
-                      }`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              )}
               
               <div className="hidden md:flex gap-2 items-start relative">
                 {/* Template Selector */}
@@ -3165,6 +3087,7 @@ const InvoiceForm = ({ onSave }) => {
                     showValidation={formPreferences.showValidationHighlighting}
                     onChange={(e) => {
                       const newStatus = e.target.value;
+                      console.log('📝 Status dropdown changed to:', newStatus);
                       setInvoice((prev) => ({
                         ...prev,
                         status: newStatus,
@@ -3363,7 +3286,8 @@ const InvoiceForm = ({ onSave }) => {
                           onClick={() => {
                             const newItem = createSteelItem();
                             newItem.productId = product.id;
-                            newItem.name = product.displayName || product.fullName || product.name;
+                            // Use displayName (without origin) for invoice line items
+                            newItem.name = product.displayName || product.display_name || product.name;
                             newItem.unit = product.unit || 'kg';
                             newItem.rate = parseFloat(product.price) || 0;
                             newItem.hsnCode = product.hsnCode || '';
@@ -3388,9 +3312,9 @@ const InvoiceForm = ({ onSave }) => {
                                 ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
-                          title={product.displayName || product.fullName || product.name}
+                          title={product.displayName || product.display_name || product.name}
                         >
-                          {product.displayName || product.fullName || product.name}
+                          {product.displayName || product.display_name || product.name}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}
@@ -3601,7 +3525,7 @@ const InvoiceForm = ({ onSave }) => {
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">
-                                    {option.name}
+                                    {option.searchDisplay || option.fullName || option.full_name || option.displayName || option.display_name || option.name}
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {option.subtitle}
@@ -3816,7 +3740,7 @@ const InvoiceForm = ({ onSave }) => {
                         error={invalidFields.has(`item.${index}.name`)}
                         renderOption={(option) => (
                           <div>
-                            <div className="font-medium">{option.name}</div>
+                            <div className="font-medium">{option.searchDisplay || option.fullName || option.full_name || option.displayName || option.display_name || option.name}</div>
                             <div className="text-sm text-gray-500">
                               {option.subtitle}
                             </div>
@@ -4151,48 +4075,6 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </Card>
 
-          {/* Payment Tracking Section - Show for Final Tax Invoices (issued status) */}
-          {invoice.status === 'issued' && (
-            <Card className="p-4 sm:p-6">
-              <h2
-                className={`text-xl font-bold mb-4 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}
-              >
-                  💰 Payment Tracking
-              </h2>
-
-              {/* Payment Summary */}
-              <div className="mb-4">
-                <PaymentSummary
-                  invoiceTotal={computedTotal}
-                  payments={invoice.payments || []}
-                />
-              </div>
-
-              {/* Payment Ledger */}
-              <PaymentLedger
-                payments={invoice.payments || []}
-                invoice={invoice}
-                company={company}
-                onAddPayment={handleAddPayment}
-                onEditPayment={handleEditPayment}
-                onDeletePayment={handleDeletePayment}
-              />
-            </Card>
-          )}
-
-          {/* Credit Notes Section - Only for existing invoices */}
-          {id && (
-            <div className="mb-4 md:mb-6">
-              <InvoiceCreditNotesSection
-                invoiceId={id}
-                invoiceStatus={invoice.status}
-                isDarkMode={isDarkMode}
-              />
-            </div>
-          )}
-
           {/* Two-Column Notes Footer - General Notes + VAT Tax Notes (left) | Payment Terms (right) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* LEFT COLUMN: General Notes & VAT Tax Notes */}
@@ -4442,84 +4324,6 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         );
       })()}
-
-      {/* Draft Recovery Modal */}
-      {showDraftRecoveryModal && recoveredDraft && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShowDraftRecoveryModal(false)}
-        >
-          <div
-            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
-              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start mb-4">
-              <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-full p-3 mr-4">
-                <span className="text-2xl">↺</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold mb-2">
-                  Recover Unsaved Draft?
-                </h3>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  We found an unsaved draft from{' '}
-                  {recoveredDraft.timestamp 
-                    ? new Date(recoveredDraft.timestamp).toLocaleString()
-                    : 'earlier'
-                  }.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => {
-                  if (recoveredDraft.data) {
-                    setInvoice(recoveredDraft.data);
-                  }
-                  setShowDraftRecoveryModal(false);
-                  setRecoveredDraft(null);
-                  notificationService.success('Draft recovered successfully');
-                }}
-                className="flex-1 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
-              >
-                Restore Draft
-              </button>
-              <button
-                onClick={() => {
-                  clearLocalDraft();
-                  setShowDraftRecoveryModal(false);
-                  setRecoveredDraft(null);
-                }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                }`}
-              >
-                Start Fresh
-              </button>
-            </div>
-            <p className={`text-xs mt-3 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              Press Escape to dismiss
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Add/Edit Payment Modal */}
-      <AddPaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setEditingPayment(null);
-        }}
-        onSave={handleSavePayment}
-        invoiceTotal={computedTotal}
-        existingPayments={invoice.payments || []}
-        editingPayment={editingPayment}
-      />
 
       {/* Loading Overlay for Issued Invoice Saves */}
       <LoadingOverlay

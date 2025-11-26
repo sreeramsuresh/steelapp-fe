@@ -2004,12 +2004,15 @@ const CompanySettings = () => {
       company={companyProfile}
       onSave={async (templateSettings) => {
         try {
-          // Save template settings to company.settings.invoiceTemplate
+          // Save template settings to company.settings
+          // templateSettings contains: invoice_template, selectedTemplate, templateCustomColors
           const updatedProfile = {
             ...companyProfile,
             settings: {
               ...companyProfile.settings,
-              invoice_template: templateSettings,
+              invoice_template: templateSettings.invoice_template,
+              selectedTemplate: templateSettings.selectedTemplate,
+              templateCustomColors: templateSettings.templateCustomColors,
             },
           };
 
@@ -3534,7 +3537,7 @@ const CompanySettings = () => {
   const isAdmin = authService.hasRole('admin');
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
-    { id: 'templates', label: 'Invoice Templates', icon: FileText },
+    { id: 'templates', label: 'Document Templates', icon: FileText },
     { id: 'product-naming', label: 'Product Naming', icon: Tag },
     { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },

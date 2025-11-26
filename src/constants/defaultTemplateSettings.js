@@ -2,9 +2,22 @@
  * Default Invoice Template Settings
  *
  * These are the default settings for the invoice template.
- * Users can customize these in Company Settings > Invoice Template
+ * Users can customize these in Company Settings > Document Templates
  * and reset to these defaults at any time.
  */
+
+/**
+ * Default document template colors
+ * Each document type has its own primary color that can be customized.
+ * When useInvoiceSettings is true, the document uses the invoice template color instead.
+ */
+export const DEFAULT_DOCUMENT_TEMPLATE_COLORS = {
+  quotation: { primaryColor: '#009999', useInvoiceSettings: false },      // Teal
+  purchaseOrder: { primaryColor: '#2563eb', useInvoiceSettings: false },  // Blue
+  deliveryNote: { primaryColor: '#0d9488', useInvoiceSettings: false },   // Teal-600
+  creditNote: { primaryColor: '#dc2626', useInvoiceSettings: false },     // Red
+  statement: { primaryColor: '#4f46e5', useInvoiceSettings: false },      // Indigo
+};
 
 export const DEFAULT_TEMPLATE_SETTINGS = {
   // === VERSION ===
@@ -90,7 +103,6 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
     showTotal: true,
 
     // Optional sections
-    showPaymentHistory: true,  // Show payment history table if payments exist
     showNotes: true,           // Show notes section
     showTerms: true,           // Show payment terms section
     showWarehouse: true,       // Show warehouse information
@@ -263,4 +275,58 @@ export const validateTemplateSettings = (settings) => {
     valid: errors.length === 0,
     errors,
   };
+};
+
+/**
+ * Get the template color for a specific document type.
+ * Falls back to invoice template color if useInvoiceSettings is true or if no settings exist.
+ *
+ * @param {string} documentType - One of: quotation, purchaseOrder, deliveryNote, creditNote, statement
+ * @param {Object} companySettings - The company settings object
+ * @returns {string} Hex color code for the document template
+ */
+export const getDocumentTemplateColor = (documentType, companySettings) => {
+  // Get the invoice/main template color as fallback
+  const invoiceColor = companySettings?.settings?.invoiceTemplate?.colors?.primary
+    || companySettings?.settings?.templateCustomColors?.primary
+    || DEFAULT_TEMPLATE_SETTINGS.colors.primary
+    || '#0d9488';
+
+  // Get document-specific settings
+  const docSettings = companySettings?.settings?.documentTemplates?.[documentType];
+
+  // If no document settings exist or useInvoiceSettings is true, use invoice color
+  if (!docSettings || docSettings.useInvoiceSettings) {
+    return invoiceColor;
+  }
+
+  // Return document-specific color, or default if not set
+  return docSettings.primaryColor
+    || DEFAULT_DOCUMENT_TEMPLATE_COLORS[documentType]?.primaryColor
+    || invoiceColor;
+};
+
+/**
+ * Get default document template settings, merged with any existing settings
+ *
+ * @param {Object} existingSettings - Existing document template settings from company
+ * @returns {Object} Merged document template settings
+ */
+export const mergeDocumentTemplateSettings = (existingSettings) => {
+  if (!existingSettings || Object.keys(existingSettings).length === 0) {
+    return JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS));
+  }
+
+  // Merge with defaults
+  const merged = JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS));
+  Object.keys(merged).forEach(docType => {
+    if (existingSettings[docType]) {
+      merged[docType] = {
+        ...merged[docType],
+        ...existingSettings[docType],
+      };
+    }
+  });
+
+  return merged;
 };

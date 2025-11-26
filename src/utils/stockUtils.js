@@ -2,6 +2,103 @@ import { stockMovementService } from '../services/stockMovementService';
 import { inventoryService } from '../services/inventoryService';
 
 /**
+ * Stock status constants
+ */
+export const STOCK_STATUS = {
+  OUT_OF_STOCK: 'out_of_stock',
+  LOW: 'low',
+  NORMAL: 'normal',
+  HIGH: 'high',
+};
+
+/**
+ * Calculate stock status based on current stock, min stock, and max stock
+ *
+ * Logic:
+ * - OUT_OF_STOCK: quantity is 0 or negative (always takes priority)
+ * - LOW: quantity > 0 but <= minStock (or <= 5 if minStock is 0)
+ * - HIGH: quantity >= maxStock * 0.8 (only if maxStock > 0)
+ * - NORMAL: everything else
+ *
+ * @param {number|string} currentStock - Current stock quantity
+ * @param {number|string} minStock - Minimum stock threshold
+ * @param {number|string} maxStock - Maximum stock threshold
+ * @returns {string} Stock status: 'out_of_stock', 'low', 'high', or 'normal'
+ */
+export const getStockStatus = (currentStock, minStock = 0, maxStock = 0) => {
+  const qty = Number(currentStock) || 0;
+  const min = Number(minStock) || 0;
+  const max = Number(maxStock) || 0;
+
+  // CRITICAL: Out of stock takes priority over everything
+  if (qty <= 0) {
+    return STOCK_STATUS.OUT_OF_STOCK;
+  }
+
+  // Low stock check
+  // If minStock is 0 (not set), use 5 as default threshold
+  const effectiveMinStock = min > 0 ? min : 5;
+  if (qty <= effectiveMinStock) {
+    return STOCK_STATUS.LOW;
+  }
+
+  // High stock check - only if maxStock is defined and > 0
+  // Prevent false positives when maxStock is 0 or undefined
+  if (max > 0 && qty >= max * 0.8) {
+    return STOCK_STATUS.HIGH;
+  }
+
+  return STOCK_STATUS.NORMAL;
+};
+
+/**
+ * Get display label for stock status
+ * @param {string} status - Stock status constant
+ * @returns {string} Human-readable label
+ */
+export const getStockStatusLabel = (status) => {
+  switch (status) {
+    case STOCK_STATUS.OUT_OF_STOCK: return 'OUT OF STOCK';
+    case STOCK_STATUS.LOW: return 'LOW';
+    case STOCK_STATUS.HIGH: return 'HIGH';
+    default: return 'NORMAL';
+  }
+};
+
+/**
+ * Get color/style config for stock status
+ * @param {string} status - Stock status constant
+ * @param {boolean} isDarkMode - Whether dark mode is active
+ * @returns {object} Style configuration object
+ */
+export const getStockStatusStyles = (status, isDarkMode = false) => {
+  const styles = {
+    [STOCK_STATUS.OUT_OF_STOCK]: {
+      bgClass: isDarkMode ? 'bg-red-950/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800 border-red-300',
+      color: '#7f1d1d',
+      progressClass: 'bg-red-900',
+    },
+    [STOCK_STATUS.LOW]: {
+      bgClass: isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200',
+      color: '#dc2626',
+      progressClass: 'bg-red-500',
+    },
+    [STOCK_STATUS.HIGH]: {
+      bgClass: isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200',
+      color: '#059669',
+      progressClass: 'bg-green-500',
+    },
+    [STOCK_STATUS.NORMAL]: {
+      bgClass: isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200',
+      color: '#2563eb',
+      progressClass: 'bg-blue-500',
+    },
+  };
+
+  return styles[status] || styles[STOCK_STATUS.NORMAL];
+};
+
+/**
  * Creates stock movements from an invoice
  * @param {Object} invoice - The invoice object
  * @returns {Promise<Array>} Array of created stock movements

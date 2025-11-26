@@ -139,9 +139,9 @@ const ProductNamingGrid = ({
   // Filter products
   const filteredProducts = products.filter(p => {
     const matchesSearch = !searchTerm ||
-      p.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.displayName || p.display_name)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.fullName || p.full_name)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.commodity?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.grade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -165,7 +165,7 @@ const ProductNamingGrid = ({
   // === INLINE EDITING ===
   const handleStartEdit = (product) => {
     setEditingId(product.id);
-    setEditValue(product.displayName || product.fullName || product.name || '');
+    setEditValue(product.displayName || product.display_name || product.fullName || product.full_name || product.name || '');
   };
 
   const handleSave = async (productId) => {
@@ -247,7 +247,7 @@ const ProductNamingGrid = ({
 
     const previews = productsToCheck
       .map(product => {
-        const currentName = product.displayName || product.fullName || product.name || '';
+        const currentName = product.displayName || product.display_name || product.fullName || product.full_name || product.name || '';
         let newName;
 
         if (caseSensitive) {
@@ -347,7 +347,7 @@ const ProductNamingGrid = ({
       : filteredProducts;
 
     const previews = productsToModify.map(product => {
-      const currentName = product.displayName || product.fullName || product.name || '';
+      const currentName = product.displayName || product.display_name || product.fullName || product.full_name || product.name || '';
       const newName = `${prefixText}${currentName}${suffixText}`;
 
       return {

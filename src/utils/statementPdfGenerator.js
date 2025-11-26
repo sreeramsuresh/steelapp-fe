@@ -1,4 +1,5 @@
 import { formatCurrency, formatDate, getCompanyImages } from './invoiceUtils';
+import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
 
 export const generateStatementPDF = async ({ customerName, periodStart, periodEnd, items, company }) => {
   try {
@@ -6,7 +7,9 @@ export const generateStatementPDF = async ({ customerName, periodStart, periodEn
 
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
-    const element = createStatementElement({ customerName, periodStart, periodEnd, items, company, logoUrl, sealUrl });
+    // Get the template color for statements
+    const templateColor = getDocumentTemplateColor('statement', company);
+    const element = createStatementElement({ customerName, periodStart, periodEnd, items, company, logoUrl, sealUrl, templateColor });
     document.body.appendChild(element);
 
     await waitForImages(element);
@@ -37,7 +40,7 @@ export const generateStatementPDF = async ({ customerName, periodStart, periodEn
   }
 };
 
-const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {}, logoUrl: logoCompany, sealUrl: sealImage }) => {
+const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {}, logoUrl: logoCompany, sealUrl: sealImage, templateColor = '#4f46e5' }) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;
@@ -89,8 +92,8 @@ const createStatementElement = ({ customerName, periodStart, periodEnd, items = 
       </div>
     </div>
 
-    <div style="width:100%; border-top:2px solid #000; border-bottom:2px solid #000; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
-      <h2 style="margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; color:#000;">ACCOUNT STATEMENT</h2>
+    <div style="width:100%; background-color:${templateColor}; text-align:center; margin:10px 0 20px 0; padding:15px 0;">
+      <h2 style="margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; color:#ffffff;">ACCOUNT STATEMENT</h2>
     </div>
 
     <div style="margin-bottom:20px; display:flex; gap:16px;">

@@ -8,12 +8,30 @@ import {
   getPaymentStatusConfig,
 } from '../utils/paymentUtils';
 
-const PaymentSummary = ({ invoiceTotal, payments = [] }) => {
+const PaymentSummary = ({ invoiceTotal, payments = [], advanceReceived = 0 }) => {
   const { isDarkMode } = useTheme();
 
-  const totalPaid = calculateTotalPaid(payments);
-  const balanceDue = calculateBalanceDue(invoiceTotal, payments);
-  const paymentStatus = calculatePaymentStatus(invoiceTotal, payments);
+  // Include advanceReceived in total paid calculation
+  const paymentsTotal = calculateTotalPaid(payments);
+  const advanceAmount = parseFloat(advanceReceived) || 0;
+  const totalPaid = paymentsTotal + advanceAmount;
+
+  // Calculate balance due considering advance payment
+  const balanceDue = Math.max(0, (parseFloat(invoiceTotal) || 0) - totalPaid);
+
+  // Calculate payment status considering advance payment
+  const total = parseFloat(invoiceTotal) || 0;
+  let paymentStatus = 'unpaid';
+  if (total === 0) {
+    paymentStatus = 'unpaid';
+  } else if (totalPaid === 0) {
+    paymentStatus = 'unpaid';
+  } else if (totalPaid >= total) {
+    paymentStatus = 'fully_paid';
+  } else {
+    paymentStatus = 'partially_paid';
+  }
+
   const statusConfig = getPaymentStatusConfig(paymentStatus);
 
   return (
@@ -50,6 +68,42 @@ const PaymentSummary = ({ invoiceTotal, payments = [] }) => {
             {formatCurrency(invoiceTotal)}
           </span>
         </div>
+
+        {/* Advance Received - Show if there's an advance */}
+        {advanceAmount > 0 && (
+          <div className="flex justify-between items-center">
+            <span
+              className={`text-sm font-medium ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
+              Advance Received:
+            </span>
+            <span
+              className={`text-sm font-semibold text-teal-600 dark:text-teal-400`}
+            >
+              {formatCurrency(advanceAmount)}
+            </span>
+          </div>
+        )}
+
+        {/* Payments from ledger - Show if there are payments */}
+        {paymentsTotal > 0 && (
+          <div className="flex justify-between items-center">
+            <span
+              className={`text-sm font-medium ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
+              Payments Received:
+            </span>
+            <span
+              className={`text-sm font-semibold text-green-600 dark:text-green-400`}
+            >
+              {formatCurrency(paymentsTotal)}
+            </span>
+          </div>
+        )}
 
         {/* Total Paid */}
         <div className="flex justify-between items-center">

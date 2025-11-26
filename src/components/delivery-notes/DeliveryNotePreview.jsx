@@ -10,38 +10,72 @@
  */
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { X, AlertTriangle, Truck } from 'lucide-react';
+import { X, AlertTriangle, Truck, Clock, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatDate } from '../../utils/invoiceUtils';
 import { validateDeliveryNoteForDownload } from '../../utils/recordUtils';
+import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
 const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
   const { isDarkMode } = useTheme();
+
+  // Get the template color for delivery notes
+  const templateColor = useMemo(() => {
+    return getDocumentTemplateColor('deliveryNote', company);
+  }, [company]);
 
   // Validate delivery note and get warnings
   const validation = useMemo(() => {
     return validateDeliveryNoteForDownload(deliveryNote);
   }, [deliveryNote]);
 
-  // Get status display
-  const getStatusLabel = (status) => {
-    const labels = {
-      pending: 'Pending',
-      partial: 'Partial Delivery',
-      completed: 'Completed',
-      cancelled: 'Cancelled',
+  // Get status display with icons
+  const getStatusConfig = (status) => {
+    const configs = {
+      pending: {
+        label: 'Pending',
+        icon: <Clock size={12} />,
+        className: isDarkMode
+          ? 'bg-amber-900/30 text-amber-300 border-amber-600'
+          : 'bg-amber-100 text-amber-800 border-amber-300',
+      },
+      in_transit: {
+        label: 'In Transit',
+        icon: <Truck size={12} />,
+        className: isDarkMode
+          ? 'bg-orange-900/30 text-orange-300 border-orange-600'
+          : 'bg-orange-100 text-orange-800 border-orange-300',
+      },
+      partial: {
+        label: 'Partial Delivery',
+        icon: <RefreshCw size={12} />,
+        className: isDarkMode
+          ? 'bg-blue-900/30 text-blue-300 border-blue-600'
+          : 'bg-blue-100 text-blue-800 border-blue-300',
+      },
+      delivered: {
+        label: 'Delivered',
+        icon: <CheckCircle size={12} />,
+        className: isDarkMode
+          ? 'bg-green-900/30 text-green-300 border-green-600'
+          : 'bg-green-100 text-green-800 border-green-300',
+      },
+      completed: {
+        label: 'Completed',
+        icon: <CheckCircle size={12} />,
+        className: isDarkMode
+          ? 'bg-green-900/30 text-green-300 border-green-600'
+          : 'bg-green-100 text-green-800 border-green-300',
+      },
+      cancelled: {
+        label: 'Cancelled',
+        icon: <XCircle size={12} />,
+        className: isDarkMode
+          ? 'bg-red-900/30 text-red-300 border-red-600'
+          : 'bg-red-100 text-red-800 border-red-300',
+      },
     };
-    return labels[status] || status || 'Pending';
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      pending: 'bg-orange-100 text-orange-800',
-      partial: 'bg-blue-100 text-blue-800',
-      completed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-    };
-    return colors[status] || colors.pending;
+    return configs[status] || configs.pending;
   };
 
   // Extract data
@@ -76,21 +110,21 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
           {/* Document Container */}
           <div className={`max-w-3xl mx-auto ${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}>
             {/* Document Header */}
-            <div className="bg-teal-600 text-white p-6">
+            <div className="text-white p-6" style={{ backgroundColor: templateColor }}>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <Truck size={32} />
                   <div>
                     <h1 className="text-2xl font-bold">DELIVERY NOTE</h1>
-                    <p className="text-teal-100 mt-1">
+                    <p className="text-white/80 mt-1">
                       {deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || 'DN-DRAFT'}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">{company?.name || 'Company Name'}</p>
-                  <p className="text-sm text-teal-100">{company?.address?.street || ''}</p>
-                  <p className="text-sm text-teal-100">{company?.phone || ''}</p>
+                  <p className="text-sm text-white/80">{company?.address?.street || ''}</p>
+                  <p className="text-sm text-white/80">{company?.phone || ''}</p>
                 </div>
               </div>
             </div>
@@ -123,12 +157,18 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                   </div>
                   <div className="mb-2">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Invoice #: </span>
-                    <span className="font-medium text-teal-600">{deliveryNote.invoiceNumber || deliveryNote.invoice_number || '-'}</span>
+                    <span className="font-medium" style={{ color: templateColor }}>{deliveryNote.invoiceNumber || deliveryNote.invoice_number || '-'}</span>
                   </div>
                   <div className="mb-2">
-                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getStatusColor(deliveryNote.status)}`}>
-                      {getStatusLabel(deliveryNote.status)}
-                    </span>
+                    {(() => {
+                      const statusConfig = getStatusConfig(deliveryNote.status);
+                      return (
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${statusConfig.className}`}>
+                          {statusConfig.icon}
+                          {statusConfig.label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -184,7 +224,7 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                             </td>
                             <td className="px-4 py-3 text-right">{item.unit || 'pcs'}</td>
                             <td className="px-4 py-3 text-right">{item.orderedQuantity || item.ordered_quantity || 0}</td>
-                            <td className="px-4 py-3 text-right font-medium text-teal-600">
+                            <td className="px-4 py-3 text-right font-medium" style={{ color: templateColor }}>
                               {item.deliveredQuantity || item.delivered_quantity || 0}
                             </td>
                           </tr>

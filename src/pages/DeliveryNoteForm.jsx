@@ -28,19 +28,19 @@ const DeliveryNoteForm = () => {
   // Preview modal state
   const [showPreview, setShowPreview] = useState(false);
 
-  // Form data
+  // Form data - use camelCase for state (API Gateway handles conversion)
   const [formData, setFormData] = useState({
-    delivery_note_number: '',
-    invoice_id: '',
-    delivery_date: new Date().toISOString().split('T')[0],
+    deliveryNoteNumber: '',
+    invoiceId: '',
+    deliveryDate: new Date().toISOString().split('T')[0],
     deliveryAddress: {
       street: '',
       city: '',
       poBox: '',
     },
-    vehicle_number: '',
-    driver_name: '',
-    driver_phone: '',
+    vehicleNumber: '',
+    driverName: '',
+    driverPhone: '',
     notes: '',
     items: [],
   });
@@ -78,30 +78,55 @@ const DeliveryNoteForm = () => {
     try {
       setLoading(true);
       const deliveryNote = await deliveryNotesAPI.getById(id);
-      
+
+      // Parse delivery address if it's a string
+      let parsedAddress = deliveryNote.deliveryAddress || deliveryNote.delivery_address || {};
+      if (typeof parsedAddress === 'string') {
+        try {
+          parsedAddress = JSON.parse(parsedAddress);
+        } catch {
+          parsedAddress = { street: parsedAddress };
+        }
+      }
+
+      // Map items to camelCase
+      const mappedItems = (deliveryNote.items || []).map(item => ({
+        invoiceItemId: item.invoiceItemId || item.invoice_item_id,
+        productId: item.productId || item.product_id,
+        name: item.name,
+        specification: item.specification,
+        hsnCode: item.hsnCode || item.hsn_code,
+        unit: item.unit,
+        orderedQuantity: item.orderedQuantity || item.ordered_quantity || 0,
+        deliveredQuantity: item.deliveredQuantity || item.delivered_quantity || 0,
+        remainingQuantity: item.remainingQuantity || item.remaining_quantity || 0,
+        isFullyDelivered: item.isFullyDelivered || item.is_fully_delivered || false,
+      }));
+
       setFormData({
-        delivery_note_number: deliveryNote.deliveryNoteNumber,
-        invoice_id: deliveryNote.invoiceId,
-        delivery_date: deliveryNote.deliveryDate,
-        deliveryAddress: deliveryNote.deliveryAddress || {
-          street: '',
-          city: '',
-          poBox: '',
+        deliveryNoteNumber: deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || '',
+        invoiceId: deliveryNote.invoiceId || deliveryNote.invoice_id || '',
+        deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date || '',
+        deliveryAddress: {
+          street: parsedAddress.street || '',
+          city: parsedAddress.city || '',
+          poBox: parsedAddress.poBox || parsedAddress.po_box || '',
         },
-        vehicle_number: deliveryNote.vehicleNumber || '',
-        driver_name: deliveryNote.driverName || '',
-        driver_phone: deliveryNote.driverPhone || '',
+        vehicleNumber: deliveryNote.vehicleNumber || deliveryNote.vehicle_number || '',
+        driverName: deliveryNote.driverName || deliveryNote.driver_name || '',
+        driverPhone: deliveryNote.driverPhone || deliveryNote.driver_phone || '',
         notes: deliveryNote.notes || '',
-        items: deliveryNote.items || [],
+        items: mappedItems,
       });
 
       // Load the related invoice
-      if (deliveryNote.invoiceId) {
-        const invoice = await invoicesAPI.getById(deliveryNote.invoiceId);
+      const invoiceId = deliveryNote.invoiceId || deliveryNote.invoice_id;
+      if (invoiceId) {
+        const invoice = await invoicesAPI.getById(invoiceId);
         setSelectedInvoice(invoice);
       }
     } catch (err) {
-      setError(`Failed to load delivery note: ${  err.message}`);
+      setError(`Failed to load delivery note: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -124,7 +149,7 @@ const DeliveryNoteForm = () => {
       const response = await deliveryNotesAPI.getNextNumber();
       setFormData(prev => ({
         ...prev,
-        delivery_note_number: response.nextDeliveryNoteNumber,
+        deliveryNoteNumber: response.nextDeliveryNoteNumber || response.deliveryNoteNumber,
       }));
     } catch (err) {
       console.error('Failed to generate delivery note number:', err);
@@ -136,23 +161,40 @@ const DeliveryNoteForm = () => {
 
     try {
       setSelectedInvoice(invoice);
+
+      // Parse address if string
+      let invoiceAddress = invoice.customerDetails?.address || {};
+      if (typeof invoiceAddress === 'string') {
+        try {
+          invoiceAddress = JSON.parse(invoiceAddress);
+        } catch {
+          invoiceAddress = { street: invoiceAddress };
+        }
+      }
+
       setFormData(prev => ({
         ...prev,
-        invoice_id: invoice.id,
-        deliveryAddress: invoice.customerDetails?.address || prev.deliveryAddress,
+        invoiceId: invoice.id,
+        deliveryAddress: {
+          street: invoiceAddress.street || prev.deliveryAddress.street,
+          city: invoiceAddress.city || prev.deliveryAddress.city,
+          poBox: invoiceAddress.poBox || invoiceAddress.po_box || prev.deliveryAddress.poBox,
+        },
         items: invoice.items?.map(item => ({
-          invoice_item_id: item.id,
+          invoiceItemId: item.id,
+          productId: item.productId || item.product_id,
           name: item.name,
           specification: item.specification,
+          hsnCode: item.hsnCode || item.hsn_code,
           unit: item.unit,
-          ordered_quantity: item.quantity,
-          delivered_quantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity
-          remaining_quantity: isEdit ? item.quantity : 0,
+          orderedQuantity: item.quantity,
+          deliveredQuantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity
+          remainingQuantity: isEdit ? item.quantity : 0,
         })) || [],
       }));
       setShowInvoiceDialog(false);
     } catch (err) {
-      setError(`Failed to load invoice details: ${  err.message}`);
+      setError(`Failed to load invoice details: ${err.message}`);
     }
   };
 
@@ -177,15 +219,18 @@ const DeliveryNoteForm = () => {
   const handleItemQuantityChange = (index, field, value) => {
     const updatedItems = [...formData.items];
     const numValue = parseFloat(value) || 0;
-    
+
+    // Map snake_case field to camelCase
+    const camelCaseField = field === 'delivered_quantity' ? 'deliveredQuantity' : field;
+
     updatedItems[index] = {
       ...updatedItems[index],
-      [field]: numValue,
+      [camelCaseField]: numValue,
     };
 
     // Calculate remaining quantity
-    if (field === 'delivered_quantity') {
-      updatedItems[index].remainingQuantity = 
+    if (camelCaseField === 'deliveredQuantity') {
+      updatedItems[index].remainingQuantity =
         updatedItems[index].orderedQuantity - numValue;
     }
 
@@ -203,31 +248,31 @@ const DeliveryNoteForm = () => {
     // Delivery note number validation
     if (!formData.deliveryNoteNumber || formData.deliveryNoteNumber.trim() === '') {
       errors.push('Delivery note number is required');
-      invalidFieldsSet.add('delivery_note_number');
+      invalidFieldsSet.add('deliveryNoteNumber');
     }
 
     // Invoice selection validation
     if (!formData.invoiceId) {
       errors.push('Please select an invoice');
-      invalidFieldsSet.add('invoice_id');
+      invalidFieldsSet.add('invoiceId');
     }
 
     // Delivery date validation
     if (!formData.deliveryDate) {
       errors.push('Delivery date is required');
-      invalidFieldsSet.add('delivery_date');
+      invalidFieldsSet.add('deliveryDate');
     }
 
     // Vehicle number validation (optional but recommended)
     if (!formData.vehicleNumber || formData.vehicleNumber.trim() === '') {
       errors.push('Vehicle number is required');
-      invalidFieldsSet.add('vehicle_number');
+      invalidFieldsSet.add('vehicleNumber');
     }
 
     // Driver name validation (optional but recommended)
     if (!formData.driverName || formData.driverName.trim() === '') {
       errors.push('Driver name is required');
-      invalidFieldsSet.add('driver_name');
+      invalidFieldsSet.add('driverName');
     }
 
     // Items validation
@@ -270,12 +315,29 @@ const DeliveryNoteForm = () => {
     setIsSaving(true);
 
     try {
-
+      // Prepare data for API (API Gateway handles camelCase to snake_case conversion)
       const submitData = {
-        ...formData,
+        deliveryNoteNumber: formData.deliveryNoteNumber,
+        invoiceId: formData.invoiceId,
+        deliveryDate: formData.deliveryDate,
+        deliveryAddress: JSON.stringify(formData.deliveryAddress),
+        vehicleNumber: formData.vehicleNumber,
+        driverName: formData.driverName,
+        driverPhone: formData.driverPhone,
+        notes: formData.notes,
+        customerId: selectedInvoice?.customerId || selectedInvoice?.customer_id,
+        customerDetails: JSON.stringify(selectedInvoice?.customerDetails || {}),
         items: formData.items.map(item => ({
-          invoice_item_id: item.invoiceItemId,
-          delivered_quantity: item.deliveredQuantity,
+          invoiceItemId: item.invoiceItemId,
+          productId: item.productId,
+          name: item.name,
+          specification: item.specification,
+          hsnCode: item.hsnCode,
+          unit: item.unit,
+          orderedQuantity: item.orderedQuantity,
+          deliveredQuantity: item.deliveredQuantity,
+          remainingQuantity: item.remainingQuantity,
+          isFullyDelivered: item.deliveredQuantity >= item.orderedQuantity,
         })),
       };
 
@@ -291,7 +353,7 @@ const DeliveryNoteForm = () => {
         navigate('/delivery-notes');
       }, 2000);
     } catch (err) {
-      setError(`Failed to save delivery note: ${  err.message}`);
+      setError(`Failed to save delivery note: ${err.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -331,12 +393,12 @@ const DeliveryNoteForm = () => {
                 <input
                   type="text"
                   value={formData.deliveryNoteNumber}
-                  onChange={(e) => handleInputChange('delivery_note_number', e.target.value)}
+                  onChange={(e) => handleInputChange('deliveryNoteNumber', e.target.value)}
                   required
                   disabled={isEdit}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   } ${isEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
@@ -348,11 +410,11 @@ const DeliveryNoteForm = () => {
                 <input
                   type="date"
                   value={formData.deliveryDate}
-                  onChange={(e) => handleInputChange('delivery_date', e.target.value)}
+                  onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white'
                       : 'bg-white border-gray-300 text-gray-900'
                   }`}
                 />
@@ -515,11 +577,11 @@ const DeliveryNoteForm = () => {
                 <input
                   type="text"
                   value={formData.vehicleNumber}
-                  onChange={(e) => handleInputChange('vehicle_number', e.target.value)}
+                  onChange={(e) => handleInputChange('vehicleNumber', e.target.value)}
                   placeholder="e.g., MH-01-AB-1234"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                 />
@@ -531,10 +593,10 @@ const DeliveryNoteForm = () => {
                 <input
                   type="text"
                   value={formData.driverName}
-                  onChange={(e) => handleInputChange('driver_name', e.target.value)}
+                  onChange={(e) => handleInputChange('driverName', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                 />
@@ -546,11 +608,11 @@ const DeliveryNoteForm = () => {
                 <input
                   type="tel"
                   value={formData.driverPhone}
-                  onChange={(e) => handleInputChange('driver_phone', e.target.value)}
+                  onChange={(e) => handleInputChange('driverPhone', e.target.value)}
                   placeholder="e.g., +91 98765 43210"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                 />
@@ -657,14 +719,14 @@ const DeliveryNoteForm = () => {
       {showPreview && (
         <DeliveryNotePreview
           deliveryNote={{
-            deliveryNoteNumber: formData.delivery_note_number,
+            deliveryNoteNumber: formData.deliveryNoteNumber,
             invoiceNumber: selectedInvoice?.invoiceNumber,
-            invoiceId: formData.invoice_id,
-            deliveryDate: formData.delivery_date,
+            invoiceId: formData.invoiceId,
+            deliveryDate: formData.deliveryDate,
             deliveryAddress: formData.deliveryAddress,
-            vehicleNumber: formData.vehicle_number,
-            driverName: formData.driver_name,
-            driverPhone: formData.driver_phone,
+            vehicleNumber: formData.vehicleNumber,
+            driverName: formData.driverName,
+            driverPhone: formData.driverPhone,
             notes: formData.notes,
             items: formData.items,
             status: 'pending',
