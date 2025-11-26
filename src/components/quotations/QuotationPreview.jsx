@@ -12,7 +12,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
+import { formatCurrency, toUAEDateProfessional, TIMEZONE_DISCLAIMER } from '../../utils/invoiceUtils';
 import { validateQuotationForDownload } from '../../utils/recordUtils';
 import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
@@ -133,12 +133,12 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                 <div className="text-right">
                   <div className="mb-2">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Date: </span>
-                    <span className="font-medium">{formatDate(quotation.quotationDate || quotation.quotation_date)}</span>
+                    <span className="font-medium">{toUAEDateProfessional(quotation.quotationDate || quotation.quotation_date)}</span>
                   </div>
                   {(quotation.validUntil || quotation.valid_until) && (
                     <div className="mb-2">
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Valid Until: </span>
-                      <span className="font-medium">{formatDate(quotation.validUntil || quotation.valid_until)}</span>
+                      <span className="font-medium">{toUAEDateProfessional(quotation.validUntil || quotation.valid_until)}</span>
                     </div>
                   )}
                   <div className="mb-2">
@@ -246,6 +246,13 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                   )}
                 </div>
               )}
+
+              {/* Timezone Disclaimer Footer */}
+              <div className={`mt-6 pt-3 border-t text-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <p className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {TIMEZONE_DISCLAIMER}
+                </p>
+              </div>
             </div>
           </div>
         </div>

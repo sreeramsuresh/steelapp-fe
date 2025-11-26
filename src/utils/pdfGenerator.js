@@ -10,6 +10,9 @@ import {
   formatDateDMY,
   calculateDiscountedTRN,
   getCompanyImages,
+  toUAEDateProfessional,
+  toUAEPaymentDateTime,
+  TIMEZONE_DISCLAIMER,
 } from './invoiceUtils';
 import { mergeTemplateSettings } from '../constants/defaultTemplateSettings';
 
@@ -237,13 +240,15 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setFillColor(255, 255, 255);
   pdf.setDrawColor(...primaryBlue);
 
-  // Invoice Date
+  // Invoice Date - Professional format
   pdf.setFontSize(9);
   setBlack();
   pdf.setFont('helvetica', 'bold');
   pdf.text('Invoice Date:', rightColX + 2, rightY + 4);
   pdf.setFont('helvetica', 'normal');
-  pdf.text(formatDateDMY(invoice.date || new Date()), rightColX + boxWidth - 20, rightY + 4);
+  const invoiceDateStr = toUAEDateProfessional(invoice.date || new Date());
+  const invoiceDateWidth = pdf.getTextWidth(invoiceDateStr);
+  pdf.text(invoiceDateStr, rightColX + boxWidth - invoiceDateWidth - 2, rightY + 4);
   rightY += 6;
 
   // SO (Sales Order)
@@ -255,21 +260,25 @@ export const generateInvoicePDF = async (invoice, company) => {
     rightY += 6;
   }
 
-  // Order Date
+  // Order Date - Professional format
   if (invoice.customerPurchaseOrderDate) {
     pdf.setFont('helvetica', 'bold');
     pdf.text('Order Date:', rightColX + 2, rightY + 4);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(formatDateDMY(invoice.customerPurchaseOrderDate), rightColX + boxWidth - 20, rightY + 4);
+    const orderDateStr = toUAEDateProfessional(invoice.customerPurchaseOrderDate);
+    const orderDateWidth = pdf.getTextWidth(orderDateStr);
+    pdf.text(orderDateStr, rightColX + boxWidth - orderDateWidth - 2, rightY + 4);
     rightY += 6;
   }
 
-  // Due Date (if available)
+  // Due Date - Professional format (if available)
   if (invoice.dueDate) {
     pdf.setFont('helvetica', 'bold');
     pdf.text('Due Date:', rightColX + 2, rightY + 4);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(formatDateDMY(invoice.dueDate), rightColX + boxWidth - 20, rightY + 4);
+    const dueDateStr = toUAEDateProfessional(invoice.dueDate);
+    const dueDateWidth = pdf.getTextWidth(dueDateStr);
+    pdf.text(dueDateStr, rightColX + boxWidth - dueDateWidth - 2, rightY + 4);
     rightY += 6;
   }
 
@@ -542,7 +551,8 @@ export const generateInvoicePDF = async (invoice, company) => {
       colX = margin + 2;
       pdf.text(String(index + 1), colX, currentY + 4);
       colX += payColWidths.sr;
-      pdf.text(formatDateDMY(payment.date || new Date()), colX, currentY + 4);
+      // Use professional payment datetime format with GST indicator
+      pdf.text(toUAEPaymentDateTime(payment.date || new Date()), colX, currentY + 4);
       colX += payColWidths.date;
       pdf.text(payment.method || '', colX, currentY + 4);
       colX += payColWidths.method;
@@ -681,8 +691,16 @@ export const generateInvoicePDF = async (invoice, company) => {
   const contactWidth = pdf.getTextWidth(contactInfo);
   pdf.text(contactInfo, (pageWidth - contactWidth) / 2, footerY + 4);
 
+  // Timezone disclaimer - Important for international business
+  pdf.setFontSize(7);
+  pdf.setFont('helvetica', 'italic');
+  const disclaimerWidth = pdf.getTextWidth(TIMEZONE_DISCLAIMER);
+  pdf.text(TIMEZONE_DISCLAIMER, (pageWidth - disclaimerWidth) / 2, footerY + 8);
+
   // Page number
-  pdf.text(`Page: 1 / 1`, pageWidth / 2, footerY + 8, { align: 'center' });
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.text(`Page: 1 / 1`, pageWidth / 2, footerY + 12, { align: 'center' });
 
   // Save the PDF
   pdf.save(`${invoice.invoiceNumber || 'invoice'}.pdf`);

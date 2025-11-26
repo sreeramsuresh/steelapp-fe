@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle, Truck, Clock, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatDate } from '../../utils/invoiceUtils';
+import { toUAEDateProfessional, TIMEZONE_DISCLAIMER } from '../../utils/invoiceUtils';
 import { validateDeliveryNoteForDownload } from '../../utils/recordUtils';
 import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
@@ -153,7 +153,7 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                 <div className="text-right">
                   <div className="mb-2">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Delivery Date: </span>
-                    <span className="font-medium">{formatDate(deliveryNote.deliveryDate || deliveryNote.delivery_date)}</span>
+                    <span className="font-medium">{toUAEDateProfessional(deliveryNote.deliveryDate || deliveryNote.delivery_date)}</span>
                   </div>
                   <div className="mb-2">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Invoice #: </span>
@@ -261,6 +261,13 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Receiver Signature</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Timezone Disclaimer Footer */}
+              <div className={`mt-6 pt-3 border-t text-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <p className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {TIMEZONE_DISCLAIMER}
+                </p>
               </div>
             </div>
           </div>

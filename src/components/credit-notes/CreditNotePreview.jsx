@@ -12,7 +12,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatCurrency, formatDate, formatAddress } from '../../utils/invoiceUtils';
+import { formatCurrency, formatAddress, toUAEDateProfessional, TIMEZONE_DISCLAIMER } from '../../utils/invoiceUtils';
 import { validateCreditNoteForDownload } from '../../utils/recordUtils';
 import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
@@ -143,7 +143,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     <p>
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Date: </span>
                       <span className="font-medium">
-                        {formatDate(creditNote.creditNoteDate || creditNote.credit_note_date) || 'Not set'}
+                        {toUAEDateProfessional(creditNote.creditNoteDate || creditNote.credit_note_date) || 'Not set'}
                       </span>
                     </p>
                     <p>
@@ -261,6 +261,13 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   </p>
                 </div>
               )}
+
+              {/* Timezone Disclaimer Footer */}
+              <div className={`mt-6 pt-3 border-t text-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <p className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {TIMEZONE_DISCLAIMER}
+                </p>
+              </div>
             </div>
           </div>
         </div>

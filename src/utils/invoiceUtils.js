@@ -1,4 +1,13 @@
-import { toUAETime, toUAEDateForInput } from './timezone';
+import {
+  toUAETime,
+  toUAEDateForInput,
+  toUAEDateProfessional,
+  toUAEDateTimeProfessional,
+  toUAEDateShort,
+  toUAEPaymentDateTime,
+  TIMEZONE_DISCLAIMER,
+  TIMEZONE_LABEL
+} from './timezone';
 
 export const calculateItemAmount = (quantity, rate) => {
   const qty = parseFloat(quantity) || 0;
@@ -264,3 +273,44 @@ export const formatAddress = (address) => {
     full: [line1, line2].filter(Boolean).join(', '),
   };
 };
+
+// ============================================================================
+// RE-EXPORT PROFESSIONAL PDF DATE FORMATS
+// These are the preferred formats for business documents (invoices, PDFs, etc.)
+// ============================================================================
+
+/**
+ * Professional date format: "26 November 2025"
+ * Use for: Invoice Date, Due Date, Order Date
+ */
+export { toUAEDateProfessional };
+
+/**
+ * Professional datetime format: "26 November 2025, 10:14 AM GST (UTC+4)"
+ * Use for: Created/Updated timestamps in PDFs
+ */
+export { toUAEDateTimeProfessional };
+
+/**
+ * Short date format: "26/11/2025"
+ * Use for: Compact date displays in tables
+ */
+export { toUAEDateShort };
+
+/**
+ * Payment datetime format: "26 Nov 2025, 2:30 PM GST"
+ * Use for: Payment history entries
+ */
+export { toUAEPaymentDateTime };
+
+/**
+ * Timezone disclaimer for PDF footers
+ * Value: "All dates and times are in Gulf Standard Time (GST, UTC+4)"
+ */
+export { TIMEZONE_DISCLAIMER };
+
+/**
+ * Short timezone label for inline use
+ * Value: "GST (UTC+4)"
+ */
+export { TIMEZONE_LABEL };

@@ -1,9 +1,10 @@
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
+import { TIMEZONE_DISCLAIMER } from '../../utils/invoiceUtils';
 
 /**
  * Invoice Footer Component
  * Displays on every page at the bottom
- * Shows contact info and page numbers
+ * Shows contact info, timezone disclaimer, and page numbers
  * Supports template-based styling for B&W printing
  *
  * CSS Properties:
@@ -32,6 +33,10 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template
       <div className="border-t-2 pt-3" style={{ borderColor }}>
         <p className="text-center text-xs leading-relaxed" style={{ color: textColor }}>
           Phone: {company?.phone || '+971506061680'} | Email: {company?.email || 'admin@company.com'} | Website: www.ultimatesteels.com
+        </p>
+        {/* Timezone Disclaimer - Important for international business */}
+        <p className="text-center text-xs mt-1 italic" style={{ color: textColor }}>
+          {TIMEZONE_DISCLAIMER}
         </p>
         <p className="text-center text-xs mt-2" style={{ color: textColor }}>
           Page: {pageNumber} / {totalPages}

@@ -12,7 +12,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
+import { formatCurrency, toUAEDateProfessional, TIMEZONE_DISCLAIMER } from '../../utils/invoiceUtils';
 import { validatePurchaseOrderForDownload } from '../../utils/recordUtils';
 import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
 
@@ -136,12 +136,12 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                 <div className="text-right">
                   <div className="mb-2">
                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Date: </span>
-                    <span className="font-medium">{formatDate(purchaseOrder.poDate || purchaseOrder.po_date)}</span>
+                    <span className="font-medium">{toUAEDateProfessional(purchaseOrder.poDate || purchaseOrder.po_date)}</span>
                   </div>
                   {(purchaseOrder.deliveryDate || purchaseOrder.delivery_date) && (
                     <div className="mb-2">
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Delivery: </span>
-                      <span className="font-medium">{formatDate(purchaseOrder.deliveryDate || purchaseOrder.delivery_date)}</span>
+                      <span className="font-medium">{toUAEDateProfessional(purchaseOrder.deliveryDate || purchaseOrder.delivery_date)}</span>
                     </div>
                   )}
                   <div className="mb-2">
@@ -243,6 +243,13 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                   )}
                 </div>
               )}
+
+              {/* Timezone Disclaimer Footer */}
+              <div className={`mt-6 pt-3 border-t text-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <p className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {TIMEZONE_DISCLAIMER}
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { formatDateDMY } from '../../utils/invoiceUtils';
+import { toUAEDateProfessional } from '../../utils/invoiceUtils';
 import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
@@ -126,7 +126,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
             <div className="px-3 py-2 text-sm space-y-1.5" style={{ color: colors.text || '#333333' }}>
               <div className="flex justify-between">
                 <span className="font-semibold">Invoice Date:</span>
-                <span>{formatDateDMY(invoice.date || new Date())}</span>
+                <span>{toUAEDateProfessional(invoice.date || new Date())}</span>
               </div>
               {invoice.customerPurchaseOrderNumber && (
                 <div className="flex justify-between">
@@ -137,13 +137,13 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
               {invoice.customerPurchaseOrderDate && (
                 <div className="flex justify-between">
                   <span className="font-semibold">Order Date:</span>
-                  <span>{formatDateDMY(invoice.customerPurchaseOrderDate)}</span>
+                  <span>{toUAEDateProfessional(invoice.customerPurchaseOrderDate)}</span>
                 </div>
               )}
               {invoice.dueDate && (
                 <div className="flex justify-between">
                   <span className="font-semibold">Due Date:</span>
-                  <span>{formatDateDMY(invoice.dueDate)}</span>
+                  <span>{toUAEDateProfessional(invoice.dueDate)}</span>
                 </div>
               )}
             </div>

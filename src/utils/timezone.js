@@ -306,6 +306,157 @@ export const TIMEZONE_CONFIG = {
   UTC_OFFSET: 0,
 };
 
+// ============================================================================
+// PROFESSIONAL PDF/DOCUMENT FORMATS
+// For business documents (invoices, quotations, POs, etc.)
+// These formats are designed for international business use
+// ============================================================================
+
+/**
+ * Professional date format for business documents (date-only fields)
+ * Example: "26 November 2025"
+ *
+ * Use for: Invoice Date, Due Date, Order Date, Delivery Date
+ *
+ * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or proto Timestamp)
+ * @returns {string} Formatted date like "26 November 2025"
+ */
+export const toUAEDateProfessional = (utcDate) => {
+  if (!utcDate) return '';
+
+  // Handle proto Timestamp objects { seconds: number, nanos?: number }
+  let date;
+  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
+    date = new Date(utcDate.seconds * 1000);
+  } else {
+    date = new Date(utcDate);
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  return date.toLocaleDateString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
+
+/**
+ * Professional datetime format for business documents (timestamp fields)
+ * Example: "26 November 2025, 10:14 AM GST (UTC+4)"
+ *
+ * Use for: Created timestamps, Updated timestamps, Payment timestamps
+ *
+ * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or proto Timestamp)
+ * @returns {string} Formatted datetime like "26 November 2025, 10:14 AM GST (UTC+4)"
+ */
+export const toUAEDateTimeProfessional = (utcDate) => {
+  if (!utcDate) return '';
+
+  // Handle proto Timestamp objects
+  let date;
+  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
+    date = new Date(utcDate.seconds * 1000);
+  } else {
+    date = new Date(utcDate);
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  const dateStr = date.toLocaleDateString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const timeStr = date.toLocaleTimeString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).toUpperCase(); // Ensure AM/PM is uppercase
+
+  return `${dateStr}, ${timeStr} GST (UTC+4)`;
+};
+
+/**
+ * Short professional date format for tables and compact displays
+ * Example: "26/11/2025"
+ *
+ * @param {string|Date|object} utcDate - UTC date
+ * @returns {string} Date in DD/MM/YYYY format
+ */
+export const toUAEDateShort = (utcDate) => {
+  if (!utcDate) return '';
+
+  // Handle proto Timestamp objects
+  let date;
+  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
+    date = new Date(utcDate.seconds * 1000);
+  } else {
+    date = new Date(utcDate);
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  return date.toLocaleDateString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
+/**
+ * Timezone disclaimer for document footers
+ * Use in PDF footers to clarify timezone for international customers
+ */
+export const TIMEZONE_DISCLAIMER = 'All dates and times are in Gulf Standard Time (GST, UTC+4)';
+
+/**
+ * Short timezone label for inline use
+ */
+export const TIMEZONE_LABEL = 'GST (UTC+4)';
+
+/**
+ * Professional format specifically for payment history entries
+ * Example: "26 Nov 2025, 2:30 PM GST"
+ *
+ * @param {string|Date|object} utcDate - UTC date
+ * @returns {string} Compact datetime format
+ */
+export const toUAEPaymentDateTime = (utcDate) => {
+  if (!utcDate) return '';
+
+  // Handle proto Timestamp objects
+  let date;
+  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
+    date = new Date(utcDate.seconds * 1000);
+  } else {
+    date = new Date(utcDate);
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  const dateStr = date.toLocaleDateString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  const timeStr = date.toLocaleTimeString('en-GB', {
+    timeZone: UAE_TIMEZONE,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).toUpperCase();
+
+  return `${dateStr}, ${timeStr} GST`;
+};
+
 // Default export for convenience
 export default {
   toUAETime,
@@ -319,4 +470,11 @@ export default {
   isWithinEditWindow,
   formatRelativeTime,
   TIMEZONE_CONFIG,
+  // Professional PDF formats
+  toUAEDateProfessional,
+  toUAEDateTimeProfessional,
+  toUAEDateShort,
+  toUAEPaymentDateTime,
+  TIMEZONE_DISCLAIMER,
+  TIMEZONE_LABEL,
 };
