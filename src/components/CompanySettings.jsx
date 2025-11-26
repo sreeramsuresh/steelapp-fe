@@ -27,7 +27,6 @@ import {
   ChevronDown,
   ChevronUp,
   Printer,
-  Tag,
   HelpCircle,
   Clock,
   Calendar,
@@ -45,7 +44,6 @@ import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
-import ProductNamingSettings from './ProductNamingSettings';
 import { roleService } from '../services/roleService';
 import RoleGuideModal from './RoleGuideModal';
 
@@ -1576,7 +1574,7 @@ const CompanySettings = () => {
   };
 
   const renderProfile = () => (
-    <SettingsPaper>
+    <SettingsPaper className="max-w-3xl">
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -2029,7 +2027,7 @@ const CompanySettings = () => {
   );
 
   const renderVatSettings = () => (
-    <div className={`rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
+    <div className={`max-w-3xl rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -2226,7 +2224,7 @@ const CompanySettings = () => {
   );
 
   const renderUserManagement = () => (
-    <SettingsPaper>
+    <SettingsPaper className="max-w-4xl">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
@@ -3309,7 +3307,7 @@ const CompanySettings = () => {
     }
 
     return (
-      <SettingsPaper>
+      <SettingsPaper className="max-w-3xl">
         <SectionHeader icon={Printer} title="Printing & Document Settings" />
 
         {/* Receipt Settings */}
@@ -3321,7 +3319,7 @@ const CompanySettings = () => {
               Receipt Size
               </label>
               <select
-                value={printingSettings.receiptSize}
+                value={printingSettings.receipt_size || 'A5'}
                 onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3329,9 +3327,9 @@ const CompanySettings = () => {
                     : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
-                <option value="A5">A5 (148mm × 210mm) - Recommended</option>
-                <option value="A6">A6 (105mm × 148mm) - Compact</option>
-                <option value="A4">A4 (210mm × 297mm) - Full Page</option>
+                <option value="A5">A5 (148mm x 210mm) - Recommended</option>
+                <option value="A6">A6 (105mm x 148mm) - Compact</option>
+                <option value="A4">A4 (210mm x 297mm) - Full Page</option>
               </select>
               <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Select the size for payment receipt PDFs
@@ -3344,7 +3342,7 @@ const CompanySettings = () => {
               Print On Paper Size
               </label>
               <select
-                value={printingSettings.printOnPaperSize}
+                value={printingSettings.print_on_paper_size || 'A4'}
                 onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3352,9 +3350,9 @@ const CompanySettings = () => {
                     : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
-                <option value="A4">A4 (210mm × 297mm)</option>
-                <option value="A5">A5 (148mm × 210mm)</option>
-                <option value="A6">A6 (105mm × 148mm)</option>
+                <option value="A4">A4 (210mm x 297mm)</option>
+                <option value="A5">A5 (148mm x 210mm)</option>
+                <option value="A6">A6 (105mm x 148mm)</option>
               </select>
               <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Physical paper size loaded in printer
@@ -3362,11 +3360,11 @@ const CompanySettings = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <div className={`mt-6 p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'} border`}>
             <div className="flex items-start gap-3">
-              <AlertCircle size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800 dark:text-blue-300">
-                <strong>Example:</strong> If Receipt Size = A5 and Print On = A4, the receipt will be A5 size centered on A4 paper.
+              <AlertCircle size={20} className={`${isDarkMode ? 'text-teal-400' : 'text-teal-600'} flex-shrink-0 mt-0.5`} />
+              <div className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                <strong className={isDarkMode ? 'text-teal-300' : 'text-teal-700'}>Example:</strong> If Receipt Size = A5 and Print On = A4, the receipt will be A5 size centered on A4 paper.
               This is the most economical setting for standard printers.
               </div>
             </div>
@@ -3382,7 +3380,7 @@ const CompanySettings = () => {
               Receipt Printer
               </label>
               <select
-                value={printingSettings.receiptPrinter}
+                value={printingSettings.receipt_printer || 'default'}
                 onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3405,7 +3403,7 @@ const CompanySettings = () => {
               Invoice Printer
               </label>
               <select
-                value={printingSettings.invoicePrinter}
+                value={printingSettings.invoice_printer || 'default'}
                 onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3423,11 +3421,11 @@ const CompanySettings = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <div className={`mt-6 p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'} border`}>
             <div className="flex items-start gap-3">
-              <AlertCircle size={20} className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-yellow-800 dark:text-yellow-300">
-                <strong>Note:</strong> Printer selection works when using the browser&apos;s print dialog.
+              <AlertCircle size={20} className={`${isDarkMode ? 'text-teal-400' : 'text-teal-600'} flex-shrink-0 mt-0.5`} />
+              <div className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                <strong className={isDarkMode ? 'text-teal-300' : 'text-teal-700'}>Note:</strong> Printer selection works when using the browser&apos;s print dialog.
               For automatic printing, configure your browser&apos;s default printer settings.
               </div>
             </div>
@@ -3446,7 +3444,7 @@ const CompanySettings = () => {
                 type="number"
                 min="1"
                 max="5"
-                value={printingSettings.receiptCopies}
+                value={printingSettings.receipt_copies || 1}
                 onChange={(e) => setPrintingSettings({...printingSettings, receipt_copies: parseInt(e.target.value) || 1})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3468,7 +3466,7 @@ const CompanySettings = () => {
                 type="number"
                 min="1"
                 max="5"
-                value={printingSettings.invoiceCopies}
+                value={printingSettings.invoice_copies || 1}
                 onChange={(e) => setPrintingSettings({...printingSettings, invoice_copies: parseInt(e.target.value) || 1})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -3490,7 +3488,7 @@ const CompanySettings = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={printingSettings.autoPrintReceipts}
+                    checked={printingSettings.auto_print_receipts || false}
                     onChange={(e) => setPrintingSettings({...printingSettings, auto_print_receipts: e.target.checked})}
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
@@ -3501,7 +3499,7 @@ const CompanySettings = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={printingSettings.autoPrintInvoices}
+                    checked={printingSettings.auto_print_invoices || false}
                     onChange={(e) => setPrintingSettings({...printingSettings, auto_print_invoices: e.target.checked})}
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
@@ -3538,7 +3536,6 @@ const CompanySettings = () => {
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
     { id: 'templates', label: 'Document Templates', icon: FileText },
-    { id: 'product-naming', label: 'Product Naming', icon: Tag },
     { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
@@ -3600,7 +3597,6 @@ const CompanySettings = () => {
       <div className="mt-6">
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'templates' && renderInvoiceTemplates()}
-        {activeTab === 'product-naming' && <ProductNamingSettings companyId={companyData?.id} />}
         {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
         {isAdmin && activeTab === 'users' && renderUserManagement()}

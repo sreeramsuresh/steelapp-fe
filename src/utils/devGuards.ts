@@ -109,9 +109,10 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   'pdfUrl',                     // NEW: URL/path to generated PDF
   'pdfGeneratedAt',             // NEW: Timestamp of PDF generation
   
-  // Credit Note Tracking (2 new fields)
-  'hasCreditNotes',             // NEW: Whether invoice has credit notes
-  'totalCreditedAmount',        // NEW: Total amount credited back
+  // Credit Note Tracking (3 fields)
+  'hasCreditNotes',             // Whether invoice has credit notes
+  'creditNotesCount',           // Number of credit notes for this invoice
+  'totalCreditedAmount',        // Total amount credited back
   
   // Notes & Terms
   'notes',

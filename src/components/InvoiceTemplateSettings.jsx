@@ -309,6 +309,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     }));
   };
 
+  // Restore document template colors to defaults
+  const handleRestoreDocTemplateDefaults = () => {
+    setDocumentTemplates(JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)));
+  };
+
   // Sync all document templates to invoice settings
   const handleSyncAllToInvoice = () => {
     setDocumentTemplates(prev => {
@@ -325,9 +330,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
   // Get the current invoice template color
   const getInvoiceColor = () => {
-    return customColors?.primary
-      || settings?.colors?.primary
-      || '#0d9488';
+    // If custom colors are set (for Custom template), use them
+    if (customColors?.primary) {
+      return customColors.primary;
+    }
+    // Otherwise, get color from the selected template
+    const template = INVOICE_TEMPLATES[selectedTemplateId];
+    if (template?.colors?.primary) {
+      return template.colors.primary;
+    }
+    // Fallback to settings or default teal
+    return settings?.colors?.primary || '#0d9488';
   };
 
   // Preview PDF
@@ -510,7 +523,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       </div>
 
       {/* Document Type Colors Section */}
-      <div className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+      <div className={`mb-6 p-4 rounded-lg max-w-3xl ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <FileText size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
@@ -518,46 +531,57 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Document Type Colors
             </h3>
           </div>
-          <button
-            onClick={handleSyncAllToInvoice}
-            className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              isDarkMode
-                ? 'bg-teal-700 text-white hover:bg-teal-600'
-                : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
-            }`}
-          >
-            <Link2 size={14} />
-            Sync All to Invoice Settings
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRestoreDocTemplateDefaults}
+              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-gray-600 text-white hover:bg-gray-500'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              <RotateCcw size={14} />
+              Restore Defaults
+            </button>
+            <button
+              onClick={handleSyncAllToInvoice}
+              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'bg-teal-700 text-white hover:bg-teal-600'
+                  : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+              }`}
+            >
+              <Link2 size={14} />
+              Sync All to Invoice
+            </button>
+          </div>
         </div>
         <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           Customize the header/accent color for each document type. Toggle &quot;Use Invoice Color&quot; to sync with the main invoice template.
         </p>
 
-        {/* Invoice Color Reference */}
-        <div className={`mb-4 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
-          <div className="flex items-center gap-3">
+        {/* Document Type Color List - List view */}
+        <div className="flex flex-col gap-3 max-w-2xl">
+          {/* Invoice Color Reference - read-only, syncs with template selection above */}
+          <div className={`flex items-center gap-3 p-3 rounded-lg border-2 border-dashed ${isDarkMode ? 'bg-teal-900/30 border-teal-600' : 'bg-teal-50 border-teal-300'}`}>
+            <FileText size={18} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-teal-200' : 'text-teal-800'}`}>Invoice</span>
             <div
-              className="w-8 h-8 rounded-md border-2 border-white shadow-sm"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-sm flex-shrink-0"
               style={{ backgroundColor: getInvoiceColor() }}
             />
-            <div>
-              <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                Invoice Template Color
-              </span>
-              <span className={`text-xs ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                (from template style above)
-              </span>
-            </div>
+            <span className={`text-xs w-16 ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+              {getInvoiceColor()}
+            </span>
+            <span className={`text-xs ml-auto italic ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+              (from template style)
+            </span>
           </div>
-        </div>
 
-        {/* Document Type Color List - Grid layout for compact display */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Quotation */}
           <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
             <FileText size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Quotation</span>
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Quotation</span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
@@ -594,7 +618,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           {/* Purchase Order */}
           <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
             <ShoppingCart size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Purchase Order</span>
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Purchase Order</span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
@@ -631,7 +655,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           {/* Delivery Note */}
           <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
             <Truck size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Delivery Note</span>
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Delivery Note</span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
@@ -668,7 +692,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           {/* Credit Note */}
           <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
             <CreditCard size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Credit Note</span>
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Credit Note</span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
@@ -705,7 +729,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           {/* Statement */}
           <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
             <FileBarChart size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            <span className={`font-medium min-w-[100px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Statement</span>
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Statement</span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
@@ -903,7 +927,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
       {/* BASIC SETTINGS TAB */}
       {activeSection === 'basic' && (
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-3xl">
           {/* Logo & Branding */}
           <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -971,7 +995,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
       {/* ADVANCED SETTINGS TAB */}
       {activeSection === 'advanced' && (
-        <div className="space-y-4">
+        <div className="space-y-4 max-w-3xl">
           {/* Warning Banner */}
           <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
             <div className="flex items-start gap-2">

@@ -106,13 +106,28 @@ const assertIconInvariants = (iconKey, enabled, invoice) => {
 
   switch (iconKey) {
     case 'edit':
-      // Spec: Edit disabled for issued or deleted invoices
-      if (enabled && (invoice.status === 'issued' || isDeleted)) {
-        console.error('SCHEMA_MISMATCH[ICON:EDIT]: Edit enabled for issued/deleted invoice', {
+      // Spec: Edit disabled for issued/deleted invoices EXCEPT within 24h edit window
+      // Check if within 24-hour edit window for issued invoices
+      const isIssuedStatus = ['issued', 'sent'].includes(invoice.status);
+      const issuedAt = invoice.issuedAt ? new Date(invoice.issuedAt) : null;
+      const hoursSinceIssued = issuedAt ? (new Date() - issuedAt) / (1000 * 60 * 60) : Infinity;
+      const withinEditWindow = hoursSinceIssued < 24;
+
+      // Only warn if edit is enabled for issued/deleted invoice AND NOT within edit window
+      if (enabled && isDeleted) {
+        console.error('SCHEMA_MISMATCH[ICON:EDIT]: Edit enabled for deleted invoice', {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           status: invoice.status,
           isDeleted,
+        });
+      }
+      if (enabled && isIssuedStatus && !withinEditWindow) {
+        console.error('SCHEMA_MISMATCH[ICON:EDIT]: Edit enabled for issued invoice past 24h window', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+          hoursSinceIssued: hoursSinceIssued.toFixed(1),
         });
       }
       break;
