@@ -15,6 +15,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
+import { toUAETime, toUAEDateForInput } from '../utils/timezone';
 
 const AuditLogs = () => {
   const { isDarkMode } = useTheme();
@@ -104,9 +105,9 @@ const AuditLogs = () => {
   const exportToCSV = () => {
     if (logs.length === 0) return;
 
-    const headers = ['Date/Time', 'User', 'Email', 'Category', 'Action', 'Description', 'Status', 'IP Address'];
+    const headers = ['Date/Time (UAE)', 'User', 'Email', 'Category', 'Action', 'Description', 'Status', 'IP Address'];
     const csvData = logs.map(log => [
-      new Date(log.createdAt).toLocaleString(),
+      toUAETime(log.createdAt, { format: 'datetime' }),
       log.username || '-',
       log.userEmail || '-',
       log.category,
@@ -125,7 +126,7 @@ const AuditLogs = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `audit-logs-${toUAEDateForInput(new Date())}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -133,14 +134,8 @@ const AuditLogs = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    // Use UAE timezone for display
+    return toUAETime(dateString, { format: 'datetime' });
   };
 
   const getCategoryColor = (category) => {

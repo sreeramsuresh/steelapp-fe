@@ -24,6 +24,7 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import pricelistService from '../services/pricelistService';
 import { productService } from '../services/dataService';
 import { toast } from 'react-toastify';
+import { toUAETime } from '../utils/timezone';
 
 export default function PriceHistoryReport() {
   const [loading, setLoading] = useState(false);
@@ -228,9 +229,9 @@ export default function PriceHistoryReport() {
                     </TableCell>
                     <TableCell>
                       {row.effectiveFrom
-                        ? new Date(row.effectiveFrom).toLocaleDateString()
+                        ? toUAETime(row.effectiveFrom, { format: 'date' })
                         : 'No date'}
-                      {row.effectiveTo && ` - ${new Date(row.effectiveTo).toLocaleDateString()}`}
+                      {row.effectiveTo && ` - ${toUAETime(row.effectiveTo, { format: 'date' })}`}
                     </TableCell>
                     <TableCell align="right">
                       <Typography fontWeight="bold">

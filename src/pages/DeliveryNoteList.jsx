@@ -25,6 +25,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 import NewBadge from '../components/shared/NewBadge';
 import { validateDeliveryNoteForDownload } from '../utils/recordUtils';
+import { toUAETime } from '../utils/timezone';
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
@@ -219,27 +220,8 @@ const DeliveryNoteList = () => {
   };
 
   const formatDate = (dateValue) => {
-    if (!dateValue) return '-';
-
-    // Handle gRPC timestamp format { seconds: number }
-    let dateObj;
-    if (dateValue.seconds) {
-      dateObj = new Date(dateValue.seconds * 1000);
-    } else if (typeof dateValue === 'string') {
-      dateObj = new Date(dateValue);
-    } else if (typeof dateValue === 'number') {
-      dateObj = new Date(dateValue);
-    } else {
-      dateObj = new Date(dateValue);
-    }
-
-    if (isNaN(dateObj.getTime())) return '-';
-
-    return dateObj.toLocaleDateString('en-AE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    // Use centralized timezone utility for UAE timezone consistency
+    return toUAETime(dateValue, { format: 'long' });
   };
 
   return (

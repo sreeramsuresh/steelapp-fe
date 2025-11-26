@@ -13,7 +13,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
-import { formatCurrency } from '../utils/invoiceUtils';
+import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { notificationService } from '../services/notificationService';
 
 const CommissionTransactions = () => {
@@ -397,7 +397,7 @@ const CommissionTransactions = () => {
                       {formatCurrency(parseFloat(transaction.commissionAmount || 0))}
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {new Date(transaction.createdAt).toLocaleDateString()}
+                      {formatDate(transaction.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(transaction.status)}
