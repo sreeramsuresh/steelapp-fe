@@ -230,6 +230,7 @@ export const getPaymentStatusConfig = (statusValue) => {
 
 /**
  * Validate payment data
+ * Accepts both paymentMethod (standard) and paymentMode (legacy) field names
  */
 export const validatePayment = (payment, invoiceTotal, existingPayments = []) => {
   const errors = [];
@@ -244,13 +245,14 @@ export const validatePayment = (payment, invoiceTotal, existingPayments = []) =>
     errors.push('Payment date is required');
   }
 
-  // Payment mode validation
-  if (!payment.paymentMode) {
+  // Payment mode/method validation - accept both field names
+  const paymentMethodValue = payment.paymentMethod || payment.paymentMode;
+  if (!paymentMethodValue) {
     errors.push('Payment mode is required');
   }
 
   // Reference number validation (for certain payment modes)
-  const modeConfig = getPaymentModeConfig(payment.paymentMode);
+  const modeConfig = getPaymentModeConfig(paymentMethodValue);
   if (modeConfig.requiresRef && !payment.referenceNumber) {
     errors.push(`Reference number is required for ${modeConfig.label}`);
   }

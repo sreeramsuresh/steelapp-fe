@@ -300,10 +300,10 @@ const CustomerManagement = () => {
       
       setContactHistoryCustomer(prev => ({
         ...prev,
-        contact_history: [...(prev.contactHistory || []), {
+        contactHistory: [...(prev.contactHistory || []), {
           ...newContact,
           id: Date.now().toString(),
-          created_at: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
         }],
       }));
       

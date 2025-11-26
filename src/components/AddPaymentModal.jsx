@@ -16,8 +16,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     id: '',
     date: formatDateForInput(new Date()),
     amount: '',
-    payment_mode: 'cash',
-    reference_number: '',
+    paymentMethod: 'cash',      // camelCase - standardized
+    referenceNumber: '',        // camelCase - standardized
     notes: '',
   });
 
@@ -37,8 +37,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
         id: generatePaymentId(),
         date: formatDateForInput(new Date()),
         amount: '',
-        payment_mode: 'cash',
-        reference_number: '',
+        paymentMethod: 'cash',      // camelCase - standardized
+        referenceNumber: '',        // camelCase - standardized
         notes: '',
       });
     }
@@ -57,11 +57,13 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     // Set saving state
     setIsSaving(true);
 
-    // Save the payment
+    // Save the payment with standardized camelCase fields
+    // The spread copies id, date, paymentMethod, referenceNumber, notes
     onSave({
       ...payment,
       amount: parseFloat(payment.amount),
-      created_at: editingPayment?.createdAt || new Date().toISOString(),
+      paymentDate: payment.date, // Alias date -> paymentDate for API Gateway
+      createdAt: editingPayment?.createdAt || new Date().toISOString(),
     });
 
     // Close modal with smooth transition delay (300ms for React state to settle)
@@ -71,7 +73,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     }, 300);
   };
 
-  const modeConfig = PAYMENT_MODES[payment.paymentMode] || PAYMENT_MODES.cash;
+  const modeConfig = PAYMENT_MODES[payment.paymentMethod] || PAYMENT_MODES.cash;
 
   if (!isOpen) return null;
 
@@ -227,12 +229,12 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Payment Mode <span className="text-red-500">*</span>
             </label>
             <select
-              value={payment.paymentMode}
+              value={payment.paymentMethod}
               onChange={(e) =>
                 setPayment((prev) => ({
                   ...prev,
-                  payment_mode: e.target.value,
-                  reference_number: '', // Clear reference when mode changes
+                  paymentMethod: e.target.value,
+                  referenceNumber: '', // Clear reference when mode changes
                 }))
               }
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -267,7 +269,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               onChange={(e) =>
                 setPayment((prev) => ({
                   ...prev,
-                  reference_number: e.target.value,
+                  referenceNumber: e.target.value,
                 }))
               }
               placeholder={

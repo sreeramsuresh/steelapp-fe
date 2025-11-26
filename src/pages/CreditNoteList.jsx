@@ -442,7 +442,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         {creditNote.invoiceNumber}
                       </td>
                       <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className="max-w-xs truncate">{creditNote.customer?.name || 'N/A'}</div>
+                        <div className="max-w-xs truncate">{creditNote.customer?.name || creditNote.customerName || 'N/A'}</div>
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         {formatDate(creditNote.creditNoteDate)}

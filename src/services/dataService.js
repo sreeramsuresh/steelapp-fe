@@ -73,6 +73,11 @@ export const PAYMENT_MODES = USE_MOCK_DATA
   : realPayablesService.PAYMENT_MODES;
 
 /**
+ * Payment Service helpers
+ */
+export { createPaymentPayload, validatePayment as validatePaymentPayload, normalizePayment, PAYMENT_METHOD_OPTIONS } from './paymentService';
+
+/**
  * Export all services as default
  */
 export default {

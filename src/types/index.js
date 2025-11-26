@@ -1,5 +1,6 @@
 // Default data structures for the invoice application
 import { uuid } from '../utils/uuid';
+import { toUAEDateForInput } from '../utils/timezone';
 
 export const createCustomer = () => ({
   id: '',
@@ -49,8 +50,9 @@ export const createSteelItem = () => ({
 export const createInvoice = () => ({
   id: uuid(),
   invoiceNumber: '',
-  date: new Date().toISOString().split('T')[0],
-  dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  // Use UAE timezone (UTC+4) for default dates
+  date: toUAEDateForInput(new Date()),
+  dueDate: toUAEDateForInput(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
   deliveryNote: '',
   modeOfPayment: '',
   // Warehouse selection (for preview/PDF only; not persisted yet)
@@ -146,7 +148,8 @@ export const UAE_CITIES = [
 
 export const createStockMovement = () => ({
   id: uuid(),
-  date: new Date().toISOString().split('T')[0],
+  // Use UAE timezone (UTC+4) for default date
+  date: toUAEDateForInput(new Date()),
   movement: 'IN', // 'IN' or 'OUT'
   productType: '',
   grade: '',

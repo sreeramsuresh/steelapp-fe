@@ -1123,6 +1123,10 @@ const InvoiceForm = ({ onSave }) => {
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
+  // Track the ORIGINAL saved status for isLocked calculation
+  // This prevents the locked banner from showing when just changing the dropdown
+  const [originalSavedStatus, setOriginalSavedStatus] = useState(null);
+
   // Mark form as dirty whenever invoice changes (except initial load)
   const initialLoadRef = useRef(true);
   useEffect(() => {
@@ -1160,13 +1164,17 @@ const InvoiceForm = ({ onSave }) => {
   // Issued invoices can be edited within 24 hours of issuance (creates revision)
   // After 24 hours, invoice is permanently locked
   // IMPORTANT: New invoices (no id) are NEVER locked, even if status is 'issued'
+  // IMPORTANT: Use originalSavedStatus (not current form status) to prevent
+  //            the locked banner from showing when user changes status dropdown
   const isLocked = useMemo(() => {
     // NEW INVOICES ARE NEVER LOCKED - they haven't been saved yet
     // The 'id' parameter from useParams() is only present when editing an existing invoice
     if (!id) return false;
 
-    const status = (invoice?.status || '').toLowerCase().replace('status_', '');
-    if (status !== 'issued') return false;
+    // Use the ORIGINAL saved status, not the current form state
+    // This prevents locked banner from appearing when converting draft to final
+    // The banner should only show for invoices that were ALREADY saved as 'issued'
+    if (originalSavedStatus !== 'issued') return false;
 
     // Check 24-hour edit window
     const issuedAt = invoice?.issuedAt;
@@ -1181,22 +1189,27 @@ const InvoiceForm = ({ onSave }) => {
     const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
 
     return hoursSinceIssued >= 24; // Locked if 24+ hours since issued
-  }, [id, invoice?.status, invoice?.issuedAt]);
+  }, [id, originalSavedStatus, invoice?.issuedAt]);
   
   // Calculate if we're in revision mode (editing issued invoice within 24h)
+  // Use originalSavedStatus to ensure this only applies to invoices that were
+  // ALREADY saved as 'issued', not invoices being converted to 'issued'
   const isRevisionMode = useMemo(() => {
-    const status = (invoice?.status || '').toLowerCase().replace('status_', '');
-    if (status !== 'issued') return false;
-    
+    // Must be editing an existing invoice
+    if (!id) return false;
+
+    // Use original saved status - only in revision mode if invoice was SAVED as issued
+    if (originalSavedStatus !== 'issued') return false;
+
     const issuedAt = invoice?.issuedAt;
     if (!issuedAt) return false;
-    
+
     const issuedDate = new Date(issuedAt);
     const now = new Date();
     const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-    
+
     return hoursSinceIssued < 24; // In revision mode if within 24 hours
-  }, [invoice?.status, invoice?.issuedAt]);
+  }, [id, originalSavedStatus, invoice?.issuedAt]);
   
   // Calculate hours remaining in edit window
   const hoursRemainingInEditWindow = useMemo(() => {
@@ -1546,6 +1559,11 @@ const InvoiceForm = ({ onSave }) => {
         date: existingInvoice.date || new Date().toISOString().split('T')[0],
       };
       setInvoice(invoiceWithDate);
+
+      // Capture the original saved status for isLocked calculation
+      // This prevents the locked banner from showing when just changing the dropdown
+      const savedStatus = (existingInvoice.status || '').toLowerCase().replace('status_', '');
+      setOriginalSavedStatus(savedStatus);
     }
   }, [existingInvoice, id, navigate]);
 

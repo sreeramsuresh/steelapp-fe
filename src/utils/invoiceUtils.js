@@ -1,3 +1,5 @@
+import { toUAETime, toUAEDateForInput } from './timezone';
+
 export const calculateItemAmount = (quantity, rate) => {
   const qty = parseFloat(quantity) || 0;
   const rt = parseFloat(rate) || 0;
@@ -131,58 +133,49 @@ export const formatCurrency = (amount) => {
   // Handle NaN, null, undefined, or non-numeric values
   const numericAmount = parseFloat(amount);
   const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-  
+
   return new Intl.NumberFormat('en-AE', {
     style: 'currency',
     currency: 'AED',
   }).format(safeAmount);
 };
 
+/**
+ * Format date for display in UAE timezone
+ * All dates from the backend are stored in UTC and should be displayed in UAE time
+ * @param {string|Date|object} date - UTC date (can be proto Timestamp with seconds property)
+ * @returns {string} Formatted date in UAE timezone (e.g., "January 15, 2025")
+ */
 export const formatDate = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-AE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  return toUAETime(date, { format: 'long' });
 };
 
+/**
+ * Format datetime for display in UAE timezone
+ * @param {string|Date|object} date - UTC datetime
+ * @returns {string} Formatted datetime in UAE timezone (e.g., "Jan 15, 2025, 02:30 PM")
+ */
 export const formatDateTime = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d)) return '';
-  return new Intl.DateTimeFormat('en-AE', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(d);
+  return toUAETime(date, { format: 'datetime' });
 };
 
-// Format as DD/MM/YYYY (e.g., 04/06/2025)
+/**
+ * Format as DD/MM/YYYY in UAE timezone
+ * @param {string|Date|object} date - UTC date
+ * @returns {string} Date in DD/MM/YYYY format (UAE timezone)
+ */
 export const formatDateDMY = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d)) return '';
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
+  return toUAETime(date, { format: 'short' });
 };
 
+/**
+ * Format date for HTML input fields (YYYY-MM-DD) in UAE timezone
+ * When displaying a UTC date in an input field, we show the UAE local date
+ * @param {string|Date|object} date - UTC date
+ * @returns {string} Date in YYYY-MM-DD format (UAE timezone)
+ */
 export const formatDateForInput = (date) => {
-  if (!date) return '';
-  if (typeof date === 'string' && date.includes('T')) {
-    return date.split('T')[0];
-  }
-  if (date instanceof Date) {
-    return date.toISOString().split('T')[0];
-  }
-  return date;
+  return toUAEDateForInput(date);
 };
 
 // Normalize LLC formatting function

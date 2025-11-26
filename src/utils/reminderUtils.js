@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { formatCurrency, normalizeLLC, titleCase, formatDateDMY } from './invoiceUtils';
 import { calculatePaymentStatus, calculateBalanceDue } from './paymentUtils';
+import { TIMEZONE_CONFIG } from './timezone';
 
 /**
  * Reminder types based on days until/past due date
@@ -99,20 +100,27 @@ export const REMINDER_CONFIG = {
 };
 
 /**
- * Calculate days until/past due date
- * @param {string} dueDate - Due date in ISO format
+ * Calculate days until/past due date in UAE timezone
+ * Both today and due date are evaluated in UAE timezone (UTC+4)
+ * to ensure consistent business day calculations
+ *
+ * @param {string} dueDate - Due date in ISO format (UTC)
  * @returns {number} - Negative if overdue, positive if upcoming, 0 if today
  */
 export const calculateDaysUntilDue = (dueDate) => {
   if (!dueDate) return 0;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Get current date in UAE timezone
+  const now = new Date();
+  const todayUAE = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE_CONFIG.UAE_TIMEZONE }));
+  todayUAE.setHours(0, 0, 0, 0);
 
-  const due = new Date(dueDate);
-  due.setHours(0, 0, 0, 0);
+  // Get due date in UAE timezone
+  const dueUtc = new Date(dueDate);
+  const dueUAE = new Date(dueUtc.toLocaleString('en-US', { timeZone: TIMEZONE_CONFIG.UAE_TIMEZONE }));
+  dueUAE.setHours(0, 0, 0, 0);
 
-  const diffTime = due.getTime() - today.getTime();
+  const diffTime = dueUAE.getTime() - todayUAE.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return diffDays;

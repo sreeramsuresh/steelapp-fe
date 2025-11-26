@@ -3,10 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2, Printer } from 'lucide-react';
 import { payablesService, PAYMENT_MODES, invoiceService } from '../services/dataService';
+import { createPaymentPayload } from '../services/paymentService';
 import { uuid } from '../utils/uuid';
-import { formatCurrency } from '../utils/invoiceUtils';
+import { formatCurrency, formatDate as formatDateUtil } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
 import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
+import { toUAEDateForInput } from '../utils/timezone';
 
 const Pill = ({ color = 'gray', children }) => {
   const colors = {
@@ -53,9 +55,9 @@ const StatusPill = ({ status }) => {
   return <Pill color={cfg.color}>{cfg.label}</Pill>;
 };
 
+// Use timezone-aware date formatting from invoiceUtils (which uses timezone.js)
 const formatDate = (d) => {
-  if (!d) return '';
-  try { return new Date(d).toLocaleDateString(); } catch { return d; }
+  return formatDateUtil(d);
 };
 
 const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
@@ -72,7 +74,8 @@ const downloadBlob = (blob, filename) => {
 };
 
 const AddPaymentForm = ({ outstanding = 0, onSave, isSaving = false }) => {
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0,10));
+  // Initialize with today's date in UAE timezone
+  const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('cash');
   const [reference, setReference] = useState('');
@@ -91,8 +94,8 @@ const AddPaymentForm = ({ outstanding = 0, onSave, isSaving = false }) => {
   const handleSave = () => {
     if (!canSave) return;
     onSave({ amount: Number(amount), method, referenceNo: reference, notes, paymentDate: date });
-    // Clear form after successful save
-    setDate(new Date().toISOString().slice(0,10));
+    // Clear form after successful save - reset to today's date in UAE timezone
+    setDate(toUAEDateForInput(new Date()));
     setAmount('');
     setMethod('cash');
     setReference('');
@@ -223,14 +226,25 @@ const Receivables = () => {
 
   useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.dateType, filters.customer, filters.minOut, filters.maxOut, filters.page, filters.size]);
 
+  // Helper to get invoice amount - handles both old and new API field names
+  const getInvoiceAmount = (r) => Number(r.invoiceAmount || r.totalAmount || r.total || 0);
+  // Helper to get received amount - handles both old and new API field names
+  const getReceived = (r) => Number(r.received || r.amountPaid || 0);
+  // Helper to get outstanding amount - handles both old and new API field names
+  const getOutstanding = (r) => Number(r.outstanding || r.balanceDue || 0);
+  // Helper to get customer name - handles both nested object and flat field
+  const getCustomerName = (r) => r.customer?.name || r.customerName || '';
+  // Helper to get customer ID
+  const getCustomerId = (r) => r.customer?.id || r.customerId || '';
+
   const aggregates = useMemo(() => {
-    const totalInvoiced = items.reduce((s, r) => s + (Number(r.invoiceAmount || 0)), 0);
-    const totalReceived = items.reduce((s, r) => s + (Number(r.received || 0)), 0);
-    const totalOutstanding = items.reduce((s, r) => s + (Number(r.outstanding || 0)), 0);
-    const overdueAmount = items.filter(r => r.status === 'overdue').reduce((s, r) => s + (Number(r.outstanding || 0)), 0);
+    const totalInvoiced = items.reduce((s, r) => s + getInvoiceAmount(r), 0);
+    const totalReceived = items.reduce((s, r) => s + getReceived(r), 0);
+    const totalOutstanding = items.reduce((s, r) => s + getOutstanding(r), 0);
+    const overdueAmount = items.filter(r => r.status === 'overdue').reduce((s, r) => s + getOutstanding(r), 0);
     const today = new Date();
     const pastDueDays = items
-      .filter(r => (r.dueDate && new Date(r.dueDate) < today && r.outstanding > 0))
+      .filter(r => (r.dueDate && new Date(r.dueDate) < today && getOutstanding(r) > 0))
       .map(r => Math.floor((today - new Date(r.dueDate)) / (1000*60*60*24)));
     const avgDaysPastDue = pastDueDays.length ? Math.round(pastDueDays.reduce((a,b)=>a+b,0)/pastDueDays.length) : 0;
     return { totalInvoiced, totalReceived, totalOutstanding, overdueAmount, avgDaysPastDue };
@@ -248,30 +262,48 @@ const Receivables = () => {
   const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
     // Guard against double-submit
     if (isSavingPayment) return;
-    
+
     const inv = drawer.item;
     if (!inv) return;
-    const outstanding = Number(inv.outstanding || 0);
+    const outstanding = getOutstanding(inv);
+    const invoiceAmount = getInvoiceAmount(inv);
+    const currentReceived = getReceived(inv);
     if (!(Number(amount) > 0)) return alert('Amount must be > 0');
     if (Number(amount) > outstanding) return alert('Amount exceeds outstanding');
-    
+
     setIsSavingPayment(true);
-    
+
+    // Use standardized payment payload (camelCase for API Gateway auto-conversion)
+    const apiPayload = createPaymentPayload({
+      amount,
+      paymentMethod: method,     // Map local 'method' to standard 'paymentMethod'
+      paymentDate: paymentDate || new Date().toISOString().slice(0, 10),
+      referenceNumber: referenceNo, // Map local 'referenceNo' to standard 'referenceNumber'
+      notes
+    });
+
+    // Create local payment object for optimistic UI update
     const newPayment = {
       id: uuid(),
-      paymentDate: paymentDate || new Date().toISOString().slice(0,10),
-      amount: Number(amount),
-      method, referenceNo, notes, createdAt: new Date().toISOString(),
+      ...apiPayload,
+      method,       // Keep 'method' for backward compat with UI display
+      referenceNo,  // Keep 'referenceNo' for backward compat with UI display
+      createdAt: new Date().toISOString(),
     };
     const updated = { ...inv, payments: [...(inv.payments||[]), newPayment] };
-    const derived = { received: (inv.received||0) + newPayment.amount, outstanding: Math.max(0, +(outstanding - newPayment.amount).toFixed(2)), status: inv.status };
-    if (derived.outstanding === 0) derived.status = 'paid'; else if (derived.outstanding < (inv.invoiceAmount||0)) derived.status = 'partially_paid';
+    const newReceived = currentReceived + newPayment.amount;
+    const newOutstanding = Math.max(0, +(outstanding - newPayment.amount).toFixed(2));
+    let newStatus = inv.status;
+    if (newOutstanding === 0) newStatus = 'paid';
+    else if (newOutstanding < invoiceAmount) newStatus = 'partially_paid';
+    const derived = { received: newReceived, outstanding: newOutstanding, status: newStatus };
     const updatedInv = { ...updated, ...derived };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
     try {
-      await invoiceService.addInvoicePayment(inv.id, newPayment);
-    } catch (e) { 
+      // Send standardized payload to API
+      await invoiceService.addInvoicePayment(inv.id, apiPayload);
+    } catch (e) {
       // Ignore - optimistic UI already updated, backend error doesn't affect display
       console.warn('Failed to persist payment to backend:', e.message);
     } finally {
@@ -286,15 +318,16 @@ const Receivables = () => {
     const last = payments[payments.length - 1];
     const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voidedAt: new Date().toISOString() } : p);
     const updated = { ...inv, payments: updatedPayments };
+    const invoiceAmount = getInvoiceAmount(inv);
     const received = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
-    const outstanding = Math.max(0, +((inv.invoiceAmount||0)-received).toFixed(2));
-    let status = 'unpaid'; if (outstanding === 0) status='paid'; else if (outstanding < (inv.invoiceAmount||0)) status='partially_paid';
+    const outstanding = Math.max(0, +(invoiceAmount-received).toFixed(2));
+    let status = 'unpaid'; if (outstanding === 0) status='paid'; else if (outstanding < invoiceAmount) status='partially_paid';
     const updatedInv = { ...updated, received, outstanding, status };
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
-    try { 
-      await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI'); 
-    } catch(e){ 
+    try {
+      await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
+    } catch(e){
       // Ignore - optimistic UI already voided payment, backend error doesn't affect display
       console.warn('Failed to persist void to backend:', e.message);
     }
@@ -315,9 +348,9 @@ const Receivables = () => {
     try {
       const invoiceData = {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
-        total: inv.invoiceAmount || 0,
+        total: getInvoiceAmount(inv),
         payments: inv.payments || [],
-        customer: inv.customer || {},
+        customer: inv.customer || { name: getCustomerName(inv), id: getCustomerId(inv) },
       };
       const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -345,9 +378,9 @@ const Receivables = () => {
     try {
       const invoiceData = {
         invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
-        total: inv.invoiceAmount || 0,
+        total: getInvoiceAmount(inv),
         payments: inv.payments || [],
-        customer: inv.customer || {},
+        customer: inv.customer || { name: getCustomerName(inv), id: getCustomerId(inv) },
       };
       const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
@@ -380,7 +413,7 @@ const Receivables = () => {
       console.warn('Backend export failed, falling back to client CSV');
     }
     const headers = ['Invoice #','Customer','Invoice Date','Due Date','Currency','Invoice Amount','Received To-Date','Outstanding','Status'];
-    const rows = items.map(r => [r.invoiceNo || r.invoiceNumber, r.customer?.name || '', r.invoiceDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', (r.invoiceAmount||0), (r.received||0), (r.outstanding||0), r.status]);
+    const rows = items.map(r => [r.invoiceNo || r.invoiceNumber, getCustomerName(r), r.invoiceDate || r.date, r.dueDate || r.dueDate, r.currency || 'AED', getInvoiceAmount(r), getReceived(r), getOutstanding(r), r.status]);
     const csv = [headers, ...rows].map(r => r.map(v => (v!==undefined&&v!==null?`${v}`.replace(/"/g,'""'):'')).map(v=>`"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -493,21 +526,21 @@ const Receivables = () => {
                   <td className="px-4 py-2"><input type="checkbox" checked={selected.has(row.id)} onChange={() => toggleOne(row.id)} onClick={(e)=>e.stopPropagation()}/></td>
                   <td className="px-4 py-2 text-teal-600 font-semibold" onClick={()=>openDrawer(row)}>{row.invoiceNo || row.invoiceNumber}</td>
                   <td className="px-4 py-2">
-                    {row.customer?.name ? (
+                    {getCustomerName(row) ? (
                       <button
                         className="text-teal-600 hover:underline"
                         onClick={(e)=>{
                           e.stopPropagation();
-                          const cid = row.customer?.id || row.customerId || '';
-                          const name = row.customer?.name || '';
+                          const cid = getCustomerId(row);
+                          const name = getCustomerName(row);
                           if (cid) navigate(`/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
                           else navigate(`/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`);
                         }}
                       >
-                        {row.customer.name}
+                        {getCustomerName(row)}
                       </button>
                     ) : (
-                      <span onClick={()=>openDrawer(row)}>{row.customer?.name || ''}</span>
+                      <span onClick={()=>openDrawer(row)}>{getCustomerName(row)}</span>
                     )}
                   </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{formatDate(row.invoiceDate || row.date)}</td>
@@ -518,9 +551,9 @@ const Receivables = () => {
                     </div>
                   </td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}>{row.currency || 'AED'}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.invoiceAmount || 0)}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.received || 0)}</td>
-                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(row.outstanding || 0)}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(getInvoiceAmount(row))}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(getReceived(row))}</td>
+                  <td className="px-4 py-2 text-right" onClick={()=>openDrawer(row)}>{formatCurrency(getOutstanding(row))}</td>
                   <td className="px-4 py-2" onClick={()=>openDrawer(row)}><StatusPill status={row.status} /></td>
                   <td className="px-4 py-2 text-right">
                     <button className={`px-2 py-1 ${canManage ? 'text-teal-600' : 'text-gray-400 cursor-not-allowed'}`} onClick={()=> canManage && openDrawer(row)} disabled={!canManage}>Record Payment</button>
@@ -549,7 +582,7 @@ const Receivables = () => {
             <div className="p-4 border-b flex items-center justify-between">
               <div>
                 <div className="font-semibold text-lg">{drawer.item.invoiceNo || drawer.item.invoiceNumber}</div>
-                <div className="text-sm opacity-70">{drawer.item.customer?.name || ''}</div>
+                <div className="text-sm opacity-70">{getCustomerName(drawer.item)}</div>
               </div>
               <div className="flex items-center gap-2">
                 <StatusPill status={drawer.item.status} />
@@ -561,9 +594,9 @@ const Receivables = () => {
                 <div><div className="opacity-70">Invoice Date</div><div>{formatDate(drawer.item.invoiceDate || drawer.item.date)}</div></div>
                 <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.dueDate || drawer.item.dueDate)}</div></div>
                 <div><div className="opacity-70">Currency</div><div>{drawer.item.currency || 'AED'}</div></div>
-                <div><div className="opacity-70">Invoice Amount</div><div className="font-semibold">{formatCurrency(drawer.item.invoiceAmount || 0)}</div></div>
-                <div><div className="opacity-70">Received</div><div className="font-semibold">{formatCurrency(drawer.item.received || 0)}</div></div>
-                <div><div className="opacity-70">Outstanding</div><div className="font-semibold">{formatCurrency(drawer.item.outstanding || 0)}</div></div>
+                <div><div className="opacity-70">Invoice Amount</div><div className="font-semibold">{formatCurrency(getInvoiceAmount(drawer.item))}</div></div>
+                <div><div className="opacity-70">Received</div><div className="font-semibold">{formatCurrency(getReceived(drawer.item))}</div></div>
+                <div><div className="opacity-70">Outstanding</div><div className="font-semibold">{formatCurrency(getOutstanding(drawer.item))}</div></div>
               </div>
 
               {/* Payments Timeline */}
@@ -629,19 +662,21 @@ const Receivables = () => {
               </div>
 
               {/* Add Payment */}
-              {canManage && drawer.item.outstanding > 0 ? (
-                <AddPaymentForm outstanding={drawer.item.outstanding || 0} onSave={handleAddPayment} isSaving={isSavingPayment} />
-              ) : drawer.item.outstanding === 0 ? (
+              {getOutstanding(drawer.item) === 0 || getInvoiceAmount(drawer.item) === 0 ? (
                 <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
                   <CheckCircle size={18} />
-                  <span className="font-medium">Invoice Fully Paid</span>
+                  <span className="font-medium">
+                    {getInvoiceAmount(drawer.item) === 0 ? 'No Payment Required (Zero Invoice)' : 'Invoice Fully Paid'}
+                  </span>
                 </div>
+              ) : canManage ? (
+                <AddPaymentForm outstanding={getOutstanding(drawer.item)} onSave={handleAddPayment} isSaving={isSavingPayment} />
               ) : (
                 <div className="text-sm opacity-70">You don&apos;t have permission to add payments.</div>
               )}
 
               {/* Quick Actions */}
-              {canManage && drawer.item.outstanding > 0 && drawer.item.payments && drawer.item.payments.length > 0 && (
+              {canManage && getOutstanding(drawer.item) > 0 && drawer.item.payments && drawer.item.payments.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   <button className="px-3 py-2 rounded border" onClick={handleVoidLast}><Trash2 size={16} className="inline mr-1"/>Void last</button>
                 </div>

@@ -6,6 +6,10 @@
  * ONLY SHOWN ON LAST PAGE (UAE Best Practice + Industry Standard)
  * Uses seal uploaded in Company Settings (pdf_seal_url or seal_url)
  * Supports template-based styling for color customization
+ *
+ * CSS Properties:
+ * - page-break-inside: avoid - Prevents page breaks within this component
+ * - break-inside: avoid - Modern equivalent for preventing breaks
  */
 const InvoiceSignatureSection = ({ company, template = null }) => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
@@ -29,7 +33,13 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
   }
 
   return (
-    <div className="invoice-signature-section">
+    <div
+      className="invoice-signature-section"
+      style={{
+        pageBreakInside: 'avoid',
+        breakInside: 'avoid',
+      }}
+    >
       {/* SIGNATURE AND SEAL SECTION */}
       <div className="flex justify-between items-end mb-6 mt-8">
         {/* Company Seal - Left */}

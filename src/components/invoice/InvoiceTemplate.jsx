@@ -81,14 +81,23 @@ const InvoiceTemplate = ({
         />
       )}
 
-      {/* Terms & Notes - only on last page */}
+      {/* Last Page Footer Group - Keep together to prevent orphaned sections */}
       {isLastPage && (
-        <InvoiceFooterNotes invoice={invoice} template={templateSettings} />
-      )}
+        <div
+          className="invoice-last-page-group"
+          style={{
+            pageBreakInside: 'avoid',
+            breakInside: 'avoid',
+          }}
+        >
+          {/* Terms & Notes - only on last page */}
+          <InvoiceFooterNotes invoice={invoice} template={templateSettings} />
 
-      {/* Signature - only on last page */}
-      {isLastPage && showSignature && (
-        <InvoiceSignatureSection company={company} template={templateSettings} />
+          {/* Signature - only on last page */}
+          {showSignature && (
+            <InvoiceSignatureSection company={company} template={templateSettings} />
+          )}
+        </div>
       )}
 
       {/* Page footer - appears on every page */}

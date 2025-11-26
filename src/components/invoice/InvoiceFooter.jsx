@@ -5,6 +5,10 @@ import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettin
  * Displays on every page at the bottom
  * Shows contact info and page numbers
  * Supports template-based styling for B&W printing
+ *
+ * CSS Properties:
+ * - page-break-inside: avoid - Prevents page breaks within this component
+ * - break-inside: avoid - Modern equivalent for preventing breaks
  */
 const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template = null }) => {
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
@@ -16,7 +20,14 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 
   return (
-    <div className="invoice-footer mt-6" style={{ fontFamily }}>
+    <div
+      className="invoice-footer mt-6"
+      style={{
+        fontFamily,
+        pageBreakInside: 'avoid',
+        breakInside: 'avoid',
+      }}
+    >
       {/* Bottom Footer Line */}
       <div className="border-t-2 pt-3" style={{ borderColor }}>
         <p className="text-center text-xs leading-relaxed" style={{ color: textColor }}>

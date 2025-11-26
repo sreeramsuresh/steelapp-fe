@@ -600,5 +600,38 @@ export const suppliersAPI = {
   },
 };
 
+// Payments API methods
+export const paymentsAPI = {
+  // Get all payments with pagination and filters
+  getAll: (params = {}) => {
+    return apiClient.get('/payments', params);
+  },
+
+  // Get payment by ID
+  getById: (id) => {
+    return apiClient.get(`/payments/${id}`);
+  },
+
+  // Get payments by invoice ID
+  getByInvoice: (invoiceId) => {
+    return apiClient.get(`/payments/invoice/${invoiceId}`);
+  },
+
+  // Create payment
+  create: (paymentData) => {
+    return apiClient.post('/payments', paymentData);
+  },
+
+  // Void payment
+  void: (id, voidReason) => {
+    return apiClient.post(`/payments/${id}/void`, { voidReason });
+  },
+
+  // Restore payment
+  restore: (id) => {
+    return apiClient.post(`/payments/${id}/restore`);
+  },
+};
+
 // Export apiClient as default for backward compatibility
 export default apiClient;

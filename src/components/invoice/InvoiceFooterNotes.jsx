@@ -3,6 +3,10 @@
  * Displays payment terms, notes, and warehouse information
  * ONLY SHOWN ON LAST PAGE
  * Supports template-based styling for B&W printing
+ *
+ * CSS Properties:
+ * - page-break-inside: avoid - Prevents page breaks within this component
+ * - break-inside: avoid - Modern equivalent for preventing breaks
  */
 const InvoiceFooterNotes = ({ invoice, template = null }) => {
   const colors = template?.colors || {};
@@ -16,35 +20,59 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
   const accentColor = colors.accent || '#f5f5f5';
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 
+  // Check if there's any terms content to show
+  const hasTermsContent = invoice.terms || invoice.notes || invoice.warehouseName || invoice.warehouseCode;
+
   return (
-    <div className="invoice-footer-notes" style={{ fontFamily }}>
-      {/* FOOTER SECTION */}
-      <div className="space-y-1.5 text-xs mb-6" style={{ color: textColor }}>
-        {invoice.terms && (
-          <div className="flex items-start">
-            <span className="mr-2">•</span>
-            <div>
-              <span className="font-semibold">Payment Term:</span> {invoice.terms}
-            </div>
+    <div
+      className="invoice-footer-notes"
+      style={{
+        fontFamily,
+        pageBreakInside: 'avoid',
+        breakInside: 'avoid',
+      }}
+    >
+      {/* TERMS & CONDITIONS SECTION - only show if there's content */}
+      {hasTermsContent && (
+        <div
+          className="terms-section"
+          style={{
+            pageBreakInside: 'avoid',
+            breakInside: 'avoid',
+          }}
+        >
+          {/* Terms Header - styled like other section headers */}
+          <h3
+            className="text-base font-bold mb-3"
+            style={{ color: primaryColor }}
+          >
+            Terms & Conditions:
+          </h3>
+
+          {/* FOOTER SECTION */}
+          <div className="space-y-1.5 text-xs mb-6" style={{ color: textColor }}>
+            {invoice.terms && (
+              <div className="whitespace-pre-wrap">{invoice.terms}</div>
+            )}
+            {invoice.notes && (
+              <div className="flex items-start mt-2">
+                <span className="mr-2">•</span>
+                <div>
+                  <span className="font-semibold">Comment:</span> {invoice.notes}
+                </div>
+              </div>
+            )}
+            {(invoice.warehouseName || invoice.warehouseCode) && (
+              <div className="flex items-start">
+                <span className="mr-2">•</span>
+                <div>
+                  <span className="font-semibold">Place of Supply (Warehouse):</span> {[invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(', ')}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        {invoice.notes && (
-          <div className="flex items-start">
-            <span className="mr-2">•</span>
-            <div>
-              <span className="font-semibold">Comment:</span> {invoice.notes}
-            </div>
-          </div>
-        )}
-        {(invoice.warehouseName || invoice.warehouseCode) && (
-          <div className="flex items-start">
-            <span className="mr-2">•</span>
-            <div>
-              <span className="font-semibold">Place of Supply (Warehouse):</span> {[invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity].filter(Boolean).join(', ')}
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* TAX NOTES SECTION (UAE VAT Compliance) */}
       {invoice.taxNotes && (
