@@ -180,16 +180,22 @@ const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = nul
   });
 
   // Load settings from company data when available
+  // Uses invoiceTemplate field format: { id: 'templateId', colors: { primary: '#xxx', ... } }
   useEffect(() => {
     const loadCompanySettings = async () => {
       try {
         // If companySettings is passed as prop, use it
         if (companySettings?.settings) {
-          if (companySettings.settings.selectedTemplate) {
-            setSelectedTemplateId(companySettings.settings.selectedTemplate);
+          const invoiceTemplate = companySettings.settings.invoiceTemplate;
+          if (invoiceTemplate?.id) {
+            setSelectedTemplateId(invoiceTemplate.id);
           }
-          if (companySettings.settings.templateCustomColors) {
-            setCustomColors(companySettings.settings.templateCustomColors);
+          if (invoiceTemplate?.colors) {
+            // Only set custom colors if they differ from base template
+            const baseColors = INVOICE_TEMPLATES[invoiceTemplate.id]?.colors;
+            if (baseColors && invoiceTemplate.colors.primary !== baseColors.primary) {
+              setCustomColors(invoiceTemplate.colors);
+            }
           }
           setLoadedFromCompany(true);
           return;
@@ -197,11 +203,16 @@ const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = nul
 
         // Otherwise, fetch from API
         const company = await companyService.getCompany();
-        if (company?.settings?.selectedTemplate) {
-          setSelectedTemplateId(company.settings.selectedTemplate);
+        const invoiceTemplate = company?.settings?.invoiceTemplate;
+        if (invoiceTemplate?.id) {
+          setSelectedTemplateId(invoiceTemplate.id);
         }
-        if (company?.settings?.templateCustomColors) {
-          setCustomColors(company.settings.templateCustomColors);
+        if (invoiceTemplate?.colors) {
+          // Only set custom colors if they differ from base template
+          const baseColors = INVOICE_TEMPLATES[invoiceTemplate.id]?.colors;
+          if (baseColors && invoiceTemplate.colors.primary !== baseColors.primary) {
+            setCustomColors(invoiceTemplate.colors);
+          }
         }
         setLoadedFromCompany(true);
       } catch (error) {
@@ -211,7 +222,7 @@ const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = nul
     };
 
     loadCompanySettings();
-  }, [companySettings?.settings?.selectedTemplate, companySettings?.settings?.templateCustomColors]);
+  }, [companySettings?.settings?.invoiceTemplate]);
 
   // Get current template
   const currentTemplate = useMemo(() => {
@@ -240,18 +251,31 @@ const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = nul
   }, [selectedTemplateId, customColors, recurringSettings]);
 
   // Save to company settings (database) when template changes
-  const saveToCompanySettings = useCallback(async (templateId, colors) => {
+  // Saves in invoiceTemplate format: { id: 'templateId', colors: { primary: '#xxx', ... } }
+  // This format is compatible with backend PDF generation (ssrRenderer.js)
+  const saveToCompanySettings = useCallback(async (templateId, customColorOverrides) => {
     if (isSaving) return;
 
     setIsSaving(true);
     try {
       const company = await companyService.getCompany();
+      const baseTemplate = INVOICE_TEMPLATES[templateId] || INVOICE_TEMPLATES.standard;
+
+      // Merge base template colors with any custom overrides
+      const finalColors = customColorOverrides
+        ? { ...baseTemplate.colors, ...customColorOverrides }
+        : baseTemplate.colors;
+
       const updatedCompany = {
         ...company,
         settings: {
           ...company.settings,
-          selectedTemplate: templateId,
-          templateCustomColors: colors,
+          // New unified format - backend reads invoiceTemplate.colors.primary
+          invoiceTemplate: {
+            id: templateId,
+            name: baseTemplate.name,
+            colors: finalColors,
+          },
         },
       };
       await companyService.updateCompany(updatedCompany);

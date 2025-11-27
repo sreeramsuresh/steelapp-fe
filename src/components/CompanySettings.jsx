@@ -2003,14 +2003,15 @@ const CompanySettings = () => {
       onSave={async (templateSettings) => {
         try {
           // Save template settings to company.settings
-          // templateSettings contains: invoice_template, selectedTemplate, templateCustomColors
+          // templateSettings contains: invoiceTemplate (unified format), documentTemplates
+          // invoiceTemplate format: { id, name, colors, settings }
+          // Backend PDF generation reads: company.settings.invoiceTemplate.colors.primary
           const updatedProfile = {
             ...companyProfile,
             settings: {
               ...companyProfile.settings,
-              invoice_template: templateSettings.invoice_template,
-              selectedTemplate: templateSettings.selectedTemplate,
-              templateCustomColors: templateSettings.templateCustomColors,
+              invoiceTemplate: templateSettings.invoiceTemplate,
+              documentTemplates: templateSettings.documentTemplates,
             },
           };
 

@@ -127,7 +127,12 @@ const formatDaysMessage = (days, type = 'reminder') => {
  * Get invoice status badge config
  */
 function getInvoiceStatusBadge(invoice) {
-  const status = invoice.status || 'draft';
+  let status = invoice.status || 'draft';
+  
+  // Handle proto enum default value (STATUS_UNSPECIFIED = 0 -> 'unspecified')
+  if (status === 'unspecified') {
+    status = 'draft';
+  }
 
   // DEV-ONLY: Assert status is valid
   assertValidInvoiceStatus(status, 'getInvoiceStatusBadge');

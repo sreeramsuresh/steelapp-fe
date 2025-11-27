@@ -107,26 +107,43 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   });
 
   // Load settings from company
+  // Reads from unified invoiceTemplate format: { id, name, colors, settings }
   useEffect(() => {
-    if (company?.settings?.invoiceTemplate) {
-      const mergedSettings = mergeTemplateSettings(company.settings.invoiceTemplate);
-      setSettings(mergedSettings);
-      setOriginalSettings(mergedSettings);
+    const invoiceTemplate = company?.settings?.invoiceTemplate;
+
+    if (invoiceTemplate) {
+      // Load advanced settings (layout, typography, etc.)
+      if (invoiceTemplate.settings) {
+        const mergedSettings = mergeTemplateSettings(invoiceTemplate.settings);
+        setSettings(mergedSettings);
+        setOriginalSettings(mergedSettings);
+      } else {
+        // Fallback: use invoiceTemplate directly (old format compatibility)
+        const mergedSettings = mergeTemplateSettings(invoiceTemplate);
+        setSettings(mergedSettings);
+        setOriginalSettings(mergedSettings);
+      }
+
+      // Load selected template ID (Classic, Custom, Elegant, Print Ready)
+      if (invoiceTemplate.id) {
+        setSelectedTemplateId(invoiceTemplate.id);
+        setOriginalTemplateId(invoiceTemplate.id);
+      }
+
+      // Load custom colors - compare against base template to detect customization
+      if (invoiceTemplate.colors) {
+        const baseTemplate = INVOICE_TEMPLATES[invoiceTemplate.id] || INVOICE_TEMPLATES.standard;
+        // Check if colors differ from base template
+        if (invoiceTemplate.colors.primary !== baseTemplate.colors.primary) {
+          setCustomColors(invoiceTemplate.colors);
+          setOriginalCustomColors(invoiceTemplate.colors);
+        }
+      }
     } else if (company && !originalSettings) {
       // Only set defaults if we have company data and haven't set original settings yet
       const defaults = getDefaultTemplateSettings();
       setSettings(defaults);
       setOriginalSettings(defaults);
-    }
-
-    // Load selected template (Classic, Custom, Elegant, Print Ready)
-    if (company?.settings?.selectedTemplate) {
-      setSelectedTemplateId(company.settings.selectedTemplate);
-      setOriginalTemplateId(company.settings.selectedTemplate);
-    }
-    if (company?.settings?.templateCustomColors) {
-      setCustomColors(company.settings.templateCustomColors);
-      setOriginalCustomColors(company.settings.templateCustomColors);
     }
 
     // Load document template colors
@@ -139,7 +156,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setDocumentTemplates(defaultDocTemplates);
       setOriginalDocumentTemplates(defaultDocTemplates);
     }
-  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.selectedTemplate, company?.settings?.templateCustomColors, company?.settings?.documentTemplates]); // Only re-run when company ID or template changes
+  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.documentTemplates]); // Only re-run when company ID or template changes
 
   // Check for changes
   useEffect(() => {
@@ -266,11 +283,21 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     setIsSaving(true);
 
     try {
-      // Save both advanced settings AND selected template AND document templates
+      // Get base template colors and merge with any custom overrides
+      const baseTemplate = INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
+      const finalColors = customColors
+        ? { ...baseTemplate.colors, ...customColors }
+        : baseTemplate.colors;
+
+      // Save in unified invoiceTemplate format compatible with backend PDF generation
+      // Backend reads: company.settings.invoiceTemplate.colors.primary
       await onSave({
-        invoice_template: settings,
-        selectedTemplate: selectedTemplateId,
-        templateCustomColors: customColors,
+        invoiceTemplate: {
+          id: selectedTemplateId,
+          name: baseTemplate.name,
+          colors: finalColors,
+          settings: settings,  // Advanced settings (layout, typography, etc.)
+        },
         documentTemplates,
       });
       setOriginalSettings(settings);

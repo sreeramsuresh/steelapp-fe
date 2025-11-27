@@ -2694,7 +2694,43 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
               <div>
                 <div className="font-semibold mb-2">Payments</div>
                 <div className="space-y-2">
-                  {(paymentDrawerInvoice.payments || []).length === 0 && (
+                  {/* Show Advance Payment if exists */}
+                  {(() => {
+                    const advanceAmount = paymentDrawerInvoice.advanceReceived || paymentDrawerInvoice.advance_received || 0;
+                    const advanceMethod = paymentDrawerInvoice.modeOfPayment || paymentDrawerInvoice.mode_of_payment || 'cash';
+                    const advancePaymentMode = PAYMENT_MODES[advanceMethod] || PAYMENT_MODES.other;
+                    if (advanceAmount > 0) {
+                      return (
+                        <div className={`p-2 rounded border-2 ${
+                          isDarkMode ? 'bg-teal-900/30 border-teal-700' : 'bg-teal-50 border-teal-300'
+                        }`}>
+                          <div className="flex justify-between items-start text-sm">
+                            <div className="flex-1">
+                              <div className="font-medium flex items-center gap-2">
+                                {formatCurrency(advanceAmount)}
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  isDarkMode ? 'bg-teal-800 text-teal-200' : 'bg-teal-200 text-teal-800'
+                                }`}>
+                                  Advance
+                                </span>
+                              </div>
+                              <div className="opacity-70">
+                                {advancePaymentMode.icon} {advancePaymentMode.label}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div>{formatDate(paymentDrawerInvoice.invoiceDate)}</div>
+                              <div className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>At Invoice</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                  {/* Show "No payments" only if no advance AND no recorded payments */}
+                  {(paymentDrawerInvoice.payments || []).length === 0 && 
+                   !(paymentDrawerInvoice.advanceReceived || paymentDrawerInvoice.advance_received || 0) && (
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
                   {(paymentDrawerInvoice.payments || []).map((p, idx) => {

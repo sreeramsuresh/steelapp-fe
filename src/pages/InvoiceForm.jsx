@@ -60,7 +60,7 @@ import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } fro
 // AutoSave removed - was causing status bug on new invoices
 import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
 import useBulkActions, { BulkCheckbox, BulkActionsToolbar } from '../hooks/useBulkActions';
-import useInvoiceTemplates, { TemplateSelector, RecurringInvoiceSettings } from '../hooks/useInvoiceTemplates';
+import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
 import useAccessibility, { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
@@ -1352,23 +1352,10 @@ const InvoiceForm = ({ onSave }) => {
     getId: (item) => item.id,
   });
 
-  // Invoice templates - synced with company settings
-  const {
-    selectedTemplateId,
-    currentTemplate,
-    customColors,
-    templates: availableTemplates,
-    selectTemplate,
-    updateColors,
-    resetColors,
-    recurringSettings,
-    toggleRecurring,
-    updateRecurringSettings,
-    isSaving: isSavingTemplate,
-  } = useInvoiceTemplates('standard', company);
+  // Invoice templates - read from company settings (edit in Company Settings page)
+  const { currentTemplate } = useInvoiceTemplates('standard', company);
 
-  // Template settings modal
-  const [showTemplateSettings, setShowTemplateSettings] = useState(false);
+  // Template settings now managed in Company Settings only
 
   // Update pinned products when data loads
   useEffect(() => {
@@ -2729,22 +2716,6 @@ const InvoiceForm = ({ onSave }) => {
               </div>
               
               <div className="hidden md:flex gap-2 items-start relative">
-                {/* Template Selector */}
-                <button
-                  onClick={() => setShowTemplateSettings(!showTemplateSettings)}
-                  className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                    isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border border-gray-600'
-                      : 'text-gray-700 hover:bg-gray-100 border border-gray-300'
-                  }`}
-                  aria-label="Invoice template"
-                  title="Invoice Template"
-                >
-                  <span>{currentTemplate.preview}</span>
-                  <span className="hidden lg:inline">{currentTemplate.name}</span>
-                  <ChevronDown className="h-3 w-3" />
-                </button>
-
                 {/* Settings Icon */}
                 <button
                   onClick={() => setShowFormSettings(!showFormSettings)}
@@ -2771,47 +2742,6 @@ const InvoiceForm = ({ onSave }) => {
                     }));
                   }}
                 />
-
-                {/* Template Settings Panel */}
-                {showTemplateSettings && (
-                  <div 
-                    className={`absolute right-0 top-full mt-2 w-96 p-4 rounded-lg shadow-xl border z-50 ${
-                      isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                    }`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Invoice Template
-                      </h3>
-                      <button
-                        onClick={() => setShowTemplateSettings(false)}
-                        className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <TemplateSelector
-                      templates={availableTemplates}
-                      selectedId={selectedTemplateId}
-                      onSelect={(templateId) => {
-                        selectTemplate(templateId);
-                        // Palette stays open until X button is clicked or user clicks outside
-                      }}
-                      customColor={customColors}
-                      onColorChange={updateColors}
-                      isDarkMode={isDarkMode}
-                    />
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <RecurringInvoiceSettings
-                        settings={recurringSettings}
-                        onToggle={toggleRecurring}
-                        onUpdate={updateRecurringSettings}
-                        isDarkMode={isDarkMode}
-                      />
-                    </div>
-                  </div>
-                )}
 
                 <Button
                   variant="outline"
