@@ -678,6 +678,24 @@ const ImportOrderDetails = () => {
                   {incoterms}
                 </p>
               </div>
+              {/* Supplier VAT Status - UAE VAT Compliance */}
+              {(order.supplier_vat_status || order.supplierVatStatus) && (
+                <div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Supplier VAT Status</p>
+                  <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {order.supplier_vat_status || order.supplierVatStatus}
+                  </p>
+                </div>
+              )}
+              {/* Supplier TRN - UAE VAT Compliance */}
+              {(order.supplier_trn || order.supplierTrn) && (
+                <div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Supplier TRN</p>
+                  <p className={`font-medium font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {order.supplier_trn || order.supplierTrn}
+                  </p>
+                </div>
+              )}
               {lcNumber && (
                 <div className="md:col-span-2">
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>LC Number</p>
