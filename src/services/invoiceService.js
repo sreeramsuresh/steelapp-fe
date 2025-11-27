@@ -19,7 +19,6 @@ const transformInvoiceForServer = (invoiceData) => {
     other_charges: invoiceData.otherCharges || 0,
     mode_of_payment: invoiceData.modeOfPayment || null,
     cheque_number: invoiceData.chequeNumber || null,
-    advance_received: invoiceData.advanceReceived || 0,
     // Warehouse data
     warehouse_id: invoiceData.warehouseId || null,
     warehouse_name: invoiceData.warehouseName || '',
@@ -220,5 +219,66 @@ export const invoiceService = {
 
   async voidInvoicePayment(invoiceId, paymentId, reason) {
     return apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
+  },
+
+  // ============================================
+  // Stock Movement Integration (Phase 3)
+  // ============================================
+
+  /**
+   * Get stock movements linked to an invoice
+   * @param {number} invoiceId - Invoice ID
+   * @returns {Promise<Array>} Array of stock movements (OUT for deductions, IN for returns)
+   */
+  async getInvoiceStockMovements(invoiceId) {
+    const response = await apiClient.get(`/stock-movements/by-reference/INVOICE/${invoiceId}`);
+    // Response format: { data: [...movements] }
+    return response.data || response || [];
+  },
+
+  /**
+   * Create stock movements for an invoice (deduct inventory)
+   * Called when issuing an invoice manually triggers stock deduction
+   *
+   * @param {number} invoiceId - Invoice ID
+   * @param {number} warehouseId - Optional: Source warehouse (uses default if not specified)
+   * @returns {Promise<Object>} Response with created movements
+   */
+  async createStockMovements(invoiceId, warehouseId = null) {
+    const payload = { invoice_id: invoiceId };
+    if (warehouseId) {
+      payload.warehouse_id = warehouseId;
+    }
+    return apiClient.post('/stock-movements/from-invoice', payload);
+  },
+
+  /**
+   * Reverse stock movements for an invoice (return inventory)
+   * Called when cancelling an invoice or creating a credit note
+   *
+   * @param {number} invoiceId - Invoice ID
+   * @param {string} reason - Reason for reversal
+   * @param {number} creditNoteId - Optional: Link to credit note if applicable
+   * @returns {Promise<Object>} Response with created reversal movements
+   */
+  async reverseStockMovements(invoiceId, reason = 'Invoice cancelled', creditNoteId = null) {
+    const payload = {
+      invoice_id: invoiceId,
+      reason,
+    };
+    if (creditNoteId) {
+      payload.credit_note_id = creditNoteId;
+    }
+    return apiClient.post('/stock-movements/reverse-invoice', payload);
+  },
+
+  /**
+   * Check if invoice has stock movements
+   * @param {number} invoiceId - Invoice ID
+   * @returns {Promise<boolean>} True if movements exist
+   */
+  async hasStockMovements(invoiceId) {
+    const movements = await this.getInvoiceStockMovements(invoiceId);
+    return movements.length > 0;
   },
 };

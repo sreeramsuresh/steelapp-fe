@@ -5,7 +5,6 @@ import {
   Download,
   Trash2,
   Search,
-  FileDown,
   Truck,
   Plus,
   X,
@@ -16,12 +15,8 @@ import {
   ChevronRight,
   Bell,
   RotateCcw,
-  FileText,
   Phone,
-  DollarSign,
   CircleDollarSign,
-  FileMinus,
-  Award,
   ReceiptText,
   Lock,
   MoreVertical,
@@ -32,7 +27,7 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { invoiceService } from '../services/dataService';
 import { companyService } from '../services';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
-import { deliveryNotesAPI, accountStatementsAPI, apiClient } from '../services/api';
+import { deliveryNotesAPI } from '../services/api';
 import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
 import { uuid } from '../utils/uuid';
@@ -49,6 +44,21 @@ import { guardInvoicesDev } from '../utils/devGuards';
 import { getInvoiceActionButtonConfig } from './invoiceActionsConfig';
 import { useInvoicePresence } from '../hooks/useInvoicePresence';
 import { NewBadge } from '../components/shared';
+import AddPaymentForm from '../components/payments/AddPaymentForm';
+
+/**
+ * Void payment reasons for the dropdown
+ */
+const VOID_REASONS = [
+  { value: 'cheque_bounced', label: 'Cheque bounced' },
+  { value: 'duplicate_entry', label: 'Duplicate entry' },
+  { value: 'wrong_amount', label: 'Wrong amount' },
+  { value: 'wrong_invoice', label: 'Wrong invoice' },
+  { value: 'customer_refund', label: 'Customer refund' },
+  { value: 'payment_cancelled', label: 'Payment cancelled' },
+  { value: 'data_entry_error', label: 'Data entry error' },
+  { value: 'other', label: 'Other' },
+];
 
 /**
  * ============================================================================
@@ -105,7 +115,7 @@ const assertIconInvariants = (iconKey, enabled, invoice) => {
   const paymentStatus = invoice.paymentStatus || 'unpaid';
 
   switch (iconKey) {
-    case 'edit':
+    case 'edit': {
       // Spec: Edit disabled for issued/deleted invoices EXCEPT within 24h edit window
       // Check if within 24-hour edit window for issued invoices
       const isIssuedStatus = ['issued', 'sent'].includes(invoice.status);
@@ -131,6 +141,7 @@ const assertIconInvariants = (iconKey, enabled, invoice) => {
         });
       }
       break;
+    }
 
     case 'creditNote':
       // Spec: Credit Note ONLY for issued invoices
@@ -364,6 +375,11 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [isSavingPayment, setIsSavingPayment] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
+  // Void payment dropdown state
+  const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
+  const [voidCustomReason, setVoidCustomReason] = useState('');
+  const [isVoidingPayment, setIsVoidingPayment] = useState(false);
+
   // Presence tracking for payment drawer
   const { otherSessions, updateMode } = useInvoicePresence(
     showRecordPaymentDrawer ? paymentDrawerInvoice?.id : null,
@@ -518,6 +534,37 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   }, [searchParams]);
 
+  // Auto-open payment drawer when navigating with openPayment query param
+  // (e.g., from Create Invoice success modal)
+  useEffect(() => {
+    const openPaymentId = searchParams.get('openPayment');
+    if (openPaymentId && invoices.length > 0 && !showRecordPaymentDrawer) {
+      // Find the invoice in the loaded list
+      const invoiceToOpen = invoices.find(inv =>
+        String(inv.id) === String(openPaymentId)
+      );
+
+      if (invoiceToOpen) {
+        // Fetch full invoice data (including payments) before opening drawer
+        // List view doesn't include payments array, need to call getInvoice
+        invoiceService.getInvoice(invoiceToOpen.id)
+          .then(fullInvoiceData => {
+            setPaymentDrawerInvoice(fullInvoiceData);
+            setShowRecordPaymentDrawer(true);
+          })
+          .catch(error => {
+            console.error('Error loading invoice for payment drawer:', error);
+            notificationService.error('Failed to load invoice details');
+          });
+
+        // Clear the query param from URL to prevent re-opening on refresh
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('openPayment');
+        window.history.replaceState({}, '', `${window.location.pathname}${newParams.toString() ? '?' + newParams.toString() : ''}`);
+      }
+    }
+  }, [searchParams, invoices, showRecordPaymentDrawer]);
+
   // Clear selections when filters or search changes (Gmail behavior)
   useEffect(() => {
     setSelectedInvoiceIds(new Set());
@@ -533,6 +580,18 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdownId]);
+
+  // Close void payment dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (voidDropdownPaymentId && !event.target.closest('.void-dropdown')) {
+        setVoidDropdownPaymentId(null);
+        setVoidCustomReason('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [voidDropdownPaymentId]);
 
   // Client-side payment status and card filtering
   // GOLD STANDARD: Use backend-provided payment status instead of calculating
@@ -913,6 +972,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const handleCloseRecordPaymentDrawer = () => {
     setShowRecordPaymentDrawer(false);
     setPaymentDrawerInvoice(null);
+    // Reset void dropdown state
+    setVoidDropdownPaymentId(null);
+    setVoidCustomReason('');
   };
 
   const handleCalculateCommission = async (invoice) => {
@@ -946,13 +1008,16 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const handleAddPayment = async ({ amount, method, reference_no, notes, payment_date }) => {
+  const handleAddPayment = async (paymentData) => {
     // Guard against double-submit
     if (isSavingPayment) return;
-    
+
     const inv = paymentDrawerInvoice;
     if (!inv) return;
     const outstanding = Number(inv.outstanding || 0);
+
+    // Extract amount - shared AddPaymentForm sends just 'amount'
+    const amount = paymentData.amount;
     if (!(Number(amount) > 0)) {
       notificationService.error('Amount must be greater than 0');
       return;
@@ -961,25 +1026,32 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       notificationService.error('Amount exceeds outstanding balance');
       return;
     }
-    
+
     setIsSavingPayment(true);
+
+    // Accept both camelCase (from shared AddPaymentForm) and snake_case (legacy)
+    // Shared AddPaymentForm outputs: { amount, method, paymentMethod, referenceNo, referenceNumber, notes, paymentDate }
+    const method = paymentData.method || paymentData.paymentMethod;
+    const referenceNo = paymentData.referenceNo || paymentData.referenceNumber || paymentData.reference_no;
+    const notes = paymentData.notes;
+    const paymentDate = paymentData.paymentDate || paymentData.payment_date || new Date().toISOString().slice(0, 10);
 
     // Normalize to camelCase for API Gateway (which converts to snake_case for backend)
     const paymentPayload = {
-      paymentDate: payment_date || new Date().toISOString().slice(0,10),
+      paymentDate,
       amount: Number(amount),
       method,
-      referenceNo: reference_no,
+      referenceNo,
       notes,
     };
 
     // Optimistic UI update (frontend state uses snake_case from backend)
     const newPayment = {
       id: uuid(),
-      payment_date: payment_date || new Date().toISOString().slice(0,10),
+      payment_date: paymentDate,
       amount: Number(amount),
       method,
-      reference_no,
+      reference_no: referenceNo,
       notes,
       created_at: new Date().toISOString(),
     };
@@ -1055,85 +1127,55 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const handleAddPaymentBatch = async ({ payments }) => {
-    // Guard against double-submit
-    if (isSavingPayment) return;
-    
+  /**
+   * Void a specific payment with a reason
+   * @param {string|number} paymentId - The payment ID to void
+   * @param {string} reason - The void reason (from VOID_REASONS or custom)
+   */
+  const handleVoidPayment = async (paymentId, reason) => {
     const inv = paymentDrawerInvoice;
-    if (!inv || !payments || payments.length === 0) return;
+    if (!inv || !paymentId || !reason) return;
 
-    setIsSavingPayment(true);
+    // Find the payment to void
+    const paymentToVoid = (inv.payments || []).find(p => p.id === paymentId);
+    if (!paymentToVoid || paymentToVoid.voided) return;
 
-    try {
-      // Call batch API
-      await invoiceService.addInvoicePaymentsBatch(inv.id, { payments });
+    setIsVoidingPayment(true);
 
-      notificationService.success(`${payments.length} payment(s) recorded successfully!`);
-
-      // Fetch fresh drawer data
-      const freshData = await invoiceService.getInvoice(inv.id);
-      setPaymentDrawerInvoice(freshData);
-
-      // Update the invoice in the list
-      setInvoices(prevInvoices =>
-        prevInvoices.map(invoice =>
-          invoice.id === inv.id
-            ? {
-              ...invoice,
-              payment_status: freshData.payment_status,
-              received: freshData.received,
-              outstanding: freshData.outstanding,
-              balance_due: freshData.outstanding,
-            }
-            : invoice,
-        ),
-      );
-    } catch (error) {
-      console.error('Error recording batch payments:', error);
-      notificationService.error(error?.response?.data?.error || 'Failed to record payments');
-
-      // Reload drawer on error
-      try {
-        const freshData = await invoiceService.getInvoice(inv.id);
-        setPaymentDrawerInvoice(freshData);
-      } catch (e) {
-        console.error('Error reloading invoice:', e);
-      }
-    } finally {
-      setIsSavingPayment(false);
-    }
-  };
-
-  const handleVoidLastPayment = async () => {
-    const inv = paymentDrawerInvoice;
-    if (!inv) return;
-    const payments = (inv.payments || []).filter(p => !p.voided);
-    if (payments.length === 0) return;
-
-    const last = payments[payments.length - 1];
+    // Get the current user for audit trail
+    const currentUser = authService.getCurrentUser();
+    const voidedBy = currentUser?.name || currentUser?.email || 'User';
 
     // Optimistic UI update
     const updatedPayments = inv.payments.map(p =>
-      p.id === last.id ? { ...p, voided: true, voided_at: new Date().toISOString() } : p,
+      p.id === paymentId
+        ? {
+            ...p,
+            voided: true,
+            voided_at: new Date().toISOString(),
+            void_reason: reason,
+            voided_by: voidedBy,
+          }
+        : p,
     );
     const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
-    const outstanding = Math.max(0, +((inv.invoiceAmount || 0) - received).toFixed(2));
-    let status = 'unpaid';
-    if (outstanding === 0) status = 'paid';
-    else if (outstanding < (inv.invoiceAmount || 0)) status = 'partially_paid';
+    const outstanding = Math.max(0, +((inv.invoiceAmount || inv.total || 0) - received).toFixed(2));
+    let payment_status = 'unpaid';
+    if (outstanding === 0) payment_status = 'paid';
+    else if (outstanding < (inv.invoiceAmount || inv.total || 0)) payment_status = 'partially_paid';
 
     const updatedInv = {
       ...inv,
       payments: updatedPayments,
       received,
       outstanding,
-      status,
+      payment_status,
     };
 
     setPaymentDrawerInvoice(updatedInv);
 
     try {
-      await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
+      await invoiceService.voidInvoicePayment(inv.id, paymentId, reason);
 
       notificationService.success('Payment voided successfully');
 
@@ -1147,17 +1189,23 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
           invoice.id === inv.id
             ? {
               ...invoice,
-              payment_status: freshData.payment_status,
+              payment_status: freshData.payment_status || freshData.paymentStatus,
+              paymentStatus: freshData.payment_status || freshData.paymentStatus,
               received: freshData.received,
               outstanding: freshData.outstanding,
               balance_due: freshData.outstanding,
+              balanceDue: freshData.outstanding,
             }
             : invoice,
         ),
       );
+
+      // Close dropdown and reset state
+      setVoidDropdownPaymentId(null);
+      setVoidCustomReason('');
     } catch (error) {
       console.error('Error voiding payment:', error);
-      notificationService.error('Failed to void payment');
+      notificationService.error(error?.response?.data?.error || 'Failed to void payment');
 
       // Reload drawer on error
       try {
@@ -1166,6 +1214,31 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       } catch (e) {
         console.error('Error reloading invoice:', e);
       }
+    } finally {
+      setIsVoidingPayment(false);
+    }
+  };
+
+  /**
+   * Handle selecting a void reason from the dropdown
+   */
+  const handleSelectVoidReason = (paymentId, reasonValue) => {
+    if (reasonValue === 'other') {
+      // Keep dropdown open for custom reason input
+      return;
+    }
+    const reasonObj = VOID_REASONS.find(r => r.value === reasonValue);
+    if (reasonObj) {
+      handleVoidPayment(paymentId, reasonObj.label);
+    }
+  };
+
+  /**
+   * Handle submitting a custom void reason
+   */
+  const handleSubmitCustomVoidReason = (paymentId) => {
+    if (voidCustomReason.trim()) {
+      handleVoidPayment(paymentId, voidCustomReason.trim());
     }
   };
 
@@ -2690,79 +2763,228 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 </div>
               </div>
 
-              {/* Payments Timeline */}
+              {/* Payments History - Grid Layout */}
               <div>
-                <div className="font-semibold mb-2">Payments</div>
-                <div className="space-y-2">
-                  {/* Show Advance Payment if exists */}
-                  {(() => {
-                    const advanceAmount = paymentDrawerInvoice.advanceReceived || paymentDrawerInvoice.advance_received || 0;
-                    const advanceMethod = paymentDrawerInvoice.modeOfPayment || paymentDrawerInvoice.mode_of_payment || 'cash';
-                    const advancePaymentMode = PAYMENT_MODES[advanceMethod] || PAYMENT_MODES.other;
-                    if (advanceAmount > 0) {
-                      return (
-                        <div className={`p-2 rounded border-2 ${
-                          isDarkMode ? 'bg-teal-900/30 border-teal-700' : 'bg-teal-50 border-teal-300'
-                        }`}>
-                          <div className="flex justify-between items-start text-sm">
-                            <div className="flex-1">
-                              <div className="font-medium flex items-center gap-2">
-                                {formatCurrency(advanceAmount)}
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  isDarkMode ? 'bg-teal-800 text-teal-200' : 'bg-teal-200 text-teal-800'
+                <div className="font-semibold mb-3">Payment History</div>
+
+                {/* Show "No payments" if no recorded payments */}
+                {(paymentDrawerInvoice.payments || []).length === 0 ? (
+                  <div className={`text-sm p-4 rounded-lg border ${
+                    isDarkMode ? 'bg-gray-800/50 border-gray-700 text-gray-400' : 'bg-gray-50 border-gray-200 text-gray-500'
+                  }`}>
+                    No payments recorded yet.
+                  </div>
+                ) : (
+                  <div className={`rounded-lg border ${
+                    isDarkMode ? 'border-gray-700' : 'border-gray-200'
+                  }`}>
+                    {/* Header Row */}
+                    <div className={`grid grid-cols-12 gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
+                      isDarkMode ? 'bg-gray-800 text-gray-400 border-b border-gray-700' : 'bg-gray-100 text-gray-600 border-b border-gray-200'
+                    }`}>
+                      <div className="col-span-2">Date</div>
+                      <div className="col-span-3">Method</div>
+                      <div className="col-span-2">Ref</div>
+                      <div className="col-span-3 text-right">Amount</div>
+                      <div className="col-span-2 text-center">Action</div>
+                    </div>
+
+                    {/* Payment Rows - Sorted oldest first (ascending by date) */}
+                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {[...(paymentDrawerInvoice.payments || [])]
+                        .sort((a, b) => {
+                          const dateA = new Date(a.paymentDate || a.payment_date || 0);
+                          const dateB = new Date(b.paymentDate || b.payment_date || 0);
+                          return dateA - dateB; // Oldest first
+                        })
+                        .map((p, idx) => {
+                        // Normalize payment method from various field names and formats
+                        const methodValue = p.paymentMethod || p.payment_method || p.method || '';
+                        // Strip PAYMENT_METHOD_ prefix from proto enum and normalize
+                        const normalizedMethod = String(methodValue)
+                          .replace(/^PAYMENT_METHOD_/i, '')
+                          .toLowerCase()
+                          .trim()
+                          .replace(/\s+/g, '_');
+                        const paymentMode = PAYMENT_MODES[normalizedMethod] || PAYMENT_MODES.other;
+                        const isVoided = p.voided || p.voidedAt || p.voided_at;
+                        const voidReason = p.voidReason || p.void_reason;
+                        const voidedBy = p.voidedBy || p.voided_by;
+                        const voidedAt = p.voidedAt || p.voided_at;
+                        const isDropdownOpen = voidDropdownPaymentId === p.id;
+
+                        return (
+                          <div key={p.id || idx} className={`${
+                            isDarkMode ? 'bg-gray-900/50' : 'bg-white'
+                          } ${isVoided ? 'opacity-70' : ''}`}>
+                            {/* Main Payment Row */}
+                            <div className="grid grid-cols-12 gap-2 px-3 py-3 items-center text-sm">
+                              {/* Date */}
+                              <div className={`col-span-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                {formatDate(p.paymentDate || p.payment_date)}
+                              </div>
+
+                              {/* Method with Icon */}
+                              <div className={`col-span-3 flex items-center gap-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                <span>{paymentMode.icon}</span>
+                                <span className="truncate">{paymentMode.label}</span>
+                              </div>
+
+                              {/* Reference */}
+                              <div className={`col-span-2 truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {p.referenceNo || p.referenceNumber || p.reference_no || '-'}
+                              </div>
+
+                              {/* Amount */}
+                              <div className={`col-span-3 text-right font-medium ${
+                                isVoided
+                                  ? 'line-through text-gray-400'
+                                  : isDarkMode ? 'text-green-400' : 'text-green-600'
+                              }`}>
+                                {formatCurrency(p.amount || 0)}
+                              </div>
+
+                              {/* Action Column */}
+                              <div className="col-span-2 flex justify-center relative">
+                                {isVoided ? (
+                                  <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
+                                    isDarkMode ? 'bg-red-900/50 text-red-400' : 'bg-red-100 text-red-700'
+                                  }`}>
+                                    VOIDED
+                                  </span>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setVoidDropdownPaymentId(isDropdownOpen ? null : p.id);
+                                        setVoidCustomReason('');
+                                      }}
+                                      disabled={isVoidingPayment}
+                                      className={`p-1.5 rounded transition-colors ${
+                                        isDarkMode
+                                          ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30'
+                                          : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+                                      } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      title="Void payment"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+
+                                    {/* Void Reason Dropdown - z-[9999] to appear above drawer (z-[1100]) */}
+                                    {isDropdownOpen && (
+                                      <div
+                                        className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
+                                          isDarkMode
+                                            ? 'bg-gray-800 border-gray-700'
+                                            : 'bg-white border-gray-200'
+                                        }`}
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <div className={`px-3 py-2 text-xs font-semibold border-b ${
+                                          isDarkMode ? 'text-gray-400 border-gray-700' : 'text-gray-500 border-gray-200'
+                                        }`}>
+                                          Select void reason
+                                        </div>
+                                        <div className="py-1">
+                                          {VOID_REASONS.map((reason) => (
+                                            <button
+                                              key={reason.value}
+                                              onClick={() => handleSelectVoidReason(p.id, reason.value)}
+                                              disabled={isVoidingPayment}
+                                              className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                                                isDarkMode
+                                                  ? 'text-gray-300 hover:bg-gray-700'
+                                                  : 'text-gray-700 hover:bg-gray-100'
+                                              } ${isVoidingPayment ? 'opacity-50' : ''}`}
+                                            >
+                                              {reason.label}
+                                            </button>
+                                          ))}
+                                        </div>
+
+                                        {/* Custom reason input (shown when "Other" would be selected) */}
+                                        <div className={`px-3 py-2 border-t ${
+                                          isDarkMode ? 'border-gray-700' : 'border-gray-200'
+                                        }`}>
+                                          <input
+                                            type="text"
+                                            value={voidCustomReason}
+                                            onChange={(e) => setVoidCustomReason(e.target.value)}
+                                            placeholder="Or type custom reason..."
+                                            className={`w-full px-2 py-1.5 text-sm rounded border ${
+                                              isDarkMode
+                                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                                            }`}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter' && voidCustomReason.trim()) {
+                                                handleSubmitCustomVoidReason(p.id);
+                                              }
+                                            }}
+                                          />
+                                          {voidCustomReason.trim() && (
+                                            <button
+                                              onClick={() => handleSubmitCustomVoidReason(p.id)}
+                                              disabled={isVoidingPayment}
+                                              className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                                                isDarkMode
+                                                  ? 'bg-red-600 text-white hover:bg-red-700'
+                                                  : 'bg-red-600 text-white hover:bg-red-700'
+                                              } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                              {isVoidingPayment ? 'Voiding...' : 'Void with this reason'}
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Notes Row (if present) */}
+                            {(p.notes || p.receiptNumber) && (
+                              <div className={`px-3 pb-2 -mt-1 ${
+                                isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                              }`}>
+                                {p.receiptNumber && (
+                                  <div className={`text-xs font-semibold ${
+                                    isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                                  }`}>
+                                    Receipt: {p.receiptNumber}
+                                  </div>
+                                )}
+                                {p.notes && (
+                                  <div className="text-xs mt-0.5 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                    {p.notes}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Voided Info Row (if voided) */}
+                            {isVoided && (
+                              <div className={`px-3 pb-2 -mt-1`}>
+                                <div className={`text-xs flex items-center gap-1 ${
+                                  isDarkMode ? 'text-red-400' : 'text-red-600'
                                 }`}>
-                                  Advance
-                                </span>
-                              </div>
-                              <div className="opacity-70">
-                                {advancePaymentMode.icon} {advancePaymentMode.label}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div>{formatDate(paymentDrawerInvoice.invoiceDate)}</div>
-                              <div className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>At Invoice</div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                  {/* Show "No payments" only if no advance AND no recorded payments */}
-                  {(paymentDrawerInvoice.payments || []).length === 0 && 
-                   !(paymentDrawerInvoice.advanceReceived || paymentDrawerInvoice.advance_received || 0) && (
-                    <div className="text-sm opacity-70">No payments recorded yet.</div>
-                  )}
-                  {(paymentDrawerInvoice.payments || []).map((p, idx) => {
-                    const paymentIndex = idx + 1;
-                    const paymentMode = PAYMENT_MODES[p.paymentMethod || p.method] || PAYMENT_MODES.other;
-                    return (
-                      <div key={p.id || idx} className={`p-2 rounded border ${
-                        p.voided ? 'opacity-60 line-through' : ''
-                      }`}>
-                        <div className="flex justify-between items-start text-sm">
-                          <div className="flex-1">
-                            <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">
-                              {paymentMode.icon} {paymentMode.label}
-                              {(p.referenceNo || p.referenceNumber) && <> • {p.referenceNo || p.referenceNumber}</>}
-                            </div>
-                            {p.receiptNumber && (
-                              <div className="text-xs mt-1 text-teal-600 font-semibold">
-                                Receipt: {p.receiptNumber}
+                                  <AlertCircle size={12} />
+                                  <span>
+                                    Voided: {voidReason || 'No reason provided'}
+                                    {voidedBy && ` (${voidedBy}`}
+                                    {voidedAt && `, ${formatDate(voidedAt)}`}
+                                    {voidedBy && ')'}
+                                  </span>
+                                </div>
                               </div>
                             )}
                           </div>
-                          <div className="text-right">
-                            <div>{formatDate(p.paymentDate)}</div>
-                            {p.voided && <div className="text-xs text-red-600">Voided</div>}
-                          </div>
-                        </div>
-                        {p.notes && <div className="text-xs mt-1 opacity-80">{p.notes}</div>}
-                      </div>
-                    );
-                  })}
-                </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Add Payment Form */}
@@ -2770,26 +2992,16 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 <AddPaymentForm
                   outstanding={paymentDrawerInvoice.outstanding || 0}
                   onSave={handleAddPayment}
-                  onSaveBatch={handleAddPaymentBatch}
+                  isSaving={isSavingPayment}
                 />
               ) : (
-                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
+                <div className={`p-3 rounded-lg border flex items-center gap-2 ${
+                  isDarkMode
+                    ? 'border-green-700 bg-green-900/30 text-green-400'
+                    : 'border-green-300 bg-green-50 text-green-700'
+                }`}>
                   <CheckCircle size={18} />
                   <span className="font-medium">Invoice Fully Paid</span>
-                </div>
-              )}
-
-              {/* Quick Actions */}
-              {paymentDrawerInvoice.outstanding > 0 &&
-               paymentDrawerInvoice.payments &&
-               paymentDrawerInvoice.payments.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="px-3 py-2 rounded border"
-                    onClick={handleVoidLastPayment}
-                  >
-                    <Trash2 size={16} className="inline mr-1"/>Void last
-                  </button>
                 </div>
               )}
             </div>
@@ -2808,309 +3020,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
-    </div>
-  );
-};
-
-// Multi-Payment Form Component - supports multiple payment entries
-const AddPaymentForm = ({ outstanding = 0, onSave, onSaveBatch }) => {
-  const defaultPayment = () => ({
-    id: Date.now(),
-    date: new Date().toISOString().slice(0,10),
-    amount: '',
-    method: 'cash',
-    reference: '',
-    notes: '',
-  });
-
-  const [payments, setPayments] = useState([defaultPayment()]);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
-
-  const updatePayment = (id, field, value) => {
-    setPayments(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
-  };
-
-  const addPaymentRow = () => {
-    setPayments(prev => [...prev, defaultPayment()]);
-  };
-
-  const removePaymentRow = (id) => {
-    if (payments.length > 1) {
-      setPayments(prev => prev.filter(p => p.id !== id));
-    }
-  };
-
-  // Calculate totals
-  const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-  const remainingAfterBatch = Math.max(0, outstanding - totalAmount);
-
-  // Validation for each payment row
-  const isPaymentValid = (p) => {
-    const modeConfig = PAYMENT_MODES[p.method] || PAYMENT_MODES.cash;
-    return (
-      Number(p.amount) > 0 &&
-      (!modeConfig.requiresRef || (p.reference && p.reference.trim() !== ''))
-    );
-  };
-
-  // Overall validation
-  const validPayments = payments.filter(isPaymentValid);
-  const canSave = 
-    validPayments.length > 0 &&
-    totalAmount > 0 &&
-    totalAmount <= outstanding &&
-    !isSaving;
-
-  const handleSave = async () => {
-    if (!canSave) return;
-    setIsSaving(true);
-    try {
-      if (validPayments.length === 1 && onSave) {
-        // Single payment - use existing API with snake_case for backward compatibility
-        const p = validPayments[0];
-        await onSave({
-          payment_date: p.date,
-          amount: Number(p.amount),
-          method: p.method,
-          reference_no: p.reference || null,
-          notes: p.notes || null,
-        });
-      } else if (validPayments.length > 1 && onSaveBatch) {
-        // Multiple payments - use batch API with camelCase (middleware converts)
-        const paymentData = validPayments.map(p => ({
-          paymentDate: p.date,
-          amount: Number(p.amount),
-          method: p.method,
-          referenceNo: p.reference || null,
-          notes: p.notes || null,
-        }));
-        await onSaveBatch({ payments: paymentData });
-      } else if (onSave) {
-        // Fallback: send one by one with snake_case
-        for (const p of validPayments) {
-          await onSave({
-            payment_date: p.date,
-            amount: Number(p.amount),
-            method: p.method,
-            reference_no: p.reference || null,
-            notes: p.notes || null,
-          });
-        }
-      }
-
-      // Clear form after successful save
-      setPayments([defaultPayment()]);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/60 shadow-lg shadow-emerald-100/50">
-      {/* Modern gradient header */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-emerald-200/50">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-200">
-            <CircleDollarSign size={20} />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-800 text-base">Record Payment{payments.length > 1 ? 's' : ''}</h3>
-            <p className="text-xs text-emerald-600 font-medium">{payments.length} payment{payments.length > 1 ? 's' : ''} pending</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={addPaymentRow}
-          className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
-          title="Add another payment"
-        >
-          + Add Payment
-        </button>
-      </div>
-
-      {/* Modern summary card with glassmorphism */}
-      <div className="mb-4 p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-inner">
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-600">Outstanding Balance</span>
-          <button
-            type="button"
-            onClick={() => {
-              const firstEmpty = payments.find(p => !p.amount || Number(p.amount) === 0);
-              if (firstEmpty) {
-                updatePayment(firstEmpty.id, 'amount', outstanding.toString());
-              } else if (payments.length > 0) {
-                updatePayment(payments[0].id, 'amount', outstanding.toString());
-              }
-            }}
-            className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent hover:scale-105 transition-all duration-200 flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-emerald-50"
-            title="Click to apply this amount to payment"
-          >
-            {formatCurrency(outstanding)}
-            <span className="text-xs text-gray-400 font-medium">
-              ← Apply
-            </span>
-          </button>
-        </div>
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200/50 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">Batch Total:</span>
-            <span className={`font-bold ${totalAmount > outstanding ? 'text-red-500' : 'text-emerald-600'}`}>
-              {formatCurrency(totalAmount)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">Remaining:</span>
-            <span className="font-bold text-amber-600">{formatCurrency(remainingAfterBatch)}</span>
-          </div>
-        </div>
-        {totalAmount > outstanding && (
-          <div className="mt-2 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600 font-medium flex items-center gap-1">
-            <AlertCircle size={14} /> Total exceeds outstanding balance!
-          </div>
-        )}
-      </div>
-
-      {/* Payment rows with modern cards */}
-      <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
-        {payments.map((p, idx) => {
-          const modeConfig = PAYMENT_MODES[p.method] || PAYMENT_MODES.cash;
-          const isValid = isPaymentValid(p);
-          return (
-            <div key={p.id} className={`p-4 rounded-xl transition-all duration-200 ${
-              isValid 
-                ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 shadow-md shadow-emerald-100/50' 
-                : 'bg-white/80 border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300'
-            }`}>
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                    isValid ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    #{idx + 1}
-                  </span>
-                  {isValid && <CheckCircle size={14} className="text-emerald-500" />}
-                </div>
-                {payments.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removePaymentRow(p.id)}
-                    className="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
-                  >
-                    ✕ Remove
-                  </button>
-                )}
-              </div>
-              {/* Row 1: Date and Amount */}
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-                    📅 Date <span className="text-red-500 text-base font-bold">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-                    value={p.date}
-                    onChange={e => updatePayment(p.id, 'date', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-                    💰 Amount (AED) <span className="text-red-500 text-base font-bold">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="1000000"
-                    required
-                    placeholder="0.00"
-                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 font-semibold focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-                    value={p.amount}
-                    onChange={e => updatePayment(p.id, 'amount', numberInput(e.target.value))}
-                  />
-                </div>
-              </div>
-              {/* Row 2: Method and Reference */}
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-                    💳 Payment Method <span className="text-red-500 text-base font-bold">*</span>
-                  </label>
-                  <select
-                    required
-                    className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all cursor-pointer"
-                    value={p.method}
-                    onChange={e => { updatePayment(p.id, 'method', e.target.value); updatePayment(p.id, 'reference', ''); }}
-                  >
-                    {Object.values(PAYMENT_MODES).map(m => <option key={m.value} value={m.value}>{m.icon} {m.label}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-                    🔗 {modeConfig.requiresRef ? modeConfig.refLabel : 'Reference'}
-                    {modeConfig.requiresRef && <span className="text-red-500 text-base font-bold">*</span>}
-                  </label>
-                  <input
-                    placeholder={modeConfig.requiresRef ? 'Required' : 'Optional'}
-                    required={modeConfig.requiresRef}
-                    className={`px-3 py-2.5 text-sm rounded-lg border-2 w-full bg-white/80 focus:ring-2 focus:outline-none transition-all ${
-                      modeConfig.requiresRef && !p.reference 
-                        ? 'border-amber-300 focus:border-amber-400 focus:ring-amber-100' 
-                        : 'border-gray-200 focus:border-emerald-400 focus:ring-emerald-100'
-                    }`}
-                    value={p.reference}
-                    onChange={e => updatePayment(p.id, 'reference', e.target.value)}
-                  />
-                </div>
-              </div>
-              {/* Row 3: Notes */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-                  📝 Notes <span className="font-normal text-gray-400">(optional)</span>
-                </label>
-                <input
-                  placeholder="Add any notes about this payment"
-                  className="px-3 py-2.5 text-sm rounded-lg border-2 border-gray-200 w-full bg-white/80 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-                  value={p.notes}
-                  onChange={e => updatePayment(p.id, 'notes', e.target.value)}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-emerald-200/50 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${validPayments.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`}></div>
-          <span className="text-sm text-gray-600">
-            <strong className={validPayments.length > 0 ? 'text-emerald-600' : 'text-gray-500'}>{validPayments.length}</strong> of {payments.length} valid
-          </span>
-        </div>
-        <button
-          disabled={!canSave}
-          onClick={handleSave}
-          className={`px-5 py-2.5 rounded-xl font-bold transition-all duration-200 inline-flex items-center gap-2 ${
-            canSave 
-              ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-xl hover:shadow-emerald-300/50 hover:scale-105 active:scale-95' 
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {isSaving ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-              Saving...
-            </>
-          ) : (
-            <>
-              💾 Save {validPayments.length > 1 ? `${validPayments.length} Payments` : 'Payment'}
-            </>
-          )}
-        </button>
-      </div>
     </div>
   );
 };

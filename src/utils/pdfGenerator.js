@@ -530,25 +530,26 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.text(`AED ${formatNumber(totalVal)}`, pageWidth - margin, currentY, { align: 'right' });
   currentY += 8;
 
-  // ==================== ADVANCE PAYMENT & BALANCE DUE ====================
-  const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
-  if (advanceAmount > 0) {
+  // ==================== BALANCE DUE (from payments array) ====================
+  // Calculate total paid from payments array (industry standard - no separate advance field)
+  const totalPaidFromPayments = (invoice.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+  if (totalPaidFromPayments > 0) {
     // Draw separator line
     pdf.setLineWidth(0.2);
     pdf.setDrawColor(200, 200, 200);
     pdf.line(totalsX, currentY, pageWidth - margin, currentY);
     currentY += 4;
 
-    // Show advance received
+    // Show payments received
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(typography.fontSize.base);
-    pdf.setTextColor(220, 38, 38); // Red color for deduction
-    pdf.text('Less: Advance Received', totalsX, currentY);
-    pdf.text(`- AED ${formatNumber(advanceAmount)}`, pageWidth - margin, currentY, { align: 'right' });
+    pdf.setTextColor(34, 139, 34); // Green color for payments
+    pdf.text('Less: Payments Received', totalsX, currentY);
+    pdf.text(`- AED ${formatNumber(totalPaidFromPayments)}`, pageWidth - margin, currentY, { align: 'right' });
     currentY += 6;
 
     // Calculate and show balance due
-    const balanceDue = Math.max(0, totalVal - advanceAmount);
+    const balanceDue = Math.max(0, totalVal - totalPaidFromPayments);
     pdf.setLineWidth(0.5);
     pdf.setDrawColor(...primaryColor);
     pdf.line(totalsX, currentY, pageWidth - margin, currentY);

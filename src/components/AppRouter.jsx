@@ -52,6 +52,9 @@ import BusinessDashboard from '../pages/BusinessDashboard';
 // Admin Components
 import AuditLogs from '../pages/AuditLogs';
 
+// Stock Movement Components
+import StockMovementPage from '../pages/StockMovementPage';
+
 // Reports Components
 import ReportsDashboard from '../pages/ReportsDashboard';
 import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
@@ -302,6 +305,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user}>
               <InventoryList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/stock-movements"
+          element={
+            <ProtectedRoute user={user}>
+              <StockMovementPage />
             </ProtectedRoute>
           }
         />

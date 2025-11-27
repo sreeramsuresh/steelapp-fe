@@ -11,27 +11,10 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
-  // Check for advance payment from invoice creation
-  const advanceAmount = invoice?.advanceReceived || invoice?.advance_received || 0;
-  const advancePaymentMethod = invoice?.modeOfPayment || invoice?.mode_of_payment || 'cash';
-  const hasAdvancePayment = advanceAmount > 0;
-
-  // Create virtual advance payment entry for display
-  const advancePaymentEntry = hasAdvancePayment ? {
-    id: 'advance-payment',
-    date: invoice?.invoiceDate || invoice?.invoice_date || invoice?.date,
-    amount: advanceAmount,
-    paymentMethod: advancePaymentMethod,
-    paymentMode: advancePaymentMethod,
-    referenceNumber: '',
-    notes: 'Advance payment received at invoice creation',
-    isAdvancePayment: true, // Flag to identify this is not a regular payment
-  } : null;
-
-  // Calculate payment status (including advance payment)
+  // Calculate payment status from payments array only (industry standard)
   const invoiceTotal = invoice?.total || 0;
-  const totalPaid = calculateTotalPaid(payments) + advanceAmount;
-  const balanceDue = invoiceTotal - totalPaid;
+  const totalPaid = calculateTotalPaid(payments);
+  const balanceDue = calculateBalanceDue(invoiceTotal, payments);
   const isFullyPaid = balanceDue <= 0;
 
   const handleCheckboxChange = (paymentId) => {
@@ -108,13 +91,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
     new Date(a.date) - new Date(b.date),
   );
 
-  // Combine advance payment (if any) with regular payments
-  // Advance payment always comes first
-  const allPaymentsForDisplay = hasAdvancePayment 
-    ? [advancePaymentEntry, ...sortedPayments]
-    : sortedPayments;
-  
-  const hasAnyPayments = allPaymentsForDisplay.length > 0;
+  const hasAnyPayments = sortedPayments.length > 0;
 
   return (
     <div
@@ -266,48 +243,37 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
               </tr>
             </thead>
             <tbody>
-              {allPaymentsForDisplay.map((payment, index) => {
+              {sortedPayments.map((payment, index) => {
                 const formatted = formatPaymentDisplay(payment);
                 const modeConfig = getPaymentModeConfig(payment.paymentMode || payment.paymentMethod);
                 const isSelected = selectedForDelete.has(payment.id);
-                const isAdvance = payment.isAdvancePayment;
 
                 return (
                   <tr
                     key={payment.id}
                     className={`border-b ${
-                      isAdvance
-                        ? isDarkMode
-                          ? 'border-gray-700 bg-teal-900/30'
-                          : 'border-gray-200 bg-teal-50'
-                        : isDarkMode
-                          ? 'border-gray-700 hover:bg-gray-700/50'
-                          : 'border-gray-200 hover:bg-gray-50'
+                      isDarkMode
+                        ? 'border-gray-700 hover:bg-gray-700/50'
+                        : 'border-gray-200 hover:bg-gray-50'
                     } ${isSelected ? 'bg-red-50 dark:bg-red-900/20' : ''}`}
                   >
-                    {/* Checkbox - disabled for advance payment */}
+                    {/* Checkbox */}
                     <td className="px-4 py-3 text-center">
-                      {isAdvance ? (
-                        <span className="text-teal-500">✓</span>
-                      ) : (
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleCheckboxChange(payment.id)}
-                          className="w-4 h-4 rounded cursor-pointer"
-                        />
-                      )}
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleCheckboxChange(payment.id)}
+                        className="w-4 h-4 rounded cursor-pointer"
+                      />
                     </td>
 
-                    {/* Serial Number or Advance Label */}
+                    {/* Serial Number */}
                     <td
                       className={`px-4 py-3 text-sm ${
-                        isAdvance
-                          ? isDarkMode ? 'text-teal-400 font-semibold' : 'text-teal-700 font-semibold'
-                          : isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
                       }`}
                     >
-                      {isAdvance ? 'ADV' : index + (hasAdvancePayment ? 0 : 1)}
+                      {index + 1}
                     </td>
 
                     {/* Date */}
@@ -367,60 +333,50 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
 
                     {/* Actions */}
                     <td className="px-4 py-3">
-                      {isAdvance ? (
-                        <div className="flex justify-center">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            isDarkMode ? 'bg-teal-900/50 text-teal-400' : 'bg-teal-100 text-teal-700'
-                          }`}>
-                            Invoice Advance
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => handlePrintReceipt(payment, index)}
-                            disabled={printingReceiptId === payment.id}
-                            className={`p-1.5 rounded transition-colors ${
-                              printingReceiptId === payment.id
-                                ? 'opacity-50 cursor-not-allowed'
-                                : isDarkMode
-                                  ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
-                                  : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
-                            }`}
-                            title="Print payment receipt"
-                          >
-                            <Printer size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDownloadReceipt(payment, index)}
-                            disabled={downloadingReceiptId === payment.id}
-                            className={`p-1.5 rounded transition-colors ${
-                              downloadingReceiptId === payment.id
-                                ? 'opacity-50 cursor-not-allowed'
-                                : isDarkMode
-                                  ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
-                                  : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
-                            }`}
-                            title="Download payment receipt"
-                          >
-                            <Download size={16} />
-                          </button>
-                          <button
-                            onClick={() => onEditPayment(payment)}
-                            disabled={isFullyPaid}
-                            className={`p-1.5 rounded transition-colors ${
-                              isFullyPaid
-                                ? 'opacity-50 cursor-not-allowed text-gray-400'
-                                : isDarkMode
-                                  ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
-                                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                            }`}
-                            title={isFullyPaid ? 'Cannot edit - invoice fully paid' : 'Edit payment'}
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handlePrintReceipt(payment, index)}
+                          disabled={printingReceiptId === payment.id}
+                          className={`p-1.5 rounded transition-colors ${
+                            printingReceiptId === payment.id
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isDarkMode
+                                ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
+                                : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                          }`}
+                          title="Print payment receipt"
+                        >
+                          <Printer size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadReceipt(payment, index)}
+                          disabled={downloadingReceiptId === payment.id}
+                          className={`p-1.5 rounded transition-colors ${
+                            downloadingReceiptId === payment.id
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isDarkMode
+                                ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
+                                : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                          }`}
+                          title="Download payment receipt"
+                        >
+                          <Download size={16} />
+                        </button>
+                        <button
+                          onClick={() => onEditPayment(payment)}
+                          disabled={isFullyPaid}
+                          className={`p-1.5 rounded transition-colors ${
+                            isFullyPaid
+                              ? 'opacity-50 cursor-not-allowed text-gray-400'
+                              : isDarkMode
+                                ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
+                                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                          }`}
+                          title={isFullyPaid ? 'Cannot edit - invoice fully paid' : 'Edit payment'}
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

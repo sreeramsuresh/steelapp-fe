@@ -21,7 +21,7 @@ export const INVOICE_TEMPLATES = {
     colors: {
       primary: '#0d9488', // Teal - brand color
       secondary: '#475569', // Slate gray
-      accent: '#f0fdfa', // Light teal tint for rows
+      accent: '#f9f9f9', // Subtle grey for alternating rows (fixed for all templates)
       text: '#1e293b', // Dark slate for body
       border: '#cbd5e1', // Slate border
       headerBg: '#0d9488', // Teal header background
@@ -48,7 +48,7 @@ export const INVOICE_TEMPLATES = {
     colors: {
       primary: '#2563eb', // Blue (default - customizable)
       secondary: '#64748b', // Slate
-      accent: '#eff6ff', // Light blue tint
+      accent: '#f9f9f9', // Subtle grey for alternating rows (fixed for all templates)
       text: '#1e293b', // Dark slate
       border: '#93c5fd', // Light blue border
       headerBg: '#2563eb', // Blue header (customizable)
@@ -75,7 +75,7 @@ export const INVOICE_TEMPLATES = {
     colors: {
       primary: '#1e3a5f', // Navy blue
       secondary: '#64748b', // Slate
-      accent: '#fef3c7', // Light gold tint
+      accent: '#f9f9f9', // Subtle grey for alternating rows (fixed for all templates)
       text: '#1e293b', // Dark slate
       border: '#1e3a5f', // Navy border
       headerBg: '#1e3a5f', // Navy header
@@ -102,7 +102,7 @@ export const INVOICE_TEMPLATES = {
     colors: {
       primary: '#1a1a1a', // Near black
       secondary: '#4a4a4a', // Dark gray
-      accent: '#f5f5f5', // Very light gray
+      accent: '#f9f9f9', // Subtle grey for alternating rows (fixed for all templates)
       text: '#000000', // Pure black
       border: '#666666', // Medium gray
       headerBg: '#e0e0e0', // Light gray header

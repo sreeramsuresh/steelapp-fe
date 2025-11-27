@@ -899,9 +899,11 @@ const PurchaseOrderForm = () => {
     return '';
   };
 
-  const handleProductSelect = (index, selectedProductName) => {
-    // Find the full product object from availableProducts
-    const product = availableProducts.find(p => p.name === selectedProductName);
+  const handleProductSelect = (index, selectedProduct) => {
+    // Accept either a product object or a name string (backward compatibility)
+    const product = typeof selectedProduct === 'object' && selectedProduct !== null
+      ? selectedProduct
+      : availableProducts.find(p => p.id === selectedProduct || p.name === selectedProduct);
     
     if (product && typeof product === 'object') {
       const updatedItems = [...purchaseOrder.items];
@@ -2078,7 +2080,7 @@ const PurchaseOrderForm = () => {
                               }}
                               onChange={(event, newValue) => {
                                 if (newValue) {
-                                  handleProductSelect(index, newValue.name);
+                                  handleProductSelect(index, newValue);
                                 }
                               }}
                               placeholder="Search products..."
@@ -2223,7 +2225,7 @@ const PurchaseOrderForm = () => {
                       }}
                       onChange={(event, newValue) => {
                         if (newValue) {
-                          handleProductSelect(index, newValue.name);
+                          handleProductSelect(index, newValue);
                         }
                       }}
                       label="Product"

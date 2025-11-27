@@ -57,12 +57,17 @@ const RevenueTrends = () => {
 
   // Process real data and generate forecasting
   const processedData = useMemo(() => {
-    if (!salesTrendsData || salesTrendsData.length === 0) {
+    // Handle both array format and nested { data: [...] } format from API
+    const trendsArray = Array.isArray(salesTrendsData)
+      ? salesTrendsData
+      : (salesTrendsData?.data || []);
+
+    if (!trendsArray || trendsArray.length === 0) {
       return { revenueData: [], forecastData: [], analytics: {} };
     }
 
     // Sort data by period (oldest first for trend analysis)
-    const sortedData = [...salesTrendsData].sort((a, b) => new Date(a.period) - new Date(b.period));
+    const sortedData = [...trendsArray].sort((a, b) => new Date(a.period) - new Date(b.period));
     
     // Convert API data to chart format
     const revenueData = sortedData.map(item => ({
@@ -625,7 +630,12 @@ const RevenueTrends = () => {
     );
   }
 
-  if (!salesTrendsData || salesTrendsData.length === 0) {
+  // Handle both array format and nested { data: [...] } format for empty check
+  const hasTrendsData = Array.isArray(salesTrendsData)
+    ? salesTrendsData.length > 0
+    : (salesTrendsData?.data?.length > 0);
+
+  if (!hasTrendsData) {
     return (
       <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
         isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
@@ -640,7 +650,7 @@ const RevenueTrends = () => {
           <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             No sales data found for the selected period. Create some invoices to see revenue trends.
           </p>
-          <button 
+          <button
             onClick={refetchTrends}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >

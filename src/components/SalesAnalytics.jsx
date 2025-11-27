@@ -124,9 +124,13 @@ const SalesAnalytics = () => {
       return Number.isFinite(n) ? n : 0;
     };
 
-    // Monthly trend from salesTrends (array of rows)
-    const monthlyTrend = Array.isArray(salesTrends)
+    // Monthly trend from salesTrends (handle both array and { data: [...] } format)
+    const salesTrendsArray = Array.isArray(salesTrends)
       ? salesTrends
+      : (salesTrends?.data || []);
+
+    const monthlyTrend = Array.isArray(salesTrendsArray)
+      ? salesTrendsArray
         .slice()
         .sort((a, b) => new Date(a.period) - new Date(b.period))
         .map((row) => ({

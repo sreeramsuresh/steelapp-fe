@@ -78,9 +78,6 @@ export const createInvoice = () => ({
   loadingCharges: 0,
   otherCharges: 0,
   roundOff: 0,
-  advanceReceived: 0,
-  advancePaymentMethod: '', // Payment method for advance (Cash, Cheque, Bank Transfer, etc.)
-  balanceAmount: 0,
   totalInWords: '',
   total: 0,
   status: '', // Empty by default - user must select

@@ -22,19 +22,22 @@ import {
   PinOff,
   Settings,
   Loader2,
+  Banknote,
+  FileText,
+  List,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   createInvoice,
   createCompany,
   createSteelItem,
-  PAYMENT_MODES,
   DELIVERY_TERMS,
   DISCOUNT_TYPES,
   STEEL_GRADES,
   FINISHES,
   UAE_EMIRATES,
 } from '../types';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
 import {
   generateInvoiceNumber,
   calculateItemAmount,
@@ -2110,16 +2113,6 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('status');
     }
 
-    // Check payment mode (required when advance payment is entered)
-    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
-    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
-      errors.push('Payment mode is required when advance payment is entered');
-      invalidFieldsSet.add('paymentMode');
-    }
-
-    // Note: Cheque number is optional at invoice creation time
-    // It's captured later when payment is actually received via "Record Payment" flow
-
     return { isValid: errors.length === 0, errors, invalidFields: invalidFieldsSet };
   };
 
@@ -2235,13 +2228,6 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('status');
     }
 
-    // Check payment mode (required when advance payment is entered)
-    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
-    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
-      errors.push('Payment mode is required when advance payment is entered');
-      invalidFieldsSet.add('paymentMode');
-    }
-
     // If there are validation errors, set them and throw error
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -2331,13 +2317,6 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('status');
     }
 
-    // Check payment mode (required when advance payment is entered)
-    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
-    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
-      errors.push('Payment mode is required when advance payment is entered');
-      invalidFieldsSet.add('paymentMode');
-    }
-
     // If there are validation errors, show them and stop
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -2372,8 +2351,6 @@ const InvoiceForm = ({ onSave }) => {
           invoice.discountPercentage === ''
             ? 0
             : Number(invoice.discountPercentage),
-        advanceReceived:
-          invoice.advanceReceived === '' ? 0 : Number(invoice.advanceReceived),
         items: nonBlankItems.map((item) => ({
           ...item,
           quantity: item.quantity === '' ? 0 : Number(item.quantity),
@@ -2527,6 +2504,16 @@ const InvoiceForm = ({ onSave }) => {
     setTimeout(() => {
       notificationService.success('Invoice created successfully!');
       navigate('/invoices');
+    }, 300);
+  };
+
+  // Navigate to invoice list and auto-open payment drawer
+  const handleSuccessRecordPayment = () => {
+    setShowSuccessModal(false);
+
+    // Navigate to invoice list with query param to auto-open payment drawer
+    setTimeout(() => {
+      navigate(`/invoices?openPayment=${createdInvoiceId}`);
     }, 300);
   };
 
@@ -3176,9 +3163,9 @@ const InvoiceForm = ({ onSave }) => {
                   </Select>
                   <Select
                     ref={paymentModeRef}
-                    label="Payment Mode"
+                    label="Payment Terms"
                     value={invoice.modeOfPayment || ''}
-                    required={true}
+                    required={false}
                     validationState={fieldValidation.paymentMode}
                     showValidation={formPreferences.showValidationHighlighting}
                     error={invalidFields.has('paymentMode')}
@@ -3189,32 +3176,21 @@ const InvoiceForm = ({ onSave }) => {
                         modeOfPayment: value,
                       }));
                       validateField('paymentMode', value);
-                      // Auto-focus to next mandatory field after payment mode selection
+                      // Auto-focus to next mandatory field after payment terms selection
                       if (value) {
                         setTimeout(() => focusNextMandatoryField(), 100);
                       }
                     }}
                     className="text-base min-h-[44px]"
                   >
-                    <option value="">Select payment mode</option>
-                    {PAYMENT_MODES.map((mode) => (
-                      <option key={mode} value={mode}>
-                        {mode}
+                    <option value="">Select expected payment method</option>
+                    {Object.values(PAYMENT_MODES).map((mode) => (
+                      <option key={mode.value} value={mode.value}>
+                        {mode.icon} {mode.label}
                       </option>
                     ))}
                   </Select>
                 </div>
-
-                {/* Cheque Number - Optional, captured here if already known or via Record Payment later */}
-                {(invoice.modeOfPayment === 'Cheque' || invoice.modeOfPayment === 'CDC' || invoice.modeOfPayment === 'PDC') && (
-                  <Input
-                    label="Cheque Number (Optional)"
-                    value={invoice.chequeNumber || ''}
-                    onChange={(e) => setInvoice(prev => ({ ...prev, chequeNumber: e.target.value }))}
-                    placeholder="Enter if cheque already received"
-                    className="text-base min-h-[44px]"
-                  />
-                )}
               </div>
             </Card>
           </div>
@@ -4194,65 +4170,10 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 </div>
 
-                {/* Advance and Balance */}
-                <div className="space-y-3">
-                  <Input
-                    label="Advance Received"
-                    type="number"
-                    value={invoice.advanceReceived || ''}
-                    onChange={(e) =>
-                      handleChargeChange('advanceReceived', e.target.value)
-                    }
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                  />
-                  {/* Advance Payment Method - shown when advance amount > 0 */}
-                  {invoice.advanceReceived > 0 && (
-                    <Select
-                      label="Advance Payment Method"
-                      value={invoice.advancePaymentMethod || ''}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          advancePaymentMethod: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="">Select payment method</option>
-                      {PAYMENT_MODES.map((mode) => (
-                        <option key={mode} value={mode}>
-                          {mode}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                  {invoice.advanceReceived > 0 && (
-                    <div
-                      className={`flex justify-between items-center p-3 rounded-md border ${
-                        isDarkMode
-                          ? 'bg-teal-900/20 border-teal-500/30'
-                          : 'bg-teal-50 border-teal-200'
-                      }`}
-                    >
-                      <span
-                        className={`font-medium ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                          Balance Amount:
-                      </span>
-                      <span className="font-medium text-teal-400">
-                        {formatCurrency(
-                          Math.max(
-                            0,
-                            computedTotal - (invoice.advanceReceived || 0),
-                          ),
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
+                <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Payments are recorded after invoice creation via the Payment Drawer
+                </p>
               </div>
             </div>
           </Card>
@@ -4430,77 +4351,110 @@ const InvoiceForm = ({ onSave }) => {
 
         return (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             onClick={canContinueEditing ? handleSuccessModalClose : undefined}
           >
             <div
-              className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl relative ${
-                isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+              className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
+                isDarkMode ? 'bg-gray-900' : 'bg-white'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Success Header with Gradient */}
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 bg-white/20 rounded-full p-3">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">
+                      Invoice Created!
+                    </h3>
+                    <p className="text-emerald-100 text-sm mt-0.5">
+                      {isFinalTaxInvoice
+                        ? `Final Tax Invoice ${invoice.invoiceNumber || ''}`
+                        : invoice.status === 'proforma' ? 'Proforma Invoice' : 'Draft saved'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Close button - only show for Draft/Proforma */}
               {canContinueEditing && (
                 <button
                   onClick={handleSuccessModalClose}
-                  className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
-                    isDarkMode
-                      ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
-                      : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900'
-                  }`}
+                  className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
                   aria-label="Close"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               )}
 
-              <div className="flex items-start mb-4">
-                <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-full p-3 mr-4">
-                  <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2 text-green-600 dark:text-green-400">
-                    Invoice Created Successfully!
-                  </h3>
-                  <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {isFinalTaxInvoice
-                      ? 'Your Final Tax Invoice has been created and saved.'
-                      : `Your ${invoice.status === 'proforma' ? 'Proforma Invoice' : 'Draft'} has been created and saved.`
-                    }
-                  </p>
-                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    What would you like to do next?
-                  </p>
-                </div>
-              </div>
+              {/* Action Buttons */}
+              <div className="p-6 space-y-3">
+                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  What would you like to do next?
+                </p>
 
-              <div className="flex flex-col gap-3 mt-6">
+                {/* Download PDF Button */}
                 <button
                   onClick={handleSuccessDownloadPDF}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
                 >
-                  <Download size={20} />
-                  Download PDF
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Download size={20} />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold">Download PDF</div>
+                    <div className="text-xs text-teal-100">Save invoice to your device</div>
+                  </div>
                 </button>
+
+                {/* Record Payment Button - Only for Final Tax Invoice */}
+                {isFinalTaxInvoice && (
+                  <button
+                    onClick={handleSuccessRecordPayment}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Banknote size={20} />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold">Record Payment</div>
+                      <div className="text-xs text-amber-100">Record advance or full payment</div>
+                    </div>
+                  </button>
+                )}
+
+                {/* Go to Invoice List Button */}
                 <button
                   onClick={handleSuccessGoToList}
-                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
                     isDarkMode
-                      ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                      : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
                   }`}
                 >
-                  Go to Invoice List
+                  <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                    <List size={20} />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold">Go to Invoice List</div>
+                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>View all invoices</div>
+                  </div>
                 </button>
               </div>
 
               {/* Continue editing hint - only show for Draft/Proforma */}
               {canContinueEditing && (
-                <p className={`text-xs mt-4 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Press ESC or click outside to continue editing the invoice
-                </p>
+                <div className={`px-6 pb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <p className="text-xs text-center">
+                    Press ESC or click outside to continue editing
+                  </p>
+                </div>
               )}
             </div>
           </div>

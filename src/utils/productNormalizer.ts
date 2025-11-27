@@ -30,9 +30,14 @@ export function normalizeProduct(rawProduct: any, source = 'unknown'): any | nul
     const normalized: any = {
       // Core identifiers
       id: rawProduct.id || 0,
-      name: rawProduct.name || rawProduct.product_name || '',
-      fullName: rawProduct.fullName || rawProduct.full_name || rawProduct.name || '',
-      title: rawProduct.title || rawProduct.name || '',
+      // uniqueName: Technical identifier with origin (source of truth for identity)
+      uniqueName: rawProduct.uniqueName || rawProduct.unique_name || rawProduct.fullName || rawProduct.full_name || '',
+      // displayName: User-friendly name for UI (without origin, user-editable)
+      displayName: rawProduct.displayName || rawProduct.display_name || rawProduct.name || '',
+      // Keep legacy 'name' for backward compatibility, prefer displayName
+      name: rawProduct.displayName || rawProduct.display_name || rawProduct.name || rawProduct.product_name || '',
+      fullName: rawProduct.uniqueName || rawProduct.unique_name || rawProduct.fullName || rawProduct.full_name || rawProduct.name || '',
+      title: rawProduct.title || rawProduct.displayName || rawProduct.display_name || rawProduct.name || '',
       description: rawProduct.description || undefined,
       
       // Category & Classification
