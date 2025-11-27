@@ -68,7 +68,7 @@ const transformCreditNoteFromServer = (serverData) => {
     status: serverData.status || 'draft',
     creditNoteType: serverData.creditNoteType || serverData.credit_note_type || 'RETURN_WITH_QC',
     reasonForReturn: serverData.reasonForReturn || serverData.reason_for_return || '',
-    items: items,
+    items,
     subtotal: parseFloat(serverData.subtotal || serverData.sub_total || 0),
     vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
     totalCredit: parseFloat(serverData.totalCredit || serverData.total_credit || 0),

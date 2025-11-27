@@ -338,7 +338,7 @@ export const toUAEDateProfessional = (utcDate) => {
     timeZone: UAE_TIMEZONE,
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -368,14 +368,14 @@ export const toUAEDateTimeProfessional = (utcDate) => {
     timeZone: UAE_TIMEZONE,
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   });
 
   const timeStr = date.toLocaleTimeString('en-GB', {
     timeZone: UAE_TIMEZONE,
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   }).toUpperCase(); // Ensure AM/PM is uppercase
 
   return `${dateStr}, ${timeStr} GST (UTC+4)`;
@@ -405,7 +405,7 @@ export const toUAEDateShort = (utcDate) => {
     timeZone: UAE_TIMEZONE,
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -444,14 +444,14 @@ export const toUAEPaymentDateTime = (utcDate) => {
     timeZone: UAE_TIMEZONE,
     day: 'numeric',
     month: 'short',
-    year: 'numeric'
+    year: 'numeric',
   });
 
   const timeStr = date.toLocaleTimeString('en-GB', {
     timeZone: UAE_TIMEZONE,
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   }).toUpperCase();
 
   return `${dateStr}, ${timeStr} GST`;

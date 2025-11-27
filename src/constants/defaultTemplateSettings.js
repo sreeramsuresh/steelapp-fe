@@ -50,14 +50,17 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
   },
 
   // === TYPOGRAPHY ===
+  // Industry Gold Standard for A4 Professional Invoices
   typography: {
     fontFamily: 'helvetica',   // Base font: helvetica, times, courier
     fontSize: {
-      base: 9,                 // Default body text size in pt
-      small: 7,                // Small text (footer, labels) in pt
-      medium: 9,               // Medium text (table content) in pt
-      large: 11,               // Large text (headings) in pt
-      xlarge: 12,              // Extra large (company name) in pt
+      base: 8,                 // Body text (addresses, dates): 8-9pt
+      small: 7,                // Footer, small labels: 7pt
+      medium: 8,               // Table content: 8pt
+      large: 9,                // Section headers (Invoice To, Invoice No): 9-10pt
+      xlarge: 12,              // Company name: 12-14pt (bold)
+      title: 10,               // Document title (TAX INVOICE): 10-11pt (bold, white on banner)
+      tableHeader: 7,          // Table header: 7-8pt (bold, white)
     },
     lineHeight: 1.2,           // Line height multiplier
   },

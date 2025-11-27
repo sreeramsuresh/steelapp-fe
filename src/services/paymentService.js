@@ -29,13 +29,13 @@ export const createPaymentPayload = ({
   paymentMethod,
   paymentDate,
   referenceNumber = '',
-  notes = ''
+  notes = '',
 }) => ({
   amount: Number(amount),
   paymentMethod,
   paymentDate,
   referenceNumber,
-  notes
+  notes,
 });
 
 /**
@@ -54,7 +54,7 @@ export const PAYMENT_METHOD_OPTIONS = [
   { value: 'mobile_wallet', label: 'Mobile Wallet (Apple Pay/Google Pay)' },
   { value: 'upi', label: 'UPI' },
   { value: 'card', label: 'Card' },
-  { value: 'other', label: 'Other' }
+  { value: 'other', label: 'Other' },
 ];
 
 /**
@@ -79,7 +79,7 @@ export const validatePayment = (payment) => {
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -115,5 +115,5 @@ export default {
   createPaymentPayload,
   validatePayment,
   normalizePayment,
-  PAYMENT_METHOD_OPTIONS
+  PAYMENT_METHOD_OPTIONS,
 };

@@ -279,7 +279,7 @@ const Receivables = () => {
       paymentMethod: method,     // Map local 'method' to standard 'paymentMethod'
       paymentDate: paymentDate || new Date().toISOString().slice(0, 10),
       referenceNumber: referenceNo, // Map local 'referenceNo' to standard 'referenceNumber'
-      notes
+      notes,
     });
 
     // Create local payment object for optimistic UI update
@@ -592,7 +592,7 @@ const Receivables = () => {
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div><div className="opacity-70">Invoice Date</div><div>{formatDate(drawer.item.invoiceDate || drawer.item.date)}</div></div>
-                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.dueDate || drawer.item.dueDate)}</div></div>
+                <div><div className="opacity-70">Due Date</div><div>{formatDate(drawer.item.dueDate || drawer.item.due_date)}</div></div>
                 <div><div className="opacity-70">Currency</div><div>{drawer.item.currency || 'AED'}</div></div>
                 <div><div className="opacity-70">Invoice Amount</div><div className="font-semibold">{formatCurrency(getInvoiceAmount(drawer.item))}</div></div>
                 <div><div className="opacity-70">Received</div><div className="font-semibold">{formatCurrency(getReceived(drawer.item))}</div></div>
@@ -607,7 +607,7 @@ const Receivables = () => {
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
                   {(drawer.item.payments || []).map((p, idx) => {
-                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const paymentIndex = idx + 1;
                     const isDownloading = downloadingReceiptId === p.id;
                     const isPrinting = printingReceiptId === p.id;
 
@@ -616,7 +616,7 @@ const Receivables = () => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.referenceNo || '—'}</div>
+                            <div className="opacity-70">{p.paymentMethod || p.method} • {p.referenceNumber || p.referenceNo || '—'}</div>
                             {p.receiptNumber && <div className="text-xs mt-1 text-teal-600 font-semibold">Receipt: {p.receiptNumber}</div>}
                           </div>
                           <div className="text-right flex items-center gap-2">
@@ -662,7 +662,7 @@ const Receivables = () => {
               </div>
 
               {/* Add Payment */}
-              {getOutstanding(drawer.item) === 0 || getInvoiceAmount(drawer.item) === 0 ? (
+              {getOutstanding(drawer.item) <= 0 || getInvoiceAmount(drawer.item) === 0 || drawer.item.status === 'paid' ? (
                 <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
                   <CheckCircle size={18} />
                   <span className="font-medium">

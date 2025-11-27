@@ -29,26 +29,26 @@ import { NewBadge } from '../components/shared';
 import { validateCreditNoteForDownload } from '../utils/recordUtils';
 
 const STATUS_COLORS = {
-  draft: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Draft' },
-  issued: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', label: 'Issued' },
-  items_received: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300', label: 'Items Received' },
-  items_inspected: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', label: 'Items Inspected' },
-  applied: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', label: 'Applied' },
-  refunded: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Refunded' },
-  completed: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', label: 'Completed' },
-  cancelled: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'Cancelled' },
+  draft: { bg: 'bg-gray-200 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-200', label: 'Draft' },
+  issued: { bg: 'bg-blue-200 dark:bg-blue-800', text: 'text-blue-800 dark:text-blue-100', label: 'Issued' },
+  items_received: { bg: 'bg-amber-200 dark:bg-amber-800', text: 'text-amber-800 dark:text-amber-100', label: 'Items Received' },
+  items_inspected: { bg: 'bg-purple-200 dark:bg-purple-800', text: 'text-purple-800 dark:text-purple-100', label: 'Items Inspected' },
+  applied: { bg: 'bg-green-200 dark:bg-green-800', text: 'text-green-800 dark:text-green-100', label: 'Applied' },
+  refunded: { bg: 'bg-teal-200 dark:bg-teal-800', text: 'text-teal-800 dark:text-teal-100', label: 'Refunded' },
+  completed: { bg: 'bg-emerald-200 dark:bg-emerald-800', text: 'text-emerald-800 dark:text-emerald-100', label: 'Completed' },
+  cancelled: { bg: 'bg-red-200 dark:bg-red-800', text: 'text-red-800 dark:text-red-100', label: 'Cancelled' },
 };
 
 const TYPE_LABELS = {
   ACCOUNTING_ONLY: {
     label: 'Accounting',
-    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
-    text: 'text-cyan-700 dark:text-cyan-300',
+    bg: 'bg-sky-200 dark:bg-sky-800',
+    text: 'text-sky-800 dark:text-sky-100',
   },
   RETURN_WITH_QC: {
     label: 'Return + QC',
-    bg: 'bg-purple-100 dark:bg-purple-900/30',
-    text: 'text-purple-700 dark:text-purple-300',
+    bg: 'bg-violet-200 dark:bg-violet-800',
+    text: 'text-violet-800 dark:text-violet-100',
   },
 };
 

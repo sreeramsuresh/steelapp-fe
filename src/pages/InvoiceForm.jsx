@@ -33,6 +33,7 @@ import {
   DISCOUNT_TYPES,
   STEEL_GRADES,
   FINISHES,
+  UAE_EMIRATES,
 } from '../types';
 import {
   generateInvoiceNumber,
@@ -1700,8 +1701,86 @@ const InvoiceForm = ({ onSave }) => {
     [],
   );
 
-  const handleProductSelect = useCallback(async (index, product) => {
+  // Duplicate product detection state
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const pendingProductRef = useRef(null);
+
+  // Check if product already exists in items (excluding current index)
+  const findDuplicateProduct = useCallback((productId, excludeIndex) => {
+    if (!productId) return null;
+    return invoice.items.findIndex((item, idx) => 
+      idx !== excludeIndex && item.productId === productId,
+    );
+  }, [invoice.items]);
+
+  // Handle duplicate confirmation - add anyway
+  const handleDuplicateAddAnyway = useCallback(() => {
+    if (pendingProductRef.current) {
+      const { index, product, skipDuplicateCheck } = pendingProductRef.current;
+      pendingProductRef.current = null;
+      setDuplicateWarning(null);
+      // Re-call with skip flag
+      handleProductSelectInternal(index, product, true);
+    }
+  }, []);
+
+  // Handle duplicate confirmation - update existing quantity
+  const handleDuplicateUpdateExisting = useCallback(() => {
+    if (pendingProductRef.current && duplicateWarning) {
+      const { product } = pendingProductRef.current;
+      const existingIndex = duplicateWarning.existingIndex;
+      
+      // Update existing item's quantity by adding 1
+      setInvoice((prev) => {
+        const newItems = [...prev.items];
+        const existingItem = newItems[existingIndex];
+        const newQuantity = (existingItem.quantity || 0) + 1;
+        newItems[existingIndex] = {
+          ...existingItem,
+          quantity: newQuantity,
+          amount: calculateItemAmount(newQuantity, existingItem.rate),
+        };
+        return { ...prev, items: newItems };
+      });
+
+      // Remove the empty row that was being edited
+      const { index } = pendingProductRef.current;
+      if (invoice.items[index] && !invoice.items[index].productId) {
+        setInvoice((prev) => ({
+          ...prev,
+          items: prev.items.filter((_, idx) => idx !== index),
+        }));
+      }
+
+      pendingProductRef.current = null;
+      setDuplicateWarning(null);
+      notificationService.success(`Quantity updated for ${product.displayName || product.name}`);
+    }
+  }, [duplicateWarning, invoice.items]);
+
+  // Cancel duplicate warning
+  const handleDuplicateCancel = useCallback(() => {
+    pendingProductRef.current = null;
+    setDuplicateWarning(null);
+  }, []);
+
+  const handleProductSelectInternal = useCallback(async (index, product, skipDuplicateCheck = false) => {
     if (product && typeof product === 'object') {
+      // Check for duplicate product (unless skipping)
+      if (!skipDuplicateCheck) {
+        const existingIndex = findDuplicateProduct(product.id, index);
+        if (existingIndex !== -1) {
+          // Store pending selection and show warning
+          pendingProductRef.current = { index, product };
+          setDuplicateWarning({
+            productName: product.displayName || product.name,
+            existingIndex,
+            existingQuantity: invoice.items[existingIndex]?.quantity || 0,
+          });
+          return; // Don't proceed until user confirms
+        }
+      }
+
       // Helper: extract thickness from product specs or size string
       const getThickness = (p) => {
         try {
@@ -1774,7 +1853,12 @@ const InvoiceForm = ({ onSave }) => {
       // Clear search input for this row
       setSearchInputs((prev) => ({ ...prev, [index]: '' }));
     }
-  }, [selectedPricelistId]);
+  }, [selectedPricelistId, findDuplicateProduct, invoice.items]);
+
+  // Public handler that includes duplicate checking
+  const handleProductSelect = useCallback((index, product) => {
+    handleProductSelectInternal(index, product, false);
+  }, [handleProductSelectInternal]);
 
   // No automatic coupling; due date is independently editable by the user
 
@@ -2033,6 +2117,19 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('dueDate');
     }
 
+    // Check status (required field)
+    if (!invoice.status || !['draft', 'proforma', 'issued'].includes(invoice.status)) {
+      errors.push('Invoice status is required');
+      invalidFieldsSet.add('status');
+    }
+
+    // Check payment mode (required when advance payment is entered)
+    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
+    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
+      errors.push('Payment mode is required when advance payment is entered');
+      invalidFieldsSet.add('paymentMode');
+    }
+
     // Note: Cheque number is optional at invoice creation time
     // It's captured later when payment is actually received via "Record Payment" flow
 
@@ -2145,6 +2242,19 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add('dueDate');
     }
 
+    // Check status (required field)
+    if (!invoice.status || !['draft', 'proforma', 'issued'].includes(invoice.status)) {
+      errors.push('Invoice status is required');
+      invalidFieldsSet.add('status');
+    }
+
+    // Check payment mode (required when advance payment is entered)
+    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
+    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
+      errors.push('Payment mode is required when advance payment is entered');
+      invalidFieldsSet.add('paymentMode');
+    }
+
     // If there are validation errors, set them and throw error
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -2226,6 +2336,19 @@ const InvoiceForm = ({ onSave }) => {
     if (!invoice.dueDate) {
       errors.push('Due date is required');
       invalidFieldsSet.add('dueDate');
+    }
+
+    // Check status (required field) - use effectiveStatus for Final Tax Invoice flow
+    if (!effectiveStatus || !['draft', 'proforma', 'issued'].includes(effectiveStatus)) {
+      errors.push('Invoice status is required');
+      invalidFieldsSet.add('status');
+    }
+
+    // Check payment mode (required when advance payment is entered)
+    const hasAdvancePayment = invoice.advanceReceived && parseFloat(invoice.advanceReceived) > 0;
+    if (hasAdvancePayment && (!invoice.modeOfPayment || invoice.modeOfPayment.trim() === '')) {
+      errors.push('Payment mode is required when advance payment is entered');
+      invalidFieldsSet.add('paymentMode');
     }
 
     // If there are validation errors, show them and stop
@@ -3099,10 +3222,11 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Select
                     label="Invoice Status"
-                    value={invoice.status || 'draft'}
+                    value={invoice.status}
                     required={true}
                     validationState={fieldValidation.status}
                     showValidation={formPreferences.showValidationHighlighting}
+                    error={invalidFields.has('status')}
                     onChange={(e) => {
                       const newStatus = e.target.value;
                       console.log('📝 Status dropdown changed to:', newStatus);
@@ -3115,6 +3239,7 @@ const InvoiceForm = ({ onSave }) => {
                     }}
                     className="text-base min-h-[44px]"
                   >
+                    <option value="">Select status</option>
                     <option value="draft">Draft Invoice</option>
                     <option value="proforma">Proforma Invoice</option>
                     <option value="issued">Final Tax Invoice</option>
@@ -3126,6 +3251,7 @@ const InvoiceForm = ({ onSave }) => {
                     required={true}
                     validationState={fieldValidation.paymentMode}
                     showValidation={formPreferences.showValidationHighlighting}
+                    error={invalidFields.has('paymentMode')}
                     onChange={(e) => {
                       const value = e.target.value;
                       setInvoice((prev) => ({
@@ -3278,6 +3404,108 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </Card>
 
+          {/* UAE VAT Compliance Section */}
+          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              UAE VAT Compliance (FTA Form 201)
+            </h3>
+            <div className="space-y-4">
+              {/* Place of Supply and Supply Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                <Select
+                  label="Place of Supply (Emirate)"
+                  value={invoice.placeOfSupply || ''}
+                  required={invoice.status === 'issued'}
+                  onChange={(e) => {
+                    setInvoice((prev) => ({
+                      ...prev,
+                      placeOfSupply: e.target.value,
+                    }));
+                  }}
+                  className="text-base min-h-[44px]"
+                >
+                  <option value="">Select emirate</option>
+                  {UAE_EMIRATES.map((emirate) => (
+                    <option key={emirate} value={emirate}>
+                      {emirate}
+                    </option>
+                  ))}
+                </Select>
+                <Input
+                  label="Supply Date (Tax Point)"
+                  type="date"
+                  value={invoice.supplyDate || ''}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({
+                      ...prev,
+                      supplyDate: e.target.value,
+                    }))
+                  }
+                  placeholder="Defaults to invoice date if empty"
+                  className="text-base min-h-[44px]"
+                />
+              </div>
+
+              {/* Reverse Charge */}
+              <div className="flex items-center gap-4">
+                <label className={`flex items-center gap-2 cursor-pointer ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={invoice.isReverseCharge || false}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        isReverseCharge: e.target.checked,
+                        reverseChargeAmount: e.target.checked ? prev.reverseChargeAmount : 0,
+                      }))
+                    }
+                    className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="text-sm font-medium">Reverse Charge Applies (Article 48)</span>
+                </label>
+              </div>
+
+              {/* Reverse Charge Amount - Conditional */}
+              {invoice.isReverseCharge && (
+                <Input
+                  label="Reverse Charge Amount"
+                  type="number"
+                  value={invoice.reverseChargeAmount || ''}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({
+                      ...prev,
+                      reverseChargeAmount: parseFloat(e.target.value) || 0,
+                    }))
+                  }
+                  placeholder="Amount subject to reverse charge"
+                  step="0.01"
+                  min="0"
+                  inputMode="decimal"
+                  className="text-base min-h-[44px]"
+                />
+              )}
+
+              {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
+              {invoice.currency && invoice.currency !== 'AED' && (
+                <Input
+                  label="Exchange Rate Date"
+                  type="date"
+                  value={invoice.exchangeRateDate || ''}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({
+                      ...prev,
+                      exchangeRateDate: e.target.value,
+                    }))
+                  }
+                  className="text-base min-h-[44px]"
+                />
+              )}
+            </div>
+          </Card>
 
           {/* Items Section - Responsive */}
           <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`} ref={itemsRef}>
@@ -3356,21 +3584,6 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             )}
 
-            {/* Add Item Button */}
-            <div className="mb-4">
-              <Button
-                ref={addItemButtonRef}
-                onClick={addItem}
-                variant="primary"
-                size="sm"
-                className="min-h-[44px]"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add Item</span>
-                <span className="sm:hidden">Add</span>
-              </Button>
-            </div>
-
             {/* Bulk Actions Toolbar */}
             {selectedItemCount > 0 && (
               <BulkActionsToolbar
@@ -3389,10 +3602,10 @@ const InvoiceForm = ({ onSave }) => {
                   isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
                 }`}
               >
-                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? 'bg-teal-700' : 'bg-teal-600'}>
                   <tr>
                     {/* Bulk Select & Drag Handle */}
-                    <th className="px-1 py-2 w-16">
+                    <th className="px-1 py-3 w-16">
                       <div className="flex items-center gap-1">
                         <BulkCheckbox
                           checked={isAllItemsSelected}
@@ -3405,57 +3618,43 @@ const InvoiceForm = ({ onSave }) => {
                       </div>
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '38%' }}
                     >
                         Product
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '10%' }}
                     >
                         Qty
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '12%' }}
                     >
                         Rate
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '12%' }}
                     >
                         Supply Type
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '8%' }}
                     >
                         VAT %
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '14%' }}
                     >
                         Amount
                     </th>
                     <th
-                      className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-100' : 'text-gray-700'
-                      }`}
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '8%' }}
                     >
                         Action
@@ -3904,6 +4103,21 @@ const InvoiceForm = ({ onSave }) => {
                 </div>
               )}
             </div>
+
+            {/* Add Item Button - Below Items for Easy Access */}
+            <div className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+              <Button
+                ref={addItemButtonRef}
+                onClick={addItem}
+                variant="primary"
+                size="sm"
+                className="min-h-[44px]"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Add Item</span>
+                <span className="sm:hidden">Add</span>
+              </Button>
+            </div>
           </Card>
 
           {/* Invoice Summary - Single Column */}
@@ -4063,6 +4277,26 @@ const InvoiceForm = ({ onSave }) => {
                     step="0.01"
                     placeholder="0.00"
                   />
+                  {/* Advance Payment Method - shown when advance amount > 0 */}
+                  {invoice.advanceReceived > 0 && (
+                    <Select
+                      label="Advance Payment Method"
+                      value={invoice.advancePaymentMethod || ''}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          advancePaymentMethod: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select payment method</option>
+                      {PAYMENT_MODES.map((mode) => (
+                        <option key={mode} value={mode}>
+                          {mode}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
                   {invoice.advanceReceived > 0 && (
                     <div
                       className={`flex justify-between items-center p-3 rounded-md border ${
@@ -4342,6 +4576,65 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         );
       })()}
+
+      {/* Duplicate Product Warning Dialog */}
+      {duplicateWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+            }`}
+          >
+            <div className="flex items-start mb-4">
+              <div className="flex-shrink-0 bg-amber-100 dark:bg-amber-900/30 rounded-full p-3 mr-4">
+                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-2 text-amber-600 dark:text-amber-400">
+                  Duplicate Product Detected
+                </h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <strong>{duplicateWarning.productName}</strong> already exists in this invoice
+                  (Row {duplicateWarning.existingIndex + 1}, Qty: {duplicateWarning.existingQuantity}).
+                </p>
+              </div>
+            </div>
+
+            <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              What would you like to do?
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleDuplicateUpdateExisting}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Update Existing Quantity (+1)
+              </button>
+              <button
+                onClick={handleDuplicateAddAnyway}
+                className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                }`}
+              >
+                Add as Separate Line
+              </button>
+              <button
+                onClick={handleDuplicateCancel}
+                className={`w-full px-4 py-2 text-sm rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading Overlay for Issued Invoice Saves */}
       <LoadingOverlay

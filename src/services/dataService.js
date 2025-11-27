@@ -13,7 +13,7 @@ import { invoiceService as realInvoiceService } from './invoiceService';
 import { customerService as realCustomerService } from './customerService';
 import { productService as realProductService } from './productService';
 import { companyService as realCompanyService } from './companyService';
-import { payablesService as realPayablesService } from './payablesService';
+import { payablesService as realPayablesService, PAYMENT_MODES as realPaymentModes } from './payablesService';
 
 // Import mock services (using namespace imports because they export individual functions)
 import * as mockInvoiceService from '../mock/services/mockInvoiceService';
@@ -70,7 +70,7 @@ export const payablesService = USE_MOCK_DATA
  */
 export const PAYMENT_MODES = USE_MOCK_DATA
   ? mockPayablesService.PAYMENT_MODES
-  : realPayablesService.PAYMENT_MODES;
+  : realPaymentModes;
 
 /**
  * Payment Service helpers

@@ -44,12 +44,13 @@ export function normalizeSupplier(rawSupplier: any, source = 'unknown'): any | n
       website: rawSupplier.website || undefined,
       address: rawSupplier.address || undefined,
       
-      // Tax & Compliance (5 fields)
+      // Tax & Compliance (6 fields)
       trn: rawSupplier.trn || rawSupplier.tax_registration_number || undefined,
       vatNumber: rawSupplier.vat_number || rawSupplier.vatNumber || undefined,
       businessLicense: rawSupplier.business_license || rawSupplier.businessLicense || undefined,
       taxId: rawSupplier.tax_id || rawSupplier.taxId || undefined,
       certifications: rawSupplier.certifications || undefined,  // JSON string
+      isDesignatedZone: rawSupplier.isDesignatedZone || rawSupplier.is_designated_zone || false,
       
       // Financial (4 fields)
       paymentTerms: rawSupplier.payment_terms || rawSupplier.paymentTerms || undefined,

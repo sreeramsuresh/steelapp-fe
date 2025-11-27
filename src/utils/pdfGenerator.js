@@ -1,3 +1,29 @@
+/**
+ * @deprecated This frontend PDF generator is DEPRECATED.
+ *
+ * MIGRATION NOTICE:
+ * -----------------
+ * PDF generation has been unified using React SSR + Puppeteer on the backend.
+ * This ensures pixel-perfect consistency between preview and PDF download.
+ *
+ * For PDF downloads, use the backend API endpoints instead:
+ * - POST /api/invoices/:id/pdf
+ * - POST /api/quotations/:id/pdf
+ * - POST /api/purchase-orders/:id/pdf
+ * - POST /api/credit-notes/:id/pdf
+ * - POST /api/delivery-notes/:id/pdf
+ * - POST /api/payments/:id/receipt-pdf
+ * - POST /api/customers/:id/statement-pdf
+ *
+ * The backend uses React SSR to render the SAME React components used for preview,
+ * ensuring the PDF matches what users see on screen.
+ *
+ * This file is kept for backwards compatibility but will be removed in a future version.
+ *
+ * @see steelapprnp/services/pdfService.js
+ * @see steelapprnp/templates/ssrRenderer.js
+ */
+
 import {
   formatCurrency,
   formatDate,
@@ -32,8 +58,11 @@ const hexToRgb = (hex) => {
     : [0, 0, 0];
 };
 
-// New modern PDF generator based on customizable template settings
+/**
+ * @deprecated Use backend API endpoint instead: POST /api/invoices/:id/pdf
+ */
 export const generateInvoicePDF = async (invoice, company) => {
+  console.warn('[DEPRECATED] generateInvoicePDF is deprecated. Use backend API endpoint POST /api/invoices/:id/pdf instead.');
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF('p', 'mm', 'a4');
 
@@ -141,7 +170,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setDrawColor(91, 109, 181);
   pdf.setLineWidth(0.5);
   pdf.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 8;
+  currentY += 5;
 
   // ==================== INVOICE TITLE BANNER ====================
   // Determine invoice title based on status
@@ -149,20 +178,20 @@ export const generateInvoicePDF = async (invoice, company) => {
     invoice.status === 'proforma' ? 'PROFORMA INVOICE' :
       'TAX INVOICE';
 
-  // Draw title banner with same height and style as Invoice No box (7mm height)
-  const titleBannerHeight = 7;
+  // Draw title banner (6mm height - industry standard for A4)
+  const titleBannerHeight = 6;
   pdf.setFillColor(...primaryColor);
   pdf.rect(margin, currentY, pageWidth - 2 * margin, titleBannerHeight, 'F');
 
-  // Add centered title text
-  pdf.setFontSize(11);
+  // Add centered title text (use template fontSize.title - 10pt industry standard)
+  pdf.setFontSize(typography.fontSize.title);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(255, 255, 255);
   const titleWidth = pdf.getTextWidth(invoiceTitle);
   const titleX = (pageWidth - titleWidth) / 2;
-  pdf.text(invoiceTitle, titleX, currentY + 5);
+  pdf.text(invoiceTitle, titleX, currentY + 4.2);
 
-  currentY += titleBannerHeight + 6;
+  currentY += titleBannerHeight + 4;
 
   // ==================== INVOICE TO & INVOICE INFO SECTION ====================
   const leftColX = margin;
@@ -170,13 +199,13 @@ export const generateInvoicePDF = async (invoice, company) => {
   const invoiceInfoStartY = currentY;
 
   // LEFT SIDE - Invoice To
-  pdf.setFontSize(11);
+  pdf.setFontSize(typography.fontSize.large);
   pdf.setFont('helvetica', 'bold');
   setBlack();
   pdf.text('Invoice To:', leftColX, currentY);
   currentY += 5;
 
-  pdf.setFontSize(9);
+  pdf.setFontSize(typography.fontSize.base);
   pdf.setFont('helvetica', 'normal');
   const cust = invoice.customer || {};
   const custAddr = cust.address || {};
@@ -223,7 +252,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setFillColor(...primaryBlue);
   pdf.rect(rightColX, rightY, boxWidth, boxHeaderHeight, 'F');
 
-  pdf.setFontSize(11);
+  pdf.setFontSize(typography.fontSize.large);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(255, 255, 255);
   pdf.text('Invoice No:', rightColX + 2, rightY + 5);
@@ -241,7 +270,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setDrawColor(...primaryBlue);
 
   // Invoice Date - Professional format
-  pdf.setFontSize(9);
+  pdf.setFontSize(typography.fontSize.base);
   setBlack();
   pdf.setFont('helvetica', 'bold');
   pdf.text('Invoice Date:', rightColX + 2, rightY + 4);
@@ -250,6 +279,37 @@ export const generateInvoicePDF = async (invoice, company) => {
   const invoiceDateWidth = pdf.getTextWidth(invoiceDateStr);
   pdf.text(invoiceDateStr, rightColX + boxWidth - invoiceDateWidth - 2, rightY + 4);
   rightY += 6;
+
+  // Issued Date/Time - Split into two rows for better readability
+  // Row 1: "Issued:" with just the date
+  const issuedDateTime = invoice.createdAt || invoice.date || new Date();
+  const issuedDateStr = toUAEDateProfessional(issuedDateTime);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Issued:', rightColX + 2, rightY + 4);
+  pdf.setFont('helvetica', 'normal');
+  const issuedDateWidth = pdf.getTextWidth(issuedDateStr);
+  pdf.text(issuedDateStr, rightColX + boxWidth - issuedDateWidth - 2, rightY + 4);
+  rightY += 5;
+
+  // Row 2: Time portion on separate line (right-aligned)
+  // Extract time from the full datetime format
+  const issuedDateObj = new Date(issuedDateTime);
+  const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Dubai',
+  });
+  const timeStr = `${timeFormatter.format(issuedDateObj).toUpperCase()  } GST (UTC+4)`;
+  const timeStrWidth = pdf.getTextWidth(timeStr);
+  pdf.setFontSize(typography.fontSize.small);
+  setTextSecondary();
+  pdf.text(timeStr, rightColX + boxWidth - timeStrWidth - 2, rightY + 3);
+  rightY += 5;
+
+  // Reset font settings for next rows
+  pdf.setFontSize(typography.fontSize.base);
+  setBlack();
 
   // SO (Sales Order)
   if (invoice.customerPurchaseOrderNumber) {
@@ -288,7 +348,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setLineWidth(0.3);
   pdf.rect(rightColX, invoiceInfoStartY + boxHeaderHeight, boxWidth, detailsBoxHeight);
 
-  currentY = Math.max(currentY, rightY) + 8;
+  currentY = Math.max(currentY, rightY) + 5;
 
   // ==================== CURRENCY INFO (Compact one-liner) ====================
   if (invoice.currency && invoice.currency !== 'AED') {
@@ -299,7 +359,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     
     // Reset text color
     setTextPrimary();
-    currentY += 8;
+    currentY += 6;
   }
 
   // ==================== TABLE SECTION (UAE VAT Compliant) ====================
@@ -318,30 +378,31 @@ export const generateInvoicePDF = async (invoice, company) => {
     total: tableWidth * 0.10,         // 10% - Total with VAT
   };
 
-  // Table header with blue background
+  // Table header with blue background (6mm height - industry standard)
+  const tableHeaderHeight = 6;
   pdf.setFillColor(...primaryColor);
-  pdf.rect(margin, currentY, pageWidth - 2 * margin, 8, 'F');
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, tableHeaderHeight, 'F');
 
-  pdf.setFontSize(8);
+  pdf.setFontSize(typography.fontSize.tableHeader);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(255, 255, 255);
 
   let colX = margin + 2;
-  pdf.text('Sr.', colX, currentY + 5.5);
+  pdf.text('Sr.', colX, currentY + 4.2);
   colX += colWidths.sr;
-  pdf.text('Description', colX, currentY + 5.5);
+  pdf.text('Description', colX, currentY + 4.2);
   colX += colWidths.description;
-  pdf.text('Qty', colX + colWidths.quantity / 2, currentY + 5.5, { align: 'center' });
+  pdf.text('Qty', colX + colWidths.quantity / 2, currentY + 4.2, { align: 'center' });
   colX += colWidths.quantity;
-  pdf.text('Unit Price', colX + colWidths.unitPrice / 2, currentY + 5.5, { align: 'center' });
+  pdf.text('Unit Price', colX + colWidths.unitPrice / 2, currentY + 4.2, { align: 'center' });
   colX += colWidths.unitPrice;
-  pdf.text('Net Amt', colX + colWidths.netAmt - 2, currentY + 5.5, { align: 'right' });
+  pdf.text('Net Amt', colX + colWidths.netAmt - 2, currentY + 4.2, { align: 'right' });
   colX += colWidths.netAmt;
-  pdf.text('VAT', colX + colWidths.vat - 2, currentY + 5.5, { align: 'right' });
+  pdf.text('VAT', colX + colWidths.vat - 2, currentY + 4.2, { align: 'right' });
   colX += colWidths.vat;
-  pdf.text('Total', colX + colWidths.total - 2, currentY + 5.5, { align: 'right' });
+  pdf.text('Total', colX + colWidths.total - 2, currentY + 4.2, { align: 'right' });
 
-  currentY += 8;
+  currentY += tableHeaderHeight;
 
   // Table rows
   const items = invoice.items || [];
@@ -414,7 +475,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.setLineWidth(0.3);
   pdf.line(margin, currentY, pageWidth - margin, currentY);
 
-  currentY += 8;
+  currentY += 5;
 
   // ==================== TOTALS SECTION ====================
   const totalsX = pageWidth - margin - 60;
@@ -441,7 +502,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     vatVal,
   );
 
-  pdf.setFontSize(9);
+  pdf.setFontSize(typography.fontSize.base);
   pdf.setFont('helvetica', 'normal');
   setBlack();
 
@@ -464,7 +525,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   // TOTAL (bold)
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(10);
+  pdf.setFontSize(typography.fontSize.large);
   pdf.text('TOTAL', totalsX, currentY);
   pdf.text(`AED ${formatNumber(totalVal)}`, pageWidth - margin, currentY, { align: 'right' });
   currentY += 8;
@@ -480,7 +541,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     // Show advance received
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
+    pdf.setFontSize(typography.fontSize.base);
     pdf.setTextColor(220, 38, 38); // Red color for deduction
     pdf.text('Less: Advance Received', totalsX, currentY);
     pdf.text(`- AED ${formatNumber(advanceAmount)}`, pageWidth - margin, currentY, { align: 'right' });
@@ -494,7 +555,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     currentY += 5;
 
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
+    pdf.setFontSize(typography.fontSize.large);
     pdf.setTextColor(...textPrimaryColor);
     pdf.text('Balance Due', totalsX, currentY);
     pdf.text(`AED ${formatNumber(balanceDue)}`, pageWidth - margin, currentY, { align: 'right' });
@@ -504,17 +565,17 @@ export const generateInvoicePDF = async (invoice, company) => {
   // ==================== PAYMENT HISTORY SECTION (Optional) ====================
   // Only show if there are payments
   if (invoice.payments && invoice.payments.length > 0) {
-    pdf.setFontSize(11);
+    pdf.setFontSize(typography.fontSize.large);
     pdf.setFont('helvetica', 'bold');
     setBlack();
     pdf.text('Payment History', margin, currentY);
     currentY += 6;
 
-    // Payment table header
+    // Payment table header (6mm height - consistent with main table)
     pdf.setFillColor(...primaryBlue);
-    pdf.rect(margin, currentY, pageWidth - 2 * margin, 7, 'F');
+    pdf.rect(margin, currentY, pageWidth - 2 * margin, tableHeaderHeight, 'F');
 
-    pdf.setFontSize(9);
+    pdf.setFontSize(typography.fontSize.tableHeader);
     pdf.setTextColor(255, 255, 255);
 
     const payColWidths = {
@@ -526,17 +587,17 @@ export const generateInvoicePDF = async (invoice, company) => {
     };
 
     colX = margin + 2;
-    pdf.text('Sr.', colX, currentY + 5);
+    pdf.text('Sr.', colX, currentY + 4.2);
     colX += payColWidths.sr;
-    pdf.text('Date', colX, currentY + 5);
+    pdf.text('Date', colX, currentY + 4.2);
     colX += payColWidths.date;
-    pdf.text('Method', colX, currentY + 5);
+    pdf.text('Method', colX, currentY + 4.2);
     colX += payColWidths.method;
-    pdf.text('Ref.', colX, currentY + 5);
+    pdf.text('Ref.', colX, currentY + 4.2);
     colX += payColWidths.ref;
-    pdf.text('Amount', colX + payColWidths.amount - 2, currentY + 5, { align: 'right' });
+    pdf.text('Amount', colX + payColWidths.amount - 2, currentY + 4.2, { align: 'right' });
 
-    currentY += 7;
+    currentY += tableHeaderHeight;
 
     // Payment rows
     pdf.setFont('helvetica', 'normal');
@@ -563,11 +624,11 @@ export const generateInvoicePDF = async (invoice, company) => {
       currentY += 6;
     });
 
-    currentY += 8;
+    currentY += 5;
   }
 
   // ==================== FOOTER SECTION ====================
-  pdf.setFontSize(9);
+  pdf.setFontSize(typography.fontSize.base);
   pdf.setFont('helvetica', 'normal');
   setDarkGray();
 
@@ -614,23 +675,33 @@ export const generateInvoicePDF = async (invoice, company) => {
     // Reset line width
     pdf.setLineWidth(0.3);
 
-    pdf.setFontSize(9);
+    pdf.setFontSize(typography.fontSize.base);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(113, 63, 18); // text-yellow-900
     pdf.text('Tax Notes:', margin + 3, currentY + 5);
 
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
+    pdf.setFontSize(typography.fontSize.small);
     pdf.setTextColor(133, 77, 14); // text-yellow-800
     pdf.text(taxNotesLines, margin + 3, currentY + 10);
 
     // Reset text color
     setTextPrimary();
 
-    currentY += taxNotesHeight + 3;
+    currentY += taxNotesHeight + 2;
   }
 
-  currentY += 8;
+  currentY += 4;
+
+  // ==================== FOOTER SPACE CHECK ====================
+  // Ensure we have enough space for signature/seal section + contact footer
+  const footerRequiredSpace = 50; // Minimum space needed for seal + signature + contact info
+  const availableSpace = pageHeight - currentY - layout.marginBottom;
+
+  if (availableSpace < footerRequiredSpace) {
+    pdf.addPage();
+    currentY = layout.marginTop;
+  }
 
   // ==================== SIGNATURE AND SEAL SECTION ====================
   const signatureY = currentY;
@@ -660,7 +731,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   // Authorized Signatory - Right Side
   const signatoryX = pageWidth - margin - 60;
-  pdf.setFontSize(9);
+  pdf.setFontSize(typography.fontSize.base);
   setBlack();
   pdf.setFont('helvetica', 'bold');
   pdf.text('Authorized Signatory', signatoryX, signatureY + 5);
@@ -671,12 +742,12 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.line(signatoryX, signatureY + 16, signatoryX + 55, signatureY + 16);
 
   // Company name under signature
-  pdf.setFontSize(8);
+  pdf.setFontSize(typography.fontSize.small);
   setDarkGray();
   pdf.text('ULTIMATE STEELS', signatoryX + 5, signatureY + 19);
   pdf.text('BUILDING MATERIALS TRADING', signatoryX, signatureY + 22);
 
-  currentY = signatureY + 28;
+  currentY = signatureY + 24;
 
   // Bottom footer line
   const footerY = currentY;
@@ -685,22 +756,22 @@ export const generateInvoicePDF = async (invoice, company) => {
   pdf.line(margin, footerY, pageWidth - margin, footerY);
 
   // Contact information
-  pdf.setFontSize(8);
+  pdf.setFontSize(typography.fontSize.small);
   setDarkGray();
   const contactInfo = `Phone: ${company?.phone || '+971 XXX XXX'} | Email: ${company?.email || 'info@example.com'} | Website: www.ultimatesteels.com`;
   const contactWidth = pdf.getTextWidth(contactInfo);
-  pdf.text(contactInfo, (pageWidth - contactWidth) / 2, footerY + 4);
+  pdf.text(contactInfo, (pageWidth - contactWidth) / 2, footerY + 3);
 
   // Timezone disclaimer - Important for international business
-  pdf.setFontSize(7);
+  pdf.setFontSize(6);
   pdf.setFont('helvetica', 'italic');
   const disclaimerWidth = pdf.getTextWidth(TIMEZONE_DISCLAIMER);
-  pdf.text(TIMEZONE_DISCLAIMER, (pageWidth - disclaimerWidth) / 2, footerY + 8);
+  pdf.text(TIMEZONE_DISCLAIMER, (pageWidth - disclaimerWidth) / 2, footerY + 6);
 
   // Page number
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(8);
-  pdf.text(`Page: 1 / 1`, pageWidth / 2, footerY + 12, { align: 'center' });
+  pdf.setFontSize(typography.fontSize.small);
+  pdf.text(`Page: 1 / 1`, pageWidth / 2, footerY + 9, { align: 'center' });
 
   // Save the PDF
   pdf.save(`${invoice.invoiceNumber || 'invoice'}.pdf`);

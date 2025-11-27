@@ -96,14 +96,14 @@ export type ValidationResult<T> = {
  */
 export function validatePagination(
   pagination: unknown,
-  context?: string
+  context?: string,
 ): ValidationResult<z.infer<typeof PageInfoSchema>> {
   const result = PageInfoSchema.safeParse(pagination);
 
   if (!result.success) {
     console.warn(
       `[API Contract Violation] Pagination schema mismatch${context ? ` in ${context}` : ''}:`,
-      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ')
+      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', '),
     );
     return { success: false, error: result.error, data: null };
   }
@@ -115,14 +115,14 @@ export function validatePagination(
  * Validate invoice list response
  */
 export function validateInvoiceListResponse(
-  response: unknown
+  response: unknown,
 ): ValidationResult<z.infer<typeof InvoiceListResponseSchema>> {
   const result = InvoiceListResponseSchema.safeParse(response);
 
   if (!result.success) {
     console.warn(
       '[API Contract Violation] Invoice list response schema mismatch:',
-      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ')
+      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', '),
     );
     return { success: false, error: result.error, data: null };
   }

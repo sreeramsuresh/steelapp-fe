@@ -130,6 +130,13 @@ export interface Invoice {
   warehouseCode?: string;
   warehouseCity?: string;
   
+  // UAE VAT Compliance Fields
+  placeOfSupply?: string;  // Emirate where supply is made
+  supplyDate?: string;     // Date of supply (tax point)
+  isReverseCharge?: boolean;  // Reverse charge applies
+  reverseChargeAmount?: number;  // Amount subject to reverse charge
+  exchangeRateDate?: string;  // Date when exchange rate was determined
+  
   // Delivery tracking
   deliveryStatus?: DeliveryStatus;
   

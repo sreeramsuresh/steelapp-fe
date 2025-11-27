@@ -40,7 +40,8 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
 
 /**
  * NewBadge Component
- * Renders a small green "NEW" badge if the record was created within the threshold.
+ * Renders a small teal "NEW" text indicator if the record was created within the threshold.
+ * Styled as simple dark text without background - clean and minimal.
  * 
  * @param {Object} props
  * @param {string|Date|Object} props.createdAt - The creation timestamp
@@ -55,11 +56,10 @@ const NewBadge = ({ createdAt, hoursThreshold = 2, className = '' }) => {
   return (
     <span
       className={`
-        ml-2 px-1.5 py-0.5 
-        text-xs font-medium 
-        bg-green-100 text-green-700 
-        dark:bg-green-900/30 dark:text-green-400 
-        rounded
+        ml-1.5
+        text-[0.625rem] font-semibold uppercase tracking-wide
+        text-teal-700
+        dark:text-teal-400
         ${className}
       `.trim()}
     >

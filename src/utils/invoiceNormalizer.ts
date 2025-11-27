@@ -297,6 +297,13 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       warehouseCode: rawInvoice.warehouseCode || rawInvoice.warehouse_code || undefined,
       warehouseCity: rawInvoice.warehouseCity || rawInvoice.warehouse_city || undefined,
       
+      // UAE VAT Compliance Fields
+      placeOfSupply: rawInvoice.placeOfSupply || rawInvoice.place_of_supply || undefined,
+      supplyDate: rawInvoice.supplyDate || rawInvoice.supply_date || undefined,
+      isReverseCharge: Boolean(rawInvoice.isReverseCharge || rawInvoice.is_reverse_charge),
+      reverseChargeAmount: parseNumber(rawInvoice.reverseChargeAmount || rawInvoice.reverse_charge_amount, 0),
+      exchangeRateDate: rawInvoice.exchangeRateDate || rawInvoice.exchange_rate_date || undefined,
+      
       // Delivery
       deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
       

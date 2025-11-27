@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { 
+import {
   BarChart3,
   TrendingUp,
   FileText,
   PieChart,
+  Receipt,
 } from 'lucide-react';
 
 import SalesAnalytics from '../components/SalesAnalytics';
 import RevenueTrends from '../components/RevenueTrends';
+import VATReturnReport from '../components/VATReturnReport';
 
 const ReportsDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -26,6 +28,12 @@ const ReportsDashboard = () => {
       label: 'Revenue Trends',
       icon: TrendingUp,
       component: RevenueTrends,
+    },
+    {
+      id: 'vat-return',
+      label: 'VAT Return (Form 201)',
+      icon: Receipt,
+      component: VATReturnReport,
     },
   ];
 

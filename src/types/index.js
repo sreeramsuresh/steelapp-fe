@@ -79,10 +79,11 @@ export const createInvoice = () => ({
   otherCharges: 0,
   roundOff: 0,
   advanceReceived: 0,
+  advancePaymentMethod: '', // Payment method for advance (Cash, Cheque, Bank Transfer, etc.)
   balanceAmount: 0,
   totalInWords: '',
   total: 0,
-  status: 'draft',
+  status: '', // Empty by default - user must select
   currency: 'AED', // Default currency
   exchangeRate: 1, // Default exchange rate for AED
   notes: '',
@@ -98,6 +99,12 @@ export const createInvoice = () => ({
   commission_eligible: true, // Whether this invoice is eligible for commission
   commission_calculated: false, // Whether commission has been calculated
   commission_paid: false, // Whether commission has been paid
+  // UAE VAT Compliance Fields (FTA Form 201)
+  placeOfSupply: 'Sharjah', // Emirate where supply is made (Boxes 1-7 of VAT return)
+  supplyDate: toUAEDateForInput(new Date()), // Date of supply/tax point (defaults to today)
+  isReverseCharge: false, // Reverse charge mechanism applies (Article 48)
+  reverseChargeAmount: 0, // Amount subject to reverse charge
+  exchangeRateDate: '', // Date when exchange rate was determined
 });
 
 export const createCompany = () => ({

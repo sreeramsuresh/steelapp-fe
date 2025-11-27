@@ -41,6 +41,7 @@ export function normalizeCustomer(rawCustomer: any, source = 'unknown'): any | n
       // Tax & Compliance
       vatNumber: rawCustomer.vatNumber || rawCustomer.vat_number || rawCustomer.gstNumber || rawCustomer.gst_number || undefined,
       trn: rawCustomer.trn || rawCustomer.tax_registration_number || undefined,
+      isDesignatedZone: rawCustomer.isDesignatedZone || rawCustomer.is_designated_zone || false,
       
       // Financial
       creditLimit: parseNumber(rawCustomer.creditLimit || rawCustomer.credit_limit, undefined),

@@ -15,7 +15,7 @@
  * @returns {string} snake_case string
  */
 export const toSnakeCase = (str) => {
-  return str.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
+  return str.replace(/[A-Z]/g, (m) => `_${  m.toLowerCase()}`);
 };
 
 /**

@@ -181,7 +181,7 @@ const InvoicesTab = ({ canManage }) => {
       paymentMethod: method,     // Map local 'method' to standard 'paymentMethod'
       paymentDate: paymentDate || toUAEDateForInput(new Date()),
       referenceNumber: referenceNo, // Map local 'referenceNo' to standard 'referenceNumber'
-      notes
+      notes,
     });
 
     // Create local payment object for optimistic UI update
@@ -508,7 +508,7 @@ const InvoicesTab = ({ canManage }) => {
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
                   {(drawer.item.payments || []).map((p, idx) => {
-                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const paymentIndex = idx + 1;
                     const isDownloading = downloadingReceiptId === p.id;
                     const isPrinting = printingReceiptId === p.id;
 
@@ -517,7 +517,7 @@ const InvoicesTab = ({ canManage }) => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.referenceNo || '—'}</div>
+                            <div className="opacity-70">{p.paymentMethod || p.method} • {p.referenceNo || p.referenceNumber || '—'}</div>
                           </div>
                           <div className="text-right flex items-center gap-2">
                             <div>
@@ -759,7 +759,7 @@ const POTab = ({ canManage }) => {
       paymentMethod: method,     // Map local 'method' to standard 'paymentMethod'
       paymentDate: paymentDate || toUAEDateForInput(new Date()),
       referenceNumber: referenceNo, // Map local 'referenceNo' to standard 'referenceNumber'
-      notes
+      notes,
     });
 
     // Create local payment object for optimistic UI update
@@ -1055,7 +1055,7 @@ const POTab = ({ canManage }) => {
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
                   {(drawer.item.payments || []).map((p, idx) => {
-                    const paymentIndex = (drawer.item.payments || []).length - idx;
+                    const paymentIndex = idx + 1;
                     const isDownloading = downloadingReceiptId === p.id;
                     const isPrinting = printingReceiptId === p.id;
 
@@ -1064,7 +1064,7 @@ const POTab = ({ canManage }) => {
                         <div className="flex justify-between items-start text-sm">
                           <div className="flex-1">
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
-                            <div className="opacity-70">{p.method} • {p.referenceNo || '—'}</div>
+                            <div className="opacity-70">{p.paymentMethod || p.method} • {p.referenceNo || p.referenceNumber || '—'}</div>
                           </div>
                           <div className="text-right flex items-center gap-2">
                             <div>

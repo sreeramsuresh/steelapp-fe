@@ -31,6 +31,12 @@ const transformInvoiceForServer = (invoiceData) => {
     status: invoiceData.status || 'draft',
     notes: invoiceData.notes,
     terms: invoiceData.terms,
+    // UAE VAT Compliance Fields
+    place_of_supply: invoiceData.placeOfSupply || null,
+    supply_date: invoiceData.supplyDate || null,
+    is_reverse_charge: invoiceData.isReverseCharge || false,
+    reverse_charge_amount: invoiceData.reverseChargeAmount || 0,
+    exchange_rate_date: invoiceData.exchangeRateDate || null,
     items: invoiceData.items?.map(item => ({
       product_id: item.productId || null,
       name: item.name,
@@ -69,6 +75,12 @@ const transformInvoiceFromServer = (serverData) => {
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
     // Ensure items is an array
     items: Array.isArray(serverData.items) ? serverData.items : [],
+    // UAE VAT Compliance Fields
+    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || '',
+    supplyDate: serverData.supplyDate || serverData.supply_date || '',
+    isReverseCharge: serverData.isReverseCharge || serverData.is_reverse_charge || false,
+    reverseChargeAmount: serverData.reverseChargeAmount !== undefined ? Number(serverData.reverseChargeAmount) : (serverData.reverse_charge_amount !== undefined ? Number(serverData.reverse_charge_amount) : 0),
+    exchangeRateDate: serverData.exchangeRateDate || serverData.exchange_rate_date || '',
   };
 };
 

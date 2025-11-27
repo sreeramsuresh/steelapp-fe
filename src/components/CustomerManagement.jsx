@@ -115,6 +115,7 @@ const CustomerManagement = () => {
     trade_license_number: '',
     trade_license_expiry: '',
     pricelist_id: null,
+    is_designated_zone: false, // UAE VAT: Customer in Free Zone
   });
 
   // TRN validation: UAE VAT TRN must start with "100" and be 15 digits.
@@ -179,6 +180,7 @@ const CustomerManagement = () => {
         trade_license_number: '',
         trade_license_expiry: '',
         pricelist_id: null,
+        is_designated_zone: false,
       });
       setShowAddModal(false);
       refetchCustomers();
@@ -244,6 +246,7 @@ const CustomerManagement = () => {
     contact_name: '',
     contact_email: '',
     contact_phone: '',
+    is_designated_zone: false, // UAE VAT: Supplier in Free Zone
   });
 
   const handleAddSupplier = async () => {
@@ -252,7 +255,7 @@ const CustomerManagement = () => {
     try {
       const data = { ...newSupplier };
       await createSupplier(data);
-      setNewSupplier({ name: '', email: '', phone: '', address: '', company: '', status: 'active', trn_number: '', payment_terms: '', default_currency: 'AED', contact_name: '', contact_email: '', contact_phone: '' });
+      setNewSupplier({ name: '', email: '', phone: '', address: '', company: '', status: 'active', trn_number: '', payment_terms: '', default_currency: 'AED', contact_name: '', contact_email: '', contact_phone: '', is_designated_zone: false });
       setShowAddSupplierModal(false);
       refetchSuppliers();
       notificationService.createSuccess('Supplier');
@@ -585,7 +588,7 @@ const CustomerManagement = () => {
               <div className={`text-sm space-y-1 ${textSecondary}`}>
                 {s.email && <div><FaEnvelope className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.email}</div>}
                 {s.phone && <div><FaPhone className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.phone}</div>}
-                {s.address && <div><FaMapMarkerAlt className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.address}</div>}
+                {s.address && <div><FaMapMarkerAlt className={`inline w-4 h-4 mr-1 ${textMuted}`} />{typeof s.address === 'object' ? [s.address.street, s.address.city, s.address.state, s.address.postalCode, s.address.country].filter(Boolean).join(', ') : s.address}</div>}
                 {s.trnNumber && <div>TRN: {s.trnNumber}</div>}
                 {s.defaultCurrency && <div>Currency: {s.defaultCurrency}</div>}
                 {s.paymentTerms && <div>Payment Terms: {s.paymentTerms}</div>}
@@ -917,6 +920,20 @@ const CustomerManagement = () => {
                   )}
                 </div>
 
+                {/* UAE VAT: Designated Zone checkbox */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="newCustomerDesignatedZone"
+                    checked={newCustomer.isDesignatedZone || false}
+                    onChange={(e) => setNewCustomer({...newCustomer, is_designated_zone: e.target.checked})}
+                    className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                  />
+                  <label htmlFor="newCustomerDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>
+                    Designated Zone (Free Zone) Customer
+                  </label>
+                </div>
+
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>
                     Trade License Number
@@ -1069,6 +1086,10 @@ const CustomerManagement = () => {
                   <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                 )}
               </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="newSupplierDesignatedZone" checked={newSupplier.isDesignatedZone || false} onChange={(e)=>setNewSupplier({...newSupplier, is_designated_zone: e.target.checked})} className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
+                <label htmlFor="newSupplierDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>Designated Zone (Free Zone) Supplier</label>
+              </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
                 <input type="text" placeholder="e.g., Net 30" value={newSupplier.paymentTerms} onChange={(e)=>setNewSupplier({...newSupplier, payment_terms:e.target.value})} className={inputClasses} />
@@ -1149,6 +1170,10 @@ const CustomerManagement = () => {
                 ) : (
                   <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                 )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="editSupplierDesignatedZone" checked={selectedSupplier.isDesignatedZone || false} onChange={(e)=>setSelectedSupplier({...selectedSupplier, is_designated_zone: e.target.checked})} className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
+                <label htmlFor="editSupplierDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>Designated Zone (Free Zone) Supplier</label>
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${textSecondary}`}>Payment Terms</label>
@@ -1319,6 +1344,20 @@ const CustomerManagement = () => {
                   {!validateTRN(selectedCustomer.trnNumber) && (
                     <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
                   )}
+                </div>
+
+                {/* UAE VAT: Designated Zone checkbox */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="editCustomerDesignatedZone"
+                    checked={selectedCustomer.isDesignatedZone || false}
+                    onChange={(e) => setSelectedCustomer({...selectedCustomer, is_designated_zone: e.target.checked})}
+                    className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                  />
+                  <label htmlFor="editCustomerDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>
+                    Designated Zone (Free Zone) Customer
+                  </label>
                 </div>
 
                 <div>

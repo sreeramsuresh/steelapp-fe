@@ -655,11 +655,11 @@ const SteelProducts = () => {
     if (selectedProduct.displayName !== displayName || selectedProduct.fullName !== fullName) {
       setSelectedProduct(prev => ({
         ...prev,
-        displayName: displayName,
+        displayName,
         display_name: displayName,
-        fullName: fullName,
+        fullName,
         full_name: fullName,
-        name: displayName // Update name field as well
+        name: displayName, // Update name field as well
       }));
     }
   }, [
@@ -674,7 +674,7 @@ const SteelProducts = () => {
     selectedProduct?.thickness,
     selectedProduct?.origin,
     selectedProduct?.displayName,
-    selectedProduct?.fullName
+    selectedProduct?.fullName,
   ]);
 
   const handleEditProduct = async () => {

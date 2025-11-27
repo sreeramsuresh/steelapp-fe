@@ -24,7 +24,7 @@ const calculatePaginationDisplay = (pagination) => {
   const startItem = (pagination.currentPage - 1) * pagination.perPage + 1;
   const endItem = Math.min(
     pagination.currentPage * pagination.perPage,
-    pagination.totalItems
+    pagination.totalItems,
   );
   const totalItems = pagination.totalItems;
 

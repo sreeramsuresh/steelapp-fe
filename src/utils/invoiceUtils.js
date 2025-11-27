@@ -6,7 +6,7 @@ import {
   toUAEDateShort,
   toUAEPaymentDateTime,
   TIMEZONE_DISCLAIMER,
-  TIMEZONE_LABEL
+  TIMEZONE_LABEL,
 } from './timezone';
 
 export const calculateItemAmount = (quantity, rate) => {
@@ -15,10 +15,18 @@ export const calculateItemAmount = (quantity, rate) => {
   return qty * rt;
 };
 
+/**
+ * Calculate VAT/TRN amount with proper UAE FTA rounding
+ * Uses toFixed(2) for standard rounding to 2 decimal places
+ * @param {number} amount - Base amount before VAT
+ * @param {number} trnRate - VAT rate percentage (e.g., 5 for 5%)
+ * @returns {number} Rounded VAT amount
+ */
 export const calculateTRN = (amount, trnRate) => {
   const amt = parseFloat(amount) || 0;
   const rate = parseFloat(trnRate) || 0;
-  return (amt * rate) / 100;
+  // UAE FTA compliant rounding - always round to 2 decimal places
+  return parseFloat(((amt * rate) / 100).toFixed(2));
 };
 
 // Keep for backward compatibility
@@ -33,17 +41,31 @@ export const calculateSubtotal = (items) => {
   }, 0);
 };
 
+/**
+ * Calculate total VAT/TRN for all items with proper UAE FTA rounding
+ * @param {Array} items - Invoice line items
+ * @returns {number} Total VAT amount (rounded to 2 decimal places)
+ */
 export const calculateTotalTRN = (items) => {
-  return items.reduce((sum, item) => {
+  const totalVat = items.reduce((sum, item) => {
     const amount = parseFloat(item.amount) || 0;
     const rate = parseFloat(item.vatRate) || 0;
     return sum + calculateTRN(amount, rate);
   }, 0);
+  // Final rounding for UAE FTA compliance
+  return parseFloat(totalVat.toFixed(2));
 };
 
-// Compute VAT after applying invoice-level discount per UAE rules
-// - Percentage: reduce each line by the percent, then apply VAT per line
-// - Amount: allocate discount proportionally by line amount, then apply VAT per line
+/**
+ * Compute VAT after applying invoice-level discount per UAE FTA rules
+ * - Percentage: reduce each line by the percent, then apply VAT per line
+ * - Amount: allocate discount proportionally by line amount, then apply VAT per line
+ * @param {Array} items - Invoice line items
+ * @param {string} discountType - 'percentage' or 'amount'
+ * @param {number} discountPercent - Discount percentage (if type is percentage)
+ * @param {number} discountAmount - Discount amount (if type is amount)
+ * @returns {number} Total VAT after discount (rounded to 2 decimal places)
+ */
 export const calculateDiscountedTRN = (items, discountType, discountPercent, discountAmount) => {
   if (!Array.isArray(items) || items.length === 0) return 0;
   const total = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
@@ -56,11 +78,12 @@ export const calculateDiscountedTRN = (items, discountType, discountPercent, dis
   if (discountType === 'percentage' && pct > 0) {
     const factor = Math.max(0, 1 - pct / 100);
     for (const it of items) {
-      const lineAmt = (parseFloat(it.amount) || 0) * factor;
+      const lineAmt = parseFloat(((parseFloat(it.amount) || 0) * factor).toFixed(2));
       const rate = parseFloat(it.vatRate) || 0;
       vatSum += calculateTRN(lineAmt, rate);
     }
-    return vatSum;
+    // UAE FTA compliant final rounding
+    return parseFloat(vatSum.toFixed(2));
   }
 
   // Amount-based or no/invalid type
@@ -70,12 +93,13 @@ export const calculateDiscountedTRN = (items, discountType, discountPercent, dis
   for (const it of items) {
     const base = parseFloat(it.amount) || 0;
     const share = base / total;
-    const allocated = cap * share;
-    const net = Math.max(0, base - allocated);
+    const allocated = parseFloat((cap * share).toFixed(2));
+    const net = parseFloat(Math.max(0, base - allocated).toFixed(2));
     const rate = parseFloat(it.vatRate) || 0;
     vatSum += calculateTRN(net, rate);
   }
-  return vatSum;
+  // UAE FTA compliant final rounding
+  return parseFloat(vatSum.toFixed(2));
 };
 
 // Keep for backward compatibility

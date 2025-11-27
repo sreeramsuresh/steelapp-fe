@@ -271,7 +271,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         invoice_template: settings,
         selectedTemplate: selectedTemplateId,
         templateCustomColors: customColors,
-        documentTemplates: documentTemplates,
+        documentTemplates,
       });
       setOriginalSettings(settings);
       setOriginalTemplateId(selectedTemplateId);

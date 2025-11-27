@@ -2698,8 +2698,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                     <div className="text-sm opacity-70">No payments recorded yet.</div>
                   )}
                   {(paymentDrawerInvoice.payments || []).map((p, idx) => {
-                    const paymentIndex = (paymentDrawerInvoice.payments || []).length - idx;
-                    const paymentMode = PAYMENT_MODES[p.method] || PAYMENT_MODES.other;
+                    const paymentIndex = idx + 1;
+                    const paymentMode = PAYMENT_MODES[p.paymentMethod || p.method] || PAYMENT_MODES.other;
                     return (
                       <div key={p.id || idx} className={`p-2 rounded border ${
                         p.voided ? 'opacity-60 line-through' : ''
@@ -2709,7 +2709,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                             <div className="font-medium">{formatCurrency(p.amount || 0)}</div>
                             <div className="opacity-70">
                               {paymentMode.icon} {paymentMode.label}
-                              {p.referenceNo && <> • {p.referenceNo}</>}
+                              {(p.referenceNo || p.referenceNumber) && <> • {p.referenceNo || p.referenceNumber}</>}
                             </div>
                             {p.receiptNumber && (
                               <div className="text-xs mt-1 text-teal-600 font-semibold">

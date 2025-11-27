@@ -34,10 +34,11 @@ const ls = {
 const computeInvoiceDerived = (inv) => {
   const payments = (inv.payments || []).filter(p => !p.voided);
   const received = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const total = Number(inv.invoiceAmount ?? inv.total ?? 0);
+  // Handle multiple field name variations (camelCase from API Gateway, various backend formats)
+  const total = Number(inv.invoiceAmount || inv.totalAmount || inv.total || inv.invoice_amount || 0);
   const outstanding = Math.max(0, +(total - received).toFixed(2));
   const today = new Date().toISOString().slice(0,10);
-  const dueDate = inv.dueDate || inv.dueDate || today;
+  const dueDate = inv.dueDate || inv.due_date || today;
   let status = 'unpaid';
   if (outstanding === 0 && total > 0) status = 'paid';
   else if (outstanding < total && outstanding > 0) status = 'partially_paid';
@@ -50,10 +51,11 @@ const computeInvoiceDerived = (inv) => {
 const computePODerived = (po) => {
   const payments = (po.payments || []).filter(p => !p.voided);
   const paid = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const total = Number(po.poValue ?? po.total ?? 0);
+  // Handle multiple field name variations (camelCase from API Gateway, various backend formats)
+  const total = Number(po.poValue || po.total || po.po_value || 0);
   const balance = Math.max(0, +(total - paid).toFixed(2));
   const today = new Date().toISOString().slice(0,10);
-  const dueDate = po.dueDate || po.dueDate || today;
+  const dueDate = po.dueDate || po.due_date || today;
   let status = 'unpaid';
   if (balance === 0 && total > 0) status = 'paid';
   else if (balance < total && balance > 0) status = 'partially_paid';
@@ -67,14 +69,17 @@ export const payablesService = {
   // Invoices (Customer Receivables)
   async getInvoices(params = {}) {
     try {
-      // Backend provides complete payment data - just return it
       const response = await apiClient.get('/payables/invoices', params);
       const list = response.items || response.invoices || response;
       const aggregates = response.aggregates || {};
 
-      // Backend now provides: received, outstanding, status, payments array
-      // No need for recalculation or localStorage fallback
-      const items = Array.isArray(list) ? list : [];
+      // Ensure status is computed correctly based on payments data
+      // Backend may return stale status - recompute from received/outstanding/payments
+      const items = (Array.isArray(list) ? list : []).map(inv => {
+        // Compute derived fields to ensure status is accurate
+        const computed = computeInvoiceDerived(inv);
+        return { ...inv, ...computed };
+      });
 
       return { items, aggregates };
     } catch (e) {
@@ -123,14 +128,17 @@ export const payablesService = {
   // POs (Vendor Payables)
   async getPOs(params = {}) {
     try {
-      // Backend provides complete payment data - just return it
       const response = await apiClient.get('/payables/pos', params);
       const list = response.items || response.pos || response;
       const aggregates = response.aggregates || {};
 
-      // Backend now provides: paid, balance, status, payments array
-      // No need for recalculation or localStorage fallback
-      const items = Array.isArray(list) ? list : [];
+      // Ensure status is computed correctly based on payments data
+      // Backend may return stale status - recompute from paid/balance/payments
+      const items = (Array.isArray(list) ? list : []).map(po => {
+        // Compute derived fields to ensure status is accurate
+        const computed = computePODerived(po);
+        return { ...po, ...computed };
+      });
 
       return { items, aggregates };
     } catch (e) {
