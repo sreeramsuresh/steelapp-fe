@@ -236,6 +236,9 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
             <div className="space-y-1">
               {section.items
                 .filter(item => {
+                  if (item.requiredRoles) {
+                    return item.requiredRoles.some(role => authService.hasRole(role));
+                  }
                   if (item.requiredRole) {
                     return authService.hasRole(item.requiredRole);
                   }

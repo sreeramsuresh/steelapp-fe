@@ -281,8 +281,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-
-
         <Route
           path="/finance"
           element={

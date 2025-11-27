@@ -53,6 +53,12 @@ const StockMovementForm = () => {
   const [errors, setErrors] = useState({});
   const [existingMovement, setExistingMovement] = useState(null);
 
+  // Product autocomplete search state
+  const [productQuery, setProductQuery] = useState('');
+  const [productOptions, setProductOptions] = useState([]);
+  const [productSearching, setProductSearching] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   // Available units
   const UNITS = ['KG', 'MT', 'PCS', 'SHEETS', 'COILS', 'BUNDLES', 'METERS'];
 
@@ -123,6 +129,50 @@ const StockMovementForm = () => {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }));
     }
+  };
+
+  // Product catalog search with debounce
+  useEffect(() => {
+    if (!productQuery || productQuery.trim().length < 2) {
+      setProductOptions([]);
+      return;
+    }
+    setProductSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await productService.searchProducts
+          ? await productService.searchProducts(productQuery, { limit: 10 })
+          : await productService.getProducts({ search: productQuery, limit: 10 });
+        const rows = res?.data || res?.products || res || [];
+        setProductOptions(rows);
+      } catch (e) {
+        setProductOptions([]);
+      } finally {
+        setProductSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [productQuery]);
+
+  // Handle product selection from catalog - auto-populate fields
+  const handleSelectProduct = (product) => {
+    if (!product) return;
+    setSelectedProduct(product);
+    setFormData((prev) => ({
+      ...prev,
+      productId: product.id,
+    }));
+    setProductQuery('');
+    setProductOptions([]);
+    if (errors.productId) {
+      setErrors(prev => ({ ...prev, productId: null }));
+    }
+  };
+
+  // Clear linked product
+  const clearLinkedProduct = () => {
+    setSelectedProduct(null);
+    setFormData((prev) => ({ ...prev, productId: '' }));
   };
 
   // Validate form
@@ -270,7 +320,7 @@ const StockMovementForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Product and Warehouse */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Product */}
+            {/* Product with Autocomplete Search */}
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 <div className="flex items-center gap-2">
@@ -278,22 +328,86 @@ const StockMovementForm = () => {
                   Product *
                 </div>
               </label>
-              <div className="relative">
-                <select
-                  value={formData.productId}
-                  onChange={(e) => handleChange('productId', e.target.value)}
-                  className={getInputClass('productId')}
-                  disabled={isEditing}
-                >
-                  <option value="">Select a product...</option>
-                  {products.map(product => (
-                    <option key={product.id} value={product.id}>
-                      {product.name} {product.sku ? `(${product.sku})` : ''}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              </div>
+              {isEditing ? (
+                /* View mode - show selected product name */
+                <div className="relative">
+                  <select
+                    value={formData.productId}
+                    className={getInputClass('productId')}
+                    disabled={true}
+                  >
+                    <option value="">Select a product...</option>
+                    {products.map(product => (
+                      <option key={product.id} value={product.id}>
+                        {product.name} {product.sku ? `(${product.sku})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                </div>
+              ) : selectedProduct || formData.productId ? (
+                /* Product selected - show linked display */
+                <div className={`flex items-center justify-between px-4 py-3 rounded-lg border ${
+                  isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'
+                }`}>
+                  <div>
+                    <div className="font-medium text-teal-500">
+                      {selectedProduct
+                        ? (selectedProduct.fullName || selectedProduct.full_name || selectedProduct.uniqueName || selectedProduct.unique_name || selectedProduct.displayName || selectedProduct.display_name || selectedProduct.name)
+                        : products.find(p => p.id.toString() === formData.productId.toString())?.name || 'Product Selected'}
+                    </div>
+                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {selectedProduct?.origin ? `${selectedProduct.origin} | ` : ''}{selectedProduct?.category || ''} {selectedProduct?.grade ? `| ${selectedProduct.grade}` : ''}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearLinkedProduct}
+                    className={`px-3 py-1 rounded border text-sm ${isDarkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'}`}
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                /* Autocomplete search input */
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={productQuery}
+                    onChange={(e) => setProductQuery(e.target.value)}
+                    placeholder="Search for a product..."
+                    className={getInputClass('productId')}
+                  />
+                  {productSearching && (
+                    <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Searching...
+                    </div>
+                  )}
+                  {productOptions.length > 0 && (
+                    <div className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow-lg ${
+                      isDarkMode ? 'bg-[#1E2328] border-gray-700' : 'bg-white border-gray-200'
+                    }`}>
+                      {productOptions.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => handleSelectProduct(p)}
+                          className={`w-full text-left px-4 py-3 transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}
+                          </div>
+                          <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {p.origin ? `${p.origin} | ` : ''}{p.category} {p.grade ? `| ${p.grade}` : ''} {p.size ? `| ${p.size}` : ''}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {errors.productId && (
                 <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
                   <AlertCircle size={14} />

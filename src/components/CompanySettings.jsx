@@ -33,6 +33,7 @@ import {
   UserCheck,
   UserPlus,
   History,
+  Key,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -44,6 +45,7 @@ import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
+import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
 import { roleService } from '../services/roleService';
 import RoleGuideModal from './RoleGuideModal';
 
@@ -3539,6 +3541,7 @@ const CompanySettings = () => {
     { id: 'templates', label: 'Document Templates', icon: FileText },
     { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },
+    { id: 'fta', label: 'FTA Integration', icon: Key },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
   ];
 
@@ -3600,6 +3603,7 @@ const CompanySettings = () => {
         {activeTab === 'templates' && renderInvoiceTemplates()}
         {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
+        {activeTab === 'fta' && <FTAIntegrationSettings embedded />}
         {isAdmin && activeTab === 'users' && renderUserManagement()}
       </div>
     </div>

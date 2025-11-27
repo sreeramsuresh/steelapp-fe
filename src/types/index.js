@@ -168,6 +168,8 @@ export const createStockMovement = () => ({
 
 export const createInventoryItem = () => ({
   id: uuid(),
+  productId: null,
+  productName: '',
   description: '',
   productType: '',
   grade: '',
@@ -179,6 +181,7 @@ export const createInventoryItem = () => ({
   sellingPrice: 0,
   landedCost: 0,
   location: '',
+  origin: '',
 });
 
 export const PRODUCT_TYPES = ['Sheet', 'Square Tube', 'Rectangular Tube', 'Pol Pipe', 'Round Bar', 'Flat Bar', 'Angle Bar', 'Square Bar', 'Coil'];

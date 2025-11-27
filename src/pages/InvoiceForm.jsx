@@ -3648,10 +3648,10 @@ const InvoiceForm = ({ onSave }) => {
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">
-                                    {option.searchDisplay || option.fullName || option.full_name || option.displayName || option.display_name || option.name}
+                                    {option.fullName || option.full_name || option.uniqueName || option.unique_name || option.searchDisplay || option.displayName || option.display_name || option.name}
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    {option.subtitle}
+                                    {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                                   </div>
                                 </div>
                               )}
@@ -3863,9 +3863,9 @@ const InvoiceForm = ({ onSave }) => {
                         error={invalidFields.has(`item.${index}.name`)}
                         renderOption={(option) => (
                           <div>
-                            <div className="font-medium">{option.searchDisplay || option.fullName || option.full_name || option.displayName || option.display_name || option.name}</div>
+                            <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.searchDisplay || option.displayName || option.display_name || option.name}</div>
                             <div className="text-sm text-gray-500">
-                              {option.subtitle}
+                              {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                             </div>
                           </div>
                         )}

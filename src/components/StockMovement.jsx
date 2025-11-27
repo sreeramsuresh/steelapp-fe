@@ -18,6 +18,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
 import { purchaseOrdersAPI } from '../services/api';
 import { purchaseOrderSyncService } from '../services/purchaseOrderSyncService';
+import { productService } from '../services/productService';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
 import { notificationService } from '../services/notificationService';
 import ConfirmDialog from './ConfirmDialog';
@@ -34,6 +35,11 @@ const StockMovement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [formData, setFormData] = useState(createStockMovement());
+
+  // Product catalog search state
+  const [productQuery, setProductQuery] = useState('');
+  const [productOptions, setProductOptions] = useState([]);
+  const [productSearching, setProductSearching] = useState(false);
 
   useEffect(() => {
     fetchMovements();
@@ -117,6 +123,8 @@ const StockMovement = () => {
       setEditingMovement(null);
       setFormData(createStockMovement());
     }
+    setProductQuery('');
+    setProductOptions([]);
     setOpenDialog(true);
   };
 
@@ -124,6 +132,8 @@ const StockMovement = () => {
     setOpenDialog(false);
     setEditingMovement(null);
     setFormData(createStockMovement());
+    setProductQuery('');
+    setProductOptions([]);
     setError('');
   };
 
@@ -172,6 +182,70 @@ const StockMovement = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  // Product catalog search with debounce
+  useEffect(() => {
+    if (!openDialog) return;
+    if (!productQuery || productQuery.trim().length < 2) {
+      setProductOptions([]);
+      return;
+    }
+    setProductSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await productService.searchProducts(productQuery, { limit: 10 });
+        const rows = res?.data || res?.products || res || [];
+        setProductOptions(rows);
+      } catch (e) {
+        setProductOptions([]);
+      } finally {
+        setProductSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [productQuery, openDialog]);
+
+  // Handle product selection from catalog - auto-populate fields
+  const handleSelectProduct = (product) => {
+    if (!product) return;
+
+    // Helper to extract thickness from product
+    const getThickness = (p) => {
+      if (p.thickness) return p.thickness;
+      if (p.specifications?.thickness) return p.specifications.thickness;
+      return '';
+    };
+
+    // Map product fields to stock movement form
+    setFormData((prev) => ({
+      ...prev,
+      productId: product.id,
+      // Use fullName (with origin) as display name
+      productName: product.fullName || product.full_name || product.uniqueName || product.unique_name || product.displayName || product.display_name || product.name,
+      // Product type from category
+      productType: product.category || product.productType || prev.productType,
+      // Steel specifications
+      grade: product.grade || product.steelGrade || prev.grade,
+      finish: product.finish || product.surfaceFinish || prev.finish,
+      size: product.size || product.dimensions || prev.size,
+      thickness: getThickness(product) || prev.thickness,
+      // Additional pipe/tube fields
+      sizeInch: product.sizeInch || product.size_inch || '',
+      od: product.od || '',
+      length: product.length || '',
+      // Commodity
+      commodity: product.commodity || 'SS',
+      // Origin
+      origin: product.origin || '',
+    }));
+    setProductQuery('');
+    setProductOptions([]);
+  };
+
+  // Clear linked product
+  const clearLinkedProduct = () => {
+    setFormData((prev) => ({ ...prev, productId: null, productName: '' }));
   };
 
   const filteredMovements = movements.filter(movement =>
@@ -464,6 +538,62 @@ const StockMovement = () => {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Product Catalog Search - spans full width */}
+                  <div className="md:col-span-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Product (from Catalog)
+                    </label>
+                    {formData.productId ? (
+                      <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}>
+                        <div>
+                          <div className="font-medium text-teal-500">{formData.productName}</div>
+                          <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Linked to catalog</div>
+                        </div>
+                        <button onClick={clearLinkedProduct} className={`px-3 py-1 rounded border ${isDarkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'}`}>
+                          Unlink
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={productQuery}
+                          onChange={(e) => setProductQuery(e.target.value)}
+                          placeholder="Search and select a product to auto-fill fields..."
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                            isDarkMode
+                              ? 'bg-[#121418] border-[#37474F] text-white placeholder-gray-400'
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                        {productSearching && (
+                          <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Searching...</div>
+                        )}
+                        {productOptions.length > 0 && (
+                          <div className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow ${isDarkMode ? 'bg-[#1E2328] border-gray-700' : 'bg-white border-gray-200'}`}>
+                            {productOptions.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => handleSelectProduct(p)}
+                                className={`w-full text-left px-3 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                              >
+                                <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}
+                                </div>
+                                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  {p.origin ? `${p.origin} | ` : ''}{p.category} {p.grade ? `| ${p.grade}` : ''} {p.size ? `| ${p.size}` : ''} {p.thickness ? `| ${p.thickness}mm` : ''}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Selecting a product will auto-fill grade, finish, size, and thickness fields
+                    </p>
+                  </div>
+
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Date
@@ -473,8 +603,8 @@ const StockMovement = () => {
                       value={formData.date}
                       onChange={(e) => handleInputChange('date', e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode 
-                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                        isDarkMode
+                          ? 'bg-[#121418] border-[#37474F] text-white'
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     />
@@ -487,8 +617,8 @@ const StockMovement = () => {
                       value={formData.movement}
                       onChange={(e) => handleInputChange('movement', e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode 
-                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                        isDarkMode
+                          ? 'bg-[#121418] border-[#37474F] text-white'
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     >
@@ -507,8 +637,8 @@ const StockMovement = () => {
                       value={formData.productType}
                       onChange={(e) => handleInputChange('productType', e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode 
-                          ? 'bg-[#121418] border-[#37474F] text-white' 
+                        isDarkMode
+                          ? 'bg-[#121418] border-[#37474F] text-white'
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     >

@@ -14,7 +14,6 @@ import {
   Eye,
   RefreshCw,
   Warehouse,
-  Move,
   ChevronDown,
   ChevronRight,
   Upload,
@@ -24,8 +23,6 @@ import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
-import InventoryList from './InventoryList';
-import StockMovement from './StockMovement';
 import WarehouseManagement from './WarehouseManagement';
 import ProductUpload from './ProductUpload';
 import ConfirmDialog from './ConfirmDialog';
@@ -587,68 +584,98 @@ const SteelProducts = () => {
     }
   };
 
-  // Auto-compose product name from Commodity, Category, Grade, Finish, Size, Thickness (with 'GR ' prefix on grade)
+  // Auto-compose product name matching database trigger pattern:
+  // {commodity}-{grade}{grade_variant}-{category}-{finish}-{dimensions}
+  // Uses HYPHEN delimiter (not space) and NO 'GR' prefix on grade
   useEffect(() => {
     const parts = [];
-    if (newProduct.commodity) parts.push(String(newProduct.commodity).trim());
-    const catLabel = categories.find(c => c.value === newProduct.category)?.label;
-    if (catLabel) parts.push(catLabel);
+    // Commodity (uppercase)
+    if (newProduct.commodity) parts.push(String(newProduct.commodity).trim().toUpperCase());
+    // Grade + GradeVariant (no GR prefix - e.g., "304", "316L", "304L")
     if (newProduct.grade) {
       const g = String(newProduct.grade).trim();
-      const m = g.match(/^gr\s*(.+)$/i);
-      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+      // Strip any existing GR prefix if user accidentally added it
+      let fullGrade = g.replace(/^gr\s*/i, '');
+      // Append grade variant if present (e.g., "L" in "304L")
+      if (newProduct.gradeVariant) {
+        fullGrade += String(newProduct.gradeVariant).trim();
+      }
+      parts.push(fullGrade);
     }
-    if (newProduct.finish) parts.push(String(newProduct.finish).trim());
+    // Category (InitCap)
+    const catLabel = categories.find(c => c.value === newProduct.category)?.label;
+    if (catLabel) parts.push(catLabel);
+    // Finish (uppercase)
+    if (newProduct.finish) parts.push(String(newProduct.finish).trim().toUpperCase());
+    // Dimensions (varies by category)
     const isPipeOrTube = /pipe|tube/i.test(newProduct.category || '');
     if (isPipeOrTube) {
-      // For pipes/tubes: include size (inch), OD, and length
-      if (newProduct.sizeInch) parts.push(`${String(newProduct.sizeInch).trim()}"`);
-      if (newProduct.od) parts.push(`OD${String(newProduct.od).trim()}`);
-      if (newProduct.length) parts.push(`L${String(newProduct.length).trim()}`);
+      // For pipes/tubes: size (inch), OD, length
+      const dimParts = [];
+      if (newProduct.sizeInch) dimParts.push(`${String(newProduct.sizeInch).trim()}"`);
+      if (newProduct.od) dimParts.push(`OD${String(newProduct.od).trim()}`);
+      if (newProduct.length) dimParts.push(`L${String(newProduct.length).trim()}`);
+      if (dimParts.length > 0) parts.push(dimParts.join('x'));
     } else {
-      // For sheets/bars/etc: include size and thickness
+      // For sheets/bars/etc: size and thickness
       if (newProduct.size) parts.push(String(newProduct.size).trim());
     }
-    if (newProduct.thickness) parts.push(String(newProduct.thickness).trim());
-    const composed = parts.join(' ');
+    if (newProduct.thickness) parts.push(`${String(newProduct.thickness).trim()}mm`);
+
+    // Join with hyphens (matching database trigger pattern)
+    const composed = parts.filter(p => p).join('-');
     setNewProduct(prev => ({ ...prev, name: composed }));
-  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness]);
+  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.gradeVariant, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness]);
 
   // Auto-regenerate displayName and fullName when editing product details
+  // Matches database trigger pattern: {commodity}-{grade}{grade_variant}-{category}-{finish}-{dimensions}
   useEffect(() => {
     if (!selectedProduct) return;
 
-    // Only auto-generate names for NEW products, not when editing existing ones
-    if (selectedProduct.id) return; // Don't regenerate for existing products
+    // For existing products, only regenerate if explicitly requested via regenerateName flag
+    // For new products (no id), always auto-generate
+    if (selectedProduct.id && !selectedProduct.regenerateName) return;
 
     const parts = [];
-    if (selectedProduct.commodity) parts.push(String(selectedProduct.commodity).trim());
-    const catLabel = categories.find(c => c.value === selectedProduct.category)?.label;
-    if (catLabel) parts.push(catLabel);
+    // Commodity (uppercase)
+    if (selectedProduct.commodity) parts.push(String(selectedProduct.commodity).trim().toUpperCase());
+    // Grade + GradeVariant (no GR prefix - e.g., "304", "316L", "304L")
     if (selectedProduct.grade) {
       const g = String(selectedProduct.grade).trim();
-      const m = g.match(/^gr\s*(.+)$/i);
-      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+      let fullGrade = g.replace(/^gr\s*/i, '');
+      // Append grade variant if present (e.g., "L" in "304L")
+      if (selectedProduct.gradeVariant) {
+        fullGrade += String(selectedProduct.gradeVariant).trim();
+      }
+      parts.push(fullGrade);
     }
-    if (selectedProduct.finish) parts.push(String(selectedProduct.finish).trim());
+    // Category (InitCap)
+    const catLabel = categories.find(c => c.value === selectedProduct.category)?.label;
+    if (catLabel) parts.push(catLabel);
+    // Finish (uppercase)
+    if (selectedProduct.finish) parts.push(String(selectedProduct.finish).trim().toUpperCase());
 
+    // Dimensions (varies by category)
     const isPipeOrTube = /pipe|tube/i.test(selectedProduct.category || '');
     if (isPipeOrTube) {
-      // For pipes/tubes: include size (inch), OD, and length
-      if (selectedProduct.sizeInch) parts.push(`${String(selectedProduct.sizeInch).trim()}"`);
-      if (selectedProduct.od) parts.push(`OD${String(selectedProduct.od).trim()}`);
-      if (selectedProduct.length) parts.push(`L${String(selectedProduct.length).trim()}`);
+      // For pipes/tubes: size (inch), OD, length
+      const dimParts = [];
+      if (selectedProduct.sizeInch) dimParts.push(`${String(selectedProduct.sizeInch).trim()}"`);
+      if (selectedProduct.od) dimParts.push(`OD${String(selectedProduct.od).trim()}`);
+      if (selectedProduct.length) dimParts.push(`L${String(selectedProduct.length).trim()}`);
+      if (dimParts.length > 0) parts.push(dimParts.join('x'));
     } else {
-      // For sheets/bars/etc: include size
+      // For sheets/bars/etc: size
       if (selectedProduct.size) parts.push(String(selectedProduct.size).trim());
     }
-    if (selectedProduct.thickness) parts.push(String(selectedProduct.thickness).trim());
+    if (selectedProduct.thickness) parts.push(`${String(selectedProduct.thickness).trim()}mm`);
 
-    const displayName = parts.join('-');
+    // displayName uses hyphen delimiter (no origin)
+    const displayName = parts.filter(p => p).join('-');
 
-    // Generate fullName with origin appended
-    const fullNameParts = [...parts];
-    if (selectedProduct.origin) fullNameParts.push(String(selectedProduct.origin).trim());
+    // fullName = displayName + origin (matching unique_name in database)
+    const fullNameParts = [...parts.filter(p => p)];
+    if (selectedProduct.origin) fullNameParts.push(String(selectedProduct.origin).trim().toUpperCase());
     const fullName = fullNameParts.join('-');
 
     // Only update if the generated names are different from current ones
@@ -660,12 +687,14 @@ const SteelProducts = () => {
         fullName,
         full_name: fullName,
         name: displayName, // Update name field as well
+        regenerateName: false, // Reset the flag after regeneration
       }));
     }
   }, [
     selectedProduct?.commodity,
     selectedProduct?.category,
     selectedProduct?.grade,
+    selectedProduct?.gradeVariant,
     selectedProduct?.finish,
     selectedProduct?.size,
     selectedProduct?.sizeInch,
@@ -673,6 +702,7 @@ const SteelProducts = () => {
     selectedProduct?.length,
     selectedProduct?.thickness,
     selectedProduct?.origin,
+    selectedProduct?.regenerateName,
     selectedProduct?.displayName,
     selectedProduct?.fullName,
   ]);
@@ -1246,10 +1276,6 @@ const SteelProducts = () => {
     </div>
   );
 
-  const renderInventoryManagement = () => (
-    <InventoryList />
-  );
-
   const renderWarehouseManagement = () => (
     <WarehouseManagement />
   );
@@ -1276,8 +1302,6 @@ const SteelProducts = () => {
         <div className="flex flex-wrap gap-1 relative">
           {[
             { id: 'catalog', label: 'Product Catalog', icon: Package },
-            { id: 'inventory', label: 'Inventory Management', icon: Warehouse },
-            { id: 'movements', label: 'Stock Movements', icon: Move },
             { id: 'warehouses', label: 'Warehouses', icon: Warehouse },
           ].map(tab => {
             const Icon = tab.icon;
@@ -1307,8 +1331,6 @@ const SteelProducts = () => {
         {/* Tab Content - Connected to tabs */}
         <div className={`border rounded-b-lg rounded-tr-lg ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
           {activeTab === 'catalog' && renderCatalog()}
-          {activeTab === 'inventory' && renderInventoryManagement()}
-          {activeTab === 'movements' && <StockMovement />}
           {activeTab === 'warehouses' && renderWarehouseManagement()}
         </div>
 
@@ -1643,13 +1665,35 @@ const SteelProducts = () => {
               {/* Modal Content */}
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Display Name (auto-generated)"
-                    value={selectedProduct.displayName || selectedProduct.display_name || selectedProduct.fullName || selectedProduct.full_name || selectedProduct.name || ''}
-                    readOnly
-                    className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
-                    placeholder="Auto-generated from fields below"
-                  />
+                  <div className="sm:col-span-2">
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <Input
+                          label="Display Name (auto-generated)"
+                          value={selectedProduct.displayName || selectedProduct.display_name || selectedProduct.fullName || selectedProduct.full_name || selectedProduct.name || ''}
+                          readOnly
+                          className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
+                          placeholder="Auto-generated from fields below"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProduct(prev => ({ ...prev, regenerateName: true }))}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                          isDarkMode
+                            ? 'bg-teal-700 hover:bg-teal-600 text-white'
+                            : 'bg-teal-100 hover:bg-teal-200 text-teal-700'
+                        }`}
+                        title="Regenerate product name from current field values"
+                      >
+                        <RefreshCw size={14} />
+                        Regenerate
+                      </button>
+                    </div>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Click &quot;Regenerate&quot; to update name from current field values
+                    </p>
+                  </div>
                   <Input
                     label="Full Name with Origin (auto-generated)"
                     value={selectedProduct.fullName || ''}

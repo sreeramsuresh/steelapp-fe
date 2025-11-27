@@ -796,6 +796,57 @@ const ImportOrderDetails = () => {
                 </div>
               )}
             </div>
+
+            {/* UAE VAT Treatment Section */}
+            {(order.movement_type || order.movementType || order.designated_zone_name || order.designatedZoneName) && (
+              <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <h3 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <ShieldCheck size={16} className="text-teal-600" />
+                  UAE VAT Treatment (Article 51)
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Movement Type</p>
+                    <p className={`font-medium capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {(order.movement_type || order.movementType || 'mainland').replace(/_/g, ' ')}
+                    </p>
+                  </div>
+                  {(order.designated_zone_name || order.designatedZoneName) && (
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Designated Zone</p>
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {order.designated_zone_name || order.designatedZoneName}
+                      </p>
+                    </div>
+                  )}
+                  {(order.customs_assessment_date || order.customsAssessmentDate) && (
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tax Point Date</p>
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {formatDate(order.customs_assessment_date || order.customsAssessmentDate)}
+                      </p>
+                    </div>
+                  )}
+                  {(order.import_declaration_number || order.importDeclarationNumber) && (
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>BOE Number</p>
+                      <p className={`font-medium font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {order.import_declaration_number || order.importDeclarationNumber}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {/* Zero-Rated Alert */}
+                {((order.movement_type || order.movementType) === 'dz_entry' ||
+                  (order.movement_type || order.movementType) === 'dz_to_dz') && (
+                  <div className={`mt-3 p-3 rounded-lg text-sm ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                    <p className={isDarkMode ? 'text-green-300' : 'text-green-800'}>
+                      <strong>Zero-Rated VAT:</strong> Goods entering {order.designated_zone_name || order.designatedZoneName || 'designated zone'} qualify for 0% VAT under UAE VAT Law Article 51.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Line Items Table */}
@@ -1121,6 +1172,63 @@ const ImportOrderDetails = () => {
                   </div>
                 )}
               </div>
+
+              {/* Exchange Rate Source (FTA Audit Trail) */}
+              {(order.exchange_rate_source || order.exchangeRateSource) && (
+                <div className={`p-3 rounded-lg text-xs ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                  <p className={`font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Exchange Rate Audit Trail</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <span className={isDarkMode ? 'text-gray-500' : 'text-gray-500'}>Source: </span>
+                      <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{order.exchange_rate_source || order.exchangeRateSource}</span>
+                    </div>
+                    {(order.exchange_rate_date || order.exchangeRateDate) && (
+                      <div>
+                        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-500'}>Date: </span>
+                        <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{formatDate(order.exchange_rate_date || order.exchangeRateDate)}</span>
+                      </div>
+                    )}
+                    {(order.exchange_rate_reference || order.exchangeRateReference) && (
+                      <div>
+                        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-500'}>Ref: </span>
+                        <span className={`font-mono ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{order.exchange_rate_reference || order.exchangeRateReference}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Form 201 VAT Return Mapping */}
+              {(order.reverse_charge_output || order.reverseChargeOutput || order.goods_imported_value || order.goodsImportedValue) && (
+                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-indigo-900/30 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}>
+                  <p className={`font-semibold mb-3 text-sm ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}>
+                    FTA Form 201 VAT Return Mapping
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 12: Goods Imported</span>
+                      <span className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}>
+                        {formatCurrency(order.goods_imported_value || order.goodsImportedValue || (cifValue + customsDuty), 'AED')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 9: Reverse Charge (Output)</span>
+                      <span className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}>
+                        {formatCurrency(order.reverse_charge_output || order.reverseChargeOutput || vat, 'AED')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 15: Reverse Charge (Input)</span>
+                      <span className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}>
+                        {formatCurrency(order.reverse_charge_input || order.reverseChargeInput || vat, 'AED')}
+                      </span>
+                    </div>
+                    <div className={`pt-2 mt-2 border-t text-xs ${isDarkMode ? 'border-indigo-700 text-indigo-300' : 'border-indigo-200 text-indigo-600'}`}>
+                      Net VAT payable: {formatCurrency(0, 'AED')} (self-accounted reverse charge)
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

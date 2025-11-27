@@ -40,6 +40,13 @@ const TRACKING_MILESTONES = [
 ];
 
 // Empty form state
+// Freight VAT treatment options (UAE VAT Law Article 45)
+const FREIGHT_VAT_TREATMENT_OPTIONS = [
+  { value: 'zero_rated', label: 'Zero-Rated (0%) - International Transport' },
+  { value: 'standard', label: 'Standard (5%) - Domestic Transport' },
+  { value: 'exempt', label: 'Exempt - Certain Passenger Transport' },
+];
+
 const EMPTY_FORM = {
   document_type: 'bill_of_lading',
   document_number: '',
@@ -60,6 +67,10 @@ const EMPTY_FORM = {
   consignee_name: '',
   notify_party: '',
   freight_terms: 'prepaid',
+  // UAE VAT Compliance - Freight VAT Treatment (Article 45)
+  freight_vat_treatment: 'zero_rated', // zero_rated (international), standard (domestic), exempt
+  freight_value: '',
+  freight_vat_amount: 0,
   weight_kg: '',
   volume_cbm: '',
   number_of_packages: '',
@@ -1136,6 +1147,73 @@ const ShippingDocumentList = () => {
                       <option value="third_party">Third Party</option>
                     </select>
                   </div>
+                </div>
+
+                {/* UAE VAT Treatment for Freight - Article 45 */}
+                <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-indigo-900/30 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}>
+                  <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}>
+                    UAE VAT Treatment (Article 45)
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                        Freight VAT Treatment
+                      </label>
+                      <select
+                        value={formData.freight_vat_treatment || 'zero_rated'}
+                        onChange={(e) => handleInputChange('freight_vat_treatment', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          isDarkMode
+                            ? 'bg-gray-700 border-indigo-600 text-white'
+                            : 'bg-white border-indigo-300'
+                        }`}
+                      >
+                        {FREIGHT_VAT_TREATMENT_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                        Freight Value (AED)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.freight_value || ''}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value) || 0;
+                          const vatRate = formData.freight_vat_treatment === 'standard' ? 0.05 : 0;
+                          handleInputChange('freight_value', e.target.value);
+                          handleInputChange('freight_vat_amount', value * vatRate);
+                        }}
+                        placeholder="0.00"
+                        step="0.01"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          isDarkMode
+                            ? 'bg-gray-700 border-indigo-600 text-white placeholder-gray-400'
+                            : 'bg-white border-indigo-300 placeholder-gray-500'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                        VAT Amount (AED)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.freight_vat_amount || 0}
+                        disabled
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          isDarkMode
+                            ? 'bg-gray-600 border-indigo-600 text-gray-300'
+                            : 'bg-gray-100 border-indigo-200 text-gray-600'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <p className={`mt-2 text-xs ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`}>
+                    International transport of goods is zero-rated under UAE VAT Law Article 45. Domestic transport within UAE is standard-rated at 5%.
+                  </p>
                 </div>
               </div>
 

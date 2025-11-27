@@ -2088,9 +2088,9 @@ const PurchaseOrderForm = () => {
                               error={invalidFields.has(`item.${index}.name`)}
                               renderOption={(option) => (
                                 <div>
-                                  <div className="font-medium">{option.name}</div>
+                                  <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.label || option.name}</div>
                                   <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    {option.subtitle}
+                                    {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                                   </div>
                                 </div>
                               )}
@@ -2234,9 +2234,9 @@ const PurchaseOrderForm = () => {
                       error={invalidFields.has(`item.${index}.name`)}
                       renderOption={(option) => (
                         <div>
-                          <div className="font-medium">{option.name}</div>
+                          <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.label || option.name}</div>
                           <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {option.subtitle}
+                            {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                           </div>
                         </div>
                       )}

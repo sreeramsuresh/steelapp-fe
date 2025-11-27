@@ -284,10 +284,42 @@ const InventoryList = () => {
 
   const handleSelectProduct = (product) => {
     if (!product) return;
+
+    // Helper to extract thickness from product (may be in specifications or top-level)
+    const getThickness = (p) => {
+      if (p.thickness) return p.thickness;
+      if (p.specifications?.thickness) return p.specifications.thickness;
+      return '';
+    };
+
+    // Map ALL product fields to inventory form, following InvoiceForm.jsx pattern
+    // Use fullName (with origin) as primary for stored productName to match dropdown display
     setFormData((prev) => ({
       ...prev,
+      // Product catalog link
       productId: product.id,
-      productName: product.displayName || product.display_name || product.fullName || product.full_name || product.name,
+      // Use fullName first (with origin) to align with dropdown display order
+      productName: product.fullName || product.full_name || product.uniqueName || product.unique_name || product.displayName || product.display_name || product.name,
+      // Product type from category
+      productType: product.category || product.productType || prev.productType,
+      // Steel specifications
+      grade: product.grade || product.steelGrade || prev.grade,
+      finish: product.finish || product.surfaceFinish || prev.finish,
+      size: product.size || product.dimensions || prev.size,
+      thickness: getThickness(product) || prev.thickness,
+      // Additional pipe/tube fields
+      sizeInch: product.sizeInch || product.size_inch || prev.sizeInch || '',
+      od: product.od || prev.od || '',
+      length: product.length || prev.length || '',
+      // Commodity (SS, MS, etc.)
+      commodity: product.commodity || prev.commodity || 'SS',
+      // Description from product
+      description: product.specification || product.description || prev.description,
+      // Pricing information
+      pricePurchased: product.purchasePrice || product.costPrice || prev.pricePurchased,
+      sellingPrice: product.sellingPrice || prev.sellingPrice,
+      // Origin (country of origin)
+      origin: product.origin || prev.origin,
     }));
     setProductQuery('');
     setProductOptions([]);
@@ -810,8 +842,8 @@ const InventoryList = () => {
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                               >
-                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.displayName || p.display_name || p.fullName || p.full_name || p.name}</div>
-                                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.category} {p.grade ? `• GR${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
+                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}</div>
+                                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.origin ? `${p.origin} • ` : ''}{p.category} {p.grade ? `• ${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
                               </button>
                             ))}
                           </div>
