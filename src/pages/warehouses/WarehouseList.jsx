@@ -35,14 +35,18 @@ const WarehouseList = () => {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState(null);
 
-  // Summary stats
-  const [summary, setSummary] = useState({
+  // Summary stats - initialize with cached data if available (stale-while-revalidate)
+  const cachedSummary = warehouseService.getCachedSummary();
+  const [summary, setSummary] = useState(cachedSummary || {
     totalWarehouses: 0,
     activeWarehouses: 0,
     totalInventoryItems: 0,
     totalStockValue: 0,
     lowStockItems: 0,
   });
+
+  // Track if summary is loading (only true if no cached data available)
+  const [summaryLoading, setSummaryLoading] = useState(!cachedSummary);
 
   // Fetch warehouses and summary
   const fetchWarehouses = useCallback(async () => {
@@ -60,10 +64,14 @@ const WarehouseList = () => {
 
       const warehouseList = result.data || [];
       setWarehouses(warehouseList);
+
+      // Update summary with fresh data (getSummary already updates cache)
       setSummary(summaryData);
+      setSummaryLoading(false);
     } catch (error) {
       console.error('Error fetching warehouses:', error);
       notificationService.error('Failed to load warehouses');
+      setSummaryLoading(false);
     } finally {
       setLoading(false);
     }
