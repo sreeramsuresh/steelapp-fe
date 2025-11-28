@@ -2,6 +2,86 @@ import { apiService } from './axiosApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// ============================================
+// CACHE UTILITIES - Stale-While-Revalidate
+// ============================================
+
+// Cache Keys
+export const CACHE_KEYS = {
+  PURCHASE_ORDERS_LIST: 'purchase_orders_list_cache',
+  STOCK_MOVEMENT_OVERVIEW: 'stock_movement_overview_cache',
+  QUOTATIONS_LIST: 'quotations_list_cache',
+  DELIVERY_NOTES_LIST: 'delivery_notes_list_cache',
+  CUSTOMERS_LIST: 'customers_list_cache',
+  PRODUCTS_LIST: 'products_list_cache',
+};
+
+// Cache TTL in milliseconds (3 minutes)
+export const CACHE_TTL_MS = 3 * 60 * 1000;
+
+/**
+ * Get cached data from localStorage
+ * @param {string} key - Cache key
+ * @returns {object|null} - Cached data with timestamp or null if not found/expired
+ */
+export const getCachedData = (key) => {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    return JSON.parse(cached);
+  } catch (e) {
+    console.warn('Cache read failed:', e);
+    return null;
+  }
+};
+
+/**
+ * Set cached data to localStorage
+ * @param {string} key - Cache key
+ * @param {any} data - Data to cache
+ */
+export const setCachedData = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify({
+      data,
+      timestamp: Date.now(),
+    }));
+  } catch (e) {
+    console.warn('Cache write failed:', e);
+  }
+};
+
+/**
+ * Check if cached data is still fresh (within TTL)
+ * @param {object} cached - Cached object with timestamp
+ * @param {number} ttl - TTL in milliseconds (default: CACHE_TTL_MS)
+ * @returns {boolean} - True if cache is fresh
+ */
+export const isCacheFresh = (cached, ttl = CACHE_TTL_MS) => {
+  if (!cached || !cached.timestamp) return false;
+  return (Date.now() - cached.timestamp) < ttl;
+};
+
+/**
+ * Clear specific cache key
+ * @param {string} key - Cache key to clear
+ */
+export const clearCache = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.warn('Cache clear failed:', e);
+  }
+};
+
+/**
+ * Clear multiple cache keys
+ * @param {string[]} keys - Array of cache keys to clear
+ */
+export const clearCaches = (keys) => {
+  keys.forEach(key => clearCache(key));
+};
+
 class ApiClient {
   constructor() {
     this.baseURL = API_BASE_URL;

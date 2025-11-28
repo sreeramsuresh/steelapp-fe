@@ -36,17 +36,22 @@ const WarehouseList = () => {
   const [editingWarehouse, setEditingWarehouse] = useState(null);
 
   // Summary stats - initialize with cached data if available (stale-while-revalidate)
-  const cachedSummary = warehouseService.getCachedSummary();
-  const [summary, setSummary] = useState(cachedSummary || {
-    totalWarehouses: 0,
-    activeWarehouses: 0,
-    totalInventoryItems: 0,
-    totalStockValue: 0,
-    lowStockItems: 0,
+  // Using lazy initializer to avoid reading cache on every render
+  const [summary, setSummary] = useState(() => {
+    const cached = warehouseService.getCachedSummary();
+    return cached || {
+      totalWarehouses: 0,
+      activeWarehouses: 0,
+      totalInventoryItems: 0,
+      totalStockValue: 0,
+      lowStockItems: 0,
+    };
   });
 
   // Track if summary is loading (only true if no cached data available)
-  const [summaryLoading, setSummaryLoading] = useState(!cachedSummary);
+  const [summaryLoading, setSummaryLoading] = useState(() => {
+    return !warehouseService.getCachedSummary();
+  });
 
   // Fetch warehouses and summary
   const fetchWarehouses = useCallback(async () => {
@@ -126,6 +131,8 @@ const WarehouseList = () => {
         notificationService.success('Warehouse updated successfully');
       } else {
         await warehouseService.create(formData);
+        // Clear summary cache since warehouse count changed
+        warehouseService.clearSummaryCache();
         notificationService.success('Warehouse created successfully');
       }
       setFormDialogOpen(false);

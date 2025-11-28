@@ -26,7 +26,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import { quotationsAPI } from '../services/api';
+import { quotationsAPI, CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
 import { NewBadge } from '../components/shared';
@@ -37,12 +37,15 @@ import { notificationService } from '../services/notificationService';
 const QuotationList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
-  const [quotations, setQuotations] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  // Initialize state from cache for instant display (stale-while-revalidate)
+  const cachedData = getCachedData(CACHE_KEYS.QUOTATIONS_LIST);
+  const [quotations, setQuotations] = useState(cachedData?.data?.quotations || []);
+  const [loading, setLoading] = useState(!cachedData?.data?.quotations);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(cachedData?.data?.totalPages || 1);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -106,19 +109,33 @@ const QuotationList = () => {
   };
 
   const fetchQuotations = async () => {
-    try {
+    // Only show loading spinner if no cached data available
+    const isFirstPageWithNoFilters = page === 1 && !searchTerm && statusFilter === 'all';
+    const hasCachedData = isFirstPageWithNoFilters && cachedData?.data?.quotations;
+
+    if (!hasCachedData) {
       setLoading(true);
-      setError('');
-      
+    }
+    setError('');
+
+    try {
       const params = { page, limit: 10 };
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== 'all') params.status = statusFilter;
 
       const response = await quotationsAPI.getAll(params);
-      
+
       if (response?.quotations) {
         setQuotations(response.quotations);
         setTotalPages(response.pagination?.totalPages || 1);
+
+        // Cache first page data only (no filters)
+        if (isFirstPageWithNoFilters) {
+          setCachedData(CACHE_KEYS.QUOTATIONS_LIST, {
+            quotations: response.quotations,
+            totalPages: response.pagination?.totalPages || 1,
+          });
+        }
       } else {
         setQuotations([]);
         setTotalPages(1);
@@ -126,7 +143,10 @@ const QuotationList = () => {
     } catch (err) {
       console.error('Error fetching quotations:', err);
       setError(err.message || 'Failed to fetch quotations');
-      setQuotations([]);
+      // Only clear state if no cached data to fall back on
+      if (!hasCachedData) {
+        setQuotations([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -141,6 +161,8 @@ const QuotationList = () => {
   const handleDelete = async (id) => {
     try {
       await quotationsAPI.delete(id);
+      // Clear cache on successful delete
+      clearCache(CACHE_KEYS.QUOTATIONS_LIST);
       setSuccess('Quotation deleted successfully');
       setDeleteConfirm(null);
       fetchQuotations();
@@ -155,6 +177,8 @@ const QuotationList = () => {
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await quotationsAPI.updateStatus(id, newStatus);
+      // Clear cache on successful status update
+      clearCache(CACHE_KEYS.QUOTATIONS_LIST);
       setSuccess(`Quotation status updated to ${newStatus}`);
       fetchQuotations();
       setTimeout(() => setSuccess(''), 3000);
@@ -168,6 +192,8 @@ const QuotationList = () => {
   const handleConvertToInvoice = async (id) => {
     try {
       const response = await quotationsAPI.convertToInvoice(id);
+      // Clear cache on successful conversion
+      clearCache(CACHE_KEYS.QUOTATIONS_LIST);
       setSuccess(`Quotation converted to invoice ${response.invoiceNumber}`);
       fetchQuotations();
       setTimeout(() => setSuccess(''), 3000);

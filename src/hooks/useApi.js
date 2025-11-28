@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export const useApi = (apiFunction, dependencies = []) => {
-  const [data, setData] = useState(null);
+export const useApi = (apiFunction, dependencies = [], options = {}) => {
+  const { initialData = null } = options;
+  const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -23,10 +24,10 @@ export const useApi = (apiFunction, dependencies = []) => {
   }, []); // Empty deps - apiFunction should be stable (wrapped in useCallback by caller if needed)
 
   const reset = useCallback(() => {
-    setData(null);
+    setData(initialData);
     setError(null);
     setLoading(false);
-  }, []);
+  }, [initialData]);
 
   return {
     data,
@@ -37,11 +38,53 @@ export const useApi = (apiFunction, dependencies = []) => {
   };
 };
 
-export const useApiData = (apiFunction, dependencies = [], immediate = true) => {
-  const { data, loading, error, execute, reset } = useApi(apiFunction, dependencies);
+/**
+ * useApiData - Auto-fetching hook with stale-while-revalidate support
+ * @param {Function} apiFunction - Function to call for fetching data
+ * @param {Array} dependencies - Dependencies that trigger refetch
+ * @param {Object|boolean} options - Options object or boolean for backward compatibility (immediate)
+ *   - immediate: boolean - Whether to fetch immediately on mount (default: true)
+ *   - initialData: any - Initial data to use before fetch completes (for stale-while-revalidate)
+ *   - skipInitialLoading: boolean - Skip showing loading state if initialData is provided
+ */
+export const useApiData = (apiFunction, dependencies = [], options = true) => {
+  // Support backward compatibility: options can be boolean (immediate) or object
+  const normalizedOptions = typeof options === 'boolean'
+    ? { immediate: options }
+    : options;
+
+  const {
+    immediate = true,
+    initialData = null,
+    skipInitialLoading = false,
+  } = normalizedOptions;
+
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(!skipInitialLoading);
+  const [error, setError] = useState(null);
 
   // Track if initial fetch has been done to prevent double-fetch in React Strict Mode
   const hasFetchedRef = useRef(false);
+
+  // Execute function that updates state
+  const execute = useCallback(async (...args) => {
+    try {
+      // Only show loading if we don't have data yet or skipInitialLoading is false
+      if (!data || !skipInitialLoading) {
+        setLoading(true);
+      }
+      setError(null);
+      const result = await apiFunction(...args);
+      setData(result);
+      return result;
+    } catch (err) {
+      setError(err.message || 'An error occurred');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiFunction, skipInitialLoading]); // Include apiFunction to update when it changes
 
   useEffect(() => {
     // Only fetch on mount if immediate is true and haven't fetched yet
@@ -67,6 +110,12 @@ export const useApiData = (apiFunction, dependencies = [], immediate = true) => 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
+
+  const reset = useCallback(() => {
+    setData(initialData);
+    setError(null);
+    setLoading(false);
+  }, [initialData]);
 
   return {
     data,

@@ -1,25 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart3,
-  TrendingUp,
   Users,
   Package,
-  FileText,
   DollarSign,
   Activity,
-  Calendar,
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  AlertTriangle,
   CreditCard,
   Percent,
   Info,
 } from 'lucide-react';
-import { invoicesAPI } from '../services/api';
 import { analyticsService } from '../services/analyticsService';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+
+// ============================================================================
+// CACHE UTILITIES (Stale-While-Revalidate Pattern)
+// ============================================================================
+
+const CACHE_KEYS = {
+  STATS: 'dashboard_stats_cache',
+  AR_AGING: 'dashboard_ar_aging_cache',
+  REVENUE_TREND: 'dashboard_revenue_trend_cache',
+};
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Get cached data from localStorage
+ * @returns {Object|null} - { data, timestamp } or null if not found
+ */
+const getCachedData = (key) => {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    return JSON.parse(cached);
+  } catch (error) {
+    console.warn('Dashboard cache read error:', error);
+    return null;
+  }
+};
+
+/**
+ * Set cached data in localStorage
+ */
+const setCachedData = (key, data) => {
+  try {
+    const cacheEntry = {
+      data,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(key, JSON.stringify(cacheEntry));
+  } catch (error) {
+    console.warn('Dashboard cache write error:', error);
+  }
+};
+
+/**
+ * Check if cached data is stale (older than TTL)
+ */
+const isCacheStale = (timestamp) => {
+  if (!timestamp) return true;
+  return Date.now() - timestamp > CACHE_TTL_MS;
+};
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
@@ -241,7 +286,16 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
 const Dashboard = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
+
+  // Initialize with cached data for instant display (stale-while-revalidate)
+  const cachedStats = getCachedData(CACHE_KEYS.STATS);
+  const cachedArAging = getCachedData(CACHE_KEYS.AR_AGING);
+  const cachedRevenueTrend = getCachedData(CACHE_KEYS.REVENUE_TREND);
+
+  // Determine if we have any cached data to show immediately
+  const hasCachedData = !!(cachedStats?.data || cachedArAging?.data || cachedRevenueTrend?.data);
+
+  const [stats, setStats] = useState(cachedStats?.data || {
     totalRevenue: 0,
     totalCustomers: 0,
     totalProducts: 0,
@@ -250,16 +304,23 @@ const Dashboard = () => {
     customersChange: 0,
     productsChange: 0,
     invoicesChange: 0,
+    kpis: {
+      grossMargin: 0,
+      dso: 0,
+      creditUtilization: 0,
+    },
   });
 
-  const [recentInvoices, setRecentInvoices] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // If we have cached data, don't show loading spinner - show stale data immediately
+  const [loading, setLoading] = useState(!hasCachedData);
+  // Track if background refresh is in progress
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // New KPI states
-  const [arAging, setArAging] = useState(null);
-  const [revenueTrend, setRevenueTrend] = useState(null);
-  const [kpis, setKpis] = useState({
+  // New KPI states - initialize from cache
+  const [arAging, setArAging] = useState(cachedArAging?.data || null);
+  const [revenueTrend, setRevenueTrend] = useState(cachedRevenueTrend?.data || null);
+  const [kpis, setKpis] = useState(cachedStats?.data?.kpis || {
     grossMargin: 0,
     dso: 0,
     creditUtilization: 0,
@@ -271,24 +332,26 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
+      // Only show loading spinner if no cached data
+      if (!hasCachedData) {
+        setLoading(true);
+      } else {
+        // Mark as background refresh
+        setIsRefreshing(true);
+      }
 
       // Fetch all data in parallel
       const [
         dashboard,
-        invResp,
         arAgingData,
         revenueTrendData,
         dashboardKPIs,
       ] = await Promise.all([
         analyticsService.getDashboardData().catch(() => ({})),
-        invoicesAPI.getAll({ page: 1, limit: 5 }).catch(() => ({ invoices: [] })),
         analyticsService.getARAgingBuckets().catch(() => null),
         analyticsService.getRevenueTrend(12).catch(() => null),
         analyticsService.getDashboardKPIs().catch(() => null),
       ]);
-
-      const invoices = Array.isArray(invResp?.invoices) ? invResp.invoices : [];
 
       // Trends for month-over-month change
       const trends = Array.isArray(dashboard?.monthlyTrends)
@@ -319,7 +382,15 @@ const Dashboard = () => {
         previous?.uniqueCustomers,
       );
 
-      setStats({
+      // Parse KPIs
+      const parsedKpis = dashboardKPIs ? {
+        grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
+        dso: parseFloat(dashboardKPIs.dso_days) || 0,
+        creditUtilization: parseFloat(dashboardKPIs.credit_utilization_percent) || 0,
+      } : { grossMargin: 0, dso: 0, creditUtilization: 0 };
+
+      // Build stats object for caching
+      const statsData = {
         totalRevenue,
         totalCustomers,
         totalProducts,
@@ -328,10 +399,12 @@ const Dashboard = () => {
         customersChange,
         productsChange: 0,
         invoicesChange,
-      });
+        kpis: parsedKpis,
+      };
 
-      // Recent invoices list
-      setRecentInvoices(invoices);
+      // Update state
+      setStats(statsData);
+      setKpis(parsedKpis);
 
       // Top products from analytics
       const tops = Array.isArray(dashboard?.topProducts)
@@ -349,17 +422,24 @@ const Dashboard = () => {
       setArAging(arAgingData);
       setRevenueTrend(revenueTrendData);
 
-      if (dashboardKPIs) {
-        setKpis({
-          grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
-          dso: parseFloat(dashboardKPIs.dso_days) || 0,
-          creditUtilization: parseFloat(dashboardKPIs.credit_utilization_percent) || 0,
-        });
+      // ====================================================================
+      // CACHE FRESH DATA (Stale-While-Revalidate)
+      // ====================================================================
+      setCachedData(CACHE_KEYS.STATS, statsData);
+
+      if (arAgingData) {
+        setCachedData(CACHE_KEYS.AR_AGING, arAgingData);
       }
+
+      if (revenueTrendData) {
+        setCachedData(CACHE_KEYS.REVENUE_TREND, revenueTrendData);
+      }
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -400,13 +480,24 @@ const Dashboard = () => {
     <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       {/* Header Section */}
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-        <div>
-          <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Dashboard
-          </h1>
-          <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Welcome back! Here&apos;s what&apos;s happening with your business.
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Dashboard
+            </h1>
+            <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Welcome back! Here&apos;s what&apos;s happening with your business.
+            </p>
+          </div>
+          {/* Subtle refresh indicator */}
+          {isRefreshing && (
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs ${
+              isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+            }`}>
+              <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
+              <span>Updating...</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -724,201 +815,95 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Top Products and Recent Invoices Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Top Products */}
-        <div className="lg:col-span-1">
-          <div className={`h-auto md:h-96 min-h-64 rounded-xl border flex flex-col ${
-            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
-          }`}>
-            <div className="p-4 sm:p-6 h-full flex flex-col">
-              <div className="flex justify-between items-start flex-col sm:flex-row gap-2 mb-4">
-                <div>
-                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    Top Products
-                  </h3>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Best performing products
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto"
-                  onClick={() => navigate('/products')}
-                >
-                  View All
-                </Button>
+      {/* Top Products Widget - Full Width */}
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <div className={`rounded-xl border ${
+          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+        }`}>
+          <div className="p-4 sm:p-6">
+            <div className="flex justify-between items-start flex-col sm:flex-row gap-2 mb-4">
+              <div>
+                <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Top Products
+                </h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Best performing products by revenue
+                </p>
               </div>
-              <div className="flex-1 max-h-48 md:max-h-64 overflow-y-auto pr-0 sm:pr-2">
-                {topProducts.length > 0 ? (
-                  topProducts.map((product, index) => {
-                    const getGradient = () => {
-                      const gradients = [
-                        'from-indigo-500 to-purple-600',
-                        'from-emerald-500 to-green-600',
-                        'from-amber-500 to-orange-600',
-                        'from-red-500 to-red-600',
-                      ];
-                      return gradients[index % 4];
-                    };
-
-                    return (
-                      <div key={product.id} className={`flex items-center justify-between p-3 border-b rounded-lg transition-all duration-200 hover:translate-x-1 ${
-                        isDarkMode ? 'border-[#37474F] hover:bg-[#2E3B4E]' : 'border-gray-200 hover:bg-gray-50'
-                      } last:border-b-0 flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0`}>
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
-                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center shadow-lg`}>
-                            <Package size={18} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold mb-1 truncate ${
-                              isDarkMode ? 'text-white' : 'text-gray-900'
-                            }`}>
-                              {product.displayName || product.name}
-                            </p>
-                            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {product.category}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-left sm:text-right ml-0 sm:ml-3 self-start sm:self-center">
-                          <p className={`text-sm font-semibold mb-1 ${
-                            isDarkMode ? 'text-white' : 'text-gray-900'
-                          }`}>
-                            {formatCurrency(product.revenue)}
-                          </p>
-                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {product.sales} sales
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="p-8 text-center">
-                    <Package
-                      size={48}
-                      className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    />
-                    <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      No products found
-                    </h4>
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Add products to see them here
-                    </p>
-                  </div>
-                )}
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={() => navigate('/products')}
+              >
+                View All Products
+              </Button>
             </div>
-          </div>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {topProducts.length > 0 ? (
+                topProducts.map((product, index) => {
+                  const getGradient = () => {
+                    const gradients = [
+                      'from-indigo-500 to-purple-600',
+                      'from-emerald-500 to-green-600',
+                      'from-amber-500 to-orange-600',
+                      'from-red-500 to-red-600',
+                      'from-blue-500 to-cyan-600',
+                    ];
+                    return gradients[index % 5];
+                  };
 
-        {/* Recent Invoices - Now 2 columns */}
-        <div className="lg:col-span-2">
-          <div className={`rounded-xl border ${
-            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
-          }`}>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <div>
-                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    Recent Invoices
-                  </h3>
+                  return (
+                    <div key={product.id} className={`p-4 rounded-xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
+                      isDarkMode ? 'border-[#37474F] bg-[#2E3B4E]/50 hover:bg-[#2E3B4E]' : 'border-gray-200 bg-gray-50 hover:bg-white'
+                    }`}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center shadow-lg`}>
+                          <Package size={20} className="text-white" />
+                        </div>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                          isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                        }`}>
+                          #{index + 1}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold mb-1 truncate ${
+                          isDarkMode ? 'text-white' : 'text-gray-900'
+                        }`} title={product.displayName || product.name}>
+                          {product.displayName || product.name}
+                        </p>
+                        <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {product.category}
+                        </p>
+                        <p className={`text-lg font-bold ${
+                          isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                        }`}>
+                          {formatCurrency(product.revenue)}
+                        </p>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                          {product.sales} sales
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full p-8 text-center">
+                  <Package
+                    size={48}
+                    className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  />
+                  <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    No products found
+                  </h4>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Latest invoice activity
+                    Add products and create invoices to see top performers
                   </p>
                 </div>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  startIcon={<FileText size={16} />}
-                  onClick={() => navigate('/create-invoice')}
-                >
-                  Create Invoice
-                </Button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[500px]">
-                  <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
-                    <tr>
-                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>Invoice</th>
-                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>Customer</th>
-                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>Amount</th>
-                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
-                    {recentInvoices.length > 0 ? (
-                      recentInvoices.map((invoice) => (
-                        <tr key={invoice.id} className={`transition-colors cursor-pointer ${isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'}`}
-                            onClick={() => navigate(`/invoices/${invoice.id}`)}>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {invoice.invoiceNumber}
-                            </div>
-                            <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                              {formatDate(invoice.invoiceDate)}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {invoice.customerDetails?.name || 'Unknown'}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {formatCurrency(invoice.total)}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                              invoice.status === 'paid'
-                                ? 'bg-green-100 text-green-800 border-green-200'
-                                : invoice.status === 'pending'
-                                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                                  : invoice.status === 'overdue'
-                                    ? 'bg-red-100 text-red-800 border-red-200'
-                                    : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
-                            }`}>
-                              {invoice.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4}>
-                          <div className="p-8 text-center">
-                            <FileText
-                              size={32}
-                              className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                            />
-                            <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              No invoices found
-                            </h4>
-                            <Button variant="primary" onClick={() => navigate('/create-invoice')}>
-                              Create Your First Invoice
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              )}
             </div>
           </div>
         </div>

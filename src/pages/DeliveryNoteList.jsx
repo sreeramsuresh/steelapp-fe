@@ -18,7 +18,7 @@ import {
   RefreshCw,
   XCircle,
 } from 'lucide-react';
-import { deliveryNotesAPI } from '../services/api';
+import { deliveryNotesAPI, CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { authService } from '../services/axiosAuthService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -33,16 +33,18 @@ const DeliveryNoteList = () => {
   const [searchParams] = useSearchParams();
   // Support both camelCase (invoiceId) and snake_case (invoice_id) for flexibility
   const invoiceIdFromUrl = searchParams.get('invoiceId') || searchParams.get('invoice_id');
-  
-  const [deliveryNotes, setDeliveryNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  // Initialize state from cache for instant display (stale-while-revalidate)
+  const cachedData = getCachedData(CACHE_KEYS.DELIVERY_NOTES_LIST);
+  const [deliveryNotes, setDeliveryNotes] = useState(cachedData?.data?.deliveryNotes || []);
+  const [loading, setLoading] = useState(!cachedData?.data?.deliveryNotes);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   // Pagination and filtering
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(cachedData?.data?.totalCount || 0);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -113,8 +115,15 @@ const DeliveryNoteList = () => {
   };
 
   const fetchDeliveryNotes = useCallback(async () => {
-    try {
+    // Only show loading spinner if no cached data available
+    const isFirstPageWithNoFilters = page === 0 && !search && !statusFilter && !dateFilter && !invoiceIdFromUrl;
+    const hasCachedData = isFirstPageWithNoFilters && cachedData?.data?.deliveryNotes;
+
+    if (!hasCachedData) {
       setLoading(true);
+    }
+
+    try {
       const params = {
         page: page + 1,
         limit: rowsPerPage,
@@ -158,9 +167,22 @@ const DeliveryNoteList = () => {
 
       // Handle pagination - support both camelCase and snake_case
       const pageInfo = response.pageInfo || response.page_info || response.pagination;
-      setTotalCount(pageInfo?.totalItems || pageInfo?.total_items || pageInfo?.total || 0);
+      const total = pageInfo?.totalItems || pageInfo?.total_items || pageInfo?.total || 0;
+      setTotalCount(total);
+
+      // Cache first page data only (no filters)
+      if (isFirstPageWithNoFilters) {
+        setCachedData(CACHE_KEYS.DELIVERY_NOTES_LIST, {
+          deliveryNotes: transformedNotes,
+          totalCount: total,
+        });
+      }
     } catch (err) {
       setError(`Failed to fetch delivery notes: ${err.message}`);
+      // Only clear state if no cached data to fall back on
+      if (!hasCachedData) {
+        setDeliveryNotes([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -202,6 +224,8 @@ const DeliveryNoteList = () => {
   const handleDelete = async () => {
     try {
       await deliveryNotesAPI.delete(deleteDialog.id);
+      // Clear cache on successful delete
+      clearCache(CACHE_KEYS.DELIVERY_NOTES_LIST);
       setSuccess('Delivery note deleted successfully');
       setDeleteDialog({ open: false, id: null, number: '' });
       fetchDeliveryNotes();

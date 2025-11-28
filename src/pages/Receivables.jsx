@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2, Printer } from 'lucide-react';
@@ -9,6 +9,38 @@ import { formatCurrency, formatDate as formatDateUtil } from '../utils/invoiceUt
 import { authService } from '../services/axiosAuthService';
 import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 import AddPaymentForm from '../components/payments/AddPaymentForm';
+
+// Stale-while-revalidate cache configuration
+const CACHE_KEYS = {
+  RECEIVABLES: 'finance_receivables_cache',
+};
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+
+const getCachedData = (key) => {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    return JSON.parse(cached);
+  } catch {
+    return null;
+  }
+};
+
+const setCachedData = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch (e) {
+    console.warn('Cache write failed:', e);
+  }
+};
+
+const clearCache = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.warn('Cache clear failed:', e);
+  }
+};
 
 const Pill = ({ color = 'gray', children }) => {
   const colors = {
@@ -88,8 +120,24 @@ const Receivables = () => {
     page: '1',
     size: '10',
   });
-  const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([]);
+
+  // Initialize state with cached data if available (stale-while-revalidate)
+  const initializeFromCache = useCallback(() => {
+    const cached = getCachedData(CACHE_KEYS.RECEIVABLES);
+    if (cached && cached.data) {
+      const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
+      return {
+        items: cached.data.items || [],
+        loading: isStale, // If stale, show loading indicator while revalidating
+        hasCache: true,
+      };
+    }
+    return { items: [], loading: true, hasCache: false };
+  }, []);
+
+  const cachedState = initializeFromCache();
+  const [loading, setLoading] = useState(cachedState.loading);
+  const [items, setItems] = useState(cachedState.items);
   const [selected, setSelected] = useState(new Set());
   const [drawer, setDrawer] = useState({ open: false, item: null });
   const [isSavingPayment, setIsSavingPayment] = useState(false);
@@ -102,25 +150,74 @@ const Receivables = () => {
     || authService.hasPermission('payables','write')
     || authService.hasRole(['admin','finance']);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const { items: fetchedItems } = await payablesService.getInvoices({
-      search: filters.q || undefined,
-      status: filters.status === 'all' ? undefined : filters.status,
-      start_date: filters.start || undefined,
-      end_date: filters.end || undefined,
-      date_type: filters.dateType,
-      customer: filters.customer || undefined,
-      min_outstanding: filters.minOut || undefined,
-      max_outstanding: filters.maxOut || undefined,
-      page,
-      limit: size,
+  // Generate cache key based on current filters (for filter-specific caching)
+  const getCacheKeyWithFilters = useCallback(() => {
+    const filterKey = JSON.stringify({
+      q: filters.q,
+      status: filters.status,
+      start: filters.start,
+      end: filters.end,
+      dateType: filters.dateType,
+      customer: filters.customer,
+      minOut: filters.minOut,
+      maxOut: filters.maxOut,
+      page: filters.page,
+      size: filters.size,
     });
-    setItems(fetchedItems);
-    setLoading(false);
-  };
+    return `${CACHE_KEYS.RECEIVABLES}_${btoa(filterKey).slice(0, 20)}`;
+  }, [filters.q, filters.status, filters.start, filters.end, filters.dateType, filters.customer, filters.minOut, filters.maxOut, filters.page, filters.size]);
 
-  useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.dateType, filters.customer, filters.minOut, filters.maxOut, filters.page, filters.size]);
+  const fetchData = useCallback(async (forceRefresh = false) => {
+    const cacheKey = getCacheKeyWithFilters();
+
+    // Check cache first (unless force refresh)
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey);
+      if (cached && cached.data) {
+        const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
+        setItems(cached.data.items || []);
+
+        if (!isStale) {
+          // Cache is fresh, no need to fetch
+          setLoading(false);
+          return;
+        }
+        // Cache is stale, continue to fetch but don't show loading (stale-while-revalidate)
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data in background
+    try {
+      const { items: fetchedItems } = await payablesService.getInvoices({
+        search: filters.q || undefined,
+        status: filters.status === 'all' ? undefined : filters.status,
+        start_date: filters.start || undefined,
+        end_date: filters.end || undefined,
+        date_type: filters.dateType,
+        customer: filters.customer || undefined,
+        min_outstanding: filters.minOut || undefined,
+        max_outstanding: filters.maxOut || undefined,
+        page,
+        limit: size,
+      });
+
+      setItems(fetchedItems);
+      // Update cache with fresh data
+      setCachedData(cacheKey, { items: fetchedItems });
+    } catch (error) {
+      console.error('Failed to fetch receivables:', error);
+      // On error, keep showing cached data if available
+    } finally {
+      setLoading(false);
+    }
+  }, [filters.q, filters.status, filters.start, filters.end, filters.dateType, filters.customer, filters.minOut, filters.maxOut, page, size, getCacheKeyWithFilters]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   // Helper to get invoice amount - handles both old and new API field names
   const getInvoiceAmount = (r) => Number(r.invoiceAmount || r.totalAmount || r.total || 0);
@@ -169,6 +266,9 @@ const Receivables = () => {
 
     setIsSavingPayment(true);
 
+    // Clear cache on mutation to ensure fresh data on next fetch
+    clearCache(getCacheKeyWithFilters());
+
     // Use standardized payment payload (camelCase for API Gateway auto-conversion)
     const apiPayload = createPaymentPayload({
       amount,
@@ -212,6 +312,10 @@ const Receivables = () => {
     const payments = (inv.payments || []).filter(p => !p.voided);
     if (payments.length === 0) return;
     const last = payments[payments.length - 1];
+
+    // Clear cache on mutation to ensure fresh data on next fetch
+    clearCache(getCacheKeyWithFilters());
+
     const updatedPayments = inv.payments.map(p => p.id === last.id ? { ...p, voided: true, voidedAt: new Date().toISOString() } : p);
     const updated = { ...inv, payments: updatedPayments };
     const invoiceAmount = getInvoiceAmount(inv);
@@ -363,7 +467,7 @@ const Receivables = () => {
             <input type="number" step="0.01" placeholder="Max Outstanding" value={filters.maxOut} onChange={(e)=>setFilters({ maxOut:numberInput(e.target.value), page:'1' })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button onClick={fetchData} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
+            <button onClick={() => fetchData(true)} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
             <button onClick={exportInvoices} className="px-3 py-2 rounded border flex items-center gap-2"><Download size={16}/>Export</button>
           </div>
         </div>

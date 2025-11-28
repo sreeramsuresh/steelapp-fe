@@ -5,7 +5,7 @@
  * Design aligned with ImportExportOverview pattern
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Package,
   Truck,
@@ -19,24 +19,57 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { stockMovementService, TRANSFER_STATUSES, RESERVATION_STATUSES } from '../../services/stockMovementService';
+import {
+  CACHE_KEYS,
+  getCachedData,
+  setCachedData,
+} from '../../services/api';
 
 const StockMovementOverview = ({ onNavigateToTab }) => {
   const { isDarkMode } = useTheme();
-  const [stats, setStats] = useState({
-    pendingTransfers: 0,
-    inTransit: 0,
-    completedToday: 0,
-    awaitingReconciliation: 0,
-  });
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  // Initialize from cache (stale-while-revalidate pattern)
+  const initFromCache = () => {
+    const cached = getCachedData(CACHE_KEYS.STOCK_MOVEMENT_OVERVIEW);
+    if (cached?.data) {
+      return {
+        stats: cached.data.stats || {
+          pendingTransfers: 0,
+          inTransit: 0,
+          completedToday: 0,
+          awaitingReconciliation: 0,
+        },
+        recentActivity: cached.data.recentActivity || [],
+        hasCache: true,
+      };
+    }
+    return {
+      stats: {
+        pendingTransfers: 0,
+        inTransit: 0,
+        completedToday: 0,
+        awaitingReconciliation: 0,
+      },
+      recentActivity: [],
+      hasCache: false,
+    };
+  };
+
+  const cachedState = initFromCache();
+  const [stats, setStats] = useState(cachedState.stats);
+  const [recentActivity, setRecentActivity] = useState(cachedState.recentActivity);
+  const [loading, setLoading] = useState(!cachedState.hasCache); // No loading if cache exists
 
   useEffect(() => {
-    loadDashboardData();
+    // Stale-while-revalidate: if cache exists, load in background without spinner
+    loadDashboardData(cachedState.hasCache);
   }, []);
 
-  const loadDashboardData = async () => {
-    setLoading(true);
+  const loadDashboardData = useCallback(async (skipLoadingState = false) => {
+    // Only show loading spinner if no cache or explicitly requested
+    if (!skipLoadingState) {
+      setLoading(true);
+    }
     try {
       // Load transfers to calculate stats
       const [transfersResult, reservationsResult] = await Promise.all([
@@ -72,12 +105,14 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         r => r.status === 'ACTIVE' || r.status === 'PARTIALLY_FULFILLED'
       ).length;
 
-      setStats({
+      const newStats = {
         pendingTransfers,
         inTransit,
         completedToday,
         awaitingReconciliation,
-      });
+      };
+
+      setStats(newStats);
 
       // Build recent activity from transfers and reservations
       const activities = [];
@@ -140,21 +175,30 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         return dateB - dateA;
       });
 
-      setRecentActivity(activities.slice(0, 5));
+      const newRecentActivity = activities.slice(0, 5);
+      setRecentActivity(newRecentActivity);
+
+      // Cache the overview data
+      setCachedData(CACHE_KEYS.STOCK_MOVEMENT_OVERVIEW, {
+        stats: newStats,
+        recentActivity: newRecentActivity,
+      });
     } catch (err) {
       console.error('Error loading dashboard data:', err);
-      // Use placeholder data on error
-      setStats({
-        pendingTransfers: 0,
-        inTransit: 0,
-        completedToday: 0,
-        awaitingReconciliation: 0,
-      });
-      setRecentActivity([]);
+      // Only reset if no cache fallback
+      if (!cachedState.hasCache) {
+        setStats({
+          pendingTransfers: 0,
+          inTransit: 0,
+          completedToday: 0,
+          awaitingReconciliation: 0,
+        });
+        setRecentActivity([]);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [cachedState.hasCache]);
 
   const formatTimeAgo = (timestamp) => {
     if (!timestamp) return '';
@@ -256,7 +300,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         </div>
         <div className="flex items-center space-x-3">
           <button
-            onClick={loadDashboardData}
+            onClick={() => loadDashboardData(false)}
             disabled={loading}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode

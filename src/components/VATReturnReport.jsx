@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   FileText,
@@ -12,23 +13,68 @@ import {
   Building2,
   ArrowRight,
   Info,
+  FileDown,
+  FileSpreadsheet,
+  Send,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Clock,
+  ShoppingCart,
+  Banknote,
+  Ban,
+  Edit3,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { formatCurrency, formatDateDMY, toUAEDateProfessional } from '../utils/invoiceUtils';
 import api from '../services/api';
+import vatReturnService from '../services/vatReturnService';
+import vendorBillService from '../services/vendorBillService';
+import advancePaymentService from '../services/advancePaymentService';
+import vatAmendmentService from '../services/vatAmendmentService';
 
 /**
- * UAE VAT Return Report Component
+ * UAE VAT Return Report Component - Enhanced
  *
- * Displays VAT return data matching FTA Form 201 structure:
- * - Output VAT by Emirate (Boxes 1-7)
- * - Standard rated supplies
- * - Zero-rated supplies
- * - Exempt supplies
- * - Designated zone supplies
- * - Reverse charge amounts
+ * Complete Form 201 compliance with:
+ * - Output VAT (Boxes 1-7)
+ * - Input VAT (Boxes 8-13)
+ * - Vendor Bills Summary
+ * - Advance Payments VAT
+ * - Blocked VAT (Non-recoverable)
+ * - Net VAT Calculation
+ * - Amendments History
+ *
+ * UAE FTA Form 201 Structure:
+ * OUTPUT VAT:
+ *   Box 1: Standard rated supplies by Emirate (5%)
+ *   Box 2: Tax refunds for tourists
+ *   Box 3: Zero-rated supplies
+ *   Box 4: Exempt supplies
+ *   Box 5: Goods imported into UAE
+ *   Box 6: Adjustments to output tax
+ *   Box 7: Total VAT due for the period
+ *
+ * INPUT VAT:
+ *   Box 8: Goods imported into UAE (recoverable)
+ *   Box 9: Adjustments to goods imported
+ *   Box 10: Standard rated expenses (5%)
+ *   Box 11: Supplies subject to reverse charge (recoverable)
+ *   Box 12: Adjustments to input tax
+ *   Box 13: Total recoverable tax for the period
+ *
+ * NET VAT:
+ *   Box 14: Net VAT due (if Box 7 > Box 13)
+ *   Box 15: VAT refundable (if Box 13 > Box 7)
  */
 const VATReturnReport = () => {
+  const { id: periodId } = useParams();
+  const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+
+  // Core state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vatReturn, setVatReturn] = useState(null);
@@ -39,10 +85,35 @@ const VATReturnReport = () => {
     endDate: ''
   });
 
+  // Enhanced data state
+  const [form201, setForm201] = useState(null);
+  const [vendorBillSummary, setVendorBillSummary] = useState([]);
+  const [advancePayments, setAdvancePayments] = useState([]);
+  const [blockedVatLog, setBlockedVatLog] = useState([]);
+  const [amendments, setAmendments] = useState([]);
+
+  // UI state
+  const [expandedSections, setExpandedSections] = useState({
+    outputVat: true,
+    inputVat: true,
+    vendorBills: false,
+    advancePayments: false,
+    blockedVat: false,
+    amendments: false,
+    invoices: false,
+  });
+
   // Load available periods on mount
   useEffect(() => {
     loadPeriods();
   }, []);
+
+  // Load data when period changes
+  useEffect(() => {
+    if (periodId) {
+      loadVATReturnData(periodId);
+    }
+  }, [periodId]);
 
   const loadPeriods = async () => {
     try {
@@ -61,6 +132,74 @@ const VATReturnReport = () => {
       }
     } catch (err) {
       console.error('Error loading VAT periods:', err);
+    }
+  };
+
+  const loadVATReturnData = async (returnId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Get main VAT return data
+      const vatReturnData = await vatReturnService.getById(returnId);
+      setVatReturn(vatReturnData);
+
+      // Get Form 201 structured data
+      try {
+        const form201Data = await vatReturnService.getForm201Data(returnId);
+        setForm201(form201Data);
+      } catch (err) {
+        console.warn('Form 201 data not available:', err);
+      }
+
+      // Get vendor bills summary for period
+      if (vatReturnData?.periodStart && vatReturnData?.periodEnd) {
+        try {
+          const vendorSummary = await vendorBillService.getVATSummary({
+            startDate: vatReturnData.periodStart,
+            endDate: vatReturnData.periodEnd
+          });
+          setVendorBillSummary(vendorSummary?.categories || []);
+        } catch (err) {
+          console.warn('Vendor bill summary not available:', err);
+        }
+
+        // Get advance payments for period
+        try {
+          const { data: advances } = await advancePaymentService.getAll({
+            startDate: vatReturnData.periodStart,
+            endDate: vatReturnData.periodEnd
+          });
+          setAdvancePayments(advances || []);
+        } catch (err) {
+          console.warn('Advance payments not available:', err);
+        }
+
+        // Get blocked VAT log
+        try {
+          const blockedLog = await vatReturnService.getBlockedVATLog({
+            startDate: vatReturnData.periodStart,
+            endDate: vatReturnData.periodEnd
+          });
+          setBlockedVatLog(blockedLog?.entries || []);
+        } catch (err) {
+          console.warn('Blocked VAT log not available:', err);
+        }
+      }
+
+      // Get amendments
+      try {
+        const amendmentList = await vatAmendmentService.getByVatReturn(returnId);
+        setAmendments(amendmentList || []);
+      } catch (err) {
+        console.warn('Amendments not available:', err);
+      }
+
+    } catch (err) {
+      console.error('Error loading VAT return data:', err);
+      setError(err.response?.data?.error || 'Failed to load VAT return data');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,6 +227,27 @@ const VATReturnReport = () => {
 
       if (response.data.success) {
         setVatReturn(response.data.data);
+
+        // Also load related data
+        try {
+          const vendorSummary = await vendorBillService.getVATSummary({
+            startDate: customDates.startDate,
+            endDate: customDates.endDate
+          });
+          setVendorBillSummary(vendorSummary?.categories || []);
+        } catch (err) {
+          console.warn('Vendor bill summary not available:', err);
+        }
+
+        try {
+          const { data: advances } = await advancePaymentService.getAll({
+            startDate: customDates.startDate,
+            endDate: customDates.endDate
+          });
+          setAdvancePayments(advances || []);
+        } catch (err) {
+          console.warn('Advance payments not available:', err);
+        }
       } else {
         setError(response.data.error || 'Failed to generate report');
       }
@@ -99,17 +259,93 @@ const VATReturnReport = () => {
     }
   };
 
-  const exportToPDF = () => {
-    // TODO: Implement PDF export
-    alert('PDF export will be implemented');
+  const exportToExcel = async () => {
+    if (!vatReturn?.id) return;
+    try {
+      await vatReturnService.exportExcel(vatReturn.id);
+    } catch (err) {
+      console.error('Excel export failed:', err);
+      setError('Failed to export Excel file');
+    }
   };
 
+  const downloadPDF = async () => {
+    if (!vatReturn?.id) return;
+    try {
+      await vatReturnService.downloadPDF(vatReturn.id, vatReturn.returnNumber);
+    } catch (err) {
+      console.error('PDF download failed:', err);
+      setError('Failed to download PDF');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!vatReturn?.id) return;
+    if (!window.confirm('Are you sure you want to submit this VAT return to FTA? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      const updated = await vatReturnService.submitReturn(vatReturn.id);
+      setVatReturn(updated);
+    } catch (err) {
+      console.error('Submit failed:', err);
+      setError('Failed to submit VAT return');
+    }
+  };
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Style classes
   const cardClass = `rounded-lg border ${
     isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
   } p-4 shadow-sm`;
 
   const labelClass = `text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`;
   const valueClass = `text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`;
+  const headerClass = `text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`;
+
+  const sectionHeaderClass = `flex items-center justify-between cursor-pointer p-2 -mx-2 rounded-lg hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`;
+
+  // Calculate totals from vatReturn data
+  const totals = vatReturn?.totals || {};
+  const totalOutputVat = parseFloat(totals.totalOutputVat || form201?.box7Vat || 0);
+  const totalInputVat = parseFloat(totals.totalInputVat || form201?.box13Vat || 0);
+  const netVatDue = totalOutputVat - totalInputVat;
+  const advancePaymentVat = advancePayments.reduce((sum, ap) => sum + parseFloat(ap.vatAmount || 0), 0);
+  const blockedVatTotal = blockedVatLog.reduce((sum, entry) => sum + parseFloat(entry.blockedAmount || 0), 0);
+
+  // VAT category labels for vendor bill summary
+  const vatCategoryLabels = {
+    'STANDARD': 'Standard Rated (5%)',
+    'ZERO': 'Zero Rated (0%)',
+    'EXEMPT': 'Exempt Supplies',
+    'OUT_OF_SCOPE': 'Out of Scope',
+    'REVERSE_CHARGE': 'Reverse Charge',
+    'DESIGNATED_ZONE': 'Designated Zone',
+  };
+
+  // Status badge component
+  const StatusBadge = ({ status }) => {
+    const statusConfig = {
+      draft: { bg: 'bg-gray-100 text-gray-700', label: 'Draft' },
+      pending_review: { bg: 'bg-yellow-100 text-yellow-700', label: 'Pending Review' },
+      submitted: { bg: 'bg-blue-100 text-blue-700', label: 'Submitted' },
+      acknowledged: { bg: 'bg-green-100 text-green-700', label: 'Acknowledged' },
+      rejected_by_fta: { bg: 'bg-red-100 text-red-700', label: 'Rejected' },
+      cancelled: { bg: 'bg-gray-100 text-gray-500', label: 'Cancelled' },
+    };
+    const config = statusConfig[status] || statusConfig.draft;
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.bg}`}>
+        {config.label}
+      </span>
+    );
+  };
 
   return (
     <div className={`p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} min-h-screen`}>
@@ -124,7 +360,7 @@ const VATReturnReport = () => {
               UAE VAT Return Report
             </h1>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              FTA Form 201 - VAT Return Summary
+              FTA Form 201 - Complete VAT Return Summary
             </p>
           </div>
         </div>
@@ -215,7 +451,7 @@ const VATReturnReport = () => {
 
           {vatReturn && (
             <button
-              onClick={exportToPDF}
+              onClick={downloadPDF}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Download className="h-4 w-4 mr-2" />
@@ -236,217 +472,689 @@ const VATReturnReport = () => {
       {/* VAT Return Data */}
       {vatReturn && (
         <div className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Output VAT */}
+            <div className={`${cardClass} border-l-4 border-l-blue-500`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={labelClass}>Total Output VAT</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                    {formatCurrency(totalOutputVat)}
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Form 201 Box 7
+                  </p>
+                </div>
+                <TrendingUp className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-500'}`} />
+              </div>
+            </div>
+
+            {/* Total Input VAT */}
+            <div className={`${cardClass} border-l-4 border-l-green-500`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={labelClass}>Total Input VAT</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                    {formatCurrency(totalInputVat)}
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Form 201 Box 13
+                  </p>
+                </div>
+                <TrendingDown className={`h-8 w-8 ${isDarkMode ? 'text-green-400' : 'text-green-500'}`} />
+              </div>
+            </div>
+
+            {/* Net VAT Due / Refundable */}
+            <div className={`${cardClass} border-l-4 ${netVatDue >= 0 ? 'border-l-red-500' : 'border-l-emerald-500'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={labelClass}>{netVatDue >= 0 ? 'Net VAT Due' : 'VAT Refundable'}</p>
+                  <p className={`text-2xl font-bold ${netVatDue >= 0 ? (isDarkMode ? 'text-red-400' : 'text-red-600') : (isDarkMode ? 'text-emerald-400' : 'text-emerald-600')}`}>
+                    {formatCurrency(Math.abs(netVatDue))}
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Form 201 Box {netVatDue >= 0 ? '14' : '15'}
+                  </p>
+                </div>
+                <DollarSign className={`h-8 w-8 ${netVatDue >= 0 ? (isDarkMode ? 'text-red-400' : 'text-red-500') : (isDarkMode ? 'text-emerald-400' : 'text-emerald-500')}`} />
+              </div>
+            </div>
+
+            {/* Blocked VAT */}
+            <div className={`${cardClass} border-l-4 border-l-orange-500`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={labelClass}>Blocked VAT</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                    {formatCurrency(blockedVatTotal)}
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Non-recoverable per Art. 53
+                  </p>
+                </div>
+                <Ban className={`h-8 w-8 ${isDarkMode ? 'text-orange-400' : 'text-orange-500'}`} />
+              </div>
+            </div>
+          </div>
+
           {/* Period Summary */}
           <div className={cardClass}>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Tax Period: {toUAEDateProfessional(vatReturn.period.start)} - {toUAEDateProfessional(vatReturn.period.end)}
+                  Tax Period: {toUAEDateProfessional(vatReturn.period?.start || vatReturn.periodStart)} - {toUAEDateProfessional(vatReturn.period?.end || vatReturn.periodEnd)}
                 </h3>
                 <p className={labelClass}>
-                  Filing Deadline: {toUAEDateProfessional(vatReturn.period.filingDeadline)}
+                  Filing Deadline: {toUAEDateProfessional(vatReturn.period?.filingDeadline || vatReturn.filingDeadline)}
                 </p>
               </div>
               <div className="text-right">
-                <p className={labelClass}>Invoices Processed</p>
-                <p className={valueClass}>{vatReturn.invoiceCount}</p>
+                <p className={labelClass}>Status</p>
+                <StatusBadge status={vatReturn.status} />
               </div>
             </div>
           </div>
 
           {/* Output VAT by Emirate (Boxes 1-7) */}
           <div className={cardClass}>
-            <h3 className={`text-lg font-semibold mb-4 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              <MapPin className="h-5 w-5 mr-2 text-green-600" />
-              Output VAT by Emirate (Form 201 Boxes 1-7)
-            </h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(vatReturn.outputByEmirate).map(([emirate, data]) => (
-                <div
-                  key={emirate}
-                  className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-                >
-                  <p className={labelClass}>
-                    {emirate === 'abuDhabi' ? 'Abu Dhabi' :
-                     emirate === 'ummAlQuwain' ? 'Umm Al Quwain' :
-                     emirate === 'rasAlKhaimah' ? 'Ras Al Khaimah' :
-                     emirate.charAt(0).toUpperCase() + emirate.slice(1)}
-                  </p>
-                  <p className={`${valueClass} ${data.vat > 0 ? 'text-green-600' : ''}`}>
-                    {formatCurrency(data.vat)}
-                  </p>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    Supplies: {formatCurrency(data.supplies)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Supply Categories */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Standard Rated */}
-            <div className={cardClass}>
-              <div className="flex items-center mb-2">
-                <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                <span className={labelClass}>Standard Rated (5%)</span>
-              </div>
-              <p className={valueClass}>{formatCurrency(vatReturn.standardRated.supplies)}</p>
-              <p className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                VAT: {formatCurrency(vatReturn.standardRated.vat)}
-              </p>
-            </div>
-
-            {/* Zero Rated */}
-            <div className={cardClass}>
-              <div className="flex items-center mb-2">
-                <Info className="h-5 w-5 text-blue-600 mr-2" />
-                <span className={labelClass}>Zero Rated (0%)</span>
-              </div>
-              <p className={valueClass}>{formatCurrency(vatReturn.zeroRated.supplies)}</p>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                VAT: AED 0.00
-              </p>
-            </div>
-
-            {/* Exempt */}
-            <div className={cardClass}>
-              <div className="flex items-center mb-2">
-                <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-                <span className={labelClass}>Exempt Supplies</span>
-              </div>
-              <p className={valueClass}>{formatCurrency(vatReturn.exempt.supplies)}</p>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                No VAT applicable
-              </p>
-            </div>
-
-            {/* Designated Zone */}
-            <div className={cardClass}>
-              <div className="flex items-center mb-2">
-                <Building2 className="h-5 w-5 text-purple-600 mr-2" />
-                <span className={labelClass}>Designated Zone</span>
-              </div>
-              <p className={valueClass}>{formatCurrency(vatReturn.designatedZone.supplies)}</p>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                Free Zone supplies
-              </p>
-            </div>
-          </div>
-
-          {/* Reverse Charge */}
-          {(vatReturn.reverseCharge.output > 0 || vatReturn.reverseCharge.input > 0) && (
-            <div className={cardClass}>
-              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Reverse Charge Mechanism (Box 9 & 15)
+            <div
+              className={sectionHeaderClass}
+              onClick={() => toggleSection('outputVat')}
+            >
+              <h3 className={`${headerClass} flex items-center`}>
+                <MapPin className="h-5 w-5 mr-2 text-green-600" />
+                Output VAT (Form 201 Boxes 1-7)
               </h3>
+              {expandedSections.outputVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                  <p className={labelClass}>Output VAT (Box 9)</p>
-                  <p className={valueClass}>{formatCurrency(vatReturn.reverseCharge.outputVat)}</p>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    On supplies: {formatCurrency(vatReturn.reverseCharge.output)}
-                  </p>
+            {expandedSections.outputVat && (
+              <div className="mt-4 space-y-4">
+                {/* By Emirate */}
+                {vatReturn.outputByEmirate && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(vatReturn.outputByEmirate).map(([emirate, data]) => (
+                      <div
+                        key={emirate}
+                        className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                      >
+                        <p className={labelClass}>
+                          {emirate === 'abuDhabi' ? 'Abu Dhabi' :
+                           emirate === 'ummAlQuwain' ? 'Umm Al Quwain' :
+                           emirate === 'rasAlKhaimah' ? 'Ras Al Khaimah' :
+                           emirate.charAt(0).toUpperCase() + emirate.slice(1)}
+                        </p>
+                        <p className={`${valueClass} ${data.vat > 0 ? 'text-green-600' : ''}`}>
+                          {formatCurrency(data.vat)}
+                        </p>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                          Supplies: {formatCurrency(data.supplies)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Supply Categories */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                  {/* Standard Rated */}
+                  <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className="flex items-center mb-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                      <span className={labelClass}>Box 1: Standard Rated (5%)</span>
+                    </div>
+                    <p className={valueClass}>{formatCurrency(vatReturn.standardRated?.supplies || form201?.box1Amount || 0)}</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                      VAT: {formatCurrency(vatReturn.standardRated?.vat || form201?.box1Vat || 0)}
+                    </p>
+                  </div>
+
+                  {/* Zero Rated */}
+                  <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className="flex items-center mb-2">
+                      <Info className="h-4 w-4 text-blue-600 mr-2" />
+                      <span className={labelClass}>Box 3: Zero Rated (0%)</span>
+                    </div>
+                    <p className={valueClass}>{formatCurrency(vatReturn.zeroRated?.supplies || form201?.box3Amount || 0)}</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      VAT: AED 0.00
+                    </p>
+                  </div>
+
+                  {/* Exempt */}
+                  <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className="flex items-center mb-2">
+                      <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
+                      <span className={labelClass}>Box 4: Exempt Supplies</span>
+                    </div>
+                    <p className={valueClass}>{formatCurrency(vatReturn.exempt?.supplies || form201?.box4Amount || 0)}</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      No VAT applicable
+                    </p>
+                  </div>
+
+                  {/* Designated Zone */}
+                  <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className="flex items-center mb-2">
+                      <Building2 className="h-4 w-4 text-purple-600 mr-2" />
+                      <span className={labelClass}>Designated Zone</span>
+                    </div>
+                    <p className={valueClass}>{formatCurrency(vatReturn.designatedZone?.supplies || 0)}</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Free Zone supplies
+                    </p>
+                  </div>
                 </div>
 
-                <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                  <p className={labelClass}>Input VAT (Box 15)</p>
-                  <p className={valueClass}>{formatCurrency(vatReturn.reverseCharge.inputVat)}</p>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    Recoverable
-                  </p>
+                {/* Output VAT Total */}
+                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/30 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                  <div className="flex justify-between items-center">
+                    <span className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+                      Total Output VAT (Box 7)
+                    </span>
+                    <span className={`text-xl font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}>
+                      {formatCurrency(totalOutputVat)}
+                    </span>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* INPUT VAT SECTION (Form 201 Boxes 8-13) */}
+          <div className={cardClass}>
+            <div
+              className={sectionHeaderClass}
+              onClick={() => toggleSection('inputVat')}
+            >
+              <h3 className={`${headerClass} flex items-center`}>
+                <ShoppingCart className="h-5 w-5 mr-2 text-green-600" />
+                Input VAT - Recoverable Tax (Form 201 Boxes 8-13)
+              </h3>
+              {expandedSections.inputVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </div>
+
+            {expandedSections.inputVat && (
+              <div className="mt-4 space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className={isDarkMode ? 'text-gray-400 border-b border-gray-700' : 'text-gray-600 border-b border-gray-200'}>
+                        <th className="text-left py-2 px-3">Box</th>
+                        <th className="text-left py-2 px-3">Description</th>
+                        <th className="text-right py-2 px-3">Amount (AED)</th>
+                        <th className="text-right py-2 px-3">VAT (AED)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Box 8: Goods Imported */}
+                      <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <td className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Box 8</td>
+                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Goods imported into UAE</td>
+                        <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(form201?.box8Amount || vatReturn.reverseCharge?.input || 0)}
+                        </td>
+                        <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                          {formatCurrency(form201?.box8Vat || 0)}
+                        </td>
+                      </tr>
+
+                      {/* Box 9: Adjustments to imports */}
+                      <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <td className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Box 9</td>
+                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Adjustments to goods imported</td>
+                        <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(form201?.box9Amount || 0)}
+                        </td>
+                        <td className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>-</td>
+                      </tr>
+
+                      {/* Box 10: Standard rated expenses */}
+                      <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <td className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Box 10</td>
+                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Standard rated expenses (5%)</td>
+                        <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(form201?.box10Amount || 0)}
+                        </td>
+                        <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                          {formatCurrency(form201?.box10Vat || 0)}
+                        </td>
+                      </tr>
+
+                      {/* Box 11: Reverse charge (recoverable) */}
+                      <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <td className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Box 11</td>
+                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Reverse charge (recoverable)</td>
+                        <td className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>-</td>
+                        <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                          {formatCurrency(form201?.box11Vat || vatReturn.reverseCharge?.inputVat || 0)}
+                        </td>
+                      </tr>
+
+                      {/* Box 12: Input tax adjustments */}
+                      <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <td className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Box 12</td>
+                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Adjustments to input tax</td>
+                        <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatCurrency(form201?.box12Amount || 0)}
+                        </td>
+                        <td className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Total Recoverable Tax */}
+                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                  <div className="flex justify-between items-center">
+                    <span className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}>
+                      Total Recoverable Tax (Box 13)
+                    </span>
+                    <span className={`text-xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                      {formatCurrency(totalInputVat)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Vendor Bills Summary */}
+          {vendorBillSummary.length > 0 && (
+            <div className={cardClass}>
+              <div
+                className={sectionHeaderClass}
+                onClick={() => toggleSection('vendorBills')}
+              >
+                <h3 className={`${headerClass} flex items-center`}>
+                  <FileText className="h-5 w-5 mr-2 text-purple-600" />
+                  Vendor Bills Summary
+                </h3>
+                {expandedSections.vendorBills ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </div>
+
+              {expandedSections.vendorBills && (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className={isDarkMode ? 'text-gray-400 border-b border-gray-700' : 'text-gray-600 border-b border-gray-200'}>
+                        <th className="text-left py-2 px-3">VAT Category</th>
+                        <th className="text-right py-2 px-3">Number of Bills</th>
+                        <th className="text-right py-2 px-3">Taxable Amount</th>
+                        <th className="text-right py-2 px-3">VAT Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vendorBillSummary.map((row, idx) => (
+                        <tr key={idx} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <td className={`py-2 px-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {vatCategoryLabels[row.category] || row.category}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {row.count || 0}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(row.amount || 0)}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                            {formatCurrency(row.vat || 0)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
-          {/* VAT Summary */}
-          <div className={`${cardClass} border-2 ${isDarkMode ? 'border-green-600' : 'border-green-500'}`}>
+          {/* Advance Payments VAT */}
+          {advancePayments.length > 0 && (
+            <div className={cardClass}>
+              <div
+                className={sectionHeaderClass}
+                onClick={() => toggleSection('advancePayments')}
+              >
+                <h3 className={`${headerClass} flex items-center`}>
+                  <Banknote className="h-5 w-5 mr-2 text-teal-600" />
+                  Advance Payments VAT
+                </h3>
+                {expandedSections.advancePayments ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </div>
+
+              {expandedSections.advancePayments && (
+                <div className="mt-4">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-3`}>
+                    VAT collected on advance payments per UAE FTA Article 26
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className={isDarkMode ? 'text-gray-400 border-b border-gray-700' : 'text-gray-600 border-b border-gray-200'}>
+                          <th className="text-left py-2 px-3">Receipt #</th>
+                          <th className="text-left py-2 px-3">Customer</th>
+                          <th className="text-left py-2 px-3">Date</th>
+                          <th className="text-right py-2 px-3">Amount</th>
+                          <th className="text-right py-2 px-3">VAT</th>
+                          <th className="text-left py-2 px-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {advancePayments.slice(0, 10).map((ap) => (
+                          <tr key={ap.id} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <td className={`py-2 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {ap.receiptNumber}
+                            </td>
+                            <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                              {ap.customerName}
+                            </td>
+                            <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                              {formatDateDMY(ap.paymentDate)}
+                            </td>
+                            <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {formatCurrency(ap.amount)}
+                            </td>
+                            <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                              {formatCurrency(ap.vatAmount)}
+                            </td>
+                            <td>
+                              <StatusBadge status={ap.status} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-teal-900/30 border border-teal-700' : 'bg-teal-50 border border-teal-200'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`font-semibold ${isDarkMode ? 'text-teal-300' : 'text-teal-800'}`}>
+                        Advance Payment VAT Total
+                      </span>
+                      <span className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}>
+                        {formatCurrency(advancePaymentVat)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Blocked VAT (Non-Recoverable) */}
+          {blockedVatLog.length > 0 && (
+            <div className={cardClass}>
+              <div
+                className={sectionHeaderClass}
+                onClick={() => toggleSection('blockedVat')}
+              >
+                <h3 className={`${headerClass} flex items-center`}>
+                  <Ban className="h-5 w-5 mr-2 text-red-600" />
+                  Blocked Input VAT (Non-Recoverable)
+                </h3>
+                {expandedSections.blockedVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </div>
+
+              {expandedSections.blockedVat && (
+                <div className="mt-4">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-3`}>
+                    Input VAT not recoverable per UAE FTA Article 53 (entertainment, personal use, etc.)
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className={isDarkMode ? 'text-gray-400 border-b border-gray-700' : 'text-gray-600 border-b border-gray-200'}>
+                          <th className="text-left py-2 px-3">Category</th>
+                          <th className="text-right py-2 px-3">VAT Amount</th>
+                          <th className="text-left py-2 px-3">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {blockedVatLog.map((entry) => (
+                          <tr key={entry.id} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <td className={`py-2 px-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {entry.categoryName || entry.category}
+                            </td>
+                            <td className={`text-right ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                              {formatCurrency(entry.blockedAmount)}
+                            </td>
+                            <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                              {entry.reason || 'Non-recoverable per FTA rules'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-red-900/30 border border-red-700' : 'bg-red-50 border border-red-200'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`font-semibold ${isDarkMode ? 'text-red-300' : 'text-red-800'}`}>
+                        Total Blocked VAT
+                      </span>
+                      <span className={`text-lg font-bold ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>
+                        {formatCurrency(blockedVatTotal)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* NET VAT CALCULATION */}
+          <div className={`${cardClass} bg-gradient-to-r ${isDarkMode ? 'from-blue-900/40 to-indigo-900/40' : 'from-blue-50 to-indigo-50'} border-2 ${isDarkMode ? 'border-blue-700' : 'border-blue-300'}`}>
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              VAT Summary
+              Net VAT Calculation
             </h3>
 
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className={labelClass}>Total Output VAT</span>
-                <span className={valueClass}>{formatCurrency(vatReturn.totals.totalOutputVat)}</span>
+              <div className="flex justify-between items-center py-2">
+                <span className={labelClass}>Total Output VAT (Box 7)</span>
+                <span className={valueClass}>{formatCurrency(totalOutputVat)}</span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className={labelClass}>Total Input VAT (Recoverable)</span>
-                <span className={valueClass}>({formatCurrency(vatReturn.totals.totalInputVat)})</span>
+              <div className="flex justify-between items-center py-2">
+                <span className={labelClass}>Total Recoverable Tax (Box 13)</span>
+                <span className={`${valueClass} ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                  ({formatCurrency(totalInputVat)})
+                </span>
               </div>
 
-              <div className={`flex justify-between items-center pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Net VAT Due
-                </span>
-                <span className={`text-xl font-bold ${
-                  vatReturn.totals.netVatDue >= 0 ? 'text-red-600' : 'text-green-600'
-                }`}>
-                  {formatCurrency(vatReturn.totals.netVatDue)}
-                </span>
+              <div className={`border-t-2 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'} pt-4 mt-4`}>
+                <div className="flex justify-between items-center">
+                  <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {netVatDue >= 0 ? 'Net VAT Due (Box 14)' : 'VAT Refundable (Box 15)'}
+                  </span>
+                  <span className={`text-2xl font-bold ${
+                    netVatDue >= 0
+                      ? (isDarkMode ? 'text-red-400' : 'text-red-600')
+                      : (isDarkMode ? 'text-green-400' : 'text-green-600')
+                  }`}>
+                    {formatCurrency(Math.abs(netVatDue))}
+                  </span>
+                </div>
+                {netVatDue < 0 && (
+                  <p className={`text-sm mt-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                    You are entitled to a VAT refund of {formatCurrency(Math.abs(netVatDue))}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
+          {/* Amendments History */}
+          {amendments.length > 0 && (
+            <div className={cardClass}>
+              <div
+                className={sectionHeaderClass}
+                onClick={() => toggleSection('amendments')}
+              >
+                <h3 className={`${headerClass} flex items-center`}>
+                  <Edit3 className="h-5 w-5 mr-2 text-orange-600" />
+                  Return Amendments ({amendments.length})
+                </h3>
+                {expandedSections.amendments ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </div>
+
+              {expandedSections.amendments && (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className={isDarkMode ? 'text-gray-400 border-b border-gray-700' : 'text-gray-600 border-b border-gray-200'}>
+                        <th className="text-left py-2 px-3">Amendment #</th>
+                        <th className="text-left py-2 px-3">Date</th>
+                        <th className="text-left py-2 px-3">Type</th>
+                        <th className="text-right py-2 px-3">Net Difference</th>
+                        <th className="text-right py-2 px-3">Penalty</th>
+                        <th className="text-left py-2 px-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {amendments.map((a) => (
+                        <tr key={a.id} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <td className={`py-2 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {a.amendmentNumber}
+                          </td>
+                          <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            {formatDateDMY(a.createdAt)}
+                          </td>
+                          <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            {a.amendmentType?.replace(/_/g, ' ') || 'Voluntary Disclosure'}
+                          </td>
+                          <td className={`text-right ${
+                            a.differenceVat >= 0
+                              ? (isDarkMode ? 'text-red-400' : 'text-red-600')
+                              : (isDarkMode ? 'text-green-400' : 'text-green-600')
+                          }`}>
+                            {formatCurrency(a.differenceVat || 0)}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                            {formatCurrency(a.estimatedPenalty || a.actualPenalty || 0)}
+                          </td>
+                          <td>
+                            <StatusBadge status={a.status} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Invoice Details (collapsible) */}
           {vatReturn.invoices && vatReturn.invoices.length > 0 && (
-            <details className={cardClass}>
-              <summary className={`cursor-pointer ${isDarkMode ? 'text-white' : 'text-gray-900'} font-semibold`}>
-                Invoice Details ({vatReturn.invoices.length} invoices)
-              </summary>
-
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                      <th className="text-left py-2">Invoice #</th>
-                      <th className="text-left py-2">Customer</th>
-                      <th className="text-left py-2">Tax Point</th>
-                      <th className="text-left py-2">Emirate</th>
-                      <th className="text-right py-2">Subtotal</th>
-                      <th className="text-right py-2">VAT</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vatReturn.invoices.slice(0, 50).map((inv, idx) => (
-                      <tr
-                        key={idx}
-                        className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                      >
-                        <td className={`py-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {inv.invoiceNumber}
-                        </td>
-                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                          {inv.customerName}
-                        </td>
-                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                          {formatDateDMY(inv.taxPointDate)}
-                        </td>
-                        <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                          {inv.placeOfSupply || '-'}
-                        </td>
-                        <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {formatCurrency(inv.subtotal)}
-                        </td>
-                        <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                          {formatCurrency(inv.vatAmount)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {vatReturn.invoices.length > 50 && (
-                  <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Showing first 50 of {vatReturn.invoices.length} invoices
-                  </p>
-                )}
+            <div className={cardClass}>
+              <div
+                className={sectionHeaderClass}
+                onClick={() => toggleSection('invoices')}
+              >
+                <h3 className={`${headerClass} flex items-center`}>
+                  <FileText className="h-5 w-5 mr-2 text-gray-600" />
+                  Invoice Details ({vatReturn.invoices.length} invoices)
+                </h3>
+                {expandedSections.invoices ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </div>
-            </details>
+
+              {expandedSections.invoices && (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        <th className="text-left py-2">Invoice #</th>
+                        <th className="text-left py-2">Customer</th>
+                        <th className="text-left py-2">Tax Point</th>
+                        <th className="text-left py-2">Emirate</th>
+                        <th className="text-right py-2">Subtotal</th>
+                        <th className="text-right py-2">VAT</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vatReturn.invoices.slice(0, 50).map((inv, idx) => (
+                        <tr
+                          key={idx}
+                          className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        >
+                          <td className={`py-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {inv.invoiceNumber}
+                          </td>
+                          <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            {inv.customerName}
+                          </td>
+                          <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            {formatDateDMY(inv.taxPointDate)}
+                          </td>
+                          <td className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            {inv.placeOfSupply || '-'}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(inv.subtotal)}
+                          </td>
+                          <td className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                            {formatCurrency(inv.vatAmount)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {vatReturn.invoices.length > 50 && (
+                    <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Showing first 50 of {vatReturn.invoices.length} invoices
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap justify-end gap-3">
+            <button
+              onClick={exportToExcel}
+              className={`inline-flex items-center px-4 py-2 rounded-lg border ${
+                isDarkMode
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Export Excel
+            </button>
+
+            <button
+              onClick={downloadPDF}
+              className={`inline-flex items-center px-4 py-2 rounded-lg border ${
+                isDarkMode
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              Download PDF
+            </button>
+
+            <button
+              onClick={() => vatReturn?.id && navigate(`/reports/vat-return/${vatReturn.id}/preview`)}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Preview Form 201
+            </button>
+
+            {vatReturn?.status === 'draft' && (
+              <button
+                onClick={handleSubmit}
+                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit to FTA
+              </button>
+            )}
+          </div>
         </div>
       )}
 

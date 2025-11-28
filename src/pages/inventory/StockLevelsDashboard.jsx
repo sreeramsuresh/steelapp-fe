@@ -16,7 +16,13 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService } from '../../services/stockMovementService';
+import {
+  stockMovementService,
+  STOCK_CACHE_KEYS,
+  getStockCachedData,
+  setStockCachedData,
+  isStockCacheFresh,
+} from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency } from '../../utils/invoiceUtils';
@@ -31,11 +37,26 @@ const StockLevelsDashboard = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
-  // State
-  const [stockLevels, setStockLevels] = useState([]);
-  const [summary, setSummary] = useState(null);
+  // Initialize state from cache for instant display (stale-while-revalidate)
+  const initializeFromCache = () => {
+    const cachedSummary = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY);
+    const cachedList = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_LIST);
+    return {
+      stockLevels: cachedList?.data?.stockLevels || [],
+      summary: cachedSummary?.data || null,
+      pagination: cachedList?.data?.pagination || {},
+      hasCache: !!(cachedSummary?.data || cachedList?.data?.stockLevels?.length),
+    };
+  };
+
+  const cachedState = initializeFromCache();
+
+  // State - initialize from cache if available
+  const [stockLevels, setStockLevels] = useState(cachedState.stockLevels);
+  const [summary, setSummary] = useState(cachedState.summary);
   const [warehouses, setWarehouses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Set loading=false if we have cached data (instant display)
+  const [loading, setLoading] = useState(!cachedState.hasCache);
   const [error, setError] = useState('');
 
   // Filters
@@ -44,7 +65,7 @@ const StockLevelsDashboard = () => {
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const [includeZero, setIncludeZero] = useState(false);
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({});
+  const [pagination, setPagination] = useState(cachedState.pagination);
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch warehouses
@@ -60,9 +81,20 @@ const StockLevelsDashboard = () => {
     fetchWarehouses();
   }, []);
 
-  // Fetch stock levels
+  // Fetch stock levels with stale-while-revalidate caching
   const fetchStockLevels = useCallback(async () => {
-    setLoading(true);
+    // Check if we have valid cached data and this is a default filter request
+    const isDefaultFilters = page === 1 && !searchTerm && warehouseFilter === 'all' && !lowStockOnly && !includeZero;
+    const cachedSummary = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY);
+    const cachedList = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_LIST);
+    const hasFreshCache = isDefaultFilters &&
+      cachedSummary && isStockCacheFresh(cachedSummary.timestamp) &&
+      cachedList && isStockCacheFresh(cachedList.timestamp);
+
+    // Only show loading spinner if we have no cached data
+    if (!stockLevels.length && !summary) {
+      setLoading(true);
+    }
     setError('');
 
     try {
@@ -79,15 +111,27 @@ const StockLevelsDashboard = () => {
       setStockLevels(response.data || []);
       setPagination(response.pagination || {});
       setSummary(response.summary || null);
+
+      // Cache the results for default filter requests (page 1, no filters)
+      if (isDefaultFilters) {
+        setStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY, response.summary || null);
+        setStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_LIST, {
+          stockLevels: response.data || [],
+          pagination: response.pagination || {},
+        });
+      }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch stock levels';
       setError(errorMessage);
       notificationService.error(errorMessage);
-      setStockLevels([]);
+      // Only clear data if we don't have cached data to fall back on
+      if (!stockLevels.length) {
+        setStockLevels([]);
+      }
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, warehouseFilter, lowStockOnly, includeZero]);
+  }, [page, searchTerm, warehouseFilter, lowStockOnly, includeZero, stockLevels.length, summary]);
 
   useEffect(() => {
     fetchStockLevels();

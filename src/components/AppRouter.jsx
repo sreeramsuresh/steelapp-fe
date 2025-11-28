@@ -63,6 +63,13 @@ import WarehouseDetail from '../pages/warehouses/WarehouseDetail';
 import ReportsDashboard from '../pages/ReportsDashboard';
 import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
 import PriceHistoryReport from '../pages/PriceHistoryReport';
+import VATReturnReport from './VATReturnReport';
+
+// Purchases Components
+import { VendorBillList, VendorBillForm, DebitNoteList, DebitNoteForm } from '../pages/purchases';
+
+// Payments Components
+import { AdvancePaymentList, AdvancePaymentForm } from '../pages/payments';
 
 // Price List Components
 import PriceListList from '../pages/PriceListList';
@@ -217,6 +224,126 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="analytics.read">
               <PriceHistoryReport />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* VAT Return Report Routes */}
+        <Route
+          path="/reports/vat-return"
+          element={
+            <ProtectedRoute user={user} requiredPermission="analytics.read">
+              <VATReturnReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/vat-return/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="analytics.read">
+              <VATReturnReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/vat-return/:id/preview"
+          element={
+            <ProtectedRoute user={user} requiredPermission="analytics.read">
+              <VATReturnReport />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Purchases Routes - Vendor Bills */}
+        <Route
+          path="/purchases/vendor-bills"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <VendorBillList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/vendor-bills/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.create">
+              <VendorBillForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/vendor-bills/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <VendorBillForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/vendor-bills/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.update">
+              <VendorBillForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Purchases Routes - Debit Notes */}
+        <Route
+          path="/purchases/debit-notes"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <DebitNoteList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/debit-notes/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.create">
+              <DebitNoteForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/debit-notes/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <DebitNoteForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/debit-notes/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.update">
+              <DebitNoteForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Advance Payments Routes */}
+        <Route
+          path="/payments/advance-payments"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <AdvancePaymentList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/advance-payments/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.create">
+              <AdvancePaymentForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/advance-payments/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="payables.read">
+              <AdvancePaymentForm />
             </ProtectedRoute>
           }
         />

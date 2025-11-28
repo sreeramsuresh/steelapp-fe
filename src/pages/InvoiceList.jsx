@@ -24,7 +24,7 @@ import {
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import { invoiceService } from '../services/dataService';
+import { invoiceService, invoiceCacheUtils } from '../services/dataService';
 import { companyService } from '../services';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
 import { deliveryNotesAPI } from '../services/api';
@@ -332,7 +332,23 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   /** @type {[import('../types/invoice').Invoice[], Function]} */
   const [invoices, setInvoices] = useState([]);
   const [pagination, setPagination] = useState(null);
-  const [loading, setLoading] = useState(true); // Controls spinner visibility
+
+  // STALE-WHILE-REVALIDATE: Initialize loading state based on cached data
+  // If we have cached summary data, show it immediately (no loading spinner)
+  const [loading, setLoading] = useState(() => {
+    const cached = invoiceCacheUtils.getCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY);
+    return !cached; // If no cache, show loading; if cache exists, no loading
+  });
+
+  // STATE: Cached summary data for instant display (stale-while-revalidate pattern)
+  const [summaryData, setSummaryData] = useState(() => {
+    const cached = invoiceCacheUtils.getCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY);
+    if (cached?.data) {
+      console.log('[InvoiceList] Initialized with cached summary data');
+      return cached.data;
+    }
+    return null;
+  });
 
   // DEBUG: Track component instance to detect multiple mounts
   const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
@@ -725,66 +741,92 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const normalizeStatus = (status) => (status || '').toLowerCase().replace('status_', '');
   const normalizePaymentStatus = (ps) => (ps || 'unpaid').toLowerCase().replace('payment_status_', '');
 
-  const getOutstandingAmount = () => {
-    return invoices
-      .filter(invoice => {
-        if (normalizeStatus(invoice.status) !== 'issued') return false;
-        const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
-        return paymentStatus === 'unpaid' || paymentStatus === 'partially_paid';
-      })
-      .reduce((sum, invoice) => {
-        // Use backend-calculated outstanding amount
-        return sum + Number(invoice.outstanding || 0);
-      }, 0);
-  };
+  // ============================================================================
+  // STALE-WHILE-REVALIDATE: Compute and cache summary data
+  // ============================================================================
 
-  const getOverdueMetrics = () => {
-    const overdueInvoices = invoices.filter(invoice => {
-      if (normalizeStatus(invoice.status) !== 'issued') return false;
-      const dueDate = new Date(invoice.dueDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
-      return dueDate < today && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
-    });
+  // Compute summary metrics from invoices
+  const computedSummary = React.useMemo(() => {
+    if (invoices.length === 0) return null;
 
-    const amount = overdueInvoices.reduce((sum, invoice) => {
-      // Use backend-calculated outstanding amount
-      return sum + Number(invoice.outstanding || 0);
-    }, 0);
-
-    return { count: overdueInvoices.length, amount };
-  };
-
-  const getDueSoonMetrics = (days = 7) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const futureDate = new Date(today);
-    futureDate.setDate(today.getDate() + days);
+    futureDate.setDate(today.getDate() + 7);
 
-    const dueSoonInvoices = invoices.filter(invoice => {
-      if (normalizeStatus(invoice.status) !== 'issued') return false;
-      const dueDate = new Date(invoice.dueDate);
+    let outstandingAmount = 0;
+    let overdueCount = 0;
+    let overdueAmount = 0;
+    let dueSoonCount = 0;
+    let dueSoonAmount = 0;
+    let paidAmount = 0;
+
+    invoices.forEach(invoice => {
+      const status = normalizeStatus(invoice.status);
+      if (status !== 'issued') return;
+
       const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
-      return dueDate >= today && dueDate <= futureDate && (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid');
+      const outstanding = Number(invoice.outstanding || 0);
+      const total = Number(invoice.total || 0);
+      const dueDate = new Date(invoice.dueDate);
+
+      // Paid invoices
+      if (paymentStatus === 'paid') {
+        paidAmount += total;
+        return;
+      }
+
+      // Outstanding (unpaid or partially paid)
+      if (paymentStatus === 'unpaid' || paymentStatus === 'partially_paid') {
+        outstandingAmount += outstanding;
+
+        // Overdue
+        if (dueDate < today) {
+          overdueCount++;
+          overdueAmount += outstanding;
+        }
+        // Due soon (next 7 days)
+        else if (dueDate >= today && dueDate <= futureDate) {
+          dueSoonCount++;
+          dueSoonAmount += outstanding;
+        }
+      }
     });
 
-    const amount = dueSoonInvoices.reduce((sum, invoice) => {
-      // Use backend-calculated outstanding amount
-      return sum + Number(invoice.outstanding || 0);
-    }, 0);
+    return {
+      outstandingAmount,
+      overdueCount,
+      overdueAmount,
+      dueSoonCount,
+      dueSoonAmount,
+      paidAmount,
+    };
+  }, [invoices]);
 
-    return { count: dueSoonInvoices.length, amount };
+  // Update cache when we have fresh computed summary data
+  React.useEffect(() => {
+    if (computedSummary) {
+      console.log('[InvoiceList] Updating summary cache with fresh data');
+      invoiceCacheUtils.setCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY, computedSummary);
+      setSummaryData(computedSummary);
+    }
+  }, [computedSummary]);
+
+  // Get effective summary data (fresh or cached)
+  const effectiveSummary = computedSummary || summaryData || {
+    outstandingAmount: 0,
+    overdueCount: 0,
+    overdueAmount: 0,
+    dueSoonCount: 0,
+    dueSoonAmount: 0,
+    paidAmount: 0,
   };
 
-  const getPaidAmount = () => {
-    return invoices
-      .filter(invoice => {
-        if (normalizeStatus(invoice.status) !== 'issued') return false;
-        return normalizePaymentStatus(invoice.paymentStatus) === 'paid';
-      })
-      .reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
-  };
+  // Legacy functions now delegate to effectiveSummary for backward compatibility
+  const getOutstandingAmount = () => effectiveSummary.outstandingAmount;
+  const getOverdueMetrics = () => ({ count: effectiveSummary.overdueCount, amount: effectiveSummary.overdueAmount });
+  const getDueSoonMetrics = () => ({ count: effectiveSummary.dueSoonCount, amount: effectiveSummary.dueSoonAmount });
+  const getPaidAmount = () => effectiveSummary.paidAmount;
 
   // Handle dashboard card clicks to filter invoices
   const handleCardClick = (filterType) => {

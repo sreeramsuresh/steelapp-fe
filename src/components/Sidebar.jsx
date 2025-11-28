@@ -29,6 +29,10 @@ import {
   RotateCcw,
   Shield,
   Banknote,
+  Receipt,
+  FileSpreadsheet,
+  FileMinus,
+  Coins,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -103,6 +107,37 @@ const Sidebar = ({ isOpen, onToggle }) => {
           icon: ShoppingCart,
           description: 'Manage purchase orders',
           requiredPermission: 'purchase_orders.read',
+        },
+      ],
+    },
+    {
+      section: 'Purchases',
+      items: [
+        {
+          name: 'Vendor Bills',
+          path: '/purchases/vendor-bills',
+          icon: Receipt,
+          description: 'Manage vendor invoices and bills',
+          requiredPermission: 'payables.read',
+        },
+        {
+          name: 'Debit Notes',
+          path: '/purchases/debit-notes',
+          icon: FileMinus,
+          description: 'Manage debit notes for vendors',
+          requiredPermission: 'payables.read',
+        },
+      ],
+    },
+    {
+      section: 'Payments',
+      items: [
+        {
+          name: 'Advance Payments',
+          path: '/payments/advance-payments',
+          icon: Coins,
+          description: 'Manage customer advance payments',
+          requiredPermission: 'payables.read',
         },
       ],
     },

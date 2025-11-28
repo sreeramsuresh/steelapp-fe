@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package,
@@ -20,6 +20,7 @@ import {
 import { format } from 'date-fns';
 import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
+import { CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import ProductUpload from './ProductUpload';
@@ -241,21 +242,38 @@ const SteelProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [showSpeedButtons, setShowSpeedButtons] = useState(true);
-  
+
+  // Stale-while-revalidate: Initialize with cached data if available
+  const isFirstPage = !searchTerm && categoryFilter === 'all' && stockFilter === 'all';
+  const cachedProducts = isFirstPage ? getCachedData(CACHE_KEYS.PRODUCTS_LIST) : null;
+  const hasCacheRef = useRef(!!cachedProducts?.data);
+
   const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
-    () => productService.getProducts({ 
-      search: searchTerm, 
+    () => productService.getProducts({
+      search: searchTerm,
       category: categoryFilter === 'all' ? undefined : categoryFilter,
       stock_status: stockFilter === 'all' ? undefined : stockFilter,
       limit: 1000,
     }),
     [searchTerm, categoryFilter, stockFilter],
+    {
+      // Skip initial loading state if we have cached data for first page
+      initialData: isFirstPage && cachedProducts?.data ? cachedProducts.data : undefined,
+      skipInitialLoading: isFirstPage && hasCacheRef.current,
+    },
   );
-  
+
+  // Cache product data when loaded (only for first page without filters)
+  useEffect(() => {
+    if (productsData && isFirstPage && productsData.products?.length > 0) {
+      setCachedData(CACHE_KEYS.PRODUCTS_LIST, productsData);
+    }
+  }, [productsData, isFirstPage]);
+
   const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
   const { execute: updateProduct, loading: updatingProduct } = useApi(productService.updateProduct);
   const { execute: deleteProduct } = useApi(productService.deleteProduct);
-  
+
   const products = productsData?.products || [];
 
   // Build a robust list of finishes: predefined + those present in products
@@ -547,6 +565,8 @@ const SteelProducts = () => {
         specifications: newProduct.specifications,
       };
       await createProduct(productData);
+      // Clear cache on create
+      clearCache(CACHE_KEYS.PRODUCTS_LIST);
       setNewProduct({
         name: '',
         category: 'sheet',
@@ -747,6 +767,9 @@ const SteelProducts = () => {
       const result = await updateProduct(selectedProduct.id, productData);
       console.log('✅ Product updated successfully:', result);
 
+      // Clear cache on update
+      clearCache(CACHE_KEYS.PRODUCTS_LIST);
+
       console.log('🔄 Starting products refetch...');
       console.log('📊 Current products data before refetch:', productsData);
 
@@ -788,6 +811,8 @@ const SteelProducts = () => {
 
     try {
       await deleteProduct(productId);
+      // Clear cache on delete
+      clearCache(CACHE_KEYS.PRODUCTS_LIST);
       refetchProducts();
       notificationService.success('Product deleted successfully');
     } catch (error) {

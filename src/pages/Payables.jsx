@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, Trash2, CheckCircle, Printer } from 'lucide-react';
@@ -11,6 +11,38 @@ import { notificationService } from '../services/notificationService';
 import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 import { toUAEDateForInput } from '../utils/timezone';
 import AddPaymentForm from '../components/payments/AddPaymentForm';
+
+// Stale-while-revalidate cache configuration
+const CACHE_KEYS = {
+  PAYABLES: 'finance_payables_cache',
+};
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+
+const getCachedData = (key) => {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    return JSON.parse(cached);
+  } catch {
+    return null;
+  }
+};
+
+const setCachedData = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch (e) {
+    console.warn('Cache write failed:', e);
+  }
+};
+
+const clearCache = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.warn('Cache clear failed:', e);
+  }
+};
 
 const Pill = ({ color = 'gray', children }) => {
   const colors = {
@@ -89,26 +121,89 @@ const POTab = ({ canManage }) => {
   const [filters, setFilters] = useURLState({
     q: '', status: 'all', dateType: 'po', start: '', end: '', vendor: '', minBal: '', maxBal: '', page: '1', size: '10',
   });
-  const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([]);
+
+  // Initialize state with cached data if available (stale-while-revalidate)
+  const initializeFromCache = useCallback(() => {
+    const cached = getCachedData(CACHE_KEYS.PAYABLES);
+    if (cached && cached.data) {
+      const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
+      return {
+        items: cached.data.items || [],
+        loading: isStale,
+        hasCache: true,
+      };
+    }
+    return { items: [], loading: true, hasCache: false };
+  }, []);
+
+  const cachedState = initializeFromCache();
+  const [loading, setLoading] = useState(cachedState.loading);
+  const [items, setItems] = useState(cachedState.items);
   const [drawer, setDrawer] = useState({ open: false, item: null });
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const { items: fetchedPOs } = await payablesService.getPOs({
-      search: filters.q || undefined,
-      status: filters.status === 'all' ? undefined : filters.status,
-      start_date: filters.start || undefined,
-      end_date: filters.end || undefined,
-      vendor: filters.vendor || undefined,
-      min_balance: filters.minBal || undefined,
-      max_balance: filters.maxBal || undefined,
+  // Generate cache key based on current filters
+  const getCacheKeyWithFilters = useCallback(() => {
+    const filterKey = JSON.stringify({
+      q: filters.q,
+      status: filters.status,
+      start: filters.start,
+      end: filters.end,
+      vendor: filters.vendor,
+      minBal: filters.minBal,
+      maxBal: filters.maxBal,
     });
-    setItems(fetchedPOs); setLoading(false);
-  };
-  useEffect(() => { fetchData(); }, [filters.q, filters.status, filters.start, filters.end, filters.vendor, filters.minBal, filters.maxBal]);
+    return `${CACHE_KEYS.PAYABLES}_${btoa(filterKey).slice(0, 20)}`;
+  }, [filters.q, filters.status, filters.start, filters.end, filters.vendor, filters.minBal, filters.maxBal]);
+
+  const fetchData = useCallback(async (forceRefresh = false) => {
+    const cacheKey = getCacheKeyWithFilters();
+
+    // Check cache first (unless force refresh)
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey);
+      if (cached && cached.data) {
+        const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
+        setItems(cached.data.items || []);
+
+        if (!isStale) {
+          setLoading(false);
+          return;
+        }
+        // Cache is stale, continue to fetch but don't show loading (stale-while-revalidate)
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data in background
+    try {
+      const { items: fetchedPOs } = await payablesService.getPOs({
+        search: filters.q || undefined,
+        status: filters.status === 'all' ? undefined : filters.status,
+        start_date: filters.start || undefined,
+        end_date: filters.end || undefined,
+        vendor: filters.vendor || undefined,
+        min_balance: filters.minBal || undefined,
+        max_balance: filters.maxBal || undefined,
+      });
+
+      setItems(fetchedPOs);
+      // Update cache with fresh data
+      setCachedData(cacheKey, { items: fetchedPOs });
+    } catch (error) {
+      console.error('Failed to fetch payables:', error);
+      // On error, keep showing cached data if available
+    } finally {
+      setLoading(false);
+    }
+  }, [filters.q, filters.status, filters.start, filters.end, filters.vendor, filters.minBal, filters.maxBal, getCacheKeyWithFilters]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const aggregates = useMemo(() => {
     const totalPO = items.reduce((s, r) => s + getPOValue(r), 0);
@@ -128,6 +223,9 @@ const POTab = ({ canManage }) => {
     const balance = Number(po.balance || 0);
     if (!(Number(amount) > 0)) return alert('Amount must be > 0');
     if (Number(amount) > balance) return alert('Amount exceeds balance');
+
+    // Clear cache on mutation to ensure fresh data on next fetch
+    clearCache(getCacheKeyWithFilters());
 
     const apiPayload = createPaymentPayload({
       amount,
@@ -159,6 +257,10 @@ const POTab = ({ canManage }) => {
   const handleVoidLast = async () => {
     const po = drawer.item; if (!po) return; const payments = (po.payments||[]).filter(p=>!p.voided);
     if (!payments.length) return; const last = payments[payments.length-1];
+
+    // Clear cache on mutation to ensure fresh data on next fetch
+    clearCache(getCacheKeyWithFilters());
+
     const updatedPayments = po.payments.map(p=>p.id===last.id? { ...p, voided:true, voidedAt: new Date().toISOString() } : p);
     const paid = updatedPayments.filter(p=>!p.voided).reduce((s,p)=>s+Number(p.amount||0),0);
     const balance = Math.max(0, +((po.poValue||0)-paid).toFixed(2)); let status='unpaid'; if (balance===0) status='paid'; else if (balance<(po.poValue||0)) status='partially_paid';
@@ -246,7 +348,7 @@ const POTab = ({ canManage }) => {
             <input type="number" step="0.01" placeholder="Max Balance" value={filters.maxBal} onChange={(e)=>setFilters({ maxBal:numberInput(e.target.value) })} className="px-3 py-2 rounded border w-full min-w-0"/>
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button onClick={fetchData} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
+            <button onClick={() => fetchData(true)} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"><RefreshCw size={16}/>Apply</button>
             <button onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2"><Download size={16}/>Export</button>
           </div>
         </div>

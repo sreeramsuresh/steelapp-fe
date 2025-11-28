@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
 import { supplierService } from '../services/supplierService';
 import pricelistService from '../services/pricelistService';
+import { CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -49,6 +50,12 @@ const CustomerManagement = () => {
   const [showArchived, setShowArchived] = useState(false);
   
   const canReadCustomers = authService.hasPermission('customers','read') || authService.hasRole('admin');
+
+  // Stale-while-revalidate: Initialize with cached data if available
+  const isFirstPage = !searchTerm && filterStatus === 'all';
+  const cachedCustomers = isFirstPage ? getCachedData(CACHE_KEYS.CUSTOMERS_LIST) : null;
+  const hasCacheRef = useRef(!!cachedCustomers?.data);
+
   const { data: customersData, loading: loadingCustomers, error: customersError, refetch: refetchCustomers } = useApiData(
     () => {
       if (!canReadCustomers) {
@@ -58,7 +65,19 @@ const CustomerManagement = () => {
       return customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus });
     },
     [searchTerm, filterStatus, canReadCustomers],
+    {
+      // Skip initial loading state if we have cached data for first page
+      initialData: isFirstPage && cachedCustomers?.data ? cachedCustomers.data : undefined,
+      skipInitialLoading: isFirstPage && hasCacheRef.current,
+    },
   );
+
+  // Cache customer data when loaded (only for first page without filters)
+  useEffect(() => {
+    if (customersData && isFirstPage && customersData.customers?.length > 0) {
+      setCachedData(CACHE_KEYS.CUSTOMERS_LIST, customersData);
+    }
+  }, [customersData, isFirstPage]);
 
   // Suppliers API hooks
   const { data: suppliersData, loading: loadingSuppliers, error: suppliersError, refetch: refetchSuppliers } = useApiData(
@@ -160,6 +179,8 @@ const CustomerManagement = () => {
         current_credit: newCustomer.currentCredit === '' ? 0 : Number(newCustomer.currentCredit),
       };
       await createCustomer(customerData);
+      // Clear cache on create
+      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
       setNewCustomer({
         name: '',
         email: '',
@@ -203,6 +224,8 @@ const CustomerManagement = () => {
         current_credit: selectedCustomer.currentCredit === '' ? 0 : Number(selectedCustomer.currentCredit),
       };
       await updateCustomer(selectedCustomer.id, customerData);
+      // Clear cache on update
+      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
@@ -225,6 +248,8 @@ const CustomerManagement = () => {
 
     try {
       await archiveCustomer(customerId);
+      // Clear cache on archive/delete
+      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
       refetchCustomers();
       notificationService.success('Customer archived successfully');
     } catch (error) {

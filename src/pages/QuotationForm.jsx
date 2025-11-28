@@ -21,7 +21,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { quotationsAPI, customersAPI, productsAPI, apiClient } from '../services/api';
+import { quotationsAPI, customersAPI, productsAPI, apiClient, CACHE_KEYS, clearCache } from '../services/api';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
 import QuotationPreview from '../components/quotations/QuotationPreview';
@@ -659,6 +659,9 @@ const QuotationForm = () => {
         await quotationsAPI.create(dataToSubmit);
         setSuccess('Quotation created successfully');
       }
+
+      // Clear quotations list cache on create/update
+      clearCache(CACHE_KEYS.QUOTATIONS_LIST);
 
       // Standardized smooth transition delay (300ms)
       setTimeout(() => {
