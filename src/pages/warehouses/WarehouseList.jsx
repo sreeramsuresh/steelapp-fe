@@ -108,6 +108,8 @@ const WarehouseList = () => {
     if (confirmed) {
       try {
         await warehouseService.delete(warehouse.id);
+        // Clear summary cache since warehouse count changed
+        warehouseService.clearSummaryCache();
         notificationService.success('Warehouse deleted successfully');
         fetchWarehouses();
       } catch (error) {
@@ -193,9 +195,9 @@ const WarehouseList = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards - uses cached data on initial load, updates when fresh data arrives */}
       <div className="px-6 py-4">
-        <WarehouseSummaryCards summary={summary} loading={loading} />
+        <WarehouseSummaryCards summary={summary} loading={summaryLoading} />
       </div>
 
       {/* Filters */}
