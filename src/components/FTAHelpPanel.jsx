@@ -99,12 +99,12 @@ const FTAHelpPanel = ({ onClose }) => {
   return (
     <div className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
       {/* Header */}
-      <div className={`px-6 py-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <HelpCircle className={`h-6 w-6 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-            <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              FTA Integration Help
+          <div className="flex items-center gap-2">
+            <HelpCircle className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+            <h2 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Help & Documentation
             </h2>
           </div>
           {onClose && (
@@ -119,9 +119,9 @@ const FTAHelpPanel = ({ onClose }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-5 py-3">
         {/* Overview Section */}
-        <HelpSection title="Overview" icon={BookOpen} defaultOpen={true}>
+        <HelpSection title="Overview" icon={BookOpen}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">What is TRN Verification?</h4>
@@ -489,8 +489,8 @@ const FTAHelpPanel = ({ onClose }) => {
       </div>
 
       {/* Footer */}
-      <div className={`px-6 py-3 border-t text-xs ${isDarkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}>
-        Last Updated: November 2024 | For technical support, contact your system administrator.
+      <div className={`px-5 py-2 border-t text-xs ${isDarkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}>
+        Last Updated: November 2024
       </div>
     </div>
   );
