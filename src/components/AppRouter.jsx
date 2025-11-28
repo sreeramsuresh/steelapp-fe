@@ -55,6 +55,10 @@ import AuditLogs from '../pages/AuditLogs';
 // Stock Movement Components
 import StockMovementPage from '../pages/StockMovementPage';
 
+// Warehouse Components
+import WarehouseList from '../pages/warehouses/WarehouseList';
+import WarehouseDetail from '../pages/warehouses/WarehouseDetail';
+
 // Reports Components
 import ReportsDashboard from '../pages/ReportsDashboard';
 import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
@@ -312,6 +316,25 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user}>
               <StockMovementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Warehouse Routes */}
+        <Route
+          path="/warehouses"
+          element={
+            <ProtectedRoute user={user}>
+              <WarehouseList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/warehouses/:id"
+          element={
+            <ProtectedRoute user={user}>
+              <WarehouseDetail />
             </ProtectedRoute>
           }
         />

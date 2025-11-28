@@ -29,6 +29,9 @@ const toServer = (item = {}) => ({
 });
 
 // Map server record -> UI model (camelCase)
+// NOTE: gRPC returns quantity_on_hand/minimum_stock (ERP fields) which API Gateway
+// converts to quantityOnHand/minimumStock. Map these to legacy quantity/minStock
+// fields for backward compatibility with UI components.
 const fromServer = (rec = {}) => ({
   id: rec.id,
   description: rec.description || '',
@@ -37,8 +40,10 @@ const fromServer = (rec = {}) => ({
   finish: rec.finish || '',
   size: rec.size || '',
   thickness: rec.thickness || '',
-  quantity: rec.quantity || 0,
-  pricePurchased: rec.pricePurchased || 0,
+  // Map from ERP fields (quantityOnHand/minimumStock) OR legacy fields (quantity/minStock)
+  quantity: parseFloat(rec.quantityOnHand) || parseFloat(rec.quantityAvailable) || parseFloat(rec.quantity) || 0,
+  minStock: parseFloat(rec.minimumStock) || parseFloat(rec.minStock) || 0,
+  pricePurchased: rec.pricePurchased || rec.pricePurchased || 0,
   sellingPrice: rec.sellingPrice || 0,
   landedCost: rec.landedCost || 0,
   location: rec.location || '',
@@ -46,11 +51,10 @@ const fromServer = (rec = {}) => ({
   warehouseName: rec.warehouseName || '',
   warehouseCode: rec.warehouseCode || '',
   warehouseCity: rec.warehouseCity || '',
-  minStock: rec.minStock || 0,
   productId: rec.productId || null,
-  productName: rec.productName || null,
+  productName: rec.productName || rec.productDisplayName || null,
   productOrigin: rec.productOrigin || '',
-  // ERP fields
+  // ERP fields (keep for components that use them directly)
   quantityOnHand: parseFloat(rec.quantityOnHand) || 0,
   quantityReserved: parseFloat(rec.quantityReserved) || 0,
   quantityAvailable: parseFloat(rec.quantityAvailable) || 0,

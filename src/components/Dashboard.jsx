@@ -10,6 +10,11 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
+  Clock,
+  AlertTriangle,
+  CreditCard,
+  Percent,
+  Info,
 } from 'lucide-react';
 import { invoicesAPI } from '../services/api';
 import { analyticsService } from '../services/analyticsService';
@@ -19,9 +24,9 @@ import { useTheme } from '../contexts/ThemeContext';
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
   const { isDarkMode } = useTheme();
-  
+
   const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
-  
+
   const getVariantClasses = () => {
     if (variant === 'primary') {
       return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
@@ -29,7 +34,7 @@ const Button = ({ children, variant = 'primary', size = 'md', disabled = false, 
       return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     }
   };
-  
+
   const sizes = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
@@ -51,20 +56,22 @@ const Button = ({ children, variant = 'primary', size = 'md', disabled = false, 
 
 const StatsCard = ({ variant = 'default', children, className = '' }) => {
   const { isDarkMode } = useTheme();
-  
+
   const getBorderColor = () => {
     switch (variant) {
       case 'success': return 'border-l-green-500';
       case 'warning': return 'border-l-yellow-500';
       case 'error': return 'border-l-red-500';
+      case 'info': return 'border-l-blue-500';
+      case 'purple': return 'border-l-purple-500';
       default: return 'border-l-teal-500';
     }
   };
 
   return (
     <div className={`rounded-xl border-l-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-teal-500 min-h-28 flex flex-col ${
-      isDarkMode 
-        ? 'bg-[#1E2328] border-[#37474F]' 
+      isDarkMode
+        ? 'bg-[#1E2328] border-[#37474F]'
         : 'bg-white border-[#E0E0E0]'
     } ${getBorderColor()} ${className}`}>
       {children}
@@ -78,6 +85,155 @@ const ChangeIndicator = ({ positive, children }) => {
       positive ? 'text-green-500' : 'text-red-500'
     }`}>
       {children}
+    </div>
+  );
+};
+
+// AR Aging Widget Component
+const ARAgingWidget = ({ data, isDarkMode, formatCurrency }) => {
+  if (!data || !data.buckets) return null;
+
+  const bucketColors = [
+    { bg: 'bg-green-500', text: 'text-green-600' },
+    { bg: 'bg-yellow-500', text: 'text-yellow-600' },
+    { bg: 'bg-orange-500', text: 'text-orange-600' },
+    { bg: 'bg-red-500', text: 'text-red-600' },
+  ];
+
+  return (
+    <div className={`rounded-xl border p-4 sm:p-6 ${
+      isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+    }`}>
+      <div className="flex items-center gap-2 mb-4">
+        <Clock size={20} className="text-blue-500" />
+        <h3 className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          AR Aging
+          <span className="relative group">
+            <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+            <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+              Receivables grouped by days overdue
+            </span>
+          </span>
+        </h3>
+      </div>
+
+      <div className="space-y-3">
+        {data.buckets.map((bucket, index) => (
+          <div key={bucket.label} className="flex items-center gap-3">
+            <div className="w-24 sm:w-32">
+              <span className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {bucket.label}
+              </span>
+            </div>
+            <div className="flex-1">
+              <div className={`h-4 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}>
+                <div
+                  className={`h-full ${bucketColors[index].bg} rounded-full transition-all duration-500`}
+                  style={{ width: `${Math.min(parseFloat(bucket.percentage) || 0, 100)}%` }}
+                />
+              </div>
+            </div>
+            <div className="w-20 sm:w-28 text-right">
+              <span className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                {formatCurrency(bucket.amount)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className={`mt-4 pt-4 border-t flex justify-between ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div>
+          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total AR</span>
+          <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatCurrency(data.total_ar)}
+          </p>
+        </div>
+        <div className="text-right">
+          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Overdue</span>
+          <p className="text-lg font-bold text-red-500">
+            {formatCurrency(data.overdue_ar)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Revenue Trend Chart Component (Simple Bar Chart)
+const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
+  if (!data || !data.trend_data || data.trend_data.length === 0) {
+    return (
+      <div className={`p-8 text-center rounded-xl border-2 border-dashed min-h-60 flex flex-col items-center justify-center ${
+        isDarkMode
+          ? 'border-[#37474F] bg-gradient-to-br from-[#121418] to-[#1E2328] text-gray-400'
+          : 'border-gray-300 bg-gradient-to-br from-gray-50 to-white text-gray-500'
+      }`}>
+        <Activity size={48} className="mb-4 opacity-60" />
+        <h4 className="text-lg font-semibold mb-1">No Revenue Data</h4>
+        <p className="text-sm">Create invoices to see revenue trends</p>
+      </div>
+    );
+  }
+
+  const maxRevenue = Math.max(...data.trend_data.map(d => parseFloat(d.revenue) || 0));
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Chart Header */}
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Revenue</span>
+          <p className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatCurrency(data.summary?.total_revenue || 0)}
+          </p>
+        </div>
+        <div className={`flex items-center gap-1 px-2 py-1 rounded ${
+          parseFloat(data.summary?.growth_rate || 0) >= 0
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+        }`}>
+          {parseFloat(data.summary?.growth_rate || 0) >= 0
+            ? <ArrowUpRight size={14} />
+            : <ArrowDownRight size={14} />
+          }
+          <span className="text-xs font-medium">{Math.abs(parseFloat(data.summary?.growth_rate || 0)).toFixed(1)}%</span>
+        </div>
+      </div>
+
+      {/* Bar Chart */}
+      <div className="flex-1 flex items-end gap-1 sm:gap-2 min-h-40">
+        {data.trend_data.slice(-12).map((item, index) => {
+          const revenue = parseFloat(item.revenue) || 0;
+          const heightPercent = maxRevenue > 0 ? (revenue / maxRevenue * 100) : 0;
+
+          return (
+            <div key={item.period} className="flex-1 flex flex-col items-center group">
+              {/* Tooltip */}
+              <div className={`hidden group-hover:block absolute -mt-16 px-2 py-1 rounded text-xs z-10 ${
+                isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-900 text-white'
+              }`}>
+                {formatCurrency(revenue)}
+              </div>
+
+              {/* Bar */}
+              <div
+                className={`w-full rounded-t transition-all duration-300 ${
+                  index === data.trend_data.length - 1
+                    ? 'bg-teal-500 hover:bg-teal-400'
+                    : isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+                style={{ height: `${Math.max(heightPercent, 2)}%` }}
+              />
+
+              {/* Label */}
+              <span className={`text-[9px] sm:text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                {item.label?.split(' ')[0]?.substring(0, 3) || ''}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -100,6 +256,15 @@ const Dashboard = () => {
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // New KPI states
+  const [arAging, setArAging] = useState(null);
+  const [revenueTrend, setRevenueTrend] = useState(null);
+  const [kpis, setKpis] = useState({
+    grossMargin: 0,
+    dso: 0,
+    creditUtilization: 0,
+  });
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -108,11 +273,21 @@ const Dashboard = () => {
     try {
       setLoading(true);
 
-      // Dashboard analytics
-      const dashboard = await analyticsService.getDashboardData();
+      // Fetch all data in parallel
+      const [
+        dashboard,
+        invResp,
+        arAgingData,
+        revenueTrendData,
+        dashboardKPIs,
+      ] = await Promise.all([
+        analyticsService.getDashboardData().catch(() => ({})),
+        invoicesAPI.getAll({ page: 1, limit: 5 }).catch(() => ({ invoices: [] })),
+        analyticsService.getARAgingBuckets().catch(() => null),
+        analyticsService.getRevenueTrend(12).catch(() => null),
+        analyticsService.getDashboardKPIs().catch(() => null),
+      ]);
 
-      // Recent invoices (limit 5)
-      const invResp = await invoicesAPI.getAll({ page: 1, limit: 5 });
       const invoices = Array.isArray(invResp?.invoices) ? invResp.invoices : [];
 
       // Trends for month-over-month change
@@ -169,6 +344,18 @@ const Dashboard = () => {
         }))
         : [];
       setTopProducts(tops);
+
+      // Set new KPIs
+      setArAging(arAgingData);
+      setRevenueTrend(revenueTrendData);
+
+      if (dashboardKPIs) {
+        setKpis({
+          grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
+          dso: parseFloat(dashboardKPIs.dso_days) || 0,
+          creditUtilization: parseFloat(dashboardKPIs.credit_utilization_percent) || 0,
+        });
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -180,7 +367,7 @@ const Dashboard = () => {
     // Handle NaN, null, undefined, or non-numeric values
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    
+
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',
       currency: 'AED',
@@ -215,7 +402,7 @@ const Dashboard = () => {
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
         <div>
           <h1 className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            📊 Dashboard
+            Dashboard
           </h1>
           <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Welcome back! Here&apos;s what&apos;s happening with your business.
@@ -223,17 +410,23 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+      {/* Main Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6">
         {/* Total Revenue Card */}
         <StatsCard variant="default">
           <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   Total Revenue
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Sum of all invoice amounts, excluding cancelled and draft invoices
+                    </span>
+                  </span>
                 </p>
                 <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
                   isDarkMode ? 'text-white' : 'text-gray-900'
@@ -251,7 +444,7 @@ const Dashboard = () => {
               ) : (
                 <ArrowDownRight size={14} />
               )}
-              {Math.abs(stats.revenueChange)}% from last month
+              {Math.abs(stats.revenueChange).toFixed(1)}% from last month
             </ChangeIndicator>
           </div>
         </StatsCard>
@@ -261,10 +454,16 @@ const Dashboard = () => {
           <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   Total Customers
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Number of unique customers with at least one invoice
+                    </span>
+                  </span>
                 </p>
                 <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
                   isDarkMode ? 'text-white' : 'text-gray-900'
@@ -282,7 +481,7 @@ const Dashboard = () => {
               ) : (
                 <ArrowDownRight size={14} />
               )}
-              {Math.abs(stats.customersChange)}% from last month
+              {Math.abs(stats.customersChange).toFixed(1)}% from last month
             </ChangeIndicator>
           </div>
         </StatsCard>
@@ -292,10 +491,16 @@ const Dashboard = () => {
           <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   Total Products
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Number of active products in your catalog
+                    </span>
+                  </span>
                 </p>
                 <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
                   isDarkMode ? 'text-white' : 'text-gray-900'
@@ -313,7 +518,7 @@ const Dashboard = () => {
               ) : (
                 <ArrowDownRight size={14} />
               )}
-              {Math.abs(stats.productsChange)}% from last month
+              {Math.abs(stats.productsChange).toFixed(1)}% from last month
             </ChangeIndicator>
           </div>
         </StatsCard>
@@ -323,10 +528,16 @@ const Dashboard = () => {
           <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 ${
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   Total Invoices
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Count of all invoices, excluding drafts and cancelled
+                    </span>
+                  </span>
                 </p>
                 <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
                   isDarkMode ? 'text-white' : 'text-gray-900'
@@ -344,40 +555,143 @@ const Dashboard = () => {
               ) : (
                 <ArrowDownRight size={14} />
               )}
-              {Math.abs(stats.invoicesChange)}% from last month
+              {Math.abs(stats.invoicesChange).toFixed(1)}% from last month
             </ChangeIndicator>
           </div>
         </StatsCard>
       </div>
 
-      {/* Charts and Tables Row */}
+      {/* KPI Cards Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
+        {/* Gross Margin KPI */}
+        <StatsCard variant="info">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Gross Margin
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Percentage of revenue remaining after deducting cost of goods sold
+                    </span>
+                  </span>
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {kpis.grossMargin.toFixed(1)}%
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg ml-auto">
+                <Percent size={18} className="text-white" />
+              </div>
+            </div>
+            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+              Weighted average across all sales
+            </p>
+          </div>
+        </StatsCard>
+
+        {/* DSO KPI */}
+        <StatsCard variant="purple">
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  DSO
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Days Sales Outstanding - average days to collect payment
+                    </span>
+                  </span>
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {kpis.dso.toFixed(0)} days
+                </h3>
+              </div>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg ml-auto">
+                <Clock size={18} className="text-white" />
+              </div>
+            </div>
+            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+              Average time to collect payment
+            </p>
+          </div>
+        </StatsCard>
+
+        {/* Credit Utilization KPI */}
+        <StatsCard variant={kpis.creditUtilization > 80 ? 'error' : kpis.creditUtilization > 60 ? 'warning' : 'success'}>
+          <div className="p-4 sm:p-6 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <p className={`text-xs sm:text-sm font-medium uppercase tracking-wide mb-1 flex items-center gap-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Credit Utilization
+                  <span className="relative group">
+                    <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      Percentage of customer credit limits currently being used
+                    </span>
+                  </span>
+                </p>
+                <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {kpis.creditUtilization.toFixed(1)}%
+                </h3>
+              </div>
+              <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-lg ml-auto ${
+                kpis.creditUtilization > 80
+                  ? 'bg-gradient-to-br from-red-500 to-red-600'
+                  : kpis.creditUtilization > 60
+                    ? 'bg-gradient-to-br from-yellow-500 to-yellow-600'
+                    : 'bg-gradient-to-br from-green-500 to-green-600'
+              }`}>
+                <CreditCard size={18} className="text-white" />
+              </div>
+            </div>
+            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+              Outstanding vs credit limits
+            </p>
+          </div>
+        </StatsCard>
+      </div>
+
+      {/* Charts and Widgets Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Revenue Analytics Chart */}
+        {/* Revenue Trend Chart */}
         <div className="lg:col-span-2">
           <div className={`h-auto md:h-96 min-h-80 rounded-xl border overflow-hidden flex flex-col ${
             isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
           }`}>
             <div className="p-6 flex-1 flex flex-col">
-              <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4">
+              <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-4">
                 <div>
-                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 flex items-center gap-1.5 ${
                     isDarkMode ? 'text-white' : 'text-gray-900'
                   }`}>
-                    Revenue Analytics
+                    Revenue Trend
+                    <span className="relative group">
+                      <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                      <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                        Monthly revenue over the last 12 months
+                      </span>
+                    </span>
                   </h3>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Track your revenue trends and performance
+                    Monthly revenue for the last 12 months
                   </p>
                 </div>
                 <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    startIcon={<Calendar size={16} />}
-                    className="w-full sm:w-auto"
-                  >
-                    Last 30 Days
-                  </Button>
                   <Button
                     variant="primary"
                     size="sm"
@@ -390,33 +704,35 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="flex-1">
-                <div className={`p-8 text-center rounded-xl border-2 border-dashed min-h-60 flex flex-col items-center justify-center relative ${
-                  isDarkMode 
-                    ? 'border-[#37474F] bg-gradient-to-br from-[#121418] to-[#1E2328] text-gray-400' 
-                    : 'border-gray-300 bg-gradient-to-br from-gray-50 to-white text-gray-500'
-                }`}>
-                  <Activity
-                    size={48}
-                    className="mb-4 opacity-60"
-                  />
-                  <h4 className="text-lg font-semibold mb-1">Chart Coming Soon</h4>
-                  <p className="text-sm mb-1">Revenue chart will be implemented with Chart.js</p>
-                  <p className="text-xs opacity-75">
-                    Showing revenue trends, monthly comparisons, and growth patterns
-                  </p>
-                </div>
+                <RevenueTrendChart
+                  data={revenueTrend}
+                  isDarkMode={isDarkMode}
+                  formatCurrency={formatCurrency}
+                />
               </div>
             </div>
           </div>
         </div>
 
+        {/* AR Aging Widget */}
+        <div className="lg:col-span-1">
+          <ARAgingWidget
+            data={arAging}
+            isDarkMode={isDarkMode}
+            formatCurrency={formatCurrency}
+          />
+        </div>
+      </div>
+
+      {/* Top Products and Recent Invoices Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Top Products */}
         <div className="lg:col-span-1">
           <div className={`h-auto md:h-96 min-h-64 rounded-xl border flex flex-col ${
             isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
           }`}>
             <div className="p-4 sm:p-6 h-full flex flex-col">
-              <div className="flex justify-between items-start flex-col sm:flex-row gap-2 mb-6">
+              <div className="flex justify-between items-start flex-col sm:flex-row gap-2 mb-4">
                 <div>
                   <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
                     isDarkMode ? 'text-white' : 'text-gray-900'
@@ -439,10 +755,10 @@ const Dashboard = () => {
               <div className="flex-1 max-h-48 md:max-h-64 overflow-y-auto pr-0 sm:pr-2">
                 {topProducts.length > 0 ? (
                   topProducts.map((product, index) => {
-                    const getGradient = (gradientIndex) => {
+                    const getGradient = () => {
                       const gradients = [
                         'from-indigo-500 to-purple-600',
-                        'from-emerald-500 to-green-600', 
+                        'from-emerald-500 to-green-600',
                         'from-amber-500 to-orange-600',
                         'from-red-500 to-red-600',
                       ];
@@ -454,11 +770,11 @@ const Dashboard = () => {
                         isDarkMode ? 'border-[#37474F] hover:bg-[#2E3B4E]' : 'border-gray-200 hover:bg-gray-50'
                       } last:border-b-0 flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0`}>
                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${getGradient(index)} flex items-center justify-center shadow-lg`}>
+                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center shadow-lg`}>
                             <Package size={18} className="text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold mb-1 ${
+                            <p className={`text-sm font-semibold mb-1 truncate ${
                               isDarkMode ? 'text-white' : 'text-gray-900'
                             }`}>
                               {product.displayName || product.name}
@@ -499,142 +815,110 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Recent Invoices */}
-      <div className="mb-6">
-        <div className={`rounded-xl border ${
-          isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
-        }`}>
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>
-                  Recent Invoices
-                </h3>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Latest invoice activity and status updates
-                </p>
+        {/* Recent Invoices - Now 2 columns */}
+        <div className="lg:col-span-2">
+          <div className={`rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className={`text-lg sm:text-xl font-semibold mb-1 ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    Recent Invoices
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Latest invoice activity
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  startIcon={<FileText size={16} />}
+                  onClick={() => navigate('/create-invoice')}
+                >
+                  Create Invoice
+                </Button>
               </div>
-              <Button
-                variant="primary"
-                startIcon={<FileText size={16} />}
-                className="w-full sm:w-auto"
-                onClick={() => navigate('/create-invoice')}
-              >
-                Create Invoice
-              </Button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[650px]">
-                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
-                  <tr>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Invoice No.</th>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Customer</th>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Date</th>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Amount</th>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Status</th>
-                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
-                  {recentInvoices.length > 0 ? (
-                    recentInvoices.map((invoice) => (
-                      <tr key={invoice.id} className={`transition-colors ${isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'}`}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {invoice.invoiceNumber}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[500px]">
+                  <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                    <tr>
+                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Invoice</th>
+                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Customer</th>
+                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Amount</th>
+                      <th className={`px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isDarkMode ? 'divide-[#37474F]' : 'divide-gray-200'}`}>
+                    {recentInvoices.length > 0 ? (
+                      recentInvoices.map((invoice) => (
+                        <tr key={invoice.id} className={`transition-colors cursor-pointer ${isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'}`}
+                            onClick={() => navigate(`/invoices/${invoice.id}`)}>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {invoice.invoiceNumber}
+                            </div>
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {formatDate(invoice.invoiceDate)}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              {invoice.customerDetails?.name || 'Unknown Customer'}
+                              {invoice.customerDetails?.name || 'Unknown'}
                             </div>
-                            <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {invoice.customerDetails?.email}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {formatCurrency(invoice.total)}
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            {formatDate(invoice.invoiceDate)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {formatCurrency(invoice.total)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                            invoice.status === 'paid'
-                              ? 'bg-green-100 text-green-800 border-green-200'
-                              : invoice.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                                : invoice.status === 'overdue'
-                                  ? 'bg-red-100 text-red-800 border-red-200'
-                                  : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
-                          }`}>
-                            {invoice.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex gap-2 flex-col sm:flex-row">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full sm:w-auto"
-                              onClick={() => navigate('/invoices')}
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="w-full sm:w-auto"
-                              onClick={() => navigate(`/edit/${invoice.id}`)}
-                            >
-                              Edit
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
+                              invoice.status === 'paid'
+                                ? 'bg-green-100 text-green-800 border-green-200'
+                                : invoice.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                  : invoice.status === 'overdue'
+                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                    : `${isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200'}`
+                            }`}>
+                              {invoice.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4}>
+                          <div className="p-8 text-center">
+                            <FileText
+                              size={32}
+                              className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                            />
+                            <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              No invoices found
+                            </h4>
+                            <Button variant="primary" onClick={() => navigate('/create-invoice')}>
+                              Create Your First Invoice
                             </Button>
                           </div>
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={6}>
-                        <div className="p-8 text-center">
-                          <FileText
-                            size={32}
-                            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          />
-                          <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            No invoices found
-                          </h4>
-                          <Button variant="primary" onClick={() => navigate('/create-invoice')}>
-                            Create Your First Invoice
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

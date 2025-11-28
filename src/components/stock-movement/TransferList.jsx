@@ -1,6 +1,7 @@
 /**
  * TransferList Component
  * Phase 5: Inter-Warehouse Transfers
+ * Phase 3 Redesign: Standardized filter bar with search input
  *
  * Lists all stock transfers with filtering and actions
  */
@@ -32,6 +33,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  InputAdornment,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -41,6 +43,7 @@ import {
   Cancel as CancelIcon,
   SwapHoriz as TransferIcon,
   Refresh as RefreshIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { stockMovementService, TRANSFER_STATUSES } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
@@ -80,6 +83,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
+  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState('');
   const [destWarehouseFilter, setDestWarehouseFilter] = useState('');
@@ -113,17 +117,30 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         status: statusFilter || undefined,
         sourceWarehouseId: sourceWarehouseFilter || undefined,
         destinationWarehouseId: destWarehouseFilter || undefined,
+        search: searchQuery || undefined,
       });
 
-      setTransfers(result.data || []);
-      setTotalCount(result.pagination?.totalItems || result.data?.length || 0);
+      // Client-side search filter if API doesn't support it
+      let filteredData = result.data || [];
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(t =>
+          (t.transferNumber && t.transferNumber.toLowerCase().includes(query)) ||
+          (t.sourceWarehouseName && t.sourceWarehouseName.toLowerCase().includes(query)) ||
+          (t.destinationWarehouseName && t.destinationWarehouseName.toLowerCase().includes(query)) ||
+          (t.notes && t.notes.toLowerCase().includes(query))
+        );
+      }
+
+      setTransfers(filteredData);
+      setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
       console.error('Error loading transfers:', err);
       setError('Failed to load transfers');
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, statusFilter, sourceWarehouseFilter, destWarehouseFilter]);
+  }, [page, rowsPerPage, statusFilter, sourceWarehouseFilter, destWarehouseFilter, searchQuery]);
 
   useEffect(() => {
     loadTransfers();
@@ -222,30 +239,6 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
   return (
     <Box>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TransferIcon fontSize="large" color="primary" />
-          <Typography variant="h5">Inter-Warehouse Transfers</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            startIcon={<RefreshIcon />}
-            onClick={loadTransfers}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onCreateNew}
-          >
-            New Transfer
-          </Button>
-        </Box>
-      </Box>
-
       {/* Error Alert */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
@@ -253,10 +246,26 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         </Alert>
       )}
 
-      {/* Filters */}
+      {/* Standardized Filter Bar - Phase 3 Redesign */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Search Input */}
+          <TextField
+            size="small"
+            placeholder="Search transfers..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+            sx={{ minWidth: 220 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <FormControl size="small" sx={{ minWidth: 130 }}>
             <InputLabel>Status</InputLabel>
             <Select
               value={statusFilter}
@@ -270,11 +279,11 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Source Warehouse</InputLabel>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Source</InputLabel>
             <Select
               value={sourceWarehouseFilter}
-              label="Source Warehouse"
+              label="Source"
               onChange={(e) => { setSourceWarehouseFilter(e.target.value); setPage(0); }}
             >
               <MenuItem value="">All</MenuItem>
@@ -284,11 +293,11 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Destination Warehouse</InputLabel>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Destination</InputLabel>
             <Select
               value={destWarehouseFilter}
-              label="Destination Warehouse"
+              label="Destination"
               onChange={(e) => { setDestWarehouseFilter(e.target.value); setPage(0); }}
             >
               <MenuItem value="">All</MenuItem>
@@ -297,6 +306,34 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               ))}
             </Select>
           </FormControl>
+
+          {/* Spacer */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* Action Buttons */}
+          <Tooltip title="Refresh">
+            <IconButton
+              onClick={loadTransfers}
+              disabled={loading}
+              size="small"
+              sx={{ border: 1, borderColor: 'divider' }}
+            >
+              <RefreshIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={onCreateNew}
+            sx={{
+              bgcolor: '#0d9488',
+              '&:hover': { bgcolor: '#0f766e' },
+              textTransform: 'none',
+            }}
+          >
+            New Transfer
+          </Button>
         </Box>
       </Paper>
 

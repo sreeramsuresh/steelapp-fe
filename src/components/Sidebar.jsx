@@ -35,7 +35,7 @@ import { authService } from '../services/axiosAuthService';
 import { isFeatureEnabled } from '../config/features';
 
 
-const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
+const Sidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
   
@@ -66,7 +66,6 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
           path: '/invoices',
           icon: FileText,
           description: 'View and manage invoices',
-          badge: invoiceCount,
           requiredPermission: 'invoices_all.read',
         },
       ],
@@ -110,6 +109,12 @@ const Sidebar = ({ isOpen, onToggle, invoiceCount }) => {
     {
       section: 'Inventory',
       items: [
+        {
+          name: 'Warehouses',
+          path: '/warehouses',
+          icon: MapPin,
+          description: 'Manage warehouse locations and capacity',
+        },
         {
           name: 'Inventory',
           path: '/inventory',

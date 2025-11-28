@@ -1,6 +1,7 @@
 /**
  * ReservationList Component
  * Phase 6: Stock Reservations
+ * Phase 3 Redesign: Standardized filter bar with search input
  *
  * Lists all stock reservations with filtering and actions
  */
@@ -33,6 +34,7 @@ import {
   DialogContent,
   DialogActions,
   LinearProgress,
+  InputAdornment,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -41,6 +43,7 @@ import {
   Cancel as CancelIcon,
   BookmarkBorder as ReservationIcon,
   Refresh as RefreshIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { stockMovementService, RESERVATION_STATUSES } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
@@ -87,6 +90,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
+  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [warehouseFilter, setWarehouseFilter] = useState('');
   const [includeExpired, setIncludeExpired] = useState(false);
@@ -123,17 +127,31 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         status: statusFilter || undefined,
         warehouseId: warehouseFilter || undefined,
         includeExpired,
+        search: searchQuery || undefined,
       });
 
-      setReservations(result.data || []);
-      setTotalCount(result.pagination?.totalItems || result.data?.length || 0);
+      // Client-side search filter if API doesn't support it
+      let filteredData = result.data || [];
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(r =>
+          (r.reservationNumber && r.reservationNumber.toLowerCase().includes(query)) ||
+          (r.productName && r.productName.toLowerCase().includes(query)) ||
+          (r.productSku && r.productSku.toLowerCase().includes(query)) ||
+          (r.warehouseName && r.warehouseName.toLowerCase().includes(query)) ||
+          (r.notes && r.notes.toLowerCase().includes(query))
+        );
+      }
+
+      setReservations(filteredData);
+      setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
       console.error('Error loading reservations:', err);
       setError('Failed to load reservations');
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, statusFilter, warehouseFilter, includeExpired]);
+  }, [page, rowsPerPage, statusFilter, warehouseFilter, includeExpired, searchQuery]);
 
   useEffect(() => {
     loadReservations();
@@ -210,30 +228,6 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
   return (
     <Box>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ReservationIcon fontSize="large" color="primary" />
-          <Typography variant="h5">Stock Reservations</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            startIcon={<RefreshIcon />}
-            onClick={loadReservations}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onCreateNew}
-          >
-            New Reservation
-          </Button>
-        </Box>
-      </Box>
-
       {/* Error Alert */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
@@ -241,10 +235,26 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         </Alert>
       )}
 
-      {/* Filters */}
+      {/* Standardized Filter Bar - Phase 3 Redesign */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          {/* Search Input */}
+          <TextField
+            size="small"
+            placeholder="Search reservations..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+            sx={{ minWidth: 220 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <FormControl size="small" sx={{ minWidth: 130 }}>
             <InputLabel>Status</InputLabel>
             <Select
               value={statusFilter}
@@ -258,7 +268,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
             <InputLabel>Warehouse</InputLabel>
             <Select
               value={warehouseFilter}
@@ -272,18 +282,45 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             </Select>
           </FormControl>
 
-          <FormControl size="small">
+          <FormControl size="small" sx={{ minWidth: 130 }}>
             <InputLabel>Show Expired</InputLabel>
             <Select
               value={includeExpired ? 'yes' : 'no'}
               label="Show Expired"
               onChange={(e) => { setIncludeExpired(e.target.value === 'yes'); setPage(0); }}
-              sx={{ minWidth: 120 }}
             >
               <MenuItem value="no">No</MenuItem>
               <MenuItem value="yes">Yes</MenuItem>
             </Select>
           </FormControl>
+
+          {/* Spacer */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* Action Buttons */}
+          <Tooltip title="Refresh">
+            <IconButton
+              onClick={loadReservations}
+              disabled={loading}
+              size="small"
+              sx={{ border: 1, borderColor: 'divider' }}
+            >
+              <RefreshIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={onCreateNew}
+            sx={{
+              bgcolor: '#0d9488',
+              '&:hover': { bgcolor: '#0f766e' },
+              textTransform: 'none',
+            }}
+          >
+            New Reservation
+          </Button>
         </Box>
       </Paper>
 

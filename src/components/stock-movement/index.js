@@ -3,6 +3,9 @@
  * Re-exports all stock movement related components
  */
 
+// Overview dashboard
+export { default as StockMovementOverview } from './StockMovementOverview';
+
 // Transfer components
 export { default as TransferList } from './TransferList';
 export { default as TransferForm } from './TransferForm';

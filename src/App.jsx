@@ -7,7 +7,6 @@ import AppRouter from './components/AppRouter';
 import NotificationProvider from './components/NotificationProvider';
 import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
 import { authService } from './services/axiosAuthService';
-import { invoiceService } from './services/invoiceService';
 
 // Initialize auth service on app load
 authService.initialize();
@@ -17,19 +16,6 @@ authService.initialize();
 const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
-  const [invoiceCount, setInvoiceCount] = useState(0);
-
-  // Fetch invoice count for sidebar badge
-  useEffect(() => {
-    if (user) {
-      invoiceService.getInvoices({ page: 1, limit: 1 })
-        .then(response => {
-          const total = response.pagination?.totalItems || 0;
-          setInvoiceCount(total);
-        })
-        .catch(() => setInvoiceCount(0));
-    }
-  }, [user]);
   
   const getPageTitle = () => {
     const path = location.pathname;
@@ -117,7 +103,6 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
       <Sidebar 
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
-        invoiceCount={invoiceCount}
       />
       
       <div className={`${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${

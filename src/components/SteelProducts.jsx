@@ -13,7 +13,6 @@ import {
   X,
   Eye,
   RefreshCw,
-  Warehouse,
   ChevronDown,
   ChevronRight,
   Upload,
@@ -23,7 +22,6 @@ import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
-import WarehouseManagement from './WarehouseManagement';
 import ProductUpload from './ProductUpload';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
@@ -1276,10 +1274,6 @@ const SteelProducts = () => {
     </div>
   );
 
-  const renderWarehouseManagement = () => (
-    <WarehouseManagement />
-  );
-
   return (
     <div className={`p-4 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       <div className={`rounded-xl border p-6 ${
@@ -1302,7 +1296,6 @@ const SteelProducts = () => {
         <div className="flex flex-wrap gap-1 relative">
           {[
             { id: 'catalog', label: 'Product Catalog', icon: Package },
-            { id: 'warehouses', label: 'Warehouses', icon: Warehouse },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -1331,7 +1324,6 @@ const SteelProducts = () => {
         {/* Tab Content - Connected to tabs */}
         <div className={`border rounded-b-lg rounded-tr-lg ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
           {activeTab === 'catalog' && renderCatalog()}
-          {activeTab === 'warehouses' && renderWarehouseManagement()}
         </div>
 
         {/* Add Product Modal */}
