@@ -6,6 +6,9 @@
 // API hooks
 export { useApi, useApiData } from './useApi';
 
+// API health monitoring hook
+export { useApiHealth } from './useApiHealth';
+
 // Dashboard permissions hook
 export { useDashboardPermissions } from './useDashboardPermissions';
 

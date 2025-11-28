@@ -33,6 +33,8 @@ import {
   FileSpreadsheet,
   FileMinus,
   Coins,
+  DollarSign,
+  Navigation,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -44,6 +46,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const { isDarkMode } = useTheme();
   
   const navigationItems = [
+    // 1. DASHBOARD (1 item)
     {
       section: 'Dashboard',
       items: [
@@ -51,19 +54,21 @@ const Sidebar = ({ isOpen, onToggle }) => {
           name: 'Dashboard',
           path: '/dashboard',
           icon: Home,
-          description: 'Overview & Analytics',
+          description: 'Overview and key metrics',
         },
       ],
     },
+
+    // 2. SALES (3 items) - Removed Credit Notes (duplicate of Finance Dashboard tab)
     {
-      section: 'Finance / Accounts Receivable',
+      section: 'Sales',
       items: [
         {
-          name: 'Finance Dashboard',
-          path: '/finance',
-          icon: Banknote,
-          description: 'Manage receivables, payables, and credit notes',
-          requiredPermission: 'payables.read',
+          name: 'Quotations',
+          path: '/quotations',
+          icon: Quote,
+          description: 'Create and manage quotations',
+          requiredPermission: 'quotations.read',
         },
         {
           name: 'Invoices',
@@ -72,23 +77,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: 'View and manage invoices',
           requiredPermission: 'invoices_all.read',
         },
-      ],
-    },
-    {
-      section: 'Quotations',
-      items: [
-        {
-          name: 'Quotations',
-          path: '/quotations',
-          icon: Quote,
-          description: 'Manage quotations',
-          requiredPermission: 'quotations.read',
-        },
-      ],
-    },
-    {
-      section: 'Delivery',
-      items: [
         {
           name: 'Delivery Notes',
           path: '/delivery-notes',
@@ -98,8 +86,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
         },
       ],
     },
+
+    // 3. PURCHASES (4 items) - Keep all, core workflow
     {
-      section: 'Procurement',
+      section: 'Purchases',
       items: [
         {
           name: 'Purchase Orders',
@@ -108,11 +98,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: 'Manage purchase orders',
           requiredPermission: 'purchase_orders.read',
         },
-      ],
-    },
-    {
-      section: 'Purchases',
-      items: [
         {
           name: 'Vendor Bills',
           path: '/purchases/vendor-bills',
@@ -127,20 +112,31 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: 'Manage debit notes for vendors',
           requiredPermission: 'payables.read',
         },
-      ],
-    },
-    {
-      section: 'Payments',
-      items: [
         {
           name: 'Advance Payments',
           path: '/payments/advance-payments',
           icon: Coins,
-          description: 'Manage customer advance payments',
+          description: 'Manage advance payments to suppliers',
           requiredPermission: 'payables.read',
         },
       ],
     },
+
+    // 4. FINANCE (1 item) - Dashboard only, tabs handle Account Statements, Commissions, Credit Notes
+    {
+      section: 'Finance',
+      items: [
+        {
+          name: 'Finance Dashboard',
+          path: '/finance',
+          icon: Banknote,
+          description: 'Receivables, payables, statements, and commissions',
+          requiredPermission: 'payables.read',
+        },
+      ],
+    },
+
+    // 5. INVENTORY (3 items) - Keep as is
     {
       section: 'Inventory',
       items: [
@@ -151,10 +147,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: 'Manage warehouse locations and capacity',
         },
         {
-          name: 'Inventory',
+          name: 'Stock Levels',
           path: '/inventory',
           icon: Warehouse,
-          description: 'View stock levels and inventory',
+          description: 'View current stock levels and availability',
         },
         {
           name: 'Stock Movements',
@@ -164,30 +160,22 @@ const Sidebar = ({ isOpen, onToggle }) => {
         },
       ],
     },
+
+    // 6. TRADE (1 item) - Renamed, Transit removed (it's a tab), Countries/Exchange Rates removed (tabs)
     {
-      section: 'Trade Operations',
+      section: 'Trade',
       items: [
         {
           name: 'Import / Export',
           path: '/import-export',
           icon: Ship,
-          description: 'Manage international trade operations',
+          description: 'International trade, transit, shipping & customs',
           requiredPermission: 'import_orders.read',
         },
       ],
     },
-    {
-      section: 'Business',
-      items: [
-        {
-          name: 'Business Management',
-          path: '/business',
-          icon: Users,
-          description: 'Manage customers, products, and pricing',
-          requiredPermission: 'customers.read',
-        },
-      ],
-    },
+
+    // 7. REPORTS (1 item) - Keep as is
     {
       section: 'Reports',
       items: [
@@ -195,11 +183,41 @@ const Sidebar = ({ isOpen, onToggle }) => {
           name: 'Reports & Analytics',
           path: '/reports',
           icon: BarChart3,
-          description: 'Business insights and performance analytics',
+          description: 'Sales analytics, revenue trends, and VAT returns',
           requiredPermission: 'analytics.read',
         },
       ],
     },
+
+    // 8. MASTERS (3 items) - NEW: Customers, Products, Price Lists
+    {
+      section: 'Masters',
+      items: [
+        {
+          name: 'Customers',
+          path: '/customers',
+          icon: Users,
+          description: 'Manage customer records',
+          requiredPermission: 'customers.read',
+        },
+        {
+          name: 'Products',
+          path: '/products',
+          icon: Package,
+          description: 'Manage product catalog',
+          requiredPermission: 'products.read',
+        },
+        {
+          name: 'Price Lists',
+          path: '/pricelists',
+          icon: Scroll,
+          description: 'Manage product price lists',
+          requiredPermission: 'products.read',
+        },
+      ],
+    },
+
+    // 9. SETTINGS (1-3 items) - Company Settings main, FTA/Audit conditional
     {
       section: 'Settings',
       items: [
@@ -208,6 +226,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
           path: '/settings',
           icon: Settings,
           description: 'Configure company details',
+          requiredRole: 'admin',
+        },
+        {
+          name: 'FTA Integration',
+          path: '/settings/fta-integration',
+          icon: Shield,
+          description: 'UAE Federal Tax Authority integration',
           requiredRole: 'admin',
         },
         // Audit Logs - conditionally shown based on feature flag

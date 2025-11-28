@@ -42,6 +42,7 @@ import ImportOrderForm from '../pages/ImportOrderForm';
 import ImportOrderDetails from '../pages/ImportOrderDetails';
 import ExportOrderForm from '../pages/ExportOrderForm';
 import ExportOrderDetails from '../pages/ExportOrderDetails';
+import TransitList from '../pages/TransitList';
 
 // Finance Components
 import FinanceDashboard from '../pages/FinanceDashboard';
@@ -77,6 +78,13 @@ import PriceListForm from '../pages/PriceListForm';
 
 // Commission Components
 import AgentCommissionDashboard from '../pages/AgentCommissionDashboard';
+
+// Masters Components
+import CountriesList from '../pages/CountriesList';
+import ExchangeRateList from '../pages/ExchangeRateList';
+
+// Settings Components
+import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
@@ -404,6 +412,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         <Route
+          path="/settings/fta-integration"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <FTAIntegrationSettings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/audit-logs"
           element={
             <ProtectedRoute user={user} requiredRole="admin">
@@ -679,6 +696,50 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="export_orders.update">
               <ExportOrderForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Transit Tracking */}
+        <Route
+          path="/transit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.read">
+              <TransitList />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Masters Routes */}
+        <Route
+          path="/masters/countries"
+          element={
+            <ProtectedRoute user={user}>
+              <CountriesList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/masters/exchange-rates"
+          element={
+            <ProtectedRoute user={user}>
+              <ExchangeRateList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute user={user} requiredPermission="customers.read">
+              <CustomerManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute user={user} requiredPermission="products.read">
+              <SteelProducts />
             </ProtectedRoute>
           }
         />

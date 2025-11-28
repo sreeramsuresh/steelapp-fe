@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Activity, Package, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { safeEntries, safeKeys, safeNumber } from '../../../../utils/safeAccess';
 
 // Mock data for inventory health
 const generateMockData = () => ({
@@ -175,52 +176,56 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
       </div>
 
       {/* Category Breakdown */}
-      <div className="mb-4">
-        <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-          Stock by Category
-        </p>
-        <div className={`h-4 rounded-full overflow-hidden flex ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}>
-          {Object.entries(healthData.breakdown).map(([category, data]) => (
-            <div
-              key={category}
-              className={`h-full ${getCategoryBarColor(category)} transition-all`}
-              style={{ width: `${data.percentage}%` }}
-              title={`${category}: ${data.percentage}%`}
-            />
-          ))}
+      {safeKeys(healthData.breakdown).length > 0 && (
+        <div className="mb-4">
+          <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Stock by Category
+          </p>
+          <div className={`h-4 rounded-full overflow-hidden flex ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}>
+            {safeEntries(healthData.breakdown).map(([category, data]) => (
+              <div
+                key={category}
+                className={`h-full ${getCategoryBarColor(category)} transition-all`}
+                style={{ width: `${safeNumber(data?.percentage, 0)}%` }}
+                title={`${category}: ${safeNumber(data?.percentage, 0)}%`}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {safeEntries(healthData.breakdown).map(([category, data]) => (
+              <div key={category} className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${getCategoryBarColor(category)}`} />
+                <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)} ({safeNumber(data?.percentage, 0)}%)
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {Object.entries(healthData.breakdown).map(([category, data]) => (
-            <div key={category} className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${getCategoryBarColor(category)}`} />
-              <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {category.charAt(0).toUpperCase() + category.slice(1)} ({data.percentage}%)
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Alerts Summary */}
-      <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-50'}`}>
-        <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-          Active Alerts
-        </p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <AlertTriangle size={14} className="text-red-500" />
-            <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Low Stock: <span className="font-semibold text-red-500">{healthData.alerts.lowStock}</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Package size={14} className="text-amber-500" />
-            <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Overstock: <span className="font-semibold text-amber-500">{healthData.alerts.overstock}</span>
-            </span>
+      {healthData.alerts && (
+        <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-50'}`}>
+          <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Active Alerts
+          </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <AlertTriangle size={14} className="text-red-500" />
+              <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Low Stock: <span className="font-semibold text-red-500">{safeNumber(healthData.alerts?.lowStock, 0)}</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Package size={14} className="text-amber-500" />
+              <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Overstock: <span className="font-semibold text-amber-500">{safeNumber(healthData.alerts?.overstock, 0)}</span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <div className={`mt-4 pt-3 border-t flex justify-between items-center ${
@@ -229,7 +234,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
         <div className="flex items-center gap-1">
           <CheckCircle size={12} className="text-green-500" />
           <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            {healthData.totalItems} items tracked
+            {safeNumber(healthData.totalItems, 0)} items tracked
           </span>
         </div>
         <button

@@ -13,6 +13,7 @@ import { analyticsService } from '../services/analyticsService';
 import { dashboardService } from '../services/dashboardService';
 import { useDashboardPermissions } from '../hooks/useDashboardPermissions';
 import WidgetSkeleton from './dashboard/WidgetSkeleton';
+import WidgetErrorBoundary from './dashboard/WidgetErrorBoundary';
 import { preloadByRole, createHoverPreload } from './dashboard/preloadWidgets';
 
 // Lazy load widgets
@@ -156,11 +157,25 @@ const DashboardV2 = () => {
       setIsRefreshing(true);
       const dashboard = await analyticsService.getDashboardData().catch(() => ({}));
 
+      // API returns: { metrics: { totalRevenue, totalCustomers, totalOrders, ... } }
+      // Also support legacy structure: { revenueMetrics, customerMetrics, productMetrics }
       const newStats = {
-        totalRevenue: parseFloat(dashboard?.revenueMetrics?.totalRevenue) || 0,
-        totalCustomers: parseInt(dashboard?.customerMetrics?.totalCustomers) || 0,
-        totalProducts: parseInt(dashboard?.productMetrics?.totalProducts) || 0,
-        totalInvoices: parseInt(dashboard?.revenueMetrics?.totalInvoices) || 0,
+        totalRevenue: parseFloat(
+          dashboard?.metrics?.totalRevenue ||
+          dashboard?.revenueMetrics?.totalRevenue
+        ) || 0,
+        totalCustomers: parseInt(
+          dashboard?.metrics?.totalCustomers ||
+          dashboard?.customerMetrics?.totalCustomers
+        ) || 0,
+        totalProducts: parseInt(
+          dashboard?.metrics?.totalProducts ||
+          dashboard?.productMetrics?.totalProducts
+        ) || 0,
+        totalInvoices: parseInt(
+          dashboard?.metrics?.totalOrders ||
+          dashboard?.revenueMetrics?.totalInvoices
+        ) || 0,
         revenueChange: 0,
         customersChange: 0,
       };
@@ -387,31 +402,37 @@ const DashboardV2 = () => {
           {/* Quick Widgets */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {canViewWidget('revenue-kpi') && (
-              <Suspense fallback={<WidgetSkeleton variant="card" />}>
-                <LazyRevenueKPIWidget
-                  totalRevenue={stats.totalRevenue}
-                  revenueChange={stats.revenueChange}
-                  loading={isRefreshing}
-                  onRefresh={() => handleWidgetRefresh('revenue')}
-                  formatCurrency={formatCurrency}
-                />
-              </Suspense>
+              <WidgetErrorBoundary widgetName="Revenue KPI">
+                <Suspense fallback={<WidgetSkeleton variant="card" />}>
+                  <LazyRevenueKPIWidget
+                    totalRevenue={stats.totalRevenue}
+                    revenueChange={stats.revenueChange}
+                    loading={isRefreshing}
+                    onRefresh={() => handleWidgetRefresh('revenue')}
+                    formatCurrency={formatCurrency}
+                  />
+                </Suspense>
+              </WidgetErrorBoundary>
             )}
             {canViewWidget('inventory-health') && (
-              <Suspense fallback={<WidgetSkeleton variant="chart" />}>
-                <LazyInventoryHealthWidget
-                  data={widgetData.inventoryHealth}
-                />
-              </Suspense>
+              <WidgetErrorBoundary widgetName="Inventory Health">
+                <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                  <LazyInventoryHealthWidget
+                    data={widgetData.inventoryHealth}
+                  />
+                </Suspense>
+              </WidgetErrorBoundary>
             )}
             {canViewWidget('vat-collection') && (
-              <Suspense fallback={<WidgetSkeleton variant="card" />}>
-                <LazyVATCollectionWidget
-                  data={widgetData.vatMetrics}
-                  onRefresh={() => handleWidgetRefresh('vatMetrics')}
-                  isLoading={widgetLoading.vatMetrics}
-                />
-              </Suspense>
+              <WidgetErrorBoundary widgetName="VAT Collection">
+                <Suspense fallback={<WidgetSkeleton variant="card" />}>
+                  <LazyVATCollectionWidget
+                    data={widgetData.vatMetrics}
+                    onRefresh={() => handleWidgetRefresh('vatMetrics')}
+                    isLoading={widgetLoading.vatMetrics}
+                  />
+                </Suspense>
+              </WidgetErrorBoundary>
             )}
           </div>
         </>
@@ -431,37 +452,45 @@ const DashboardV2 = () => {
           {expandedSections.financial && (
             <div className={`p-4 rounded-b-xl border border-t-0 ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Suspense fallback={<WidgetSkeleton variant="card" />}>
-                  <LazyRevenueKPIWidget
-                    totalRevenue={stats.totalRevenue}
-                    revenueChange={stats.revenueChange}
-                    loading={widgetLoading.revenue}
-                    onRefresh={() => handleWidgetRefresh('revenue')}
-                    formatCurrency={formatCurrency}
-                  />
-                </Suspense>
-                <Suspense fallback={<WidgetSkeleton variant="chart" />}>
-                  <LazyARAgingWidget
-                    data={widgetData.arAging}
-                    loading={widgetLoading.arAging}
-                    onRefresh={() => handleWidgetRefresh('arAging')}
-                    formatCurrency={formatCurrency}
-                  />
-                </Suspense>
-                <Suspense fallback={<WidgetSkeleton variant="chart" />}>
-                  <LazyGrossMarginWidget
-                    grossMargin={widgetData.grossMargin}
-                    loading={widgetLoading.grossMargin}
-                    onRefresh={() => handleWidgetRefresh('grossMargin')}
-                    isDarkMode={isDarkMode}
-                  />
-                </Suspense>
-                <Suspense fallback={<WidgetSkeleton variant="chart" />}>
-                  <LazyCashFlowWidget
-                    data={widgetData.cashFlow}
-                    onRefresh={() => handleWidgetRefresh('cashFlow')}
-                  />
-                </Suspense>
+                <WidgetErrorBoundary widgetName="Revenue KPI">
+                  <Suspense fallback={<WidgetSkeleton variant="card" />}>
+                    <LazyRevenueKPIWidget
+                      totalRevenue={stats.totalRevenue}
+                      revenueChange={stats.revenueChange}
+                      loading={widgetLoading.revenue}
+                      onRefresh={() => handleWidgetRefresh('revenue')}
+                      formatCurrency={formatCurrency}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
+                <WidgetErrorBoundary widgetName="AR Aging">
+                  <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                    <LazyARAgingWidget
+                      data={widgetData.arAging}
+                      loading={widgetLoading.arAging}
+                      onRefresh={() => handleWidgetRefresh('arAging')}
+                      formatCurrency={formatCurrency}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
+                <WidgetErrorBoundary widgetName="Gross Margin">
+                  <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                    <LazyGrossMarginWidget
+                      grossMargin={widgetData.grossMargin}
+                      loading={widgetLoading.grossMargin}
+                      onRefresh={() => handleWidgetRefresh('grossMargin')}
+                      isDarkMode={isDarkMode}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
+                <WidgetErrorBoundary widgetName="Cash Flow">
+                  <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                    <LazyCashFlowWidget
+                      data={widgetData.cashFlow}
+                      onRefresh={() => handleWidgetRefresh('cashFlow')}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
               </div>
             </div>
           )}
@@ -482,14 +511,18 @@ const DashboardV2 = () => {
           {expandedSections.inventory && (
             <div className={`p-4 rounded-b-xl border border-t-0 ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Suspense fallback={<WidgetSkeleton variant="chart" />}>
-                  <LazyInventoryHealthWidget
-                    data={widgetData.inventoryHealth}
-                  />
-                </Suspense>
-                <Suspense fallback={<WidgetSkeleton variant="list" />}>
-                  <LazyTopProductsWidget />
-                </Suspense>
+                <WidgetErrorBoundary widgetName="Inventory Health">
+                  <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                    <LazyInventoryHealthWidget
+                      data={widgetData.inventoryHealth}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
+                <WidgetErrorBoundary widgetName="Top Products">
+                  <Suspense fallback={<WidgetSkeleton variant="list" />}>
+                    <LazyTopProductsWidget />
+                  </Suspense>
+                </WidgetErrorBoundary>
               </div>
             </div>
           )}
@@ -510,8 +543,16 @@ const DashboardV2 = () => {
           {expandedSections.sales && (
             <div className={`p-4 rounded-b-xl border border-t-0 ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Suspense fallback={<WidgetSkeleton variant="list" />}><LazyLeaderboardWidget /></Suspense>
-                <Suspense fallback={<WidgetSkeleton variant="chart" />}><LazyCustomerSegmentsWidget /></Suspense>
+                <WidgetErrorBoundary widgetName="Sales Leaderboard">
+                  <Suspense fallback={<WidgetSkeleton variant="list" />}>
+                    <LazyLeaderboardWidget />
+                  </Suspense>
+                </WidgetErrorBoundary>
+                <WidgetErrorBoundary widgetName="Customer Segments">
+                  <Suspense fallback={<WidgetSkeleton variant="chart" />}>
+                    <LazyCustomerSegmentsWidget />
+                  </Suspense>
+                </WidgetErrorBoundary>
               </div>
             </div>
           )}
@@ -532,13 +573,15 @@ const DashboardV2 = () => {
           {expandedSections.vat && (
             <div className={`p-4 rounded-b-xl border border-t-0 ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Suspense fallback={<WidgetSkeleton variant="card" />}>
-                  <LazyVATCollectionWidget
-                    data={widgetData.vatMetrics}
-                    onRefresh={() => handleWidgetRefresh('vatMetrics')}
-                    isLoading={widgetLoading.vatMetrics}
-                  />
-                </Suspense>
+                <WidgetErrorBoundary widgetName="VAT Collection">
+                  <Suspense fallback={<WidgetSkeleton variant="card" />}>
+                    <LazyVATCollectionWidget
+                      data={widgetData.vatMetrics}
+                      onRefresh={() => handleWidgetRefresh('vatMetrics')}
+                      isLoading={widgetLoading.vatMetrics}
+                    />
+                  </Suspense>
+                </WidgetErrorBoundary>
               </div>
             </div>
           )}

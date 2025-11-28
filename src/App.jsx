@@ -7,6 +7,7 @@ import AppRouter from './components/AppRouter';
 import NotificationProvider from './components/NotificationProvider';
 import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
 import { authService } from './services/axiosAuthService';
+import ApiStatusBanner from './components/common/ApiStatusBanner';
 
 // Initialize auth service on app load
 authService.initialize();
@@ -245,7 +246,9 @@ function App() {
       <Router>
         <NotificationCenterProvider>
           <NotificationProvider>
-            <ThemedApp 
+            {/* API Status Banner - Shows warning when backend is unavailable */}
+            <ApiStatusBanner />
+            <ThemedApp
               user={user}
               sidebarOpen={sidebarOpen}
               setSidebarOpen={setSidebarOpen}

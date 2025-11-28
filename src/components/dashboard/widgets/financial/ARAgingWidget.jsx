@@ -37,12 +37,24 @@ export const ARAgingWidget = ({
 
   // Use mock data as fallback when real data is not available
   // Handle both camelCase (API) and snake_case field names
+  // Also handle string-to-number conversion for API responses
   const normalizeData = (d) => {
     if (!d) return null;
+
+    // Normalize buckets - ensure amount and percentage are numbers
+    const normalizedBuckets = Array.isArray(d.buckets)
+      ? d.buckets.map(bucket => ({
+          ...bucket,
+          amount: parseFloat(bucket.amount) || 0,
+          percentage: parseFloat(bucket.percentage) || 0,
+        }))
+      : [];
+
     return {
-      buckets: d.buckets,
-      total_ar: d.total_ar || d.totalAr,
-      overdue_ar: d.overdue_ar || d.overdueAr,
+      buckets: normalizedBuckets,
+      // Handle both snake_case and camelCase, convert strings to numbers
+      total_ar: parseFloat(d.total_ar || d.totalAr) || 0,
+      overdue_ar: parseFloat(d.overdue_ar || d.overdueAr) || 0,
     };
   };
 
