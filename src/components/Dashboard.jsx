@@ -11,6 +11,7 @@ import {
   CreditCard,
   Percent,
   Info,
+  FileText,
 } from 'lucide-react';
 import { analyticsService } from '../services/analyticsService';
 import { useNavigate } from 'react-router-dom';

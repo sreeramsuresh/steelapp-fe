@@ -137,11 +137,11 @@ const CommissionTrackerWidget = ({
   const formatCompact = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    if (safeAmount >= 100000) {
-      return `${(safeAmount / 100000).toFixed(1)}L`;
+    if (safeAmount >= 1000000) {
+      return `${(safeAmount / 1000000).toFixed(1)}M`;
     }
     if (safeAmount >= 1000) {
-      return `${(safeAmount / 1000).toFixed(1)}K`;
+      return `${(safeAmount / 1000).toFixed(0)}K`;
     }
     return safeAmount.toString();
   };

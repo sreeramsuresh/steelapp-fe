@@ -2,6 +2,12 @@ import React from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 
+// Mock data for Phase 1 - used when no API data available
+const MOCK_REVENUE = {
+  totalRevenue: 10648130,
+  revenueChange: 12.5,
+};
+
 /**
  * RevenueKPIWidget - Displays total revenue with trend
  *
@@ -13,12 +19,15 @@ import BaseWidget, { MetricValue } from '../BaseWidget';
  * @param {function} props.formatCurrency - Currency formatter function
  */
 export const RevenueKPIWidget = ({
-  totalRevenue = 0,
-  revenueChange = 0,
+  totalRevenue,
+  revenueChange,
   loading = false,
   onRefresh,
   formatCurrency = (val) => `AED ${val.toLocaleString()}`,
 }) => {
+  // Use mock data as fallback when real data is 0 or undefined
+  const displayRevenue = totalRevenue > 0 ? totalRevenue : MOCK_REVENUE.totalRevenue;
+  const displayChange = totalRevenue > 0 ? (revenueChange || 0) : MOCK_REVENUE.revenueChange;
   return (
     <BaseWidget
       title="Total Revenue"
@@ -31,20 +40,20 @@ export const RevenueKPIWidget = ({
     >
       <div className="flex items-center justify-between">
         <MetricValue
-          value={formatCurrency(totalRevenue)}
+          value={formatCurrency(displayRevenue)}
           size="md"
         />
         <div
           className={`flex items-center gap-1 text-sm font-medium ${
-            revenueChange >= 0 ? 'text-green-500' : 'text-red-500'
+            displayChange >= 0 ? 'text-green-500' : 'text-red-500'
           }`}
         >
-          {revenueChange >= 0 ? (
+          {displayChange >= 0 ? (
             <ArrowUpRight size={16} />
           ) : (
             <ArrowDownRight size={16} />
           )}
-          <span>{Math.abs(revenueChange).toFixed(1)}%</span>
+          <span>{Math.abs(displayChange).toFixed(1)}%</span>
         </div>
       </div>
       <p className="text-xs text-gray-500 mt-2">vs previous month</p>

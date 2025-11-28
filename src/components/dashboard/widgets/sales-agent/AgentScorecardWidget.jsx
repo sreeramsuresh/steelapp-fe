@@ -133,10 +133,10 @@ const AgentScorecardWidget = ({
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    if (safeAmount >= 10000000) {
-      return `AED ${(safeAmount / 10000000).toFixed(2)}Cr`;
-    } else if (safeAmount >= 100000) {
-      return `AED ${(safeAmount / 100000).toFixed(2)}L`;
+    if (safeAmount >= 1000000) {
+      return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
+    } else if (safeAmount >= 1000) {
+      return `AED ${(safeAmount / 1000).toFixed(0)}K`;
     }
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',

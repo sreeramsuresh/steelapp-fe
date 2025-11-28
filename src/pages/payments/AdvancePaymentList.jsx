@@ -230,10 +230,10 @@ const AdvancePaymentList = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              Advance Payments
+              Advance Receipts (Pre-Invoice)
             </h1>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Customer deposits with VAT tracking
+              UAE VAT Article 26: Payments received before invoice issuance create an immediate tax point. VAT must be declared in the period received.
             </p>
           </div>
           <button

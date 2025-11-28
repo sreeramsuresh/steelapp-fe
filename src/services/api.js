@@ -353,8 +353,9 @@ export const purchaseOrdersAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService: pdfApiService } = await import('./axiosApi');
-    const blob = await pdfApiService.request({
+    // Use the already-imported apiService instead of dynamic import
+    // This avoids the Vite warning about mixed static/dynamic imports
+    const blob = await apiService.request({
       method: 'GET',
       url: `/purchase-orders/${id}/pdf`,
       responseType: 'blob',
@@ -400,8 +401,8 @@ export const accountStatementsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService: stmtApiService } = await import('./axiosApi');
-    const blob = await stmtApiService.request({
+    // Use the already-imported apiService instead of dynamic import
+    const blob = await apiService.request({
       method: 'GET',
       url: `/account-statements/${id}/pdf`,
       responseType: 'blob',
@@ -419,8 +420,8 @@ export const accountStatementsAPI = {
 
   // Generate statement on-the-fly without saving
   generateOnTheFly: async (data) => {
-    const { apiService: genApiService } = await import('./axiosApi');
-    const blob = await genApiService.request({
+    // Use the already-imported apiService instead of dynamic import
+    const blob = await apiService.request({
       method: 'POST',
       url: '/account-statements/generate',
       data,
@@ -578,8 +579,8 @@ export const quotationsAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const { apiService: quotationApiService } = await import('./axiosApi');
-    const blob = await quotationApiService.request({
+    // Use the already-imported apiService instead of dynamic import
+    const blob = await apiService.request({
       method: 'GET',
       url: `/quotations/${id}/pdf`,
       responseType: 'blob',

@@ -359,10 +359,10 @@ const AdvancePaymentForm = () => {
             </button>
             <div>
               <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {isEditMode ? 'Edit Advance Payment' : 'Record Advance Payment'}
+                {isEditMode ? 'Edit Advance Receipt' : 'Record Advance Receipt (Pre-Invoice)'}
               </h1>
               <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {isEditMode ? `Editing ${payment.receiptNumber}` : 'Record customer deposit with VAT'}
+                {isEditMode ? `Editing ${payment.receiptNumber}` : 'UAE VAT Article 26: Payment received before invoice creates immediate tax point'}
               </p>
             </div>
           </div>
@@ -404,10 +404,11 @@ const AdvancePaymentForm = () => {
           <div className="flex items-start gap-3">
             <Building2 className={`h-5 w-5 mt-0.5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
             <div className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
-              <p className="font-medium">UAE VAT Notice</p>
+              <p className="font-medium">UAE VAT Article 26 - Pre-Invoice Payments</p>
               <p className="mt-1">
-                Per UAE FTA regulations, VAT at 5% is due on advance payments at the time of receipt.
-                The VAT will be automatically calculated and recorded on this payment.
+                Under UAE VAT Law Article 26, advance payments create an <strong>immediate tax point</strong> at the date of receipt.
+                VAT at 5% must be declared in the period received, regardless of when the invoice is issued.
+                A Tax Invoice must be issued within 14 days of receiving this advance.
               </p>
             </div>
           </div>

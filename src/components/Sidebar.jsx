@@ -234,10 +234,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
         isOpen ? 'translate-x-0' : '-translate-x-full'
       } w-[260px] xl:w-[280px] flex-shrink-0 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} border-r ${
         isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-      } overflow-hidden`}
+      } flex flex-col overflow-hidden`}
     >
       {/* Sidebar Header */}
-      <div className={`h-16 sm:h-14 md:h-15 px-4 flex items-center border-b ${
+      <div className={`h-16 sm:h-14 md:h-15 px-4 flex items-center border-b flex-shrink-0 ${
         isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
       }`}>
         <Link 

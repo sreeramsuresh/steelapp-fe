@@ -21,34 +21,23 @@ import { apiClient } from './api';
 const transformDebitNoteForServer = (debitNoteData) => {
   return {
     vendorBillId: debitNoteData.vendorBillId || null,
-    vendorId: debitNoteData.vendorId || debitNoteData.vendor?.id || null,
-    vendorDetails: debitNoteData.vendorDetails || debitNoteData.vendor || null,
-    debitNoteNumber: debitNoteData.debitNoteNumber || '',
     debitNoteDate: debitNoteData.debitNoteDate || null,
     reason: debitNoteData.reason || '',
-    reasonCategory: debitNoteData.reasonCategory || 'PRICE_ADJUSTMENT',
     // VAT fields
     vatCategory: debitNoteData.vatCategory || 'STANDARD',
-    isReverseCharge: debitNoteData.isReverseCharge || false,
-    // Amounts
-    subtotal: parseFloat(debitNoteData.subtotal || 0),
-    vatAmount: parseFloat(debitNoteData.vatAmount || 0),
-    totalDebit: parseFloat(debitNoteData.totalDebit || 0),
-    // Status
-    status: debitNoteData.status || 'draft',
     // Metadata
     notes: debitNoteData.notes || '',
-    attachmentUrls: debitNoteData.attachmentUrls || [],
-    // Items
+    // Items - backend calculates totals from items
     items: (debitNoteData.items || []).map(item => ({
       vendorBillItemId: item.vendorBillItemId || null,
       productId: item.productId || null,
-      description: item.description || item.name || '',
+      productName: item.productName || item.name || '',
+      description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
       unitPrice: parseFloat(item.unitPrice || item.rate || 0),
-      amount: parseFloat(item.amount || 0),
       vatRate: parseFloat(item.vatRate || 5),
-      vatAmount: parseFloat(item.vatAmount || 0),
+      vatCategory: item.vatCategory || 'STANDARD',
+      reason: item.reason || '',
     })),
   };
 };
@@ -64,10 +53,11 @@ const transformDebitNoteFromServer = (serverData) => {
     companyId: serverData.companyId,
     vendorBillId: serverData.vendorBillId,
     vendorBillNumber: serverData.vendorBillNumber || '',
-    vendorId: serverData.vendorId,
-    vendorDetails: serverData.vendorDetails || {},
-    vendorName: serverData.vendorName || serverData.vendorDetails?.name || '',
-    vendorTrn: serverData.vendorTrn || serverData.vendorDetails?.trn || '',
+    // Handle both vendorId and supplierId naming from backend
+    vendorId: serverData.vendorId || serverData.supplierId || null,
+    vendorDetails: serverData.vendorDetails || serverData.supplierDetails || {},
+    vendorName: serverData.vendorName || serverData.supplierName || serverData.vendorDetails?.name || '',
+    vendorTrn: serverData.vendorTrn || serverData.supplierTrn || serverData.vendorDetails?.trn || '',
     debitNoteNumber: serverData.debitNoteNumber || '',
     debitNoteDate: serverData.debitNoteDate || null,
     reason: serverData.reason || '',
@@ -79,26 +69,33 @@ const transformDebitNoteFromServer = (serverData) => {
     subtotal: parseFloat(serverData.subtotal || 0),
     vatAmount: parseFloat(serverData.vatAmount || 0),
     totalDebit: parseFloat(serverData.totalDebit || 0),
-    // Status
-    status: serverData.status || 'draft',
+    vatAdjustment: parseFloat(serverData.vatAdjustment || 0),
+    // Status - normalize to lowercase
+    status: (serverData.status || 'draft').toLowerCase(),
     // Metadata
     notes: serverData.notes || '',
     attachmentUrls: serverData.attachmentUrls || [],
     // Items
     items: (serverData.items || []).map(item => ({
       id: item.id,
+      debitNoteId: item.debitNoteId,
       vendorBillItemId: item.vendorBillItemId,
       productId: item.productId,
+      productName: item.productName || '',
       description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
       unitPrice: parseFloat(item.unitPrice || 0),
       amount: parseFloat(item.amount || 0),
       vatRate: parseFloat(item.vatRate || 5),
       vatAmount: parseFloat(item.vatAmount || 0),
+      vatCategory: item.vatCategory || 'STANDARD',
+      reason: item.reason || '',
     })),
-    // Timestamps
-    createdAt: serverData.createdAt || null,
-    updatedAt: serverData.updatedAt || null,
+    // Timestamps - handle audit object structure from gRPC
+    createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
+    updatedAt: serverData.updatedAt || serverData.audit?.updatedAt || null,
+    createdBy: serverData.createdBy || serverData.audit?.createdBy || null,
+    updatedBy: serverData.updatedBy || serverData.audit?.updatedBy || null,
     approvedAt: serverData.approvedAt || null,
     approvedBy: serverData.approvedBy || null,
     cancelledAt: serverData.cancelledAt || null,
@@ -129,12 +126,12 @@ const debitNoteService = {
       const queryParams = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
-        vendorId: params.vendorId || undefined,
+        // API gateway expects supplier_id, not vendor_id
+        supplierId: params.vendorId || params.supplierId || undefined,
         vendorBillId: params.vendorBillId || undefined,
         status: params.status || undefined,
         startDate: params.startDate || undefined,
         endDate: params.endDate || undefined,
-        search: params.search || undefined,
       };
 
       Object.keys(queryParams).forEach(

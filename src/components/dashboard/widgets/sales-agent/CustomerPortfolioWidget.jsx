@@ -89,12 +89,14 @@ const CustomerPortfolioWidget = ({
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    if (safeAmount >= 10000000) {
-      return `${(safeAmount / 10000000).toFixed(2)}Cr`;
-    } else if (safeAmount >= 100000) {
-      return `${(safeAmount / 100000).toFixed(1)}L`;
+    if (safeAmount >= 1000000) {
+      return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
+    } else if (safeAmount >= 1000) {
+      return `AED ${(safeAmount / 1000).toFixed(0)}K`;
     }
     return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);

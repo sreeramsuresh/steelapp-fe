@@ -20,43 +20,47 @@ import { apiClient } from './api';
  */
 const transformVendorBillForServer = (billData) => {
   return {
-    vendorId: billData.vendorId || billData.vendor?.id || null,
-    vendorDetails: billData.vendorDetails || billData.vendor || null,
-    billNumber: billData.billNumber || '',
+    // Use supplierId to match API gateway expected field (converts to supplier_id)
+    supplierId: billData.vendorId || billData.vendor?.id || billData.supplierId || null,
     vendorInvoiceNumber: billData.vendorInvoiceNumber || '',
     billDate: billData.billDate || null,
     dueDate: billData.dueDate || null,
     receivedDate: billData.receivedDate || null,
-    // VAT fields
-    vatCategory: billData.vatCategory || 'STANDARD',
+    paymentTerms: billData.paymentTerms || 'net_30',
+    // VAT fields - use primaryVatCategory to match API gateway
+    primaryVatCategory: billData.vatCategory || 'STANDARD',
     placeOfSupply: billData.placeOfSupply || 'AE-DU',
     isReverseCharge: billData.isReverseCharge || false,
-    reverseChargeAmount: billData.reverseChargeAmount || 0,
-    // Amounts
+    // Amounts - backend calculates these from items
     subtotal: parseFloat(billData.subtotal || 0),
     vatAmount: parseFloat(billData.vatAmount || 0),
-    total: parseFloat(billData.total || 0),
-    // Payment tracking
-    amountPaid: parseFloat(billData.amountPaid || 0),
-    amountDue: parseFloat(billData.amountDue || 0),
     // Status
     status: billData.status || 'draft',
-    approvalStatus: billData.approvalStatus || 'pending',
     // Metadata
     notes: billData.notes || '',
-    terms: billData.terms || '',
-    attachmentUrls: billData.attachmentUrls || [],
+    internalNotes: billData.internalNotes || '',
+    attachmentUrl: billData.attachmentUrl || billData.attachmentUrls?.[0] || '',
+    // Currency
+    currency: billData.currency || 'AED',
+    exchangeRate: parseFloat(billData.exchangeRate || 1),
+    // Import order link
+    importOrderId: billData.importOrderId || null,
+    purchaseOrderId: billData.purchaseOrderId || null,
+    purchaseOrderNumber: billData.purchaseOrderNumber || '',
     // Items
     items: (billData.items || []).map(item => ({
       productId: item.productId || null,
-      description: item.description || item.name || '',
+      productName: item.productName || item.name || '',
+      description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
+      unit: item.unit || 'PCS',
       unitPrice: parseFloat(item.unitPrice || item.rate || 0),
-      amount: parseFloat(item.amount || 0),
       vatRate: parseFloat(item.vatRate || 5),
-      vatAmount: parseFloat(item.vatAmount || 0),
       vatCategory: item.vatCategory || 'STANDARD',
-      expenseCategory: item.expenseCategory || null,
+      isBlockedVat: item.isBlockedVat || false,
+      blockedReason: item.blockedReason || '',
+      costCenter: item.costCenter || '',
+      glAccount: item.glAccount || '',
     })),
   };
 };
@@ -68,58 +72,85 @@ const transformVendorBillForServer = (billData) => {
 const transformVendorBillFromServer = (serverData) => {
   if (!serverData) return null;
 
+  // Handle both snake_case from gRPC and camelCase from API gateway auto-conversion
+  const total = parseFloat(serverData.total || serverData.totalAmount || 0);
+  const amountPaid = parseFloat(serverData.amountPaid || 0);
+  const balanceDue = parseFloat(serverData.balanceDue || (total - amountPaid) || 0);
+
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    vendorId: serverData.vendorId,
-    vendorDetails: serverData.vendorDetails || {},
-    vendorName: serverData.vendorName || serverData.vendorDetails?.name || '',
-    vendorTrn: serverData.vendorTrn || serverData.vendorDetails?.trn || '',
+    // Handle both vendorId and supplierId naming conventions
+    vendorId: serverData.vendorId || serverData.supplierId || null,
+    vendorDetails: serverData.vendorDetails || serverData.supplierDetails || {},
+    vendorName: serverData.vendorName || serverData.supplierName || serverData.vendorDetails?.name || '',
+    vendorTrn: serverData.vendorTrn || serverData.supplierTrn || serverData.vendorDetails?.trn || '',
     billNumber: serverData.billNumber || '',
     vendorInvoiceNumber: serverData.vendorInvoiceNumber || '',
     billDate: serverData.billDate || null,
     dueDate: serverData.dueDate || null,
     receivedDate: serverData.receivedDate || null,
-    // VAT fields
-    vatCategory: serverData.vatCategory || 'STANDARD',
+    // VAT fields - handle primaryVatCategory from gRPC response
+    vatCategory: serverData.vatCategory || serverData.primaryVatCategory || 'STANDARD',
     placeOfSupply: serverData.placeOfSupply || 'AE-DU',
     isReverseCharge: serverData.isReverseCharge || false,
-    reverseChargeAmount: parseFloat(serverData.reverseChargeAmount || 0),
+    reverseChargeAmount: parseFloat(serverData.reverseChargeVat || serverData.reverseChargeAmount || 0),
     // Amounts
     subtotal: parseFloat(serverData.subtotal || 0),
     vatAmount: parseFloat(serverData.vatAmount || 0),
-    total: parseFloat(serverData.total || 0),
+    total: total,
     // Payment tracking
-    amountPaid: parseFloat(serverData.amountPaid || 0),
-    amountDue: parseFloat(serverData.amountDue || 0),
-    // Status
-    status: serverData.status || 'draft',
+    amountPaid: amountPaid,
+    amountDue: balanceDue,
+    balanceDue: balanceDue,
+    // Status - normalize to lowercase for frontend
+    status: (serverData.status || 'draft').toLowerCase(),
     approvalStatus: serverData.approvalStatus || 'pending',
-    paymentStatus: serverData.paymentStatus || 'unpaid',
+    paymentStatus: serverData.paymentStatus || (amountPaid >= total ? 'paid' : amountPaid > 0 ? 'partial' : 'unpaid'),
     // Metadata
     notes: serverData.notes || '',
-    terms: serverData.terms || '',
-    attachmentUrls: serverData.attachmentUrls || [],
+    internalNotes: serverData.internalNotes || '',
+    terms: serverData.terms || serverData.paymentTerms || '',
+    attachmentUrls: serverData.attachmentUrls || (serverData.attachmentUrl ? [serverData.attachmentUrl] : []),
+    // Currency
+    currency: serverData.currency || 'AED',
+    exchangeRate: parseFloat(serverData.exchangeRate || 1),
+    totalAed: parseFloat(serverData.totalAed || total),
     // Items
     items: (serverData.items || []).map(item => ({
       id: item.id,
       productId: item.productId,
+      productName: item.productName || '',
       description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
+      unit: item.unit || 'PCS',
       unitPrice: parseFloat(item.unitPrice || 0),
       amount: parseFloat(item.amount || 0),
       vatRate: parseFloat(item.vatRate || 5),
       vatAmount: parseFloat(item.vatAmount || 0),
       vatCategory: item.vatCategory || 'STANDARD',
-      expenseCategory: item.expenseCategory || null,
+      isBlockedVat: item.isBlockedVat || false,
+      blockedReason: item.blockedReason || '',
+      costCenter: item.costCenter || '',
+      glAccount: item.glAccount || '',
     })),
     // Payments
     payments: serverData.payments || [],
     // Timestamps
-    createdAt: serverData.createdAt || null,
-    updatedAt: serverData.updatedAt || null,
+    createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
+    updatedAt: serverData.updatedAt || serverData.audit?.updatedAt || null,
+    createdBy: serverData.createdBy || serverData.audit?.createdBy || null,
+    updatedBy: serverData.updatedBy || serverData.audit?.updatedBy || null,
     approvedAt: serverData.approvedAt || null,
     approvedBy: serverData.approvedBy || null,
+    // Import/PO links
+    isImport: serverData.isImport || false,
+    importOrderId: serverData.importOrderId || null,
+    purchaseOrderId: serverData.purchaseOrderId || null,
+    purchaseOrderNumber: serverData.purchaseOrderNumber || '',
+    // Blocked VAT info
+    isBlockedVat: serverData.isBlockedVat || false,
+    blockedVatReason: serverData.blockedVatReason || '',
   };
 };
 
@@ -147,14 +178,14 @@ const vendorBillService = {
       const queryParams = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
-        vendorId: params.vendorId || undefined,
+        // API gateway expects supplier_id, not vendor_id
+        supplierId: params.vendorId || params.supplierId || undefined,
         status: params.status || undefined,
         vatCategory: params.vatCategory || undefined,
         startDate: params.startDate || undefined,
         endDate: params.endDate || undefined,
         search: params.search || undefined,
-        paymentStatus: params.paymentStatus || undefined,
-        approvalStatus: params.approvalStatus || undefined,
+        includeCancelled: params.includeCancelled || undefined,
       };
 
       // Remove undefined params

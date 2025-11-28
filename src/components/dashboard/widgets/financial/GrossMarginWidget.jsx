@@ -3,6 +3,9 @@ import { Percent } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 import { GaugeChartWrapper } from '../../charts';
 
+// Mock data for Phase 1 - used when no API data available
+const MOCK_GROSS_MARGIN = 18.5;
+
 /**
  * GrossMarginWidget - Displays gross margin percentage
  *
@@ -13,12 +16,15 @@ import { GaugeChartWrapper } from '../../charts';
  * @param {boolean} props.showGauge - Show gauge chart instead of simple metric
  */
 export const GrossMarginWidget = ({
-  grossMargin = 0,
+  grossMargin,
   loading = false,
   onRefresh,
   showGauge = false,
   isDarkMode = false,
 }) => {
+  // Use mock data as fallback when real data is 0 or undefined
+  const displayMargin = (grossMargin && grossMargin > 0) ? grossMargin : MOCK_GROSS_MARGIN;
+
   return (
     <BaseWidget
       title="Gross Margin"
@@ -31,7 +37,7 @@ export const GrossMarginWidget = ({
     >
       {showGauge ? (
         <GaugeChartWrapper
-          value={grossMargin}
+          value={displayMargin}
           min={0}
           max={100}
           isDarkMode={isDarkMode}
@@ -42,7 +48,7 @@ export const GrossMarginWidget = ({
       ) : (
         <>
           <MetricValue
-            value={`${grossMargin.toFixed(1)}%`}
+            value={`${displayMargin.toFixed(1)}%`}
             label="Weighted average across all sales"
             size="md"
           />

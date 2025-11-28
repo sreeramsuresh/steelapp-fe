@@ -1,9 +1,27 @@
+/**
+ * Dashboard Service - Unified Dashboard Data Aggregation
+ *
+ * This service aggregates data from multiple backend APIs to provide
+ * a unified interface for dashboard components. Uses stale-while-revalidate
+ * caching pattern for optimal UX.
+ *
+ * API Integration Status:
+ * - Analytics: WIRED (via analyticsService)
+ * - Commissions: WIRED (via commissionService)
+ * - VAT: WIRED (via vatService)
+ * - Inventory: WIRED (via inventoryService)
+ * - Invoices: WIRED (via invoiceService)
+ * - Customers: WIRED (via customerService)
+ * - Products: WIRED (via productService)
+ */
+
 import { analyticsService } from './analyticsService';
 import { invoiceService } from './invoiceService';
 import { inventoryService } from './inventoryService';
 import { customerService } from './customerService';
 import { productService } from './productService';
-import { apiClient } from './api';
+import { commissionService } from './commissionService';
+import { vatService } from './vatService';
 
 // ============================================================================
 // CACHE CONFIGURATION (Stale-While-Revalidate Pattern)
@@ -16,9 +34,15 @@ const CACHE_KEYS = {
   INVENTORY_HEALTH: 'dashboard_inventory_health_cache',
   VAT_METRICS: 'dashboard_vat_metrics_cache',
   CUSTOMER_INSIGHTS: 'dashboard_customer_insights_cache',
+  // Prefetch cache keys
+  PREFETCH_PRODUCTS: 'dashboard_prefetch_products',
+  PREFETCH_CUSTOMERS: 'dashboard_prefetch_customers',
+  PREFETCH_AGENTS: 'dashboard_prefetch_agents',
+  PREFETCH_VAT: 'dashboard_prefetch_vat',
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const PREFETCH_DELAY_MS = 1000; // 1 second delay before prefetching adjacent tabs
 
 /**
  * Get cached data from localStorage
@@ -71,133 +95,106 @@ const clearAllCaches = () => {
 };
 
 // ============================================================================
-// MOCK DATA GENERATORS
+// UTILITY FUNCTIONS
 // ============================================================================
 
 /**
- * Generate mock sales agent performance data
- * TODO: Replace with real API endpoint when backend supports it
+ * Safely parse a number, returns 0 for invalid values
  */
-const generateMockAgentPerformance = () => {
-  const agents = [
-    { id: 1, name: 'Ahmed Hassan', avatar: null },
-    { id: 2, name: 'Sara Mohammed', avatar: null },
-    { id: 3, name: 'Khalid Al-Rashid', avatar: null },
-    { id: 4, name: 'Fatima Omar', avatar: null },
-    { id: 5, name: 'Mohammad Ali', avatar: null },
-  ];
-
-  return agents.map((agent, index) => ({
-    ...agent,
-    rank: index + 1,
-    totalSales: Math.floor(Math.random() * 500000) + 100000,
-    invoiceCount: Math.floor(Math.random() * 50) + 10,
-    avgDealSize: Math.floor(Math.random() * 15000) + 5000,
-    conversionRate: Math.floor(Math.random() * 30) + 50,
-    commission: {
-      earned: Math.floor(Math.random() * 25000) + 5000,
-      pending: Math.floor(Math.random() * 10000) + 2000,
-    },
-    target: {
-      amount: 400000,
-      achieved: Math.floor(Math.random() * 400000) + 100000,
-      percentage: Math.floor(Math.random() * 40) + 60,
-    },
-    newCustomers: Math.floor(Math.random() * 10) + 2,
-    activeDeals: Math.floor(Math.random() * 15) + 5,
-  }));
+const safeNum = (v) => {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : 0;
 };
 
 /**
- * Generate mock VAT metrics data
- * TODO: Replace with real API endpoint from VAT service
+ * Calculate percentage change between two values
  */
-const generateMockVATMetrics = () => {
-  const currentDate = new Date();
-  const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
-  const currentYear = currentDate.getFullYear();
-
-  return {
-    currentPeriod: {
-      quarter: `Q${currentQuarter}`,
-      year: currentYear,
-      startDate: new Date(currentYear, (currentQuarter - 1) * 3, 1).toISOString(),
-      endDate: new Date(currentYear, currentQuarter * 3, 0).toISOString(),
-    },
-    collection: {
-      outputVAT: Math.floor(Math.random() * 150000) + 50000,
-      inputVAT: Math.floor(Math.random() * 100000) + 30000,
-      netPayable: 0, // Calculated below
-      adjustments: Math.floor(Math.random() * 5000) - 2500,
-    },
-    returnStatus: {
-      status: ['pending', 'submitted', 'approved'][Math.floor(Math.random() * 3)],
-      dueDate: new Date(currentYear, currentQuarter * 3 + 1, 28).toISOString(),
-      daysRemaining: Math.floor(Math.random() * 30) + 1,
-      filedDate: null,
-    },
-    compliance: {
-      invoicesWithVAT: Math.floor(Math.random() * 200) + 50,
-      invoicesWithoutVAT: Math.floor(Math.random() * 10),
-      zeroRatedSales: Math.floor(Math.random() * 50000) + 10000,
-      exemptSales: Math.floor(Math.random() * 20000) + 5000,
-    },
-    alerts: [
-      { type: 'warning', message: 'VAT return due in 15 days', severity: 'medium' },
-    ],
-    history: Array.from({ length: 4 }, (_, i) => ({
-      quarter: `Q${((currentQuarter - i - 1 + 4) % 4) + 1}`,
-      year: currentQuarter - i <= 0 ? currentYear - 1 : currentYear,
-      outputVAT: Math.floor(Math.random() * 150000) + 50000,
-      inputVAT: Math.floor(Math.random() * 100000) + 30000,
-      netPaid: Math.floor(Math.random() * 50000) + 10000,
-      status: 'paid',
-    })),
-  };
+const percentChange = (curr, prev) => {
+  const c = safeNum(curr);
+  const p = safeNum(prev);
+  if (p === 0) return c > 0 ? 100 : 0;
+  return ((c - p) / p) * 100;
 };
+
+// ============================================================================
+// DATA PREFETCHING - Warm up cache for adjacent tabs
+// ============================================================================
+
+let prefetchTimeout = null;
 
 /**
- * Generate mock customer insights data
- * TODO: Enhance with real CLV calculations from backend
+ * Prefetch data for adjacent dashboard tabs
+ * Call this when user lands on a tab to warm up adjacent tab data
+ *
+ * @param {string} currentTab - The tab the user is currently viewing
  */
-const generateMockCustomerInsights = (customers = []) => {
-  const topCustomers = customers.slice(0, 10).map((customer) => ({
-    id: customer.id,
-    name: customer.name || customer.companyName,
-    totalRevenue: Math.floor(Math.random() * 500000) + 50000,
-    invoiceCount: Math.floor(Math.random() * 50) + 5,
-    avgOrderValue: Math.floor(Math.random() * 20000) + 5000,
-    clv: Math.floor(Math.random() * 1000000) + 100000,
-    lastOrderDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    riskScore: Math.floor(Math.random() * 100),
-    segment: ['Premium', 'Standard', 'New'][Math.floor(Math.random() * 3)],
-  }));
+const prefetchAdjacentTabs = (currentTab) => {
+  // Clear any pending prefetch
+  if (prefetchTimeout) {
+    clearTimeout(prefetchTimeout);
+  }
 
-  const atRiskCustomers = topCustomers
-    .filter((c) => c.riskScore > 70)
-    .map((c) => ({
-      ...c,
-      riskReason: ['No orders in 60 days', 'Payment overdue', 'Declining order value'][
-        Math.floor(Math.random() * 3)
-      ],
-      daysInactive: Math.floor(Math.random() * 60) + 30,
-    }));
+  // Delay prefetch to not compete with current tab's data loading
+  prefetchTimeout = setTimeout(() => {
+    const tabOrder = ['overview', 'products', 'agents', 'inventory', 'vat', 'customers'];
+    const currentIndex = tabOrder.indexOf(currentTab);
 
-  const segments = {
-    premium: topCustomers.filter((c) => c.segment === 'Premium').length,
-    standard: topCustomers.filter((c) => c.segment === 'Standard').length,
-    new: topCustomers.filter((c) => c.segment === 'New').length,
-  };
+    if (currentIndex === -1) return;
 
-  return {
-    topCustomers,
-    atRiskCustomers,
-    segments,
-    newCustomersThisMonth: Math.floor(Math.random() * 15) + 5,
-    churnRate: Math.floor(Math.random() * 10) + 2,
-    avgCLV: topCustomers.reduce((sum, c) => sum + c.clv, 0) / (topCustomers.length || 1),
-  };
+    // Prefetch adjacent tabs (previous and next)
+    const adjacentIndices = [currentIndex - 1, currentIndex + 1].filter(
+      (i) => i >= 0 && i < tabOrder.length
+    );
+
+    adjacentIndices.forEach((index) => {
+      const tab = tabOrder[index];
+      switch (tab) {
+        case 'overview':
+          dashboardService.getDashboardMetrics().catch(() => {});
+          break;
+        case 'products':
+          dashboardService.getProductAnalytics().catch(() => {});
+          break;
+        case 'agents':
+          dashboardService.getAgentPerformance().catch(() => {});
+          break;
+        case 'inventory':
+          dashboardService.getInventoryHealth().catch(() => {});
+          break;
+        case 'vat':
+          dashboardService.getVATMetrics().catch(() => {});
+          break;
+        case 'customers':
+          dashboardService.getCustomerInsights().catch(() => {});
+          break;
+      }
+    });
+  }, PREFETCH_DELAY_MS);
 };
+
+// ============================================================================
+// WIDGET DATA PATTERNS - Standardized data shapes for dashboard widgets
+// ============================================================================
+
+/**
+ * Standard widget data structure
+ * All widget data should follow this pattern for consistency
+ */
+const createWidgetData = (data, options = {}) => ({
+  // The actual data payload
+  data,
+  // Metadata
+  meta: {
+    // Whether this is mock/fallback data
+    isMockData: options.isMockData || false,
+    // Whether cache was stale
+    isStale: options.isStale || false,
+    // When data was fetched
+    fetchedAt: options.fetchedAt || new Date().toISOString(),
+    // Data source (api, cache, mock)
+    source: options.source || 'api',
+  },
+});
 
 // ============================================================================
 // DASHBOARD SERVICE
@@ -212,6 +209,9 @@ export const dashboardService = {
     isStale: isCacheStale,
     clearAll: clearAllCaches,
   },
+
+  // Prefetching
+  prefetchAdjacentTabs,
 
   /**
    * Get all dashboard metrics in a single call
@@ -233,43 +233,81 @@ export const dashboardService = {
     }
 
     try {
-      // Fetch all data in parallel
+      console.log('[dashboardService] Fetching dashboard metrics from APIs...');
+
+      // Fetch all data in parallel from real APIs
       const [
         dashboardData,
         arAgingData,
         revenueTrendData,
         dashboardKPIs,
+        invoiceStats,
+        customerStats,
+        productStats,
       ] = await Promise.all([
-        analyticsService.getDashboardData().catch(() => ({})),
-        analyticsService.getARAgingBuckets().catch(() => null),
-        analyticsService.getRevenueTrend(12).catch(() => null),
-        analyticsService.getDashboardKPIs().catch(() => null),
+        analyticsService.getDashboardData().catch((err) => {
+          console.warn('[dashboardService] getDashboardData failed:', err.message);
+          return {};
+        }),
+        analyticsService.getARAgingBuckets().catch((err) => {
+          console.warn('[dashboardService] getARAgingBuckets failed:', err.message);
+          return null;
+        }),
+        analyticsService.getRevenueTrend(12).catch((err) => {
+          console.warn('[dashboardService] getRevenueTrend failed:', err.message);
+          return null;
+        }),
+        analyticsService.getDashboardKPIs().catch((err) => {
+          console.warn('[dashboardService] getDashboardKPIs failed:', err.message);
+          return null;
+        }),
+        invoiceService.getInvoices({ limit: 1 }).catch((err) => {
+          console.warn('[dashboardService] getInvoices failed:', err.message);
+          return { pagination: { total: 0 } };
+        }),
+        customerService.getCustomers({ limit: 1 }).catch((err) => {
+          console.warn('[dashboardService] getCustomers failed:', err.message);
+          return { pagination: { total: 0 }, customers: [] };
+        }),
+        productService.getProducts({ limit: 1 }).catch((err) => {
+          console.warn('[dashboardService] getProducts failed:', err.message);
+          return { pagination: { total: 0 }, products: [] };
+        }),
       ]);
 
-      const safeNum = (v) => {
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 0;
-      };
+      // Extract metrics from API responses
+      // API returns: { metrics: { totalRevenue, totalCustomers, totalOrders, ... } }
+      const totalRevenue = safeNum(
+        dashboardData?.metrics?.totalRevenue ||
+        dashboardData?.revenueMetrics?.totalRevenue
+      );
+      const totalCustomers = parseInt(
+        dashboardData?.metrics?.totalCustomers ||
+        dashboardData?.customerMetrics?.totalCustomers ||
+        customerStats?.pagination?.total ||
+        (Array.isArray(customerStats?.customers) ? customerStats.customers.length : 0) ||
+        0
+      );
+      const totalProducts = parseInt(
+        dashboardData?.metrics?.totalProducts ||
+        dashboardData?.productMetrics?.totalProducts ||
+        productStats?.pagination?.total ||
+        (Array.isArray(productStats?.products) ? productStats.products.length : 0) ||
+        0
+      );
+      const totalInvoices = parseInt(
+        dashboardData?.metrics?.totalOrders ||
+        dashboardData?.revenueMetrics?.totalInvoices ||
+        invoiceStats?.pagination?.total ||
+        0
+      );
 
-      // Extract metrics
-      const totalRevenue = safeNum(dashboardData?.revenueMetrics?.totalRevenue);
-      const totalCustomers = parseInt(dashboardData?.customerMetrics?.totalCustomers || 0);
-      const totalProducts = parseInt(dashboardData?.productMetrics?.totalProducts || 0);
-      const totalInvoices = parseInt(dashboardData?.revenueMetrics?.totalInvoices || 0);
-
-      // Calculate month-over-month changes
+      // Calculate month-over-month changes from trends
       const trends = Array.isArray(dashboardData?.monthlyTrends)
         ? dashboardData.monthlyTrends
         : [];
       const current = trends[0] || {};
       const previous = trends[1] || {};
-
-      const percentChange = (curr, prev) => {
-        const c = safeNum(curr);
-        const p = safeNum(prev);
-        if (p === 0) return 0;
-        return ((c - p) / p) * 100;
-      };
 
       const metrics = {
         // Summary stats
@@ -284,21 +322,21 @@ export const dashboardService = {
           invoicesChange: percentChange(current?.invoiceCount, previous?.invoiceCount),
         },
 
-        // KPIs
+        // KPIs from dedicated endpoint
         kpis: dashboardKPIs ? {
-          grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
-          dso: parseFloat(dashboardKPIs.dso_days) || 0,
-          creditUtilization: parseFloat(dashboardKPIs.credit_utilization_percent) || 0,
+          grossMargin: parseFloat(dashboardKPIs.gross_margin_percent || dashboardKPIs.grossMarginPercent) || 0,
+          dso: parseFloat(dashboardKPIs.dso_days || dashboardKPIs.dsoDays) || 0,
+          creditUtilization: parseFloat(dashboardKPIs.credit_utilization_percent || dashboardKPIs.creditUtilizationPercent) || 0,
         } : {
           grossMargin: 0,
           dso: 0,
           creditUtilization: 0,
         },
 
-        // AR Aging
+        // AR Aging buckets
         arAging: arAgingData,
 
-        // Revenue Trend
+        // Revenue Trend for chart
         revenueTrend: revenueTrendData,
 
         // Top Products
@@ -313,28 +351,54 @@ export const dashboardService = {
             }))
           : [],
 
+        // Indicate real data was used
+        isMockData: false,
+
         // Timestamp for freshness indicator
         fetchedAt: new Date().toISOString(),
       };
 
       // Cache the results
       setCachedData(CACHE_KEYS.DASHBOARD_METRICS, metrics);
+      console.log('[dashboardService] Dashboard metrics fetched successfully');
 
       return metrics;
     } catch (error) {
-      console.error('Error fetching dashboard metrics:', error);
+      console.error('[dashboardService] Error fetching dashboard metrics:', error);
+
       // Return cached data if available, even if stale
       const cached = getCachedData(CACHE_KEYS.DASHBOARD_METRICS);
       if (cached) {
+        console.log('[dashboardService] Returning stale cached data');
         return { ...cached.data, isStale: true };
       }
-      throw error;
+
+      // Fall back to empty data structure
+      console.log('[dashboardService] Returning empty data structure as fallback');
+      return {
+        summary: {
+          totalRevenue: 0,
+          totalCustomers: 0,
+          totalProducts: 0,
+          totalInvoices: 0,
+          revenueChange: 0,
+          customersChange: 0,
+          productsChange: 0,
+          invoicesChange: 0,
+        },
+        kpis: { grossMargin: 0, dso: 0, creditUtilization: 0 },
+        arAging: null,
+        revenueTrend: null,
+        topProducts: [],
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
     }
   },
 
   /**
    * Get product analytics data
-   * Includes top products, margins, category performance
+   * Includes top products, margins, category performance, and grade analysis
    *
    * @param {Object} options - Fetch options
    * @returns {Promise<Object>} Product analytics
@@ -350,35 +414,60 @@ export const dashboardService = {
     }
 
     try {
+      console.log('[dashboardService] Fetching product analytics from APIs...');
+
       const [
         productPerformance,
+        productList,
         inventorySummary,
       ] = await Promise.all([
-        analyticsService.getProductPerformance().catch(() => ({})),
-        inventoryService.getInventorySummary().catch(() => ({})),
+        analyticsService.getProductPerformance().catch((err) => {
+          console.warn('[dashboardService] getProductPerformance failed:', err.message);
+          return {};
+        }),
+        productService.getProducts({ limit: 100 }).catch((err) => {
+          console.warn('[dashboardService] getProducts failed:', err.message);
+          return { products: [] };
+        }),
+        inventoryService.getInventorySummary().catch((err) => {
+          console.warn('[dashboardService] getInventorySummary failed:', err.message);
+          return {};
+        }),
       ]);
 
-      const safeNum = (v) => {
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 0;
-      };
+      // Process products from API or direct list
+      const products = Array.isArray(productList?.products)
+        ? productList.products
+        : Array.isArray(productList)
+          ? productList
+          : [];
 
-      // Process top products
+      // Process top products from analytics or build from product list
       const topProducts = Array.isArray(productPerformance?.products)
         ? productPerformance.products.slice(0, 10).map((p) => ({
-            id: p.id,
-            name: p.name,
-            displayName: p.displayName || p.name,
+            id: p.id || p.productId || p.product_id,
+            name: p.name || p.productName || p.product_name,
+            displayName: p.displayName || p.name || p.productName,
             category: p.category,
             grade: p.grade,
-            totalSold: safeNum(p.totalSold),
-            totalRevenue: safeNum(p.totalRevenue),
-            avgPrice: safeNum(p.avgPrice),
-            margin: safeNum(p.margin),
+            totalSold: safeNum(p.totalSold || p.quantitySold || p.quantity_sold),
+            totalRevenue: safeNum(p.totalRevenue || p.revenue),
+            avgPrice: safeNum(p.avgPrice || p.averagePrice),
+            margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
           }))
-        : [];
+        : products.slice(0, 10).map((p) => ({
+            id: p.id,
+            name: p.name || p.displayName,
+            displayName: p.displayName || p.name,
+            category: p.category || p.productType,
+            grade: p.grade,
+            totalSold: 0,
+            totalRevenue: 0,
+            avgPrice: safeNum(p.sellingPrice || p.price),
+            margin: 0,
+          }));
 
-      // Category performance
+      // Category performance aggregation
       const categoryPerformance = {};
       topProducts.forEach((p) => {
         const cat = p.category || 'Uncategorized';
@@ -395,6 +484,39 @@ export const dashboardService = {
         categoryPerformance[cat].productCount += 1;
       });
 
+      // Grade analysis for steel products (SS 304, SS 316, SS 430)
+      const gradeMap = {};
+      const allProducts = Array.isArray(productPerformance?.products)
+        ? productPerformance.products
+        : products;
+
+      allProducts.forEach((p) => {
+        const grade = p.grade || 'Unknown';
+        if (!gradeMap[grade]) {
+          gradeMap[grade] = {
+            grade,
+            totalSold: 0,
+            totalRevenue: 0,
+            avgMargin: 0,
+            marginSum: 0,
+            productCount: 0,
+          };
+        }
+        gradeMap[grade].totalSold += safeNum(p.totalSold || p.quantitySold);
+        gradeMap[grade].totalRevenue += safeNum(p.totalRevenue || p.revenue);
+        gradeMap[grade].marginSum += safeNum(p.margin);
+        gradeMap[grade].productCount += 1;
+      });
+
+      // Calculate average margins for each grade
+      const gradeAnalysis = Object.values(gradeMap).map((g) => ({
+        grade: g.grade,
+        totalSold: g.totalSold,
+        totalRevenue: g.totalRevenue,
+        avgMargin: g.productCount > 0 ? g.marginSum / g.productCount : 0,
+        productCount: g.productCount,
+      }));
+
       // Fast/slow moving stock from inventory
       const fastMoving = inventorySummary?.fastMoving || [];
       const slowMoving = inventorySummary?.slowMoving || [];
@@ -402,6 +524,7 @@ export const dashboardService = {
       const analytics = {
         topProducts,
         categoryPerformance: Object.values(categoryPerformance),
+        gradeAnalysis,
         fastMoving,
         slowMoving,
         summary: {
@@ -411,24 +534,39 @@ export const dashboardService = {
             ? topProducts.reduce((sum, p) => sum + p.margin, 0) / topProducts.length
             : 0,
         },
+        isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
 
       setCachedData(CACHE_KEYS.PRODUCT_ANALYTICS, analytics);
+      console.log('[dashboardService] Product analytics fetched successfully');
       return analytics;
     } catch (error) {
-      console.error('Error fetching product analytics:', error);
+      console.error('[dashboardService] Error fetching product analytics:', error);
+
       const cached = getCachedData(CACHE_KEYS.PRODUCT_ANALYTICS);
       if (cached) {
+        console.log('[dashboardService] Returning stale cached product analytics');
         return { ...cached.data, isStale: true };
       }
-      throw error;
+
+      // Return empty structure
+      return {
+        topProducts: [],
+        categoryPerformance: [],
+        gradeAnalysis: [],
+        fastMoving: [],
+        slowMoving: [],
+        summary: { totalProductsSold: 0, totalRevenue: 0, avgMargin: 0 },
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
     }
   },
 
   /**
    * Get sales agent performance metrics
-   * Currently uses mock data - TODO: integrate with commission service
+   * Now uses real commission API instead of mock data
    *
    * @param {Object} options - Fetch options
    * @returns {Promise<Object>} Agent performance data
@@ -444,39 +582,149 @@ export const dashboardService = {
     }
 
     try {
-      // TODO: Replace with real API call when backend supports it
-      // const response = await apiClient.get('/analytics/agent-performance');
+      console.log('[dashboardService] Fetching agent performance from commission APIs...');
 
-      // For now, use mock data
-      const agents = generateMockAgentPerformance();
+      // Fetch commission data from real APIs
+      const [
+        commissionDashboard,
+        commissionAgents,
+        commissionTransactions,
+      ] = await Promise.all([
+        commissionService.getDashboard().catch((err) => {
+          console.warn('[dashboardService] getCommissionDashboard failed:', err.message);
+          return {};
+        }),
+        commissionService.getAgents().catch((err) => {
+          console.warn('[dashboardService] getCommissionAgents failed:', err.message);
+          return { agents: [] };
+        }),
+        commissionService.getTransactions({ status: 'pending' }).catch((err) => {
+          console.warn('[dashboardService] getCommissionTransactions failed:', err.message);
+          return { transactions: [], summary: {} };
+        }),
+      ]);
+
+      // Process agents data
+      const agentsList = commissionAgents?.agents || [];
+
+      // Build agent summaries by aggregating transaction data
+      const agentTransactionMap = {};
+      (commissionTransactions?.transactions || []).forEach((tx) => {
+        const agentId = tx.userId || tx.user_id;
+        if (!agentTransactionMap[agentId]) {
+          agentTransactionMap[agentId] = {
+            totalCommission: 0,
+            pendingCommission: 0,
+            dealCount: 0,
+          };
+        }
+        const amount = safeNum(tx.commissionAmount || tx.commission_amount);
+        agentTransactionMap[agentId].totalCommission += amount;
+        if (tx.status === 'pending') {
+          agentTransactionMap[agentId].pendingCommission += amount;
+        }
+        agentTransactionMap[agentId].dealCount += 1;
+      });
+
+      // Enrich agents with transaction data
+      const enrichedAgents = agentsList.map((agent, index) => {
+        const agentId = agent.userId || agent.user_id;
+        const txData = agentTransactionMap[agentId] || {
+          totalCommission: 0,
+          pendingCommission: 0,
+          dealCount: 0,
+        };
+
+        return {
+          id: agentId,
+          name: agent.userName || agent.user_name || 'Unknown Agent',
+          email: agent.userEmail || agent.user_email || '',
+          avatar: null,
+          rank: index + 1,
+          planName: agent.planName || agent.plan_name || 'No Plan',
+          commissionRate: safeNum(agent.baseRate || agent.base_rate),
+          isActive: agent.isActive !== false && agent.is_active !== false,
+          // Commission metrics
+          commission: {
+            earned: txData.totalCommission,
+            pending: txData.pendingCommission,
+          },
+          // Deal metrics
+          invoiceCount: txData.dealCount,
+          totalSales: 0, // Would need invoice data to calculate
+          avgDealSize: 0,
+          // Targets (if available from plan)
+          target: {
+            amount: 0,
+            achieved: 0,
+            percentage: 0,
+          },
+        };
+      });
+
+      // Sort by commission earned (descending)
+      enrichedAgents.sort((a, b) => b.commission.earned - a.commission.earned);
+
+      // Update ranks after sorting
+      enrichedAgents.forEach((agent, index) => {
+        agent.rank = index + 1;
+      });
+
+      // Use dashboard metrics
+      const dashboardMetrics = commissionDashboard || {};
 
       const performance = {
-        agents,
-        leaderboard: agents.slice(0, 5),
+        agents: enrichedAgents,
+        leaderboard: enrichedAgents.slice(0, 5),
         summary: {
-          totalSalesTeam: agents.length,
-          totalTeamRevenue: agents.reduce((sum, a) => sum + a.totalSales, 0),
-          avgConversionRate: agents.reduce((sum, a) => sum + a.conversionRate, 0) / agents.length,
-          totalCommissionPaid: agents.reduce((sum, a) => sum + a.commission.earned, 0),
-          totalCommissionPending: agents.reduce((sum, a) => sum + a.commission.pending, 0),
+          totalSalesTeam: enrichedAgents.length,
+          activeAgents: parseInt(dashboardMetrics.activeAgents || dashboardMetrics.active_agents) || enrichedAgents.filter(a => a.isActive).length,
+          totalTeamRevenue: safeNum(dashboardMetrics.totalCommissions || dashboardMetrics.total_commissions),
+          totalCommissionPaid: safeNum(dashboardMetrics.paidThisPeriod || dashboardMetrics.paid_this_period),
+          totalCommissionPending: safeNum(dashboardMetrics.pendingPayout || dashboardMetrics.pending_payout),
+          avgConversionRate: 0, // Would need more data
         },
-        isMockData: true, // Flag to indicate mock data
+        topAgents: (dashboardMetrics.topAgents || dashboardMetrics.top_agents || []).map((ta) => ({
+          id: ta.userId || ta.user_id,
+          name: ta.userName || ta.user_name,
+          totalEarned: safeNum(ta.totalEarned || ta.total_earned),
+          dealsClosed: parseInt(ta.dealsClosed || ta.deals_closed) || 0,
+        })),
+        trendData: (dashboardMetrics.trendData || dashboardMetrics.trend_data || []).map((td) => ({
+          period: td.period,
+          amount: safeNum(td.amount),
+        })),
+        isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
 
       setCachedData(CACHE_KEYS.AGENT_PERFORMANCE, performance);
+      console.log('[dashboardService] Agent performance fetched successfully');
       return performance;
     } catch (error) {
-      console.error('Error fetching agent performance:', error);
+      console.error('[dashboardService] Error fetching agent performance:', error);
+
       const cached = getCachedData(CACHE_KEYS.AGENT_PERFORMANCE);
       if (cached) {
         return { ...cached.data, isStale: true };
       }
-      // Return mock data as fallback
+
+      // Return empty structure
       return {
-        agents: generateMockAgentPerformance(),
+        agents: [],
+        leaderboard: [],
+        summary: {
+          totalSalesTeam: 0,
+          activeAgents: 0,
+          totalTeamRevenue: 0,
+          totalCommissionPaid: 0,
+          totalCommissionPending: 0,
+          avgConversionRate: 0,
+        },
+        topAgents: [],
+        trendData: [],
         isMockData: true,
-        isStale: true,
+        fetchedAt: new Date().toISOString(),
       };
     }
   },
@@ -498,41 +746,52 @@ export const dashboardService = {
     }
 
     try {
+      console.log('[dashboardService] Fetching inventory health from APIs...');
+
       const [
         inventorySummary,
         lowStockItems,
         inventoryInsights,
       ] = await Promise.all([
-        inventoryService.getInventorySummary().catch(() => ({})),
-        inventoryService.getLowStockItems().catch(() => []),
-        analyticsService.getInventoryInsights().catch(() => ({})),
+        inventoryService.getInventorySummary().catch((err) => {
+          console.warn('[dashboardService] getInventorySummary failed:', err.message);
+          return {};
+        }),
+        inventoryService.getLowStockItems().catch((err) => {
+          console.warn('[dashboardService] getLowStockItems failed:', err.message);
+          return [];
+        }),
+        analyticsService.getInventoryInsights().catch((err) => {
+          console.warn('[dashboardService] getInventoryInsights failed:', err.message);
+          return {};
+        }),
       ]);
-
-      const safeNum = (v) => {
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 0;
-      };
 
       const health = {
         summary: {
-          totalItems: parseInt(inventorySummary?.totalItems || 0),
-          totalValue: safeNum(inventorySummary?.totalValue),
+          totalItems: parseInt(inventorySummary?.totalItems || inventoryInsights?.overview?.total_products) || 0,
+          totalValue: safeNum(inventorySummary?.totalValue || inventoryInsights?.overview?.total_value),
           totalQuantity: safeNum(inventorySummary?.totalQuantity),
-          lowStockCount: Array.isArray(lowStockItems) ? lowStockItems.length : 0,
-          outOfStockCount: parseInt(inventorySummary?.outOfStockCount || 0),
+          lowStockCount: Array.isArray(lowStockItems) ? lowStockItems.length : parseInt(inventoryInsights?.overview?.low_stock_count) || 0,
+          outOfStockCount: parseInt(inventorySummary?.outOfStockCount || inventoryInsights?.overview?.out_of_stock_count) || 0,
         },
-        lowStockItems: Array.isArray(lowStockItems) ? lowStockItems.slice(0, 10) : [],
-        turnoverRate: safeNum(inventoryInsights?.turnoverRate),
-        avgDaysToSell: safeNum(inventoryInsights?.avgDaysToSell),
-        warehouseUtilization: inventoryInsights?.warehouseUtilization || [],
+        lowStockItems: Array.isArray(lowStockItems) ? lowStockItems.slice(0, 10) :
+          (inventoryInsights?.low_stock_items || []).slice(0, 10),
+        turnoverRate: safeNum(inventoryInsights?.overview?.turnover_rate || inventorySummary?.turnoverRate),
+        avgDaysToSell: safeNum(inventorySummary?.avgDaysToSell),
+        warehouseUtilization: inventorySummary?.warehouseUtilization || [],
         reorderAlerts: inventorySummary?.reorderAlerts || [],
+        slowMoving: inventoryInsights?.slow_moving || [],
+        topMoving: inventoryInsights?.top_moving || [],
+        isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
 
       setCachedData(CACHE_KEYS.INVENTORY_HEALTH, health);
+      console.log('[dashboardService] Inventory health fetched successfully');
       return health;
     } catch (error) {
-      console.error('Error fetching inventory health:', error);
+      console.error('[dashboardService] Error fetching inventory health:', error);
       const cached = getCachedData(CACHE_KEYS.INVENTORY_HEALTH);
       if (cached) {
         return { ...cached.data, isStale: true };
@@ -543,7 +802,7 @@ export const dashboardService = {
 
   /**
    * Get VAT compliance metrics
-   * Currently uses mock data - TODO: integrate with VAT return service
+   * Now uses real VAT service instead of calculating from invoices
    *
    * @param {Object} options - Fetch options
    * @returns {Promise<Object>} VAT metrics
@@ -559,42 +818,155 @@ export const dashboardService = {
     }
 
     try {
-      // TODO: Replace with real API call when VAT service supports it
-      // const response = await apiClient.get('/vat/metrics');
+      console.log('[dashboardService] Fetching VAT metrics from VAT service...');
 
-      // For now, use mock data
-      const vatData = generateMockVATMetrics();
+      // Try to get VAT dashboard metrics from the VAT service
+      const vatMetrics = await vatService.getVATDashboardMetrics().catch((err) => {
+        console.warn('[dashboardService] getVATDashboardMetrics failed:', err.message);
+        return null;
+      });
 
-      // Calculate net payable
-      vatData.collection.netPayable =
-        vatData.collection.outputVAT -
-        vatData.collection.inputVAT +
-        vatData.collection.adjustments;
+      if (vatMetrics) {
+        setCachedData(CACHE_KEYS.VAT_METRICS, vatMetrics);
+        console.log('[dashboardService] VAT metrics fetched successfully');
+        return vatMetrics;
+      }
 
-      const metrics = {
-        ...vatData,
-        isMockData: true,
+      // Fallback: Calculate from invoices if VAT service fails
+      console.log('[dashboardService] Falling back to invoice-based VAT calculation...');
+
+      const currentDate = new Date();
+      const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
+      const currentYear = currentDate.getFullYear();
+      const quarterStart = new Date(currentYear, (currentQuarter - 1) * 3, 1);
+      const quarterEnd = new Date(currentYear, currentQuarter * 3, 0);
+
+      // Fetch invoices for current quarter
+      const invoiceResponse = await invoiceService.getInvoices({
+        start_date: quarterStart.toISOString().split('T')[0],
+        end_date: quarterEnd.toISOString().split('T')[0],
+        limit: 500,
+      }).catch((err) => {
+        console.warn('[dashboardService] getInvoices for VAT failed:', err.message);
+        return { invoices: [] };
+      });
+
+      const invoices = invoiceResponse?.invoices || [];
+
+      // Calculate VAT from invoices
+      let totalSales = 0;
+      let totalVatCollected = 0;
+      let invoicesWithVAT = 0;
+      let invoicesWithoutVAT = 0;
+      let zeroRatedSales = 0;
+
+      invoices.forEach((inv) => {
+        const total = safeNum(inv.total);
+        const vatAmount = safeNum(inv.vatAmount || inv.vat_amount);
+
+        totalSales += total;
+        totalVatCollected += vatAmount;
+
+        if (vatAmount > 0) {
+          invoicesWithVAT++;
+        } else if (total > 0) {
+          invoicesWithoutVAT++;
+          zeroRatedSales += total;
+        }
+      });
+
+      // Estimate input VAT (purchases - using 60% of output as rough estimate)
+      const estimatedInputVAT = Math.round(totalVatCollected * 0.6);
+
+      const vatData = {
+        currentPeriod: {
+          quarter: `Q${currentQuarter}`,
+          year: currentYear,
+          startDate: quarterStart.toISOString(),
+          endDate: quarterEnd.toISOString(),
+        },
+        collection: {
+          outputVAT: Math.round(totalVatCollected),
+          inputVAT: estimatedInputVAT,
+          netPayable: Math.round(totalVatCollected - estimatedInputVAT),
+          adjustments: 0,
+        },
+        returnStatus: {
+          status: 'pending',
+          dueDate: new Date(currentYear, currentQuarter * 3 + 1, 28).toISOString(),
+          daysRemaining: Math.max(0, Math.ceil((new Date(currentYear, currentQuarter * 3 + 1, 28) - currentDate) / (1000 * 60 * 60 * 24))),
+          filedDate: null,
+        },
+        compliance: {
+          invoicesWithVAT,
+          invoicesWithoutVAT,
+          zeroRatedSales: Math.round(zeroRatedSales),
+          exemptSales: 0,
+          totalSales: Math.round(totalSales),
+          effectiveVATRate: totalSales > 0 ? ((totalVatCollected / totalSales) * 100).toFixed(2) : 0,
+        },
+        alerts: [],
+        history: [],
+        isMockData: invoices.length === 0,
         fetchedAt: new Date().toISOString(),
       };
 
-      setCachedData(CACHE_KEYS.VAT_METRICS, metrics);
-      return metrics;
+      // Add alerts based on data
+      const daysUntilDue = vatData.returnStatus.daysRemaining;
+      if (daysUntilDue <= 15 && daysUntilDue > 0) {
+        vatData.alerts.push({
+          type: 'warning',
+          message: `VAT return due in ${daysUntilDue} days`,
+          severity: daysUntilDue <= 7 ? 'high' : 'medium',
+        });
+      }
+
+      if (invoicesWithoutVAT > 0) {
+        vatData.alerts.push({
+          type: 'info',
+          message: `${invoicesWithoutVAT} invoice(s) without VAT this quarter`,
+          severity: 'low',
+        });
+      }
+
+      setCachedData(CACHE_KEYS.VAT_METRICS, vatData);
+      console.log('[dashboardService] VAT metrics calculated from', invoices.length, 'invoices');
+      return vatData;
     } catch (error) {
-      console.error('Error fetching VAT metrics:', error);
+      console.error('[dashboardService] Error fetching VAT metrics:', error);
+
       const cached = getCachedData(CACHE_KEYS.VAT_METRICS);
       if (cached) {
         return { ...cached.data, isStale: true };
       }
+
+      // Return empty structure
+      const currentDate = new Date();
+      const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
+      const currentYear = currentDate.getFullYear();
+
       return {
-        ...generateMockVATMetrics(),
+        currentPeriod: {
+          quarter: `Q${currentQuarter}`,
+          year: currentYear,
+          startDate: new Date(currentYear, (currentQuarter - 1) * 3, 1).toISOString(),
+          endDate: new Date(currentYear, currentQuarter * 3, 0).toISOString(),
+        },
+        collection: { outputVAT: 0, inputVAT: 0, netPayable: 0, adjustments: 0 },
+        returnStatus: { status: 'unknown', dueDate: null, daysRemaining: 0, filedDate: null },
+        compliance: { invoicesWithVAT: 0, invoicesWithoutVAT: 0, zeroRatedSales: 0, exemptSales: 0 },
+        alerts: [],
+        history: [],
         isMockData: true,
         isStale: true,
+        fetchedAt: new Date().toISOString(),
       };
     }
   },
 
   /**
    * Get customer insights
+   * Uses real customer and invoice data to calculate CLV and identify at-risk customers
    *
    * @param {Object} options - Fetch options
    * @returns {Promise<Object>} Customer insights
@@ -610,41 +982,226 @@ export const dashboardService = {
     }
 
     try {
+      console.log('[dashboardService] Fetching customer insights from APIs...');
+
       const [
         customerAnalysis,
         customerList,
+        recentInvoices,
       ] = await Promise.all([
-        analyticsService.getCustomerAnalysis().catch(() => ({})),
-        customerService.getCustomers({ limit: 100 }).catch(() => ({ customers: [] })),
+        analyticsService.getCustomerAnalysis().catch((err) => {
+          console.warn('[dashboardService] getCustomerAnalysis failed:', err.message);
+          return {};
+        }),
+        customerService.getCustomers({ limit: 100 }).catch((err) => {
+          console.warn('[dashboardService] getCustomers failed:', err.message);
+          return { customers: [] };
+        }),
+        invoiceService.getInvoices({ limit: 200 }).catch((err) => {
+          console.warn('[dashboardService] getInvoices for customers failed:', err.message);
+          return { invoices: [] };
+        }),
       ]);
 
       const customers = customerList?.customers || [];
+      const invoices = recentInvoices?.invoices || [];
 
-      // Generate insights (mix of real and mock data)
-      const insights = generateMockCustomerInsights(customers);
-
-      // Merge with real analytics if available
-      if (customerAnalysis?.topCustomers) {
-        insights.topCustomers = customerAnalysis.topCustomers;
+      if (customers.length === 0) {
+        // No customers, return empty structure
+        console.log('[dashboardService] No customers found');
+        return {
+          topCustomers: [],
+          atRiskCustomers: [],
+          segments: { premium: 0, standard: 0, new: 0 },
+          totalCustomers: 0,
+          newCustomersThisMonth: 0,
+          churnRate: 0,
+          avgCLV: 0,
+          totalOutstanding: 0,
+          isMockData: true,
+          fetchedAt: new Date().toISOString(),
+        };
       }
 
+      // Build customer invoice history for CLV calculation
+      const customerInvoiceMap = {};
+      invoices.forEach((inv) => {
+        const customerId = inv.customerId || inv.customer_id || inv.customer?.id;
+        if (customerId) {
+          if (!customerInvoiceMap[customerId]) {
+            customerInvoiceMap[customerId] = {
+              invoices: [],
+              totalRevenue: 0,
+              lastOrderDate: null,
+              totalPaid: 0,
+              totalOutstanding: 0,
+            };
+          }
+          const invTotal = safeNum(inv.total);
+          const invReceived = safeNum(inv.received);
+          const invOutstanding = safeNum(inv.outstanding);
+
+          customerInvoiceMap[customerId].invoices.push(inv);
+          customerInvoiceMap[customerId].totalRevenue += invTotal;
+          customerInvoiceMap[customerId].totalPaid += invReceived;
+          customerInvoiceMap[customerId].totalOutstanding += invOutstanding;
+
+          const invDate = new Date(inv.invoiceDate || inv.invoice_date || inv.date || inv.createdAt);
+          if (!customerInvoiceMap[customerId].lastOrderDate ||
+              invDate > customerInvoiceMap[customerId].lastOrderDate) {
+            customerInvoiceMap[customerId].lastOrderDate = invDate;
+          }
+        }
+      });
+
+      // Calculate insights for each customer
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      const enrichedCustomers = customers.map((customer) => {
+        const history = customerInvoiceMap[customer.id] || {
+          invoices: [],
+          totalRevenue: 0,
+          lastOrderDate: null,
+          totalPaid: 0,
+          totalOutstanding: 0,
+        };
+
+        const invoiceCount = history.invoices.length;
+        const avgOrderValue = invoiceCount > 0 ? history.totalRevenue / invoiceCount : 0;
+
+        // Simple CLV calculation: avg order value * estimated annual orders * 3 years
+        const estimatedAnnualOrders = Math.max(invoiceCount * (12 / 6), 4);
+        const clv = avgOrderValue * estimatedAnnualOrders * 3;
+
+        // Calculate days since last order
+        let daysInactive = 0;
+        if (history.lastOrderDate) {
+          daysInactive = Math.floor((now - history.lastOrderDate) / (1000 * 60 * 60 * 24));
+        } else {
+          daysInactive = 90;
+        }
+
+        // Risk score based on inactivity and outstanding payments
+        let riskScore = 0;
+        if (daysInactive > 60) riskScore += 40;
+        else if (daysInactive > 30) riskScore += 20;
+
+        if (history.totalOutstanding > 0) {
+          const outstandingRatio = history.totalOutstanding / (history.totalRevenue || 1);
+          riskScore += Math.min(40, Math.floor(outstandingRatio * 100));
+        }
+
+        if (invoiceCount === 0) riskScore += 20;
+
+        // Segment based on revenue and activity
+        let segment = 'Standard';
+        if (history.totalRevenue > 500000 && daysInactive < 30) {
+          segment = 'Premium';
+        } else if (invoiceCount <= 2 || daysInactive < 60) {
+          segment = 'New';
+        }
+
+        return {
+          id: customer.id,
+          name: customer.name || customer.companyName || customer.company_name || 'Unknown',
+          email: customer.email,
+          phone: customer.phone,
+          totalRevenue: Math.round(history.totalRevenue),
+          invoiceCount,
+          avgOrderValue: Math.round(avgOrderValue),
+          clv: Math.round(clv),
+          lastOrderDate: history.lastOrderDate?.toISOString() || null,
+          daysInactive,
+          riskScore: Math.min(100, riskScore),
+          segment,
+          outstanding: Math.round(history.totalOutstanding),
+          creditLimit: safeNum(customer.creditLimit || customer.credit_limit),
+          creditUsed: safeNum(customer.currentCredit || customer.current_credit),
+        };
+      });
+
+      // Sort by total revenue and get top customers
+      const topCustomers = enrichedCustomers
+        .sort((a, b) => b.totalRevenue - a.totalRevenue)
+        .slice(0, 10);
+
+      // Identify at-risk customers
+      const atRiskCustomers = enrichedCustomers
+        .filter((c) => c.riskScore > 50)
+        .map((c) => {
+          let riskReason = 'Multiple risk factors';
+          if (c.daysInactive > 60) {
+            riskReason = `No orders in ${c.daysInactive} days`;
+          } else if (c.outstanding > 0 && c.outstanding > c.avgOrderValue) {
+            riskReason = 'Significant payment overdue';
+          } else if (c.invoiceCount <= 1) {
+            riskReason = 'New customer - needs engagement';
+          }
+          return { ...c, riskReason };
+        })
+        .sort((a, b) => b.riskScore - a.riskScore)
+        .slice(0, 10);
+
+      // Segment counts
+      const segments = {
+        premium: enrichedCustomers.filter((c) => c.segment === 'Premium').length,
+        standard: enrichedCustomers.filter((c) => c.segment === 'Standard').length,
+        new: enrichedCustomers.filter((c) => c.segment === 'New').length,
+      };
+
+      // New customers this month
+      const newCustomersThisMonth = customers.filter((c) => {
+        const createdAt = new Date(c.createdAt || c.created_at);
+        return createdAt >= thirtyDaysAgo;
+      }).length;
+
+      // Churn rate estimate (customers inactive > 60 days / total)
+      const inactiveCount = enrichedCustomers.filter((c) => c.daysInactive > 60).length;
+      const churnRate = enrichedCustomers.length > 0
+        ? ((inactiveCount / enrichedCustomers.length) * 100).toFixed(1)
+        : 0;
+
       const result = {
-        ...insights,
+        topCustomers,
+        atRiskCustomers,
+        segments,
         totalCustomers: customers.length,
+        newCustomersThisMonth,
+        churnRate: parseFloat(churnRate),
+        avgCLV: Math.round(enrichedCustomers.reduce((sum, c) => sum + c.clv, 0) / (enrichedCustomers.length || 1)),
+        totalOutstanding: Math.round(enrichedCustomers.reduce((sum, c) => sum + c.outstanding, 0)),
+        // Include analytics data if available
+        analyticsCustomers: customerAnalysis?.customers || [],
+        analyticsSummary: customerAnalysis?.summary || null,
+        isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
 
       setCachedData(CACHE_KEYS.CUSTOMER_INSIGHTS, result);
+      console.log('[dashboardService] Customer insights calculated from', customers.length, 'customers and', invoices.length, 'invoices');
       return result;
     } catch (error) {
-      console.error('Error fetching customer insights:', error);
+      console.error('[dashboardService] Error fetching customer insights:', error);
+
       const cached = getCachedData(CACHE_KEYS.CUSTOMER_INSIGHTS);
       if (cached) {
         return { ...cached.data, isStale: true };
       }
+
+      // Return empty structure
       return {
-        ...generateMockCustomerInsights([]),
+        topCustomers: [],
+        atRiskCustomers: [],
+        segments: { premium: 0, standard: 0, new: 0 },
+        totalCustomers: 0,
+        newCustomersThisMonth: 0,
+        churnRate: 0,
+        avgCLV: 0,
+        totalOutstanding: 0,
+        isMockData: true,
         isStale: true,
+        fetchedAt: new Date().toISOString(),
       };
     }
   },
@@ -654,6 +1211,7 @@ export const dashboardService = {
    * Force-refreshes all cached data
    */
   async refreshAll() {
+    console.log('[dashboardService] Refreshing all dashboard data...');
     clearAllCaches();
     return Promise.all([
       this.getDashboardMetrics({ forceRefresh: true }),
@@ -663,6 +1221,32 @@ export const dashboardService = {
       this.getVATMetrics({ forceRefresh: true }),
       this.getCustomerInsights({ forceRefresh: true }),
     ]);
+  },
+
+  /**
+   * Get data for a specific dashboard tab
+   * Returns the appropriate data based on tab name
+   *
+   * @param {string} tabName - Name of the tab
+   * @param {Object} options - Fetch options
+   */
+  async getTabData(tabName, options = {}) {
+    switch (tabName) {
+      case 'overview':
+        return this.getDashboardMetrics(options);
+      case 'products':
+        return this.getProductAnalytics(options);
+      case 'agents':
+        return this.getAgentPerformance(options);
+      case 'inventory':
+        return this.getInventoryHealth(options);
+      case 'vat':
+        return this.getVATMetrics(options);
+      case 'customers':
+        return this.getCustomerInsights(options);
+      default:
+        throw new Error(`Unknown tab: ${tabName}`);
+    }
   },
 };
 

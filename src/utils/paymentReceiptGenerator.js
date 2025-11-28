@@ -1,6 +1,16 @@
-import { jsPDF } from 'jspdf';
+// jsPDF is loaded dynamically to enable proper code splitting
+// This avoids the Vite warning about mixed static/dynamic imports
 import { formatCurrency, formatDate, normalizeLLC, titleCase, formatDateDMY } from './invoiceUtils';
 import { formatPaymentDisplay, getPaymentModeConfig } from './paymentUtils';
+
+/**
+ * Lazy load jsPDF to reduce initial bundle size
+ * PDF generation is not needed on page load
+ */
+const getJsPDF = async () => {
+  const { jsPDF } = await import('jspdf');
+  return jsPDF;
+};
 
 /**
  * Generates or retrieves receipt number for a payment
@@ -161,6 +171,8 @@ const addStatusBadge = (pdf, balanceDue, yPos, margin, pageWidth) => {
  */
 export const generatePaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
   try {
+    // Lazy load jsPDF for code splitting
+    const jsPDF = await getJsPDF();
     // A4 size: 210mm x 297mm (standard)
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -464,6 +476,8 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
  */
 export const printPaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
   try {
+    // Lazy load jsPDF for code splitting
+    const jsPDF = await getJsPDF();
     // A4 size: 210mm x 297mm (standard)
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();

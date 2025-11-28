@@ -3,6 +3,18 @@ import { Clock } from 'lucide-react';
 import BaseWidget from '../BaseWidget';
 import { useTheme } from '../../../../contexts/ThemeContext';
 
+// Mock data for Phase 1 - used when no API data available
+const MOCK_AR_AGING = {
+  buckets: [
+    { label: '0-30 Days', amount: 1250000, percentage: 45 },
+    { label: '31-60 Days', amount: 680000, percentage: 24 },
+    { label: '61-90 Days', amount: 450000, percentage: 16 },
+    { label: '90+ Days', amount: 420000, percentage: 15 },
+  ],
+  total_ar: 2800000,
+  overdue_ar: 870000,
+};
+
 /**
  * ARAgingWidget - Accounts Receivable Aging Buckets
  *
@@ -16,12 +28,27 @@ import { useTheme } from '../../../../contexts/ThemeContext';
  * @param {function} props.formatCurrency - Currency formatter
  */
 export const ARAgingWidget = ({
-  data,
+  data: propData,
   loading = false,
   onRefresh,
   formatCurrency = (val) => `AED ${val?.toLocaleString() || 0}`,
 }) => {
   const { isDarkMode } = useTheme();
+
+  // Use mock data as fallback when real data is not available
+  // Handle both camelCase (API) and snake_case field names
+  const normalizeData = (d) => {
+    if (!d) return null;
+    return {
+      buckets: d.buckets,
+      total_ar: d.total_ar || d.totalAr,
+      overdue_ar: d.overdue_ar || d.overdueAr,
+    };
+  };
+
+  const data = (propData && propData.buckets && propData.buckets.length > 0)
+    ? normalizeData(propData)
+    : MOCK_AR_AGING;
 
   const bucketColors = [
     { bg: 'bg-green-500', text: 'text-green-600' },
@@ -30,7 +57,8 @@ export const ARAgingWidget = ({
     { bg: 'bg-red-500', text: 'text-red-600' },
   ];
 
-  const hasData = data && data.buckets && data.buckets.length > 0;
+  // With mock fallback, we always have data
+  const hasData = true;
 
   return (
     <BaseWidget

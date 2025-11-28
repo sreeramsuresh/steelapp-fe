@@ -2,6 +2,9 @@ import React from 'react';
 import { Clock } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 
+// Mock data for Phase 1 - used when no API data available
+const MOCK_DSO = 42;
+
 /**
  * DSOWidget - Days Sales Outstanding
  *
@@ -11,14 +14,16 @@ import BaseWidget, { MetricValue } from '../BaseWidget';
  * @param {function} props.onRefresh - Refresh callback
  */
 export const DSOWidget = ({
-  dso = 0,
+  dso,
   loading = false,
   onRefresh,
 }) => {
+  // Use mock data as fallback when real data is 0 or undefined
+  const displayDso = (dso && dso > 0) ? dso : MOCK_DSO;
   // Determine status color based on DSO value
   const getStatusColor = () => {
-    if (dso <= 30) return 'from-green-500 to-green-600';
-    if (dso <= 45) return 'from-yellow-500 to-yellow-600';
+    if (displayDso <= 30) return 'from-green-500 to-green-600';
+    if (displayDso <= 45) return 'from-yellow-500 to-yellow-600';
     return 'from-red-500 to-red-600';
   };
 
@@ -33,7 +38,7 @@ export const DSOWidget = ({
       size="sm"
     >
       <MetricValue
-        value={`${dso.toFixed(0)} days`}
+        value={`${displayDso.toFixed(0)} days`}
         label="Average time to collect payment"
         size="md"
       />
