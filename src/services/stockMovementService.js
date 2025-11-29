@@ -112,6 +112,8 @@ const fromServer = (movement = {}) => ({
   companyId: movement.companyId,
   productId: movement.productId,
   productName: movement.productName || '',
+  productUniqueName: movement.productUniqueName || movement.productName || '',
+  productDisplayName: movement.productDisplayName || movement.productName || '',
   productSku: movement.productSku || '',
   productType: movement.productType || '',
   warehouseId: movement.warehouseId,
@@ -259,6 +261,7 @@ class StockMovementService {
   async update(id, movementData) {
     const payload = { notes: movementData.notes };
     const response = await apiClient.put(`${this.endpoint}/${id}`, payload);
+    clearStockLevelsCache(); // Invalidate cache on stock change
     return fromServer(response);
   }
 
@@ -948,6 +951,52 @@ export const RESERVATION_STATUSES = {
   FULFILLED: { value: 'FULFILLED', label: 'Fulfilled', color: 'success' },
   EXPIRED: { value: 'EXPIRED', label: 'Expired', color: 'default' },
   CANCELLED: { value: 'CANCELLED', label: 'Cancelled', color: 'error' },
+};
+
+// gRPC error code mapping for user-friendly messages
+export const GRPC_ERROR_CODES = {
+  FAILED_PRECONDITION: 'Insufficient stock available',
+  INVALID_ARGUMENT: 'Invalid input data',
+  NOT_FOUND: 'Record not found',
+  PERMISSION_DENIED: 'Access denied',
+  ALREADY_EXISTS: 'Record already exists',
+  RESOURCE_EXHAUSTED: 'Resource limit exceeded',
+  UNAVAILABLE: 'Service temporarily unavailable',
+};
+
+/**
+ * Parse gRPC error from API response
+ * @param {Error} error - Error object from API call
+ * @returns {{ code: string, message: string, isGrpcError: boolean }}
+ */
+export const parseGrpcError = (error) => {
+  const responseData = error?.response?.data;
+  const message = responseData?.message || error?.message || 'An error occurred';
+
+  // Check for gRPC error codes in message or response
+  let code = responseData?.code || '';
+  let isGrpcError = false;
+
+  // Extract gRPC status code if present in message
+  if (message.includes('Insufficient stock')) {
+    code = 'FAILED_PRECONDITION';
+    isGrpcError = true;
+  } else if (message.includes('not found')) {
+    code = 'NOT_FOUND';
+    isGrpcError = true;
+  } else if (message.includes('required') || message.includes('invalid')) {
+    code = 'INVALID_ARGUMENT';
+    isGrpcError = true;
+  }
+
+  const userMessage = GRPC_ERROR_CODES[code] || message;
+
+  return {
+    code,
+    message: userMessage,
+    originalMessage: message,
+    isGrpcError,
+  };
 };
 
 export const stockMovementService = new StockMovementService();

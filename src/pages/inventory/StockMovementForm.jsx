@@ -9,7 +9,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService, MOVEMENT_TYPES, REFERENCE_TYPES } from '../../services/stockMovementService';
+import { stockMovementService, MOVEMENT_TYPES, REFERENCE_TYPES, parseGrpcError } from '../../services/stockMovementService';
 import { productService } from '../../services/dataService';
 import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
@@ -230,8 +230,16 @@ const StockMovementForm = () => {
       notificationService.success('Stock movement created successfully');
       navigate('/inventory/stock-movements');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to create stock movement';
-      notificationService.error(errorMessage);
+      const parsedError = parseGrpcError(err);
+
+      // Provide specific feedback for known error types
+      if (parsedError.code === 'FAILED_PRECONDITION') {
+        notificationService.error(`${parsedError.message}. ${parsedError.originalMessage}`);
+      } else if (parsedError.code === 'INVALID_ARGUMENT') {
+        notificationService.error(`Validation error: ${parsedError.originalMessage}`);
+      } else {
+        notificationService.error(parsedError.message);
+      }
     } finally {
       setSaving(false);
     }

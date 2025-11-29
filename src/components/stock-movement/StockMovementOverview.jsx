@@ -18,19 +18,21 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService, TRANSFER_STATUSES, RESERVATION_STATUSES } from '../../services/stockMovementService';
 import {
-  CACHE_KEYS,
-  getCachedData,
-  setCachedData,
-} from '../../services/api';
+  stockMovementService,
+  TRANSFER_STATUSES,
+  RESERVATION_STATUSES,
+  STOCK_CACHE_KEYS,
+  getStockCachedData,
+  setStockCachedData,
+} from '../../services/stockMovementService';
 
 const StockMovementOverview = ({ onNavigateToTab }) => {
   const { isDarkMode } = useTheme();
 
   // Initialize from cache (stale-while-revalidate pattern)
   const initFromCache = () => {
-    const cached = getCachedData(CACHE_KEYS.STOCK_MOVEMENT_OVERVIEW);
+    const cached = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY);
     if (cached?.data) {
       return {
         stats: cached.data.stats || {
@@ -179,7 +181,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       setRecentActivity(newRecentActivity);
 
       // Cache the overview data
-      setCachedData(CACHE_KEYS.STOCK_MOVEMENT_OVERVIEW, {
+      setStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY, {
         stats: newStats,
         recentActivity: newRecentActivity,
       });
