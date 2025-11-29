@@ -2,71 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Snail, Calendar, DollarSign, Tag, Megaphone, Search, Trash2 } from 'lucide-react';
 
-// Mock data for slow-moving products
-const generateMockData = () => ({
-  products: [
-    {
-      id: 1,
-      name: 'SS 410 Flat 40x4mm',
-      category: 'Flats',
-      turnoverRatio: 0.4,
-      daysInStock: 245,
-      currentStock: 28.3,
-      value: 42000,
-      lastSaleDate: '2023-09-15',
-      recommendation: 'discount',
-    },
-    {
-      id: 2,
-      name: 'SS 409 Tube 30x30mm',
-      category: 'Tubes',
-      turnoverRatio: 0.5,
-      daysInStock: 198,
-      currentStock: 22.1,
-      value: 38000,
-      lastSaleDate: '2023-10-22',
-      recommendation: 'promote',
-    },
-    {
-      id: 3,
-      name: 'SS 304 Mirror Sheet 0.4mm',
-      category: 'Sheets',
-      turnoverRatio: 0.6,
-      daysInStock: 156,
-      currentStock: 12.5,
-      value: 52000,
-      lastSaleDate: '2023-11-08',
-      recommendation: 'discount',
-    },
-    {
-      id: 4,
-      name: 'SS 316 Pipe 3" Sch40',
-      category: 'Pipes',
-      turnoverRatio: 0.7,
-      daysInStock: 134,
-      currentStock: 8.2,
-      value: 68000,
-      lastSaleDate: '2023-11-25',
-      recommendation: 'review',
-    },
-    {
-      id: 5,
-      name: 'SS 430 Coil 2.0mm',
-      category: 'Coils',
-      turnoverRatio: 0.8,
-      daysInStock: 112,
-      currentStock: 35.6,
-      value: 45000,
-      lastSaleDate: '2023-12-05',
-      recommendation: 'promote',
-    },
-  ],
-  summary: {
-    totalSlowMoving: 18,
-    totalValueLocked: 485000,
-    avgDaysInStock: 169,
-  },
-});
 
 const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
   const { isDarkMode } = useTheme();
@@ -74,10 +9,49 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
   const [summary, setSummary] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setProducts(data?.products || mockData.products);
-    setSummary(data?.summary || mockData.summary);
+    if (data?.products && data.products.length > 0) {
+      setProducts(data.products);
+    } else {
+      setProducts([]);
+    }
+    if (data?.summary) {
+      setSummary(data.summary);
+    } else {
+      setSummary(null);
+    }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = data && data.products && data.products.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+              <Snail size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Slow Moving Items
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Turnover ratio &lt; 1x/quarter
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const getRecommendation = (type) => {
     const recommendations = {

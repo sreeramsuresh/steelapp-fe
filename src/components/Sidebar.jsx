@@ -27,7 +27,6 @@ import {
   ArrowUpFromLine,
   MapPin,
   RotateCcw,
-  Shield,
   Banknote,
   Receipt,
   FileSpreadsheet,
@@ -87,37 +86,16 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 3. PURCHASES (4 items) - Keep all, core workflow
+    // 3. PURCHASES (1 item) - Purchases Dashboard with tabs for PO, Vendor Bills, Debit Notes, Advance Payments
     {
       section: 'Purchases',
       items: [
         {
-          name: 'Purchase Orders',
-          path: '/purchase-orders',
+          name: 'Purchases',
+          path: '/purchases',
           icon: ShoppingCart,
-          description: 'Manage purchase orders',
+          description: 'Purchase orders, vendor bills, and payments',
           requiredPermission: 'purchase_orders.read',
-        },
-        {
-          name: 'Vendor Bills',
-          path: '/purchases/vendor-bills',
-          icon: Receipt,
-          description: 'Manage vendor invoices and bills',
-          requiredPermission: 'payables.read',
-        },
-        {
-          name: 'Debit Notes',
-          path: '/purchases/debit-notes',
-          icon: FileMinus,
-          description: 'Manage debit notes for vendors',
-          requiredPermission: 'payables.read',
-        },
-        {
-          name: 'Advance Payments',
-          path: '/payments/advance-payments',
-          icon: Coins,
-          description: 'Manage advance payments to suppliers',
-          requiredPermission: 'payables.read',
         },
       ],
     },
@@ -217,7 +195,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 9. SETTINGS (1-3 items) - Company Settings main, FTA/Audit conditional
+    // 9. SETTINGS (1 item) - Company Settings main (includes Audit Logs as internal tab)
     {
       section: 'Settings',
       items: [
@@ -225,24 +203,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
           name: 'Company Settings',
           path: '/settings',
           icon: Settings,
-          description: 'Configure company details',
+          description: 'Configure company details, integrations, and view audit logs',
           requiredRole: 'admin',
         },
-        {
-          name: 'FTA Integration',
-          path: '/settings/fta-integration',
-          icon: Shield,
-          description: 'UAE Federal Tax Authority integration',
-          requiredRole: 'admin',
-        },
-        // Audit Logs - conditionally shown based on feature flag
-        ...(isFeatureEnabled('AUDIT_LOGS') ? [{
-          name: 'Audit Logs',
-          path: '/audit-logs',
-          icon: Shield,
-          description: 'View system activity logs',
-          requiredRole: 'admin',
-        }] : []),
       ],
     },
   ];

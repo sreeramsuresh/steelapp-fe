@@ -4,8 +4,9 @@ export const importOrderService = {
   // Get all import orders with pagination and filters
   async getImportOrders(params = {}) {
     try {
-      const response = await api.get('/import-orders', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/import-orders', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching import orders:', error);
       throw error;
@@ -15,8 +16,8 @@ export const importOrderService = {
   // Get single import order by ID
   async getImportOrder(id) {
     try {
-      const response = await api.get(`/import-orders/${id}`);
-      return response.data;
+      const data = await api.get(`/import-orders/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching import order:', error);
       throw error;
@@ -26,8 +27,8 @@ export const importOrderService = {
   // Create new import order
   async createImportOrder(data) {
     try {
-      const response = await api.post('/import-orders', data);
-      return response.data;
+      const result = await api.post('/import-orders', data);
+      return result;
     } catch (error) {
       console.error('Error creating import order:', error);
       throw error;
@@ -37,8 +38,8 @@ export const importOrderService = {
   // Update import order
   async updateImportOrder(id, data) {
     try {
-      const response = await api.put(`/import-orders/${id}`, data);
-      return response.data;
+      const result = await api.put(`/import-orders/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating import order:', error);
       throw error;
@@ -48,8 +49,8 @@ export const importOrderService = {
   // Delete import order
   async deleteImportOrder(id) {
     try {
-      const response = await api.delete(`/import-orders/${id}`);
-      return response.data;
+      const result = await api.delete(`/import-orders/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting import order:', error);
       throw error;
@@ -59,11 +60,11 @@ export const importOrderService = {
   // Update import order status
   async updateStatus(id, status, notes = '') {
     try {
-      const response = await api.patch(`/import-orders/${id}/status`, {
+      const result = await api.patch(`/import-orders/${id}/status`, {
         status,
         notes,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating import order status:', error);
       throw error;
@@ -73,8 +74,8 @@ export const importOrderService = {
   // Get import order items
   async getImportOrderItems(id) {
     try {
-      const response = await api.get(`/import-orders/${id}/items`);
-      return response.data;
+      const data = await api.get(`/import-orders/${id}/items`);
+      return data;
     } catch (error) {
       console.error('Error fetching import order items:', error);
       throw error;
@@ -84,8 +85,8 @@ export const importOrderService = {
   // Get import order analytics
   async getImportOrderAnalytics(id) {
     try {
-      const response = await api.get(`/import-orders/${id}/analytics`);
-      return response.data;
+      const data = await api.get(`/import-orders/${id}/analytics`);
+      return data;
     } catch (error) {
       console.error('Error fetching import order analytics:', error);
       throw error;
@@ -95,10 +96,10 @@ export const importOrderService = {
   // Search import orders
   async searchImportOrders(query) {
     try {
-      const response = await api.get('/import-orders/search', {
+      const data = await api.get('/import-orders/search', {
         params: { query },
       });
-      return response.data;
+      return data;
     } catch (error) {
       console.error('Error searching import orders:', error);
       throw error;

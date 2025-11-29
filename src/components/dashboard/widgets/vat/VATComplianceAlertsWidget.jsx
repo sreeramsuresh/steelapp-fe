@@ -24,107 +24,17 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-// Mock compliance alerts data
-const mockAlertsData = {
-  summary: {
-    critical: 3,
-    warning: 5,
-    info: 2,
-    total: 10,
-  },
-  alerts: [
-    {
-      id: 1,
-      severity: 'critical',
-      type: 'missing_trn',
-      title: 'Missing TRN on Invoices',
-      description: '3 invoices have customers without TRN',
-      count: 3,
-      actionText: 'Review Invoices',
-      invoiceIds: ['INV-2024-0234', 'INV-2024-0241', 'INV-2024-0245'],
-    },
-    {
-      id: 2,
-      severity: 'critical',
-      type: 'invalid_trn',
-      title: 'Invalid TRN Format',
-      description: '2 customers have invalid TRN format (not 15 digits)',
-      count: 2,
-      actionText: 'Fix TRN',
-      customerIds: [12, 45],
-    },
-    {
-      id: 3,
-      severity: 'critical',
-      type: 'vat_rate_mismatch',
-      title: 'VAT Rate Mismatch',
-      description: '1 invoice has incorrect VAT calculation',
-      count: 1,
-      actionText: 'Review Invoice',
-      invoiceIds: ['INV-2024-0238'],
-    },
-    {
-      id: 4,
-      severity: 'warning',
-      type: 'missing_tax_invoice',
-      title: 'Missing Tax Invoice Fields',
-      description: '2 invoices missing required FTA fields',
-      count: 2,
-      actionText: 'Complete Invoices',
-      invoiceIds: ['INV-2024-0229', 'INV-2024-0231'],
-    },
-    {
-      id: 5,
-      severity: 'warning',
-      type: 'export_docs_pending',
-      title: 'Export Documentation Pending',
-      description: '3 zero-rated exports missing proof of export',
-      count: 3,
-      actionText: 'Upload Documents',
-      invoiceIds: ['INV-2024-0215', 'INV-2024-0218', 'INV-2024-0222'],
-    },
-    {
-      id: 6,
-      severity: 'warning',
-      type: 'trn_expiry',
-      title: 'TRN Verification Due',
-      description: '5 customer TRNs need re-verification',
-      count: 5,
-      actionText: 'Verify TRN',
-      customerIds: [8, 15, 23, 31, 42],
-    },
-    {
-      id: 7,
-      severity: 'info',
-      type: 'filing_reminder',
-      title: 'Q4 VAT Return Reminder',
-      description: 'Q4 2024 VAT return due in 31 days',
-      count: 1,
-      actionText: 'Prepare Return',
-    },
-    {
-      id: 8,
-      severity: 'info',
-      type: 'rate_update',
-      title: 'VAT Rate Configuration',
-      description: 'Review VAT rate settings for new products',
-      count: 4,
-      actionText: 'Review Rates',
-    },
-  ],
-  lastChecked: '2024-12-28T10:30:00Z',
-};
 
-const VATComplianceAlertsWidget = ({ 
-  data = null, 
+const VATComplianceAlertsWidget = ({
+  data = null,
   onAlertClick = null,
   onRefresh = null,
   onViewAll = null,
   maxAlerts = 5,
-  isLoading = false 
+  isLoading = false
 }) => {
   const { isDarkMode } = useTheme();
-  const [alertsData, setAlertsData] = useState(data || mockAlertsData);
+  const [alertsData, setAlertsData] = useState(data || null);
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   useEffect(() => {
@@ -132,6 +42,40 @@ const VATComplianceAlertsWidget = ({
       setAlertsData(data);
     }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = alertsData && alertsData.summary && alertsData.alerts;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+          : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg">
+              <AlertTriangle size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Compliance Alerts
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                VAT Compliance Status
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const getSeverityConfig = (severity) => {
     switch (severity) {

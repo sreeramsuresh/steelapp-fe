@@ -26,77 +26,56 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-// Mock data for demonstration
-const mockReturnData = {
-  currentYear: 2024,
-  quarters: [
-    {
-      quarter: 'Q1',
-      period: 'Jan - Mar 2024',
-      periodStart: '2024-01-01',
-      periodEnd: '2024-03-31',
-      dueDate: '2024-04-28',
-      status: 'submitted',
-      ftaReference: 'FTA-2024-Q1-78234',
-      submittedDate: '2024-04-25',
-      totalVAT: 28500.00,
-    },
-    {
-      quarter: 'Q2',
-      period: 'Apr - Jun 2024',
-      periodStart: '2024-04-01',
-      periodEnd: '2024-06-30',
-      dueDate: '2024-07-28',
-      status: 'submitted',
-      ftaReference: 'FTA-2024-Q2-82456',
-      submittedDate: '2024-07-22',
-      totalVAT: 33600.00,
-    },
-    {
-      quarter: 'Q3',
-      period: 'Jul - Sep 2024',
-      periodStart: '2024-07-01',
-      periodEnd: '2024-09-30',
-      dueDate: '2024-10-28',
-      status: 'submitted',
-      ftaReference: 'FTA-2024-Q3-89234',
-      submittedDate: '2024-10-26',
-      totalVAT: 31250.00,
-    },
-    {
-      quarter: 'Q4',
-      period: 'Oct - Dec 2024',
-      periodStart: '2024-10-01',
-      periodEnd: '2024-12-31',
-      dueDate: '2025-01-28',
-      status: 'draft',
-      ftaReference: null,
-      submittedDate: null,
-      totalVAT: 36329.50,
-    },
-  ],
-  nextFiling: {
-    quarter: 'Q4 2024',
-    dueDate: '2025-01-28',
-    daysRemaining: 31,
-  }
-};
 
-const VATReturnStatusWidget = ({ 
-  data = null, 
+const VATReturnStatusWidget = ({
+  data = null,
   onGenerateReturn = null,
   onViewReturn = null,
   onDownloadReturn = null,
-  isLoading = false 
+  isLoading = false
 }) => {
   const { isDarkMode } = useTheme();
-  const [returnData, setReturnData] = useState(data || mockReturnData);
+  const [returnData, setReturnData] = useState(data || null);
 
   useEffect(() => {
     if (data) {
       setReturnData(data);
     }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = returnData && returnData.quarters && returnData.quarters.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+          : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <FileText size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                VAT Return Status
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Quarterly Filing Status
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);

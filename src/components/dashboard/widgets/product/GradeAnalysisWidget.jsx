@@ -2,77 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Award, TrendingUp, TrendingDown, Flame, Snowflake } from 'lucide-react';
 
-// Mock data for grade analysis
-const generateMockData = () => ({
-  grades: [
-    {
-      grade: 'SS 304',
-      fullName: 'Stainless Steel 304',
-      revenue: 1580000,
-      volume: 425.8,
-      margin: 18.2,
-      avgPrice: 285,
-      priceChange: 3.5,
-      demand: 'high',
-      trend: [280, 282, 285, 283, 287, 285],
-    },
-    {
-      grade: 'SS 316',
-      fullName: 'Stainless Steel 316',
-      revenue: 920000,
-      volume: 168.5,
-      margin: 22.8,
-      avgPrice: 425,
-      priceChange: 5.2,
-      demand: 'high',
-      trend: [410, 415, 420, 418, 425, 425],
-    },
-    {
-      grade: 'SS 430',
-      fullName: 'Stainless Steel 430',
-      revenue: 485000,
-      volume: 312.4,
-      margin: 14.5,
-      avgPrice: 195,
-      priceChange: -2.1,
-      demand: 'medium',
-      trend: [200, 198, 196, 195, 194, 195],
-    },
-    {
-      grade: 'SS 202',
-      fullName: 'Stainless Steel 202',
-      revenue: 345000,
-      volume: 278.6,
-      margin: 12.8,
-      avgPrice: 165,
-      priceChange: 1.8,
-      demand: 'medium',
-      trend: [160, 162, 163, 165, 164, 165],
-    },
-    {
-      grade: 'SS 316L',
-      fullName: 'Stainless Steel 316L',
-      revenue: 290000,
-      volume: 58.2,
-      margin: 24.5,
-      avgPrice: 485,
-      priceChange: 4.8,
-      demand: 'high',
-      trend: [465, 470, 475, 480, 482, 485],
-    },
-    {
-      grade: 'SS 304L',
-      fullName: 'Stainless Steel 304L',
-      revenue: 225000,
-      volume: 72.4,
-      margin: 19.5,
-      avgPrice: 305,
-      priceChange: 2.3,
-      demand: 'medium',
-      trend: [298, 300, 302, 304, 305, 305],
-    },
-  ],
-});
 
 const MiniSparkline = ({ data, positive, isDarkMode }) => {
   const max = Math.max(...data);
@@ -113,11 +42,13 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
   const [sortBy, setSortBy] = useState('revenue');
 
   useEffect(() => {
-    const mockData = generateMockData();
-    let gradeData = data?.grades || mockData.grades;
-    
+    if (!data?.grades || data.grades.length === 0) {
+      setGrades([]);
+      return;
+    }
+
     // Sort by selected criteria
-    gradeData = [...gradeData].sort((a, b) => {
+    const gradeData = [...data.grades].sort((a, b) => {
       switch (sortBy) {
         case 'margin':
           return b.margin - a.margin;
@@ -129,9 +60,41 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
           return b.revenue - a.revenue;
       }
     });
-    
+
     setGrades(gradeData);
   }, [data, sortBy]);
+
+  // Check if we have valid data
+  const hasData = data && data.grades && data.grades.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+              <Award size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Grade Analysis
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Performance by SS grade
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     if (amount >= 1000000) {

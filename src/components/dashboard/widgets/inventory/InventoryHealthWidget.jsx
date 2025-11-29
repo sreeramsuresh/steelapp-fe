@@ -3,26 +3,6 @@ import { useTheme } from '../../../../contexts/ThemeContext';
 import { Activity, Package, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { safeEntries, safeKeys, safeNumber } from '../../../../utils/safeAccess';
 
-// Mock data for inventory health
-const generateMockData = () => ({
-  healthScore: 78,
-  totalValue: 4850000,
-  totalItems: 1245,
-  totalVolume: 892.5,
-  daysOfStock: 45,
-  breakdown: {
-    sheets: { value: 1850000, volume: 385.2, percentage: 38.1, health: 'good' },
-    coils: { value: 1420000, volume: 245.8, percentage: 29.3, health: 'good' },
-    pipes: { value: 780000, volume: 125.4, percentage: 16.1, health: 'warning' },
-    tubes: { value: 520000, volume: 98.6, percentage: 10.7, health: 'good' },
-    flats: { value: 280000, volume: 37.5, percentage: 5.8, health: 'critical' },
-  },
-  alerts: {
-    lowStock: 12,
-    overstock: 5,
-    expiring: 3,
-  },
-});
 
 const GaugeChart = ({ value, size = 120, strokeWidth = 10, isDarkMode }) => {
   const radius = (size - strokeWidth) / 2;
@@ -92,11 +72,44 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
   const [healthData, setHealthData] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setHealthData(data || mockData);
+    if (data) {
+      setHealthData(data);
+    } else {
+      setHealthData(null);
+    }
   }, [data]);
 
-  if (!healthData) return null;
+  // Check if we have valid data
+  const hasData = healthData && (healthData.healthScore !== undefined || healthData.totalValue > 0);
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+              <Activity size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Inventory Health
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Overall stock status
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     if (amount >= 1000000) {

@@ -4,8 +4,9 @@ export const exportOrderService = {
   // Get all export orders with pagination and filters
   async getExportOrders(params = {}) {
     try {
-      const response = await api.get('/export-orders', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/export-orders', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching export orders:', error);
       throw error;
@@ -15,8 +16,8 @@ export const exportOrderService = {
   // Get single export order by ID
   async getExportOrder(id) {
     try {
-      const response = await api.get(`/export-orders/${id}`);
-      return response.data;
+      const data = await api.get(`/export-orders/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching export order:', error);
       throw error;
@@ -26,8 +27,8 @@ export const exportOrderService = {
   // Create new export order
   async createExportOrder(data) {
     try {
-      const response = await api.post('/export-orders', data);
-      return response.data;
+      const result = await api.post('/export-orders', data);
+      return result;
     } catch (error) {
       console.error('Error creating export order:', error);
       throw error;
@@ -37,8 +38,8 @@ export const exportOrderService = {
   // Update export order
   async updateExportOrder(id, data) {
     try {
-      const response = await api.put(`/export-orders/${id}`, data);
-      return response.data;
+      const result = await api.put(`/export-orders/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating export order:', error);
       throw error;
@@ -48,8 +49,8 @@ export const exportOrderService = {
   // Delete export order
   async deleteExportOrder(id) {
     try {
-      const response = await api.delete(`/export-orders/${id}`);
-      return response.data;
+      const result = await api.delete(`/export-orders/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting export order:', error);
       throw error;
@@ -59,11 +60,11 @@ export const exportOrderService = {
   // Update export order status
   async updateStatus(id, status, notes = '') {
     try {
-      const response = await api.patch(`/export-orders/${id}/status`, {
+      const result = await api.patch(`/export-orders/${id}/status`, {
         status,
         notes,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating export order status:', error);
       throw error;
@@ -73,8 +74,8 @@ export const exportOrderService = {
   // Get export order items
   async getExportOrderItems(id) {
     try {
-      const response = await api.get(`/export-orders/${id}/items`);
-      return response.data;
+      const data = await api.get(`/export-orders/${id}/items`);
+      return data;
     } catch (error) {
       console.error('Error fetching export order items:', error);
       throw error;
@@ -84,8 +85,8 @@ export const exportOrderService = {
   // Get export order analytics
   async getExportOrderAnalytics(id) {
     try {
-      const response = await api.get(`/export-orders/${id}/analytics`);
-      return response.data;
+      const data = await api.get(`/export-orders/${id}/analytics`);
+      return data;
     } catch (error) {
       console.error('Error fetching export order analytics:', error);
       throw error;
@@ -95,10 +96,10 @@ export const exportOrderService = {
   // Search export orders
   async searchExportOrders(query) {
     try {
-      const response = await api.get('/export-orders/search', {
+      const data = await api.get('/export-orders/search', {
         params: { query },
       });
-      return response.data;
+      return data;
     } catch (error) {
       console.error('Error searching export orders:', error);
       throw error;

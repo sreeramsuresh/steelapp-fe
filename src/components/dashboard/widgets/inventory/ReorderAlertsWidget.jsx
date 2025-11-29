@@ -2,82 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { AlertTriangle, ShoppingCart, Clock, ChevronRight, AlertCircle, AlertOctagon } from 'lucide-react';
 
-// Mock data for reorder alerts
-const generateMockData = () => ({
-  products: [
-    {
-      id: 1,
-      name: 'SS 304 2B Sheet 1.0mm',
-      category: 'Sheets',
-      currentStock: 8.5,
-      reorderPoint: 20,
-      maxStock: 100,
-      daysOfCover: 3,
-      avgDailySales: 2.8,
-      lastOrderDate: '2024-01-05',
-      suggestedQty: 50,
-      priority: 'critical',
-    },
-    {
-      id: 2,
-      name: 'SS 316 Coil 0.8mm',
-      category: 'Coils',
-      currentStock: 12.2,
-      reorderPoint: 15,
-      maxStock: 80,
-      daysOfCover: 7,
-      avgDailySales: 1.7,
-      lastOrderDate: '2024-01-08',
-      suggestedQty: 35,
-      priority: 'warning',
-    },
-    {
-      id: 3,
-      name: 'SS 430 Sheet 1.2mm',
-      category: 'Sheets',
-      currentStock: 18.5,
-      reorderPoint: 25,
-      maxStock: 120,
-      daysOfCover: 12,
-      avgDailySales: 1.5,
-      lastOrderDate: '2024-01-10',
-      suggestedQty: 60,
-      priority: 'approaching',
-    },
-    {
-      id: 4,
-      name: 'SS 316L Pipe 2"',
-      category: 'Pipes',
-      currentStock: 5.2,
-      reorderPoint: 10,
-      maxStock: 50,
-      daysOfCover: 4,
-      avgDailySales: 1.3,
-      lastOrderDate: '2024-01-03',
-      suggestedQty: 25,
-      priority: 'critical',
-    },
-    {
-      id: 5,
-      name: 'SS 304 Tube 25x25mm',
-      category: 'Tubes',
-      currentStock: 14.8,
-      reorderPoint: 18,
-      maxStock: 90,
-      daysOfCover: 9,
-      avgDailySales: 1.6,
-      lastOrderDate: '2024-01-09',
-      suggestedQty: 45,
-      priority: 'warning',
-    },
-  ],
-  summary: {
-    critical: 5,
-    warning: 8,
-    approaching: 12,
-    totalValue: 125000,
-  },
-});
 
 const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) => {
   const { isDarkMode } = useTheme();
@@ -86,10 +10,49 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setProducts(data?.products || mockData.products);
-    setSummary(data?.summary || mockData.summary);
+    if (data?.products && data.products.length > 0) {
+      setProducts(data.products);
+    } else {
+      setProducts([]);
+    }
+    if (data?.summary) {
+      setSummary(data.summary);
+    } else {
+      setSummary(null);
+    }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = data && data.products && data.products.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+              <AlertTriangle size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Reorder Alerts
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Items at or below reorder point
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const getPriorityInfo = (priority) => {
     const info = {

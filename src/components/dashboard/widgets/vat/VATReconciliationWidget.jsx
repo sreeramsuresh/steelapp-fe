@@ -26,88 +26,16 @@ import {
   Calendar
 } from 'lucide-react';
 
-// Mock reconciliation data
-const mockReconciliationData = {
-  lastReconciled: '2024-12-27T14:30:00Z',
-  period: {
-    start: '2024-10-01',
-    end: '2024-12-31',
-    label: 'Q4 2024',
-  },
-  salesReconciliation: {
-    salesRegisterTotal: 2515000.00,
-    vatCollected: 125750.00,
-    expectedVAT: 125750.00,
-    variance: 0.00,
-    variancePercentage: 0.00,
-    status: 'matched',
-    invoiceCount: 245,
-    matchedInvoices: 245,
-    discrepantInvoices: 0,
-  },
-  purchaseReconciliation: {
-    purchaseRegisterTotal: 1788410.00,
-    vatPaid: 89420.50,
-    expectedVAT: 89420.50,
-    variance: 0.00,
-    variancePercentage: 0.00,
-    status: 'matched',
-    billCount: 128,
-    matchedBills: 126,
-    discrepantBills: 2,
-  },
-  vatReturnReconciliation: {
-    totalOutputVAT: 125750.00,
-    totalInputVAT: 89420.50,
-    netVATPayable: 36329.50,
-    returnBox7: 125750.00,
-    returnBox10: 89420.50,
-    returnBox11: 36329.50,
-    status: 'matched',
-  },
-  discrepancies: [
-    {
-      id: 1,
-      type: 'purchase',
-      reference: 'BILL-2024-0892',
-      supplier: 'Steel Supplies LLC',
-      amount: 2500.00,
-      expectedVAT: 125.00,
-      actualVAT: 0.00,
-      variance: 125.00,
-      reason: 'Missing VAT on invoice',
-      status: 'pending',
-    },
-    {
-      id: 2,
-      type: 'purchase',
-      reference: 'BILL-2024-0878',
-      supplier: 'Metal Trading Co',
-      amount: 1800.00,
-      expectedVAT: 90.00,
-      actualVAT: 180.00,
-      variance: -90.00,
-      reason: 'Double VAT entry',
-      status: 'resolved',
-    },
-  ],
-  reconciliationHistory: [
-    { date: '2024-12-27', status: 'matched', variance: 0.00 },
-    { date: '2024-12-20', status: 'matched', variance: 0.00 },
-    { date: '2024-12-13', status: 'discrepancy', variance: 215.00 },
-    { date: '2024-12-06', status: 'matched', variance: 0.00 },
-  ],
-};
 
-const VATReconciliationWidget = ({ 
-  data = null, 
+const VATReconciliationWidget = ({
+  data = null,
   onRunReconciliation = null,
   onViewDiscrepancy = null,
   onViewDetails = null,
-  isLoading = false 
+  isLoading = false
 }) => {
   const { isDarkMode } = useTheme();
-  const [reconciliationData, setReconciliationData] = useState(data || mockReconciliationData);
+  const [reconciliationData, setReconciliationData] = useState(data || null);
   const [selectedTab, setSelectedTab] = useState('overview');
 
   useEffect(() => {
@@ -115,6 +43,40 @@ const VATReconciliationWidget = ({
       setReconciliationData(data);
     }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = reconciliationData && reconciliationData.salesReconciliation && reconciliationData.purchaseReconciliation;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+          : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+              <Scale size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                VAT Reconciliation
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Register Matching
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);

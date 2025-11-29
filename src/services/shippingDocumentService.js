@@ -4,8 +4,9 @@ export const shippingDocumentService = {
   // Get all shipping documents
   async getShippingDocuments(params = {}) {
     try {
-      const response = await api.get('/shipping-documents', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/shipping-documents', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching shipping documents:', error);
       throw error;
@@ -15,8 +16,8 @@ export const shippingDocumentService = {
   // Get single shipping document
   async getShippingDocument(id) {
     try {
-      const response = await api.get(`/shipping-documents/${id}`);
-      return response.data;
+      const data = await api.get(`/shipping-documents/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching shipping document:', error);
       throw error;
@@ -26,8 +27,8 @@ export const shippingDocumentService = {
   // Create new shipping document
   async createShippingDocument(data) {
     try {
-      const response = await api.post('/shipping-documents', data);
-      return response.data;
+      const result = await api.post('/shipping-documents', data);
+      return result;
     } catch (error) {
       console.error('Error creating shipping document:', error);
       throw error;
@@ -37,8 +38,8 @@ export const shippingDocumentService = {
   // Update shipping document
   async updateShippingDocument(id, data) {
     try {
-      const response = await api.put(`/shipping-documents/${id}`, data);
-      return response.data;
+      const result = await api.put(`/shipping-documents/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating shipping document:', error);
       throw error;
@@ -48,8 +49,8 @@ export const shippingDocumentService = {
   // Delete shipping document
   async deleteShippingDocument(id) {
     try {
-      const response = await api.delete(`/shipping-documents/${id}`);
-      return response.data;
+      const result = await api.delete(`/shipping-documents/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting shipping document:', error);
       throw error;
@@ -59,11 +60,11 @@ export const shippingDocumentService = {
   // Update shipping status
   async updateStatus(id, status, notes = '') {
     try {
-      const response = await api.patch(`/shipping-documents/${id}/status`, {
+      const result = await api.patch(`/shipping-documents/${id}/status`, {
         status,
         notes,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating shipping status:', error);
       throw error;
@@ -73,8 +74,8 @@ export const shippingDocumentService = {
   // Track shipment
   async trackShipment(id) {
     try {
-      const response = await api.get(`/shipping-documents/${id}/track`);
-      return response.data;
+      const data = await api.get(`/shipping-documents/${id}/track`);
+      return data;
     } catch (error) {
       console.error('Error tracking shipment:', error);
       throw error;
@@ -84,8 +85,8 @@ export const shippingDocumentService = {
   // Get document types
   async getDocumentTypes() {
     try {
-      const response = await api.get('/shipping-documents/types/list');
-      return response.data;
+      const data = await api.get('/shipping-documents/types/list');
+      return data;
     } catch (error) {
       console.error('Error fetching document types:', error);
       throw error;

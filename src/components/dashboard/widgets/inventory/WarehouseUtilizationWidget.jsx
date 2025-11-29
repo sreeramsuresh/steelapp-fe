@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { Warehouse, ArrowRightLeft, TrendingUp, MapPin, AlertTriangle } from 'lucide-react';
+import { Warehouse, ArrowRightLeft, TrendingUp, MapPin, AlertTriangle, RefreshCw } from 'lucide-react';
 
-// Mock data for warehouse utilization
-const generateMockData = () => ({
+// Fallback mock data for warehouse utilization (used only when no API data is available)
+const generateFallbackData = () => ({
   warehouses: [
     {
       id: 1,
@@ -64,17 +64,37 @@ const generateMockData = () => ({
     avgUtilization: 70.5,
     totalValue: 6500000,
   },
+  isMockData: true,
 });
 
-const WarehouseUtilizationWidget = ({ data, onNavigate, onWarehouseClick, onTransfer }) => {
+const WarehouseUtilizationWidget = ({ data, onNavigate, onWarehouseClick, onTransfer, onRefresh, loading: externalLoading }) => {
   const { isDarkMode } = useTheme();
+  const [loading, setLoading] = useState(false);
   const [warehouseData, setWarehouseData] = useState(null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setWarehouseData(data || mockData);
+    // Use API data if available and has warehouses, otherwise use fallback
+    if (data && data.warehouses && data.warehouses.length > 0) {
+      setWarehouseData(data);
+    } else {
+      setWarehouseData(generateFallbackData());
+    }
   }, [data]);
+
+  const isLoading = loading || externalLoading;
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      if (onRefresh) {
+        await onRefresh();
+        // Data will be updated via props after refresh
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!warehouseData) return null;
 
@@ -141,16 +161,32 @@ const WarehouseUtilizationWidget = ({ data, onNavigate, onWarehouseClick, onTran
             </p>
           </div>
         </div>
-        
-        {/* Overall Utilization */}
-        <div className="text-right">
-          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Overall</p>
-          <p className={`text-lg font-bold ${
-            warehouseData.summary.avgUtilization >= 80 ? 'text-amber-500' :
-            warehouseData.summary.avgUtilization >= 60 ? 'text-green-500' : 'text-blue-500'
-          }`}>
-            {warehouseData.summary.avgUtilization.toFixed(1)}%
-          </p>
+
+        <div className="flex items-center gap-3">
+          {/* Overall Utilization */}
+          <div className="text-right">
+            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Overall</p>
+            <p className={`text-lg font-bold ${
+              warehouseData.summary.avgUtilization >= 80 ? 'text-amber-500' :
+              warehouseData.summary.avgUtilization >= 60 ? 'text-green-500' : 'text-blue-500'
+            }`}>
+              {warehouseData.summary.avgUtilization.toFixed(1)}%
+            </p>
+          </div>
+          {/* Refresh Button */}
+          {onRefresh && (
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className={`p-1.5 rounded-lg transition-colors ${
+                isDarkMode
+                  ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                  : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+              } ${isLoading ? 'animate-spin' : ''}`}
+            >
+              <RefreshCw size={16} />
+            </button>
+          )}
         </div>
       </div>
 

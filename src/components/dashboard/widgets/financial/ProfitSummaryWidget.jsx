@@ -9,26 +9,10 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-// Mock data for Profit Summary (Waterfall style)
-const MOCK_PROFIT_DATA = {
-  revenue: 1250000,
-  cogs: 875000,
-  grossProfit: 375000,
-  operatingExpenses: 125000,
-  netProfit: 250000,
-  grossMarginPercent: 30,
-  netMarginPercent: 20,
-  previousPeriod: {
-    revenue: 1150000,
-    grossProfit: 345000,
-    netProfit: 220000,
-  },
-};
-
-const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
+const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoading }) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(propData || MOCK_PROFIT_DATA);
+  const [data, setData] = useState(propData || null);
 
   useEffect(() => {
     if (propData) {
@@ -36,12 +20,14 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
     }
   }, [propData]);
 
+  const isLoading = loading || externalLoading;
+
   const handleRefresh = async () => {
     setLoading(true);
     try {
       if (onRefresh) {
-        const freshData = await onRefresh();
-        setData(freshData || MOCK_PROFIT_DATA);
+        await onRefresh();
+        // Data will be updated via props after refresh
       }
     } finally {
       setLoading(false);
@@ -59,6 +45,48 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
     }).format(safeAmount);
   };
 
+  // Check if we have valid data
+  const hasData = data && (data.revenue > 0 || data.netProfit > 0);
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <DollarSign size={20} className="text-green-500" />
+            <h3 className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Profit Summary
+              <span className="relative group">
+                <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                  Revenue breakdown showing profitability
+                </span>
+              </span>
+            </h3>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isDarkMode
+                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+            } ${isLoading ? 'animate-spin' : ''}`}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
+
   const calculateChange = (current, previous) => {
     if (!previous || previous === 0) return 0;
     return ((current - previous) / previous) * 100;
@@ -70,10 +98,10 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
   // Waterfall chart data
   const waterfallItems = [
     { label: 'Revenue', value: data.revenue, type: 'positive', color: 'bg-blue-500' },
-    { label: 'COGS', value: -data.cogs, type: 'negative', color: 'bg-red-500' },
-    { label: 'Gross Profit', value: data.grossProfit, type: 'subtotal', color: 'bg-teal-500' },
-    { label: 'Op. Expenses', value: -data.operatingExpenses, type: 'negative', color: 'bg-orange-500' },
-    { label: 'Net Profit', value: data.netProfit, type: 'total', color: 'bg-green-500' },
+    { label: 'COGS', value: -(data.cogs || 0), type: 'negative', color: 'bg-red-500' },
+    { label: 'Gross Profit', value: data.grossProfit || 0, type: 'subtotal', color: 'bg-teal-500' },
+    { label: 'Op. Expenses', value: -(data.operatingExpenses || 0), type: 'negative', color: 'bg-orange-500' },
+    { label: 'Net Profit', value: data.netProfit || 0, type: 'total', color: 'bg-green-500' },
   ];
 
   const maxAbsValue = Math.max(...waterfallItems.map(item => Math.abs(item.value)));
@@ -98,12 +126,12 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
         </div>
         <button
           onClick={handleRefresh}
-          disabled={loading}
+          disabled={isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
               ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
               : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-          } ${loading ? 'animate-spin' : ''}`}
+          } ${isLoading ? 'animate-spin' : ''}`}
         >
           <RefreshCw size={16} />
         </button>
@@ -118,7 +146,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
           </span>
           <div className="flex items-baseline gap-2">
             <span className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {data.grossMarginPercent?.toFixed(1)}%
+              {(data.grossMarginPercent || 0).toFixed(1)}%
             </span>
           </div>
         </div>
@@ -130,7 +158,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
           </span>
           <div className="flex items-baseline gap-2">
             <span className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {data.netMarginPercent?.toFixed(1)}%
+              {(data.netMarginPercent || 0).toFixed(1)}%
             </span>
             {netProfitChange !== 0 && (
               <span className={`text-xs flex items-center ${
@@ -182,7 +210,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh }) => {
                   className={`h-full ${item.color} rounded transition-all duration-500 flex items-center justify-end pr-2`}
                   style={{ width: `${Math.max(widthPercent, 5)}%` }}
                 >
-                  {widthPercent > 20 && (
+                  {widthPercent > 20 && data.revenue > 0 && (
                     <span className="text-xs text-white font-medium">
                       {item.type === 'negative' ? '-' : ''}{((Math.abs(item.value) / data.revenue) * 100).toFixed(0)}%
                     </span>

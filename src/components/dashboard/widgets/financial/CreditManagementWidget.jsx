@@ -12,54 +12,10 @@ import {
   Users
 } from 'lucide-react';
 
-// Mock data for Credit Management
-const MOCK_CREDIT_DATA = {
-  totalCreditLimit: 2500000,
-  totalCreditUsed: 1875000,
-  utilizationPercent: 75,
-  availableCredit: 625000,
-  atRiskAccounts: [
-    {
-      id: 1,
-      name: 'Al Futtaim Construction',
-      limit: 500000,
-      used: 485000,
-      utilization: 97,
-      overdue: 35000,
-      riskLevel: 'high'
-    },
-    {
-      id: 2,
-      name: 'Emirates Steel Works',
-      limit: 300000,
-      used: 270000,
-      utilization: 90,
-      overdue: 15000,
-      riskLevel: 'high'
-    },
-    {
-      id: 3,
-      name: 'Dubai Metal Industries',
-      limit: 250000,
-      used: 200000,
-      utilization: 80,
-      overdue: 5000,
-      riskLevel: 'medium'
-    },
-  ],
-  summary: {
-    totalCustomers: 45,
-    highRisk: 5,
-    mediumRisk: 8,
-    lowRisk: 32,
-  },
-  trend: -3.5, // Utilization change from last period
-};
-
 const CreditManagementWidget = ({ data: propData, onRefresh }) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(propData || MOCK_CREDIT_DATA);
+  const [data, setData] = useState(propData || null);
 
   useEffect(() => {
     if (propData) {
@@ -72,7 +28,7 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
     try {
       if (onRefresh) {
         const freshData = await onRefresh();
-        setData(freshData || MOCK_CREDIT_DATA);
+        setData(freshData || null);
       }
     } finally {
       setLoading(false);
@@ -89,6 +45,48 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
       maximumFractionDigits: 0,
     }).format(safeAmount);
   };
+
+  // Check if we have valid data
+  const hasData = data && (data.totalCreditLimit > 0 || data.totalCreditUsed > 0);
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <CreditCard size={20} className="text-purple-500" />
+            <h3 className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Credit Management
+              <span className="relative group">
+                <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                  Customer credit utilization and risk monitoring
+                </span>
+              </span>
+            </h3>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isDarkMode
+                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+            } ${loading ? 'animate-spin' : ''}`}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const getUtilizationColor = (percent) => {
     if (percent >= 90) return { bg: 'bg-red-500', text: 'text-red-500', ring: 'ring-red-500' };
@@ -123,10 +121,10 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
     }
   };
 
-  const utilizationColors = getUtilizationColor(data.utilizationPercent);
+  const utilizationColors = getUtilizationColor(data.utilizationPercent || 0);
 
   // Calculate gauge angle (180 degrees = 100%)
-  const gaugeAngle = (data.utilizationPercent / 100) * 180;
+  const gaugeAngle = ((data.utilizationPercent || 0) / 100) * 180;
 
   return (
     <div className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
@@ -182,7 +180,7 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
           {/* Value display */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
             <p className={`text-2xl font-bold ${utilizationColors.text}`}>
-              {data.utilizationPercent}%
+              {data.utilizationPercent || 0}%
             </p>
             <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Utilized
@@ -222,10 +220,10 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
             Trend
           </span>
           <p className={`text-sm font-bold flex items-center gap-1 ${
-            data.trend > 0 ? 'text-red-500' : 'text-green-500'
+            (data.trend || 0) > 0 ? 'text-red-500' : 'text-green-500'
           }`}>
-            {data.trend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-            {data.trend > 0 ? '+' : ''}{data.trend}%
+            {(data.trend || 0) > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {(data.trend || 0) > 0 ? '+' : ''}{data.trend || 0}%
           </p>
         </div>
       </div>
@@ -285,36 +283,38 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
       )}
 
       {/* Risk Summary */}
-      <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              {data.summary.totalCustomers} customers
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span>
-              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                {data.summary.highRisk} high
+      {data.summary && (
+        <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+              <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {data.summary.totalCustomers} customers
               </span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                {data.summary.mediumRisk} med
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                  {data.summary.highRisk} high
+                </span>
               </span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                {data.summary.lowRisk} low
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                  {data.summary.mediumRisk} med
+                </span>
               </span>
-            </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                  {data.summary.lowRisk} low
+                </span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

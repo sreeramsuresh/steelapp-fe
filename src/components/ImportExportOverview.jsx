@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Ship, FileCheck, Anchor, Globe, ArrowDownToLine, ArrowUpFromLine, TrendingUp, AlertCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { importOrderService } from '../services/importOrderService';
+import { exportOrderService } from '../services/exportOrderService';
+import { shippingDocumentService } from '../services/shippingDocumentService';
+import { materialCertificateService } from '../services/materialCertificateService';
 
 const ImportExportOverview = () => {
   const { isDarkMode } = useTheme();
@@ -29,38 +33,111 @@ const ImportExportOverview = () => {
       expiring: 0,
     },
   });
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Implement actual API calls
-    // Simulated data for now
-    setTimeout(() => {
-      setStats({
-        importOrders: {
-          total: 45,
-          active: 12,
-          pending: 8,
-          completed: 25,
-        },
-        exportOrders: {
-          total: 38,
-          active: 15,
-          pending: 6,
-          completed: 17,
-        },
-        shipments: {
-          inTransit: 23,
-          arrived: 8,
-          pending: 14,
-        },
-        certificates: {
-          pending: 7,
-          verified: 34,
-          expiring: 3,
-        },
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchStats = async () => {
+      try {
+        // Fetch all data in parallel
+        const [importData, exportData, shippingData, certData] = await Promise.all([
+          importOrderService.getImportOrders({ limit: 100 }).catch(() => ({ orders: [], pagination: {} })),
+          exportOrderService.getExportOrders({ limit: 100 }).catch(() => ({ orders: [], pagination: {} })),
+          shippingDocumentService.getShippingDocuments({ limit: 100 }).catch(() => ({ documents: [], pagination: {} })),
+          materialCertificateService.getMaterialCertificates({ limit: 100 }).catch(() => ({ certificates: [], pagination: {} })),
+        ]);
+
+        // Calculate import order stats
+        const importOrders = importData.orders || [];
+        const importActive = importOrders.filter(o => ['confirmed', 'shipped', 'in_transit'].includes(o.status)).length;
+        const importPending = importOrders.filter(o => o.status === 'draft').length;
+        const importCompleted = importOrders.filter(o => o.status === 'completed').length;
+
+        // Calculate export order stats
+        const exportOrders = exportData.orders || [];
+        const exportActive = exportOrders.filter(o => ['confirmed', 'shipped', 'in_transit'].includes(o.status)).length;
+        const exportPending = exportOrders.filter(o => o.status === 'draft').length;
+        const exportCompleted = exportOrders.filter(o => o.status === 'completed').length;
+
+        // Calculate shipment stats
+        const shipments = shippingData.documents || [];
+        const inTransit = shipments.filter(s => s.status === 'in_transit').length;
+        const arrived = shipments.filter(s => s.status === 'arrived').length;
+        const shipPending = shipments.filter(s => s.status === 'draft' || s.status === 'pending').length;
+
+        // Calculate certificate stats
+        const certificates = certData.certificates || [];
+        const certPending = certificates.filter(c => c.verificationStatus === 'pending').length;
+        const certVerified = certificates.filter(c => c.verificationStatus === 'verified').length;
+        // Check for certificates expiring within 30 days
+        const now = new Date();
+        const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        const expiring = certificates.filter(c => {
+          if (!c.expiryDate) return false;
+          const expiry = new Date(c.expiryDate);
+          return expiry > now && expiry <= thirtyDaysFromNow;
+        }).length;
+
+        // Build recent activity from latest records
+        const activity = [];
+        if (importOrders.length > 0) {
+          const latest = importOrders[0];
+          activity.push({
+            color: 'green',
+            text: `Import Order ${latest.importOrderNumber} - ${latest.status}`,
+            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : 'Recently',
+          });
+        }
+        if (exportOrders.length > 0) {
+          const latest = exportOrders[0];
+          activity.push({
+            color: 'blue',
+            text: `Export Order ${latest.exportOrderNumber} - ${latest.status}`,
+            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : 'Recently',
+          });
+        }
+        if (certificates.length > 0) {
+          const latest = certificates[0];
+          activity.push({
+            color: 'orange',
+            text: `Certificate ${latest.certificateNumber} - ${latest.verificationStatus}`,
+            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : 'Recently',
+          });
+        }
+
+        setStats({
+          importOrders: {
+            total: importOrders.length,
+            active: importActive,
+            pending: importPending,
+            completed: importCompleted,
+          },
+          exportOrders: {
+            total: exportOrders.length,
+            active: exportActive,
+            pending: exportPending,
+            completed: exportCompleted,
+          },
+          shipments: {
+            inTransit,
+            arrived,
+            pending: shipPending,
+          },
+          certificates: {
+            pending: certPending,
+            verified: certVerified,
+            expiring,
+          },
+        });
+        setRecentActivity(activity);
+      } catch (error) {
+        console.error('Error fetching overview stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
 
   const StatCard = ({ title, value, icon: Icon, color, link, sublabel }) => (
@@ -188,41 +265,25 @@ const ImportExportOverview = () => {
               <div className="text-center py-4">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mx-auto"></div>
               </div>
+            ) : recentActivity.length === 0 ? (
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-center py-4`}>
+                No recent activity
+              </p>
             ) : (
               <>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Import Order IMP-202411-0032 arrived at port
-                    </p>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      2 hours ago
-                    </p>
+                {recentActivity.map((activity, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <div className={`w-2 h-2 bg-${activity.color}-500 rounded-full`}></div>
+                    <div className="flex-1">
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {activity.text}
+                      </p>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        {activity.time}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Export Order EXP-202411-0028 shipped
-                    </p>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      6 hours ago
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      MTC Certificate verified for Order IMP-202411-0031
-                    </p>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      1 day ago
-                    </p>
-                  </div>
-                </div>
+                ))}
               </>
             )}
           </div>

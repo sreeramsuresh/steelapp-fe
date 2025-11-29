@@ -2,32 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Target, Star, HelpCircle, DollarSign, TrendingDown } from 'lucide-react';
 
-// Mock data for margin analysis with quadrant positioning
-const generateMockData = () => ({
-  products: [
-    // Stars (High Volume, High Margin)
-    { id: 1, name: 'SS 316 Coil 0.8mm', category: 'Coils', volume: 89.2, margin: 21.2, revenue: 392000, quadrant: 'star' },
-    { id: 2, name: 'SS 316L Pipe 2"', category: 'Pipes', volume: 65.6, margin: 24.5, revenue: 245000, quadrant: 'star' },
-    { id: 3, name: 'SS 304 HL Sheet 0.8mm', category: 'Sheets', volume: 72.8, margin: 20.1, revenue: 215000, quadrant: 'star' },
-    
-    // Cash Cows (High Volume, Low Margin)
-    { id: 4, name: 'SS 304 2B Sheet 1.0mm', category: 'Sheets', volume: 125.5, margin: 12.5, revenue: 485000, quadrant: 'cashCow' },
-    { id: 5, name: 'SS 430 Coil 1.2mm', category: 'Coils', volume: 198.4, margin: 11.2, revenue: 275000, quadrant: 'cashCow' },
-    { id: 6, name: 'SS 202 Sheet 1.5mm', category: 'Sheets', volume: 234.5, margin: 10.5, revenue: 165000, quadrant: 'cashCow' },
-    
-    // Question Marks (Low Volume, High Margin)
-    { id: 7, name: 'SS 316 No.4 Sheet 1.2mm', category: 'Sheets', volume: 34.2, margin: 22.8, revenue: 128000, quadrant: 'questionMark' },
-    { id: 8, name: 'SS 316L Mirror 0.6mm', category: 'Sheets', volume: 18.5, margin: 28.5, revenue: 85000, quadrant: 'questionMark' },
-    
-    // Dogs (Low Volume, Low Margin)
-    { id: 9, name: 'SS 410 Flat 40x4mm', category: 'Flats', volume: 28.3, margin: 8.5, revenue: 42000, quadrant: 'dog' },
-    { id: 10, name: 'SS 409 Tube 30x30mm', category: 'Tubes', volume: 22.1, margin: 9.2, revenue: 38000, quadrant: 'dog' },
-  ],
-  thresholds: {
-    volumeMedian: 60,
-    marginMedian: 15,
-  },
-});
 
 const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
   const { isDarkMode } = useTheme();
@@ -37,10 +11,47 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setProducts(data?.products || mockData.products);
-    setThresholds(data?.thresholds || mockData.thresholds);
+    if (data?.products) {
+      setProducts(data.products);
+    } else {
+      setProducts([]);
+    }
+    if (data?.thresholds) {
+      setThresholds(data.thresholds);
+    }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = data && data.products && data.products.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+              <Target size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Product Portfolio Matrix
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Volume vs Margin analysis
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     if (amount >= 1000000) {

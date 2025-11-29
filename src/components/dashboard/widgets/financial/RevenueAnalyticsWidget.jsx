@@ -5,42 +5,14 @@ import {
   PieChart,
   RefreshCw,
   Info,
-  ChevronDown
 } from 'lucide-react';
-
-// Mock data for Revenue Analytics
-const MOCK_REVENUE_DATA = {
-  byCategory: [
-    { name: 'Sheets', value: 450000, percentage: 36, color: '#3B82F6' },
-    { name: 'Coils', value: 320000, percentage: 26, color: '#10B981' },
-    { name: 'Pipes', value: 180000, percentage: 14, color: '#F59E0B' },
-    { name: 'Tubes', value: 150000, percentage: 12, color: '#EF4444' },
-    { name: 'Flats', value: 100000, percentage: 8, color: '#8B5CF6' },
-    { name: 'Other', value: 50000, percentage: 4, color: '#6B7280' },
-  ],
-  bySegment: [
-    { name: 'Construction', value: 520000, percentage: 42, color: '#3B82F6' },
-    { name: 'Manufacturing', value: 380000, percentage: 30, color: '#10B981' },
-    { name: 'Trading', value: 200000, percentage: 16, color: '#F59E0B' },
-    { name: 'Retail', value: 150000, percentage: 12, color: '#EF4444' },
-  ],
-  byPeriod: [
-    { name: 'Jan', value: 95000 },
-    { name: 'Feb', value: 110000 },
-    { name: 'Mar', value: 125000 },
-    { name: 'Apr', value: 105000 },
-    { name: 'May', value: 140000 },
-    { name: 'Jun', value: 155000 },
-  ],
-  total: 1250000,
-};
 
 const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [viewType, setViewType] = useState('category'); // 'category', 'segment', 'period'
   const [chartType, setChartType] = useState('bar'); // 'bar', 'pie'
-  const [data, setData] = useState(propData || MOCK_REVENUE_DATA);
+  const [data, setData] = useState(propData || null);
 
   useEffect(() => {
     if (propData) {
@@ -53,7 +25,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
     try {
       if (onRefresh) {
         const freshData = await onRefresh();
-        setData(freshData || MOCK_REVENUE_DATA);
+        setData(freshData || null);
       }
     } finally {
       setLoading(false);
@@ -82,19 +54,65 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
     return safeAmount.toFixed(0);
   };
 
+  // Check if we have valid data
+  const hasData = data && (
+    (data.byCategory && data.byCategory.length > 0) ||
+    (data.bySegment && data.bySegment.length > 0) ||
+    (data.byPeriod && data.byPeriod.length > 0)
+  );
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <BarChart3 size={20} className="text-indigo-500" />
+            <h3 className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Revenue Analytics
+              <span className="relative group">
+                <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                  Revenue breakdown by different dimensions
+                </span>
+              </span>
+            </h3>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isDarkMode
+                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+            } ${loading ? 'animate-spin' : ''}`}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
+
   const getCurrentData = () => {
     switch (viewType) {
       case 'segment':
-        return data.bySegment;
+        return data.bySegment || [];
       case 'period':
-        return data.byPeriod;
+        return data.byPeriod || [];
       default:
-        return data.byCategory;
+        return data.byCategory || [];
     }
   };
 
   const currentData = getCurrentData();
-  const maxValue = Math.max(...currentData.map(item => item.value));
+  const maxValue = currentData.length > 0 ? Math.max(...currentData.map(item => item.value)) : 0;
 
   // Render Bar Chart
   const renderBarChart = () => (
@@ -241,7 +259,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         {/* View Type Selector */}
-        <div className="flex rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}">
+        <div className={`flex rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
           {[
             { key: 'category', label: 'Category' },
             { key: 'segment', label: 'Segment' },
@@ -265,7 +283,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
 
         {/* Chart Type Toggle */}
         {viewType !== 'period' && (
-          <div className="flex rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}">
+          <div className={`flex rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
             <button
               onClick={() => setChartType('bar')}
               className={`p-1.5 transition-colors ${

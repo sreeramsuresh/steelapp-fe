@@ -4,8 +4,9 @@ export const customsDocumentService = {
   // Get all customs documents
   async getCustomsDocuments(params = {}) {
     try {
-      const response = await api.get('/customs-documents', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/customs-documents', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching customs documents:', error);
       throw error;
@@ -15,8 +16,8 @@ export const customsDocumentService = {
   // Get single customs document
   async getCustomsDocument(id) {
     try {
-      const response = await api.get(`/customs-documents/${id}`);
-      return response.data;
+      const data = await api.get(`/customs-documents/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching customs document:', error);
       throw error;
@@ -26,8 +27,8 @@ export const customsDocumentService = {
   // Create new customs document
   async createCustomsDocument(data) {
     try {
-      const response = await api.post('/customs-documents', data);
-      return response.data;
+      const result = await api.post('/customs-documents', data);
+      return result;
     } catch (error) {
       console.error('Error creating customs document:', error);
       throw error;
@@ -37,8 +38,8 @@ export const customsDocumentService = {
   // Update customs document
   async updateCustomsDocument(id, data) {
     try {
-      const response = await api.put(`/customs-documents/${id}`, data);
-      return response.data;
+      const result = await api.put(`/customs-documents/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating customs document:', error);
       throw error;
@@ -48,8 +49,8 @@ export const customsDocumentService = {
   // Delete customs document
   async deleteCustomsDocument(id) {
     try {
-      const response = await api.delete(`/customs-documents/${id}`);
-      return response.data;
+      const result = await api.delete(`/customs-documents/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting customs document:', error);
       throw error;
@@ -59,12 +60,12 @@ export const customsDocumentService = {
   // Update clearance status
   async updateClearance(id, clearance_status, notes = '', clearance_date = null) {
     try {
-      const response = await api.patch(`/customs-documents/${id}/clearance`, {
+      const result = await api.patch(`/customs-documents/${id}/clearance`, {
         clearance_status,
         notes,
         clearance_date,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating clearance status:', error);
       throw error;
@@ -74,8 +75,8 @@ export const customsDocumentService = {
   // Calculate customs duties
   async calculateDuties(id, data) {
     try {
-      const response = await api.post(`/customs-documents/${id}/calculate-duties`, data);
-      return response.data;
+      const result = await api.post(`/customs-documents/${id}/calculate-duties`, data);
+      return result;
     } catch (error) {
       console.error('Error calculating duties:', error);
       throw error;
@@ -85,8 +86,8 @@ export const customsDocumentService = {
   // Get document types
   async getDocumentTypes() {
     try {
-      const response = await api.get('/customs-documents/types/list');
-      return response.data;
+      const data = await api.get('/customs-documents/types/list');
+      return data;
     } catch (error) {
       console.error('Error fetching document types:', error);
       throw error;
@@ -96,8 +97,8 @@ export const customsDocumentService = {
   // Get HS codes for stainless steel
   async getHsCodes() {
     try {
-      const response = await api.get('/customs-documents/hs-codes/list');
-      return response.data;
+      const data = await api.get('/customs-documents/hs-codes/list');
+      return data;
     } catch (error) {
       console.error('Error fetching HS codes:', error);
       throw error;

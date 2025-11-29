@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Clock, TrendingDown, AlertTriangle, RefreshCw, Info } from 'lucide-react';
 
-// Mock data for AP Aging (will be replaced with actual service call)
-const MOCK_AP_AGING = {
+// Fallback mock data for AP Aging (used only when no API data is available)
+const FALLBACK_AP_AGING = {
   buckets: [
     { label: '0-30 Days', amount: 125000, percentage: 45, count: 12 },
     { label: '31-60 Days', amount: 85000, percentage: 30, count: 8 },
@@ -16,25 +16,35 @@ const MOCK_AP_AGING = {
     { name: 'Steel Corp Ltd', amount: 35000, daysOverdue: 95 },
     { name: 'Metal Works Inc', amount: 18000, daysOverdue: 72 },
   ],
+  isMockData: true,
 };
 
-const APAgingWidget = ({ data: propData, onRefresh }) => {
+const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(propData || MOCK_AP_AGING);
+  // Use propData if available and has buckets, otherwise use fallback
+  const [data, setData] = useState(() => {
+    if (propData && propData.buckets && propData.buckets.length > 0) {
+      return propData;
+    }
+    return FALLBACK_AP_AGING;
+  });
 
   useEffect(() => {
-    if (propData) {
+    // Update data when propData changes and has valid data
+    if (propData && propData.buckets && propData.buckets.length > 0) {
       setData(propData);
     }
   }, [propData]);
+
+  const isLoading = loading || externalLoading;
 
   const handleRefresh = async () => {
     setLoading(true);
     try {
       if (onRefresh) {
-        const freshData = await onRefresh();
-        setData(freshData || MOCK_AP_AGING);
+        await onRefresh();
+        // Data will be updated via props after refresh
       }
     } finally {
       setLoading(false);
@@ -100,12 +110,12 @@ const APAgingWidget = ({ data: propData, onRefresh }) => {
         </div>
         <button
           onClick={handleRefresh}
-          disabled={loading}
+          disabled={isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
               ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
               : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-          } ${loading ? 'animate-spin' : ''}`}
+          } ${isLoading ? 'animate-spin' : ''}`}
         >
           <RefreshCw size={16} />
         </button>

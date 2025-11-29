@@ -22,6 +22,7 @@ import { customerService } from './customerService';
 import { productService } from './productService';
 import { commissionService } from './commissionService';
 import { vatService } from './vatService';
+import { warehouseService } from './warehouseService';
 
 // ============================================================================
 // CACHE CONFIGURATION (Stale-While-Revalidate Pattern)
@@ -34,6 +35,12 @@ const CACHE_KEYS = {
   INVENTORY_HEALTH: 'dashboard_inventory_health_cache',
   VAT_METRICS: 'dashboard_vat_metrics_cache',
   CUSTOMER_INSIGHTS: 'dashboard_customer_insights_cache',
+  // Phase 2 cache keys
+  NET_PROFIT: 'dashboard_net_profit_cache',
+  AP_AGING: 'dashboard_ap_aging_cache',
+  CASH_FLOW: 'dashboard_cash_flow_cache',
+  STOCK_TURNOVER: 'dashboard_stock_turnover_cache',
+  WAREHOUSE_UTILIZATION: 'dashboard_warehouse_utilization_cache',
   // Prefetch cache keys
   PREFETCH_PRODUCTS: 'dashboard_prefetch_products',
   PREFETCH_CUSTOMERS: 'dashboard_prefetch_customers',
@@ -1206,6 +1213,382 @@ export const dashboardService = {
     }
   },
 
+  // ============================================================================
+  // PHASE 2 DATA FETCHERS - Net Profit, AP Aging, Cash Flow, Stock Turnover
+  // ============================================================================
+
+  /**
+   * Get Net Profit data for ProfitSummaryWidget
+   * @param {Object} options - Fetch options
+   * @returns {Promise<Object>} Net profit data
+   */
+  async getNetProfit(options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (!forceRefresh) {
+      const cached = getCachedData(CACHE_KEYS.NET_PROFIT);
+      if (cached && !isCacheStale(cached.timestamp)) {
+        return cached.data;
+      }
+    }
+
+    try {
+      console.log('[dashboardService] Fetching net profit from API...');
+      const response = await analyticsService.getNetProfit(options.params || {});
+
+      // Transform API response to widget-expected format
+      const netProfitData = {
+        revenue: safeNum(response?.revenue),
+        cogs: safeNum(response?.cost || response?.cogs),
+        grossProfit: safeNum(response?.gross_profit || response?.grossProfit),
+        operatingExpenses: safeNum(response?.operating_expenses || response?.operatingExpenses || 0),
+        netProfit: safeNum(response?.net_profit || response?.netProfit),
+        grossMarginPercent: safeNum(response?.gross_margin_percent || response?.grossMarginPercent),
+        netMarginPercent: safeNum(response?.margin_percentage || response?.marginPercentage || response?.net_margin_percent),
+        trend: response?.trend || [],
+        previousPeriod: response?.previous_period || response?.previousPeriod || {
+          revenue: 0,
+          grossProfit: 0,
+          netProfit: 0,
+        },
+        isMockData: false,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      // Calculate derived values if not provided
+      if (!netProfitData.grossProfit && netProfitData.revenue && netProfitData.cogs) {
+        netProfitData.grossProfit = netProfitData.revenue - netProfitData.cogs;
+      }
+      if (!netProfitData.grossMarginPercent && netProfitData.revenue > 0) {
+        netProfitData.grossMarginPercent = (netProfitData.grossProfit / netProfitData.revenue) * 100;
+      }
+      if (!netProfitData.netMarginPercent && netProfitData.revenue > 0) {
+        netProfitData.netMarginPercent = (netProfitData.netProfit / netProfitData.revenue) * 100;
+      }
+
+      setCachedData(CACHE_KEYS.NET_PROFIT, netProfitData);
+      console.log('[dashboardService] Net profit fetched successfully');
+      return netProfitData;
+    } catch (error) {
+      console.error('[dashboardService] Error fetching net profit:', error);
+
+      const cached = getCachedData(CACHE_KEYS.NET_PROFIT);
+      if (cached) {
+        return { ...cached.data, isStale: true };
+      }
+
+      // Return empty structure
+      return {
+        revenue: 0,
+        cogs: 0,
+        grossProfit: 0,
+        operatingExpenses: 0,
+        netProfit: 0,
+        grossMarginPercent: 0,
+        netMarginPercent: 0,
+        trend: [],
+        previousPeriod: { revenue: 0, grossProfit: 0, netProfit: 0 },
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get AP (Accounts Payable) Aging data for APAgingWidget
+   * @param {Object} options - Fetch options
+   * @returns {Promise<Object>} AP aging buckets data
+   */
+  async getAPAging(options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (!forceRefresh) {
+      const cached = getCachedData(CACHE_KEYS.AP_AGING);
+      if (cached && !isCacheStale(cached.timestamp)) {
+        return cached.data;
+      }
+    }
+
+    try {
+      console.log('[dashboardService] Fetching AP aging from API...');
+      const response = await analyticsService.getAPAging();
+
+      // Transform API response to widget-expected format
+      const apAgingData = {
+        buckets: (response?.buckets || []).map(bucket => ({
+          label: bucket.label || bucket.range || `${bucket.min_days || 0}-${bucket.max_days || 30} Days`,
+          amount: safeNum(bucket.amount || bucket.total),
+          percentage: safeNum(bucket.percentage || bucket.percent),
+          count: parseInt(bucket.count || bucket.bill_count) || 0,
+        })),
+        totalAP: safeNum(response?.total_ap || response?.totalAP),
+        overdueAP: safeNum(response?.overdue_ap || response?.overdueAP),
+        criticalSuppliers: (response?.critical_suppliers || response?.criticalSuppliers || []).map(supplier => ({
+          name: supplier.name || supplier.supplier_name,
+          amount: safeNum(supplier.amount || supplier.total_overdue),
+          daysOverdue: parseInt(supplier.days_overdue || supplier.daysOverdue) || 0,
+        })),
+        isMockData: false,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      setCachedData(CACHE_KEYS.AP_AGING, apAgingData);
+      console.log('[dashboardService] AP aging fetched successfully');
+      return apAgingData;
+    } catch (error) {
+      console.error('[dashboardService] Error fetching AP aging:', error);
+
+      const cached = getCachedData(CACHE_KEYS.AP_AGING);
+      if (cached) {
+        return { ...cached.data, isStale: true };
+      }
+
+      // Return empty structure
+      return {
+        buckets: [],
+        totalAP: 0,
+        overdueAP: 0,
+        criticalSuppliers: [],
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get Cash Flow data for CashFlowWidget
+   * @param {Object} options - Fetch options
+   * @returns {Promise<Object>} Cash flow data with MTD, QTD, YTD breakdowns
+   */
+  async getCashFlow(options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (!forceRefresh) {
+      const cached = getCachedData(CACHE_KEYS.CASH_FLOW);
+      if (cached && !isCacheStale(cached.timestamp)) {
+        return cached.data;
+      }
+    }
+
+    try {
+      console.log('[dashboardService] Fetching cash flow from API...');
+      const response = await analyticsService.getCashFlow(options.params || {});
+
+      // Transform API response to widget-expected format
+      // API can return either flat structure or nested MTD/QTD/YTD
+      const transformPeriodData = (data) => ({
+        inflows: safeNum(data?.inflow || data?.inflows || data?.total_inflow),
+        outflows: safeNum(data?.outflow || data?.outflows || data?.total_outflow),
+        netCashFlow: safeNum(data?.net_cash_flow || data?.netCashFlow || data?.net),
+        trend: (data?.trend || []).map(t => ({
+          day: t.period || t.day || t.label,
+          inflow: safeNum(t.inflow || t.in),
+          outflow: safeNum(t.outflow || t.out),
+        })),
+      });
+
+      let cashFlowData;
+
+      // Check if response has nested period data or flat structure
+      if (response?.mtd || response?.qtd || response?.ytd) {
+        cashFlowData = {
+          mtd: transformPeriodData(response.mtd || {}),
+          qtd: transformPeriodData(response.qtd || {}),
+          ytd: transformPeriodData(response.ytd || {}),
+        };
+      } else {
+        // Flat structure - use for all periods
+        const periodData = transformPeriodData(response);
+        cashFlowData = {
+          mtd: periodData,
+          qtd: periodData,
+          ytd: periodData,
+        };
+      }
+
+      cashFlowData.isMockData = false;
+      cashFlowData.fetchedAt = new Date().toISOString();
+
+      setCachedData(CACHE_KEYS.CASH_FLOW, cashFlowData);
+      console.log('[dashboardService] Cash flow fetched successfully');
+      return cashFlowData;
+    } catch (error) {
+      console.error('[dashboardService] Error fetching cash flow:', error);
+
+      const cached = getCachedData(CACHE_KEYS.CASH_FLOW);
+      if (cached) {
+        return { ...cached.data, isStale: true };
+      }
+
+      // Return empty structure
+      const emptyPeriod = { inflows: 0, outflows: 0, netCashFlow: 0, trend: [] };
+      return {
+        mtd: emptyPeriod,
+        qtd: emptyPeriod,
+        ytd: emptyPeriod,
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get Stock Turnover data for StockTurnoverWidget
+   * @param {Object} options - Fetch options
+   * @returns {Promise<Object>} Stock turnover heatmap data
+   */
+  async getStockTurnover(options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (!forceRefresh) {
+      const cached = getCachedData(CACHE_KEYS.STOCK_TURNOVER);
+      if (cached && !isCacheStale(cached.timestamp)) {
+        return cached.data;
+      }
+    }
+
+    try {
+      console.log('[dashboardService] Fetching stock turnover from API...');
+      const response = await analyticsService.getStockTurnover(options.params || {});
+
+      // Get last 6 months for labels
+      const months = [];
+      const now = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push(d.toLocaleString('default', { month: 'short' }));
+      }
+
+      // Transform API response to widget-expected format
+      const stockTurnoverData = {
+        products: (response?.by_category || response?.byCategory || response?.products || []).map((item, idx) => ({
+          id: item.id || item.product_id || idx + 1,
+          name: item.name || item.product_name || item.category || `Product ${idx + 1}`,
+          // If monthly data exists, use it; otherwise generate from turnover_ratio
+          data: item.monthly_data || item.monthlyData ||
+            Array(6).fill(safeNum(item.turnover_ratio || item.turnoverRatio || 1)),
+        })),
+        months,
+        overallEfficiency: safeNum(response?.overall_efficiency || response?.overallEfficiency) ||
+          Math.min(100, Math.round(safeNum(response?.turnover_ratio || response?.turnoverRatio || 2) * 25)),
+        avgTurnover: safeNum(response?.turnover_ratio || response?.turnoverRatio || response?.avg_turnover),
+        daysOfInventory: parseInt(response?.days_of_inventory || response?.daysOfInventory) || 0,
+        cogs: safeNum(response?.cogs),
+        bestPerformer: response?.best_performer || response?.bestPerformer || '',
+        worstPerformer: response?.worst_performer || response?.worstPerformer || '',
+        isMockData: false,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      // Identify best/worst performers if not provided
+      if (!stockTurnoverData.bestPerformer && stockTurnoverData.products.length > 0) {
+        const sorted = [...stockTurnoverData.products].sort((a, b) => {
+          const avgA = a.data.reduce((s, v) => s + v, 0) / a.data.length;
+          const avgB = b.data.reduce((s, v) => s + v, 0) / b.data.length;
+          return avgB - avgA;
+        });
+        stockTurnoverData.bestPerformer = sorted[0]?.name || '';
+        stockTurnoverData.worstPerformer = sorted[sorted.length - 1]?.name || '';
+      }
+
+      setCachedData(CACHE_KEYS.STOCK_TURNOVER, stockTurnoverData);
+      console.log('[dashboardService] Stock turnover fetched successfully');
+      return stockTurnoverData;
+    } catch (error) {
+      console.error('[dashboardService] Error fetching stock turnover:', error);
+
+      const cached = getCachedData(CACHE_KEYS.STOCK_TURNOVER);
+      if (cached) {
+        return { ...cached.data, isStale: true };
+      }
+
+      // Return empty structure
+      return {
+        products: [],
+        months: [],
+        overallEfficiency: 0,
+        avgTurnover: 0,
+        daysOfInventory: 0,
+        cogs: 0,
+        bestPerformer: '',
+        worstPerformer: '',
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get Warehouse Utilization data for WarehouseUtilizationWidget
+   * @param {Object} options - Fetch options
+   * @returns {Promise<Object>} Warehouse utilization data
+   */
+  async getWarehouseUtilization(options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (!forceRefresh) {
+      const cached = getCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION);
+      if (cached && !isCacheStale(cached.timestamp)) {
+        return cached.data;
+      }
+    }
+
+    try {
+      console.log('[dashboardService] Fetching warehouse utilization from API...');
+      const response = await warehouseService.getAll({ limit: 50 });
+      const warehouses = response?.data || [];
+
+      // Transform warehouses to widget format
+      const warehouseData = {
+        warehouses: warehouses.map(w => ({
+          id: w.id,
+          name: w.name,
+          code: w.code,
+          city: w.city || 'Unknown',
+          capacity: safeNum(w.capacity),
+          used: safeNum(w.inventoryCount || 0),
+          utilization: safeNum(w.utilizationPercent || 0),
+          value: 0, // Would need inventory value data
+          items: parseInt(w.inventoryCount) || 0,
+          status: w.utilizationPercent >= 90 ? 'critical' :
+                  w.utilizationPercent >= 75 ? 'high' :
+                  w.utilizationPercent >= 50 ? 'optimal' : 'low',
+        })),
+        transfers: [], // Would need transfer data
+        summary: {
+          totalCapacity: warehouses.reduce((sum, w) => sum + safeNum(w.capacity), 0),
+          totalUsed: warehouses.reduce((sum, w) => sum + safeNum(w.inventoryCount || 0), 0),
+          avgUtilization: warehouses.length > 0
+            ? warehouses.reduce((sum, w) => sum + safeNum(w.utilizationPercent || 0), 0) / warehouses.length
+            : 0,
+          totalValue: 0, // Would need inventory value data
+        },
+        isMockData: false,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      setCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION, warehouseData);
+      console.log('[dashboardService] Warehouse utilization fetched successfully');
+      return warehouseData;
+    } catch (error) {
+      console.error('[dashboardService] Error fetching warehouse utilization:', error);
+
+      const cached = getCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION);
+      if (cached) {
+        return { ...cached.data, isStale: true };
+      }
+
+      // Return empty structure
+      return {
+        warehouses: [],
+        transfers: [],
+        summary: { totalCapacity: 0, totalUsed: 0, avgUtilization: 0, totalValue: 0 },
+        isMockData: true,
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+  },
+
   /**
    * Refresh all dashboard data
    * Force-refreshes all cached data
@@ -1220,6 +1603,12 @@ export const dashboardService = {
       this.getInventoryHealth({ forceRefresh: true }),
       this.getVATMetrics({ forceRefresh: true }),
       this.getCustomerInsights({ forceRefresh: true }),
+      // Phase 2 data
+      this.getNetProfit({ forceRefresh: true }),
+      this.getAPAging({ forceRefresh: true }),
+      this.getCashFlow({ forceRefresh: true }),
+      this.getStockTurnover({ forceRefresh: true }),
+      this.getWarehouseUtilization({ forceRefresh: true }),
     ]);
   },
 

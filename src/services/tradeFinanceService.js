@@ -4,8 +4,9 @@ export const tradeFinanceService = {
   // Get all trade finance records
   async getTradeFinanceRecords(params = {}) {
     try {
-      const response = await api.get('/trade-finance', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/trade-finance', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching trade finance records:', error);
       throw error;
@@ -15,8 +16,8 @@ export const tradeFinanceService = {
   // Get single trade finance record
   async getTradeFinanceRecord(id) {
     try {
-      const response = await api.get(`/trade-finance/${id}`);
-      return response.data;
+      const data = await api.get(`/trade-finance/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching trade finance record:', error);
       throw error;
@@ -26,8 +27,8 @@ export const tradeFinanceService = {
   // Create new trade finance record
   async createTradeFinanceRecord(data) {
     try {
-      const response = await api.post('/trade-finance', data);
-      return response.data;
+      const result = await api.post('/trade-finance', data);
+      return result;
     } catch (error) {
       console.error('Error creating trade finance record:', error);
       throw error;
@@ -37,8 +38,8 @@ export const tradeFinanceService = {
   // Update trade finance record
   async updateTradeFinanceRecord(id, data) {
     try {
-      const response = await api.put(`/trade-finance/${id}`, data);
-      return response.data;
+      const result = await api.put(`/trade-finance/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating trade finance record:', error);
       throw error;
@@ -48,8 +49,8 @@ export const tradeFinanceService = {
   // Delete trade finance record
   async deleteTradeFinanceRecord(id) {
     try {
-      const response = await api.delete(`/trade-finance/${id}`);
-      return response.data;
+      const result = await api.delete(`/trade-finance/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting trade finance record:', error);
       throw error;
@@ -59,11 +60,11 @@ export const tradeFinanceService = {
   // Update status
   async updateStatus(id, status, notes = '') {
     try {
-      const response = await api.patch(`/trade-finance/${id}/status`, {
+      const result = await api.patch(`/trade-finance/${id}/status`, {
         status,
         notes,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating status:', error);
       throw error;
@@ -73,10 +74,10 @@ export const tradeFinanceService = {
   // Calculate commission
   async calculateCommission(id, commission_rate) {
     try {
-      const response = await api.post(`/trade-finance/${id}/calculate-commission`, {
+      const result = await api.post(`/trade-finance/${id}/calculate-commission`, {
         commission_rate,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error calculating commission:', error);
       throw error;
@@ -86,10 +87,10 @@ export const tradeFinanceService = {
   // Get expiring instruments
   async getExpiringInstruments(days = 30) {
     try {
-      const response = await api.get('/trade-finance/expiring', {
+      const data = await api.get('/trade-finance/expiring', {
         params: { days },
       });
-      return response.data;
+      return data;
     } catch (error) {
       console.error('Error fetching expiring instruments:', error);
       throw error;
@@ -99,8 +100,8 @@ export const tradeFinanceService = {
   // Get instrument types
   async getInstrumentTypes() {
     try {
-      const response = await api.get('/trade-finance/types/list');
-      return response.data;
+      const data = await api.get('/trade-finance/types/list');
+      return data;
     } catch (error) {
       console.error('Error fetching instrument types:', error);
       throw error;
@@ -110,10 +111,10 @@ export const tradeFinanceService = {
   // Get document requirements
   async getDocumentRequirements(instrument_type) {
     try {
-      const response = await api.get('/trade-finance/documents/requirements', {
+      const data = await api.get('/trade-finance/documents/requirements', {
         params: { instrument_type },
       });
-      return response.data;
+      return data;
     } catch (error) {
       console.error('Error fetching document requirements:', error);
       throw error;

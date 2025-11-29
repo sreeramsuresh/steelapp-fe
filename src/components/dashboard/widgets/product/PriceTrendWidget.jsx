@@ -2,83 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { LineChart, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-// Mock data for price trends
-const generateMockData = () => ({
-  products: [
-    {
-      id: 1,
-      name: 'SS 304 2B Sheet',
-      grade: 'SS 304',
-      currentPrice: 285,
-      marketPrice: 290,
-      spread: -5,
-      spreadPercent: -1.7,
-      change6m: 8.5,
-      trend: [
-        { month: 'Jun', price: 262, market: 268 },
-        { month: 'Jul', price: 268, market: 272 },
-        { month: 'Aug', price: 275, market: 278 },
-        { month: 'Sep', price: 278, market: 282 },
-        { month: 'Oct', price: 282, market: 286 },
-        { month: 'Nov', price: 285, market: 290 },
-      ],
-    },
-    {
-      id: 2,
-      name: 'SS 316 Coil',
-      grade: 'SS 316',
-      currentPrice: 425,
-      marketPrice: 420,
-      spread: 5,
-      spreadPercent: 1.2,
-      change6m: 12.3,
-      trend: [
-        { month: 'Jun', price: 378, market: 375 },
-        { month: 'Jul', price: 390, market: 385 },
-        { month: 'Aug', price: 402, market: 398 },
-        { month: 'Sep', price: 410, market: 408 },
-        { month: 'Oct', price: 418, market: 415 },
-        { month: 'Nov', price: 425, market: 420 },
-      ],
-    },
-    {
-      id: 3,
-      name: 'SS 430 Sheet',
-      grade: 'SS 430',
-      currentPrice: 195,
-      marketPrice: 198,
-      spread: -3,
-      spreadPercent: -1.5,
-      change6m: -4.2,
-      trend: [
-        { month: 'Jun', price: 204, market: 208 },
-        { month: 'Jul', price: 202, market: 205 },
-        { month: 'Aug', price: 200, market: 202 },
-        { month: 'Sep', price: 198, market: 200 },
-        { month: 'Oct', price: 196, market: 199 },
-        { month: 'Nov', price: 195, market: 198 },
-      ],
-    },
-    {
-      id: 4,
-      name: 'SS 316L Pipe',
-      grade: 'SS 316L',
-      currentPrice: 485,
-      marketPrice: 478,
-      spread: 7,
-      spreadPercent: 1.5,
-      change6m: 15.8,
-      trend: [
-        { month: 'Jun', price: 419, market: 412 },
-        { month: 'Jul', price: 438, market: 430 },
-        { month: 'Aug', price: 455, market: 448 },
-        { month: 'Sep', price: 468, market: 460 },
-        { month: 'Oct', price: 478, market: 470 },
-        { month: 'Nov', price: 485, market: 478 },
-      ],
-    },
-  ],
-});
 
 const MiniLineChart = ({ data, width = 120, height = 40, isDarkMode }) => {
   if (!data || data.length === 0) return null;
@@ -132,13 +55,48 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    const productData = data?.products || mockData.products;
-    setProducts(productData);
-    if (productData.length > 0 && !selectedProduct) {
-      setSelectedProduct(productData[0]);
+    if (data?.products && data.products.length > 0) {
+      setProducts(data.products);
+      if (!selectedProduct) {
+        setSelectedProduct(data.products[0]);
+      }
+    } else {
+      setProducts([]);
+      setSelectedProduct(null);
     }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = data && data.products && data.products.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+              <LineChart size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Price Trends
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                6-month price history
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const getSpreadColor = (spread) => {
     if (spread > 0) return isDarkMode ? 'text-green-400' : 'text-green-600';

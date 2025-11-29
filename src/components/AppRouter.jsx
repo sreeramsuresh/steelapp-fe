@@ -47,6 +47,9 @@ import TransitList from '../pages/TransitList';
 // Finance Components
 import FinanceDashboard from '../pages/FinanceDashboard';
 
+// Purchases Dashboard
+import PurchasesDashboard from '../pages/PurchasesDashboard';
+
 // Business Components
 import BusinessDashboard from '../pages/BusinessDashboard';
 
@@ -200,14 +203,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        <Route
-          path="/business"
-          element={
-            <ProtectedRoute user={user} requiredPermission="customers.read">
-              <BusinessDashboard />
-            </ProtectedRoute>
-          }
-        />
+
 
         <Route
           path="/reports"
@@ -411,14 +407,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        <Route
-          path="/settings/fta-integration"
-          element={
-            <ProtectedRoute user={user} requiredRole="admin">
-              <FTAIntegrationSettings />
-            </ProtectedRoute>
-          }
-        />
+
 
         <Route
           path="/audit-logs"
@@ -531,6 +520,20 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        {/* Purchases Dashboard - Main purchases page with tabs */}
+        <Route
+          path="/purchases"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredPermission="purchase_orders.read"
+            >
+              <PurchasesDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Legacy Purchase Orders route - redirect to purchases dashboard */}
         <Route
           path="/purchase-orders"
           element={
@@ -538,7 +541,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               user={user}
               requiredPermission="purchase_orders.read"
             >
-              <PurchaseOrderList />
+              <PurchasesDashboard />
             </ProtectedRoute>
           }
         />

@@ -1,12 +1,7 @@
 import React from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 import BaseWidget, { MetricValue } from '../BaseWidget';
-
-// Mock data for Phase 1 - used when no API data available
-const MOCK_REVENUE = {
-  totalRevenue: 10648130,
-  revenueChange: 12.5,
-};
 
 /**
  * RevenueKPIWidget - Displays total revenue with trend
@@ -25,9 +20,29 @@ export const RevenueKPIWidget = ({
   onRefresh,
   formatCurrency = (val) => `AED ${val.toLocaleString()}`,
 }) => {
-  // Use mock data as fallback when real data is 0 or undefined
-  const displayRevenue = totalRevenue > 0 ? totalRevenue : MOCK_REVENUE.totalRevenue;
-  const displayChange = totalRevenue > 0 ? (revenueChange || 0) : MOCK_REVENUE.revenueChange;
+  const { isDarkMode } = useTheme();
+
+  // Show "No Data" state when no valid data is available
+  if (!totalRevenue || totalRevenue <= 0) {
+    return (
+      <BaseWidget
+        title="Total Revenue"
+        tooltip="Sum of all invoice amounts, excluding cancelled and draft invoices"
+        icon={DollarSign}
+        iconColor="from-teal-600 to-teal-700"
+        loading={loading}
+        onRefresh={onRefresh}
+        size="sm"
+      >
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </BaseWidget>
+    );
+  }
+
+  const displayChange = revenueChange || 0;
+
   return (
     <BaseWidget
       title="Total Revenue"
@@ -40,7 +55,7 @@ export const RevenueKPIWidget = ({
     >
       <div className="flex items-center justify-between">
         <MetricValue
-          value={formatCurrency(displayRevenue)}
+          value={formatCurrency(totalRevenue)}
           size="md"
         />
         <div

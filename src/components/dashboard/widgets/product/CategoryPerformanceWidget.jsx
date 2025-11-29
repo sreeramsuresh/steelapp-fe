@@ -2,57 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Layers, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
-// Mock data for category performance
-const generateMockData = () => ({
-  categories: [
-    {
-      name: 'Sheets',
-      revenue: 1250000,
-      volume: 458.2,
-      margin: 17.8,
-      growth: 12.5,
-      orders: 156,
-      avgOrderValue: 8012,
-    },
-    {
-      name: 'Coils',
-      revenue: 980000,
-      volume: 312.5,
-      margin: 19.2,
-      growth: 8.3,
-      orders: 89,
-      avgOrderValue: 11011,
-    },
-    {
-      name: 'Pipes',
-      revenue: 520000,
-      volume: 145.8,
-      margin: 22.5,
-      growth: -3.2,
-      orders: 67,
-      avgOrderValue: 7761,
-    },
-    {
-      name: 'Tubes',
-      revenue: 380000,
-      volume: 198.4,
-      margin: 18.9,
-      growth: 15.7,
-      orders: 78,
-      avgOrderValue: 4872,
-    },
-    {
-      name: 'Flats',
-      revenue: 245000,
-      volume: 234.6,
-      margin: 15.4,
-      growth: 5.8,
-      orders: 45,
-      avgOrderValue: 5444,
-    },
-  ],
-  periodOptions: ['This Month', 'Last Month', 'This Quarter', 'This Year'],
-});
 
 const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
   const { isDarkMode } = useTheme();
@@ -61,9 +10,44 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
   useEffect(() => {
-    const mockData = generateMockData();
-    setCategories(data?.categories || mockData.categories);
+    if (data?.categories && data.categories.length > 0) {
+      setCategories(data.categories);
+    } else {
+      setCategories([]);
+    }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = data && data.categories && data.categories.length > 0;
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+              <Layers size={16} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Category Performance
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Revenue & margin by product type
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     if (amount >= 1000000) {

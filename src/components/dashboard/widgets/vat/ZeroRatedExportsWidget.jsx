@@ -27,111 +27,16 @@ import {
   Package
 } from 'lucide-react';
 
-// Mock data for export transactions
-const mockExportData = {
-  summary: {
-    totalExports: 42,
-    totalValue: 2850000.00,
-    compliantExports: 35,
-    pendingDocumentation: 7,
-    compliancePercentage: 83.3,
-    documentsOverdue: 2,
-  },
-  documentTypes: [
-    { name: 'Bill of Lading', required: true, complete: 38, pending: 4 },
-    { name: 'Customs Declaration', required: true, complete: 40, pending: 2 },
-    { name: 'Export Certificate', required: true, complete: 36, pending: 6 },
-    { name: 'Commercial Invoice', required: true, complete: 42, pending: 0 },
-    { name: 'Packing List', required: false, complete: 40, pending: 2 },
-  ],
-  recentExports: [
-    {
-      id: 1,
-      invoiceNumber: 'EXP-2024-0089',
-      customer: 'Al Rajhi Steel Trading - KSA',
-      country: 'Saudi Arabia',
-      countryCode: 'SA',
-      amount: 185000.00,
-      date: '2024-12-25',
-      status: 'complete',
-      documents: {
-        billOfLading: true,
-        customsDeclaration: true,
-        exportCertificate: true,
-        commercialInvoice: true,
-      },
-      daysRemaining: null,
-    },
-    {
-      id: 2,
-      invoiceNumber: 'EXP-2024-0087',
-      customer: 'Qatar Steel Industries',
-      country: 'Qatar',
-      countryCode: 'QA',
-      amount: 125000.00,
-      date: '2024-12-22',
-      status: 'pending',
-      documents: {
-        billOfLading: true,
-        customsDeclaration: true,
-        exportCertificate: false,
-        commercialInvoice: true,
-      },
-      daysRemaining: 68,
-    },
-    {
-      id: 3,
-      invoiceNumber: 'EXP-2024-0085',
-      customer: 'Oman Iron Works LLC',
-      country: 'Oman',
-      countryCode: 'OM',
-      amount: 95500.00,
-      date: '2024-12-20',
-      status: 'pending',
-      documents: {
-        billOfLading: false,
-        customsDeclaration: true,
-        exportCertificate: false,
-        commercialInvoice: true,
-      },
-      daysRemaining: 62,
-    },
-    {
-      id: 4,
-      invoiceNumber: 'EXP-2024-0082',
-      customer: 'Kuwait Metal Trading Co',
-      country: 'Kuwait',
-      countryCode: 'KW',
-      amount: 210000.00,
-      date: '2024-12-15',
-      status: 'overdue',
-      documents: {
-        billOfLading: true,
-        customsDeclaration: false,
-        exportCertificate: false,
-        commercialInvoice: true,
-      },
-      daysRemaining: -5,
-    },
-  ],
-  topDestinations: [
-    { country: 'Saudi Arabia', code: 'SA', value: 850000.00, count: 12 },
-    { country: 'Qatar', code: 'QA', value: 620000.00, count: 8 },
-    { country: 'Oman', code: 'OM', value: 480000.00, count: 10 },
-    { country: 'Kuwait', code: 'KW', value: 420000.00, count: 6 },
-    { country: 'Bahrain', code: 'BH', value: 280000.00, count: 4 },
-  ],
-};
 
-const ZeroRatedExportsWidget = ({ 
-  data = null, 
+const ZeroRatedExportsWidget = ({
+  data = null,
   onViewExport = null,
   onUploadDocument = null,
   onViewAll = null,
-  isLoading = false 
+  isLoading = false
 }) => {
   const { isDarkMode } = useTheme();
-  const [exportData, setExportData] = useState(data || mockExportData);
+  const [exportData, setExportData] = useState(data || null);
   const [selectedTab, setSelectedTab] = useState('exports');
 
   useEffect(() => {
@@ -139,6 +44,43 @@ const ZeroRatedExportsWidget = ({
       setExportData(data);
     }
   }, [data]);
+
+  // Check if we have valid data
+  const hasData = exportData && exportData.summary && (
+    exportData.summary.totalExports > 0 ||
+    exportData.summary.totalValue > 0
+  );
+
+  // Show "No Data" state when no valid data is available
+  if (!hasData) {
+    return (
+      <div className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
+        isDarkMode
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+          : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <Globe size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Zero-Rated Exports
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Documentation Status
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className="text-sm">No data available</span>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);

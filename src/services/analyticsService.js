@@ -107,4 +107,45 @@ export const analyticsService = {
   async getDashboardKPIs() {
     return apiClient.get('/analytics/dashboard-kpis');
   },
+
+  // ============================================================
+  // PHASE 2 API ENDPOINTS - Net Profit, AP Aging, Cash Flow, Stock Turnover
+  // ============================================================
+
+  /**
+   * Get Net Profit metrics
+   * @param {Object} params - Optional date range params
+   * @returns {Promise<Object>} { revenue, cost, net_profit, margin_percentage, trend }
+   */
+  async getNetProfit(params = {}) {
+    const normalizedParams = analyticsService.normalizeParams(params);
+    return apiClient.get('/analytics/net-profit', normalizedParams);
+  },
+
+  /**
+   * Get AP (Accounts Payable) Aging Buckets
+   * @returns {Promise<Object>} { buckets, total_ap, overdue_ap }
+   */
+  async getAPAging() {
+    return apiClient.get('/analytics/ap-aging');
+  },
+
+  /**
+   * Get Cash Flow metrics
+   * @param {Object} params - Optional date range and period params
+   * @returns {Promise<Object>} { inflow, outflow, net_cash_flow, trend }
+   */
+  async getCashFlow(params = {}) {
+    const normalizedParams = analyticsService.normalizeParams(params);
+    return apiClient.get('/analytics/cash-flow', normalizedParams);
+  },
+
+  /**
+   * Get Stock Turnover metrics
+   * @param {Object} params - Optional params for filtering
+   * @returns {Promise<Object>} { turnover_ratio, days_of_inventory, cogs, by_category }
+   */
+  async getStockTurnover(params = {}) {
+    return apiClient.get('/analytics/stock-turnover', params);
+  },
 };

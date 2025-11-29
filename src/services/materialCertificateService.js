@@ -4,8 +4,9 @@ export const materialCertificateService = {
   // Get all material certificates
   async getMaterialCertificates(params = {}) {
     try {
-      const response = await api.get('/material-certificates', { params });
-      return response.data;
+      // api.get() delegates to apiService.get() which already returns response.data
+      const data = await api.get('/material-certificates', { params });
+      return data;
     } catch (error) {
       console.error('Error fetching material certificates:', error);
       throw error;
@@ -15,8 +16,8 @@ export const materialCertificateService = {
   // Get single material certificate
   async getMaterialCertificate(id) {
     try {
-      const response = await api.get(`/material-certificates/${id}`);
-      return response.data;
+      const data = await api.get(`/material-certificates/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching material certificate:', error);
       throw error;
@@ -26,8 +27,8 @@ export const materialCertificateService = {
   // Create new material certificate
   async createMaterialCertificate(data) {
     try {
-      const response = await api.post('/material-certificates', data);
-      return response.data;
+      const result = await api.post('/material-certificates', data);
+      return result;
     } catch (error) {
       console.error('Error creating material certificate:', error);
       throw error;
@@ -37,8 +38,8 @@ export const materialCertificateService = {
   // Update material certificate
   async updateMaterialCertificate(id, data) {
     try {
-      const response = await api.put(`/material-certificates/${id}`, data);
-      return response.data;
+      const result = await api.put(`/material-certificates/${id}`, data);
+      return result;
     } catch (error) {
       console.error('Error updating material certificate:', error);
       throw error;
@@ -48,8 +49,8 @@ export const materialCertificateService = {
   // Delete material certificate
   async deleteMaterialCertificate(id) {
     try {
-      const response = await api.delete(`/material-certificates/${id}`);
-      return response.data;
+      const result = await api.delete(`/material-certificates/${id}`);
+      return result;
     } catch (error) {
       console.error('Error deleting material certificate:', error);
       throw error;
@@ -59,11 +60,11 @@ export const materialCertificateService = {
   // Update verification status
   async updateVerification(id, verification_status, notes = '') {
     try {
-      const response = await api.patch(`/material-certificates/${id}/verify`, {
+      const result = await api.patch(`/material-certificates/${id}/verify`, {
         verification_status,
         notes,
       });
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error updating verification status:', error);
       throw error;
@@ -73,8 +74,8 @@ export const materialCertificateService = {
   // Get certificate types
   async getCertificateTypes() {
     try {
-      const response = await api.get('/material-certificates/types/list');
-      return response.data;
+      const data = await api.get('/material-certificates/types/list');
+      return data;
     } catch (error) {
       console.error('Error fetching certificate types:', error);
       throw error;
@@ -84,8 +85,8 @@ export const materialCertificateService = {
   // Get material grades
   async getMaterialGrades() {
     try {
-      const response = await api.get('/material-certificates/grades/list');
-      return response.data;
+      const data = await api.get('/material-certificates/grades/list');
+      return data;
     } catch (error) {
       console.error('Error fetching material grades:', error);
       throw error;
