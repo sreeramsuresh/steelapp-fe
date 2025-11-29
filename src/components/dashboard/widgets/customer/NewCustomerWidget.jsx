@@ -140,14 +140,24 @@ const NewCustomerWidget = ({
     });
   };
 
+  // Map source names to icons and colors (handles both mock data with icon/color references and real data without)
+  const SOURCE_CONFIG_MAP = {
+    'Referral': { icon: Handshake, color: '#22C55E' },
+    'Cold Outreach': { icon: Megaphone, color: '#3B82F6' },
+    'Exhibition': { icon: Building2, color: '#F59E0B' },
+    'Website': { icon: Target, color: '#8B5CF6' },
+  };
+
   const getSourceIcon = (source) => {
     const sourceConfig = customerData.acquisitionSources.find(s => s.source === source);
-    return sourceConfig?.icon || Target;
+    // First check if icon is provided in data, otherwise use mapping, fallback to Target
+    return sourceConfig?.icon || SOURCE_CONFIG_MAP[source]?.icon || Target;
   };
 
   const getSourceColor = (source) => {
     const sourceConfig = customerData.acquisitionSources.find(s => s.source === source);
-    return sourceConfig?.color || '#6B7280';
+    // First check if color is provided in data, otherwise use mapping, fallback to gray
+    return sourceConfig?.color || SOURCE_CONFIG_MAP[source]?.color || '#6B7280';
   };
 
   if (!customerData) {
@@ -305,7 +315,10 @@ const NewCustomerWidget = ({
         </p>
         <div className="grid grid-cols-2 gap-2">
           {acquisitionSources.map((source, idx) => {
-            const Icon = source.icon;
+            // Use provided icon, or map by source name, or fallback to Target
+            const Icon = source.icon || SOURCE_CONFIG_MAP[source.source]?.icon || Target;
+            // Use provided color, or map by source name, or fallback to gray
+            const iconColor = source.color || SOURCE_CONFIG_MAP[source.source]?.color || '#6B7280';
             return (
               <div
                 key={idx}
@@ -315,9 +328,9 @@ const NewCustomerWidget = ({
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${source.color}20` }}
+                  style={{ backgroundColor: `${iconColor}20` }}
                 >
-                  <Icon size={14} style={{ color: source.color }} />
+                  <Icon size={14} style={{ color: iconColor }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>

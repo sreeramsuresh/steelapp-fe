@@ -118,11 +118,14 @@ const VATReturnReport = () => {
   const loadPeriods = async () => {
     try {
       const response = await api.get('/vat-return/periods');
-      if (response.data.success) {
-        setPeriods(response.data.data);
+      // api.get() returns response.data directly, so check response.success (not response.data.success)
+      // Use optional chaining for safety in case response is undefined
+      if (response?.success) {
+        const periodsData = response.data || [];
+        setPeriods(periodsData);
         // Auto-select most recent period
-        if (response.data.data.length > 0) {
-          const latestPeriod = response.data.data[0];
+        if (periodsData.length > 0) {
+          const latestPeriod = periodsData[0];
           setSelectedPeriod(latestPeriod);
           setCustomDates({
             startDate: formatDateForInput(latestPeriod.periodStart),
@@ -225,8 +228,9 @@ const VATReturnReport = () => {
         }
       });
 
-      if (response.data.success) {
-        setVatReturn(response.data.data);
+      // api.get() returns response.data directly, so check response.success (not response.data.success)
+      if (response?.success) {
+        setVatReturn(response.data);
 
         // Also load related data
         try {
@@ -249,7 +253,7 @@ const VATReturnReport = () => {
           console.warn('Advance payments not available:', err);
         }
       } else {
-        setError(response.data.error || 'Failed to generate report');
+        setError(response?.error || 'Failed to generate report');
       }
     } catch (err) {
       console.error('Error generating VAT return:', err);

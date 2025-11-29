@@ -69,6 +69,12 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
     { bg: 'bg-red-500', text: 'text-red-600', bgLight: 'bg-red-100' },
   ];
 
+  // Helper to safely get bucket color (cycles through available colors for extra buckets)
+  const getBucketColor = (index) => {
+    const safeIndex = index % bucketColors.length;
+    return bucketColors[safeIndex] || bucketColors[0];
+  };
+
   if (!data || !data.buckets) {
     return (
       <div className={`rounded-xl border p-6 ${
@@ -142,7 +148,7 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
             </div>
             <div className={`h-3 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}>
               <div
-                className={`h-full ${bucketColors[index].bg} rounded-full transition-all duration-500 group-hover:opacity-80`}
+                className={`h-full ${getBucketColor(index).bg} rounded-full transition-all duration-500 group-hover:opacity-80`}
                 style={{ width: `${Math.min(parseFloat(bucket.percentage) || 0, 100)}%` }}
               />
             </div>
