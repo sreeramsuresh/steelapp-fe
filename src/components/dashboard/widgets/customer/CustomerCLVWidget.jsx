@@ -16,7 +16,7 @@ import {
   Info,
   RefreshCw,
   ChevronRight,
-  Star
+  Star,
 } from 'lucide-react';
 
 // Mock CLV data
@@ -94,7 +94,7 @@ const CustomerCLVWidget = ({
   onRefresh,
   onViewCustomer,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [clvData, setClvData] = useState(propData || MOCK_CLV_DATA);

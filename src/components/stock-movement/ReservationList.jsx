@@ -139,7 +139,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           (r.productName && r.productName.toLowerCase().includes(query)) ||
           (r.productSku && r.productSku.toLowerCase().includes(query)) ||
           (r.warehouseName && r.warehouseName.toLowerCase().includes(query)) ||
-          (r.notes && r.notes.toLowerCase().includes(query))
+          (r.notes && r.notes.toLowerCase().includes(query)),
         );
       }
 

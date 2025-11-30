@@ -15,7 +15,7 @@ import {
   ClipboardList,
   BarChart3,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -84,11 +84,11 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Calculate stats
       const pendingTransfers = transfers.filter(
-        t => t.status === 'DRAFT' || t.status === 'PENDING'
+        t => t.status === 'DRAFT' || t.status === 'PENDING',
       ).length;
 
       const inTransit = transfers.filter(
-        t => t.status === 'SHIPPED' || t.status === 'IN_TRANSIT'
+        t => t.status === 'SHIPPED' || t.status === 'IN_TRANSIT',
       ).length;
 
       // Completed today - check if receivedDate is today
@@ -104,7 +104,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Awaiting reconciliation - active reservations that need attention
       const awaitingReconciliation = reservations.filter(
-        r => r.status === 'ACTIVE' || r.status === 'PARTIALLY_FULFILLED'
+        r => r.status === 'ACTIVE' || r.status === 'PARTIALLY_FULFILLED',
       ).length;
 
       const newStats = {

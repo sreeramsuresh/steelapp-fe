@@ -155,7 +155,7 @@ const vatReturnService = {
   async generateReport(startDate, endDate) {
     try {
       const response = await apiClient.get('/vat-return/generate', {
-        params: { startDate, endDate }
+        params: { startDate, endDate },
       });
       return response.data || response;
     } catch (error) {
@@ -174,7 +174,7 @@ const vatReturnService = {
     try {
       const response = await apiClient.post('/vat-return/save', {
         startDate,
-        endDate
+        endDate,
       });
       return transformVatReturnFromServer(response.data || response);
     } catch (error) {
@@ -217,7 +217,7 @@ const vatReturnService = {
       };
 
       Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key]
+        (key) => queryParams[key] === undefined && delete queryParams[key],
       );
 
       const axiosConfig = { ...queryParams };

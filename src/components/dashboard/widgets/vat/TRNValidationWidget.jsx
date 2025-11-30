@@ -26,7 +26,7 @@ import {
   Building,
   Info,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 
 // Mock TRN validation data
@@ -132,7 +132,7 @@ const TRNValidationWidget = ({
   onBatchValidate = null,
   onViewEntity = null,
   onViewAll = null,
-  isLoading = false 
+  isLoading = false, 
 }) => {
   const { isDarkMode } = useTheme();
   const [trnData, setTRNData] = useState(data || mockTRNData);
@@ -206,7 +206,7 @@ const TRNValidationWidget = ({
   };
 
   const filteredValidations = trnData.recentValidations.filter(v => 
-    filterType === 'all' || v.entityType === filterType
+    filterType === 'all' || v.entityType === filterType,
   );
 
   return (

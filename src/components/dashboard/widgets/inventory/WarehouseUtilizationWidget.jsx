@@ -168,7 +168,7 @@ const WarehouseUtilizationWidget = ({ data, onNavigate, onWarehouseClick, onTran
             <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Overall</p>
             <p className={`text-lg font-bold ${
               warehouseData.summary.avgUtilization >= 80 ? 'text-amber-500' :
-              warehouseData.summary.avgUtilization >= 60 ? 'text-green-500' : 'text-blue-500'
+                warehouseData.summary.avgUtilization >= 60 ? 'text-green-500' : 'text-blue-500'
             }`}>
               {warehouseData.summary.avgUtilization.toFixed(1)}%
             </p>

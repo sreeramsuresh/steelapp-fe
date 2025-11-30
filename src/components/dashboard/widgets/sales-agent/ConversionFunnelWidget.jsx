@@ -16,7 +16,7 @@ import {
   Info,
   RefreshCw,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
 } from 'lucide-react';
 
 // Mock funnel data
@@ -64,7 +64,7 @@ const ConversionFunnelWidget = ({
   data: propData,
   onRefresh,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [funnelData, setFunnelData] = useState(propData || MOCK_FUNNEL_DATA);

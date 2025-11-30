@@ -270,7 +270,7 @@ export const vatService = {
           status: currentReturn?.status || 'pending',
           dueDate: new Date(currentYear, currentQuarter * 3 + 1, 28).toISOString(),
           daysRemaining: Math.max(0, Math.ceil(
-            (new Date(currentYear, currentQuarter * 3 + 1, 28) - currentDate) / (1000 * 60 * 60 * 24)
+            (new Date(currentYear, currentQuarter * 3 + 1, 28) - currentDate) / (1000 * 60 * 60 * 24),
           )),
           filedDate: currentReturn?.filedAt || currentReturn?.filed_at || null,
         },

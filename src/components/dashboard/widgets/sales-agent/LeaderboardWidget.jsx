@@ -20,7 +20,7 @@ import {
   Crown,
   RefreshCw,
   Info,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 
 // Mock leaderboard data
@@ -105,7 +105,7 @@ const LeaderboardWidget = ({
   onRefresh,
   onViewAgent,
   isLoading = false,
-  compact = false
+  compact = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [leaderboard, setLeaderboard] = useState(propData || MOCK_LEADERBOARD);
@@ -277,9 +277,9 @@ const LeaderboardWidget = ({
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                     rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-                    rank === 2 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
-                    rank === 3 ? 'bg-gradient-to-br from-amber-500 to-amber-700' :
-                    'bg-gradient-to-br from-teal-500 to-teal-600'
+                      rank === 2 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
+                        rank === 3 ? 'bg-gradient-to-br from-amber-500 to-amber-700' :
+                          'bg-gradient-to-br from-teal-500 to-teal-600'
                   }`}>
                     {agent.avatar}
                   </div>
@@ -345,9 +345,9 @@ const LeaderboardWidget = ({
                   <div className="text-right">
                     <p className={`text-lg font-bold ${
                       rank === 1 ? 'text-yellow-500' :
-                      rank === 2 ? 'text-gray-400' :
-                      rank === 3 ? 'text-amber-500' :
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                        rank === 2 ? 'text-gray-400' :
+                          rank === 3 ? 'text-amber-500' :
+                            isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       {agent.score}
                     </p>

@@ -310,7 +310,7 @@ const VendorBillForm = () => {
     }
 
     const validItems = bill.items.filter(
-      (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+      (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
     );
     if (validItems.length === 0) {
       errors.push('At least one valid line item is required');
@@ -332,7 +332,7 @@ const VendorBillForm = () => {
 
       // Filter valid items only
       const validItems = bill.items.filter(
-        (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+        (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
       );
 
       const billData = {

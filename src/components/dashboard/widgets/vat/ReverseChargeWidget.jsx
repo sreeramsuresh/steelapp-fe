@@ -23,7 +23,7 @@ import {
   Info,
   ChevronRight,
   Calculator,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 // Mock data for reverse charge transactions
@@ -121,7 +121,7 @@ const ReverseChargeWidget = ({
   onViewTransaction = null,
   onViewAll = null,
   onAddReverseCharge = null,
-  isLoading = false 
+  isLoading = false, 
 }) => {
   const { isDarkMode } = useTheme();
   const [reverseChargeData, setReverseChargeData] = useState(data || mockReverseChargeData);

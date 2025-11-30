@@ -54,7 +54,7 @@ const renderWithTheme = (component, isDarkMode = false) => {
   return render(
     <ThemeContext.Provider value={{ isDarkMode }}>
       {component}
-    </ThemeContext.Provider>
+    </ThemeContext.Provider>,
   );
 };
 

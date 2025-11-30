@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Plus, Search, Filter, Download, Eye, Edit, Trash2,
   Calculator, FileText, X, Upload, AlertCircle, Check,
-  Calendar, RefreshCw, ChevronDown, ChevronUp, Info
+  Calendar, RefreshCw, ChevronDown, ChevronUp, Info,
 } from 'lucide-react';
 import { customsDocumentService } from '../services/customsDocumentService';
 import { importOrderService } from '../services/importOrderService';
@@ -231,7 +231,7 @@ const CustomsDocumentList = () => {
           field === 'cif_value' ? value : prev.cif_value,
           field === 'duty_rate' ? value : prev.duty_rate,
           field === 'vat_rate' ? value : prev.vat_rate,
-          field === 'gcc_origin' ? value : prev.gcc_origin
+          field === 'gcc_origin' ? value : prev.gcc_origin,
         );
         updated.duty_amount = calculations.duty_amount;
         updated.vat_amount = calculations.vat_amount;
@@ -369,7 +369,7 @@ const CustomsDocumentList = () => {
         document.id,
         newStatus,
         '',
-        newStatus === 'cleared' ? new Date().toISOString().split('T')[0] : null
+        newStatus === 'cleared' ? new Date().toISOString().split('T')[0] : null,
       );
       setSuccessMessage(`Status updated to ${STATUS_OPTIONS.find(s => s.value === newStatus)?.label}`);
       loadDocuments(pagination.current_page);
@@ -441,7 +441,7 @@ const CustomsDocumentList = () => {
       calculatorData.cif_value,
       calculatorData.gcc_origin ? 0 : calculatorData.duty_rate,
       calculatorData.vat_rate,
-      calculatorData.gcc_origin
+      calculatorData.gcc_origin,
     );
     setCalculatorResults({
       ...results,
@@ -889,8 +889,8 @@ const CustomsDocumentList = () => {
             }`}>
               <h2 className="text-xl font-semibold">
                 {modalMode === 'create' ? 'New Customs Document' :
-                 modalMode === 'edit' ? 'Edit Customs Document' :
-                 'View Customs Document'}
+                  modalMode === 'edit' ? 'Edit Customs Document' :
+                    'View Customs Document'}
               </h2>
               <button onClick={() => setShowModal(false)} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
                 <X size={24} />
@@ -1030,66 +1030,66 @@ const CustomsDocumentList = () => {
                 {/* Certificate of Origin (if GCC) */}
                 {formData.gcc_origin && (
                   <>
-                  <div className="md:col-span-2">
-                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <div className="md:col-span-2">
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Certificate of Origin Reference
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.certificate_of_origin}
-                      onChange={(e) => handleFormChange('certificate_of_origin', e.target.value)}
-                      disabled={modalMode === 'view'}
-                      placeholder="GCC Form D COO number"
-                      className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-                      } ${formErrors.certificate_of_origin ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    />
-                    {formErrors.certificate_of_origin && (
-                      <p className="text-red-500 text-xs mt-1">{formErrors.certificate_of_origin}</p>
-                    )}
-                  </div>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.certificate_of_origin}
+                        onChange={(e) => handleFormChange('certificate_of_origin', e.target.value)}
+                        disabled={modalMode === 'view'}
+                        placeholder="GCC Form D COO number"
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                        } ${formErrors.certificate_of_origin ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                      {formErrors.certificate_of_origin && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.certificate_of_origin}</p>
+                      )}
+                    </div>
 
-                  {/* COO Issue Date */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {/* COO Issue Date */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       COO Issue Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.coo_issue_date}
-                      onChange={(e) => handleFormChange('coo_issue_date', e.target.value)}
-                      disabled={modalMode === 'view'}
-                      className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-                      } ${formErrors.coo_issue_date ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    />
-                    {formErrors.coo_issue_date && (
-                      <p className="text-red-500 text-xs mt-1">{formErrors.coo_issue_date}</p>
-                    )}
-                    {formData.coo_issue_date && !formErrors.coo_issue_date && (
-                      <p className="text-green-500 text-xs mt-1">{validateCooExpiry(formData.coo_issue_date).message}</p>
-                    )}
-                  </div>
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.coo_issue_date}
+                        onChange={(e) => handleFormChange('coo_issue_date', e.target.value)}
+                        disabled={modalMode === 'view'}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                        } ${formErrors.coo_issue_date ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                      {formErrors.coo_issue_date && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.coo_issue_date}</p>
+                      )}
+                      {formData.coo_issue_date && !formErrors.coo_issue_date && (
+                        <p className="text-green-500 text-xs mt-1">{validateCooExpiry(formData.coo_issue_date).message}</p>
+                      )}
+                    </div>
 
-                  {/* Issuing Chamber */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {/* Issuing Chamber */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Issuing Chamber *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.coo_issuing_chamber}
-                      onChange={(e) => handleFormChange('coo_issuing_chamber', e.target.value)}
-                      disabled={modalMode === 'view'}
-                      placeholder="e.g., Dubai Chamber of Commerce"
-                      className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-                      } ${formErrors.coo_issuing_chamber ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    />
-                    {formErrors.coo_issuing_chamber && (
-                      <p className="text-red-500 text-xs mt-1">{formErrors.coo_issuing_chamber}</p>
-                    )}
-                  </div>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.coo_issuing_chamber}
+                        onChange={(e) => handleFormChange('coo_issuing_chamber', e.target.value)}
+                        disabled={modalMode === 'view'}
+                        placeholder="e.g., Dubai Chamber of Commerce"
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                        } ${formErrors.coo_issuing_chamber ? 'border-red-500' : ''} ${modalMode === 'view' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                      {formErrors.coo_issuing_chamber && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.coo_issuing_chamber}</p>
+                      )}
+                    </div>
                   </>
                 )}
 

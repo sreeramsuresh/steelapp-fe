@@ -23,7 +23,7 @@ import {
   Download,
   ExternalLink,
   Info,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 
 
@@ -32,7 +32,7 @@ const VATReturnStatusWidget = ({
   onGenerateReturn = null,
   onViewReturn = null,
   onDownloadReturn = null,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [returnData, setReturnData] = useState(data || null);
@@ -92,7 +92,7 @@ const VATReturnStatusWidget = ({
     return new Date(dateString).toLocaleDateString('en-AE', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 

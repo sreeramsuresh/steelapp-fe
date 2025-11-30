@@ -160,7 +160,7 @@ const VendorBillList = () => {
           totalAmount: acc.totalAmount + (bill.total || 0),
           billCount: acc.billCount + 1,
         }),
-        { totalSubtotal: 0, totalVat: 0, totalAmount: 0, billCount: 0 }
+        { totalSubtotal: 0, totalVat: 0, totalAmount: 0, billCount: 0 },
       );
       setVatSummary(summary);
     } catch (error) {

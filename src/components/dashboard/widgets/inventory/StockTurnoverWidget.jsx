@@ -191,8 +191,8 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
             <strong>{hoveredCell.product}</strong> - {hoveredCell.month}: 
             <span className={`ml-1 font-semibold ${
               hoveredCell.value >= 4 ? 'text-green-500' :
-              hoveredCell.value >= 2 ? 'text-teal-500' :
-              hoveredCell.value >= 1 ? 'text-yellow-500' : 'text-red-500'
+                hoveredCell.value >= 2 ? 'text-teal-500' :
+                  hoveredCell.value >= 1 ? 'text-yellow-500' : 'text-red-500'
             }`}>
               {hoveredCell.value}x ({getTurnoverLabel(hoveredCell.value)})
             </span>

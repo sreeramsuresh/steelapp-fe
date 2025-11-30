@@ -11,7 +11,7 @@ const renderWithTheme = (component, isDarkMode = false) => {
   return render(
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme: vi.fn() }}>
       {component}
-    </ThemeContext.Provider>
+    </ThemeContext.Provider>,
   );
 };
 

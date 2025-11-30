@@ -98,11 +98,11 @@ const transformVendorBillFromServer = (serverData) => {
     // Amounts
     subtotal: parseFloat(serverData.subtotal || 0),
     vatAmount: parseFloat(serverData.vatAmount || 0),
-    total: total,
+    total,
     // Payment tracking
-    amountPaid: amountPaid,
+    amountPaid,
     amountDue: balanceDue,
-    balanceDue: balanceDue,
+    balanceDue,
     // Status - normalize to lowercase for frontend
     status: (serverData.status || 'draft').toLowerCase(),
     approvalStatus: serverData.approvalStatus || 'pending',
@@ -190,7 +190,7 @@ const vendorBillService = {
 
       // Remove undefined params
       Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key]
+        (key) => queryParams[key] === undefined && delete queryParams[key],
       );
 
       const axiosConfig = { ...queryParams };
@@ -404,7 +404,7 @@ const vendorBillService = {
     try {
       const response = await apiClient.post(
         `/vendor-bills/${billId}/payments/${paymentId}/void`,
-        { reason }
+        { reason },
       );
       return transformVendorBillFromServer(response);
     } catch (error) {
@@ -431,7 +431,7 @@ const vendorBillService = {
       };
 
       Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key]
+        (key) => queryParams[key] === undefined && delete queryParams[key],
       );
 
       const response = await apiClient.get('/vendor-bills/vat-summary', queryParams);

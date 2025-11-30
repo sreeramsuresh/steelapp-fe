@@ -100,7 +100,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber, defaultExpanded = true })
       }
       return acc;
     },
-    { totalIn: 0 }
+    { totalIn: 0 },
   );
 
   if (!purchaseOrderId) {

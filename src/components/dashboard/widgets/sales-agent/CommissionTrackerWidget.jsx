@@ -18,7 +18,7 @@ import {
   ChevronRight,
   Zap,
   CheckCircle,
-  Circle
+  Circle,
 } from 'lucide-react';
 
 // Mock commission data for agents
@@ -97,7 +97,7 @@ const CommissionTrackerWidget = ({
   data: propData,
   onRefresh,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [selectedAgentId, setSelectedAgentId] = useState(1);

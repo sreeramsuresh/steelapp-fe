@@ -20,7 +20,7 @@ import {
   ArrowDownRight,
   Calendar,
   Info,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 
 // Mock data for demonstration - replace with actual API calls
@@ -45,14 +45,14 @@ const mockVATData = {
     outputVAT: 485250.00,
     inputVAT: 342180.50,
     netVAT: 143069.50,
-  }
+  },
 };
 
 const VATCollectionWidget = ({ 
   data = null, 
   onRefresh = null,
   onViewDetails = null,
-  isLoading = false 
+  isLoading = false, 
 }) => {
   const { isDarkMode } = useTheme();
   const [selectedPeriod, setSelectedPeriod] = useState('current');
@@ -249,7 +249,7 @@ const VATCollectionWidget = ({
               Payment Due: {new Date(currentData.dueDate).toLocaleDateString('en-AE', {
                 day: '2-digit',
                 month: 'short',
-                year: 'numeric'
+                year: 'numeric',
               })}
             </span>
           </div>

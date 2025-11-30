@@ -287,7 +287,7 @@ const DebitNoteForm = () => {
     }
 
     const validItems = debitNote.items.filter(
-      (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+      (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
     );
     if (validItems.length === 0) {
       errors.push('At least one valid line item is required');
@@ -309,7 +309,7 @@ const DebitNoteForm = () => {
 
       // Filter valid items only
       const validItems = debitNote.items.filter(
-        (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+        (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
       );
 
       const debitNoteData = {

@@ -141,7 +141,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
                 className="h-full rounded transition-all duration-500 group-hover:opacity-80 flex items-center justify-end pr-2"
                 style={{
                   width: `${Math.max(widthPercent, 5)}%`,
-                  backgroundColor: item.color || `hsl(${index * 60}, 70%, 50%)`
+                  backgroundColor: item.color || `hsl(${index * 60}, 70%, 50%)`,
                 }}
               >
                 {item.percentage && widthPercent > 15 && (
@@ -168,13 +168,13 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
         ...item,
         startPercent,
         endPercent: cumulativePercent,
-        color: item.color || `hsl(${index * 60}, 70%, 50%)`
+        color: item.color || `hsl(${index * 60}, 70%, 50%)`,
       };
     });
 
     // Create conic gradient
     const gradientStops = segments.map(seg =>
-      `${seg.color} ${seg.startPercent}% ${seg.endPercent}%`
+      `${seg.color} ${seg.startPercent}% ${seg.endPercent}%`,
     ).join(', ');
 
     return (
@@ -186,7 +186,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
             background: `conic-gradient(${gradientStops})`,
             boxShadow: isDarkMode
               ? 'inset 0 0 0 3px rgba(30, 35, 40, 1)'
-              : 'inset 0 0 0 3px rgba(255, 255, 255, 1)'
+              : 'inset 0 0 0 3px rgba(255, 255, 255, 1)',
           }}
         >
           {/* Center hole for donut effect */}
@@ -263,7 +263,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
           {[
             { key: 'category', label: 'Category' },
             { key: 'segment', label: 'Segment' },
-            { key: 'period', label: 'Period' }
+            { key: 'period', label: 'Period' },
           ].map((option) => (
             <button
               key={option.key}

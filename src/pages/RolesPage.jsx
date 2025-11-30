@@ -55,7 +55,7 @@ export default function RolesPage() {
       setRoles(data || []);
       setError(null);
     } catch (err) {
-      setError('Failed to load roles: ' + err.message);
+      setError(`Failed to load roles: ${  err.message}`);
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export default function RolesPage() {
       handleCloseDialog();
       loadRoles();
     } catch (err) {
-      setError('Failed to save role: ' + err.message);
+      setError(`Failed to save role: ${  err.message}`);
     }
   };
 
@@ -112,7 +112,7 @@ export default function RolesPage() {
       await roleService.deleteRole(roleId);
       loadRoles();
     } catch (err) {
-      setError('Failed to delete role: ' + err.message);
+      setError(`Failed to delete role: ${  err.message}`);
     }
   };
 

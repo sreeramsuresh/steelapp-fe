@@ -98,11 +98,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
         setTestResult(
           response.integration.last_test_at
             ? {
-                success: response.integration.last_test_success,
-                message: response.integration.last_test_message,
-                tested_at: response.integration.last_test_at,
-              }
-            : null
+              success: response.integration.last_test_success,
+              message: response.integration.last_test_message,
+              tested_at: response.integration.last_test_at,
+            }
+            : null,
         );
       } else {
         setIntegration(null);
@@ -332,28 +332,28 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       label: 'Connected',
       icon: CheckCircle,
       iconBg: 'bg-green-500',
-      description: 'Working, all good'
+      description: 'Working, all good',
     },
     {
       key: 'failed',
       label: 'Connection Failed',
       icon: XCircle,
       iconBg: 'bg-red-500',
-      description: 'Error, needs attention'
+      description: 'Error, needs attention',
     },
     {
       key: 'not_configured',
       label: 'Not Configured',
       icon: Circle,
       iconBg: 'bg-gray-400',
-      description: 'Neutral, not set up yet'
+      description: 'Neutral, not set up yet',
     },
     {
       key: 'not_tested',
       label: 'Not Tested',
       icon: AlertCircle,
       iconBg: 'bg-amber-500',
-      description: 'Warning, needs testing'
+      description: 'Warning, needs testing',
     },
   ];
 
@@ -585,8 +585,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                               ? 'bg-green-900/30 border border-green-700'
                               : 'bg-green-50 border border-green-200'
                             : isDarkMode
-                            ? 'bg-red-900/30 border border-red-700'
-                            : 'bg-red-50 border border-red-200'
+                              ? 'bg-red-900/30 border border-red-700'
+                              : 'bg-red-50 border border-red-200'
                         }`}
                       >
                         <div className="flex items-start gap-2">
@@ -802,8 +802,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                                 entry.action === 'tested' && entry.action_details?.success
                                   ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
                                   : entry.action === 'tested'
-                                  ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                  : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+                                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
                               }`}>
                                 {entry.action === 'tested' ? (
                                   entry.action_details?.success ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />

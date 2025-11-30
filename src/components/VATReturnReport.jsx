@@ -82,7 +82,7 @@ const VATReturnReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [customDates, setCustomDates] = useState({
     startDate: '',
-    endDate: ''
+    endDate: '',
   });
 
   // Enhanced data state
@@ -129,7 +129,7 @@ const VATReturnReport = () => {
           setSelectedPeriod(latestPeriod);
           setCustomDates({
             startDate: formatDateForInput(latestPeriod.periodStart),
-            endDate: formatDateForInput(latestPeriod.periodEnd)
+            endDate: formatDateForInput(latestPeriod.periodEnd),
           });
         }
       }
@@ -160,7 +160,7 @@ const VATReturnReport = () => {
         try {
           const vendorSummary = await vendorBillService.getVATSummary({
             startDate: vatReturnData.periodStart,
-            endDate: vatReturnData.periodEnd
+            endDate: vatReturnData.periodEnd,
           });
           setVendorBillSummary(vendorSummary?.categories || []);
         } catch (err) {
@@ -171,7 +171,7 @@ const VATReturnReport = () => {
         try {
           const { data: advances } = await advancePaymentService.getAll({
             startDate: vatReturnData.periodStart,
-            endDate: vatReturnData.periodEnd
+            endDate: vatReturnData.periodEnd,
           });
           setAdvancePayments(advances || []);
         } catch (err) {
@@ -182,7 +182,7 @@ const VATReturnReport = () => {
         try {
           const blockedLog = await vatReturnService.getBlockedVATLog({
             startDate: vatReturnData.periodStart,
-            endDate: vatReturnData.periodEnd
+            endDate: vatReturnData.periodEnd,
           });
           setBlockedVatLog(blockedLog?.entries || []);
         } catch (err) {
@@ -224,8 +224,8 @@ const VATReturnReport = () => {
       const response = await api.get('/vat-return/generate', {
         params: {
           startDate: customDates.startDate,
-          endDate: customDates.endDate
-        }
+          endDate: customDates.endDate,
+        },
       });
 
       // api.get() returns response.data directly, so check response.success (not response.data.success)
@@ -236,7 +236,7 @@ const VATReturnReport = () => {
         try {
           const vendorSummary = await vendorBillService.getVATSummary({
             startDate: customDates.startDate,
-            endDate: customDates.endDate
+            endDate: customDates.endDate,
           });
           setVendorBillSummary(vendorSummary?.categories || []);
         } catch (err) {
@@ -246,7 +246,7 @@ const VATReturnReport = () => {
         try {
           const { data: advances } = await advancePaymentService.getAll({
             startDate: customDates.startDate,
-            endDate: customDates.endDate
+            endDate: customDates.endDate,
           });
           setAdvancePayments(advances || []);
         } catch (err) {
@@ -300,7 +300,7 @@ const VATReturnReport = () => {
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -393,7 +393,7 @@ const VATReturnReport = () => {
                   setSelectedPeriod(period);
                   setCustomDates({
                     startDate: formatDateForInput(period.periodStart),
-                    endDate: formatDateForInput(period.periodEnd)
+                    endDate: formatDateForInput(period.periodEnd),
                   });
                 }
               }}
@@ -586,9 +586,9 @@ const VATReturnReport = () => {
                       >
                         <p className={labelClass}>
                           {emirate === 'abuDhabi' ? 'Abu Dhabi' :
-                           emirate === 'ummAlQuwain' ? 'Umm Al Quwain' :
-                           emirate === 'rasAlKhaimah' ? 'Ras Al Khaimah' :
-                           emirate.charAt(0).toUpperCase() + emirate.slice(1)}
+                            emirate === 'ummAlQuwain' ? 'Umm Al Quwain' :
+                              emirate === 'rasAlKhaimah' ? 'Ras Al Khaimah' :
+                                emirate.charAt(0).toUpperCase() + emirate.slice(1)}
                         </p>
                         <p className={`${valueClass} ${data.vat > 0 ? 'text-green-600' : ''}`}>
                           {formatCurrency(data.vat)}

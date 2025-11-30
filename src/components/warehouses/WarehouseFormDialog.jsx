@@ -145,9 +145,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const inputClass = (hasError) => `
     w-full px-3 py-2 rounded-lg border
     ${isDarkMode
-      ? `bg-[#121418] border-${hasError ? 'red-500' : 'gray-600'} text-white placeholder-gray-500`
-      : `bg-white border-${hasError ? 'red-500' : 'gray-300'} text-gray-900 placeholder-gray-400`
-    }
+    ? `bg-[#121418] border-${hasError ? 'red-500' : 'gray-600'} text-white placeholder-gray-500`
+    : `bg-white border-${hasError ? 'red-500' : 'gray-300'} text-gray-900 placeholder-gray-400`
+}
     focus:outline-none focus:ring-2 focus:ring-teal-500
   `;
 

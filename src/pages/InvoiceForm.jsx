@@ -4189,7 +4189,7 @@ const InvoiceForm = ({ onSave }) => {
                     (invoice.freightChargesVat || 0) +
                     (invoice.insuranceChargesVat || 0) +
                     (invoice.loadingChargesVat || 0) +
-                    (invoice.otherChargesVat || 0)
+                    (invoice.otherChargesVat || 0),
                   )}
                 </div>
                 {invoice.isExport && (

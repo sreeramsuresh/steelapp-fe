@@ -24,7 +24,7 @@ import {
   Info,
   ChevronRight,
   ExternalLink,
-  Package
+  Package,
 } from 'lucide-react';
 
 
@@ -33,7 +33,7 @@ const ZeroRatedExportsWidget = ({
   onViewExport = null,
   onUploadDocument = null,
   onViewAll = null,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [exportData, setExportData] = useState(data || null);
@@ -177,7 +177,7 @@ const ZeroRatedExportsWidget = ({
         <div className={`p-2.5 rounded-lg text-center ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}>
           <p className={`text-lg font-bold ${
             exportData.summary.compliancePercentage >= 90 ? 'text-green-500' :
-            exportData.summary.compliancePercentage >= 70 ? 'text-yellow-500' : 'text-red-500'
+              exportData.summary.compliancePercentage >= 70 ? 'text-yellow-500' : 'text-red-500'
           }`}>
             {exportData.summary.compliancePercentage.toFixed(0)}%
           </p>
@@ -268,7 +268,7 @@ const ZeroRatedExportsWidget = ({
                 {exp.status !== 'complete' && exp.daysRemaining !== null && (
                   <div className={`mt-2 text-xs ${
                     exp.daysRemaining < 0 ? 'text-red-500' :
-                    exp.daysRemaining < 30 ? 'text-yellow-500' : 'text-green-500'
+                      exp.daysRemaining < 30 ? 'text-yellow-500' : 'text-green-500'
                   }`}>
                     {exp.daysRemaining < 0 
                       ? `${Math.abs(exp.daysRemaining)} days overdue`

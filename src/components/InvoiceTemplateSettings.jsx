@@ -296,7 +296,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           id: selectedTemplateId,
           name: baseTemplate.name,
           colors: finalColors,
-          settings: settings,  // Advanced settings (layout, typography, etc.)
+          settings,  // Advanced settings (layout, typography, etc.)
         },
         documentTemplates,
       });

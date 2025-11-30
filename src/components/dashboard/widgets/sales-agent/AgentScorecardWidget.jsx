@@ -17,7 +17,7 @@ import {
   Info,
   RefreshCw,
   ChevronDown,
-  User
+  User,
 } from 'lucide-react';
 
 // Mock data for sales agents
@@ -94,7 +94,7 @@ const AgentScorecardWidget = ({
   data: propData,
   onRefresh,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [selectedAgentId, setSelectedAgentId] = useState(1);
@@ -267,9 +267,9 @@ const AgentScorecardWidget = ({
         <div className="flex items-center gap-3 mb-3">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
             selectedAgent.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-            selectedAgent.rank === 2 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
-            selectedAgent.rank === 3 ? 'bg-gradient-to-br from-amber-500 to-amber-700' :
-            'bg-gradient-to-br from-teal-500 to-teal-600'
+              selectedAgent.rank === 2 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
+                selectedAgent.rank === 3 ? 'bg-gradient-to-br from-amber-500 to-amber-700' :
+                  'bg-gradient-to-br from-teal-500 to-teal-600'
           }`}>
             {selectedAgent.avatar}
           </div>
@@ -289,8 +289,8 @@ const AgentScorecardWidget = ({
           <div className="text-right">
             <p className={`text-2xl font-bold ${
               parseFloat(achievementPercent) >= 100 ? 'text-green-500' :
-              parseFloat(achievementPercent) >= 80 ? 'text-teal-500' :
-              parseFloat(achievementPercent) >= 60 ? 'text-yellow-500' : 'text-red-500'
+                parseFloat(achievementPercent) >= 80 ? 'text-teal-500' :
+                  parseFloat(achievementPercent) >= 60 ? 'text-yellow-500' : 'text-red-500'
             }`}>
               {achievementPercent}%
             </p>

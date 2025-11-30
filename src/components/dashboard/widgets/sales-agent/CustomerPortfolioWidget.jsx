@@ -16,7 +16,7 @@ import {
   RefreshCw,
   PieChart,
   TrendingUp,
-  Briefcase
+  Briefcase,
 } from 'lucide-react';
 
 // Mock portfolio data
@@ -61,7 +61,7 @@ const CustomerPortfolioWidget = ({
   data: propData,
   onRefresh,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [selectedAgentId, setSelectedAgentId] = useState(1);
@@ -232,7 +232,7 @@ const CustomerPortfolioWidget = ({
             </p>
             <p className={`text-lg font-bold ${
               summary.top3Concentration > 50 ? 'text-red-500' :
-              summary.top3Concentration > 30 ? 'text-yellow-500' : 'text-green-500'
+                summary.top3Concentration > 30 ? 'text-yellow-500' : 'text-green-500'
             }`}>
               {summary.top3Concentration}%
             </p>
@@ -266,8 +266,8 @@ const CustomerPortfolioWidget = ({
             <div key={customer.id} className="flex items-center gap-2">
               <span className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold ${
                 idx === 0 ? 'bg-yellow-500 text-white' :
-                idx === 1 ? 'bg-gray-400 text-white' :
-                'bg-amber-600 text-white'
+                  idx === 1 ? 'bg-gray-400 text-white' :
+                    'bg-amber-600 text-white'
               }`}>
                 {idx + 1}
               </span>
@@ -315,7 +315,7 @@ const CustomerPortfolioWidget = ({
                     d={`M 32 32 L ${startX} ${startY} A 24 24 0 ${largeArc} 1 ${endX} ${endY} Z`}
                     fill={segment.color}
                     className="transition-all duration-300 hover:opacity-80"
-                  />
+                  />,
                 );
                 acc.angle = endAngle;
                 return acc;

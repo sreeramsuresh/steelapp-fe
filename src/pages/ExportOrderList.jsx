@@ -12,7 +12,7 @@ import {
   Globe,
   ChevronUp,
   ChevronDown,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { exportOrderService } from '../services/exportOrderService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -115,7 +115,7 @@ const ExportOrderList = () => {
         sort_by: sortConfig.key,
         sort_order: sortConfig.direction,
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== '')
+          Object.entries(filters).filter(([_, v]) => v !== ''),
         ),
       };
 
@@ -224,7 +224,7 @@ const ExportOrderList = () => {
     setSelectedOrders(prev =>
       prev.includes(orderId)
         ? prev.filter(id => id !== orderId)
-        : [...prev, orderId]
+        : [...prev, orderId],
     );
   };
 

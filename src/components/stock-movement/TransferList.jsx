@@ -128,7 +128,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           (t.transferNumber && t.transferNumber.toLowerCase().includes(query)) ||
           (t.sourceWarehouseName && t.sourceWarehouseName.toLowerCase().includes(query)) ||
           (t.destinationWarehouseName && t.destinationWarehouseName.toLowerCase().includes(query)) ||
-          (t.notes && t.notes.toLowerCase().includes(query))
+          (t.notes && t.notes.toLowerCase().includes(query)),
         );
       }
 

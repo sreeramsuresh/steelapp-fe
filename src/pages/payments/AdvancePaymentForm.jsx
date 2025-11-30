@@ -186,7 +186,7 @@ const AdvancePaymentForm = () => {
       setPayment((prev) => ({
         ...prev,
         customerId: customer.id,
-        customer: customer,
+        customer,
       }));
     } catch (error) {
       console.error('Error loading customer:', error);
@@ -244,7 +244,7 @@ const AdvancePaymentForm = () => {
     setPayment((prev) => ({
       ...prev,
       customerId: customer.id,
-      customer: customer,
+      customer,
     }));
     setCustomerSearch('');
     setShowCustomerDropdown(false);
@@ -325,7 +325,7 @@ const AdvancePaymentForm = () => {
       (c) =>
         c.name?.toLowerCase().includes(search) ||
         c.email?.toLowerCase().includes(search) ||
-        c.trn?.includes(search)
+        c.trn?.includes(search),
     ).slice(0, 10);
   }, [customers, customerSearch]);
 

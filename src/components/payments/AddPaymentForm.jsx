@@ -34,7 +34,7 @@ const AddPaymentForm = ({
   onSave,
   isSaving = false,
   entityType = 'invoice',
-  defaultCurrency = 'AED'
+  defaultCurrency = 'AED',
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
@@ -86,9 +86,9 @@ const AddPaymentForm = ({
       notes,
       paymentDate: date,
       // Multi-currency fields (Phase 1 Enhancement)
-      currency: currency,
+      currency,
       exchangeRate: isForeignCurrency ? parseFloat(exchangeRate) : 1.0,
-      amountInAed: amountInAed,
+      amountInAed,
     };
 
     onSave(paymentData);

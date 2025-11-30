@@ -32,7 +32,7 @@ class WidgetErrorBoundary extends Component {
     console.error(
       `[Widget Error] ${this.props.widgetName || 'Unknown Widget'} crashed:`,
       error,
-      errorInfo
+      errorInfo,
     );
 
     this.setState({ errorInfo });

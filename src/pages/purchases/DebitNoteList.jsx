@@ -141,7 +141,7 @@ const DebitNoteList = () => {
           totalDebit: acc.totalDebit + (note.totalDebit || 0),
           totalVat: acc.totalVat + (note.vatAmount || 0),
         }),
-        { totalDebitNotes: 0, totalDebit: 0, totalVat: 0 }
+        { totalDebitNotes: 0, totalDebit: 0, totalVat: 0 },
       );
       setSummary(summaryData);
     } catch (error) {

@@ -214,19 +214,19 @@ const DashboardV2 = () => {
       const newStats = {
         totalRevenue: parseFloat(
           dashboard?.metrics?.totalRevenue ||
-          dashboard?.revenueMetrics?.totalRevenue
+          dashboard?.revenueMetrics?.totalRevenue,
         ) || 0,
         totalCustomers: parseInt(
           dashboard?.metrics?.totalCustomers ||
-          dashboard?.customerMetrics?.totalCustomers
+          dashboard?.customerMetrics?.totalCustomers,
         ) || 0,
         totalProducts: parseInt(
           dashboard?.metrics?.totalProducts ||
-          dashboard?.productMetrics?.totalProducts
+          dashboard?.productMetrics?.totalProducts,
         ) || 0,
         totalInvoices: parseInt(
           dashboard?.metrics?.totalOrders ||
-          dashboard?.revenueMetrics?.totalInvoices
+          dashboard?.revenueMetrics?.totalInvoices,
         ) || 0,
         revenueChange: 0,
         customersChange: 0,
@@ -360,7 +360,7 @@ const DashboardV2 = () => {
           ...prev,
           vatMetrics: {
             currentQuarter: {
-              period: vatMetrics.currentPeriod?.quarter + ' ' + vatMetrics.currentPeriod?.year,
+              period: `${vatMetrics.currentPeriod?.quarter  } ${  vatMetrics.currentPeriod?.year}`,
               periodStart: vatMetrics.currentPeriod?.startDate,
               periodEnd: vatMetrics.currentPeriod?.endDate,
               outputVAT: vatMetrics.collection?.outputVAT || 0,
@@ -395,7 +395,7 @@ const DashboardV2 = () => {
                 totalVAT: h.netPayable || h.totalVAT || 0,
               })) || [],
               nextFiling: {
-                quarter: vatMetrics.currentPeriod?.quarter + ' ' + vatMetrics.currentPeriod?.year,
+                quarter: `${vatMetrics.currentPeriod?.quarter  } ${  vatMetrics.currentPeriod?.year}`,
                 dueDate: vatMetrics.returnStatus?.dueDate,
                 daysRemaining: vatMetrics.returnStatus?.daysRemaining || 30,
               },

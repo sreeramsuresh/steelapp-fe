@@ -3,7 +3,7 @@ import {
   Plus, Search, Filter, Eye, Edit, Trash2,
   Ship, Plane, Package, FileText, Truck,
   MapPin, Calendar, Clock, ArrowRight,
-  X, Check, AlertCircle, RefreshCw, Download
+  X, Check, AlertCircle, RefreshCw, Download,
 } from 'lucide-react';
 import { shippingDocumentService } from '../services/shippingDocumentService';
 import { importOrderService } from '../services/importOrderService';
@@ -132,7 +132,7 @@ const ShippingDocumentList = () => {
         page,
         limit: pagination.per_page,
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== '')
+          Object.entries(filters).filter(([_, v]) => v !== ''),
         ),
       };
 

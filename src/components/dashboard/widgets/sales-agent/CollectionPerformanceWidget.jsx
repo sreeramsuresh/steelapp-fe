@@ -16,7 +16,7 @@ import {
   TrendingDown,
   Info,
   RefreshCw,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 
 // Mock collection data for agents
@@ -64,7 +64,7 @@ const CollectionPerformanceWidget = ({
   data: propData,
   onRefresh,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [selectedAgentId, setSelectedAgentId] = useState(1);
@@ -251,7 +251,7 @@ const CollectionPerformanceWidget = ({
           <div className="flex items-end justify-between">
             <p className={`text-2xl font-bold ${
               summary.dso <= 30 ? 'text-green-500' :
-              summary.dso <= 45 ? 'text-yellow-500' : 'text-red-500'
+                summary.dso <= 45 ? 'text-yellow-500' : 'text-red-500'
             }`}>
               {summary.dso}
             </p>

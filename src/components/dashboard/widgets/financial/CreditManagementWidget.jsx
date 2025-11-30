@@ -9,7 +9,7 @@ import {
   Info,
   TrendingUp,
   TrendingDown,
-  Users
+  Users,
 } from 'lucide-react';
 
 const CreditManagementWidget = ({ data: propData, onRefresh }) => {

@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   CheckCircle,
   RefreshCw,
-  Info
+  Info,
 } from 'lucide-react';
 
 // Mock data for Financial KPIs

@@ -6,7 +6,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
-  Info
+  Info,
 } from 'lucide-react';
 
 const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading }) => {

@@ -777,7 +777,7 @@ const ImportOrderForm = () => {
 
     // Validate line items
     const hasValidItem = order.items.some(item =>
-      item.product_name && parseFloat(item.quantity) > 0 && parseFloat(item.unit_price) > 0
+      item.product_name && parseFloat(item.quantity) > 0 && parseFloat(item.unit_price) > 0,
     );
 
     if (!hasValidItem) {

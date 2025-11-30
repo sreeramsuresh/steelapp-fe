@@ -226,7 +226,7 @@ const ImportOrderDetails = () => {
     if (!amount && amount !== 0) return 'N/A';
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: currency,
+      currency,
       minimumFractionDigits: 2,
     }).format(amount);
   };

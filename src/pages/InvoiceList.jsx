@@ -557,7 +557,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     if (openPaymentId && invoices.length > 0 && !showRecordPaymentDrawer) {
       // Find the invoice in the loaded list
       const invoiceToOpen = invoices.find(inv =>
-        String(inv.id) === String(openPaymentId)
+        String(inv.id) === String(openPaymentId),
       );
 
       if (invoiceToOpen) {
@@ -576,7 +576,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         // Clear the query param from URL to prevent re-opening on refresh
         const newParams = new URLSearchParams(searchParams);
         newParams.delete('openPayment');
-        window.history.replaceState({}, '', `${window.location.pathname}${newParams.toString() ? '?' + newParams.toString() : ''}`);
+        window.history.replaceState({}, '', `${window.location.pathname}${newParams.toString() ? `?${  newParams.toString()}` : ''}`);
       }
     }
   }, [searchParams, invoices, showRecordPaymentDrawer]);
@@ -1192,12 +1192,12 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     const updatedPayments = inv.payments.map(p =>
       p.id === paymentId
         ? {
-            ...p,
-            voided: true,
-            voided_at: new Date().toISOString(),
-            void_reason: reason,
-            voided_by: voidedBy,
-          }
+          ...p,
+          voided: true,
+          voided_at: new Date().toISOString(),
+          void_reason: reason,
+          voided_by: voidedBy,
+        }
         : p,
     );
     const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
@@ -2841,189 +2841,189 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                         })
                         .map((p, idx) => {
                         // Normalize payment method from various field names and formats
-                        const methodValue = p.paymentMethod || p.payment_method || p.method || '';
-                        // Strip PAYMENT_METHOD_ prefix from proto enum and normalize
-                        const normalizedMethod = String(methodValue)
-                          .replace(/^PAYMENT_METHOD_/i, '')
-                          .toLowerCase()
-                          .trim()
-                          .replace(/\s+/g, '_');
-                        const paymentMode = PAYMENT_MODES[normalizedMethod] || PAYMENT_MODES.other;
-                        const isVoided = p.voided || p.voidedAt || p.voided_at;
-                        const voidReason = p.voidReason || p.void_reason;
-                        const voidedBy = p.voidedBy || p.voided_by;
-                        const voidedAt = p.voidedAt || p.voided_at;
-                        const isDropdownOpen = voidDropdownPaymentId === p.id;
+                          const methodValue = p.paymentMethod || p.payment_method || p.method || '';
+                          // Strip PAYMENT_METHOD_ prefix from proto enum and normalize
+                          const normalizedMethod = String(methodValue)
+                            .replace(/^PAYMENT_METHOD_/i, '')
+                            .toLowerCase()
+                            .trim()
+                            .replace(/\s+/g, '_');
+                          const paymentMode = PAYMENT_MODES[normalizedMethod] || PAYMENT_MODES.other;
+                          const isVoided = p.voided || p.voidedAt || p.voided_at;
+                          const voidReason = p.voidReason || p.void_reason;
+                          const voidedBy = p.voidedBy || p.voided_by;
+                          const voidedAt = p.voidedAt || p.voided_at;
+                          const isDropdownOpen = voidDropdownPaymentId === p.id;
 
-                        return (
-                          <div key={p.id || idx} className={`${
-                            isDarkMode ? 'bg-gray-900/50' : 'bg-white'
-                          } ${isVoided ? 'opacity-70' : ''}`}>
-                            {/* Main Payment Row */}
-                            <div className="grid grid-cols-12 gap-2 px-3 py-3 items-center text-sm">
-                              {/* Date */}
-                              <div className={`col-span-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                {formatDate(p.paymentDate || p.payment_date)}
-                              </div>
+                          return (
+                            <div key={p.id || idx} className={`${
+                              isDarkMode ? 'bg-gray-900/50' : 'bg-white'
+                            } ${isVoided ? 'opacity-70' : ''}`}>
+                              {/* Main Payment Row */}
+                              <div className="grid grid-cols-12 gap-2 px-3 py-3 items-center text-sm">
+                                {/* Date */}
+                                <div className={`col-span-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  {formatDate(p.paymentDate || p.payment_date)}
+                                </div>
 
-                              {/* Method with Icon */}
-                              <div className={`col-span-3 flex items-center gap-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                <span>{paymentMode.icon}</span>
-                                <span className="truncate">{paymentMode.label}</span>
-                              </div>
+                                {/* Method with Icon */}
+                                <div className={`col-span-3 flex items-center gap-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  <span>{paymentMode.icon}</span>
+                                  <span className="truncate">{paymentMode.label}</span>
+                                </div>
 
-                              {/* Reference */}
-                              <div className={`col-span-2 truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {p.referenceNo || p.referenceNumber || p.reference_no || '-'}
-                              </div>
+                                {/* Reference */}
+                                <div className={`col-span-2 truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  {p.referenceNo || p.referenceNumber || p.reference_no || '-'}
+                                </div>
 
-                              {/* Amount */}
-                              <div className={`col-span-3 text-right font-medium ${
-                                isVoided
-                                  ? 'line-through text-gray-400'
-                                  : isDarkMode ? 'text-green-400' : 'text-green-600'
-                              }`}>
-                                {formatCurrency(p.amount || 0)}
-                              </div>
-
-                              {/* Action Column */}
-                              <div className="col-span-2 flex justify-center relative">
-                                {isVoided ? (
-                                  <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
-                                    isDarkMode ? 'bg-red-900/50 text-red-400' : 'bg-red-100 text-red-700'
-                                  }`}>
-                                    VOIDED
-                                  </span>
-                                ) : (
-                                  <>
-                                    <button
-                                      onClick={() => {
-                                        setVoidDropdownPaymentId(isDropdownOpen ? null : p.id);
-                                        setVoidCustomReason('');
-                                      }}
-                                      disabled={isVoidingPayment}
-                                      className={`p-1.5 rounded transition-colors ${
-                                        isDarkMode
-                                          ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30'
-                                          : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
-                                      } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                      title="Void payment"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-
-                                    {/* Void Reason Dropdown - z-[9999] to appear above drawer (z-[1100]) */}
-                                    {isDropdownOpen && (
-                                      <div
-                                        className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
-                                          isDarkMode
-                                            ? 'bg-gray-800 border-gray-700'
-                                            : 'bg-white border-gray-200'
-                                        }`}
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <div className={`px-3 py-2 text-xs font-semibold border-b ${
-                                          isDarkMode ? 'text-gray-400 border-gray-700' : 'text-gray-500 border-gray-200'
-                                        }`}>
-                                          Select void reason
-                                        </div>
-                                        <div className="py-1">
-                                          {VOID_REASONS.map((reason) => (
-                                            <button
-                                              key={reason.value}
-                                              onClick={() => handleSelectVoidReason(p.id, reason.value)}
-                                              disabled={isVoidingPayment}
-                                              className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                                                isDarkMode
-                                                  ? 'text-gray-300 hover:bg-gray-700'
-                                                  : 'text-gray-700 hover:bg-gray-100'
-                                              } ${isVoidingPayment ? 'opacity-50' : ''}`}
-                                            >
-                                              {reason.label}
-                                            </button>
-                                          ))}
-                                        </div>
-
-                                        {/* Custom reason input (shown when "Other" would be selected) */}
-                                        <div className={`px-3 py-2 border-t ${
-                                          isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                                        }`}>
-                                          <input
-                                            type="text"
-                                            value={voidCustomReason}
-                                            onChange={(e) => setVoidCustomReason(e.target.value)}
-                                            placeholder="Or type custom reason..."
-                                            className={`w-full px-2 py-1.5 text-sm rounded border ${
-                                              isDarkMode
-                                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-                                            }`}
-                                            onKeyDown={(e) => {
-                                              if (e.key === 'Enter' && voidCustomReason.trim()) {
-                                                handleSubmitCustomVoidReason(p.id);
-                                              }
-                                            }}
-                                          />
-                                          {voidCustomReason.trim() && (
-                                            <button
-                                              onClick={() => handleSubmitCustomVoidReason(p.id)}
-                                              disabled={isVoidingPayment}
-                                              className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                                                isDarkMode
-                                                  ? 'bg-red-600 text-white hover:bg-red-700'
-                                                  : 'bg-red-600 text-white hover:bg-red-700'
-                                              } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            >
-                                              {isVoidingPayment ? 'Voiding...' : 'Void with this reason'}
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Notes Row (if present) */}
-                            {(p.notes || p.receiptNumber) && (
-                              <div className={`px-3 pb-2 -mt-1 ${
-                                isDarkMode ? 'text-gray-500' : 'text-gray-500'
-                              }`}>
-                                {p.receiptNumber && (
-                                  <div className={`text-xs font-semibold ${
-                                    isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                                  }`}>
-                                    Receipt: {p.receiptNumber}
-                                  </div>
-                                )}
-                                {p.notes && (
-                                  <div className="text-xs mt-0.5 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
-                                    {p.notes}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Voided Info Row (if voided) */}
-                            {isVoided && (
-                              <div className={`px-3 pb-2 -mt-1`}>
-                                <div className={`text-xs flex items-center gap-1 ${
-                                  isDarkMode ? 'text-red-400' : 'text-red-600'
+                                {/* Amount */}
+                                <div className={`col-span-3 text-right font-medium ${
+                                  isVoided
+                                    ? 'line-through text-gray-400'
+                                    : isDarkMode ? 'text-green-400' : 'text-green-600'
                                 }`}>
-                                  <AlertCircle size={12} />
-                                  <span>
-                                    Voided: {voidReason || 'No reason provided'}
-                                    {voidedBy && ` (${voidedBy}`}
-                                    {voidedAt && `, ${formatDate(voidedAt)}`}
-                                    {voidedBy && ')'}
-                                  </span>
+                                  {formatCurrency(p.amount || 0)}
+                                </div>
+
+                                {/* Action Column */}
+                                <div className="col-span-2 flex justify-center relative">
+                                  {isVoided ? (
+                                    <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
+                                      isDarkMode ? 'bg-red-900/50 text-red-400' : 'bg-red-100 text-red-700'
+                                    }`}>
+                                    VOIDED
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          setVoidDropdownPaymentId(isDropdownOpen ? null : p.id);
+                                          setVoidCustomReason('');
+                                        }}
+                                        disabled={isVoidingPayment}
+                                        className={`p-1.5 rounded transition-colors ${
+                                          isDarkMode
+                                            ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30'
+                                            : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+                                        } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        title="Void payment"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+
+                                      {/* Void Reason Dropdown - z-[9999] to appear above drawer (z-[1100]) */}
+                                      {isDropdownOpen && (
+                                        <div
+                                          className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
+                                            isDarkMode
+                                              ? 'bg-gray-800 border-gray-700'
+                                              : 'bg-white border-gray-200'
+                                          }`}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <div className={`px-3 py-2 text-xs font-semibold border-b ${
+                                            isDarkMode ? 'text-gray-400 border-gray-700' : 'text-gray-500 border-gray-200'
+                                          }`}>
+                                          Select void reason
+                                          </div>
+                                          <div className="py-1">
+                                            {VOID_REASONS.map((reason) => (
+                                              <button
+                                                key={reason.value}
+                                                onClick={() => handleSelectVoidReason(p.id, reason.value)}
+                                                disabled={isVoidingPayment}
+                                                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                                                  isDarkMode
+                                                    ? 'text-gray-300 hover:bg-gray-700'
+                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                } ${isVoidingPayment ? 'opacity-50' : ''}`}
+                                              >
+                                                {reason.label}
+                                              </button>
+                                            ))}
+                                          </div>
+
+                                          {/* Custom reason input (shown when "Other" would be selected) */}
+                                          <div className={`px-3 py-2 border-t ${
+                                            isDarkMode ? 'border-gray-700' : 'border-gray-200'
+                                          }`}>
+                                            <input
+                                              type="text"
+                                              value={voidCustomReason}
+                                              onChange={(e) => setVoidCustomReason(e.target.value)}
+                                              placeholder="Or type custom reason..."
+                                              className={`w-full px-2 py-1.5 text-sm rounded border ${
+                                                isDarkMode
+                                                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                                              }`}
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && voidCustomReason.trim()) {
+                                                  handleSubmitCustomVoidReason(p.id);
+                                                }
+                                              }}
+                                            />
+                                            {voidCustomReason.trim() && (
+                                              <button
+                                                onClick={() => handleSubmitCustomVoidReason(p.id)}
+                                                disabled={isVoidingPayment}
+                                                className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                                                  isDarkMode
+                                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                                    : 'bg-red-600 text-white hover:bg-red-700'
+                                                } ${isVoidingPayment ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                              >
+                                                {isVoidingPayment ? 'Voiding...' : 'Void with this reason'}
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+
+                              {/* Notes Row (if present) */}
+                              {(p.notes || p.receiptNumber) && (
+                                <div className={`px-3 pb-2 -mt-1 ${
+                                  isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                                }`}>
+                                  {p.receiptNumber && (
+                                    <div className={`text-xs font-semibold ${
+                                      isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                                    }`}>
+                                    Receipt: {p.receiptNumber}
+                                    </div>
+                                  )}
+                                  {p.notes && (
+                                    <div className="text-xs mt-0.5 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                      {p.notes}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Voided Info Row (if voided) */}
+                              {isVoided && (
+                                <div className={`px-3 pb-2 -mt-1`}>
+                                  <div className={`text-xs flex items-center gap-1 ${
+                                    isDarkMode ? 'text-red-400' : 'text-red-600'
+                                  }`}>
+                                    <AlertCircle size={12} />
+                                    <span>
+                                    Voided: {voidReason || 'No reason provided'}
+                                      {voidedBy && ` (${voidedBy}`}
+                                      {voidedAt && `, ${formatDate(voidedAt)}`}
+                                      {voidedBy && ')'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 )}

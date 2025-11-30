@@ -264,7 +264,7 @@ const StockReceiptForm = ({
         purchaseOrderId,
         selectedWarehouseId,
         itemsToReceive,
-        notes
+        notes,
       );
 
       if (result.success || result.totalCreated > 0) {
@@ -304,7 +304,7 @@ const StockReceiptForm = ({
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { maxHeight: '90vh' }
+        sx: { maxHeight: '90vh' },
       }}
     >
       <DialogTitle>

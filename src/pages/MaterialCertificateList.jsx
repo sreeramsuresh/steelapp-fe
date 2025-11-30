@@ -4,7 +4,7 @@ import {
   FileText, X, Check, AlertCircle, RefreshCw,
   ChevronDown, ChevronUp, Upload, Download,
   Award, Shield, CheckCircle, XCircle, Clock,
-  Beaker, Activity, FileCheck
+  Beaker, Activity, FileCheck,
 } from 'lucide-react';
 import { materialCertificateService } from '../services/materialCertificateService';
 import { importOrderService } from '../services/importOrderService';
@@ -145,7 +145,7 @@ const MaterialCertificateList = () => {
         page,
         limit: pagination.per_page,
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== '')
+          Object.entries(filters).filter(([_, v]) => v !== ''),
         ),
       };
 

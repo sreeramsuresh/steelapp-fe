@@ -20,7 +20,7 @@ import {
   Award,
   Handshake,
   Megaphone,
-  Building2
+  Building2,
 } from 'lucide-react';
 
 // Mock new customer data
@@ -93,7 +93,7 @@ const NewCustomerWidget = ({
   onRefresh,
   onViewCustomer,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [customerData, setCustomerData] = useState(propData || MOCK_NEW_CUSTOMER_DATA);
@@ -259,7 +259,7 @@ const NewCustomerWidget = ({
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 parseInt(targetPercent) >= 100 ? 'bg-green-500' :
-                parseInt(targetPercent) >= 70 ? 'bg-teal-500' : 'bg-yellow-500'
+                  parseInt(targetPercent) >= 70 ? 'bg-teal-500' : 'bg-yellow-500'
               }`}
               style={{ width: `${Math.min(parseInt(targetPercent), 100)}%` }}
             />

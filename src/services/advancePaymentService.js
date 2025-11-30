@@ -149,7 +149,7 @@ const advancePaymentService = {
       };
 
       Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key]
+        (key) => queryParams[key] === undefined && delete queryParams[key],
       );
 
       const axiosConfig = { ...queryParams };

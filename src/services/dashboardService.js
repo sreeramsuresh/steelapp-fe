@@ -150,7 +150,7 @@ const prefetchAdjacentTabs = (currentTab) => {
 
     // Prefetch adjacent tabs (previous and next)
     const adjacentIndices = [currentIndex - 1, currentIndex + 1].filter(
-      (i) => i >= 0 && i < tabOrder.length
+      (i) => i >= 0 && i < tabOrder.length,
     );
 
     adjacentIndices.forEach((index) => {
@@ -286,27 +286,27 @@ export const dashboardService = {
       // API returns: { metrics: { totalRevenue, totalCustomers, totalOrders, ... } }
       const totalRevenue = safeNum(
         dashboardData?.metrics?.totalRevenue ||
-        dashboardData?.revenueMetrics?.totalRevenue
+        dashboardData?.revenueMetrics?.totalRevenue,
       );
       const totalCustomers = parseInt(
         dashboardData?.metrics?.totalCustomers ||
         dashboardData?.customerMetrics?.totalCustomers ||
         customerStats?.pagination?.total ||
         (Array.isArray(customerStats?.customers) ? customerStats.customers.length : 0) ||
-        0
+        0,
       );
       const totalProducts = parseInt(
         dashboardData?.metrics?.totalProducts ||
         dashboardData?.productMetrics?.totalProducts ||
         productStats?.pagination?.total ||
         (Array.isArray(productStats?.products) ? productStats.products.length : 0) ||
-        0
+        0,
       );
       const totalInvoices = parseInt(
         dashboardData?.metrics?.totalOrders ||
         dashboardData?.revenueMetrics?.totalInvoices ||
         invoiceStats?.pagination?.total ||
-        0
+        0,
       );
 
       // Calculate month-over-month changes from trends
@@ -349,13 +349,13 @@ export const dashboardService = {
         // Top Products
         topProducts: Array.isArray(dashboardData?.topProducts)
           ? dashboardData.topProducts.slice(0, 5).map((p) => ({
-              id: p.id,
-              name: p.name,
-              displayName: p.displayName || p.name,
-              category: p.category,
-              sales: safeNum(p.totalSold),
-              revenue: safeNum(p.totalRevenue),
-            }))
+            id: p.id,
+            name: p.name,
+            displayName: p.displayName || p.name,
+            category: p.category,
+            sales: safeNum(p.totalSold),
+            revenue: safeNum(p.totalRevenue),
+          }))
           : [],
 
         // Indicate real data was used
@@ -452,27 +452,27 @@ export const dashboardService = {
       // Process top products from analytics or build from product list
       const topProducts = Array.isArray(productPerformance?.products)
         ? productPerformance.products.slice(0, 10).map((p) => ({
-            id: p.id || p.productId || p.product_id,
-            name: p.name || p.productName || p.product_name,
-            displayName: p.displayName || p.name || p.productName,
-            category: p.category,
-            grade: p.grade,
-            totalSold: safeNum(p.totalSold || p.quantitySold || p.quantity_sold),
-            totalRevenue: safeNum(p.totalRevenue || p.revenue),
-            avgPrice: safeNum(p.avgPrice || p.averagePrice),
-            margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
-          }))
+          id: p.id || p.productId || p.product_id,
+          name: p.name || p.productName || p.product_name,
+          displayName: p.displayName || p.name || p.productName,
+          category: p.category,
+          grade: p.grade,
+          totalSold: safeNum(p.totalSold || p.quantitySold || p.quantity_sold),
+          totalRevenue: safeNum(p.totalRevenue || p.revenue),
+          avgPrice: safeNum(p.avgPrice || p.averagePrice),
+          margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
+        }))
         : products.slice(0, 10).map((p) => ({
-            id: p.id,
-            name: p.name || p.displayName,
-            displayName: p.displayName || p.name,
-            category: p.category || p.productType,
-            grade: p.grade,
-            totalSold: 0,
-            totalRevenue: 0,
-            avgPrice: safeNum(p.sellingPrice || p.price),
-            margin: 0,
-          }));
+          id: p.id,
+          name: p.name || p.displayName,
+          displayName: p.displayName || p.name,
+          category: p.category || p.productType,
+          grade: p.grade,
+          totalSold: 0,
+          totalRevenue: 0,
+          avgPrice: safeNum(p.sellingPrice || p.price),
+          margin: 0,
+        }));
 
       // Category performance aggregation
       const categoryPerformance = {};
@@ -1551,8 +1551,8 @@ export const dashboardService = {
           value: 0, // Would need inventory value data
           items: parseInt(w.inventoryCount) || 0,
           status: w.utilizationPercent >= 90 ? 'critical' :
-                  w.utilizationPercent >= 75 ? 'high' :
-                  w.utilizationPercent >= 50 ? 'optimal' : 'low',
+            w.utilizationPercent >= 75 ? 'high' :
+              w.utilizationPercent >= 50 ? 'optimal' : 'low',
         })),
         transfers: [], // Would need transfer data
         summary: {

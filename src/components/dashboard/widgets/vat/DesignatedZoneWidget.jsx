@@ -28,7 +28,7 @@ import {
   XCircle,
   Info,
   ChevronRight,
-  Building2
+  Building2,
 } from 'lucide-react';
 
 // UAE Designated Zones list
@@ -122,7 +122,7 @@ const DesignatedZoneWidget = ({
   onViewTransaction = null,
   onUploadDocument = null,
   onViewAll = null,
-  isLoading = false 
+  isLoading = false, 
 }) => {
   const { isDarkMode } = useTheme();
   const [zoneData, setZoneData] = useState(data || mockZoneData);
@@ -234,7 +234,7 @@ const DesignatedZoneWidget = ({
               </p>
               <p className={`text-lg font-bold ${
                 getComplianceRate() >= 90 ? 'text-green-500' :
-                getComplianceRate() >= 70 ? 'text-yellow-500' : 'text-red-500'
+                  getComplianceRate() >= 70 ? 'text-yellow-500' : 'text-red-500'
               }`}>
                 {getComplianceRate()}%
               </p>

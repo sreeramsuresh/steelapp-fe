@@ -6,7 +6,7 @@ import {
   TrendingDown,
   RefreshCw,
   Info,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 
 const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoading }) => {

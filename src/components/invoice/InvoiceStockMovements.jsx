@@ -105,11 +105,11 @@ export default function InvoiceStockMovements({
 
   const totalOut = outMovements.reduce(
     (sum, m) => sum + (parseFloat(m.quantity) || 0),
-    0
+    0,
   );
   const totalIn = inMovements.reduce(
     (sum, m) => sum + (parseFloat(m.quantity) || 0),
-    0
+    0,
   );
 
   if (loading) {

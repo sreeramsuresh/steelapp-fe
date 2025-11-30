@@ -14,7 +14,7 @@ import {
   Users,
   Info,
   RefreshCw,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 
 // Mock segmentation data
@@ -53,7 +53,7 @@ const CustomerSegmentsWidget = ({
   onRefresh,
   onViewSegment,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [segmentData, setSegmentData] = useState(propData || MOCK_SEGMENTS_DATA);
@@ -189,7 +189,7 @@ const CustomerSegmentsWidget = ({
 
       {/* Segment View Toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-lg bg-opacity-50" style={{
-        backgroundColor: isDarkMode ? '#2E3B4E' : '#F3F4F6'
+        backgroundColor: isDarkMode ? '#2E3B4E' : '#F3F4F6',
       }}>
         {SEGMENT_VIEWS.map((view) => {
           const Icon = view.icon;

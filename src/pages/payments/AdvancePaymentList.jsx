@@ -136,7 +136,7 @@ const AdvancePaymentList = () => {
           totalVat: acc.totalVat + (payment.vatAmount || 0),
           totalAvailable: acc.totalAvailable + (payment.amountAvailable || 0),
         }),
-        { totalPayments: 0, totalAmount: 0, totalVat: 0, totalAvailable: 0 }
+        { totalPayments: 0, totalAmount: 0, totalVat: 0, totalAvailable: 0 },
       );
       setSummary(summaryData);
     } catch (error) {

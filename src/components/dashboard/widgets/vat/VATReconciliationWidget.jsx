@@ -23,7 +23,7 @@ import {
   Info,
   RefreshCw,
   FileSearch,
-  Calendar
+  Calendar,
 } from 'lucide-react';
 
 
@@ -32,7 +32,7 @@ const VATReconciliationWidget = ({
   onRunReconciliation = null,
   onViewDiscrepancy = null,
   onViewDetails = null,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [reconciliationData, setReconciliationData] = useState(data || null);

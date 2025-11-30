@@ -263,10 +263,10 @@ const WarehouseDetail = () => {
                   </p>
                   <p className={`mt-1 text-2xl font-bold ${
                     kpi.color === 'teal' ? (isDarkMode ? 'text-teal-400' : 'text-teal-600') :
-                    kpi.color === 'blue' ? (isDarkMode ? 'text-blue-400' : 'text-blue-600') :
-                    kpi.color === 'green' ? (isDarkMode ? 'text-green-400' : 'text-green-600') :
-                    kpi.color === 'red' ? (isDarkMode ? 'text-red-400' : 'text-red-600') :
-                    (isDarkMode ? 'text-gray-400' : 'text-gray-600')
+                      kpi.color === 'blue' ? (isDarkMode ? 'text-blue-400' : 'text-blue-600') :
+                        kpi.color === 'green' ? (isDarkMode ? 'text-green-400' : 'text-green-600') :
+                          kpi.color === 'red' ? (isDarkMode ? 'text-red-400' : 'text-red-600') :
+                            (isDarkMode ? 'text-gray-400' : 'text-gray-600')
                   }`}>
                     {kpi.value}
                   </p>
@@ -414,7 +414,7 @@ const WarehouseDetail = () => {
                   </h3>
                   <span className={`text-sm font-medium ${
                     stats.utilizationPercent >= 90 ? 'text-red-500' :
-                    stats.utilizationPercent >= 70 ? 'text-yellow-500' : 'text-green-500'
+                      stats.utilizationPercent >= 70 ? 'text-yellow-500' : 'text-green-500'
                   }`}>
                     {stats.utilizationPercent}%
                   </span>
@@ -423,7 +423,7 @@ const WarehouseDetail = () => {
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
                       stats.utilizationPercent >= 90 ? 'bg-red-500' :
-                      stats.utilizationPercent >= 70 ? 'bg-yellow-500' : 'bg-green-500'
+                        stats.utilizationPercent >= 70 ? 'bg-yellow-500' : 'bg-green-500'
                     }`}
                     style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` }}
                   />

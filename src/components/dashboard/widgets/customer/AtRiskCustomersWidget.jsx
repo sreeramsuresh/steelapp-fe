@@ -19,7 +19,7 @@ import {
   RefreshCw,
   ChevronRight,
   ShieldAlert,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 // Mock at-risk customer data
@@ -122,7 +122,7 @@ const AtRiskCustomersWidget = ({
   onViewCustomer,
   onContactCustomer,
   onViewDetails,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [riskData, setRiskData] = useState(propData || MOCK_AT_RISK_DATA);

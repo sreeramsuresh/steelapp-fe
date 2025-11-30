@@ -21,7 +21,7 @@ import {
   ChevronRight,
   Bell,
   RefreshCw,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 
 
@@ -31,7 +31,7 @@ const VATComplianceAlertsWidget = ({
   onRefresh = null,
   onViewAll = null,
   maxAlerts = 5,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [alertsData, setAlertsData] = useState(data || null);
@@ -108,7 +108,7 @@ const VATComplianceAlertsWidget = ({
   };
 
   const filteredAlerts = alertsData.alerts.filter(alert => 
-    selectedFilter === 'all' || alert.severity === selectedFilter
+    selectedFilter === 'all' || alert.severity === selectedFilter,
   ).slice(0, maxAlerts);
 
   const formatLastChecked = (dateString) => {
