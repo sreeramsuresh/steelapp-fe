@@ -268,8 +268,21 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       packingCharges: parseNumber(rawInvoice.packingCharges || rawInvoice.packing_charges, undefined),
       loadingCharges: parseNumber(rawInvoice.loadingCharges || rawInvoice.loading_charges, undefined),
       freightCharges: parseNumber(rawInvoice.freightCharges || rawInvoice.freight_charges, undefined),
+      insuranceCharges: parseNumber(rawInvoice.insuranceCharges || rawInvoice.insurance_charges, undefined),
       otherCharges: parseNumber(rawInvoice.otherCharges || rawInvoice.other_charges, undefined),
       taxNotes: rawInvoice.taxNotes || rawInvoice.tax_notes || undefined,
+
+      // Phase 1: Charge VAT Fields (Migration 100) - UAE VAT on individual charges
+      packingChargesVat: parseNumber(rawInvoice.packingChargesVat || rawInvoice.packing_charges_vat, 0),
+      freightChargesVat: parseNumber(rawInvoice.freightChargesVat || rawInvoice.freight_charges_vat, 0),
+      insuranceChargesVat: parseNumber(rawInvoice.insuranceChargesVat || rawInvoice.insurance_charges_vat, 0),
+      loadingChargesVat: parseNumber(rawInvoice.loadingChargesVat || rawInvoice.loading_charges_vat, 0),
+      otherChargesVat: parseNumber(rawInvoice.otherChargesVat || rawInvoice.other_charges_vat, 0),
+      isExport: Boolean(rawInvoice.isExport || rawInvoice.is_export),
+
+      // Phase 1: Advance Payment Integration (Migration 102) - UAE FTA Article 26
+      advancePaymentId: rawInvoice.advancePaymentId || rawInvoice.advance_payment_id || undefined,
+      advanceTaxInvoiceNumber: rawInvoice.advanceTaxInvoiceNumber || rawInvoice.advance_tax_invoice_number || undefined,
       
       // Status (normalized from gRPC enums)
       status: normalizeInvoiceStatus(rawInvoice.status),

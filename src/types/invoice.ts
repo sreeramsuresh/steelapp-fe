@@ -101,8 +101,23 @@ export interface Invoice {
   packingCharges?: number;
   loadingCharges?: number;
   freightCharges?: number;
+  insuranceCharges?: number;
   otherCharges?: number;
   taxNotes?: string;
+
+  // Charge VAT Fields (Phase 1 - Migration 100)
+  // UAE VAT on individual charges: 5% domestic, 0% export
+  packingChargesVat?: number;
+  freightChargesVat?: number;
+  insuranceChargesVat?: number;
+  loadingChargesVat?: number;
+  otherChargesVat?: number;
+  isExport?: boolean;            // True = export (0% VAT), False = domestic (5% VAT)
+
+  // Advance Payment Integration (Phase 1 - Migration 102)
+  // UAE FTA Article 26 Compliance
+  advancePaymentId?: number;         // Reference to advance_payments table
+  advanceTaxInvoiceNumber?: string;  // Tax invoice number issued for advance
   
   // Status fields
   status: 'draft' | 'issued' | 'cancelled' | 'void';

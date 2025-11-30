@@ -4026,6 +4026,181 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </Card>
 
+          {/* Additional Charges & VAT (Phase 1) */}
+          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`text-xs font-semibold uppercase tracking-wide ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                Additional Charges & VAT
+              </h3>
+              {/* Export Toggle */}
+              <label className={`flex items-center gap-2 cursor-pointer ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={invoice.isExport || false}
+                  onChange={(e) => {
+                    const isExport = e.target.checked;
+                    // When export flag changes, recalculate all charge VAT values
+                    setInvoice(prev => ({
+                      ...prev,
+                      isExport,
+                      packingChargesVat: isExport ? 0 : (parseFloat(prev.packingCharges) || 0) * 0.05,
+                      freightChargesVat: isExport ? 0 : (parseFloat(prev.freightCharges) || 0) * 0.05,
+                      insuranceChargesVat: isExport ? 0 : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
+                      loadingChargesVat: isExport ? 0 : (parseFloat(prev.loadingCharges) || 0) * 0.05,
+                      otherChargesVat: isExport ? 0 : (parseFloat(prev.otherCharges) || 0) * 0.05,
+                    }));
+                  }}
+                  className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
+                />
+                <span className="text-sm font-medium">Export Invoice (0% VAT)</span>
+              </label>
+            </div>
+
+            {/* Charge Inputs with VAT */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* Packing Charges */}
+              <div className="space-y-1">
+                <Input
+                  label="Packing Charges"
+                  type="number"
+                  value={invoice.packingCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    const vat = invoice.isExport ? 0 : amount * 0.05;
+                    setInvoice(prev => ({ ...prev, packingCharges: amount, packingChargesVat: vat }));
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div className={`text-xs px-2 py-1 rounded ${
+                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  VAT: {formatCurrency(invoice.packingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                </div>
+              </div>
+
+              {/* Freight Charges */}
+              <div className="space-y-1">
+                <Input
+                  label="Freight Charges"
+                  type="number"
+                  value={invoice.freightCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    const vat = invoice.isExport ? 0 : amount * 0.05;
+                    setInvoice(prev => ({ ...prev, freightCharges: amount, freightChargesVat: vat }));
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div className={`text-xs px-2 py-1 rounded ${
+                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  VAT: {formatCurrency(invoice.freightChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                </div>
+              </div>
+
+              {/* Insurance Charges */}
+              <div className="space-y-1">
+                <Input
+                  label="Insurance Charges"
+                  type="number"
+                  value={invoice.insuranceCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    const vat = invoice.isExport ? 0 : amount * 0.05;
+                    setInvoice(prev => ({ ...prev, insuranceCharges: amount, insuranceChargesVat: vat }));
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div className={`text-xs px-2 py-1 rounded ${
+                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  VAT: {formatCurrency(invoice.insuranceChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                </div>
+              </div>
+
+              {/* Loading Charges */}
+              <div className="space-y-1">
+                <Input
+                  label="Loading Charges"
+                  type="number"
+                  value={invoice.loadingCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    const vat = invoice.isExport ? 0 : amount * 0.05;
+                    setInvoice(prev => ({ ...prev, loadingCharges: amount, loadingChargesVat: vat }));
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div className={`text-xs px-2 py-1 rounded ${
+                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  VAT: {formatCurrency(invoice.loadingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                </div>
+              </div>
+
+              {/* Other Charges */}
+              <div className="space-y-1">
+                <Input
+                  label="Other Charges"
+                  type="number"
+                  value={invoice.otherCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    const vat = invoice.isExport ? 0 : amount * 0.05;
+                    setInvoice(prev => ({ ...prev, otherCharges: amount, otherChargesVat: vat }));
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div className={`text-xs px-2 py-1 rounded ${
+                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  VAT: {formatCurrency(invoice.otherChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                </div>
+              </div>
+
+              {/* Total Charge VAT Summary */}
+              <div className={`p-3 rounded-lg ${
+                isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
+              }`}>
+                <div className={`text-xs font-semibold uppercase mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-teal-700'
+                }`}>
+                  Total Charges VAT
+                </div>
+                <div className={`text-lg font-bold ${
+                  isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                }`}>
+                  {formatCurrency(
+                    (invoice.packingChargesVat || 0) +
+                    (invoice.freightChargesVat || 0) +
+                    (invoice.insuranceChargesVat || 0) +
+                    (invoice.loadingChargesVat || 0) +
+                    (invoice.otherChargesVat || 0)
+                  )}
+                </div>
+                {invoice.isExport && (
+                  <div className="text-xs text-amber-600 mt-1">
+                    Zero-rated for export
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
           {/* Invoice Summary - Single Column */}
           <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${

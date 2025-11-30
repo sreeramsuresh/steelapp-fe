@@ -1,23 +1,40 @@
-import React, { useState } from 'react';
-import { Banknote } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Banknote, Globe } from 'lucide-react';
 import { PAYMENT_MODES } from '../../services/dataService';
 import { formatCurrency } from '../../utils/invoiceUtils';
 import { toUAEDateForInput } from '../../utils/timezone';
 
+// Supported currencies for multi-currency payments
+const CURRENCIES = [
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: 'EUR' },
+  { code: 'GBP', name: 'British Pound', symbol: 'GBP' },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR' },
+  { code: 'INR', name: 'Indian Rupee', symbol: 'INR' },
+];
+
 /**
- * AddPaymentForm - Unified payment form component
+ * AddPaymentForm - Unified payment form component with multi-currency support
  * Used by: Receivables, InvoiceList, Payables (PO)
+ *
+ * Phase 1 Enhancement: Multi-currency payment tracking (Migration 103)
+ * - Allows payments in foreign currencies (USD, EUR, GBP, SAR, INR)
+ * - Captures exchange rate for FX tracking
+ * - Auto-calculates AED equivalent for UAE VAT reporting
  *
  * @param {number} outstanding - Remaining balance to pay (required)
  * @param {function} onSave - Callback with payment data (required)
  * @param {boolean} isSaving - Disable save button while saving (optional, default: false)
  * @param {string} entityType - 'invoice' | 'po' for context-aware labels (optional, default: 'invoice')
+ * @param {string} defaultCurrency - Default currency code (optional, default: 'AED')
  */
 const AddPaymentForm = ({
   outstanding = 0,
   onSave,
   isSaving = false,
-  entityType = 'invoice'
+  entityType = 'invoice',
+  defaultCurrency = 'AED'
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
@@ -26,32 +43,55 @@ const AddPaymentForm = ({
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
 
+  // Multi-currency fields (Phase 1 Enhancement)
+  const [currency, setCurrency] = useState(defaultCurrency);
+  const [exchangeRate, setExchangeRate] = useState('1.0000');
+
   // Get current payment mode config
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
   // Helper for number input
   const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
 
-  // Validation: amount must be > 0, <= outstanding, reference required for non-cash, and not already saving
+  // Calculate AED equivalent when using foreign currency
+  const amountInAed = useMemo(() => {
+    if (currency === 'AED') return Number(amount) || 0;
+    const rate = parseFloat(exchangeRate) || 1;
+    return (Number(amount) || 0) * rate;
+  }, [amount, currency, exchangeRate]);
+
+  // Check if using foreign currency (non-AED)
+  const isForeignCurrency = currency !== 'AED';
+
+  // Validation: amount must be > 0, <= outstanding, reference required for non-cash,
+  // exchange rate required for foreign currency, and not already saving
   const canSave =
     !isSaving &&
     Number(amount) > 0 &&
     Number(amount) <= Number(outstanding || 0) &&
-    (!modeConfig.requiresRef || (reference && reference.trim() !== ''));
+    (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
+    (!isForeignCurrency || (parseFloat(exchangeRate) > 0));
 
   const handleSave = () => {
     if (!canSave) return;
 
     // Output standardized camelCase format (API Gateway converts to snake_case)
-    onSave({
+    // Phase 1: Include multi-currency fields for FX tracking
+    const paymentData = {
       amount: Number(amount),
       method,  // Keep 'method' for backward compatibility
       paymentMethod: method, // Standard field name
       referenceNo: reference, // Keep for backward compat
       referenceNumber: reference, // Standard field name
       notes,
-      paymentDate: date
-    });
+      paymentDate: date,
+      // Multi-currency fields (Phase 1 Enhancement)
+      currency: currency,
+      exchangeRate: isForeignCurrency ? parseFloat(exchangeRate) : 1.0,
+      amountInAed: amountInAed,
+    };
+
+    onSave(paymentData);
 
     // Clear form after successful save - reset to today's date in UAE timezone
     setDate(toUAEDateForInput(new Date()));
@@ -59,6 +99,16 @@ const AddPaymentForm = ({
     setMethod('cash');
     setReference('');
     setNotes('');
+    setCurrency(defaultCurrency);
+    setExchangeRate('1.0000');
+  };
+
+  // Handle currency change - reset exchange rate for AED
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+    if (newCurrency === 'AED') {
+      setExchangeRate('1.0000');
+    }
   };
 
   const balanceLabel = entityType === 'po' ? 'Balance' : 'Outstanding Balance';
@@ -104,8 +154,26 @@ const AddPaymentForm = ({
             onChange={e => setDate(e.target.value)}
           />
         </div>
+
+        {/* Currency Selector (Phase 1 Multi-Currency) */}
         <div>
-          <div className="text-xs opacity-70 mb-1">Amount (max: {formatCurrency(outstanding)})</div>
+          <div className="text-xs opacity-70 mb-1 flex items-center gap-1">
+            <Globe size={12} />
+            Currency
+          </div>
+          <select
+            className="px-2 py-2 rounded border w-full"
+            value={currency}
+            onChange={e => handleCurrencyChange(e.target.value)}
+          >
+            {CURRENCIES.map(c => (
+              <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <div className="text-xs opacity-70 mb-1">Amount ({currency}) (max: {formatCurrency(outstanding)})</div>
           <input
             type="number"
             step="0.01"
@@ -118,6 +186,44 @@ const AddPaymentForm = ({
             <div className="text-xs text-red-600 mt-1">Amount cannot exceed {balanceLabel.toLowerCase()}</div>
           )}
         </div>
+
+        {/* Exchange Rate Input (only shown for foreign currencies) */}
+        {isForeignCurrency && (
+          <div>
+            <div className="text-xs opacity-70 mb-1">
+              Exchange Rate (1 {currency} = X AED)
+              <span className="text-red-500"> *</span>
+            </div>
+            <input
+              type="number"
+              step="0.0001"
+              min="0.0001"
+              className="px-2 py-2 rounded border w-full"
+              value={exchangeRate}
+              onChange={e => setExchangeRate(e.target.value)}
+              placeholder="e.g., 3.6725 for USD"
+            />
+            {(!exchangeRate || parseFloat(exchangeRate) <= 0) && (
+              <div className="text-xs text-red-600 mt-1">Exchange rate is required for {currency} payments</div>
+            )}
+          </div>
+        )}
+
+        {/* AED Equivalent Display (only shown for foreign currencies) */}
+        {isForeignCurrency && amount && parseFloat(exchangeRate) > 0 && (
+          <div className="sm:col-span-2">
+            <div className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-xs text-blue-700 font-medium mb-1">AED Equivalent (for VAT reporting)</div>
+              <div className="text-lg font-bold text-blue-900">
+                {formatCurrency(amountInAed)}
+              </div>
+              <div className="text-xs text-blue-600 mt-1">
+                {amount} {currency} x {exchangeRate} = {amountInAed.toFixed(2)} AED
+              </div>
+            </div>
+          </div>
+        )}
+
         <div>
           <div className="text-xs opacity-70 mb-1">Payment Method</div>
           <select

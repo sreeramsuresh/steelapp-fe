@@ -483,6 +483,16 @@ const CompanySettings = () => {
   const [availableRoles, setAvailableRoles] = useState([]);
   const [selectedUserRoles, setSelectedUserRoles] = useState([]);
   const [showRoleGuideModal, setShowRoleGuideModal] = useState(false);
+  const [showManageRolesModal, setShowManageRolesModal] = useState(false);
+  const [rolesLoading, setRolesLoading] = useState(false);
+  const [editingRole, setEditingRole] = useState(null);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [roleFormData, setRoleFormData] = useState({
+    name: '',
+    displayName: '',
+    description: '',
+    isDirector: false,
+  });
   const [customPermissionModal, setCustomPermissionModal] = useState({ open: false, userId: null });
   const [auditLogModal, setAuditLogModal] = useState({ open: false, userId: null, logs: [] });
   const [viewPermissionsModal, setViewPermissionsModal] = useState({
@@ -713,6 +723,13 @@ const CompanySettings = () => {
       })();
     }
   }, [activeTab]);
+
+  // Load roles when Manage Roles modal opens
+  useEffect(() => {
+    if (showManageRolesModal) {
+      loadRoles();
+    }
+  }, [showManageRolesModal]);
 
   const saveCompanyProfile = async () => {
     try {
@@ -1348,6 +1365,65 @@ const CompanySettings = () => {
       notificationService.success('User deleted successfully!');
     } catch (e) {
       notificationService.error(e?.response?.data?.error || e?.message || 'Failed to delete user');
+    }
+  };
+
+  // Role Management Handlers
+  const loadRoles = async () => {
+    try {
+      setRolesLoading(true);
+      const roles = await roleService.getRoles();
+      setAvailableRoles(roles);
+    } catch (error) {
+      console.error('Error loading roles:', error);
+      notificationService.error('Failed to load roles');
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+
+  const handleSaveRole = async () => {
+    try {
+      if (!roleFormData.name || !roleFormData.displayName) {
+        notificationService.warning('Please fill in all required fields');
+        return;
+      }
+
+      const payload = {
+        name: roleFormData.name,
+        display_name: roleFormData.displayName,
+        description: roleFormData.description,
+        is_director: roleFormData.isDirector,
+      };
+
+      if (editingRole) {
+        await roleService.updateRole(editingRole.id, payload);
+        notificationService.success('Role updated successfully');
+      } else {
+        await roleService.createRole(payload);
+        notificationService.success('Role created successfully');
+      }
+
+      setShowRoleDialog(false);
+      await loadRoles();
+    } catch (error) {
+      console.error('Error saving role:', error);
+      notificationService.error('Failed to save role');
+    }
+  };
+
+  const handleDeleteRole = async (roleId) => {
+    if (!window.confirm('Are you sure you want to delete this role? Users with this role will lose their assigned permissions.')) {
+      return;
+    }
+
+    try {
+      await roleService.deleteRole(roleId);
+      notificationService.success('Role deleted successfully');
+      await loadRoles();
+    } catch (error) {
+      console.error('Error deleting role:', error);
+      notificationService.error('Failed to delete role');
     }
   };
 
@@ -2244,22 +2320,31 @@ const CompanySettings = () => {
               <HelpCircle size={20} />
             </button>
           </div>
-          <Button
-            variant="primary"
-            startIcon={<UserPlus size={16} />}
-            onClick={() => {
-              setNewUser({
-                name: '',
-                email: '',
-                password: '',
-                role_ids: [],
-              });
-              setSelectedUserRoles([]);
-              setShowAddUserModal(true);
-            }}
-          >
-            Add User
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              startIcon={<Shield size={16} />}
+              onClick={() => setShowManageRolesModal(true)}
+            >
+              Manage Roles
+            </Button>
+            <Button
+              variant="primary"
+              startIcon={<UserPlus size={16} />}
+              onClick={() => {
+                setNewUser({
+                  name: '',
+                  email: '',
+                  password: '',
+                  role_ids: [],
+                });
+                setSelectedUserRoles([]);
+                setShowAddUserModal(true);
+              }}
+            >
+              Add User
+            </Button>
+          </div>
         </div>
 
         {/* User List */}
@@ -2457,6 +2542,219 @@ const CompanySettings = () => {
         isOpen={showRoleGuideModal}
         onClose={() => setShowRoleGuideModal(false)}
       />
+
+      {/* Manage Roles Modal */}
+      {showManageRolesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-5xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
+            {/* Modal Header */}
+            <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <Shield className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} size={24} />
+                  <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Manage Roles
+                  </h3>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="primary"
+                    startIcon={<Plus size={16} />}
+                    onClick={() => {
+                      setEditingRole(null);
+                      setRoleFormData({ name: '', displayName: '', description: '', isDirector: false });
+                      setShowRoleDialog(true);
+                    }}
+                  >
+                    Create Role
+                  </Button>
+                  <button
+                    onClick={() => setShowManageRolesModal(false)}
+                    className={`p-2 rounded-lg transition-colors duration-200 ${
+                      isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Roles List */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {rolesLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <CircularProgress size={32} />
+                </div>
+              ) : availableRoles.length === 0 ? (
+                <div className="text-center py-12">
+                  <Shield size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    No roles found. Create your first role to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {availableRoles.map((role) => (
+                    <SettingsCard key={role.id}>
+                      <div className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {role.displayName || role.display_name}
+                              </h4>
+                              {role.isDirector || role.is_director ? (
+                                <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                  isDarkMode ? 'bg-purple-900/30 text-purple-400 border border-purple-600' : 'bg-purple-100 text-purple-700 border border-purple-300'
+                                }`}>
+                                  Director
+                                </span>
+                              ) : null}
+                              {role.isSystem || role.is_system ? (
+                                <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                  isDarkMode ? 'bg-blue-900/30 text-blue-400 border border-blue-600' : 'bg-blue-100 text-blue-700 border border-blue-300'
+                                }`}>
+                                  System
+                                </span>
+                              ) : null}
+                            </div>
+                            <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                              {role.name}
+                            </p>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {role.description || 'No description'}
+                            </p>
+                            <div className="flex gap-4 mt-3">
+                              <div className="flex items-center gap-2">
+                                <Users size={14} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
+                                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  {role.userCount || role.user_count || 0} users
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Shield size={14} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
+                                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  {role.permissionCount || role.permission_count || 0} permissions
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingRole(role);
+                                setRoleFormData({
+                                  name: role.name,
+                                  displayName: role.displayName || role.display_name,
+                                  description: role.description || '',
+                                  isDirector: role.isDirector || role.is_director || false,
+                                });
+                                setShowRoleDialog(true);
+                              }}
+                              className={`p-2 rounded-lg transition-colors duration-200 ${
+                                isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
+                              }`}
+                              title="Edit Role"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            {!(role.isSystem || role.is_system) && (
+                              <button
+                                onClick={() => handleDeleteRole(role.id)}
+                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                                title="Delete Role"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </SettingsCard>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create/Edit Role Dialog */}
+      {showRoleDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
+            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {editingRole ? 'Edit Role' : 'Create New Role'}
+                </h3>
+                <button
+                  onClick={() => setShowRoleDialog(false)}
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <TextField
+                label="Role Name"
+                value={roleFormData.name}
+                onChange={(e) => setRoleFormData({ ...roleFormData, name: e.target.value })}
+                placeholder="e.g., sales_manager"
+                helperText="Unique identifier (lowercase, underscores allowed)"
+              />
+              <TextField
+                label="Display Name"
+                value={roleFormData.displayName}
+                onChange={(e) => setRoleFormData({ ...roleFormData, displayName: e.target.value })}
+                placeholder="e.g., Sales Manager"
+                helperText="Friendly name shown to users"
+              />
+              <TextField
+                label="Description"
+                value={roleFormData.description}
+                onChange={(e) => setRoleFormData({ ...roleFormData, description: e.target.value })}
+                placeholder="Brief description of this role's purpose"
+                multiline
+                rows={3}
+              />
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={roleFormData.isDirector}
+                  onChange={(e) => setRoleFormData({ ...roleFormData, isDirector: e.target.checked })}
+                />
+                <div>
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Director Role
+                  </label>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Grants elevated privileges and access to sensitive operations
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+              <Button
+                variant="outline"
+                onClick={() => setShowRoleDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveRole}
+              >
+                {editingRole ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add User Modal */}
       {showAddUserModal && (

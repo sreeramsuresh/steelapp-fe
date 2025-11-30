@@ -102,6 +102,19 @@ export const createInvoice = () => ({
   isReverseCharge: false, // Reverse charge mechanism applies (Article 48)
   reverseChargeAmount: 0, // Amount subject to reverse charge
   exchangeRateDate: '', // Date when exchange rate was determined
+
+  // Phase 1: Charge VAT Fields (Migration 100) - UAE VAT on individual charges
+  // VAT: 5% for domestic sales, 0% for exports
+  packingChargesVat: 0,
+  freightChargesVat: 0,
+  insuranceChargesVat: 0,
+  loadingChargesVat: 0,
+  otherChargesVat: 0,
+  isExport: false, // True = export (0% VAT), False = domestic (5% VAT)
+
+  // Phase 1: Advance Payment Integration (Migration 102) - UAE FTA Article 26
+  advancePaymentId: null, // Reference to advance_payments table
+  advanceTaxInvoiceNumber: '', // Tax invoice number issued for advance payment
 });
 
 export const createCompany = () => ({

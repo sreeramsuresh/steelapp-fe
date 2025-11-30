@@ -15,6 +15,8 @@
  * - paymentMethod -> payment_method
  * - paymentDate -> payment_date
  * - referenceNumber -> reference_number
+ * - exchangeRate -> exchange_rate (Phase 1)
+ * - amountInAed -> amount_in_aed (Phase 1)
  *
  * @param {Object} params - Payment parameters
  * @param {number|string} params.amount - Payment amount
@@ -22,6 +24,9 @@
  * @param {string} params.paymentDate - Payment date (YYYY-MM-DD format)
  * @param {string} [params.referenceNumber] - Reference/transaction number
  * @param {string} [params.notes] - Additional notes
+ * @param {string} [params.currency] - Currency code (AED, USD, EUR, GBP, SAR, INR)
+ * @param {number} [params.exchangeRate] - Exchange rate to AED (1 currency = X AED)
+ * @param {number} [params.amountInAed] - Amount converted to AED for VAT reporting
  * @returns {Object} Standardized payment payload
  */
 export const createPaymentPayload = ({
@@ -30,12 +35,20 @@ export const createPaymentPayload = ({
   paymentDate,
   referenceNumber = '',
   notes = '',
+  // Phase 1: Multi-currency fields
+  currency = 'AED',
+  exchangeRate = 1.0,
+  amountInAed = null,
 }) => ({
   amount: Number(amount),
   paymentMethod,
   paymentDate,
   referenceNumber,
   notes,
+  // Phase 1: Multi-currency fields for FX tracking
+  currency,
+  exchangeRate: currency === 'AED' ? 1.0 : Number(exchangeRate),
+  amountInAed: currency === 'AED' ? Number(amount) : (amountInAed ?? Number(amount) * Number(exchangeRate)),
 });
 
 /**
@@ -108,6 +121,10 @@ export const normalizePayment = (payment) => {
     voidedAt: payment.voidedAt || payment.voided_at || null,
     createdAt: payment.createdAt || payment.created_at || null,
     receiptNumber: payment.receiptNumber || payment.receipt_number || null,
+    // Phase 1: Multi-currency fields
+    currency: payment.currency || 'AED',
+    exchangeRate: Number(payment.exchangeRate || payment.exchange_rate) || 1.0,
+    amountInAed: Number(payment.amountInAed || payment.amount_in_aed) || Number(payment.amount) || 0,
   };
 };
 
