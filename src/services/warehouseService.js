@@ -6,57 +6,6 @@ import { apiClient } from './api.js';
  */
 
 // ============================================================================
-// CACHE UTILITIES (Stale-While-Revalidate Pattern)
-// ============================================================================
-
-const CACHE_KEYS = {
-  SUMMARY: 'warehouse_summary_cache',
-};
-
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes - consider data stale after this
-
-/**
- * Get cached data from localStorage
- * @returns {Object|null} - { data, timestamp } or null if not found/expired
- */
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-
-    const parsed = JSON.parse(cached);
-    // Return data even if stale - caller decides what to do
-    return parsed;
-  } catch (error) {
-    console.warn('Cache read error:', error);
-    return null;
-  }
-};
-
-/**
- * Set cached data in localStorage
- */
-const setCachedData = (key, data) => {
-  try {
-    const cacheEntry = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(cacheEntry));
-  } catch (error) {
-    console.warn('Cache write error:', error);
-  }
-};
-
-/**
- * Check if cached data is stale (older than TTL)
- */
-const isCacheStale = (timestamp) => {
-  if (!timestamp) return true;
-  return Date.now() - timestamp > CACHE_TTL_MS;
-};
-
-// ============================================================================
 // DATA MAPPERS
 // ============================================================================
 
@@ -204,9 +153,6 @@ class WarehouseService {
         lowStockItems: response?.lowStockItems || 0,
       };
 
-      // Update cache with fresh data
-      setCachedData(CACHE_KEYS.SUMMARY, summary);
-
       return summary;
     } catch (error) {
       // Fallback to calculating from list if summary endpoint not available
@@ -221,40 +167,7 @@ class WarehouseService {
         lowStockItems: 0,
       };
 
-      // Update cache with calculated data
-      setCachedData(CACHE_KEYS.SUMMARY, summary);
-
       return summary;
-    }
-  }
-
-  /**
-   * Get cached summary data (if available)
-   * Used for instant display on page load
-   * @returns {Object|null} - Cached summary data or null
-   */
-  getCachedSummary() {
-    const cached = getCachedData(CACHE_KEYS.SUMMARY);
-    return cached?.data || null;
-  }
-
-  /**
-   * Check if summary cache is stale
-   * @returns {boolean}
-   */
-  isSummaryCacheStale() {
-    const cached = getCachedData(CACHE_KEYS.SUMMARY);
-    return isCacheStale(cached?.timestamp);
-  }
-
-  /**
-   * Clear summary cache (useful after mutations)
-   */
-  clearSummaryCache() {
-    try {
-      localStorage.removeItem(CACHE_KEYS.SUMMARY);
-    } catch (error) {
-      console.warn('Cache clear error:', error);
     }
   }
 

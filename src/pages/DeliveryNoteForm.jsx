@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { deliveryNotesAPI, invoicesAPI, CACHE_KEYS, clearCache } from '../services/api';
+import { deliveryNotesAPI, invoicesAPI } from '../services/api';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 
@@ -348,9 +348,6 @@ const DeliveryNoteForm = () => {
         await deliveryNotesAPI.create(submitData);
         setSuccess('Delivery note created successfully');
       }
-
-      // Clear delivery notes list cache on create/update
-      clearCache(CACHE_KEYS.DELIVERY_NOTES_LIST);
 
       setTimeout(() => {
         navigate('/delivery-notes');

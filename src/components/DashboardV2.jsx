@@ -44,24 +44,7 @@ const LazyCollectionPerformanceWidget = lazy(() => import('./dashboard/widgets/s
 const LazyCustomerSegmentsWidget = lazy(() => import('./dashboard/widgets/customer/CustomerSegmentsWidget'));
 const LazyNewCustomerWidget = lazy(() => import('./dashboard/widgets/customer/NewCustomerWidget'));
 
-// Cache utilities
-const CACHE_KEYS = {
-  STATS: 'dashboard_stats_cache',
-  TAB: 'dashboard_active_tab',
-};
 
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(key);
-    return cached ? JSON.parse(cached) : null;
-  } catch { return null; }
-};
-
-const setCachedData = (key, data) => {
-  try {
-    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
-  } catch (e) { /* ignore storage errors */ }
-};
 
 // Reusable Components
 const StatsCard = ({ variant = 'default', children, className = '' }) => {
@@ -136,9 +119,9 @@ const DashboardV2 = () => {
   const { isDarkMode } = useTheme();
   const { role, canViewWidget } = useDashboardPermissions();
 
-  const [activeTab, setActiveTab] = useState(getCachedData(CACHE_KEYS.TAB)?.data || 'overview');
+  const [activeTab, setActiveTab] = useState('overview');
   const [expandedSections, setExpandedSections] = useState({ financial: true, inventory: true, sales: true, vat: true });
-  const [stats, setStats] = useState(getCachedData(CACHE_KEYS.STATS)?.data || { totalRevenue: 0, totalCustomers: 0, totalProducts: 0, totalInvoices: 0 });
+  const [stats, setStats] = useState({ totalRevenue: 0, totalCustomers: 0, totalProducts: 0, totalInvoices: 0 });
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -200,9 +183,7 @@ const DashboardV2 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
 
-  useEffect(() => {
-    setCachedData(CACHE_KEYS.TAB, activeTab);
-  }, [activeTab]);
+
 
   const fetchDashboardData = async () => {
     try {
@@ -233,7 +214,6 @@ const DashboardV2 = () => {
       };
 
       setStats(newStats);
-      setCachedData(CACHE_KEYS.STATS, newStats);
     } catch (error) {
       console.error('Error fetching dashboard:', error);
     } finally {

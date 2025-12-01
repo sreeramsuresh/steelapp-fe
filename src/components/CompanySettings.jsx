@@ -2776,7 +2776,7 @@ const CompanySettings = () => {
               </div>
             </div>
 
-            <div className="p-6">
+            <form className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Full Name"
@@ -2858,7 +2858,7 @@ const CompanySettings = () => {
                   Click on roles to select/deselect. Users can have multiple roles.
                 </p>
               </div>
-            </div>
+            </form>
 
             <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button

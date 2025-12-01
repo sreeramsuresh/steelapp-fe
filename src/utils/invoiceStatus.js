@@ -140,6 +140,7 @@ function getInvoiceStatusBadge(invoice) {
   // Exhaustive switch with runtime check
   let config;
   switch (status) {
+    case 'pending':
     case 'draft':
       config = INVOICE_STATUS_CONFIG.draft;
       break;

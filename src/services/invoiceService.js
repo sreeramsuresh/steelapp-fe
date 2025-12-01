@@ -1,81 +1,6 @@
 import { apiClient } from './api';
 
 // ============================================================================
-// CACHE UTILITIES (Stale-While-Revalidate Pattern)
-// ============================================================================
-
-const CACHE_KEYS = {
-  SUMMARY: 'invoice_summary_cache',
-};
-
-const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes - consider data stale after this
-
-/**
- * Get cached data from localStorage
- * @returns {Object|null} - { data, timestamp } or null if not found
- */
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-
-    const parsed = JSON.parse(cached);
-    // Return data even if stale - caller decides what to do
-    return parsed;
-  } catch (error) {
-    console.warn('Invoice cache read error:', error);
-    return null;
-  }
-};
-
-/**
- * Set cached data in localStorage
- */
-const setCachedData = (key, data) => {
-  try {
-    const cacheEntry = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(cacheEntry));
-  } catch (error) {
-    console.warn('Invoice cache write error:', error);
-  }
-};
-
-/**
- * Check if cached data is stale (older than TTL)
- */
-const isCacheStale = (timestamp) => {
-  if (!timestamp) return true;
-  return Date.now() - timestamp > CACHE_TTL_MS;
-};
-
-/**
- * Clear invoice summary cache
- * Call this after invoice create/update/delete/payment operations
- */
-const clearSummaryCache = () => {
-  try {
-    localStorage.removeItem(CACHE_KEYS.SUMMARY);
-  } catch (error) {
-    console.warn('Invoice cache clear error:', error);
-  }
-};
-
-// ============================================================================
-// EXPORTED CACHE UTILITIES
-// ============================================================================
-
-export const invoiceCacheUtils = {
-  CACHE_KEYS,
-  getCachedData,
-  setCachedData,
-  isCacheStale,
-  clearSummaryCache,
-};
-
-// ============================================================================
 // DATA TRANSFORMERS
 // ============================================================================
 
@@ -209,16 +134,12 @@ export const invoiceService = {
     console.log('[invoiceService.createInvoice] After transform - transformedData.status:', transformedData.status);
 
     const response = await apiClient.post('/invoices', transformedData);
-    // Clear cache after creating invoice
-    clearSummaryCache();
     return transformInvoiceFromServer(response);
   },
 
   async updateInvoice(id, invoiceData) {
     const transformedData = transformInvoiceForServer(invoiceData);
     const response = await apiClient.put(`/invoices/${id}`, transformedData);
-    // Clear cache after updating invoice
-    clearSummaryCache();
     return transformInvoiceFromServer(response);
   },
 
@@ -226,23 +147,17 @@ export const invoiceService = {
     // Soft delete with reason for audit trail
     // Axios DELETE requires data to be wrapped in config.data
     const response = await apiClient.delete(`/invoices/${id}`, { data: deletionData });
-    // Clear cache after deleting invoice
-    clearSummaryCache();
     return response;
   },
 
   async restoreInvoice(id) {
     // Restore soft-deleted invoice
     const response = await apiClient.patch(`/invoices/${id}/restore`, {});
-    // Clear cache after restoring invoice
-    clearSummaryCache();
     return response;
   },
 
   async updateInvoiceStatus(id, status) {
     const response = await apiClient.patch(`/invoices/${id}/status`, { status });
-    // Clear cache after status change
-    clearSummaryCache();
     return response;
   },
 
@@ -260,8 +175,6 @@ export const invoiceService = {
    */
   async issueInvoice(invoiceId) {
     const response = await apiClient.post(`/invoices/${invoiceId}/issue`);
-    // Clear cache after issuing invoice
-    clearSummaryCache();
     return transformInvoiceFromServer(response);
   },
 
@@ -304,23 +217,17 @@ export const invoiceService = {
   async addInvoicePayment(id, payload) {
     // payload: { payment_date, amount, method, reference_no, notes, attachment_url }
     const response = await apiClient.post(`/invoices/${id}/payments`, payload);
-    // Clear cache after recording payment
-    clearSummaryCache();
     return response;
   },
 
   async addInvoicePaymentsBatch(id, payload) {
     // payload: { payments: [{ payment_date, amount, method, reference_no, notes }], idempotency_key? }
     const response = await apiClient.post(`/invoices/${id}/payments/batch`, payload);
-    // Clear cache after batch payment
-    clearSummaryCache();
     return response;
   },
 
   async voidInvoicePayment(invoiceId, paymentId, reason) {
     const response = await apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
-    // Clear cache after voiding payment
-    clearSummaryCache();
     return response;
   },
 

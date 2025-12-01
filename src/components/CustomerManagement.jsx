@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
 import { supplierService } from '../services/supplierService';
 import pricelistService from '../services/pricelistService';
-import { CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -51,11 +50,6 @@ const CustomerManagement = () => {
   
   const canReadCustomers = authService.hasPermission('customers','read') || authService.hasRole('admin');
 
-  // Stale-while-revalidate: Initialize with cached data if available
-  const isFirstPage = !searchTerm && filterStatus === 'all';
-  const cachedCustomers = isFirstPage ? getCachedData(CACHE_KEYS.CUSTOMERS_LIST) : null;
-  const hasCacheRef = useRef(!!cachedCustomers?.data);
-
   const { data: customersData, loading: loadingCustomers, error: customersError, refetch: refetchCustomers } = useApiData(
     () => {
       if (!canReadCustomers) {
@@ -65,19 +59,7 @@ const CustomerManagement = () => {
       return customerService.getCustomers({ search: searchTerm, status: filterStatus === 'all' ? undefined : filterStatus });
     },
     [searchTerm, filterStatus, canReadCustomers],
-    {
-      // Skip initial loading state if we have cached data for first page
-      initialData: isFirstPage && cachedCustomers?.data ? cachedCustomers.data : undefined,
-      skipInitialLoading: isFirstPage && hasCacheRef.current,
-    },
   );
-
-  // Cache customer data when loaded (only for first page without filters)
-  useEffect(() => {
-    if (customersData && isFirstPage && customersData.customers?.length > 0) {
-      setCachedData(CACHE_KEYS.CUSTOMERS_LIST, customersData);
-    }
-  }, [customersData, isFirstPage]);
 
   // Suppliers API hooks
   const { data: suppliersData, loading: loadingSuppliers, error: suppliersError, refetch: refetchSuppliers } = useApiData(
@@ -681,12 +663,12 @@ const CustomerManagement = () => {
                   <div 
                     className="bg-[#008B8B] h-3 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${customer.creditLimit > 0 ? (customer.currentCredit / customer.creditLimit) * 100 : 0}%`, 
+                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%`, 
                     }}
                   />
                 </div>
                 <span className={`text-sm font-medium w-12 text-right ${textSecondary}`}>
-                  {customer.creditLimit > 0 ? Math.round((customer.currentCredit / customer.creditLimit) * 100) : 0}%
+                  {customer.creditLimit > 0 ? Math.round(((customer.currentCredit || 0) / customer.creditLimit) * 100) : 0}%
                 </span>
               </div>
             </div>

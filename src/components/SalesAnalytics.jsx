@@ -546,7 +546,7 @@ const SalesAnalytics = () => {
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>High Value (د.إ5L+)</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>High Value (AED 0.5M+)</span>
                     <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue >= 500000).length}
                     </span>
@@ -558,7 +558,7 @@ const SalesAnalytics = () => {
                 <hr className={isDarkMode ? 'border-gray-700' : 'border-gray-200'} />
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Medium Value (د.إ1L-5L)</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Medium Value (AED 0.1M - 0.5M)</span>
                     <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue >= 100000 && c.revenue < 500000).length}
                     </span>
@@ -570,7 +570,7 @@ const SalesAnalytics = () => {
                 <hr className={isDarkMode ? 'border-gray-700' : 'border-gray-200'} />
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Regular (د.إ1L)</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Regular (AED Under 0.1M)</span>
                     <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {analytics.topCustomers.filter(c => c.revenue < 100000).length}
                     </span>
@@ -662,24 +662,38 @@ const SalesAnalytics = () => {
                 <h3 className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Key Insights</h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
-                  <CheckCircle size={16} className="text-green-600 mt-0.5" />
-                  <p className="text-sm text-green-800">
-                    Top 3 customers generate {((analytics.topCustomers.slice(0, 3).reduce((sum, c) => sum + c.revenue, 0) / analytics.currentRevenue) * 100).toFixed(1)}% of total revenue
-                  </p>
-                </div>
+                {(() => {
+                  const topThreeRevenue = (analytics.topCustomers || []).slice(0, 3).reduce((sum, c) => sum + (c.revenue || 0), 0) || 0;
+                  const currentRev = analytics.currentRevenue || 0;
+                  const percentage = currentRev > 0 ? ((topThreeRevenue / currentRev) * 100).toFixed(1) : 0;
+                  return (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+                      <CheckCircle size={16} className="text-green-600 mt-0.5" />
+                      <p className="text-sm text-green-800">
+                        Top 3 customers generate {percentage}% of total revenue
+                      </p>
+                    </div>
+                  );
+                })()}
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
                   <AlertTriangle size={16} className="text-yellow-600 mt-0.5" />
                   <p className="text-sm text-yellow-800">
                     Customer concentration risk: Consider diversifying customer base
                   </p>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                  <Target size={16} className="text-blue-600 mt-0.5" />
-                  <p className="text-sm text-blue-800">
-                    Average customer lifetime value: {formatCurrency(analytics.currentRevenue / analytics.uniqueCustomers)}
-                  </p>
-                </div>
+                {(() => {
+                  const custCount = analytics.uniqueCustomers || 0;
+                  const totalRev = analytics.currentRevenue || 0;
+                  const avgValue = custCount > 0 ? totalRev / custCount : 0;
+                  return (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                      <Target size={16} className="text-blue-600 mt-0.5" />
+                      <p className="text-sm text-blue-800">
+                        Average customer lifetime value: {formatCurrency(avgValue)}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

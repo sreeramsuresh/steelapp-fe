@@ -21,10 +21,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import {
   purchaseOrdersAPI,
-  CACHE_KEYS,
-  getCachedData,
-  setCachedData,
-  clearCache,
 } from '../services/api';
 import { companyService } from '../services';
 import { useApiData } from '../hooks/useApi';
@@ -39,26 +35,13 @@ const PurchaseOrderList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
-  // Initialize state from cache if available (stale-while-revalidate)
-  const initFromCache = () => {
-    const cached = getCachedData(CACHE_KEYS.PURCHASE_ORDERS_LIST);
-    if (cached?.data) {
-      return {
-        orders: cached.data.orders || [],
-        totalPages: cached.data.totalPages || 1,
-        hasCache: true,
-      };
-    }
-    return { orders: [], totalPages: 1, hasCache: false };
-  };
-
-  const cachedState = initFromCache();
-  const [purchaseOrders, setPurchaseOrders] = useState(cachedState.orders);
-  const [loading, setLoading] = useState(!cachedState.hasCache); // No loading spinner if we have cache
+  // Initialize state
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(cachedState.totalPages);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
@@ -145,15 +128,9 @@ const PurchaseOrderList = () => {
     );
   };
 
-  // Check if this is the first page with default filters (cacheable request)
-  const isCacheableRequest = page === 1 && !searchTerm && statusFilter === 'all';
-
-  // Fetch purchase orders with stale-while-revalidate caching
-  const fetchPurchaseOrders = async (skipLoadingState = false) => {
-    // Only show loading spinner if no cache exists or explicitly requested
-    if (!skipLoadingState) {
-      setLoading(true);
-    }
+  // Fetch purchase orders
+  const fetchPurchaseOrders = async () => {
+    setLoading(true);
     try {
       const params = {
         page,
@@ -185,32 +162,18 @@ const PurchaseOrderList = () => {
       const calculatedTotalPages = Math.ceil(total / 10);
       setPurchaseOrders(orders);
       setTotalPages(calculatedTotalPages);
-
-      // Cache only the first page with default filters
-      if (isCacheableRequest) {
-        setCachedData(CACHE_KEYS.PURCHASE_ORDERS_LIST, {
-          orders,
-          totalPages: calculatedTotalPages,
-        });
-      }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch purchase orders';
       setError(errorMessage);
       notificationService.error(errorMessage);
-      // Only clear data if no cache fallback
-      if (!cachedState.hasCache) {
-        setPurchaseOrders([]);
-      }
+      setPurchaseOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Stale-while-revalidate: if we have cache for first page, skip loading state
-    // and fetch fresh data in background
-    const hasCacheForRequest = isCacheableRequest && cachedState.hasCache;
-    fetchPurchaseOrders(hasCacheForRequest);
+    fetchPurchaseOrders();
   }, [page, searchTerm, statusFilter]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);
@@ -259,8 +222,6 @@ const PurchaseOrderList = () => {
     if (confirmed) {
       try {
         await purchaseOrdersAPI.delete(id);
-        // Clear cache on delete to ensure fresh data
-        clearCache(CACHE_KEYS.PURCHASE_ORDERS_LIST);
         notificationService.success('Purchase order deleted successfully');
         fetchPurchaseOrders();
       } catch (err) {

@@ -9,7 +9,7 @@
 import { USE_MOCK_DATA } from '../mock/config/mockConfig';
 
 // Import real services (using named imports because they export objects)
-import { invoiceService as realInvoiceService, invoiceCacheUtils } from './invoiceService';
+import { invoiceService as realInvoiceService } from './invoiceService';
 import { customerService as realCustomerService } from './customerService';
 import { productService as realProductService } from './productService';
 import { companyService as realCompanyService } from './companyService';
@@ -76,11 +76,6 @@ export const PAYMENT_MODES = USE_MOCK_DATA
  * Payment Service helpers
  */
 export { createPaymentPayload, validatePayment as validatePaymentPayload, normalizePayment, PAYMENT_METHOD_OPTIONS } from './paymentService';
-
-/**
- * Invoice Cache Utilities (for stale-while-revalidate pattern)
- */
-export { invoiceCacheUtils };
 
 /**
  * Export all services as default

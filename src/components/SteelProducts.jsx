@@ -20,7 +20,6 @@ import {
 import { format } from 'date-fns';
 import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
-import { CACHE_KEYS, getCachedData, setCachedData, clearCache } from '../services/api';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import ProductUpload from './ProductUpload';
@@ -243,11 +242,6 @@ const SteelProducts = () => {
   const [stockFilter, setStockFilter] = useState('all');
   const [showSpeedButtons, setShowSpeedButtons] = useState(true);
 
-  // Stale-while-revalidate: Initialize with cached data if available
-  const isFirstPage = !searchTerm && categoryFilter === 'all' && stockFilter === 'all';
-  const cachedProducts = isFirstPage ? getCachedData(CACHE_KEYS.PRODUCTS_LIST) : null;
-  const hasCacheRef = useRef(!!cachedProducts?.data);
-
   const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
     () => productService.getProducts({
       search: searchTerm,
@@ -256,19 +250,7 @@ const SteelProducts = () => {
       limit: 1000,
     }),
     [searchTerm, categoryFilter, stockFilter],
-    {
-      // Skip initial loading state if we have cached data for first page
-      initialData: isFirstPage && cachedProducts?.data ? cachedProducts.data : undefined,
-      skipInitialLoading: isFirstPage && hasCacheRef.current,
-    },
   );
-
-  // Cache product data when loaded (only for first page without filters)
-  useEffect(() => {
-    if (productsData && isFirstPage && productsData.products?.length > 0) {
-      setCachedData(CACHE_KEYS.PRODUCTS_LIST, productsData);
-    }
-  }, [productsData, isFirstPage]);
 
   const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
   const { execute: updateProduct, loading: updatingProduct } = useApi(productService.updateProduct);

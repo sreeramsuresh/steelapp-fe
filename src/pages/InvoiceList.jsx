@@ -24,7 +24,7 @@ import {
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import { invoiceService, invoiceCacheUtils } from '../services/dataService';
+import { invoiceService } from '../services/dataService';
 import { companyService } from '../services';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
 import { deliveryNotesAPI } from '../services/api';
@@ -333,22 +333,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [invoices, setInvoices] = useState([]);
   const [pagination, setPagination] = useState(null);
 
-  // STALE-WHILE-REVALIDATE: Initialize loading state based on cached data
-  // If we have cached summary data, show it immediately (no loading spinner)
-  const [loading, setLoading] = useState(() => {
-    const cached = invoiceCacheUtils.getCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY);
-    return !cached; // If no cache, show loading; if cache exists, no loading
-  });
-
-  // STATE: Cached summary data for instant display (stale-while-revalidate pattern)
-  const [summaryData, setSummaryData] = useState(() => {
-    const cached = invoiceCacheUtils.getCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY);
-    if (cached?.data) {
-      console.log('[InvoiceList] Initialized with cached summary data');
-      return cached.data;
-    }
-    return null;
-  });
+  // STATE: Loading and summary data
+  const [loading, setLoading] = useState(true);
+  const [summaryData, setSummaryData] = useState(null);
 
   // DEBUG: Track component instance to detect multiple mounts
   const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
@@ -803,11 +790,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     };
   }, [invoices]);
 
-  // Update cache when we have fresh computed summary data
+  // Update summary data when computed
   React.useEffect(() => {
     if (computedSummary) {
-      console.log('[InvoiceList] Updating summary cache with fresh data');
-      invoiceCacheUtils.setCachedData(invoiceCacheUtils.CACHE_KEYS.SUMMARY, computedSummary);
       setSummaryData(computedSummary);
     }
   }, [computedSummary]);

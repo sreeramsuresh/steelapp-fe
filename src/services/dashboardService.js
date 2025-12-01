@@ -24,82 +24,7 @@ import { commissionService } from './commissionService';
 import { vatService } from './vatService';
 import { warehouseService } from './warehouseService';
 
-// ============================================================================
-// CACHE CONFIGURATION (Stale-While-Revalidate Pattern)
-// ============================================================================
-
-const CACHE_KEYS = {
-  DASHBOARD_METRICS: 'dashboard_metrics_cache',
-  PRODUCT_ANALYTICS: 'dashboard_product_analytics_cache',
-  AGENT_PERFORMANCE: 'dashboard_agent_performance_cache',
-  INVENTORY_HEALTH: 'dashboard_inventory_health_cache',
-  VAT_METRICS: 'dashboard_vat_metrics_cache',
-  CUSTOMER_INSIGHTS: 'dashboard_customer_insights_cache',
-  // Phase 2 cache keys
-  NET_PROFIT: 'dashboard_net_profit_cache',
-  AP_AGING: 'dashboard_ap_aging_cache',
-  CASH_FLOW: 'dashboard_cash_flow_cache',
-  STOCK_TURNOVER: 'dashboard_stock_turnover_cache',
-  WAREHOUSE_UTILIZATION: 'dashboard_warehouse_utilization_cache',
-  // Prefetch cache keys
-  PREFETCH_PRODUCTS: 'dashboard_prefetch_products',
-  PREFETCH_CUSTOMERS: 'dashboard_prefetch_customers',
-  PREFETCH_AGENTS: 'dashboard_prefetch_agents',
-  PREFETCH_VAT: 'dashboard_prefetch_vat',
-};
-
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const PREFETCH_DELAY_MS = 1000; // 1 second delay before prefetching adjacent tabs
-
-/**
- * Get cached data from localStorage
- */
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-    return JSON.parse(cached);
-  } catch (error) {
-    console.warn('Dashboard cache read error:', error);
-    return null;
-  }
-};
-
-/**
- * Set cached data in localStorage
- */
-const setCachedData = (key, data) => {
-  try {
-    const cacheEntry = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(cacheEntry));
-  } catch (error) {
-    console.warn('Dashboard cache write error:', error);
-  }
-};
-
-/**
- * Check if cached data is stale
- */
-const isCacheStale = (timestamp) => {
-  if (!timestamp) return true;
-  return Date.now() - timestamp > CACHE_TTL_MS;
-};
-
-/**
- * Clear all dashboard caches
- */
-const clearAllCaches = () => {
-  Object.values(CACHE_KEYS).forEach((key) => {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.warn('Dashboard cache clear error:', error);
-    }
-  });
-};
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -208,15 +133,6 @@ const createWidgetData = (data, options = {}) => ({
 // ============================================================================
 
 export const dashboardService = {
-  // Cache utilities exposed for external use
-  cache: {
-    KEYS: CACHE_KEYS,
-    get: getCachedData,
-    set: setCachedData,
-    isStale: isCacheStale,
-    clearAll: clearAllCaches,
-  },
-
   // Prefetching
   prefetchAdjacentTabs,
 
@@ -230,14 +146,6 @@ export const dashboardService = {
    */
   async getDashboardMetrics(options = {}) {
     const { forceRefresh = false } = options;
-
-    // Check cache first (unless forcing refresh)
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.DASHBOARD_METRICS);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching dashboard metrics from APIs...');
@@ -365,20 +273,11 @@ export const dashboardService = {
         fetchedAt: new Date().toISOString(),
       };
 
-      // Cache the results
-      setCachedData(CACHE_KEYS.DASHBOARD_METRICS, metrics);
       console.log('[dashboardService] Dashboard metrics fetched successfully');
 
       return metrics;
     } catch (error) {
       console.error('[dashboardService] Error fetching dashboard metrics:', error);
-
-      // Return cached data if available, even if stale
-      const cached = getCachedData(CACHE_KEYS.DASHBOARD_METRICS);
-      if (cached) {
-        console.log('[dashboardService] Returning stale cached data');
-        return { ...cached.data, isStale: true };
-      }
 
       // Fall back to empty data structure
       console.log('[dashboardService] Returning empty data structure as fallback');
@@ -412,13 +311,6 @@ export const dashboardService = {
    */
   async getProductAnalytics(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.PRODUCT_ANALYTICS);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching product analytics from APIs...');
@@ -544,18 +436,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.PRODUCT_ANALYTICS, analytics);
       console.log('[dashboardService] Product analytics fetched successfully');
       return analytics;
     } catch (error) {
       console.error('[dashboardService] Error fetching product analytics:', error);
-
-      const cached = getCachedData(CACHE_KEYS.PRODUCT_ANALYTICS);
-      if (cached) {
-        console.log('[dashboardService] Returning stale cached product analytics');
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -580,13 +464,6 @@ export const dashboardService = {
    */
   async getAgentPerformance(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.AGENT_PERFORMANCE);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching agent performance from commission APIs...');
@@ -704,17 +581,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.AGENT_PERFORMANCE, performance);
       console.log('[dashboardService] Agent performance fetched successfully');
       return performance;
     } catch (error) {
       console.error('[dashboardService] Error fetching agent performance:', error);
-
-      const cached = getCachedData(CACHE_KEYS.AGENT_PERFORMANCE);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -744,13 +614,6 @@ export const dashboardService = {
    */
   async getInventoryHealth(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.INVENTORY_HEALTH);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching inventory health from APIs...');
@@ -793,16 +656,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.INVENTORY_HEALTH, health);
       console.log('[dashboardService] Inventory health fetched successfully');
       return health;
     } catch (error) {
       console.error('[dashboardService] Error fetching inventory health:', error);
-      const cached = getCachedData(CACHE_KEYS.INVENTORY_HEALTH);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
       throw error;
     }
   },
@@ -817,13 +674,6 @@ export const dashboardService = {
   async getVATMetrics(options = {}) {
     const { forceRefresh = false } = options;
 
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.VAT_METRICS);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
-
     try {
       console.log('[dashboardService] Fetching VAT metrics from VAT service...');
 
@@ -834,7 +684,6 @@ export const dashboardService = {
       });
 
       if (vatMetrics) {
-        setCachedData(CACHE_KEYS.VAT_METRICS, vatMetrics);
         console.log('[dashboardService] VAT metrics fetched successfully');
         return vatMetrics;
       }
@@ -935,17 +784,10 @@ export const dashboardService = {
           severity: 'low',
         });
       }
-
-      setCachedData(CACHE_KEYS.VAT_METRICS, vatData);
       console.log('[dashboardService] VAT metrics calculated from', invoices.length, 'invoices');
       return vatData;
     } catch (error) {
       console.error('[dashboardService] Error fetching VAT metrics:', error);
-
-      const cached = getCachedData(CACHE_KEYS.VAT_METRICS);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       const currentDate = new Date();
@@ -980,13 +822,6 @@ export const dashboardService = {
    */
   async getCustomerInsights(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.CUSTOMER_INSIGHTS);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching customer insights from APIs...');
@@ -1184,17 +1019,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.CUSTOMER_INSIGHTS, result);
       console.log('[dashboardService] Customer insights calculated from', customers.length, 'customers and', invoices.length, 'invoices');
       return result;
     } catch (error) {
       console.error('[dashboardService] Error fetching customer insights:', error);
-
-      const cached = getCachedData(CACHE_KEYS.CUSTOMER_INSIGHTS);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -1224,13 +1052,6 @@ export const dashboardService = {
    */
   async getNetProfit(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.NET_PROFIT);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching net profit from API...');
@@ -1265,17 +1086,10 @@ export const dashboardService = {
       if (!netProfitData.netMarginPercent && netProfitData.revenue > 0) {
         netProfitData.netMarginPercent = (netProfitData.netProfit / netProfitData.revenue) * 100;
       }
-
-      setCachedData(CACHE_KEYS.NET_PROFIT, netProfitData);
       console.log('[dashboardService] Net profit fetched successfully');
       return netProfitData;
     } catch (error) {
       console.error('[dashboardService] Error fetching net profit:', error);
-
-      const cached = getCachedData(CACHE_KEYS.NET_PROFIT);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -1302,13 +1116,6 @@ export const dashboardService = {
   async getAPAging(options = {}) {
     const { forceRefresh = false } = options;
 
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.AP_AGING);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
-
     try {
       console.log('[dashboardService] Fetching AP aging from API...');
       const response = await analyticsService.getAPAging();
@@ -1331,17 +1138,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.AP_AGING, apAgingData);
       console.log('[dashboardService] AP aging fetched successfully');
       return apAgingData;
     } catch (error) {
       console.error('[dashboardService] Error fetching AP aging:', error);
-
-      const cached = getCachedData(CACHE_KEYS.AP_AGING);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -1362,13 +1162,6 @@ export const dashboardService = {
    */
   async getCashFlow(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.CASH_FLOW);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching cash flow from API...');
@@ -1408,17 +1201,10 @@ export const dashboardService = {
 
       cashFlowData.isMockData = false;
       cashFlowData.fetchedAt = new Date().toISOString();
-
-      setCachedData(CACHE_KEYS.CASH_FLOW, cashFlowData);
       console.log('[dashboardService] Cash flow fetched successfully');
       return cashFlowData;
     } catch (error) {
       console.error('[dashboardService] Error fetching cash flow:', error);
-
-      const cached = getCachedData(CACHE_KEYS.CASH_FLOW);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       const emptyPeriod = { inflows: 0, outflows: 0, netCashFlow: 0, trend: [] };
@@ -1439,13 +1225,6 @@ export const dashboardService = {
    */
   async getStockTurnover(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.STOCK_TURNOVER);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching stock turnover from API...');
@@ -1490,17 +1269,10 @@ export const dashboardService = {
         stockTurnoverData.bestPerformer = sorted[0]?.name || '';
         stockTurnoverData.worstPerformer = sorted[sorted.length - 1]?.name || '';
       }
-
-      setCachedData(CACHE_KEYS.STOCK_TURNOVER, stockTurnoverData);
       console.log('[dashboardService] Stock turnover fetched successfully');
       return stockTurnoverData;
     } catch (error) {
       console.error('[dashboardService] Error fetching stock turnover:', error);
-
-      const cached = getCachedData(CACHE_KEYS.STOCK_TURNOVER);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -1525,13 +1297,6 @@ export const dashboardService = {
    */
   async getWarehouseUtilization(options = {}) {
     const { forceRefresh = false } = options;
-
-    if (!forceRefresh) {
-      const cached = getCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION);
-      if (cached && !isCacheStale(cached.timestamp)) {
-        return cached.data;
-      }
-    }
 
     try {
       console.log('[dashboardService] Fetching warehouse utilization from API...');
@@ -1566,17 +1331,10 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-
-      setCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION, warehouseData);
       console.log('[dashboardService] Warehouse utilization fetched successfully');
       return warehouseData;
     } catch (error) {
       console.error('[dashboardService] Error fetching warehouse utilization:', error);
-
-      const cached = getCachedData(CACHE_KEYS.WAREHOUSE_UTILIZATION);
-      if (cached) {
-        return { ...cached.data, isStale: true };
-      }
 
       // Return empty structure
       return {
@@ -1595,7 +1353,6 @@ export const dashboardService = {
    */
   async refreshAll() {
     console.log('[dashboardService] Refreshing all dashboard data...');
-    clearAllCaches();
     return Promise.all([
       this.getDashboardMetrics({ forceRefresh: true }),
       this.getProductAnalytics({ forceRefresh: true }),

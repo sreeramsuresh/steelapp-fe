@@ -8,10 +8,11 @@
  */
 
 /**
- * @typedef {'draft' | 'proforma' | 'issued' | 'sent' | 'cancelled' | 'unspecified'} InvoiceStatus
+ * @typedef {'draft' | 'pending' | 'proforma' | 'issued' | 'sent' | 'cancelled' | 'unspecified'} InvoiceStatus
  *
  * Allowed invoice statuses:
  * - draft: Invoice is being prepared
+ * - pending: Invoice is pending (awaiting action)
  * - proforma: Proforma invoice (quote-like)
  * - sent: Invoice has been sent to customer (treated similar to issued)
  * - issued: Invoice has been finalized and issued
@@ -33,7 +34,7 @@
  * Valid invoice status values
  * Note: 'unspecified' is the proto enum default (STATUS_UNSPECIFIED = 0), treated as 'draft'
  */
-export const VALID_INVOICE_STATUSES = ['draft', 'proforma', 'issued', 'sent', 'cancelled', 'unspecified'];
+export const VALID_INVOICE_STATUSES = ['draft', 'pending', 'proforma', 'issued', 'sent', 'cancelled', 'unspecified'];
 
 /**
  * Valid payment status values
@@ -107,6 +108,8 @@ export function getInvoiceStatusLabel(status) {
   switch (status) {
     case 'draft':
       return 'Draft';
+    case 'pending':
+      return 'Pending';
     case 'proforma':
       return 'Proforma';
     case 'sent':

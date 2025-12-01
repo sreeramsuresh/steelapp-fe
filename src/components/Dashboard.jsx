@@ -17,55 +17,7 @@ import { analyticsService } from '../services/analyticsService';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
-// ============================================================================
-// CACHE UTILITIES (Stale-While-Revalidate Pattern)
-// ============================================================================
 
-const CACHE_KEYS = {
-  STATS: 'dashboard_stats_cache',
-  AR_AGING: 'dashboard_ar_aging_cache',
-  REVENUE_TREND: 'dashboard_revenue_trend_cache',
-};
-
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-/**
- * Get cached data from localStorage
- * @returns {Object|null} - { data, timestamp } or null if not found
- */
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-    return JSON.parse(cached);
-  } catch (error) {
-    console.warn('Dashboard cache read error:', error);
-    return null;
-  }
-};
-
-/**
- * Set cached data in localStorage
- */
-const setCachedData = (key, data) => {
-  try {
-    const cacheEntry = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(cacheEntry));
-  } catch (error) {
-    console.warn('Dashboard cache write error:', error);
-  }
-};
-
-/**
- * Check if cached data is stale (older than TTL)
- */
-const isCacheStale = (timestamp) => {
-  if (!timestamp) return true;
-  return Date.now() - timestamp > CACHE_TTL_MS;
-};
 
 // Custom components for consistent theming
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, ...props }) => {
@@ -288,15 +240,7 @@ const Dashboard = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
 
-  // Initialize with cached data for instant display (stale-while-revalidate)
-  const cachedStats = getCachedData(CACHE_KEYS.STATS);
-  const cachedArAging = getCachedData(CACHE_KEYS.AR_AGING);
-  const cachedRevenueTrend = getCachedData(CACHE_KEYS.REVENUE_TREND);
-
-  // Determine if we have any cached data to show immediately
-  const hasCachedData = !!(cachedStats?.data || cachedArAging?.data || cachedRevenueTrend?.data);
-
-  const [stats, setStats] = useState(cachedStats?.data || {
+  const [stats, setStats] = useState({
     totalRevenue: 0,
     totalCustomers: 0,
     totalProducts: 0,
@@ -313,8 +257,7 @@ const Dashboard = () => {
   });
 
   const [topProducts, setTopProducts] = useState([]);
-  // If we have cached data, don't show loading spinner - show stale data immediately
-  const [loading, setLoading] = useState(!hasCachedData);
+  const [loading, setLoading] = useState(true);
   // Track if background refresh is in progress
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -425,16 +368,7 @@ const Dashboard = () => {
 
       // ====================================================================
       // CACHE FRESH DATA (Stale-While-Revalidate)
-      // ====================================================================
-      setCachedData(CACHE_KEYS.STATS, statsData);
-
-      if (arAgingData) {
-        setCachedData(CACHE_KEYS.AR_AGING, arAgingData);
-      }
-
-      if (revenueTrendData) {
-        setCachedData(CACHE_KEYS.REVENUE_TREND, revenueTrendData);
-      }
+      // ===================================================================
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

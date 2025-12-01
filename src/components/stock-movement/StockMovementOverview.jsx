@@ -22,56 +22,26 @@ import {
   stockMovementService,
   TRANSFER_STATUSES,
   RESERVATION_STATUSES,
-  STOCK_CACHE_KEYS,
-  getStockCachedData,
-  setStockCachedData,
 } from '../../services/stockMovementService';
 
 const StockMovementOverview = ({ onNavigateToTab }) => {
   const { isDarkMode } = useTheme();
 
-  // Initialize from cache (stale-while-revalidate pattern)
-  const initFromCache = () => {
-    const cached = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY);
-    if (cached?.data) {
-      return {
-        stats: cached.data.stats || {
-          pendingTransfers: 0,
-          inTransit: 0,
-          completedToday: 0,
-          awaitingReconciliation: 0,
-        },
-        recentActivity: cached.data.recentActivity || [],
-        hasCache: true,
-      };
-    }
-    return {
-      stats: {
-        pendingTransfers: 0,
-        inTransit: 0,
-        completedToday: 0,
-        awaitingReconciliation: 0,
-      },
-      recentActivity: [],
-      hasCache: false,
-    };
-  };
-
-  const cachedState = initFromCache();
-  const [stats, setStats] = useState(cachedState.stats);
-  const [recentActivity, setRecentActivity] = useState(cachedState.recentActivity);
-  const [loading, setLoading] = useState(!cachedState.hasCache); // No loading if cache exists
+  const [stats, setStats] = useState({
+    pendingTransfers: 0,
+    inTransit: 0,
+    completedToday: 0,
+    awaitingReconciliation: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Stale-while-revalidate: if cache exists, load in background without spinner
-    loadDashboardData(cachedState.hasCache);
+    loadDashboardData();
   }, []);
 
-  const loadDashboardData = useCallback(async (skipLoadingState = false) => {
-    // Only show loading spinner if no cache or explicitly requested
-    if (!skipLoadingState) {
-      setLoading(true);
-    }
+  const loadDashboardData = useCallback(async () => {
+    setLoading(true);
     try {
       // Load transfers to calculate stats
       const [transfersResult, reservationsResult] = await Promise.all([
@@ -179,24 +149,15 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       const newRecentActivity = activities.slice(0, 5);
       setRecentActivity(newRecentActivity);
-
-      // Cache the overview data
-      setStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY, {
-        stats: newStats,
-        recentActivity: newRecentActivity,
-      });
     } catch (err) {
       console.error('Error loading dashboard data:', err);
-      // Only reset if no cache fallback
-      if (!cachedState.hasCache) {
-        setStats({
-          pendingTransfers: 0,
-          inTransit: 0,
-          completedToday: 0,
-          awaitingReconciliation: 0,
-        });
-        setRecentActivity([]);
-      }
+      setStats({
+        pendingTransfers: 0,
+        inTransit: 0,
+        completedToday: 0,
+        awaitingReconciliation: 0,
+      });
+      setRecentActivity([]);
     } finally {
       setLoading(false);
     }
