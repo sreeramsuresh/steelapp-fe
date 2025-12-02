@@ -93,6 +93,12 @@ export const createInvoice = () => ({
   last_payment_date: null, // Date of most recent payment
   // Commission tracking
   sales_agent_id: null, // ID of sales agent assigned to this invoice
+  salesPersonId: null, // Phase 5: Sales person who created invoice (for commission tracking)
+  commissionPercentage: 10.00, // Phase 5: Commission rate as percentage (default 10%)
+  commissionStatus: 'PENDING', // Phase 5: PENDING|APPROVED|PAID|VOIDED
+  commissionGracePeriodEndDate: null, // Phase 5: Until when commission can be corrected
+  commissionApprovedDate: null, // Phase 5: When commission was approved
+  commissionPayoutDate: null, // Phase 5: When commission was paid
   commission_eligible: true, // Whether this invoice is eligible for commission
   commission_calculated: false, // Whether commission has been calculated
   commission_paid: false, // Whether commission has been paid

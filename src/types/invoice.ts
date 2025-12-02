@@ -126,10 +126,16 @@ export interface Invoice {
   // Items
   items: InvoiceItem[];
   
-  // Sales & Commission
+  // Sales & Commission (Phase 5: Enhanced Commission Management)
   salesAgentId?: number | null;
+  salesPersonId?: number | null;  // Phase 5: Alternative field name
   salesAgentName?: string;
+  commissionPercentage?: number;  // Phase 5: Commission rate (e.g., 10.00)
   commissionAmount?: number;
+  commissionStatus?: 'PENDING' | 'APPROVED' | 'PAID' | 'VOIDED';  // Phase 5: Commission status
+  commissionGracePeriodEndDate?: string | null;  // Phase 5: Until when commission can be corrected
+  commissionApprovedDate?: string | null;  // Phase 5: When commission was approved
+  commissionPayoutDate?: string | null;  // Phase 5: When commission was paid
   commissionCalculated?: boolean;
   
   // Payment tracking

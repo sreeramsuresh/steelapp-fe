@@ -3142,6 +3142,84 @@ const InvoiceForm = ({ onSave }) => {
                     </span>
                   </div>
                 )}
+
+                {/* Phase 5: Commission Details */}
+                <div className="border-t pt-4 mt-4" style={{
+                  borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
+                }}>
+                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    Commission (Phase 5)
+                  </h3>
+                  <div className="space-y-3">
+                    <Input
+                      label="Commission Percentage (%)"
+                      type="number"
+                      value={invoice.commissionPercentage || 10}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === '') {
+                          setInvoice((prev) => ({ ...prev, commissionPercentage: 0 }));
+                          return;
+                        }
+                        const num = Number(raw);
+                        if (Number.isNaN(num)) return;
+                        const clamped = Math.max(0, Math.min(100, num));
+                        setInvoice((prev) => ({ ...prev, commissionPercentage: clamped }));
+                      }}
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      placeholder="10.00"
+                      inputMode="decimal"
+                      onKeyDown={(e) => {
+                        const blocked = ['e', 'E', '+', '-'];
+                        if (blocked.includes(e.key)) e.preventDefault();
+                      }}
+                      disabled={isLocked}
+                      className="text-base"
+                    />
+                    <div className={`p-3 rounded ${
+                      isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                    }`}>
+                      <p className={`text-xs ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      } mb-2`}>
+                        Commission Amount (Accrual)
+                      </p>
+                      <p className={`text-lg font-bold ${
+                        isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                      }`}>
+                        AED {((computedTotal * (invoice.commissionPercentage || 10)) / 100).toFixed(2)}
+                      </p>
+                      <p className={`text-xs ${
+                        isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                      } mt-2`}>
+                        Accrues when invoice is issued. 15-day grace period for adjustments.
+                      </p>
+                    </div>
+                    {id && invoice.commissionStatus && (
+                      <div className={`p-3 rounded border ${
+                        isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-blue-50 border-blue-200'
+                      }`}>
+                        <p className={`text-xs font-semibold ${
+                          isDarkMode ? 'text-blue-300' : 'text-blue-800'
+                        } mb-1`}>
+                          Commission Status
+                        </p>
+                        <p className={`text-sm font-medium ${
+                          invoice.commissionStatus === 'PAID' ? 'text-green-600' :
+                          invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
+                          invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>
+                          {invoice.commissionStatus}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </Card>
 

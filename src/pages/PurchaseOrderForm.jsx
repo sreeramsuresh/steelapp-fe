@@ -411,6 +411,7 @@ const PurchaseOrderForm = () => {
     supplierTRN: '', // Tax Registration Number (UAE requirement)
     poDate: new Date().toISOString().split('T')[0],
     expectedDeliveryDate: '',
+    gracePeriodDays: 5, // Phase 4: Grace period for on-time delivery evaluation (default 5 days)
     status: 'draft',
     stockStatus: 'retain', // Default to 'retain'
     // Incoterms and delivery
@@ -1225,6 +1226,7 @@ const PurchaseOrderForm = () => {
         supplier_trn: poData.supplierTRN || null,
         po_date: poData.poDate,
         expected_delivery_date: poData.expectedDeliveryDate || null,
+        grace_period_days: poData.gracePeriodDays || 5, // Phase 4: Grace period for on-time delivery
         status: poData.status,
         stock_status: poData.stockStatus,
         currency: poData.currency || 'AED',
@@ -1528,6 +1530,27 @@ const PurchaseOrderForm = () => {
                         : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Grace Period for On-Time Delivery (Days)
+                    <span className="text-xs text-gray-500 ml-1">(default: 5)</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="30"
+                    value={purchaseOrder.gracePeriodDays}
+                    onChange={(e) => handleInputChange('gracePeriodDays', parseInt(e.target.value) || 5)}
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Deliveries within this period are considered on-time
+                  </p>
                 </div>
               </div>
             </div>

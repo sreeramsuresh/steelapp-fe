@@ -33,6 +33,9 @@ const DeliveryNoteForm = () => {
     deliveryNoteNumber: '',
     invoiceId: '',
     deliveryDate: new Date().toISOString().split('T')[0],
+    // Phase 4: GRN dates
+    goodsReceiptDate: new Date().toISOString().split('T')[0],
+    inspectionDate: new Date().toISOString().split('T')[0],
     deliveryAddress: {
       street: '',
       city: '',
@@ -107,6 +110,9 @@ const DeliveryNoteForm = () => {
         deliveryNoteNumber: deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || '',
         invoiceId: deliveryNote.invoiceId || deliveryNote.invoice_id || '',
         deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date || '',
+        // Phase 4: GRN date fields
+        goodsReceiptDate: deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date || new Date().toISOString().split('T')[0],
+        inspectionDate: deliveryNote.inspectionDate || deliveryNote.inspection_date || new Date().toISOString().split('T')[0],
         deliveryAddress: {
           street: parsedAddress.street || '',
           city: parsedAddress.city || '',
@@ -320,6 +326,9 @@ const DeliveryNoteForm = () => {
         deliveryNoteNumber: formData.deliveryNoteNumber,
         invoiceId: formData.invoiceId,
         deliveryDate: formData.deliveryDate,
+        // Phase 4: GRN date fields
+        goodsReceiptDate: formData.goodsReceiptDate,
+        inspectionDate: formData.inspectionDate,
         deliveryAddress: JSON.stringify(formData.deliveryAddress),
         vehicleNumber: formData.vehicleNumber,
         driverName: formData.driverName,
@@ -412,6 +421,39 @@ const DeliveryNoteForm = () => {
                   value={formData.deliveryDate}
                   onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
                   required
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </div>
+              {/* Phase 4: GRN Date Fields */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Goods Receipt Date
+                  <span className="text-xs text-gray-500 ml-1">(when received)</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.goodsReceiptDate}
+                  onChange={(e) => handleInputChange('goodsReceiptDate', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Inspection Date
+                  <span className="text-xs text-gray-500 ml-1">(QC completed)</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.inspectionDate}
+                  onChange={(e) => handleInputChange('inspectionDate', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode
                       ? 'bg-gray-800 border-gray-600 text-white'
