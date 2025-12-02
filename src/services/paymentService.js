@@ -120,12 +120,86 @@ export const normalizePayment = (payment) => {
     voided: payment.voided || false,
     voidedAt: payment.voidedAt || payment.voided_at || null,
     createdAt: payment.createdAt || payment.created_at || null,
+    // VAT Compliance Fields (Migration 113-114)
     receiptNumber: payment.receiptNumber || payment.receipt_number || null,
+    compositeReference: payment.compositeReference || payment.composite_reference || null,
+    receiptStatus: payment.receiptStatus || payment.receipt_status || 'draft',
+    isAdvancePayment: payment.isAdvancePayment || payment.is_advance_payment || false,
+    remarks: payment.remarks || '',
     // Phase 1: Multi-currency fields
     currency: payment.currency || 'AED',
     exchangeRate: Number(payment.exchangeRate || payment.exchange_rate) || 1.0,
     amountInAed: Number(payment.amountInAed || payment.amount_in_aed) || Number(payment.amount) || 0,
   };
+};
+
+/**
+ * Get receipt details for a payment
+ * Extracts receipt-related information for display/printing
+ *
+ * @param {Object} payment - Payment object with receipt details
+ * @returns {Object} Receipt details object
+ */
+export const getReceiptDetails = (payment) => {
+  if (!payment?.receiptNumber) return null;
+
+  return {
+    receiptNumber: payment.receiptNumber || payment.receipt_number,
+    compositeReference: payment.compositeReference || payment.composite_reference,
+    receiptStatus: payment.receiptStatus || payment.receipt_status || 'draft',
+    isAdvancePayment: payment.isAdvancePayment || payment.is_advance_payment || false,
+    remarks: payment.remarks || '',
+    paymentDate: payment.paymentDate || payment.payment_date,
+    amount: payment.amount,
+    currency: payment.currency || 'AED',
+    exchangeRate: Number(payment.exchangeRate || payment.exchange_rate) || 1.0,
+    amountInAed: Number(payment.amountInAed || payment.amount_in_aed) || Number(payment.amount) || 0,
+  };
+};
+
+/**
+ * Format receipt number for display (RCP-YYYY-NNNN)
+ * Validates and normalizes receipt number format
+ *
+ * @param {string} receiptNumber - Receipt number string
+ * @returns {string|null} Formatted receipt number or null if invalid
+ */
+export const formatReceiptNumber = (receiptNumber) => {
+  if (!receiptNumber) return null;
+  
+  // Already formatted
+  if (/^RCP-\d{4}-\d{4}$/.test(receiptNumber)) {
+    return receiptNumber;
+  }
+  
+  // Try to extract from composite reference (INV-YYYY-NNNN-RCP-YYYY-NNNN)
+  const match = receiptNumber.match(/RCP-(\d{4})-(\d{4})/);
+  if (match) {
+    return `RCP-${match[1]}-${match[2]}`;
+  }
+  
+  return null;
+};
+
+/**
+ * Extract composite reference for audit trail
+ * Format: INV-YYYY-NNNN-RCP-YYYY-NNNN
+ *
+ * @param {Object} payment - Payment with composite reference
+ * @param {Object} invoice - Invoice object (fallback)
+ * @returns {string|null} Composite reference for audit trail
+ */
+export const getCompositeReference = (payment, invoice = null) => {
+  if (payment?.compositeReference || payment?.composite_reference) {
+    return payment.compositeReference || payment.composite_reference;
+  }
+  
+  // Fallback: construct from invoice and receipt
+  if (invoice?.invoiceNumber && payment?.receiptNumber) {
+    return `${invoice.invoiceNumber}-${formatReceiptNumber(payment.receiptNumber)}`;
+  }
+  
+  return null;
 };
 
 export default {

@@ -2,6 +2,7 @@
 // This avoids the Vite warning about mixed static/dynamic imports
 import { formatCurrency, formatDate, normalizeLLC, titleCase, formatDateDMY } from './invoiceUtils';
 import { formatPaymentDisplay, getPaymentModeConfig } from './paymentUtils';
+import { generateReceiptHTML } from './receiptTemplateGenerator';
 
 /**
  * Lazy load jsPDF to reduce initial bundle size
@@ -32,6 +33,21 @@ export const generateReceiptNumber = (payment, paymentIndex = 1) => {
   const year = new Date().getFullYear();
   const paddedIndex = String(paymentIndex).padStart(4, '0');
   return `RCP-${year}-${paddedIndex}`;
+};
+
+/**
+ * Generate FTA-Compliant Receipt HTML
+ * Uses new receiptTemplateGenerator for VAT compliance
+ * 
+ * @param {Object} payment - Payment record with all receipt details
+ * @param {Object} invoice - Invoice being paid
+ * @param {Object} company - Company details (with TRN)
+ * @param {Object} customer - Customer details
+ * @param {number} paymentIndex - Sequential index (1-based)
+ * @returns {string} FTA-compliant receipt HTML
+ */
+export const generateFTACompliantReceiptHTML = (payment, invoice, company, customer, paymentIndex = 1) => {
+  return generateReceiptHTML(payment, invoice, company, customer, paymentIndex);
 };
 
 /**

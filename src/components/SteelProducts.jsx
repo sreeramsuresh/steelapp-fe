@@ -240,6 +240,7 @@ const SteelProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('all');  // Phase 3: Product category filter
   const [showSpeedButtons, setShowSpeedButtons] = useState(true);
 
   const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
@@ -304,6 +305,11 @@ const SteelProducts = () => {
     supplier: '',
     location: '',
     origin: 'UAE',  // Country of origin - default UAE
+    // Phase 3: Product Master Data (added 2025-12-02)
+    hsCode: '',  // Harmonized System code (6-10 digits)
+    countryOfOrigin: '',  // Manufacturing country
+    millName: '',  // Steel mill/manufacturer name
+    productCategory: '',  // Product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
     specifications: {
       length: '',
       width: '',
@@ -510,7 +516,12 @@ const SteelProducts = () => {
     const matchesGradeGroup = activeGradeGroup === 'all' || 
       (activeGrade?.grades?.some(g => grade.includes(g.toLowerCase())));
 
-    return matchesSearch && matchesCategory && matchesStock && matchesGradeGroup;
+    // Phase 3: Match by product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
+    const productCategory = (product?.productCategory || product?.product_category || '').toUpperCase();
+    const matchesProductCategory = productCategoryFilter === 'all' || 
+      (productCategoryFilter && productCategory === productCategoryFilter.toUpperCase());
+
+    return matchesSearch && matchesCategory && matchesStock && matchesGradeGroup && matchesProductCategory;
   });
 
   const handleAddProduct = async () => {
@@ -544,6 +555,11 @@ const SteelProducts = () => {
         supplier: newProduct.supplier,
         location: newProduct.location,
         origin: newProduct.origin || 'UAE',  // Country of origin
+        // Phase 3: Product Master Data (added 2025-12-02)
+        hsCode: newProduct.hsCode || undefined,  // API Gateway converts to hs_code
+        countryOfOrigin: newProduct.countryOfOrigin || undefined,  // API Gateway converts to country_of_origin
+        millName: newProduct.millName || undefined,  // API Gateway converts to mill_name
+        productCategory: newProduct.productCategory || undefined,  // API Gateway converts to product_category
         specifications: newProduct.specifications,
       };
       await createProduct(productData);
@@ -569,6 +585,11 @@ const SteelProducts = () => {
         supplier: '',
         location: '',
         origin: 'UAE',  // Reset to default
+        // Phase 3: Reset Product Master Data fields
+        hsCode: '',
+        countryOfOrigin: '',
+        millName: '',
+        productCategory: '',
         specifications: {
           length: '', width: '', thickness: '', diameter: '',
           tensileStrength: '', yieldStrength: '', carbonContent: '',
@@ -995,6 +1016,22 @@ const SteelProducts = () => {
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
           className="min-w-28"
+        />
+        <Select
+          label="Product Category"
+          options={[
+            { value: 'all', label: 'All Categories' },
+            { value: 'COIL', label: 'COIL' },
+            { value: 'SHEET', label: 'SHEET' },
+            { value: 'PLATE', label: 'PLATE' },
+            { value: 'PIPE', label: 'PIPE' },
+            { value: 'TUBE', label: 'TUBE' },
+            { value: 'BAR', label: 'BAR' },
+            { value: 'FLAT', label: 'FLAT' },
+          ]}
+          value={productCategoryFilter}
+          onChange={(e) => setProductCategoryFilter(e.target.value)}
+          className="min-w-40"
         />
         <Button
           onClick={async () => {
@@ -1617,6 +1654,48 @@ const SteelProducts = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Phase 3: Product Master Data */}
+                <div>
+                  <h3 className="text-lg font-medium text-teal-600 mb-4">Customs & Trade Compliance (Phase 3)</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input
+                      label="HS Code (Harmonized System)"
+                      value={newProduct.hsCode || ''}
+                      onChange={(e) => setNewProduct({...newProduct, hsCode: e.target.value})}
+                      placeholder="e.g., 720299 or 7225403010"
+                      error={newProduct.hsCode && !/^\d{6,10}$/.test(newProduct.hsCode) ? 'Must be 6-10 digits' : ''}
+                    />
+                    <Select
+                      label="Country of Origin (Manufacturing)"
+                      options={originOptions}
+                      value={newProduct.countryOfOrigin || ''}
+                      onChange={(e) => setNewProduct({...newProduct, countryOfOrigin: e.target.value})}
+                      placeholder="Select country..."
+                    />
+                    <Input
+                      label="Mill Name / Manufacturer"
+                      value={newProduct.millName || ''}
+                      onChange={(e) => setNewProduct({...newProduct, millName: e.target.value})}
+                      placeholder="e.g., Nippon Steel, Tata Steel"
+                    />
+                    <Select
+                      label="Product Category"
+                      options={[
+                        { value: 'COIL', label: 'COIL' },
+                        { value: 'SHEET', label: 'SHEET' },
+                        { value: 'PLATE', label: 'PLATE' },
+                        { value: 'PIPE', label: 'PIPE' },
+                        { value: 'TUBE', label: 'TUBE' },
+                        { value: 'BAR', label: 'BAR' },
+                        { value: 'FLAT', label: 'FLAT' },
+                      ]}
+                      value={newProduct.productCategory || ''}
+                      onChange={(e) => setNewProduct({...newProduct, productCategory: e.target.value})}
+                      placeholder="Select category..."
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Modal Footer */}
@@ -1822,6 +1901,48 @@ const SteelProducts = () => {
                       onChange={(e) => setSelectedProduct({...selectedProduct, description: e.target.value})}
                       rows={3}
                     />
+                  </div>
+
+                  {/* Phase 3: Product Master Data */}
+                  <div className="sm:col-span-2 pt-4 border-t border-gray-300 dark:border-gray-600">
+                    <h4 className="text-sm font-semibold text-teal-600 mb-3">Customs & Trade Compliance (Phase 3)</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Input
+                        label="HS Code (Harmonized System)"
+                        value={selectedProduct.hsCode || ''}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, hsCode: e.target.value})}
+                        placeholder="e.g., 720299 or 7225403010"
+                        error={selectedProduct.hsCode && !/^\d{6,10}$/.test(selectedProduct.hsCode) ? 'Must be 6-10 digits' : ''}
+                      />
+                      <Select
+                        label="Country of Origin (Manufacturing)"
+                        options={originOptions}
+                        value={selectedProduct.countryOfOrigin || ''}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, countryOfOrigin: e.target.value})}
+                        placeholder="Select country..."
+                      />
+                      <Input
+                        label="Mill Name / Manufacturer"
+                        value={selectedProduct.millName || ''}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, millName: e.target.value})}
+                        placeholder="e.g., Nippon Steel, Tata Steel"
+                      />
+                      <Select
+                        label="Product Category"
+                        options={[
+                          { value: 'COIL', label: 'COIL' },
+                          { value: 'SHEET', label: 'SHEET' },
+                          { value: 'PLATE', label: 'PLATE' },
+                          { value: 'PIPE', label: 'PIPE' },
+                          { value: 'TUBE', label: 'TUBE' },
+                          { value: 'BAR', label: 'BAR' },
+                          { value: 'FLAT', label: 'FLAT' },
+                        ]}
+                        value={selectedProduct.productCategory || ''}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, productCategory: e.target.value})}
+                        placeholder="Select category..."
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

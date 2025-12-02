@@ -310,6 +310,13 @@ const PaymentDrawer = ({
                       const voidReason = p.voidReason || p.void_reason;
                       const voidedBy = p.voidedBy || p.voided_by;
                       const voidedAt = p.voidedAt || p.voided_at;
+
+                      // VAT Compliance Fields (Migration 113-114)
+                      const receiptNumber = p.receiptNumber || p.receipt_number || '';
+                      const compositeReference = p.compositeReference || p.composite_reference || '';
+                      const receiptStatus = p.receiptStatus || p.receipt_status || 'draft';
+                      const isAdvancePayment = p.isAdvancePayment || p.is_advance_payment || false;
+
                       const isDropdownOpen = voidDropdownPaymentId === p.id;
                       const isDownloading = downloadingReceiptId === p.id;
                       const isPrinting = printingReceiptId === p.id;
@@ -378,6 +385,24 @@ const PaymentDrawer = ({
                                 </span>
                               ) : (
                                 <>
+                                  {/* Receipt Status Badge (FTA Compliance) */}
+                                  {receiptNumber && (
+                                    <span
+                                      className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
+                                        receiptStatus === 'printed'
+                                          ? isDarkMode
+                                            ? 'bg-blue-900/50 text-blue-400'
+                                            : 'bg-blue-100 text-blue-700'
+                                          : isDarkMode
+                                            ? 'bg-amber-900/50 text-amber-400'
+                                            : 'bg-amber-100 text-amber-700'
+                                      }`}
+                                      title={`Receipt: ${receiptNumber}${isAdvancePayment ? ' (Advance Payment)' : ''}`}
+                                    >
+                                      {receiptStatus === 'printed' ? '✓ PRINTED' : 'DRAFT'}
+                                    </span>
+                                  )}
+
                                   {/* Print Receipt Button */}
                                   {onPrintReceipt && (
                                     <button
