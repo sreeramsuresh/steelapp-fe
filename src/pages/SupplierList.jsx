@@ -110,6 +110,7 @@ export function SupplierList() {
                     <TableHead className="text-right">Late Count</TableHead>
                     <TableHead className="text-right">Score</TableHead>
                     <TableHead>Rating</TableHead>
+                    <TableHead>Reason</TableHead>
                     <TableHead className="text-center">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -143,6 +144,9 @@ export function SupplierList() {
                         <Badge className={getRatingColor(supplier.supplier_rating)}>
                           {supplier.supplier_rating || 'UNRATED'}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {supplier.reason || 'No notes'}
                       </TableCell>
                       <TableCell className="text-center">
                         <Button

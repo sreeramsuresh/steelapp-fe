@@ -40,6 +40,9 @@ const CustomerForm = () => {
     trn: '',
     creditLimit: 0,
     paymentTerms: '',
+    customerCode: '',
+    dsoValue: 0,
+    creditUtilization: 0,
   });
 
   // Credit Management State
@@ -95,6 +98,9 @@ const CustomerForm = () => {
         trn: customer.trn || '',
         creditLimit: customer.creditLimit || 0,
         paymentTerms: customer.paymentTerms || '',
+        customerCode: customer.customerCode || '',
+        dsoValue: customer.dsoValue || 0,
+        creditUtilization: customer.creditUtilization || 0,
       });
 
       setCreditData({
@@ -150,6 +156,9 @@ const CustomerForm = () => {
         trn: formData.trn,
         credit_limit: parseFloat(formData.creditLimit) || 0,
         payment_terms: formData.paymentTerms,
+        customer_code: formData.customerCode,
+        dso_value: parseFloat(formData.dsoValue) || 0,
+        credit_utilization: parseFloat(formData.creditUtilization) || 0,
       };
 
       let result;
@@ -433,6 +442,59 @@ const CustomerForm = () => {
                   onChange={handleInputChange}
                   disabled={!isEditMode}
                   placeholder="e.g., 30 days, Net 45"
+                  className={`w-full px-3 py-2 rounded border ${inputBg} focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50`}
+                />
+              </div>
+
+              {/* Customer Code (Analytics) */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${labelColor}`}>
+                  Customer Code
+                </label>
+                <input
+                  type="text"
+                  name="customerCode"
+                  value={formData.customerCode}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  placeholder="Unique customer code"
+                  className={`w-full px-3 py-2 rounded border ${inputBg} focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50`}
+                />
+              </div>
+
+              {/* DSO Value (Analytics) */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${labelColor}`}>
+                  Days Sales Outstanding (DSO)
+                </label>
+                <input
+                  type="number"
+                  name="dsoValue"
+                  value={formData.dsoValue}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  className={`w-full px-3 py-2 rounded border ${inputBg} focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50`}
+                />
+              </div>
+
+              {/* Credit Utilization (Analytics) */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${labelColor}`}>
+                  Credit Utilization (%)
+                </label>
+                <input
+                  type="number"
+                  name="creditUtilization"
+                  value={formData.creditUtilization}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  placeholder="0.00"
                   className={`w-full px-3 py-2 rounded border ${inputBg} focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50`}
                 />
               </div>

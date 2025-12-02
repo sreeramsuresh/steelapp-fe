@@ -69,12 +69,12 @@ export default function DeliveryVarianceDashboard() {
   if (loading) return <div className="flex justify-center items-center h-96">Loading dashboard...</div>;
   if (error) return <div className="text-red-600 p-4">Error: {error}</div>;
 
-  const trendChartData = trend && {
+  const trendChartData = trend?.trendData?.length > 0 && {
     labels: trend.trendData?.map(d => new Date(d.date).toLocaleDateString()) || [],
     datasets: [
       {
         label: 'On-Time Delivery %',
-        data: trend.trendData?.map(d => d.onTimePct) || [],
+        data: trend.trendData?.map(d => d.onTimeDeliveryPct) || [],
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.1)',
         tension: 0.4,
@@ -82,17 +82,12 @@ export default function DeliveryVarianceDashboard() {
     ],
   };
 
-  const breakdownChartData = breakdown && {
-    labels: ['1-5 Days', '6-10 Days', '11-30 Days', '30+ Days'],
+  const breakdownChartData = breakdown?.varianceRanges?.length > 0 && {
+    labels: breakdown.varianceRanges?.map(r => r.rangeLabel) || [],
     datasets: [
       {
         label: 'Late Deliveries',
-        data: [
-          breakdown.oneToFiveDays || 0,
-          breakdown.sixToTenDays || 0,
-          breakdown.elevenToThirtyDays || 0,
-          breakdown.overThirtyDays || 0,
-        ],
+        data: breakdown.varianceRanges?.map(r => r.count) || [],
         backgroundColor: [
           'rgba(255, 193, 7, 0.8)',
           'rgba(255, 152, 0, 0.8)',
@@ -103,7 +98,7 @@ export default function DeliveryVarianceDashboard() {
     ],
   };
 
-  const comparisonChartData = comparison && {
+  const comparisonChartData = comparison?.suppliers?.length > 0 && {
     labels: comparison.suppliers?.map(s => s.supplierName) || [],
     datasets: [
       {
@@ -146,11 +141,11 @@ export default function DeliveryVarianceDashboard() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm font-semibold">Late Deliveries</div>
-            <div className="text-3xl font-bold text-red-600">{kpis.lateDeliveries || 0}</div>
+            <div className="text-3xl font-bold text-red-600">{kpis.lateDeliveryCount || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm font-semibold">Total Deliveries</div>
-            <div className="text-3xl font-bold text-purple-600">{kpis.totalDeliveries || 0}</div>
+            <div className="text-3xl font-bold text-purple-600">{kpis.totalDeliveryCount || 0}</div>
           </div>
         </div>
       )}
@@ -216,10 +211,10 @@ export default function DeliveryVarianceDashboard() {
               <tbody>
                 {lateDeliveries.lateDeliveries?.map((delivery, idx) => (
                   <tr key={idx} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-2">{delivery.grnNumber}</td>
+                    <td className="px-4 py-2">{delivery.grnId}</td>
                     <td className="px-4 py-2">{delivery.supplierName}</td>
-                    <td className="px-4 py-2">{new Date(delivery.expectedDate).toLocaleDateString()}</td>
-                    <td className="px-4 py-2">{new Date(delivery.actualDate).toLocaleDateString()}</td>
+                    <td className="px-4 py-2">{delivery.expectedDeliveryDate}</td>
+                    <td className="px-4 py-2">{delivery.goodsReceiptDate}</td>
                     <td className="px-4 py-2">
                       <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">
                         {delivery.varianceDays} days
