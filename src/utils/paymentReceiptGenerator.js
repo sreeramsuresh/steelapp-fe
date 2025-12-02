@@ -22,9 +22,9 @@ const getJsPDF = async () => {
  * @returns {string} Receipt number in format RCP-YYYY-NNNN
  */
 export const generateReceiptNumber = (payment, paymentIndex = 1) => {
-  // Priority 1: Use existing receipt number from database
-  if (payment && payment.receiptNumber) {
-    return payment.receiptNumber;
+  // Priority 1: Use existing receipt number from database (check both camelCase and snake_case)
+  if (payment && (payment.receiptNumber || payment.receipt_number)) {
+    return payment.receiptNumber || payment.receipt_number;
   }
 
   // Priority 2: Generate fallback with current year + index
@@ -38,7 +38,20 @@ export const generateReceiptNumber = (payment, paymentIndex = 1) => {
  * Helper function to add payment history table to PDF
  */
 const addPaymentHistoryTable = (pdf, invoice, currentPayment, yPos, margin, pageWidth) => {
-  const allPayments = (invoice.payments || []).filter(p => !p.voided).sort((a, b) => new Date(a.paymentDate) - new Date(b.paymentDate));
+  const allPayments = (invoice.payments || []).filter(p => !p.voided).sort((a, b) => {
+    const dateA = new Date(a.paymentDate || a.payment_date || 0);
+    const dateB = new Date(b.paymentDate || b.payment_date || 0);
+    
+    // Primary sort: by date (newest first)
+    if (dateB.getTime() !== dateA.getTime()) {
+      return dateB - dateA;
+    }
+    
+    // Secondary sort: by ID descending (most recent payment first when dates are the same)
+    const idA = a.id || a.paymentId || a.payment_id || 0;
+    const idB = b.id || b.paymentId || b.payment_id || 0;
+    return idB - idA;
+  });
 
   if (allPayments.length === 0) {
     return yPos;

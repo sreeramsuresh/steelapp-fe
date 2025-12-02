@@ -34,6 +34,7 @@ const InvoiceTemplate = ({
   showSignature = false,
   showTotals = false,
   template = null,
+  documentType = 'invoice',
 }) => {
   // Get template colors - prioritize passed template, then company settings, then defaults
   const templateSettings = template || company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
@@ -60,6 +61,7 @@ const InvoiceTemplate = ({
         isFirstPage={isFirstPage}
         primaryColor={primaryColor}
         template={templateSettings}
+        documentType={documentType}
       />
 
       {/* Items table - with continued indicator on pages after first */}

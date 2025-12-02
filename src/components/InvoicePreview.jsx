@@ -141,6 +141,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
                 showSignature={page.isLastPage}
                 showTotals={page.isLastPage}
                 template={template}
+                documentType="invoice"
               />
 
               {/* Page Break Indicator - Only between pages, not after last */}

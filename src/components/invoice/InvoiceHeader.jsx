@@ -6,21 +6,30 @@ import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettin
  * Displays on every page of the invoice
  * Shows company info and optionally invoice details on first page
  * Uses logo uploaded in Company Settings (pdf_logo_url or logo_url)
+ * Respects document-type-specific visibility settings from company.settings.documentImages
  */
-const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template = null }) => {
+const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template = null, documentType = 'invoice' }) => {
   const compAddr = company?.address || {};
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
   
+  // Get document-type-specific image visibility settings
+  const docImageSettings = company?.settings?.documentImages?.[documentType] || {
+    showLogo: true,
+    showSeal: true,
+  };
+  
   // Get logo from company profile
   let companyLogo = null;
-  if (company?.pdfLogoUrl) {
-    companyLogo = company.pdfLogoUrl.startsWith('/') 
-      ? `${baseUrl}${company.pdfLogoUrl}` 
-      : company.pdfLogoUrl;
-  } else if (company?.logoUrl) {
-    companyLogo = company.logoUrl.startsWith('/') 
-      ? `${baseUrl}${company.logoUrl}` 
-      : company.logoUrl;
+  if (docImageSettings.showLogo) {
+    if (company?.pdfLogoUrl) {
+      companyLogo = company.pdfLogoUrl.startsWith('/') 
+        ? `${baseUrl}${company.pdfLogoUrl}` 
+        : company.pdfLogoUrl;
+    } else if (company?.logoUrl) {
+      companyLogo = company.logoUrl.startsWith('/') 
+        ? `${baseUrl}${company.logoUrl}` 
+        : company.logoUrl;
+    }
   }
   
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
@@ -29,7 +38,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
   const colors = template?.colors || {};
   
   const headerStyle = layout.headerStyle || 'centered';
-  const showLogo = layout.showLogo !== false;
+  const showLogo = layout.showLogo !== false && docImageSettings.showLogo;
   const showWatermark = layout.showWatermark === true;
   const fontFamily = fonts.heading || 'Inter, system-ui, sans-serif';
 

@@ -407,13 +407,21 @@ const CompanySettings = () => {
       accountNumber: '',
       iban: '',
     },
+    documentImageSettings: {
+      invoice: { showLogo: true, showSeal: true },
+      quotation: { showLogo: true, showSeal: false },
+      purchaseOrder: { showLogo: true, showSeal: true },
+      creditNote: { showLogo: false, showSeal: true },
+      deliveryNote: { showLogo: true, showSeal: false },
+      paymentReceipt: { showLogo: true, showSeal: true },
+      accountStatement: { showLogo: false, showSeal: false },
+    },
   });
 
 
   useEffect(() => {
     if (companyData) {
       console.log('Loading company data:', companyData);
-      console.log('Company logo URL:', companyData.logoUrl);
       
       // Extract address fields from JSONB or keep as string for backwards compatibility
       const addressData = companyData.address;
@@ -429,18 +437,38 @@ const CompanySettings = () => {
         addressStr = addressData;
       }
       
-      setCompanyProfile({
+      // Map API fields to component state (API returns camelCase)
+      const mappedData = {
         ...companyData,
         address: addressStr,
         city,
         country,
         website: companyData.website || '',
-        bankDetails: companyData.bankDetails || {
-          bankName: '',
-          accountNumber: '',
-          iban: '',
+        // Logos - API returns camelCase, treat empty strings as null
+        logoUrl: companyData.logoUrl || null,
+        brandmarkUrl: companyData.brandmarkUrl || null,
+        pdfLogoUrl: companyData.pdfLogoUrl || null,
+        pdfSealUrl: companyData.pdfSealUrl || null,
+        bankDetails: {
+          bankName: companyData.bankDetails?.bankName || '',
+          accountNumber: companyData.bankDetails?.accountNumber || '',
+          iban: companyData.bankDetails?.iban || '',
         },
-      });
+        // Load document image settings from API (nested in settings object)
+        documentImageSettings: companyData.settings?.documentImages || {
+          invoice: { showLogo: true, showSeal: true },
+          quotation: { showLogo: true, showSeal: false },
+          purchaseOrder: { showLogo: true, showSeal: true },
+          creditNote: { showLogo: false, showSeal: true },
+          deliveryNote: { showLogo: true, showSeal: false },
+          paymentReceipt: { showLogo: true, showSeal: true },
+          accountStatement: { showLogo: false, showSeal: false },
+        },
+      };
+      
+      console.log('Mapped company profile:', mappedData);
+      console.log('Logo URL:', mappedData.logoUrl);
+      setCompanyProfile(mappedData);
     }
   }, [companyData]);
 
@@ -759,6 +787,17 @@ const CompanySettings = () => {
           accountNumber: '',
           iban: '',
         },
+        settings: {
+          documentImages: companyProfile.documentImageSettings || {
+            invoice: { showLogo: true, showSeal: true },
+            quotation: { showLogo: true, showSeal: false },
+            purchaseOrder: { showLogo: true, showSeal: true },
+            creditNote: { showLogo: false, showSeal: true },
+            deliveryNote: { showLogo: true, showSeal: false },
+            paymentReceipt: { showLogo: true, showSeal: true },
+            accountStatement: { showLogo: false, showSeal: false },
+          },
+        },
       };
       
       console.log('Sending company data:', updateData);
@@ -862,7 +901,7 @@ const CompanySettings = () => {
       const response = await uploadLogo(file);
 
       // Handle different possible response structures
-      const logoUrl = response?.logoUrl || response?.logoUrl || response?.url || response?.path;
+      const logoUrl = response?.logo_url || response?.logoUrl || response?.url || response?.path;
 
       if (!logoUrl) {
         console.error('No logo URL found in response. Response structure:', response);
@@ -979,7 +1018,7 @@ const CompanySettings = () => {
       const response = await companyService.uploadBrandmark(file);
 
       // Handle different possible response structures
-      const brandmarkUrl = response?.brandmarkUrl || response?.brandmarkUrl || response?.url || response?.path;
+      const brandmarkUrl = response?.brandmarkUrl || response?.pdf_brandmark_url || response?.url || response?.path;
 
       if (!brandmarkUrl) {
         console.error('No brandmark URL found in response. Response structure:', response);
@@ -1103,7 +1142,7 @@ const CompanySettings = () => {
       console.log('[Seal Upload] Response received:', response);
 
       // Handle different possible response structures
-      const sealUrl = response?.sealUrl || response?.sealUrl || response?.url || response?.path;
+      const sealUrl = response?.pdfSealUrl || response?.pdf_seal_url || response?.url || response?.path;
 
       if (!sealUrl) {
         console.error('No seal URL found in response. Response structure:', response);
@@ -2064,6 +2103,86 @@ const CompanySettings = () => {
                           For PDFs
                         </p>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Document Types - Logo & Seal Settings */}
+                  <div className="mt-8 pt-8 border-t border-gray-300">
+                    <h4 className={`text-sm font-semibold mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Enable Logos in Document Types
+                    </h4>
+                    
+                    <div className="overflow-x-auto">
+                      <table className={`w-full text-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <thead>
+                          <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
+                            <th className={`text-left py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              Document Type
+                            </th>
+                            <th className={`text-center py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              Logo
+                            </th>
+                            <th className={`text-center py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              Seal
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { key: 'invoice', label: 'Invoice' },
+                            { key: 'quotation', label: 'Quotation' },
+                            { key: 'purchaseOrder', label: 'Purchase Order' },
+                            { key: 'creditNote', label: 'Credit Note' },
+                            { key: 'deliveryNote', label: 'Delivery Note' },
+                            { key: 'paymentReceipt', label: 'Payment Receipt' },
+                            { key: 'accountStatement', label: 'Account Statement' },
+                          ].map((doc) => (
+                            <tr key={doc.key} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                              <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                                {doc.label}
+                              </td>
+                              <td className="text-center py-3 px-4">
+                                <input
+                                  type="checkbox"
+                                  checked={companyProfile.documentImageSettings?.[doc.key]?.showLogo ?? true}
+                                  onChange={(e) => {
+                                    setCompanyProfile(prev => ({
+                                      ...prev,
+                                      documentImageSettings: {
+                                        ...prev.documentImageSettings,
+                                        [doc.key]: {
+                                          ...prev.documentImageSettings?.[doc.key],
+                                          showLogo: e.target.checked,
+                                        },
+                                      },
+                                    }));
+                                  }}
+                                  className="w-4 h-4 rounded"
+                                />
+                              </td>
+                              <td className="text-center py-3 px-4">
+                                <input
+                                  type="checkbox"
+                                  checked={companyProfile.documentImageSettings?.[doc.key]?.showSeal ?? true}
+                                  onChange={(e) => {
+                                    setCompanyProfile(prev => ({
+                                      ...prev,
+                                      documentImageSettings: {
+                                        ...prev.documentImageSettings,
+                                        [doc.key]: {
+                                          ...prev.documentImageSettings?.[doc.key],
+                                          showSeal: e.target.checked,
+                                        },
+                                      },
+                                    }));
+                                  }}
+                                  className="w-4 h-4 rounded"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>

@@ -44,6 +44,13 @@ export interface Product {
   specifications?: string;
   specification?: string; // Singular alias
   schedule?: string;
+
+  // Phase 3: Product Master Data (added 2025-12-02)
+  hsCode?: string;                    // Harmonized System code (6-10 digits for customs)
+  countryOfOrigin?: string;           // Manufacturing country for export docs
+  millName?: string;                  // Steel mill/manufacturer name
+  productCategory?: string;           // Product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
+  surfaceFinishOptions?: string | Array<{finish: string, available: boolean}>; // Available finishes
   
   // Pricing
   price?: number;

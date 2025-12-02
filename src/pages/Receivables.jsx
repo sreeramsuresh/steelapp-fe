@@ -7,14 +7,31 @@ import { createPaymentPayload } from '../services/paymentService';
 import { uuid } from '../utils/uuid';
 import { formatCurrency, formatDate as formatDateUtil } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
+import { notificationService } from '../services/notificationService';
 import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
 import AddPaymentForm from '../components/payments/AddPaymentForm';
+import PaymentDrawer from '../components/payments/PaymentDrawer';
 
 // Stale-while-revalidate cache configuration
 const CACHE_KEYS = {
   RECEIVABLES: 'finance_receivables_cache',
 };
 const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+
+/**
+ * Void payment reasons for the dropdown
+ */
+const VOID_REASONS = [
+  { value: 'cheque_bounced', label: 'Cheque bounced' },
+  { value: 'duplicate_entry', label: 'Duplicate entry' },
+  { value: 'wrong_amount', label: 'Wrong amount' },
+  { value: 'wrong_invoice', label: 'Wrong invoice' },
+  { value: 'customer_refund', label: 'Customer refund' },
+  { value: 'payment_cancelled', label: 'Payment cancelled' },
+  { value: 'data_entry_error', label: 'Data entry error' },
+  { value: 'other', label: 'Other' },
+];
 
 const getCachedData = (key) => {
   try {
@@ -143,6 +160,9 @@ const Receivables = () => {
   const [isSavingPayment, setIsSavingPayment] = useState(false);
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
+  const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
+  const [voidCustomReason, setVoidCustomReason] = useState('');
+  const [isVoidingPayment, setIsVoidingPayment] = useState(false);
   const page = Number(filters.page || 1);
   const size = Number(filters.size || 10);
 
@@ -333,6 +353,57 @@ const Receivables = () => {
     }
   };
 
+  const handleVoidPayment = async (paymentId, reason) => {
+    const inv = drawer.item;
+    if (!inv || !paymentId || !reason) return;
+
+    const paymentToVoid = (inv.payments || []).find(p => p.id === paymentId);
+    if (!paymentToVoid || paymentToVoid.voided) return;
+
+    setIsVoidingPayment(true);
+
+    // Optimistic UI update
+    const updatedPayments = inv.payments.map(p =>
+      p.id === paymentId
+        ? {
+            ...p,
+            voided: true,
+            voided_at: new Date().toISOString(),
+            void_reason: reason,
+            voided_by: authService.getCurrentUser()?.name || 'User',
+          }
+        : p,
+    );
+    const invoiceAmount = getInvoiceAmount(inv);
+    const received = updatedPayments.filter(p => !p.voided).reduce((s, p) => s + Number(p.amount || 0), 0);
+    const outstanding = Math.max(0, +(invoiceAmount - received).toFixed(2));
+    let status = 'unpaid';
+    if (outstanding === 0) status = 'paid';
+    else if (outstanding < invoiceAmount) status = 'partially_paid';
+
+    const updatedInv = {
+      ...inv,
+      payments: updatedPayments,
+      received,
+      outstanding,
+      status,
+    };
+
+    setDrawer({ open: true, item: updatedInv });
+    setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
+
+    try {
+      await invoiceService.voidInvoicePayment(inv.id, paymentId, reason);
+      setVoidDropdownPaymentId(null);
+      setVoidCustomReason('');
+      notificationService.success('Payment voided successfully');
+    } catch (error) {
+      console.error('Error voiding payment:', error);
+      notificationService.error('Failed to void payment');
+    } finally {
+      setIsVoidingPayment(false);
+    }
+  };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
     const inv = drawer.item;
@@ -574,8 +645,40 @@ const Receivables = () => {
         )}
       </div>
 
-      {/* Drawer */}
-      {drawer.open && drawer.item && (
+      {/* Payment Drawer */}
+      <PaymentDrawer
+        invoice={drawer.item}
+        isOpen={drawer.open}
+        onClose={closeDrawer}
+        onAddPayment={handleAddPayment}
+        isSaving={isSavingPayment}
+        canManage={canManage}
+        isDarkMode={isDarkMode}
+        otherSessions={[]}
+        onPrintReceipt={handlePrintReceipt}
+        onDownloadReceipt={handleDownloadReceipt}
+        onVoidPayment={handleVoidPayment}
+        isVoidingPayment={isVoidingPayment}
+        voidDropdownPaymentId={voidDropdownPaymentId}
+        onVoidDropdownToggle={(id) => {
+          setVoidDropdownPaymentId(id);
+          setVoidCustomReason('');
+        }}
+        voidCustomReason={voidCustomReason}
+        onVoidCustomReasonChange={setVoidCustomReason}
+        onSubmitCustomVoidReason={(paymentId) => {
+          if (voidCustomReason.trim()) {
+            handleVoidPayment(paymentId, voidCustomReason.trim());
+          }
+        }}
+        downloadingReceiptId={downloadingReceiptId}
+        printingReceiptId={printingReceiptId}
+        PAYMENT_MODES={PAYMENT_MODES}
+        VOID_REASONS={VOID_REASONS}
+      />
+
+      {/* Temporary: Keep old drawer structure for reference - to be removed */}
+      {false && drawer.open && drawer.item && (
         <div className="fixed inset-0 z-[1100] flex">
           <div className="flex-1 bg-black/30" onClick={closeDrawer}></div>
           <div className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'} shadow-xl`}>
@@ -670,7 +773,7 @@ const Receivables = () => {
                   </span>
                 </div>
               ) : canManage ? (
-                <AddPaymentForm outstanding={getOutstanding(drawer.item)} onSave={handleAddPayment} isSaving={isSavingPayment} />
+                <AddPaymentForm outstanding={getOutstanding(drawer.item)} onSave={handleAddPayment} isSaving={isSavingPayment} onCancel={closeDrawer} />
               ) : (
                 <div className="text-sm opacity-70">You don&apos;t have permission to add payments.</div>
               )}

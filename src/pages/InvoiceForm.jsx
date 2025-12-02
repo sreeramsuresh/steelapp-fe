@@ -389,6 +389,67 @@ const Alert = ({ variant = 'info', children, onClose, className = '' }) => {
   );
 };
 
+// VAT Compliance Help Icon Component
+const VatHelpIcon = ({ content, heading }) => {
+  const [showModal, setShowModal] = useState(false);
+  const { isDarkMode } = useTheme();
+
+  const handleCloseModal = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowModal(false);
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setShowModal(true)}
+        className="inline-flex items-center justify-center ml-1 p-1 transition-colors"
+        title="Click for help"
+      >
+        <Info className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+      </button>
+
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto"
+          onClick={handleCloseModal}
+        >
+          <div
+            className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className={`absolute top-4 right-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
+              <X className="w-4 h-4" />
+            </button>
+            {heading && (
+              <h2 className={`text-sm font-bold mb-4 pr-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                {heading}
+              </h2>
+            )}
+            <div className={`space-y-4 pr-4 normal-case ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              {Array.isArray(content) ? (
+                content.map((paragraph, idx) => (
+                  <p key={idx} className={`text-xs leading-relaxed normal-case ${idx === 0 ? 'font-semibold' : ''}`}>
+                    {paragraph}
+                  </p>
+                ))
+              ) : (
+                <p className="text-xs leading-relaxed normal-case">{content}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const Autocomplete = ({
   options = [],
   value,
@@ -1276,7 +1337,7 @@ const InvoiceForm = ({ onSave }) => {
   const { data: existingInvoice, loading: loadingInvoice } = useApiData(
     () => (id ? invoiceService.getInvoice(id) : null),
     [id],
-    !!id,
+    { immediate: !!id, skipInitialLoading: !id },
   );
   const { data: nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
     () => invoiceService.getNextInvoiceNumber(),
@@ -3321,7 +3382,16 @@ const InvoiceForm = ({ onSave }) => {
               {/* Place of Supply and Supply Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                 <Select
-                  label="Place of Supply (Emirate)"
+                  label={
+                    <div className="flex items-center gap-1">
+                      <span>Place of Supply (Emirate)</span>
+                      <VatHelpIcon content={[
+                        'When required: Mandatory for all invoices.',
+                        'Specifies which Emirate the supply is made from.',
+                        'Used for compliance with FTA Form 201.'
+                      ]} />
+                    </div>
+                  }
                   value={invoice.placeOfSupply || ''}
                   required={invoice.status === 'issued'}
                   onChange={(e) => {
@@ -3340,7 +3410,16 @@ const InvoiceForm = ({ onSave }) => {
                   ))}
                 </Select>
                 <Input
-                  label="Supply Date (Tax Point)"
+                  label={
+                    <div className="flex items-center gap-1">
+                      <span>Supply Date (Tax Point)</span>
+                      <VatHelpIcon content={[
+                        'When required: Mandatory. Determines VAT liability date.',
+                        'Must be the date supply is made (goods delivered/services rendered).',
+                        'Defaults to invoice date if empty.'
+                      ]} />
+                    </div>
+                  }
                   type="date"
                   value={invoice.supplyDate || ''}
                   onChange={(e) =>
@@ -3371,7 +3450,14 @@ const InvoiceForm = ({ onSave }) => {
                     }
                     className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
-                  <span className="text-sm font-medium">Reverse Charge Applies (Article 48)</span>
+                  <span className="text-sm font-medium flex items-center gap-1">
+                    Reverse Charge Applies (Article 48)
+                    <VatHelpIcon content={[
+                      'When required: Only if customer is registered VAT business.',
+                      'Transfers VAT liability to customer under Article 48 of VAT Law.',
+                      'Supplier records 0% VAT; customer accounts for VAT on receipt.'
+                    ]} />
+                  </span>
                 </label>
               </div>
 
@@ -3563,7 +3649,6 @@ const InvoiceForm = ({ onSave }) => {
                       className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '8%' }}
                     >
-                        Action
                     </th>
                   </tr>
                 </thead>
@@ -4029,10 +4114,18 @@ const InvoiceForm = ({ onSave }) => {
           {/* Additional Charges & VAT (Phase 1) */}
           <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-xs font-semibold uppercase tracking-wide ${
+              <h3 className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
-                Additional Charges & VAT
+                <span>Additional Charges & VAT</span>
+                <VatHelpIcon 
+                  heading="Auxiliary Charges & VAT Treatment (Article 45)"
+                  content={[
+                  'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
+                  'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
+                  'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
+                  'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.'
+                ]} />
               </h3>
               {/* Export Toggle */}
               <label className={`flex items-center gap-2 cursor-pointer ${
@@ -4056,7 +4149,16 @@ const InvoiceForm = ({ onSave }) => {
                   }}
                   className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
                 />
-                <span className="text-sm font-medium">Export Invoice (0% VAT)</span>
+                <span className="text-sm font-medium flex items-center gap-1">
+                  Export Invoice (0% VAT)
+                  <VatHelpIcon content={[
+                    'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
+                    'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
+                    'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
+                    'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
+                    'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.'
+                  ]} />
+                </span>
               </label>
             </div>
 
@@ -4379,10 +4481,15 @@ const InvoiceForm = ({ onSave }) => {
               <div className="border-t pt-4" style={{
                 borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
               }}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                    VAT Tax Notes
+                    <span>VAT Tax Notes</span>
+                    <VatHelpIcon content={[
+                      'When required: Required if supply is zero-rated or reverse charge applies.',
+                      'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
+                      'Part of FTA Form 201 compliance documentation.'
+                    ]} />
                 </h3>
                 <Textarea
                   value={invoice.taxNotes || ''}

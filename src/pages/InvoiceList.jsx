@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Edit,
   Eye,
@@ -38,6 +38,7 @@ import PaymentReminderModal from '../components/PaymentReminderModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { generatePaymentReminder, getInvoiceReminderInfo } from '../utils/reminderUtils';
+import { generatePaymentReceipt, printPaymentReceipt } from '../utils/paymentReceiptGenerator';
 import InvoiceStatusColumn from '../components/InvoiceStatusColumn';
 import { normalizeInvoices } from '../utils/invoiceNormalizer';
 import { guardInvoicesDev } from '../utils/devGuards';
@@ -45,6 +46,7 @@ import { getInvoiceActionButtonConfig } from './invoiceActionsConfig';
 import { useInvoicePresence } from '../hooks/useInvoicePresence';
 import { NewBadge } from '../components/shared';
 import AddPaymentForm from '../components/payments/AddPaymentForm';
+import PaymentDrawer from '../components/payments/PaymentDrawer';
 
 /**
  * Void payment reasons for the dropdown
@@ -382,12 +384,17 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
   const [voidCustomReason, setVoidCustomReason] = useState('');
   const [isVoidingPayment, setIsVoidingPayment] = useState(false);
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
+  const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
   // Presence tracking for payment drawer
   const { otherSessions, updateMode } = useInvoicePresence(
     showRecordPaymentDrawer ? paymentDrawerInvoice?.id : null,
     'payment',
   );
+
+  // Track if we've already processed the openPayment URL param to prevent infinite reopening
+  const paymentParamProcessedRef = useRef(false);
 
   // Company data for invoice preview - fetch real data including logo and template settings
   const [company, setCompany] = useState(null);
@@ -539,15 +546,20 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
   // Auto-open payment drawer when navigating with openPayment query param
   // (e.g., from Create Invoice success modal)
+  // Use ref to prevent infinite reopening when closing the drawer
   useEffect(() => {
     const openPaymentId = searchParams.get('openPayment');
-    if (openPaymentId && invoices.length > 0 && !showRecordPaymentDrawer) {
+    
+    if (openPaymentId && invoices.length > 0 && !paymentParamProcessedRef.current) {
       // Find the invoice in the loaded list
       const invoiceToOpen = invoices.find(inv =>
         String(inv.id) === String(openPaymentId),
       );
 
       if (invoiceToOpen) {
+        // Mark as processed BEFORE fetching to prevent double-processing
+        paymentParamProcessedRef.current = true;
+
         // Fetch full invoice data (including payments) before opening drawer
         // List view doesn't include payments array, need to call getInvoice
         invoiceService.getInvoice(invoiceToOpen.id)
@@ -558,15 +570,18 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
           .catch(error => {
             console.error('Error loading invoice for payment drawer:', error);
             notificationService.error('Failed to load invoice details');
+            // Reset ref on error so user can try again
+            paymentParamProcessedRef.current = false;
           });
 
         // Clear the query param from URL to prevent re-opening on refresh
         const newParams = new URLSearchParams(searchParams);
         newParams.delete('openPayment');
-        window.history.replaceState({}, '', `${window.location.pathname}${newParams.toString() ? `?${  newParams.toString()}` : ''}`);
+        const newUrl = newParams.toString() ? `${window.location.pathname}?${newParams.toString()}` : window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
       }
     }
-  }, [searchParams, invoices, showRecordPaymentDrawer]);
+  }, [searchParams, invoices]);
 
   // Clear selections when filters or search changes (Gmail behavior)
   useEffect(() => {
@@ -1002,6 +1017,68 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     // Reset void dropdown state
     setVoidDropdownPaymentId(null);
     setVoidCustomReason('');
+    // Reset the param processed flag so drawer can be reopened
+    paymentParamProcessedRef.current = false;
+  };
+
+  const handleDownloadReceipt = async (payment, paymentIndex) => {
+    const inv = paymentDrawerInvoice;
+    if (!inv) {
+      notificationService.error('Unable to generate receipt. Missing invoice information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setDownloadingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
+        total: inv.invoiceAmount || inv.total || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || { name: inv.customer?.name || '', id: inv.customer?.id || '' },
+      };
+      const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        notificationService.error(`Error generating receipt: ${result.error}`);
+      } else {
+        notificationService.success('Receipt downloaded successfully');
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      notificationService.error('Failed to generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePrintReceipt = async (payment, paymentIndex) => {
+    const inv = paymentDrawerInvoice;
+    if (!inv) {
+      notificationService.error('Unable to print receipt. Missing invoice information.');
+      return;
+    }
+
+    const companyInfo = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+    setPrintingReceiptId(payment.id);
+    try {
+      const invoiceData = {
+        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
+        total: inv.invoiceAmount || inv.total || 0,
+        payments: inv.payments || [],
+        customer: inv.customer || { name: inv.customer?.name || '', id: inv.customer?.id || '' },
+      };
+      const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
+      if (!result.success) {
+        notificationService.error(`Error printing receipt: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      notificationService.error('Failed to print receipt. Please try again.');
+    } finally {
+      setPrintingReceiptId(null);
+    }
   };
 
   const handleCalculateCommission = async (invoice) => {
@@ -2681,8 +2758,36 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         isViewOnly={paymentReminderInvoice?.paymentStatus === 'paid'}
       />
 
-      {/* Record Payment Drawer - Mobile responsive */}
-      {showRecordPaymentDrawer && paymentDrawerInvoice && (
+      {/* Record Payment Drawer */}
+      <PaymentDrawer
+        invoice={paymentDrawerInvoice}
+        isOpen={showRecordPaymentDrawer}
+        onClose={handleCloseRecordPaymentDrawer}
+        onAddPayment={handleAddPayment}
+        isSaving={isSavingPayment}
+        canManage={true}
+        isDarkMode={isDarkMode}
+        otherSessions={otherSessions}
+        onPrintReceipt={handlePrintReceipt}
+        onDownloadReceipt={handleDownloadReceipt}
+        onVoidPayment={handleVoidPayment}
+        isVoidingPayment={isVoidingPayment}
+        voidDropdownPaymentId={voidDropdownPaymentId}
+        onVoidDropdownToggle={(id) => {
+          setVoidDropdownPaymentId(id);
+          setVoidCustomReason('');
+        }}
+        voidCustomReason={voidCustomReason}
+        onVoidCustomReasonChange={setVoidCustomReason}
+        onSubmitCustomVoidReason={handleSubmitCustomVoidReason}
+        downloadingReceiptId={downloadingReceiptId}
+        printingReceiptId={printingReceiptId}
+        PAYMENT_MODES={PAYMENT_MODES}
+        VOID_REASONS={VOID_REASONS}
+      />
+
+      {/* Temporary: Keep old drawer structure for reference - to be removed */}
+      {false && showRecordPaymentDrawer && paymentDrawerInvoice && (
         <div className="fixed inset-0 z-[1100] flex">
           {/* Backdrop: absolute overlay on mobile, flex-1 on desktop */}
           <div 
@@ -3019,6 +3124,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                 <AddPaymentForm
                   outstanding={paymentDrawerInvoice.outstanding || 0}
                   onSave={handleAddPayment}
+                  onCancel={handleCloseRecordPaymentDrawer}
                   isSaving={isSavingPayment}
                 />
               ) : (
