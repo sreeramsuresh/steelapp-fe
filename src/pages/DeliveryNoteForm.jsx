@@ -461,6 +461,49 @@ const DeliveryNoteForm = () => {
                   }`}
                 />
               </div>
+              {selectedInvoice && selectedInvoice.poDate && selectedInvoice.expectedDeliveryDate && (
+                <div className="sm:col-span-2 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-700">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className={`text-sm font-medium ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                        Delivery Variance
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className={`text-2xl font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                          {formData.goodsReceiptDate && selectedInvoice.expectedDeliveryDate 
+                            ? Math.ceil((new Date(formData.goodsReceiptDate) - new Date(selectedInvoice.expectedDeliveryDate)) / (1000 * 60 * 60 * 24))
+                            : 0
+                          } days
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          formData.goodsReceiptDate && selectedInvoice.expectedDeliveryDate 
+                            ? (Math.ceil((new Date(formData.goodsReceiptDate) - new Date(selectedInvoice.expectedDeliveryDate)) / (1000 * 60 * 60 * 24)) <= (selectedInvoice.gracePeriodDays || 5)
+                              ? 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200')
+                            : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        }`}>
+                          {formData.goodsReceiptDate && selectedInvoice.expectedDeliveryDate 
+                            ? (Math.ceil((new Date(formData.goodsReceiptDate) - new Date(selectedInvoice.expectedDeliveryDate)) / (1000 * 60 * 60 * 24)) <= (selectedInvoice.gracePeriodDays || 5)
+                              ? '✓ ON TIME'
+                              : '⚠ LATE')
+                            : 'N/A'
+                          }
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Expected</p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {selectedInvoice.expectedDeliveryDate}
+                      </p>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>Received</p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {formData.goodsReceiptDate}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="sm:col-span-2">
                 <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Selected Invoice <span className="text-red-500">*</span>

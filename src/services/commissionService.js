@@ -1,225 +1,106 @@
-/**
- * Commission Service - Frontend API Client for Sales Commission Management
- * Connects to backend Commission gRPC service via API Gateway
- *
- * API Gateway Routes (Port 3000):
- * - GET  /api/commissions/agents        - List commission agents with plans
- * - GET  /api/commissions/plans         - List commission plans
- * - GET  /api/commissions/transactions  - List commission transactions
- * - POST /api/commissions/calculate/:id - Calculate commission for invoice
- * - GET  /api/commissions/dashboard     - Get commission dashboard metrics
- * - GET  /api/commissions/user/:id/summary - Get user commission summary
- * - POST /api/commissions/pay           - Pay commissions
- * - GET  /api/commissions/pay-periods   - List pay periods
- */
+import api from './api';
 
-import { apiClient } from './api';
-
-const API_BASE = '/commissions';
-
-export const commissionService = {
-  // ============================================
-  // Commission Plans
-  // ============================================
-
-  /**
-   * List all commission plans
-   * @param {boolean} activeOnly - Filter to active plans only
-   */
-  async getPlans(activeOnly = null) {
-    const params = activeOnly !== null ? { active_only: activeOnly } : {};
-    return apiClient.get(`${API_BASE}/plans`, params);
+const commissionService = {
+  // Get invoice commission
+  getInvoiceCommission: async (invoiceId) => {
+    try {
+      const response = await api.get(`/commissions/invoice/${invoiceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching invoice commission:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Get single commission plan by ID
-   * @param {number} id - Plan ID
-   */
-  async getPlan(id) {
-    return apiClient.get(`${API_BASE}/plans/${id}`);
+  // Adjust commission amount (during 15-day grace period)
+  adjustCommissionAmount: async (invoiceId, newAmount, reason) => {
+    try {
+      const response = await api.put(`/commissions/invoice/${invoiceId}/adjust`, {
+        newCommissionAmount: newAmount,
+        reason,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adjusting commission:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Create new commission plan
-   * @param {Object} planData - Plan data
-   */
-  async createPlan(planData) {
-    return apiClient.post(`${API_BASE}/plans`, planData);
+  // Approve commission (manager action)
+  approveCommission: async (invoiceId, approvedByUserId) => {
+    try {
+      const response = await api.put(`/commissions/invoice/${invoiceId}/approve`, {
+        approvedByUserId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error approving commission:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Update commission plan
-   * @param {number} id - Plan ID
-   * @param {Object} planData - Updated plan data
-   */
-  async updatePlan(id, planData) {
-    return apiClient.put(`${API_BASE}/plans/${id}`, planData);
+  // Mark commission as paid (finance action)
+  markCommissionAsPaid: async (invoiceId, paymentReference) => {
+    try {
+      const response = await api.put(`/commissions/invoice/${invoiceId}/pay`, {
+        paymentReference,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error marking commission as paid:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Delete commission plan
-   * @param {number} id - Plan ID
-   */
-  async deletePlan(id) {
-    return apiClient.delete(`${API_BASE}/plans/${id}`);
+  // Get commissions for a sales person
+  getSalesPersonCommissions: async (salesPersonId, status = 'PENDING', daysBack = 90) => {
+    try {
+      const response = await api.get(`/commissions/sales-person/${salesPersonId}`, {
+        params: { status, daysBack },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching sales person commissions:', error);
+      throw error;
+    }
   },
 
-  // ============================================
-  // Sales Agents
-  // ============================================
-
-  /**
-   * List all commission agents with their assigned plans
-   * @param {Object} params - Query parameters
-   * @param {number} params.page - Page number
-   * @param {number} params.limit - Items per page
-   * @param {boolean} params.active_only - Filter to active agents only
-   */
-  async getAgents(params = {}) {
-    return apiClient.get(`${API_BASE}/agents`, params);
+  // Get commission statistics for a sales person
+  getSalesPersonCommissionStats: async (salesPersonId, daysBack = 90) => {
+    try {
+      const response = await api.get(`/commissions/sales-person/${salesPersonId}/stats`, {
+        params: { daysBack },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching commission stats:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Get agent commission summary
-   * @param {number} userId - User ID
-   * @param {Object} params - Query parameters (period, etc.)
-   */
-  async getAgentSummary(userId, params = {}) {
-    return apiClient.get(`${API_BASE}/user/${userId}/summary`, params);
+  // Get commission audit trail
+  getCommissionAuditTrail: async (invoiceId) => {
+    try {
+      const response = await api.get(`/commissions/invoice/${invoiceId}/audit`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching audit trail:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Update agent details
-   * @param {number} userId - User ID
-   * @param {Object} agentData - Updated agent data
-   */
-  async updateAgent(userId, agentData) {
-    return apiClient.put(`${API_BASE}/agents/${userId}`, agentData);
-  },
-
-  /**
-   * Assign commission plan to agent
-   * @param {number} userId - User ID
-   * @param {Object} planData - Plan assignment data
-   */
-  async assignPlanToAgent(userId, planData) {
-    return apiClient.post(`${API_BASE}/agents/${userId}/plans`, planData);
-  },
-
-  // ============================================
-  // Transactions
-  // ============================================
-
-  /**
-   * List commission transactions
-   * @param {Object} filters - Filter parameters
-   * @param {number} filters.user_id - Filter by user ID
-   * @param {string} filters.status - Filter by status (pending, paid, voided)
-   * @param {string} filters.date_from - Start date filter
-   * @param {string} filters.date_to - End date filter
-   */
-  async getTransactions(filters = {}) {
-    return apiClient.get(`${API_BASE}/transactions`, filters);
-  },
-
-  /**
-   * Pay commissions (mark as paid)
-   * @param {Object} paymentData - Payment data
-   * @param {number[]} paymentData.transaction_ids - Transaction IDs to pay
-   * @param {string} paymentData.pay_period - Pay period reference
-   * @param {string} paymentData.payment_date - Payment date
-   * @param {string} paymentData.payment_reference - Payment reference number
-   * @param {string} paymentData.notes - Optional notes
-   */
-  async payCommissions(paymentData) {
-    return apiClient.post(`${API_BASE}/pay`, paymentData);
-  },
-
-  /**
-   * Approve commission transactions (legacy - use payCommissions)
-   * @param {number[]} transactionIds - Transaction IDs to approve
-   */
-  async approveTransactions(transactionIds) {
-    return apiClient.post(`${API_BASE}/transactions/approve`, {
-      transaction_ids: transactionIds,
-    });
-  },
-
-  /**
-   * Mark transactions as paid (alias for payCommissions)
-   * @param {number[]} transactionIds - Transaction IDs
-   * @param {Object} paymentData - Payment details
-   */
-  async markTransactionsPaid(transactionIds, paymentData = {}) {
-    return this.payCommissions({
-      transaction_ids: transactionIds,
-      ...paymentData,
-    });
-  },
-
-  // Bulk action aliases for better readability
-  async bulkApprove(transactionIds) {
-    return this.approveTransactions(transactionIds);
-  },
-
-  async bulkMarkPaid(transactionIds, paymentData = {}) {
-    return this.markTransactionsPaid(transactionIds, paymentData);
-  },
-
-  // ============================================
-  // Pay Periods
-  // ============================================
-
-  /**
-   * List pay periods
-   * @param {number} limit - Number of periods to fetch (default 12)
-   */
-  async getPayPeriods(limit = 12) {
-    return apiClient.get(`${API_BASE}/pay-periods`, { limit });
-  },
-
-  // ============================================
-  // Calculation
-  // ============================================
-
-  /**
-   * Calculate commission for a specific invoice
-   * @param {number} invoiceId - Invoice ID
-   * @param {boolean} recalculate - Force recalculation if already exists
-   */
-  async calculateCommission(invoiceId, recalculate = false) {
-    return apiClient.post(`${API_BASE}/calculate/${invoiceId}`, { recalculate });
-  },
-
-  /**
-   * Batch calculate commissions for multiple invoices
-   * @param {Object} filters - Filter parameters
-   */
-  async batchCalculateCommissions(filters = {}) {
-    return apiClient.post(`${API_BASE}/calculate-batch`, filters);
-  },
-
-  // ============================================
-  // Dashboard & Reporting
-  // ============================================
-
-  /**
-   * Get commission dashboard metrics
-   * @param {Object} params - Query parameters
-   * @param {string} params.period - Period filter (month, quarter, year)
-   */
-  async getDashboard(params = {}) {
-    return apiClient.get(`${API_BASE}/dashboard`, params);
-  },
-
-  /**
-   * Get user's commission summary
-   * @param {number} userId - User ID
-   * @param {Object} params - Query parameters
-   */
-  async getUserSummary(userId, params = {}) {
-    return apiClient.get(`${API_BASE}/user/${userId}/summary`, params);
+  // Get pending approvals (manager dashboard)
+  getPendingApprovals: async (limit = 50) => {
+    try {
+      const response = await api.get('/commissions/pending-approvals', {
+        params: { limit },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching pending approvals:', error);
+      throw error;
+    }
   },
 };
 
-export default commissionService;
+export { commissionService };

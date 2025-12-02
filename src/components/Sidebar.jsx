@@ -34,6 +34,9 @@ import {
   Coins,
   DollarSign,
   Navigation,
+  TrendingDown,
+  AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -86,7 +89,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 3. PURCHASES (1 item) - Purchases Dashboard with tabs for PO, Vendor Bills, Debit Notes, Advance Payments
+    // 3. PURCHASES (3 items) - Purchases Dashboard with tabs for PO, Vendor Bills, Debit Notes + Advance Payments
     {
       section: 'Purchases',
       items: [
@@ -97,10 +100,24 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: 'Purchase orders, vendor bills, and payments',
           requiredPermission: 'purchase_orders.read',
         },
+        {
+          name: 'Advance Payments',
+          path: '/payments/advance-payments',
+          icon: CreditCard,
+          description: 'Manage advance payments received',
+          requiredPermission: 'advance_payments.read',
+        },
+        {
+          name: 'Delivery Performance',
+          path: '/dashboards/delivery-variance',
+          icon: TrendingDown,
+          description: 'Supplier delivery variance and performance metrics',
+          requiredPermission: 'suppliers.read',
+        },
       ],
     },
 
-    // 4. FINANCE (1 item) - Dashboard only, tabs handle Account Statements, Commissions, Credit Notes
+    // 4. FINANCE (3 items) - Dashboard with tabs + Commission Approvals + Credit Management
     {
       section: 'Finance',
       items: [
@@ -110,6 +127,20 @@ const Sidebar = ({ isOpen, onToggle }) => {
           icon: Banknote,
           description: 'Receivables, payables, statements, and commissions',
           requiredPermission: 'payables.read',
+        },
+        {
+          name: 'Commission Approvals',
+          path: '/dashboards/commission-approvals',
+          icon: CheckCircle,
+          description: 'Approve and track sales commissions',
+          requiredPermission: 'commissions.approve',
+        },
+        {
+          name: 'Credit Management',
+          path: '/dashboards/customer-credit',
+          icon: AlertCircle,
+          description: 'Monitor customer credit limits and aging',
+          requiredPermission: 'customers.read',
         },
       ],
     },

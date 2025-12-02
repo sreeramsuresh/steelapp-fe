@@ -9,6 +9,7 @@ import { AlertTriangle, TrendingDown, Truck, Clock, Target, AlertCircle } from '
 import { useTheme } from '../../contexts/ThemeContext';
 import { useApi } from '../../hooks/useApi';
 import LoadingOverlay from '../LoadingOverlay';
+import { deliveryVarianceService } from '../../services/deliveryVarianceService';
 
 const DeliveryVarianceDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -29,45 +30,20 @@ const DeliveryVarianceDashboard = () => {
       setLoading(true);
       setError('');
 
-      // TODO: Call API to fetch delivery variance KPIs
-      // const response = await dashboardService.getDeliveryVarianceKPIs(companyId, daysBack);
-      
-      // Mock data for demonstration
-      setKpis({
-        onTimeDelivery: { percentage: 82.5, status: 'GOOD' },
-        lateDeliveries: { total: 12, critical: 3, status: 'WARNING' },
-        avgVariance: { days: 2.3, status: 'GOOD' },
-        supplierHealth: {
-          avgScore: 78,
-          certified: 5,
-          preferred: 8,
-          acceptable: 6,
-          atRisk: 2
-        },
-        overallHealthScore: 'GOOD'
-      });
-
-      setTrend([
-        { datePeriod: '2025-11-01', totalDeliveries: 45, onTimeCount: 38, lateCount: 7, otdPercentage: 84.4 },
-        { datePeriod: '2025-11-08', totalDeliveries: 52, onTimeCount: 44, lateCount: 8, otdPercentage: 84.6 },
-        { datePeriod: '2025-11-15', totalDeliveries: 48, onTimeCount: 38, lateCount: 10, otdPercentage: 79.2 },
-        { datePeriod: '2025-11-22', totalDeliveries: 51, onTimeCount: 42, lateCount: 9, otdPercentage: 82.4 },
-        { datePeriod: '2025-11-29', totalDeliveries: 43, onTimeCount: 35, lateCount: 8, otdPercentage: 81.4 },
+      // Load data from backend API
+      const [kpisData, trendData, breakdownData, lateDeliveriesData] = await Promise.all([
+        deliveryVarianceService.getDeliveryVarianceKPIs(daysBack),
+        deliveryVarianceService.getDeliveryVarianceTrend(daysBack, 'weekly'),
+        deliveryVarianceService.getLateDeliveriesBreakdown(daysBack),
+        deliveryVarianceService.getRecentLateDeliveries(10),
       ]);
 
-      setBreakdown([
-        { varianceCategory: 'Early', deliveryCount: 8, avgVariance: -3.2, supplierCount: 5 },
-        { varianceCategory: '1-3 Days Late', deliveryCount: 28, avgVariance: 1.8, supplierCount: 12 },
-        { varianceCategory: '4-7 Days Late', deliveryCount: 15, avgVariance: 5.1, supplierCount: 8 },
-        { varianceCategory: 'Critical (8+ Days)', deliveryCount: 5, avgVariance: 11.3, supplierCount: 3 },
-      ]);
-
-      setLateDeliveries([
-        { id: 1, grn: 'GRN-001', supplier: 'Supplier A', poNumber: 'PO-2025-001', variance: 8, severity: 'CRITICAL' },
-        { id: 2, grn: 'GRN-002', supplier: 'Supplier B', poNumber: 'PO-2025-002', variance: 5, severity: 'URGENT' },
-        { id: 3, grn: 'GRN-003', supplier: 'Supplier C', poNumber: 'PO-2025-003', variance: 3, severity: 'WARNING' },
-      ]);
+      setKpis(kpisData);
+      setTrend(trendData);
+      setBreakdown(breakdownData);
+      setLateDeliveries(lateDeliveriesData);
     } catch (err) {
+      console.error('Dashboard error:', err);
       setError(`Failed to load dashboard: ${err.message}`);
     } finally {
       setLoading(false);

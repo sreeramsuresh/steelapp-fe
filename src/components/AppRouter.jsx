@@ -81,6 +81,11 @@ import PriceListForm from '../pages/PriceListForm';
 
 // Commission Components
 import AgentCommissionDashboard from '../pages/AgentCommissionDashboard';
+import CommissionApprovalWorkflow from '../pages/CommissionApprovalWorkflow';
+
+// Phase 4 & 5 Dashboard Components
+import DeliveryVarianceDashboard from '../pages/DeliveryVarianceDashboard';
+import CustomerCreditManagement from '../pages/CustomerCreditManagement';
 
 // Masters Components
 import CountriesList from '../pages/CountriesList';
@@ -398,6 +403,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        {/* Phase 5A: Commission Approval Workflow */}
+        <Route
+          path="/dashboards/commission-approvals"
+          element={
+            <ProtectedRoute user={user} requiredPermission="commissions.approve">
+              <CommissionApprovalWorkflow />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/settings"
           element={
@@ -426,6 +441,17 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             </ProtectedRoute>
           }
         />
+
+        {/* Phase 5B: Customer Credit Management */}
+        <Route
+          path="/dashboards/customer-credit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="customers.read">
+              <CustomerCreditManagement />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/payables/customer/:customerId"
           element={
@@ -570,7 +596,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
-        
+        {/* Phase 4: Delivery Variance Dashboard */}
+        <Route
+          path="/dashboards/delivery-variance"
+          element={
+            <ProtectedRoute user={user} requiredPermission="suppliers.read">
+              <DeliveryVarianceDashboard />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/account-statements"
