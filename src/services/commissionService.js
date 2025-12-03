@@ -95,9 +95,58 @@ const commissionService = {
       const response = await api.get('/commissions/pending-approvals', {
         params: { limit },
       });
+      console.log('[commissionService] getPendingApprovals response:', response);
+      console.log('[commissionService] response.data:', response?.data);
+      const data = response?.data || response;
+      console.log('[commissionService] returning data:', data);
+      return data;
+    } catch (error) {
+      console.error('[commissionService] Error fetching pending approvals:', error);
+      throw error;
+    }
+  },
+
+  // Get commission dashboard data
+  getDashboard: async (period = 'month') => {
+    try {
+      const response = await api.get('/commissions/dashboard', {
+        params: { period },
+      });
       return response.data;
     } catch (error) {
-      console.error('Error fetching pending approvals:', error);
+      console.error('Error fetching commission dashboard:', error);
+      throw error;
+    }
+  },
+
+  // Get list of commission agents
+  getAgents: async (page = 1, limit = 20, activeOnly = false) => {
+    try {
+      const response = await api.get('/commissions/agents', {
+        params: { page, limit, active_only: activeOnly },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching commission agents:', error);
+      throw error;
+    }
+  },
+
+  // Get list of commission transactions
+  getTransactions: async (filters = {}) => {
+    try {
+      const { status, userId, dateFrom, dateTo } = filters;
+      const response = await api.get('/commissions/transactions', {
+        params: {
+          ...(status && { status }),
+          ...(userId && { user_id: userId }),
+          ...(dateFrom && { date_from: dateFrom }),
+          ...(dateTo && { date_to: dateTo }),
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching commission transactions:', error);
       throw error;
     }
   },

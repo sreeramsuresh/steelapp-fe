@@ -22,16 +22,29 @@ export default function CustomerCreditManagement() {
   const loadCreditData = async () => {
     try {
       setLoading(true);
+      console.log('[CustomerCreditManagement] Loading credit data...');
+      
       const [highRisk, overLimit] = await Promise.all([
         customerCreditService.getHighRiskCustomers(50),
         customerCreditService.getOverLimitCustomers(),
       ]);
 
-      setHighRiskCustomers(highRisk.customers || []);
-      setOverLimitCustomers(overLimit.customers || []);
+      console.log('[CustomerCreditManagement] High risk response:', highRisk);
+      console.log('[CustomerCreditManagement] Over limit response:', overLimit);
+
+      // Handle both null and array responses
+      const highRiskCustomers = highRisk?.customers || [];
+      const overLimitCustomers = overLimit?.customers || [];
+      
+      console.log('[CustomerCreditManagement] Parsed high risk customers:', highRiskCustomers);
+      console.log('[CustomerCreditManagement] Parsed over limit customers:', overLimitCustomers);
+
+      setHighRiskCustomers(highRiskCustomers);
+      setOverLimitCustomers(overLimitCustomers);
     } catch (err) {
-      setError(err.message);
-      console.error('Error loading credit data:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to load credit data';
+      setError(errorMsg);
+      console.error('[CustomerCreditManagement] Error loading credit data:', err);
     } finally {
       setLoading(false);
     }
@@ -40,16 +53,24 @@ export default function CustomerCreditManagement() {
   const handleSelectCustomer = async (customer) => {
     try {
       setSelectedCustomer(customer);
+      console.log('[CustomerCreditManagement] Loading details for customer:', customer.id);
+      
       const [details, aging] = await Promise.all([
         customerCreditService.getCustomerCreditSummary(customer.id),
         customerCreditService.getCustomerAging(customer.id),
       ]);
 
+      console.log('[CustomerCreditManagement] Credit details:', details);
+      console.log('[CustomerCreditManagement] Aging data:', aging);
+
       setCreditDetails(details);
       setAgingData(aging);
-      setNewCreditLimit(details.creditLimit?.toString() || '');
+      setNewCreditLimit((details?.creditLimit || details?.credit_limit || 0).toString());
+      setError(null);
     } catch (err) {
-      setError(`Error loading customer details: ${err.message}`);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to load customer details';
+      setError(`Error loading customer details: ${errorMsg}`);
+      console.error('[CustomerCreditManagement] Error loading customer details:', err);
     }
   };
 

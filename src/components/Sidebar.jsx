@@ -1,51 +1,72 @@
 // Updated: Credit Notes moved to Finance section
-import React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
   FileText,
-  Plus,
-  List as ListIcon,
   Settings,
   BarChart3,
   Users,
   Package,
-  Calculator,
-  TrendingUp,
   Warehouse,
   Move,
   Truck,
   ShoppingCart,
   Quote,
   Ship,
-  Globe,
-  FileCheck,
-  Anchor,
   CreditCard,
   Scroll,
-  ArrowDownToLine,
-  ArrowUpFromLine,
   MapPin,
-  RotateCcw,
   Banknote,
-  Receipt,
-  FileSpreadsheet,
-  FileMinus,
-  Coins,
-  DollarSign,
-  Navigation,
   TrendingDown,
   AlertCircle,
   CheckCircle,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
-import { isFeatureEnabled } from '../config/features';
 
 
 const Sidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
+  const scrollContainerRef = useRef(null);
+  const [showTopFade, setShowTopFade] = useState(false);
+  const [showBottomFade, setShowBottomFade] = useState(false);
+
+  // Handle scroll to update fade indicators
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const threshold = 10; // Pixels threshold for showing fade
+
+    setShowTopFade(scrollTop > threshold);
+    setShowBottomFade(scrollTop + clientHeight < scrollHeight - threshold);
+  };
+
+  // Check scroll on mount and when content changes
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Initial check
+    handleScroll();
+
+    // Add scroll listener
+    container.addEventListener('scroll', handleScroll);
+    
+    // Check on resize
+    const resizeObserver = new ResizeObserver(handleScroll);
+    resizeObserver.observe(container);
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, []);
   
   const navigationItems = [
     // 1. DASHBOARD (1 item)
@@ -281,78 +302,123 @@ const Sidebar = ({ isOpen, onToggle }) => {
         </Link>
       </div>
 
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto py-2">
-        {navigationItems.map((section, sectionIndex) => (
-          <div key={sectionIndex}>
-            {section.section !== 'Dashboard' && (
-              <div className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                {section.section}
-              </div>
-            )}
-            <div className="space-y-1">
-              {section.items
-                .filter(item => {
-                  if (item.requiredRoles) {
-                    return item.requiredRoles.some(role => authService.hasRole(role));
-                  }
-                  if (item.requiredRole) {
-                    return authService.hasRole(item.requiredRole);
-                  }
-                  if (item.requiredPermission) {
-                    const [res, act] = item.requiredPermission.split('.');
-                    return authService.hasPermission(res, act);
-                  }
-                  return true;
-                })
-                .map((item, itemIndex) => {
-                  const Icon = item.icon;
-                  const isActive = isActiveRoute(item.path);
-                
-                  return (
-                    <div key={itemIndex} className="px-2">
-                      <Link
-                        to={item.path}
-                        onClick={() => window.innerWidth <= 768 && onToggle()}
-                        title={item.description}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
-                          isActive
-                            ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
-                            : isDarkMode
-                              ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
-                              : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
-                        }`}
-                      >
-                        <div className="flex-shrink-0">
-                          <Icon size={20} className={`transition-transform duration-200 ${
-                            isActive ? '' : 'group-hover:scale-110'
-                          }`} />
-                        </div>
-                        <span className={`text-sm flex-1 ${
-                          isActive ? 'font-semibold' : 'font-medium'
-                        }`}>
-                          {item.name}
-                        </span>
-                        {item.badge && (
-                          <div className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-semibold ${
-                            isDarkMode 
-                              ? 'bg-blue-600 text-white' 
-                              : 'bg-blue-500 text-white'
-                          }`}>
-                            {item.badge}
-                          </div>
-                        )}
-                      </Link>
-                    </div>
-                  );
-                })}
-            </div>
+      {/* Navigation - with hidden scrollbar and fade indicators */}
+      <div className="flex-1 relative min-h-0">
+        {/* Top fade indicator */}
+        <div 
+          className={`absolute top-0 left-0 right-0 h-8 pointer-events-none z-10 transition-opacity duration-300 ${
+            showTopFade ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            background: isDarkMode 
+              ? 'linear-gradient(to bottom, rgba(30, 35, 40, 0.95) 0%, rgba(30, 35, 40, 0.7) 50%, rgba(30, 35, 40, 0) 100%)'
+              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%)',
+          }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ChevronUp 
+              size={16} 
+              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              style={{ opacity: 0.7 }}
+            />
           </div>
-        ))}
-      </div>
+        </div>
 
+        {/* Scrollable content */}
+        <div 
+          ref={scrollContainerRef}
+          className="absolute inset-0 overflow-y-auto py-2 no-scrollbar"
+        >
+          {navigationItems.map((section, sectionIndex) => (
+            <div key={sectionIndex}>
+              {section.section !== 'Dashboard' && (
+                <div className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  {section.section}
+                </div>
+              )}
+              <div className="space-y-1">
+                {section.items
+                  .filter(item => {
+                    if (item.requiredRoles) {
+                      return item.requiredRoles.some(role => authService.hasRole(role));
+                    }
+                    if (item.requiredRole) {
+                      return authService.hasRole(item.requiredRole);
+                    }
+                    if (item.requiredPermission) {
+                      const [res, act] = item.requiredPermission.split('.');
+                      return authService.hasPermission(res, act);
+                    }
+                    return true;
+                  })
+                  .map((item, itemIndex) => {
+                    const Icon = item.icon;
+                    const isActive = isActiveRoute(item.path);
+                
+                    return (
+                      <div key={itemIndex} className="px-2">
+                        <Link
+                          to={item.path}
+                          onClick={() => window.innerWidth <= 768 && onToggle()}
+                          title={item.description}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
+                            isActive
+                              ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:text-white shadow-md'
+                              : isDarkMode
+                                ? 'text-gray-300 hover:bg-teal-900/30 hover:text-teal-400 hover:border-teal-700 border border-transparent'
+                                : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-transparent'
+                          }`}
+                        >
+                          <div className="flex-shrink-0">
+                            <Icon size={20} className={`transition-transform duration-200 ${
+                              isActive ? '' : 'group-hover:scale-110'
+                            }`} />
+                          </div>
+                          <span className={`text-sm flex-1 ${
+                            isActive ? 'font-semibold' : 'font-medium'
+                          }`}>
+                            {item.name}
+                          </span>
+                          {item.badge && (
+                            <div className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-semibold ${
+                              isDarkMode 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-blue-500 text-white'
+                            }`}>
+                              {item.badge}
+                            </div>
+                          )}
+                        </Link>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom fade indicator */}
+        <div 
+          className={`absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 transition-opacity duration-300 ${
+            showBottomFade ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            background: isDarkMode 
+              ? 'linear-gradient(to top, rgba(30, 35, 40, 0.95) 0%, rgba(30, 35, 40, 0.7) 50%, rgba(30, 35, 40, 0) 100%)'
+              : 'linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%)',
+          }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ChevronDown 
+              size={16} 
+              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              style={{ opacity: 0.7 }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -19,23 +19,42 @@ export default function CommissionApprovalWorkflow() {
     try {
       setLoading(true);
       const data = await commissionService.getPendingApprovals(50);
-      setPendingApprovals(data.pendingApprovals || []);
+      
+      // Log the response structure for debugging
+      console.log('[CommissionApprovalWorkflow] API response:', data);
+      console.log('[CommissionApprovalWorkflow] Response keys:', Object.keys(data));
+      
+      // Handle both snake_case (pending_approvals) and camelCase (pendingApprovals)
+      const approvals = data.pendingApprovals || data.pending_approvals || [];
+      console.log('[CommissionApprovalWorkflow] Parsed approvals:', approvals);
+      
+      setPendingApprovals(approvals);
       
       // Load stats for each sales person
-      if (data.pendingApprovals && data.pendingApprovals.length > 0) {
-        const salesPersonIds = [...new Set(data.pendingApprovals.map(c => c.salesPersonId))];
+      if (approvals && approvals.length > 0) {
+        const salesPersonIds = [...new Set(approvals.map(c => c.salesPersonId || c.sales_person_id))];
         const stats = {};
         
         for (const spId of salesPersonIds) {
-          const spStats = await commissionService.getSalesPersonCommissionStats(spId);
-          stats[spId] = spStats;
+          try {
+            const spStats = await commissionService.getSalesPersonCommissionStats(spId);
+            stats[spId] = spStats;
+          } catch (err) {
+            console.warn(`[CommissionApprovalWorkflow] Failed to load stats for sales person ${spId}:`, err);
+          }
         }
         
         setSalesPersonStats(stats);
       }
     } catch (err) {
-      setError(err.message);
-      console.error('Error loading approvals:', err);
+      const errorMsg = err?.message || err?.toString?.() || String(err) || 'Unknown error';
+      setError(errorMsg);
+      console.error('[CommissionApprovalWorkflow] Error loading approvals:', {
+        error: err,
+        message: err?.message,
+        stack: err?.stack,
+        toString: String(err),
+      });
     } finally {
       setLoading(false);
     }
@@ -100,7 +119,7 @@ export default function CommissionApprovalWorkflow() {
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm font-semibold">Total Pending Amount</div>
             <div className="text-3xl font-bold text-blue-600">
-              ${(pendingApprovals.reduce((sum, c) => sum + (c.commissionAmount || 0), 0)).toFixed(2)}
+              ${(pendingApprovals.reduce((sum, c) => sum + (c.commissionAmount || c.commission_amount || 0), 0)).toFixed(2)}
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
@@ -110,7 +129,7 @@ export default function CommissionApprovalWorkflow() {
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm font-semibold">Sales Persons</div>
             <div className="text-3xl font-bold text-purple-600">
-              {[...new Set(pendingApprovals.map(c => c.salesPersonId))].length}
+              {[...new Set(pendingApprovals.map(c => c.salesPersonId || c.sales_person_id))].length}
             </div>
           </div>
         </div>
@@ -129,10 +148,18 @@ export default function CommissionApprovalWorkflow() {
           ) : (
             <div className="divide-y">
               {pendingApprovals.map((commission, idx) => {
-                const stats = salesPersonStats[commission.salesPersonId] || {};
-                const accrualDate = new Date(commission.accrualDate);
-                const gracePeriodEnd = new Date(commission.gracePeriodEndDate);
-                const daysRemaining = Math.ceil((gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24));
+                // Handle both snake_case and camelCase field names
+                const salesPersonId = commission.salesPersonId || commission.sales_person_id;
+                const invoiceNumber = commission.invoiceNumber || commission.invoice_number;
+                const commissionAmount = commission.commissionAmount || commission.commission_amount;
+                const gracePeriodEndDate = commission.gracePeriodEndDate || commission.grace_period_end_date;
+                const daysUntilDeadline = commission.daysUntilDeadline || commission.days_until_deadline;
+                
+                const stats = salesPersonStats[salesPersonId] || {};
+                const gracePeriodEnd = gracePeriodEndDate ? new Date(gracePeriodEndDate) : new Date();
+                const daysRemaining = (daysUntilDeadline && daysUntilDeadline > 0) 
+                  ? daysUntilDeadline 
+                  : (gracePeriodEndDate ? Math.ceil((gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24)) : 0);
 
                 return (
                   <div
@@ -144,7 +171,7 @@ export default function CommissionApprovalWorkflow() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="font-semibold text-lg">
-                            Invoice {commission.invoiceNumber}
+                            Invoice {invoiceNumber}
                           </div>
                           <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
                             PENDING APPROVAL
@@ -152,10 +179,10 @@ export default function CommissionApprovalWorkflow() {
                         </div>
                         <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
                           <div>
-                            <span className="font-semibold">Amount:</span> ${commission.commissionAmount?.toFixed(2)}
+                            <span className="font-semibold">Amount:</span> ${commissionAmount?.toFixed(2)}
                           </div>
                           <div>
-                            <span className="font-semibold">Accrued:</span> {accrualDate.toLocaleDateString()}
+                            <span className="font-semibold">Accrued:</span> {new Date().toLocaleDateString()}
                           </div>
                           <div className={daysRemaining < 3 ? 'text-red-600 font-semibold' : ''}>
                             <Clock className="inline w-4 h-4 mr-1" />
@@ -185,46 +212,48 @@ export default function CommissionApprovalWorkflow() {
         </div>
 
         {/* Commission Detail Modal */}
-        {selectedCommission && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full">
-              <div className="p-6 border-b flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Commission Details</h2>
-                <button
-                  onClick={() => setSelectedCommission(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">Invoice</label>
-                    <p className="text-lg">{selectedCommission.invoiceNumber}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">Status</label>
-                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded inline-block">
-                      PENDING
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">Commission Amount</label>
-                    <p className="text-2xl font-bold text-blue-600">
-                      ${selectedCommission.commissionAmount?.toFixed(2)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">Accrual Date</label>
-                    <p>{new Date(selectedCommission.accrualDate).toLocaleDateString()}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700">Grace Period End</label>
-                    <p>{new Date(selectedCommission.gracePeriodEndDate).toLocaleDateString()}</p>
-                  </div>
+        {selectedCommission && (() => {
+          // Handle both snake_case and camelCase field names
+          const invoiceNumber = selectedCommission.invoiceNumber || selectedCommission.invoice_number;
+          const commissionAmount = selectedCommission.commissionAmount || selectedCommission.commission_amount;
+          const gracePeriodEndDate = selectedCommission.gracePeriodEndDate || selectedCommission.grace_period_end_date;
+          
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full">
+                <div className="p-6 border-b flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold">Commission Details</h2>
+                  <button
+                    onClick={() => setSelectedCommission(null)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
                 </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">Invoice</label>
+                      <p className="text-lg">{invoiceNumber}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">Status</label>
+                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded inline-block">
+                        PENDING
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">Commission Amount</label>
+                      <p className="text-2xl font-bold text-blue-600">
+                        ${(commissionAmount || 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">Grace Period End</label>
+                      <p>{gracePeriodEndDate ? new Date(gracePeriodEndDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                  </div>
 
                 {/* Approval Workflow */}
                 <div className="border-t pt-4">
@@ -255,24 +284,25 @@ export default function CommissionApprovalWorkflow() {
                 </div>
               </div>
 
-              <div className="p-6 border-t flex gap-3 justify-end">
-                <button
-                  onClick={() => setSelectedCommission(null)}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => handleApproveCommission(selectedCommission)}
-                  disabled={updating}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-                >
-                  {updating ? 'Approving...' : 'Approve Commission'}
-                </button>
+                  <div className="p-6 border-t flex gap-3 justify-end">
+                    <button
+                      onClick={() => setSelectedCommission(null)}
+                      className="px-4 py-2 border rounded hover:bg-gray-50"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() => handleApproveCommission(selectedCommission)}
+                      disabled={updating}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {updating ? 'Approving...' : 'Approve Commission'}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            );
+        })()}
       </div>
     </div>
   );

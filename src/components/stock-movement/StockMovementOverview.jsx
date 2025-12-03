@@ -161,7 +161,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
     } finally {
       setLoading(false);
     }
-  }, [cachedState.hasCache]);
+  }, []);
 
   const formatTimeAgo = (timestamp) => {
     if (!timestamp) return '';

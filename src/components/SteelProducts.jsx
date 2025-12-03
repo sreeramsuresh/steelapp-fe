@@ -284,6 +284,15 @@ const SteelProducts = () => {
   const [showSpecModal, setShowSpecModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // Accordion state for spec modal - MUST be at component level, not inside conditional render
+  const [accordionState, setAccordionState] = useState({
+    classification: true,  // Default expanded
+    inventory: true,        // Default expanded
+    pricing: true,          // Default expanded
+    description: false,     // Collapsed if has data
+    technical: false,       // Collapsed if has data
+  });
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -824,6 +833,10 @@ const SteelProducts = () => {
     }
   };
 
+  // Toggle accordion sections in spec modal - MUST be at component level
+  const toggleSection = (section) => {
+    setAccordionState(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   /**
    * Determine stock status with proper edge case handling
@@ -1974,19 +1987,6 @@ const SteelProducts = () => {
 
         {/* Specifications Modal - Zoho-Style Accordion Drawer */}
         {showSpecModal && selectedProduct && (() => {
-          // State for accordion sections
-          const [accordionState, setAccordionState] = React.useState({
-            classification: true,  // Default expanded
-            inventory: true,        // Default expanded
-            pricing: true,          // Default expanded
-            description: false,     // Collapsed if has data
-            technical: false,       // Collapsed if has data
-          });
-
-          const toggleSection = (section) => {
-            setAccordionState(prev => ({ ...prev, [section]: !prev[section] }));
-          };
-
           // Format grade with GR prefix
           const getFormattedGrade = () => {
             const g = (selectedProduct.grade || '').toString().trim();

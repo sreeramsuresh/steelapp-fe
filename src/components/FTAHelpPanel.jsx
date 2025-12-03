@@ -26,19 +26,20 @@ import {
   Users,
   History,
   BookOpen,
+  ChevronsDown,
+  ChevronsUp,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 // Collapsible section component
-const HelpSection = ({ title, icon: Icon, children, defaultOpen = false }) => {
+const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
   const { isDarkMode } = useTheme();
-  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
           isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
         }`}
@@ -96,6 +97,51 @@ const StatusBadge = ({ status, label }) => {
 const FTAHelpPanel = ({ onClose }) => {
   const { isDarkMode } = useTheme();
 
+  // State to track which sections are open (all start collapsed)
+  const [openSections, setOpenSections] = useState({
+    overview: false,
+    access: false,
+    setup: false,
+    howItWorks: false,
+    beforeAccess: false,
+    troubleshooting: false,
+    security: false,
+    reference: false,
+  });
+
+  const expandAll = () => {
+    setOpenSections({
+      overview: true,
+      access: true,
+      setup: true,
+      howItWorks: true,
+      beforeAccess: true,
+      troubleshooting: true,
+      security: true,
+      reference: true,
+    });
+  };
+
+  const collapseAll = () => {
+    setOpenSections({
+      overview: false,
+      access: false,
+      setup: false,
+      howItWorks: false,
+      beforeAccess: false,
+      troubleshooting: false,
+      security: false,
+      reference: false,
+    });
+  };
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   return (
     <div className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
       {/* Header */}
@@ -107,21 +153,41 @@ const FTAHelpPanel = ({ onClose }) => {
               Help & Documentation
             </h2>
           </div>
-          {onClose && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
-              className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
+              onClick={expandAll}
+              className={`p-1.5 rounded transition-colors ${
+                isDarkMode ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400' : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
+              }`}
+              title="Expand All Sections"
             >
-              ×
+              <ChevronsDown className="h-4 w-4" />
             </button>
-          )}
+            <button
+              onClick={collapseAll}
+              className={`p-1.5 rounded transition-colors ${
+                isDarkMode ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400' : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
+              }`}
+              title="Collapse All Sections"
+            >
+              <ChevronsUp className="h-4 w-4" />
+            </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-5 py-3">
         {/* Overview Section */}
-        <HelpSection title="Overview" icon={BookOpen}>
+        <HelpSection title="Overview" icon={BookOpen} isOpen={openSections.overview} onToggle={() => toggleSection('overview')}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">What is TRN Verification?</h4>
@@ -178,7 +244,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* How to Get FTA API Access */}
-        <HelpSection title="How to Get FTA API Access" icon={Key}>
+        <HelpSection title="How to Get FTA API Access" icon={Key} isOpen={openSections.access} onToggle={() => toggleSection('access')}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">Prerequisites</h4>
@@ -241,7 +307,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Setting Up the Integration */}
-        <HelpSection title="Setting Up the Integration" icon={Settings}>
+        <HelpSection title="Setting Up the Integration" icon={Settings} isOpen={openSections.setup} onToggle={() => toggleSection('setup')}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">Required Information</h4>
@@ -294,7 +360,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* How It Works Once Configured */}
-        <HelpSection title="How It Works" icon={CheckCircle}>
+        <HelpSection title="How It Works" icon={CheckCircle} isOpen={openSections.howItWorks} onToggle={() => toggleSection('howItWorks')}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">Where TRN Verification Appears</h4>
@@ -341,7 +407,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Before You Have API Access */}
-        <HelpSection title="Before You Have API Access" icon={AlertCircle}>
+        <HelpSection title="Before You Have API Access" icon={AlertCircle} isOpen={openSections.beforeAccess} onToggle={() => toggleSection('beforeAccess')}>
           <div className="space-y-4">
             <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-50'}`}>
               <div className="flex items-start gap-2">
@@ -375,7 +441,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Troubleshooting */}
-        <HelpSection title="Troubleshooting" icon={AlertCircle}>
+        <HelpSection title="Troubleshooting" icon={AlertCircle} isOpen={openSections.troubleshooting} onToggle={() => toggleSection('troubleshooting')}>
           <div className="space-y-4">
             <div className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <table className="w-full">
@@ -430,7 +496,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Security & Compliance */}
-        <HelpSection title="Security & Compliance" icon={Shield}>
+        <HelpSection title="Security & Compliance" icon={Shield} isOpen={openSections.security} onToggle={() => toggleSection('security')}>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">How Credentials Are Protected</h4>
@@ -454,7 +520,7 @@ const FTAHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Quick Reference */}
-        <HelpSection title="Quick Reference" icon={FileText}>
+        <HelpSection title="Quick Reference" icon={FileText} isOpen={openSections.reference} onToggle={() => toggleSection('reference')}>
           <div className="space-y-4">
             <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <h4 className="font-medium mb-2">Key Links</h4>

@@ -34,6 +34,23 @@ import {
   UserPlus,
   History,
   Key,
+  Crown,
+  Briefcase,
+  Activity,
+  DollarSign,
+  TrendingUp,
+  ShoppingCart,
+  ShoppingBag,
+  Package,
+  Warehouse,
+  Receipt,
+  ClipboardList,
+  Box,
+  Archive,
+  Truck,
+  FilePlus,
+  Pencil,
+  ThumbsUp,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -46,8 +63,9 @@ import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
+import VATRulesHelpPanel from './VATRulesHelpPanel';
 import { roleService } from '../services/roleService';
-import RoleGuideModal from './RoleGuideModal';
+import RolesHelpPanel from './RolesHelpPanel';
 
 // Custom Tailwind Components
 const Button = ({ children, variant = 'primary', size = 'md', disabled = false, onClick, className = '', startIcon, as = 'button', ...props }) => {
@@ -369,6 +387,40 @@ const Switch = ({ checked, onChange, label, disabled = false }) => {
 const CompanySettings = () => {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
+
+  // Role icon mapping
+  const getRoleIcon = (roleName) => {
+    const name = (roleName || '').toLowerCase().replace(/\s+/g, '_');
+    const iconMap = {
+      managing_director: Crown,
+      operations_manager: Activity,
+      finance_manager: DollarSign,
+      sales_manager: TrendingUp,
+      purchase_manager: ShoppingBag,
+      warehouse_manager: Warehouse,
+      accounts_manager: Calculator,
+      sales_executive: Users,
+      purchase_executive: ClipboardList,
+      stock_keeper: Box,
+      accounts_executive: Receipt,
+      logistics_coordinator: Truck,
+    };
+    return iconMap[name] || Briefcase;
+  };
+
+  // Permission action icon mapping
+  const getPermissionIcon = (permissionKey) => {
+    const key = (permissionKey || '').toLowerCase();
+    if (key.includes('create') || key.includes('add')) return FilePlus;
+    if (key.includes('edit') || key.includes('update')) return Pencil;
+    if (key.includes('delete') || key.includes('remove')) return Trash2;
+    if (key.includes('view') || key.includes('read')) return Eye;
+    if (key.includes('approve')) return ThumbsUp;
+    if (key.includes('export')) return Download;
+    if (key.includes('print')) return Printer;
+    if (key.includes('manage') || key.includes('access')) return Key;
+    return Shield;
+  };
   
   const { data: companyData, loading: loadingCompany, refetch: refetchCompany } = useApiData(
     companyService.getCompany,
@@ -510,7 +562,6 @@ const CompanySettings = () => {
   // RBAC State
   const [availableRoles, setAvailableRoles] = useState([]);
   const [selectedUserRoles, setSelectedUserRoles] = useState([]);
-  const [showRoleGuideModal, setShowRoleGuideModal] = useState(false);
   const [showManageRolesModal, setShowManageRolesModal] = useState(false);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
@@ -550,6 +601,11 @@ const CompanySettings = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  // User management filters and validation
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userValidationErrors, setUserValidationErrors] = useState({});
+  const [isSubmittingUser, setIsSubmittingUser] = useState(false);
 
   // Printing settings state
   const [printingSettings, setPrintingSettings] = useState({
@@ -605,6 +661,55 @@ const CompanySettings = () => {
     };
     return map[module] || module.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   };
+
+  // User validation helpers
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password && password.length >= 8;
+  };
+
+  const validateUserForm = (user, isEdit = false) => {
+    const errors = {};
+
+    if (!user.name || user.name.trim().length === 0) {
+      errors.name = 'Name is required';
+    }
+
+    if (!user.email || user.email.trim().length === 0) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(user.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!isEdit) {
+      if (!user.password || user.password.length === 0) {
+        errors.password = 'Password is required';
+      } else if (!validatePassword(user.password)) {
+        errors.password = 'Password must be at least 8 characters';
+      }
+    }
+
+    if (selectedUserRoles.length === 0) {
+      errors.roles = 'Please assign at least one role';
+    }
+
+    return errors;
+  };
+
+  // Filter users based on search
+  const filteredUsers = users.filter(user => {
+    if (!userSearchTerm) return true;
+    const searchLower = userSearchTerm.toLowerCase();
+    return (
+      user.name?.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
+      user.roles?.some(role => role.displayName?.toLowerCase().includes(searchLower))
+    );
+  });
 
   // Set up theme integration for notifications
   useEffect(() => {
@@ -2224,251 +2329,281 @@ const CompanySettings = () => {
     />
   );
 
-  const renderVatSettings = () => (
-    <div className={`max-w-3xl rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            VAT Rates Configuration
-          </h3>
-          <Button
-            onClick={() => setShowAddVatModal(true)}
-            startIcon={<Plus size={16} />}
-          >
-            Add VAT Rate
-          </Button>
-        </div>
+  const renderVatSettings = () => {
+    console.log('renderVatSettings called - VATRulesHelpPanel should render');
+    return (
+      <div className="flex flex-col lg:flex-row gap-6 lg:min-h-[600px]">
+        {/* Left Column - VAT Configuration (60%) */}
+        <div className="lg:w-3/5 flex-shrink-0">
+          <div className={`rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  VAT Rates Configuration
+                </h3>
+                <Button
+                  onClick={() => setShowAddVatModal(true)}
+                  startIcon={<Plus size={16} />}
+                >
+                  Add VAT Rate
+                </Button>
+              </div>
 
-        {/* UAE VAT Compliance Info Banner */}
-        <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-          isDarkMode
-            ? 'bg-blue-900/20 border-blue-500 text-blue-300'
-            : 'bg-blue-50 border-blue-500 text-blue-800'
-        }`}>
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3 flex-1">
-              <h4 className="font-semibold mb-2">UAE Federal Tax Authority (FTA) VAT Compliance</h4>
-              <ul className="text-sm space-y-1 list-disc list-inside">
-                <li><strong>Standard Rated (5%):</strong> Default rate for most goods and services in UAE</li>
-                <li><strong>Zero Rated (0%):</strong> Exports, international transport, specified medicines & education</li>
-                <li><strong>Exempt:</strong> Financial services, residential properties, bare land (no input tax recovery)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {vatRates.length === 0 ? (
-            <div className={`text-center py-12 rounded-lg border-2 border-dashed ${
-              isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-300 bg-gray-50'
-            }`}>
-              <Calculator size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
-              <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                No VAT Rates Configured
-              </h4>
-              <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Get started by adding your first VAT rate. Common rates in UAE are 5% (Standard) and 0% (Zero Rated).
-              </p>
-              <Button
-                onClick={() => setShowAddVatModal(true)}
-                startIcon={<Plus size={16} />}
-              >
-                Add Your First VAT Rate
-              </Button>
-            </div>
-          ) : (
-            vatRates.map(vatRate => (
-              <div
-                key={vatRate.id}
-                className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
-                  isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
-                } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {vatRate.name}
-                      </h4>
-                      <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                        isDarkMode
-                          ? 'text-teal-400 border-teal-600 bg-teal-900/20'
-                          : 'text-teal-600 border-teal-300 bg-teal-50'
-                      }`}>
-                        {vatRate.rate}%
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded border ${
-                        isDarkMode
-                          ? 'text-gray-400 border-gray-600 bg-gray-800'
-                          : 'text-gray-600 border-gray-300 bg-gray-50'
-                      }`}>
-                        {vatRate.type}
-                      </span>
-                    </div>
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {vatRate.description}
-                    </p>
+              {/* UAE VAT Compliance Info Banner */}
+              <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+                isDarkMode
+                  ? 'bg-blue-900/20 border-blue-500 text-blue-300'
+                  : 'bg-blue-50 border-blue-500 text-blue-800'
+              }`}>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
                   </div>
-
-                  <div className="flex items-center gap-3 ml-4">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vatRate.active}
-                        onChange={() => toggleVatRateActive(vatRate.id)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
-                    </label>
-                    <span className={`text-sm font-medium ${
-                      vatRate.active
-                        ? 'text-green-500'
-                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`}>
-                      {vatRate.active ? 'Active' : 'Inactive'}
-                    </span>
-                    <button
-                      onClick={() => deleteVatRate(vatRate.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <div className="ml-3 flex-1">
+                    <h4 className="font-semibold mb-2">UAE Federal Tax Authority (FTA) VAT Compliance</h4>
+                    <ul className="text-sm space-y-1 list-disc list-inside">
+                      <li><strong>Standard Rated (5%):</strong> Default rate for most goods and services in UAE</li>
+                      <li><strong>Zero Rated (0%):</strong> Exports, international transport, specified medicines & education</li>
+                      <li><strong>Exempt:</strong> Financial services, residential properties, bare land (no input tax recovery)</li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            ))
-          )}
+
+              <div className="space-y-4">
+                {vatRates.length === 0 ? (
+                  <div className={`text-center py-12 rounded-lg border-2 border-dashed ${
+                    isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-300 bg-gray-50'
+                  }`}>
+                    <Calculator size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                    <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      No VAT Rates Configured
+                    </h4>
+                    <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Get started by adding your first VAT rate. Common rates in UAE are 5% (Standard) and 0% (Zero Rated).
+                    </p>
+                    <Button
+                      onClick={() => setShowAddVatModal(true)}
+                      startIcon={<Plus size={16} />}
+                    >
+                      Add Your First VAT Rate
+                    </Button>
+                  </div>
+                ) : (
+                  vatRates.map(vatRate => (
+                    <div
+                      key={vatRate.id}
+                      className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'
+                      } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {vatRate.name}
+                            </h4>
+                            <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                              isDarkMode
+                                ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                                : 'text-teal-600 border-teal-300 bg-teal-50'
+                            }`}>
+                              {vatRate.rate}%
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded border ${
+                              isDarkMode
+                                ? 'text-gray-400 border-gray-600 bg-gray-800'
+                                : 'text-gray-600 border-gray-300 bg-gray-50'
+                            }`}>
+                              {vatRate.type}
+                            </span>
+                          </div>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {vatRate.description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 ml-4">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={vatRate.active}
+                              onChange={() => toggleVatRateActive(vatRate.id)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
+                          </label>
+                          <span className={`text-sm font-medium ${
+                            vatRate.active
+                              ? 'text-green-500'
+                              : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                          }`}>
+                            {vatRate.active ? 'Active' : 'Inactive'}
+                          </span>
+                          <button
+                            onClick={() => deleteVatRate(vatRate.id)}
+                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Add VAT Rate Modal */}
+            {showAddVatModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
+                  <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
+                    <div className="flex justify-between items-center">
+                      <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Add VAT Rate
+                      </h3>
+                      <button
+                        onClick={() => setShowAddVatModal(false)}
+                        className={`p-2 rounded-lg transition-colors duration-200 ${
+                          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input
+                        label="VAT Rate Name"
+                        value={newVatRate.name}
+                        onChange={(e) => setNewVatRate({...newVatRate, name: e.target.value})}
+                        placeholder="e.g., Standard Rated, Zero Rated"
+                      />
+                      <Input
+                        label="VAT Percentage (%)"
+                        type="number"
+                        value={newVatRate.rate || ''}
+                        onChange={(e) => setNewVatRate({...newVatRate, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
+                        placeholder="Enter VAT rate (0, 5, etc.)"
+                      />
+                      <Select
+                        label="Type"
+                        value={newVatRate.type}
+                        onChange={(e) => setNewVatRate({...newVatRate, type: e.target.value})}
+                        options={[
+                          { value: 'percentage', label: 'Percentage' },
+                          { value: 'fixed', label: 'Fixed Amount' },
+                        ]}
+                      />
+                      <div className="md:col-span-2">
+                        <Input
+                          label="Description"
+                          value={newVatRate.description}
+                          onChange={(e) => setNewVatRate({...newVatRate, description: e.target.value})}
+                          placeholder="Describe when this VAT rate applies"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAddVatModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleAddVatRate}
+                      startIcon={<Save size={20} />}
+                    >
+                      Add VAT Rate
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column - Help Panel (40%) - Full height from top */}
+        <div className="lg:w-2/5 lg:self-stretch lg:min-h-[600px]">
+          <div className={`h-full rounded-xl shadow-sm border overflow-hidden ${
+            isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">
+              <VATRulesHelpPanel />
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Add VAT Rate Modal */}
-      {showAddVatModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}>
-            <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
-              <div className="flex justify-between items-center">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Add VAT Rate
-                </h3>
-                <button
-                  onClick={() => setShowAddVatModal(false)}
-                  className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <X size={20} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label="VAT Rate Name"
-                  value={newVatRate.name}
-                  onChange={(e) => setNewVatRate({...newVatRate, name: e.target.value})}
-                  placeholder="e.g., Standard Rated, Zero Rated"
-                />
-                <Input
-                  label="VAT Percentage (%)"
-                  type="number"
-                  value={newVatRate.rate || ''}
-                  onChange={(e) => setNewVatRate({...newVatRate, rate: e.target.value === '' ? '' : Number(e.target.value) || ''})}
-                  placeholder="Enter VAT rate (0, 5, etc.)"
-                />
-                <Select
-                  label="Type"
-                  value={newVatRate.type}
-                  onChange={(e) => setNewVatRate({...newVatRate, type: e.target.value})}
-                  options={[
-                    { value: 'percentage', label: 'Percentage' },
-                    { value: 'fixed', label: 'Fixed Amount' },
-                  ]}
-                />
-                <div className="md:col-span-2">
-                  <Input
-                    label="Description"
-                    value={newVatRate.description}
-                    onChange={(e) => setNewVatRate({...newVatRate, description: e.target.value})}
-                    placeholder="Describe when this VAT rate applies"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
-              <Button
-                variant="outline"
-                onClick={() => setShowAddVatModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddVatRate}
-                startIcon={<Save size={20} />}
-              >
-                Add VAT Rate
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   const renderUserManagement = () => (
-    <SettingsPaper className="max-w-4xl">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              User Management
-            </h3>
-            <button
-              onClick={() => setShowRoleGuideModal(true)}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
-              }`}
-              title="Role Guide & Best Practices"
-            >
-              <HelpCircle size={20} />
-            </button>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              startIcon={<Shield size={16} />}
-              onClick={() => setShowManageRolesModal(true)}
-            >
-              Manage Roles
-            </Button>
-            <Button
-              variant="primary"
-              startIcon={<UserPlus size={16} />}
-              onClick={() => {
-                setNewUser({
-                  name: '',
-                  email: '',
-                  password: '',
-                  role_ids: [],
-                });
-                setSelectedUserRoles([]);
-                setShowAddUserModal(true);
-              }}
-            >
-              Add User
-            </Button>
-          </div>
+    <div className="flex flex-col lg:flex-row gap-6 lg:min-h-[600px]">
+      {/* Left Column - User Management (60%) */}
+      <div className="lg:w-3/5 flex-shrink-0">
+        <SettingsPaper>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                User Management
+              </h3>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  startIcon={<Shield size={16} />}
+                  onClick={() => setShowManageRolesModal(true)}
+                >
+                  Manage Roles
+                </Button>
+                <Button
+                  variant="primary"
+                  startIcon={<UserPlus size={16} />}
+                  onClick={() => {
+                    setNewUser({
+                      name: '',
+                      email: '',
+                      password: '',
+                      role_ids: [],
+                    });
+                    setSelectedUserRoles([]);
+                    setShowAddUserModal(true);
+                  }}
+                >
+                  Add User
+                </Button>
+              </div>
+            </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <Input
+            placeholder="Search users by name, email, or role..."
+            value={userSearchTerm}
+            onChange={(e) => setUserSearchTerm(e.target.value)}
+            startIcon={<Users size={16} />}
+            className="max-w-md"
+          />
         </div>
 
         {/* User List */}
         <div className="space-y-4">
-          {users.map(user => (
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-12">
+              <Users size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+              <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {userSearchTerm ? 'No users found matching your search' : 'No users yet. Add your first user to get started.'}
+              </p>
+            </div>
+          ) : null}
+          {filteredUsers.map(user => (
             <SettingsCard key={user.id} className={user.status === 'active' ? '' : 'opacity-60'}>
               <div className="p-6">
                 {/* User Header */}
@@ -2654,18 +2789,25 @@ const CompanySettings = () => {
             </SettingsCard>
           ))}
         </div>
+          </div>
+        </SettingsPaper>
       </div>
 
-      {/* Role Guide Modal */}
-      <RoleGuideModal
-        isOpen={showRoleGuideModal}
-        onClose={() => setShowRoleGuideModal(false)}
-      />
+      {/* Right Column - Help Panel (40%) */}
+      <div className="lg:w-2/5 lg:self-stretch lg:min-h-[600px]">
+        <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">
+          <RolesHelpPanel />
+        </div>
+      </div>
+    </div>
+  );
 
+  const renderUserManagementModals = () => (
+    <>
       {/* Manage Roles Modal */}
       {showManageRolesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-5xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
+          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
             {/* Modal Header */}
             <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
@@ -2895,27 +3037,48 @@ const CompanySettings = () => {
               </div>
             </div>
 
-            <form className="p-6">
+            <form className="p-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Full Name"
                   value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                  onChange={(e) => {
+                    setNewUser({...newUser, name: e.target.value});
+                    if (userValidationErrors.name) {
+                      setUserValidationErrors({...userValidationErrors, name: null});
+                    }
+                  }}
                   placeholder="Enter full name"
+                  error={userValidationErrors.name}
+                  helperText={userValidationErrors.name}
                 />
                 <TextField
                   label="Email"
                   type="email"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  onChange={(e) => {
+                    setNewUser({...newUser, email: e.target.value});
+                    if (userValidationErrors.email) {
+                      setUserValidationErrors({...userValidationErrors, email: null});
+                    }
+                  }}
                   placeholder="Enter email address"
+                  error={userValidationErrors.email}
+                  helperText={userValidationErrors.email}
                 />
                 <TextField
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
                   value={newUser.password}
-                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                  placeholder="Enter password"
+                  onChange={(e) => {
+                    setNewUser({...newUser, password: e.target.value});
+                    if (userValidationErrors.password) {
+                      setUserValidationErrors({...userValidationErrors, password: null});
+                    }
+                  }}
+                  placeholder="Minimum 8 characters"
+                  error={userValidationErrors.password}
+                  helperText={userValidationErrors.password || 'Must be at least 8 characters'}
                   endAdornment={
                     <button
                       type="button"
@@ -2931,7 +3094,7 @@ const CompanySettings = () => {
               {/* Multi-Role Selection */}
               <div className="mt-6">
                 <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                  Assign Roles (select multiple)
+                  Assign Roles (select multiple) <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map(role => (
@@ -2943,6 +3106,9 @@ const CompanySettings = () => {
                           setSelectedUserRoles(selectedUserRoles.filter(id => id !== role.id));
                         } else {
                           setSelectedUserRoles([...selectedUserRoles, role.id]);
+                        }
+                        if (userValidationErrors.roles) {
+                          setUserValidationErrors({...userValidationErrors, roles: null});
                         }
                       }}
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
@@ -2976,23 +3142,40 @@ const CompanySettings = () => {
                 <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Click on roles to select/deselect. Users can have multiple roles.
                 </p>
+                {userValidationErrors.roles && (
+                  <p className="text-red-500 text-sm mt-2">{userValidationErrors.roles}</p>
+                )}
               </div>
             </form>
 
             <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button
                 variant="outline"
-                onClick={() => setShowAddUserModal(false)}
+                onClick={() => {
+                  setShowAddUserModal(false);
+                  setUserValidationErrors({});
+                }}
+                disabled={isSubmittingUser}
               >
                 Cancel
               </Button>
               <Button
                 onClick={async () => {
+                  // Validate form
+                  const errors = validateUserForm(newUser, false);
+                  if (Object.keys(errors).length > 0) {
+                    setUserValidationErrors(errors);
+                    notificationService.warning('Please fix the validation errors');
+                    return;
+                  }
+
                   try {
+                    setIsSubmittingUser(true);
+                    
                     // 1. Create user via existing API
                     const userData = {
-                      name: newUser.name,
-                      email: newUser.email,
+                      name: newUser.name.trim(),
+                      email: newUser.email.trim(),
                       password: newUser.password,
                     };
                     const createdUser = await userAdminAPI.create(userData);
@@ -3004,6 +3187,14 @@ const CompanySettings = () => {
 
                     notificationService.success('User created successfully!');
                     setShowAddUserModal(false);
+                    setUserValidationErrors({});
+                    setNewUser({
+                      name: '',
+                      email: '',
+                      password: '',
+                      role_ids: [],
+                    });
+                    setSelectedUserRoles([]);
 
                     // Refresh user list
                     const remoteUsers = await userAdminAPI.list();
@@ -3024,9 +3215,12 @@ const CompanySettings = () => {
                   } catch (error) {
                     console.error('Error creating user:', error);
                     notificationService.error(error.response?.data?.error || 'Failed to create user');
+                  } finally {
+                    setIsSubmittingUser(false);
                   }
                 }}
-                startIcon={<Save size={20} />}
+                disabled={isSubmittingUser}
+                startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Save size={20} />}
               >
                 Add User
               </Button>
@@ -3060,22 +3254,36 @@ const CompanySettings = () => {
                 <TextField
                   label="Full Name"
                   value={editUserModal.user.name}
-                  onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, name: e.target.value } }))}
+                  onChange={(e) => {
+                    setEditUserModal(prev => ({ ...prev, user: { ...prev.user, name: e.target.value } }));
+                    if (userValidationErrors.name) {
+                      setUserValidationErrors({...userValidationErrors, name: null});
+                    }
+                  }}
                   placeholder="Enter full name"
+                  error={userValidationErrors.name}
+                  helperText={userValidationErrors.name}
                 />
                 <TextField
                   label="Email"
                   type="email"
                   value={editUserModal.user.email}
-                  onChange={(e) => setEditUserModal(prev => ({ ...prev, user: { ...prev.user, email: e.target.value } }))}
+                  onChange={(e) => {
+                    setEditUserModal(prev => ({ ...prev, user: { ...prev.user, email: e.target.value } }));
+                    if (userValidationErrors.email) {
+                      setUserValidationErrors({...userValidationErrors, email: null});
+                    }
+                  }}
                   placeholder="Enter email address"
+                  error={userValidationErrors.email}
+                  helperText={userValidationErrors.email}
                 />
               </div>
 
               {/* Multi-Role Selection */}
               <div className="mt-6">
                 <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                  Assigned Roles (select multiple)
+                  Assigned Roles (select multiple) <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map(role => (
@@ -3117,23 +3325,40 @@ const CompanySettings = () => {
                     </div>
                   ))}
                 </div>
+                {userValidationErrors.roles && (
+                  <p className="text-red-500 text-sm mt-2">{userValidationErrors.roles}</p>
+                )}
               </div>
             </div>
 
             <div className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}>
               <Button
                 variant="outline"
-                onClick={() => setEditUserModal({ open: false, user: null })}
+                onClick={() => {
+                  setEditUserModal({ open: false, user: null });
+                  setUserValidationErrors({});
+                }}
+                disabled={isSubmittingUser}
               >
                 Cancel
               </Button>
               <Button
                 onClick={async () => {
+                  // Validate form
+                  const errors = validateUserForm(editUserModal.user, true);
+                  if (Object.keys(errors).length > 0) {
+                    setUserValidationErrors(errors);
+                    notificationService.warning('Please fix the validation errors');
+                    return;
+                  }
+
                   try {
+                    setIsSubmittingUser(true);
+                    
                     // 1. Update user basic info
                     const userData = {
-                      name: editUserModal.user.name,
-                      email: editUserModal.user.email,
+                      name: editUserModal.user.name.trim(),
+                      email: editUserModal.user.email.trim(),
                     };
                     await userAdminAPI.update(editUserModal.user.id, userData);
 
@@ -3142,6 +3367,7 @@ const CompanySettings = () => {
 
                     notificationService.success('User updated successfully!');
                     setEditUserModal({ open: false, user: null });
+                    setUserValidationErrors({});
 
                     // Refresh user list
                     const remoteUsers = await userAdminAPI.list();
@@ -3162,9 +3388,12 @@ const CompanySettings = () => {
                   } catch (error) {
                     console.error('Error updating user:', error);
                     notificationService.error(error.response?.data?.error || 'Failed to update user');
+                  } finally {
+                    setIsSubmittingUser(false);
                   }
                 }}
-                startIcon={<Save size={20} />}
+                disabled={isSubmittingUser}
+                startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Save size={20} />}
               >
                 Save Changes
               </Button>
@@ -3532,7 +3761,7 @@ const CompanySettings = () => {
       {/* View All Permissions Modal */}
       {viewPermissionsModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
+          <div className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}>
             {/* Header */}
             <div className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center">
@@ -3572,20 +3801,26 @@ const CompanySettings = () => {
                           From Assigned Roles
                         </h4>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {viewPermissionsModal.rolePermissions.map((role, idx) => (
                           <div
                             key={idx}
                             className={`rounded-lg border ${
                               isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
-                            } p-4`}
+                            } p-3`}
                           >
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                {role.displayName}
-                              </h5>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const RoleIcon = getRoleIcon(role.name);
+                                  return <RoleIcon size={18} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />;
+                                })()}
+                                <h5 className={`font-medium text-base ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {role.displayName}
+                                </h5>
+                              </div>
                               {role.isDirector && (
-                                <span className={`px-2 py-1 text-xs rounded ${
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                                   isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
                                 }`}>
                                   Director
@@ -3593,28 +3828,31 @@ const CompanySettings = () => {
                               )}
                             </div>
                             {role.description && (
-                              <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <p className={`text-sm leading-snug mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                 {role.description}
                               </p>
                             )}
                             {role.permissions && role.permissions.length > 0 ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                {role.permissions.map((perm, permIdx) => (
-                                  <div
-                                    key={permIdx}
-                                    className={`flex items-center text-sm ${
-                                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                    }`}
-                                  >
-                                    <CheckCircle size={14} className="mr-2 text-green-500 flex-shrink-0" />
-                                    <span className="truncate" title={perm.description}>
-                                      {perm.description || perm.permissionKey}
-                                    </span>
-                                  </div>
-                                ))}
+                              <div className="grid grid-cols-1 gap-1.5">
+                                {role.permissions.map((perm, permIdx) => {
+                                  const PermIcon = getPermissionIcon(perm.permissionKey || perm.description);
+                                  return (
+                                    <div
+                                      key={permIdx}
+                                      className={`flex items-center text-sm leading-tight ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                      }`}
+                                    >
+                                      <PermIcon size={13} className="mr-1.5 text-green-500 flex-shrink-0" />
+                                      <span className="truncate" title={perm.description}>
+                                        {perm.description || perm.permissionKey}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             ) : (
-                              <p className={`text-sm italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                                 No specific permissions defined (may have full access)
                               </p>
                             )}
@@ -3664,8 +3902,8 @@ const CompanySettings = () => {
                                 <div className="ml-4">
                                   <span className={`inline-flex items-center px-2 py-1 text-xs rounded ${
                                     new Date(grant.expiresAt) < new Date()
-                                      ? isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700'
-                                      : isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
+                                      ? (isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')
+                                      : (isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700')
                                   }`}>
                                     <Clock size={12} className="mr-1" />
                                     Expires: {new Date(grant.expiresAt).toLocaleDateString()}
@@ -3680,8 +3918,8 @@ const CompanySettings = () => {
                   )}
 
                   {/* No Permissions */}
-                  {viewPermissionsModal.rolePermissions.length === 0 &&
-                   (!viewPermissionsModal.customGrants || viewPermissionsModal.customGrants.length === 0) && (
+                  {(viewPermissionsModal.rolePermissions.length === 0 &&
+                   (!viewPermissionsModal.customGrants || viewPermissionsModal.customGrants.length === 0)) && (
                     <div className="text-center py-12">
                       <Shield size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
                       <h4 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -3708,7 +3946,7 @@ const CompanySettings = () => {
           </div>
         </div>
       )}
-    </SettingsPaper>
+    </>
   );
 
   // Printing & Documents Settings
@@ -4021,7 +4259,12 @@ const CompanySettings = () => {
         {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
         {activeTab === 'fta' && <FTAIntegrationSettings embedded />}
-        {isAdmin && activeTab === 'users' && renderUserManagement()}
+        {isAdmin && activeTab === 'users' && (
+          <>
+            {renderUserManagement()}
+            {renderUserManagementModals()}
+          </>
+        )}
       </div>
     </div>
   );
