@@ -1,4 +1,5 @@
 import { Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import BaseWidget from '../BaseWidget';
 import { useTheme } from '../../../../contexts/ThemeContext';
 
@@ -33,6 +34,7 @@ export const ARAgingWidget = ({
   formatCurrency = (val) => `AED ${val?.toLocaleString() || 0}`,
 }) => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   // Use mock data as fallback when real data is not available
   // Handle both camelCase (API) and snake_case field names
@@ -155,6 +157,20 @@ export const ARAgingWidget = ({
                 {formatCurrency(data.overdue_ar)}
               </p>
             </div>
+          </div>
+
+          {/* View Full Report Button */}
+          <div className="mt-4">
+            <button
+              onClick={() => navigate('/dashboards/ar-aging')}
+              className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                isDarkMode
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
+              }`}
+            >
+              View Full AR Aging Report
+            </button>
           </div>
         </>
       ) : (

@@ -76,6 +76,7 @@ import CommissionApprovalWorkflow from '../pages/CommissionApprovalWorkflow';
 // Phase 4 & 5 Dashboard Components
 import DeliveryVarianceDashboard from '../pages/DeliveryVarianceDashboard';
 import CustomerCreditManagement from '../pages/CustomerCreditManagement';
+import ARAgingReport from '../pages/ARAgingReport';
 
 // Masters Components
 import CountriesList from '../pages/CountriesList';
@@ -589,6 +590,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="suppliers.read">
               <DeliveryVarianceDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* AR Aging Report */}
+        <Route
+          path="/dashboards/ar-aging"
+          element={
+            <ProtectedRoute user={user} requiredPermission="customers.read">
+              <ARAgingReport />
             </ProtectedRoute>
           }
         />

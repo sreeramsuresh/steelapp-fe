@@ -23,6 +23,7 @@ import {
   CheckCircle,
   ChevronUp,
   ChevronDown,
+  Clock,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -162,7 +163,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 4. FINANCE (3 items) - Dashboard with tabs + Commission Approvals + Credit Management
+    // 4. FINANCE (4 items) - Dashboard with tabs + Commission Approvals + Credit Management + AR Aging
     {
       section: 'Finance',
       items: [
@@ -185,6 +186,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
           path: '/dashboards/customer-credit',
           icon: AlertCircle,
           description: 'Monitor customer credit limits and aging',
+          requiredPermission: 'customers.read',
+        },
+        {
+          name: 'AR Aging Report',
+          path: '/dashboards/ar-aging',
+          icon: Clock,
+          description: 'Accounts receivable aging analysis by customer',
           requiredPermission: 'customers.read',
         },
       ],
