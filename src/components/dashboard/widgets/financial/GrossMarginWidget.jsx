@@ -1,4 +1,3 @@
-import React from 'react';
 import { Percent } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 import { GaugeChartWrapper } from '../../charts';

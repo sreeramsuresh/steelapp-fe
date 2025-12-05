@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, CheckCircle, Trash2, Printer } from 'lucide-react';
@@ -202,7 +202,7 @@ const Receivables = () => {
           setLoading(false);
           return;
         }
-        // Cache is stale, continue to fetch but don't show loading (stale-while-revalidate)
+        // Cache is stale, continue to fetch but don&apos;t show loading (stale-while-revalidate)
         setLoading(false);
       } else {
         setLoading(true);
@@ -320,7 +320,7 @@ const Receivables = () => {
       // Send standardized payload to API
       await invoiceService.addInvoicePayment(inv.id, apiPayload);
     } catch (e) {
-      // Ignore - optimistic UI already updated, backend error doesn't affect display
+      // Ignore - optimistic UI already updated, backend error doesn&apos;t affect display
       console.warn('Failed to persist payment to backend:', e.message);
     } finally {
       setIsSavingPayment(false);
@@ -348,7 +348,7 @@ const Receivables = () => {
     try {
       await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
     } catch(e){
-      // Ignore - optimistic UI already voided payment, backend error doesn't affect display
+      // Ignore - optimistic UI already voided payment, backend error doesn&apos;t affect display
       console.warn('Failed to persist void to backend:', e.message);
     }
   };
@@ -366,12 +366,12 @@ const Receivables = () => {
     const updatedPayments = inv.payments.map(p =>
       p.id === paymentId
         ? {
-            ...p,
-            voided: true,
-            voided_at: new Date().toISOString(),
-            void_reason: reason,
-            voided_by: authService.getCurrentUser()?.name || 'User',
-          }
+          ...p,
+          voided: true,
+          voided_at: new Date().toISOString(),
+          void_reason: reason,
+          voided_by: authService.getCurrentUser()?.name || 'User',
+        }
         : p,
     );
     const invoiceAmount = getInvoiceAmount(inv);

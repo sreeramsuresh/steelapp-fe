@@ -72,11 +72,6 @@ fs.writeFileSync(
   JSON.stringify(payments, null, 2),
 );
 
-console.log(`✅ Generated ${payments.length} payments`);
-console.log(`   - Bank Transfer: ${payments.filter(p => p.method === 'bank_transfer').length}`);
-console.log(`   - Cheque: ${payments.filter(p => p.method === 'cheque').length}`);
-console.log(`   - Cash: ${payments.filter(p => p.method === 'cash').length}`);
-console.log(`   - Credit Card: ${payments.filter(p => p.method === 'credit_card').length}`);
 
 // ============================================
 // PHASE 2: QUOTATIONS (80 records)
@@ -182,13 +177,6 @@ fs.writeFileSync(
   JSON.stringify(quotations, null, 2),
 );
 
-console.log('✅ Generated 80 quotations');
-console.log(`   - Draft: ${quotations.filter(q => q.status === 'draft').length}`);
-console.log(`   - Sent: ${quotations.filter(q => q.status === 'sent').length}`);
-console.log(`   - Accepted: ${quotations.filter(q => q.status === 'accepted').length}`);
-console.log(`   - Rejected: ${quotations.filter(q => q.status === 'rejected').length}`);
-console.log(`   - Expired: ${quotations.filter(q => q.status === 'expired').length}`);
-console.log(`   - Converted to Invoice: ${quotations.filter(q => q.convertedToInvoice).length}`);
 
 // ============================================
 // PHASE 2: DELIVERY NOTES (120 records)
@@ -263,14 +251,7 @@ fs.writeFileSync(
   JSON.stringify(deliveryNotes, null, 2),
 );
 
-console.log('✅ Generated 120 delivery notes');
-console.log(`   - Pending: ${deliveryNotes.filter(d => d.status === 'pending').length}`);
-console.log(`   - In Transit: ${deliveryNotes.filter(d => d.status === 'in_transit').length}`);
-console.log(`   - Delivered: ${deliveryNotes.filter(d => d.status === 'delivered').length}`);
-console.log(`   - Returned: ${deliveryNotes.filter(d => d.status === 'returned').length}`);
-console.log(`   - Linked to Invoices: ${deliveryNotes.filter(d => d.invoiceId).length}`);
 
-console.log('\n🎉 Phase 2 Complete: Payments + Quotations (80) + Delivery Notes (120)');
 
 
 // ============================================
@@ -334,10 +315,6 @@ fs.writeFileSync(
   JSON.stringify(suppliers, null, 2),
 );
 
-console.log('✅ Generated 20 suppliers');
-console.log(`   - Active: ${suppliers.filter(s => s.status === 'active').length}`);
-console.log(`   - Inactive: ${suppliers.filter(s => s.status === 'inactive').length}`);
-console.log(`   - Blacklisted: ${suppliers.filter(s => s.status === 'blacklisted').length}`);
 
 // ============================================
 // PHASE 3: PURCHASE ORDERS (60 records)
@@ -430,12 +407,6 @@ fs.writeFileSync(
   JSON.stringify(purchaseOrders, null, 2),
 );
 
-console.log('✅ Generated 60 purchase orders');
-console.log(`   - Draft: ${purchaseOrders.filter(p => p.status === 'draft').length}`);
-console.log(`   - Sent: ${purchaseOrders.filter(p => p.status === 'sent').length}`);
-console.log(`   - Confirmed: ${purchaseOrders.filter(p => p.status === 'confirmed').length}`);
-console.log(`   - Received: ${purchaseOrders.filter(p => p.status === 'received').length}`);
-console.log(`   - Cancelled: ${purchaseOrders.filter(p => p.status === 'cancelled').length}`);
 
 // ============================================
 // PHASE 3: USERS (10 records)
@@ -488,11 +459,6 @@ fs.writeFileSync(
   JSON.stringify(users, null, 2),
 );
 
-console.log('✅ Generated 10 users');
-console.log(`   - Admin: ${users.filter(u => u.role === 'admin').length}`);
-console.log(`   - Manager: ${users.filter(u => u.role === 'manager').length}`);
-console.log(`   - User: ${users.filter(u => u.role === 'user').length}`);
-console.log(`   - Viewer: ${users.filter(u => u.role === 'viewer').length}`);
 
 // ============================================
 // PHASE 3: PRICE LISTS (5 records)
@@ -561,7 +527,6 @@ fs.writeFileSync(
   JSON.stringify(priceLists, null, 2),
 );
 
-console.log('✅ Generated 5 price lists');
 
 // ============================================
 // PHASE 3: COMPANY (1 record)
@@ -608,20 +573,4 @@ fs.writeFileSync(
   JSON.stringify(company, null, 2),
 );
 
-console.log('✅ Generated 1 company record');
 
-console.log('\n🎉 Phase 3 Complete: Suppliers (20) + Purchase Orders (60) + Users (10) + Price Lists (5) + Company (1)');
-console.log('\n🎊 ALL PHASES COMPLETE!');
-console.log('📊 Total Mock Data Generated:');
-console.log('   - Customers: 50');
-console.log('   - Products: 100');
-console.log('   - Invoices: 200');
-console.log(`   - Payments: ${payments.length}`);
-console.log('   - Quotations: 80');
-console.log('   - Delivery Notes: 120');
-console.log('   - Purchase Orders: 60');
-console.log('   - Suppliers: 20');
-console.log('   - Users: 10');
-console.log('   - Price Lists: 5');
-console.log('   - Company: 1');
-console.log(`   - TOTAL: ${50 + 100 + 200 + payments.length + 80 + 120 + 60 + 20 + 10 + 5 + 1} records`);

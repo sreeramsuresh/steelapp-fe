@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Trash2, Package, AlertTriangle, RefreshCw, Search } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { creditNoteService } from '../../services/creditNoteService';
@@ -43,7 +43,8 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
 
   useEffect(() => {
     fetchScrapItems();
-  }, [creditNoteId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditNoteId]); // fetchScrapItems is stable
 
   const filteredItems = scrapItems.filter(item => {
     if (!searchTerm) return true;

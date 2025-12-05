@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import {
   Card,
   CardHeader,
@@ -19,7 +19,6 @@ import { DarkModeContext } from '../../context/DarkModeContext';
 import {
   AlertCircle,
   TrendingUp,
-  TrendingDown,
   DollarSign,
   Calendar,
   Shield,
@@ -47,7 +46,7 @@ const CustomerCreditPanel = ({
   const { isDarkMode } = useContext(DarkModeContext);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [newCreditLimit, setNewCreditLimit] = useState(
-    customer.creditLimit || 0
+    customer.creditLimit || 0,
   );
   const [reviewReason, setReviewReason] = useState('');
 
@@ -363,7 +362,7 @@ const CustomerCreditPanel = ({
               Adjust Credit Limit
             </DialogTitle>
             <DialogDescription className={mutedColor}>
-              Review and adjust the customer's credit limit. Changes are
+              Review and adjust the customer&apos;s credit limit. Changes are
               logged for audit purposes.
             </DialogDescription>
           </DialogHeader>

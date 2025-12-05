@@ -12,7 +12,7 @@
  * - Voluntary registration threshold: AED 187,500
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   Shield, 

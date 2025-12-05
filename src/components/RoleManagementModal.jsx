@@ -310,7 +310,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                 <button
                   onClick={editingRole ? handleUpdate : handleCreate}
                   disabled={submitting}
-                  data-testid={editingRole ? "update-role-btn" : "create-role-btn"}
+                  data-testid={editingRole ? 'update-role-btn' : 'create-role-btn'}
                   className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : editingRole ? 'Update Role' : 'Create Role'}

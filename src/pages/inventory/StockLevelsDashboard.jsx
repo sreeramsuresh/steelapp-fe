@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Search,
   ChevronDown,
@@ -124,7 +124,7 @@ const StockLevelsDashboard = () => {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch stock levels';
       setError(errorMessage);
       notificationService.error(errorMessage);
-      // Only clear data if we don't have cached data to fall back on
+      // Only clear data if we don&apos;t have cached data to fall back on
       if (!stockLevels.length) {
         setStockLevels([]);
       }

@@ -5,7 +5,7 @@
  * Based on UAE VAT Law and FTA requirements
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   HelpCircle,
   ChevronDown,
@@ -18,13 +18,9 @@ import {
   FileText,
   Phone,
   Mail,
-  Globe,
   Lock,
   Key,
-  Server,
   Settings,
-  Users,
-  History,
   BookOpen,
   ChevronsDown,
   ChevronsUp,
@@ -138,7 +134,7 @@ const FTAHelpPanel = ({ onClose }) => {
   const toggleSection = (section) => {
     setOpenSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -194,7 +190,7 @@ const FTAHelpPanel = ({ onClose }) => {
               <p className="text-sm">
                 A Tax Registration Number (TRN) is a unique 15-digit identifier issued by the UAE
                 Federal Tax Authority (FTA) to businesses registered for Value Added Tax (VAT).
-                TRN verification confirms that a trading partner's tax registration is valid,
+                TRN verification confirms that a trading partner&apos;s tax registration is valid,
                 active, and matches their business details.
               </p>
             </div>
@@ -251,7 +247,7 @@ const FTAHelpPanel = ({ onClose }) => {
               <ul className="text-sm space-y-1 list-disc list-inside ml-2">
                 <li>An active FTA e-Services account</li>
                 <li>A valid UAE Trade License</li>
-                <li>Your company's TRN (must be VAT-registered)</li>
+                <li>Your company&apos;s TRN (must be VAT-registered)</li>
                 <li>An authorized signatory with valid Emirates ID</li>
                 <li>Technical contact details</li>
               </ul>
@@ -270,12 +266,12 @@ const FTAHelpPanel = ({ onClose }) => {
                 <li>
                   <strong>Navigate to Developer/API Services</strong>
                   <br />
-                  <span className="ml-5">Select "Apply for API Credentials"</span>
+                  <span className="ml-5">Select &quot;Apply for API Credentials&quot;</span>
                 </li>
                 <li>
                   <strong>Complete Application Form</strong>
                   <br />
-                  <span className="ml-5">Specify "TRN Verification API"</span>
+                  <span className="ml-5">Specify &quot;TRN Verification API&quot;</span>
                 </li>
                 <li>
                   <strong>Submit Documentation</strong>
@@ -349,8 +345,8 @@ const FTAHelpPanel = ({ onClose }) => {
                 <div className="text-sm">
                   <strong>Understanding Soft-Lock</strong>
                   <p className="mt-1">
-                    Once saved and tested successfully, settings enter "soft-lock" state.
-                    This prevents accidental changes to working credentials. Click "Unlock"
+                    Once saved and tested successfully, settings enter &quot;soft-lock&quot; state.
+                    This prevents accidental changes to working credentials. Click &quot;Unlock&quot;
                     to make changes. Only Administrators can modify these settings.
                   </p>
                 </div>
@@ -416,7 +412,7 @@ const FTAHelpPanel = ({ onClose }) => {
                   <strong>The System Still Works</strong>
                   <p className="mt-1">
                     Without API access, you still get local format validation and a direct
-                    link to FTA's manual verification portal.
+                    link to FTA&apos;s manual verification portal.
                   </p>
                 </div>
               </div>
@@ -425,7 +421,7 @@ const FTAHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">Manual Verification Steps</h4>
               <ol className="text-sm space-y-1 list-decimal list-inside ml-2">
-                <li>Click "Verify Manually" link next to any TRN field</li>
+                <li>Click &quot;Verify Manually&quot; link next to any TRN field</li>
                 <li>
                   FTA page opens:{' '}
                   <ExtLink href="https://tax.gov.ae/en/trn.verification.aspx">

@@ -3,7 +3,7 @@
  * Section component that automatically filters widgets by permissions
  */
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useDashboardPermissions } from '../../hooks/useDashboardPermissions';

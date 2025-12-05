@@ -17,13 +17,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  ResponsiveContainer
 } from 'recharts';
 import { AlertCircle, TrendingUp } from 'lucide-react';
-
 /**
  * SupplierPerformanceDashboard - Phase 6 Analytics
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers

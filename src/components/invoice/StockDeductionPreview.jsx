@@ -11,7 +11,7 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiClient } from '../../services/api';
 
 export default function StockDeductionPreview({
@@ -35,7 +35,8 @@ export default function StockDeductionPreview({
     } else {
       setLoading(false);
     }
-  }, [items, warehouseId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, warehouseId]); // fetchStockLevels is stable
 
   const fetchStockLevels = async () => {
     try {

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import BaseWidget, { MetricValue } from '../BaseWidget';

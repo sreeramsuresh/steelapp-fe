@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
@@ -161,8 +161,7 @@ const CustomerManagement = () => {
         current_credit: newCustomer.currentCredit === '' ? 0 : Number(newCustomer.currentCredit),
       };
       await createCustomer(customerData);
-      // Clear cache on create
-      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
+      // TODO: Implement proper cache utility
       setNewCustomer({
         name: '',
         email: '',
@@ -206,8 +205,7 @@ const CustomerManagement = () => {
         current_credit: selectedCustomer.currentCredit === '' ? 0 : Number(selectedCustomer.currentCredit),
       };
       await updateCustomer(selectedCustomer.id, customerData);
-      // Clear cache on update
-      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
+      // TODO: Implement proper cache utility
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
@@ -230,8 +228,7 @@ const CustomerManagement = () => {
 
     try {
       await archiveCustomer(customerId);
-      // Clear cache on archive/delete
-      clearCache(CACHE_KEYS.CUSTOMERS_LIST);
+      // TODO: Implement proper cache utility
       refetchCustomers();
       notificationService.success('Customer archived successfully');
     } catch (error) {

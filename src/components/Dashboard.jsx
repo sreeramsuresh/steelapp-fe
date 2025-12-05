@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart3,
   Users,
@@ -261,10 +261,10 @@ const Dashboard = () => {
   // Track if background refresh is in progress
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // New KPI states - initialize from cache
-  const [arAging, setArAging] = useState(cachedArAging?.data || null);
-  const [revenueTrend, setRevenueTrend] = useState(cachedRevenueTrend?.data || null);
-  const [kpis, setKpis] = useState(cachedStats?.data?.kpis || {
+  // New KPI states
+  const [arAging, setArAging] = useState(null);
+  const [revenueTrend, setRevenueTrend] = useState(null);
+  const [kpis, setKpis] = useState({
     grossMargin: 0,
     dso: 0,
     creditUtilization: 0,
@@ -276,13 +276,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Only show loading spinner if no cached data
-      if (!hasCachedData) {
-        setLoading(true);
-      } else {
-        // Mark as background refresh
-        setIsRefreshing(true);
-      }
+      setLoading(true);
 
       // Fetch all data in parallel
       const [
@@ -390,7 +384,7 @@ const Dashboard = () => {
     }).format(safeAmount);
   };
 
-  const formatDate = (dateString) => {
+  const _formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-AE', {
       day: 'numeric',
       month: 'short',

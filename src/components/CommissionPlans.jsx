@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   Settings,
@@ -9,7 +9,6 @@ import {
   X,
   Percent,
   Users,
-  TrendingUp,
   Info,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';

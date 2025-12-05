@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, AlertCircle, Info, Loader2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -171,7 +171,7 @@ const CustomerForm = () => {
       }
 
       notificationService.success(
-        customerId ? 'Customer updated successfully' : 'Customer created successfully'
+        customerId ? 'Customer updated successfully' : 'Customer created successfully',
       );
 
       // Navigate to customer list or detail view
@@ -525,7 +525,7 @@ const CustomerForm = () => {
               <Info size={20} className="flex-shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-semibold mb-1">Basic Information</p>
-                <p>Enter the customer's basic contact and compliance information. This helps identify the customer and maintain accurate records.</p>
+                <p>Enter the customer&apos;s basic contact and compliance information. This helps identify the customer and maintain accurate records.</p>
               </div>
             </div>
           </div>

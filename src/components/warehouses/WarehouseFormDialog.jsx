@@ -3,7 +3,7 @@
  * Modal dialog for creating/editing warehouse details
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X,
   MapPin,

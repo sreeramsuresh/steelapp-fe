@@ -6,19 +6,3 @@
  */
 
 export * from './common';
-
-// Re-export with explicit names for clarity
-export type {
-  PageInfo,
-  PageRequest,
-  PaginatedResponse,
-  InvoiceListResponse,
-  CustomerListResponse,
-  ProductListResponse,
-  ErrorDetail,
-  Money,
-  Address,
-  AuditInfo,
-  Status,
-  PaymentStatus,
-} from './common';

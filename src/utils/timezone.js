@@ -92,13 +92,14 @@ export const toUAETime = (utcDate, options = {}) => {
       result = date.toLocaleString('en-AE', { ...dateTimeOptions, timeZone: UAE_TIMEZONE });
       break;
 
-    case 'short':
+    case 'short': {
       // "15/01/2025" format (DD/MM/YYYY)
       const dd = String(date.toLocaleString('en-GB', { day: '2-digit', timeZone: UAE_TIMEZONE }));
       const mm = String(date.toLocaleString('en-GB', { month: '2-digit', timeZone: UAE_TIMEZONE }));
       const yyyy = date.toLocaleString('en-GB', { year: 'numeric', timeZone: UAE_TIMEZONE });
       result = `${dd}/${mm}/${yyyy}`;
       break;
+    }
 
     case 'input':
       // YYYY-MM-DD format for HTML date inputs
@@ -106,11 +107,12 @@ export const toUAETime = (utcDate, options = {}) => {
       result = toUAEDateForInput(date);
       break;
 
-    case 'iso':
+    case 'iso': {
       // ISO format with UAE offset: 2025-01-15T14:30:00+04:00
       const uaeDate = new Date(date.getTime() + (UAE_OFFSET_HOURS * 60 * 60 * 1000));
       result = uaeDate.toISOString().replace('Z', '+04:00');
       break;
+    }
 
     default:
       result = date.toLocaleString('en-AE', { timeZone: UAE_TIMEZONE });
@@ -228,14 +230,14 @@ export const isOverdue = (dueDate) => {
 
   // Compare in UAE timezone
   const now = new Date();
-  const nowUAE = new Date(now.toLocaleString('en-US', { timeZone: UAE_TIMEZONE }));
+  const currentUAE = new Date(now.toLocaleString('en-US', { timeZone: UAE_TIMEZONE }));
   const dueDateUAE = new Date(date.toLocaleString('en-US', { timeZone: UAE_TIMEZONE }));
 
   // Set both to start of day for date-only comparison
-  nowUAE.setHours(0, 0, 0, 0);
+  currentUAE.setHours(0, 0, 0, 0);
   dueDateUAE.setHours(0, 0, 0, 0);
 
-  return nowUAE > dueDateUAE;
+  return currentUAE > dueDateUAE;
 };
 
 /**

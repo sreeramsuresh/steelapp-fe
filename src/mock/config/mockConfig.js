@@ -14,13 +14,9 @@ export const MOCK_DELAY = parseInt(import.meta.env.VITE_MOCK_DELAY) || 500;
 
 // Log mock mode status
 if (USE_MOCK_DATA) {
-  console.log('🎭 MOCK MODE ENABLED');
-  console.log(`   Scenario: ${MOCK_SCENARIO}`);
-  console.log(`   Network Delay: ${MOCK_DELAY}ms`);
-  console.log('   Using local JSON data instead of API');
+  // Mock mode enabled
 } else {
-  console.log('🔌 REAL API MODE');
-  console.log('   Using live backend at', import.meta.env.VITE_API_URL || 'http://localhost:3000');
+  // Real API mode
 }
 
 export default {

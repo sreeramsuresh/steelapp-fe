@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Save, ArrowLeft, Truck, Plus, Minus, X, AlertCircle, ChevronDown, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
@@ -60,12 +60,14 @@ const DeliveryNoteForm = () => {
     } else {
       generateDeliveryNoteNumber();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEdit]);
 
   // Load invoices for selection
   useEffect(() => {
     loadInvoices();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally run once on mount
 
   // Auto-select invoice if pre-selected
   useEffect(() => {
@@ -75,9 +77,9 @@ const DeliveryNoteForm = () => {
         handleInvoiceSelect(invoice);
       }
     }
-  }, [preSelectedInvoiceId, invoices, isEdit]);
+  }, [preSelectedInvoiceId, invoices, isEdit, handleInvoiceSelect]);
 
-  const loadDeliveryNote = async () => {
+  const loadDeliveryNote = useCallback(async () => {
     try {
       setLoading(true);
       const deliveryNote = await deliveryNotesAPI.getById(id);
@@ -136,7 +138,7 @@ const DeliveryNoteForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   const loadInvoices = async () => {
     try {
@@ -162,7 +164,7 @@ const DeliveryNoteForm = () => {
     }
   };
 
-  const handleInvoiceSelect = async (invoice) => {
+  const handleInvoiceSelect = useCallback(async (invoice) => {
     if (!invoice) return;
 
     try {
@@ -202,7 +204,7 @@ const DeliveryNoteForm = () => {
     } catch (err) {
       setError(`Failed to load invoice details: ${err.message}`);
     }
-  };
+  }, [isEdit]);
 
   const handleInputChange = (field, value) => {
     if (field.includes('.')) {

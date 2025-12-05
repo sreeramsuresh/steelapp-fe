@@ -66,10 +66,10 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
 
   const formattedInvoiceDate = invoiceDate
     ? new Date(invoiceDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
     : 'N/A';
 
   // Determine payment method display

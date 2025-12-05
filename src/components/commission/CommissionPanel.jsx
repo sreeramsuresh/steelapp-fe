@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import {
   Card,
   CardHeader,
@@ -47,7 +47,7 @@ const CommissionPanel = ({
   const { isDarkMode } = useContext(DarkModeContext);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [adjustedAmount, setAdjustedAmount] = useState(
-    invoice.commissionAmount || 0
+    invoice.commissionAmount || 0,
   );
   const [adjustmentReason, setAdjustmentReason] = useState('');
   const [daysUntilGraceExpiry, setDaysUntilGraceExpiry] = useState(0);
@@ -185,8 +185,8 @@ const CommissionPanel = ({
                     Adjustments allowed until{' '}
                     {invoice.commissionGracePeriodEndDate
                       ? new Date(
-                          invoice.commissionGracePeriodEndDate
-                        ).toLocaleDateString()
+                        invoice.commissionGracePeriodEndDate,
+                      ).toLocaleDateString()
                       : 'N/A'}
                   </p>
                 </div>

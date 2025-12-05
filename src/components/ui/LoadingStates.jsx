@@ -5,7 +5,7 @@
  * with smooth animations and dark mode support.
  */
 
-import React from 'react';
+// React import removed (unused)
 
 /**
  * Spinning loader with customizable size and color

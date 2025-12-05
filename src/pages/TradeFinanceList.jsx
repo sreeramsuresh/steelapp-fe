@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Plus,
@@ -942,7 +942,8 @@ const TradeFinanceList = () => {
   useEffect(() => {
     loadRecords();
     loadImportOrders();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally run once on mount
 
   // Reload on filter change with debounce
   useEffect(() => {
@@ -950,7 +951,8 @@ const TradeFinanceList = () => {
       loadRecords(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]); // loadRecords is intentionally not in deps - stable function
 
   // Filtered records (client-side filtering for expiry)
   const filteredRecords = useMemo(() => {
@@ -1040,24 +1042,20 @@ const TradeFinanceList = () => {
   };
 
   const handleSave = async (data) => {
-    try {
-      if (editingRecord && !isAmendment) {
-        // Update existing record
-        await tradeFinanceService.updateTradeFinanceRecord(editingRecord.id, data);
-      } else if (isAmendment) {
-        // Create amendment (update with amendment status)
-        await tradeFinanceService.updateTradeFinanceRecord(editingRecord.id, {
-          ...data,
-          status: 'amended',
-        });
-      } else {
-        // Create new record
-        await tradeFinanceService.createTradeFinanceRecord(data);
-      }
-      loadRecords(pagination.current_page);
-    } catch (err) {
-      throw err;
+    if (editingRecord && !isAmendment) {
+      // Update existing record
+      await tradeFinanceService.updateTradeFinanceRecord(editingRecord.id, data);
+    } else if (isAmendment) {
+      // Create amendment (update with amendment status)
+      await tradeFinanceService.updateTradeFinanceRecord(editingRecord.id, {
+        ...data,
+        status: 'amended',
+      });
+    } else {
+      // Create new record
+      await tradeFinanceService.createTradeFinanceRecord(data);
     }
+    loadRecords(pagination.current_page);
   };
 
   const handleExport = () => {

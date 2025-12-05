@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package,
@@ -16,6 +16,12 @@ import {
   ChevronDown,
   ChevronRight,
   Upload,
+  Copy,
+  Info,
+  HelpCircle,
+  Lightbulb,
+  RotateCcw,
+  Sparkles,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/dataService';
@@ -168,6 +174,205 @@ const StockProgressBar = ({ value, stockStatus }) => {
   );
 };
 
+// Phase 3: Tooltip Component for Educational Help
+const Tooltip = ({ content, children, position = 'top' }) => {
+  const { isDarkMode } = useTheme();
+  const [isVisible, setIsVisible] = useState(false);
+  const tooltipRef = useRef(null);
+
+  return (
+    <div className="relative inline-flex items-center">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div
+          ref={tooltipRef}
+          className={`absolute z-50 px-3 py-2 text-xs rounded-lg shadow-lg whitespace-normal max-w-xs ${
+            isDarkMode ? 'bg-gray-900 text-gray-200 border border-gray-700' : 'bg-white text-gray-800 border border-gray-200'
+          } ${
+            position === 'top' ? 'bottom-full mb-2 left-1/2 transform -translate-x-1/2' :
+              position === 'bottom' ? 'top-full mt-2 left-1/2 transform -translate-x-1/2' :
+                position === 'left' ? 'right-full mr-2 top-1/2 transform -translate-y-1/2' :
+                  'left-full ml-2 top-1/2 transform -translate-y-1/2'
+          }`}
+          style={{ minWidth: '200px' }}
+        >
+          {content}
+          <div
+            className={`absolute w-2 h-2 transform rotate-45 ${
+              isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+            } ${
+              position === 'top' ? 'bottom-[-4px] left-1/2 -translate-x-1/2 border-r border-b' :
+                position === 'bottom' ? 'top-[-4px] left-1/2 -translate-x-1/2 border-l border-t' :
+                  position === 'left' ? 'right-[-4px] top-1/2 -translate-y-1/2 border-t border-r' :
+                    'left-[-4px] top-1/2 -translate-y-1/2 border-b border-l'
+            }`}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Phase 4: Product Name Segment Display Component
+const ProductNameSegments = ({ productData, focusedField, isDarkMode }) => {
+  const segments = [];
+  
+  // Build segments from product data
+  if (productData.commodity) {
+    segments.push({ 
+      key: 'commodity', 
+      value: productData.commodity.toUpperCase(), 
+      label: 'Commodity',
+      color: isDarkMode ? 'bg-purple-900/40 text-purple-300 border-purple-700' : 'bg-purple-100 text-purple-800 border-purple-300',
+    });
+  } else {
+    segments.push({ key: 'commodity', value: '___', label: 'Commodity', placeholder: true });
+  }
+  
+  if (productData.grade) {
+    const grade = String(productData.grade).trim().replace(/^gr\s*/i, '');
+    segments.push({ 
+      key: 'grade', 
+      value: grade, 
+      label: 'Grade',
+      color: isDarkMode ? 'bg-teal-900/40 text-teal-300 border-teal-700' : 'bg-teal-100 text-teal-800 border-teal-300',
+    });
+  } else {
+    segments.push({ key: 'grade', value: '___', label: 'Grade', placeholder: true });
+  }
+  
+  if (productData.category) {
+    const categoryLabel = productData.category.charAt(0).toUpperCase() + productData.category.slice(1);
+    segments.push({ 
+      key: 'category', 
+      value: categoryLabel, 
+      label: 'Category',
+      color: isDarkMode ? 'bg-blue-900/40 text-blue-300 border-blue-700' : 'bg-blue-100 text-blue-800 border-blue-300',
+    });
+  } else {
+    segments.push({ key: 'category', value: '___', label: 'Category', placeholder: true });
+  }
+  
+  if (productData.finish) {
+    segments.push({ 
+      key: 'finish', 
+      value: productData.finish.toUpperCase(), 
+      label: 'Finish',
+      color: isDarkMode ? 'bg-indigo-900/40 text-indigo-300 border-indigo-700' : 'bg-indigo-100 text-indigo-800 border-indigo-300',
+    });
+  } else {
+    segments.push({ key: 'finish', value: '___', label: 'Finish', placeholder: true });
+  }
+  
+  // Dimensions segment
+  const isPipeOrTube = /pipe|tube/i.test(productData.category || '');
+  let dimensionValue = '';
+  if (isPipeOrTube) {
+    const parts = [];
+    if (productData.sizeInch) parts.push(`${productData.sizeInch}"`);
+    if (productData.od) parts.push(`OD${productData.od}`);
+    if (productData.length) parts.push(`L${productData.length}`);
+    dimensionValue = parts.join('x') || '___';
+  } else {
+    dimensionValue = productData.size || '___';
+  }
+  
+  segments.push({ 
+    key: 'dimensions', 
+    value: dimensionValue, 
+    label: 'Dimensions',
+    color: isDarkMode ? 'bg-amber-900/40 text-amber-300 border-amber-700' : 'bg-amber-100 text-amber-800 border-amber-300',
+    placeholder: dimensionValue === '___',
+  });
+  
+  if (productData.millCountry || productData.mill_country) {
+    const millCountry = productData.millCountry || productData.mill_country;
+    const originStatus = (millCountry === 'AE') ? 'LOCAL' : 'IMPORTED';
+    segments.push({ 
+      key: 'origin', 
+      value: originStatus, 
+      label: 'Origin',
+      color: isDarkMode ? 'bg-emerald-900/40 text-emerald-300 border-emerald-700' : 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    });
+  }
+
+  return (
+    <div className={`p-4 rounded-lg border-2 ${
+      isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-300'
+    }`}>
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles className="w-4 h-4 text-teal-500" />
+        <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          PRODUCT NAME PREVIEW
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {segments.map((segment, index) => (
+          <div key={segment.key} className="flex items-center gap-1">
+            <div
+              className={`px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+                segment.placeholder
+                  ? (isDarkMode ? 'bg-gray-800 text-gray-500 border-gray-700 border-dashed' : 'bg-gray-200 text-gray-400 border-gray-300 border-dashed')
+                  : focusedField === segment.key
+                    ? `ring-2 ring-teal-500 ring-offset-2 ${  segment.color}`
+                    : segment.color
+              }`}
+            >
+              <div className="text-xs font-medium">{segment.value}</div>
+              <div className={`text-[10px] mt-0.5 ${segment.placeholder ? 'opacity-50' : 'opacity-70'}`}>
+                {segment.label}
+              </div>
+            </div>
+            {index < segments.length - 1 && (
+              <span className={`text-lg font-bold ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}>-</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Phase 6: Smart Validation Component
+const ValidationMessage = ({ type = 'info', message, suggestion }) => {
+  const { isDarkMode } = useTheme();
+  
+  const colors = {
+    error: isDarkMode ? 'bg-red-900/30 border-red-700 text-red-300' : 'bg-red-50 border-red-300 text-red-700',
+    warning: isDarkMode ? 'bg-amber-900/30 border-amber-700 text-amber-300' : 'bg-amber-50 border-amber-300 text-amber-700',
+    success: isDarkMode ? 'bg-green-900/30 border-green-700 text-green-300' : 'bg-green-50 border-green-300 text-green-700',
+    info: isDarkMode ? 'bg-blue-900/30 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-300 text-blue-700',
+  };
+  
+  const icons = {
+    error: <AlertTriangle className="w-4 h-4" />,
+    warning: <AlertTriangle className="w-4 h-4" />,
+    success: <CheckCircle className="w-4 h-4" />,
+    info: <Info className="w-4 h-4" />,
+  };
+  
+  return (
+    <div className={`flex items-start gap-2 p-3 rounded-lg border ${colors[type]} text-sm mt-2`}>
+      {icons[type]}
+      <div className="flex-1">
+        <p>{message}</p>
+        {suggestion && (
+          <p className="mt-1 font-medium flex items-center gap-1">
+            <Lightbulb className="w-3 h-3" />
+            Did you mean: <span className="underline">{suggestion}</span>?
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Accordion component for Zoho-style drawer
 const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
   const { isDarkMode } = useTheme();
@@ -222,6 +427,56 @@ const SpecRow = ({ label, value, badge, className = '' }) => {
   );
 };
 
+// Comprehensive SS Trading Product Categories (moved outside component to avoid recreating on every render)
+const PRODUCT_CATEGORIES = [
+  // Flat Products
+  { value: 'sheet', label: 'Sheet', group: 'flat', icon: '📄' },
+  { value: 'plate', label: 'Plate', group: 'flat', icon: '📋' },
+  { value: 'coil', label: 'Coil', group: 'flat', icon: '🔄' },
+  // Tubes (Hollow Sections)
+  { value: 'square_tube', label: 'Square Tube', group: 'tube', icon: '⬜' },
+  { value: 'rectangular_tube', label: 'Rectangular Tube', group: 'tube', icon: '▭' },
+  { value: 'round_tube', label: 'Round Tube', group: 'tube', icon: '⭕' },
+  { value: 'tube', label: 'Tube (General)', group: 'tube', icon: '🔲' },
+  // Pipes
+  { value: 'seamless_pipe', label: 'Seamless Pipe', group: 'pipe', icon: '🔵' },
+  { value: 'erw_pipe', label: 'ERW Pipe', group: 'pipe', icon: '🔴' },
+  { value: 'pol_pipe', label: 'Polished Pipe', group: 'pipe', icon: '✨' },
+  { value: 'pipe', label: 'Pipe (General)', group: 'pipe', icon: '⚫' },
+  // Bars
+  { value: 'round_bar', label: 'Round Bar', group: 'bar', icon: '●' },
+  { value: 'flat_bar', label: 'Flat Bar', group: 'bar', icon: '▬' },
+  { value: 'square_bar', label: 'Square Bar', group: 'bar', icon: '■' },
+  { value: 'hex_bar', label: 'Hex Bar', group: 'bar', icon: '⬡' },
+  { value: 'angle_bar', label: 'Angle Bar', group: 'bar', icon: '∟' },
+  { value: 'bar', label: 'Bar (General)', group: 'bar', icon: '▪' },
+  // Fittings & Others
+  { value: 'fittings', label: 'Fittings', group: 'fittings', icon: '🔧' },
+  { value: 'flange', label: 'Flange', group: 'fittings', icon: '⚙️' },
+  { value: 'fasteners', label: 'Fasteners', group: 'fittings', icon: '🔩' },
+  { value: 'wire', label: 'Wire', group: 'other', icon: '〰️' },
+];
+
+// Category group definitions (static structure)
+const CATEGORY_GROUP_DEFS = [
+  { id: 'flat', label: 'Flat Products', icon: '📄', categories: ['sheet', 'plate', 'coil'] },
+  { id: 'tube', label: 'Tubes', icon: '🔲', categories: ['square_tube', 'rectangular_tube', 'round_tube', 'tube'] },
+  { id: 'pipe', label: 'Pipes', icon: '⚫', categories: ['seamless_pipe', 'erw_pipe', 'pol_pipe', 'pipe'] },
+  { id: 'bar', label: 'Bars', icon: '▬', categories: ['round_bar', 'flat_bar', 'square_bar', 'hex_bar', 'angle_bar', 'bar'] },
+  { id: 'fittings', label: 'Fittings', icon: '🔧', categories: ['fittings', 'flange', 'fasteners'] },
+  { id: 'wire', label: 'Wire & Other', icon: '〰️', categories: ['wire'] },
+];
+
+// Grade group definitions (static structure)
+const GRADE_GROUP_DEFS = [
+  { id: '304', label: '304 Series', grades: ['304', '304L', '304H'] },
+  { id: '316', label: '316 Series', grades: ['316', '316L', '316Ti'] },
+  { id: '200', label: '200 Series', grades: ['201', '202'] },
+  { id: 'duplex', label: 'Duplex', grades: ['2205', '2507', '2304'] },
+  { id: 'ms', label: 'MS/GI', grades: ['MS', 'Galvanized', 'GI'] },
+  { id: 'ferritic', label: 'Ferritic', grades: ['409', '410', '430', '434', '436', '439', '444'] },
+];
+
 const SteelProducts = () => {
   const { isDarkMode } = useTheme();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
@@ -257,7 +512,7 @@ const SteelProducts = () => {
   const { execute: updateProduct, loading: updatingProduct } = useApi(productService.updateProduct);
   const { execute: deleteProduct } = useApi(productService.deleteProduct);
 
-  const products = productsData?.products || [];
+  const products = useMemo(() => productsData?.products || [], [productsData?.products]);
 
   // Build a robust list of finishes: predefined + those present in products
   const allFinishes = useMemo(() => {
@@ -283,7 +538,16 @@ const SteelProducts = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSpecModal, setShowSpecModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copySearchTerm, setCopySearchTerm] = useState('');
+  const [activeTooltip, setActiveTooltip] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // Phase 2-6: Enhanced form state
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [focusedField, setFocusedField] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [similarProducts, setSimilarProducts] = useState([]);
   
   // Accordion state for spec modal - MUST be at component level, not inside conditional render
   const [accordionState, setAccordionState] = useState({
@@ -355,45 +619,274 @@ const SteelProducts = () => {
   ];
 
 
-  // Comprehensive SS Trading Product Categories
-  const categories = [
-    // Flat Products
-    { value: 'sheet', label: 'Sheet', group: 'flat', icon: '📄' },
-    { value: 'plate', label: 'Plate', group: 'flat', icon: '📋' },
-    { value: 'coil', label: 'Coil', group: 'flat', icon: '🔄' },
-    // Tubes (Hollow Sections)
-    { value: 'square_tube', label: 'Square Tube', group: 'tube', icon: '⬜' },
-    { value: 'rectangular_tube', label: 'Rectangular Tube', group: 'tube', icon: '▭' },
-    { value: 'round_tube', label: 'Round Tube', group: 'tube', icon: '⭕' },
-    { value: 'tube', label: 'Tube (General)', group: 'tube', icon: '🔲' },
-    // Pipes
-    { value: 'seamless_pipe', label: 'Seamless Pipe', group: 'pipe', icon: '🔵' },
-    { value: 'erw_pipe', label: 'ERW Pipe', group: 'pipe', icon: '🔴' },
-    { value: 'pol_pipe', label: 'Polished Pipe', group: 'pipe', icon: '✨' },
-    { value: 'pipe', label: 'Pipe (General)', group: 'pipe', icon: '⚫' },
-    // Bars
-    { value: 'round_bar', label: 'Round Bar', group: 'bar', icon: '●' },
-    { value: 'flat_bar', label: 'Flat Bar', group: 'bar', icon: '▬' },
-    { value: 'square_bar', label: 'Square Bar', group: 'bar', icon: '■' },
-    { value: 'hex_bar', label: 'Hex Bar', group: 'bar', icon: '⬡' },
-    { value: 'angle_bar', label: 'Angle Bar', group: 'bar', icon: '∟' },
-    { value: 'bar', label: 'Bar (General)', group: 'bar', icon: '▪' },
-    // Fittings & Others
-    { value: 'fittings', label: 'Fittings', group: 'fittings', icon: '🔧' },
-    { value: 'flange', label: 'Flange', group: 'fittings', icon: '⚙️' },
-    { value: 'fasteners', label: 'Fasteners', group: 'fittings', icon: '🔩' },
-    { value: 'wire', label: 'Wire', group: 'other', icon: '〰️' },
+  // Use constants defined outside component
+  const categories = PRODUCT_CATEGORIES;
+  const categoryGroupDefs = CATEGORY_GROUP_DEFS;
+
+  // Product Templates for Quick Start
+  const productTemplates = [
+    {
+      id: 'template-304-sheet',
+      name: '📄 Standard 304 Sheet (1.5mm)',
+      category: 'sheet',
+      commodity: 'SS',
+      grade: '304',
+      finish: '2B',
+      width: '1220mm',
+      thickness: '1.5mm',
+      length: '2440mm',
+      millCountry: 'AE',
+    },
+    {
+      id: 'template-316l-sheet',
+      name: '📄 Standard 316L Sheet (2.0mm)',
+      category: 'sheet',
+      commodity: 'SS',
+      grade: '316L',
+      finish: '2B',
+      width: '1220mm',
+      thickness: '2.0mm',
+      length: '2440mm',
+      millCountry: 'AE',
+    },
+    {
+      id: 'template-pipe',
+      name: '🔧 Common Pipe (2" SCH 40)',
+      category: 'pipe',
+      commodity: 'SS',
+      grade: '304',
+      finish: 'Polished',
+      sizeInch: '2"',
+      schedule: 'SCH 40',
+      length: '6000mm',
+      millCountry: 'AE',
+    },
+    {
+      id: 'template-tube',
+      name: '🔧 Common Tube (50x50mm)',
+      category: 'square_tube',
+      commodity: 'SS',
+      grade: '304',
+      finish: 'Polished',
+      size: '50x50mm',
+      thickness: '1.5mm',
+      length: '6000mm',
+      millCountry: 'AE',
+    },
+    {
+      id: 'template-coil',
+      name: '📦 Standard Coil',
+      category: 'coil',
+      commodity: 'SS',
+      grade: '304',
+      finish: '2B',
+      width: '1000mm',
+      thickness: '1.0mm',
+      millCountry: 'AE',
+    },
   ];
 
-  // Category group definitions (static structure)
-  const categoryGroupDefs = [
-    { id: 'flat', label: 'Flat Products', icon: '📄', categories: ['sheet', 'plate', 'coil'] },
-    { id: 'tube', label: 'Tubes', icon: '🔲', categories: ['square_tube', 'rectangular_tube', 'round_tube', 'tube'] },
-    { id: 'pipe', label: 'Pipes', icon: '⚫', categories: ['seamless_pipe', 'erw_pipe', 'pol_pipe', 'pipe'] },
-    { id: 'bar', label: 'Bars', icon: '▬', categories: ['round_bar', 'flat_bar', 'square_bar', 'hex_bar', 'angle_bar', 'bar'] },
-    { id: 'fittings', label: 'Fittings', icon: '🔧', categories: ['fittings', 'flange', 'fasteners'] },
-    { id: 'wire', label: 'Wire & Other', icon: '〰️', categories: ['wire'] },
-  ];
+  // Grade helper descriptions
+  const gradeHelp = {
+    '304': 'Most common grade. Good corrosion resistance. General purpose applications.',
+    '316L': 'Marine grade. Better corrosion resistance than 304. Used in medical/marine/food industries.',
+    '316': 'High corrosion resistance. Used in chemical and marine environments.',
+    '201': 'Budget-friendly option. Lower nickel content. Good for non-critical applications.',
+    '430': 'Ferritic grade. Magnetic. Lower cost. Used in automotive and appliances.',
+    '310': 'High temperature resistance. Used in furnaces and heat exchangers.',
+    '321': 'Stabilized grade. Good for high temperature applications.',
+    '904L': 'Super austenitic. Excellent corrosion resistance in harsh environments.',
+  };
+
+  // Finish helper descriptions
+  const finishHelp = {
+    '2B': 'Most common cold-rolled finish. Smooth, slightly reflective. General purpose.',
+    'BA': 'Bright annealed. Mirror-like finish. Premium applications requiring aesthetics.',
+    'No.1': 'Hot-rolled. Rough finish. Used for plates and structural applications.',
+    'HL': 'Hairline finish. Fine linear texture. Popular for decorative applications.',
+    'Polished': 'High shine. Mirror or near-mirror finish. Used for pipes, tubes, and decorative work.',
+    '2D': 'Dull cold-rolled finish. Not reflective. Industrial applications.',
+    '8K': 'Mirror polish. Highest reflectivity. Premium architectural and decorative use.',
+  };
+
+  // Phase 6: Smart Validation Functions
+  const validateGrade = (grade) => {
+    if (!grade) return null;
+    
+    const gradeStr = String(grade).trim().toUpperCase();
+    const knownGrades = grades.map(g => g.toUpperCase());
+    
+    // Check if grade is in known list
+    if (!knownGrades.includes(gradeStr)) {
+      // Find close matches using simple string similarity
+      const suggestions = knownGrades.filter(g => {
+        // Check if it's a substring match
+        if (g.includes(gradeStr) || gradeStr.includes(g)) return true;
+        // Check for common typos (off by one character)
+        if (Math.abs(g.length - gradeStr.length) <= 1) {
+          const minLen = Math.min(g.length, gradeStr.length);
+          let matches = 0;
+          for (let i = 0; i < minLen; i++) {
+            if (g[i] === gradeStr[i]) matches++;
+          }
+          return matches >= minLen - 1;
+        }
+        return false;
+      });
+      
+      if (suggestions.length > 0) {
+        return {
+          type: 'warning',
+          message: `Grade "${grade}" is not in our standard list.`,
+          suggestion: suggestions[0],
+        };
+      }
+      
+      return {
+        type: 'info',
+        message: `Grade "${grade}" will be added as a custom grade.`,
+      };
+    }
+    
+    return null;
+  };
+
+  const validateDimensions = (category, dimensions) => {
+    if (!dimensions) return null;
+    
+    const isPipeOrTube = /pipe|tube/i.test(category);
+    
+    if (isPipeOrTube) {
+      // For pipes/tubes, expect inch dimensions
+      const sizeMatch = /^(\d+\.?\d*)"?$/.test(dimensions);
+      if (!sizeMatch && dimensions) {
+        return {
+          type: 'warning',
+          message: 'Pipe/Tube sizes are typically specified in inches (e.g., 2", 4").',
+        };
+      }
+    } else {
+      // For sheets/plates, expect mm dimensions
+      const mmMatch = /\d+x?\d*/.test(dimensions);
+      if (!mmMatch && dimensions) {
+        return {
+          type: 'warning',
+          message: 'Sheet/Plate dimensions are typically in mm (e.g., 1220x2440).',
+        };
+      }
+    }
+    
+    return null;
+  };
+
+  // Phase 2: Template Selection Handler
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplate(template.id);
+    setNewProduct({
+      ...newProduct,
+      category: template.category,
+      commodity: template.commodity,
+      grade: template.grade,
+      finish: template.finish,
+      millCountry: template.millCountry,
+      thickness: template.thickness || '',
+      width: template.width || '',
+      length: template.length || '',
+      size: template.size || '',
+      sizeInch: template.sizeInch || '',
+      schedule: template.schedule || '',
+    });
+    notificationService.success(`Applied template: ${template.name}`);
+  };
+
+  // Phase 2: Clear Form Handler
+  const handleClearForm = () => {
+    setNewProduct({
+      name: '',
+      category: 'sheet',
+      commodity: 'SS',
+      grade: '',
+      finish: '',
+      size: '',
+      sizeInch: '',
+      od: '',
+      length: '',
+      weight: '',
+      description: '',
+      currentStock: '',
+      minStock: '',
+      maxStock: '',
+      costPrice: '',
+      sellingPrice: '',
+      supplier: '',
+      location: '',
+      hsCode: '',
+      millCountry: '',
+      millName: '',
+      productCategory: '',
+      specifications: {
+        length: '', width: '', thickness: '', diameter: '',
+        tensileStrength: '', yieldStrength: '', carbonContent: '',
+        coating: '', standard: '',
+      },
+    });
+    setSelectedTemplate('');
+    setValidationErrors({});
+    setFocusedField(null);
+    notificationService.success('Form cleared');
+  };
+
+  // Phase 5: Copy from Existing Product Handler
+  const handleCopyFromProduct = (product) => {
+    setNewProduct({
+      ...newProduct,
+      category: product.category,
+      commodity: product.commodity || 'SS',
+      grade: product.grade,
+      finish: product.finish,
+      size: product.size || '',
+      sizeInch: product.sizeInch || product.size_inch || '',
+      od: product.od || '',
+      length: product.length || '',
+      thickness: product.thickness || '',
+      weight: product.weight || '',
+      description: product.description || '',
+      supplier: product.supplier || '',
+      location: product.location || '',
+      millCountry: product.millCountry || product.mill_country || '',
+      specifications: product.specifications || {
+        length: '', width: '', thickness: '', diameter: '',
+        tensileStrength: '', yieldStrength: '', carbonContent: '',
+        coating: '', standard: '',
+      },
+      // Don't copy stock or pricing - those should be set manually
+    });
+    setShowCopyModal(false);
+    notificationService.success(`Copied product details from: ${product.displayName || product.name}`);
+  };
+
+  // Phase 7: Find Similar Products
+  useEffect(() => {
+    if (!showAddModal && !showEditModal) {
+      // Only run when modals are open
+      return;
+    }
+
+    if (!newProduct.grade && !newProduct.category && !newProduct.finish) {
+      setSimilarProducts([]);
+      return;
+    }
+
+    const similar = products.filter(p => {
+      let score = 0;
+      if (p.grade === newProduct.grade) score += 3;
+      if (p.category === newProduct.category) score += 2;
+      if (p.finish === newProduct.finish) score += 1;
+      return score >= 2; // At least 2 matching attributes
+    }).slice(0, 5); // Limit to 5 products
+
+    setSimilarProducts(similar);
+  }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, showEditModal, products]);
 
   // Dynamic category groups - only show groups that have matching products
   const categoryGroups = useMemo(() => {
@@ -405,7 +898,7 @@ const SteelProducts = () => {
       return { ...group, count };
     }).filter(group => group.count > 0); // Only show groups with products
 
-    // Get categories that don't fit any group
+    // Get categories that don&apos;t fit any group
     const allGroupedCategories = categoryGroupDefs.flatMap(g => g.categories.map(cat => cat.toLowerCase()));
     const otherProducts = products.filter(p => {
       const productCategory = (p?.category || '').toLowerCase();
@@ -420,7 +913,7 @@ const SteelProducts = () => {
     }
 
     return [{ id: 'all', label: 'All', icon: '📦', count: products.length }, ...dynamicGroups];
-  }, [products]);
+  }, [products, categoryGroupDefs]);
 
   // Active category group for speed buttons
   const [activeCategoryGroup, setActiveCategoryGroup] = useState('all');
@@ -444,15 +937,8 @@ const SteelProducts = () => {
     'Fe415', 'Fe500', 'Fe550', 'Fe600',
   ];
 
-  // Grade group definitions (static structure)
-  const gradeGroupDefs = [
-    { id: '304', label: '304 Series', grades: ['304', '304L', '304H'] },
-    { id: '316', label: '316 Series', grades: ['316', '316L', '316Ti'] },
-    { id: '200', label: '200 Series', grades: ['201', '202'] },
-    { id: 'duplex', label: 'Duplex', grades: ['2205', '2507', '2304'] },
-    { id: 'ms', label: 'MS/GI', grades: ['MS', 'Galvanized', 'GI'] },
-    { id: 'ferritic', label: 'Ferritic', grades: ['409', '410', '430', '434', '436', '439', '444'] },
-  ];
+  // Use constant defined outside component
+  const gradeGroupDefs = GRADE_GROUP_DEFS;
 
   // Dynamic grade groups - only show groups that have matching products
   const gradeGroups = useMemo(() => {
@@ -464,7 +950,7 @@ const SteelProducts = () => {
       return { ...group, count };
     }).filter(group => group.count > 0); // Only show groups with products
 
-    // Get grades that don't fit any group
+    // Get grades that don&apos;t fit any group
     const allGroupedGrades = gradeGroupDefs.flatMap(g => g.grades.map(grade => grade.toLowerCase()));
     const otherProducts = products.filter(p => {
       const productGrade = (p?.grade || '').toLowerCase();
@@ -479,7 +965,7 @@ const SteelProducts = () => {
     }
 
     return [{ id: 'all', label: 'All Grades', count: products.length }, ...dynamicGroups];
-  }, [products]);
+  }, [products, gradeGroupDefs]);
 
   const [activeGradeGroup, setActiveGradeGroup] = useState('all');
 
@@ -544,7 +1030,7 @@ const SteelProducts = () => {
       }
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
       const productData = {
-        name: newProduct.name,
+        displayName: newProduct.displayName,
         category: newProduct.category,
         commodity: newProduct.commodity || 'SS',
         grade: newProduct.grade,
@@ -563,17 +1049,15 @@ const SteelProducts = () => {
         sellingPrice: newProduct.sellingPrice === '' ? 0 : Number(newProduct.sellingPrice),  // API Gateway converts to selling_price
         supplier: newProduct.supplier,
         location: newProduct.location,
-        origin: newProduct.origin || 'UAE',  // Country of origin
         // Phase 3: Product Master Data (added 2025-12-02)
         hsCode: newProduct.hsCode || undefined,  // API Gateway converts to hs_code
-        countryOfOrigin: newProduct.countryOfOrigin || undefined,  // API Gateway converts to country_of_origin
+        millCountry: newProduct.millCountry || undefined,  // API Gateway converts to mill_country
         millName: newProduct.millName || undefined,  // API Gateway converts to mill_name
         productCategory: newProduct.productCategory || undefined,  // API Gateway converts to product_category
         specifications: newProduct.specifications,
       };
       await createProduct(productData);
-      // Clear cache on create
-      clearCache(CACHE_KEYS.PRODUCTS_LIST);
+      // TODO: Implement proper cache utility
       setNewProduct({
         name: '',
         category: 'sheet',
@@ -654,11 +1138,29 @@ const SteelProducts = () => {
 
     // Join with hyphens (matching database trigger pattern)
     const composed = parts.filter(p => p).join('-');
-    setNewProduct(prev => ({ ...prev, name: composed }));
-  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.gradeVariant, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness]);
+    setNewProduct(prev => ({ ...prev, displayName: composed }));
+  }, [newProduct.commodity, newProduct.category, newProduct.grade, newProduct.gradeVariant, newProduct.finish, newProduct.size, newProduct.sizeInch, newProduct.od, newProduct.length, newProduct.thickness, categories]);
 
   // Auto-regenerate displayName and fullName when editing product details
-  // Matches database trigger pattern: {commodity}-{grade}{grade_variant}-{category}-{finish}-{dimensions}
+  /**
+   * PRODUCT NAME REGENERATION LOGIC
+   * 
+   * Generates canonical product names following the specification:
+   * PATTERN: SS-{grade}{variant}-{form_type}-{finish}-{dimensions}[-{origin}]
+   * 
+   * FIELD ORDER (STRICT):
+   * 1. SS (hardcoded prefix)
+   * 2. Grade + Variant (e.g., "304L", "316")
+   * 3. Form Type (e.g., "Sheet", "Pipe" - uses form_type or category label)
+   * 4. Finish (e.g., "2B", "Polished")
+   * 5. Dimensions (hyphens ONLY, no spaces or x)
+   * 6. Origin (for full_name only, uppercase)
+   * 
+   * EXAMPLES:
+   * - Coil:  SS-201-Coil-BA-1250mm-0.8mm
+   * - Sheet: SS-304-Sheet-2B-1220mm-1.5mm-2440mm
+   * - Pipe:  SS-304L-Pipe-Polished-2"-SCH40
+   */
   useEffect(() => {
     if (!selectedProduct) return;
 
@@ -667,74 +1169,122 @@ const SteelProducts = () => {
     if (selectedProduct.id && !selectedProduct.regenerateName) return;
 
     const parts = [];
-    // Commodity (uppercase)
-    if (selectedProduct.commodity) parts.push(String(selectedProduct.commodity).trim().toUpperCase());
-    // Grade + GradeVariant (no GR prefix - e.g., "304", "316L", "304L")
+    
+    // SS prefix (hardcoded, always present)
+    parts.push('SS');
+    
+    // Grade + GradeVariant (no GR or SS prefix - e.g., "304", "316L", "304L")
     if (selectedProduct.grade) {
       const g = String(selectedProduct.grade).trim();
-      let fullGrade = g.replace(/^gr\s*/i, '');
+      // Strip both "GR" and "SS" prefixes (case insensitive)
+      let fullGrade = g.replace(/^(gr|ss)\s*/i, '');
       // Append grade variant if present (e.g., "L" in "304L")
       if (selectedProduct.gradeVariant) {
         fullGrade += String(selectedProduct.gradeVariant).trim();
       }
       parts.push(fullGrade);
     }
-    // Category (InitCap)
-    const catLabel = categories.find(c => c.value === selectedProduct.category)?.label;
-    if (catLabel) parts.push(catLabel);
-    // Finish (uppercase)
-    if (selectedProduct.finish) parts.push(String(selectedProduct.finish).trim().toUpperCase());
-
-    // Dimensions (varies by category)
-    const isPipeOrTube = /pipe|tube/i.test(selectedProduct.category || '');
-    if (isPipeOrTube) {
-      // For pipes/tubes: size (inch), OD, length
-      const dimParts = [];
-      if (selectedProduct.sizeInch) dimParts.push(`${String(selectedProduct.sizeInch).trim()}"`);
-      if (selectedProduct.od) dimParts.push(`OD${String(selectedProduct.od).trim()}`);
-      if (selectedProduct.length) dimParts.push(`L${String(selectedProduct.length).trim()}`);
-      if (dimParts.length > 0) parts.push(dimParts.join('x'));
-    } else {
-      // For sheets/bars/etc: size
-      if (selectedProduct.size) parts.push(String(selectedProduct.size).trim());
+    
+    // Form Type (canonical field - use form_type if available, falls back to category label)
+    const formType = selectedProduct.form_type || selectedProduct.category;
+    if (formType) {
+      const catLabel = categories.find(c => c.value === formType)?.label || formType;
+      parts.push(catLabel);
     }
-    if (selectedProduct.thickness) parts.push(`${String(selectedProduct.thickness).trim()}mm`);
+    
+    // Finish (uppercase)
+    if (selectedProduct.finish) {
+      parts.push(String(selectedProduct.finish).trim().toUpperCase());
+    }
 
-    // displayName uses hyphen delimiter (no origin)
+    // Dimensions (ALL separated by hyphens, never spaces or 'x')
+    const isPipeOrTube = /pipe|tube/i.test(formType || '');
+    if (isPipeOrTube) {
+      // For pipes/tubes: nb_size (inch) or OD, then schedule or thickness, then length
+      if (selectedProduct.sizeInch) {
+        parts.push(`${String(selectedProduct.sizeInch).trim()}"`);
+      } else if (selectedProduct.od) {
+        parts.push(`${String(selectedProduct.od).trim()}mm`);
+      }
+      if (selectedProduct.schedule) {
+        parts.push(String(selectedProduct.schedule).trim());
+      } else if (selectedProduct.thickness) {
+        parts.push(`${String(selectedProduct.thickness).trim()}mm`);
+      }
+      if (selectedProduct.length && selectedProduct.length !== 'Coil') {
+        parts.push(`${String(selectedProduct.length).trim()}mm`);
+      }
+    } else if (/coil/i.test(formType || '')) {
+      // For coils: width, thickness
+      if (selectedProduct.width) {
+        parts.push(`${String(selectedProduct.width).trim()}mm`);
+      }
+      if (selectedProduct.thickness) {
+        parts.push(`${String(selectedProduct.thickness).trim()}mm`);
+      }
+    } else {
+      // For sheets/plates/bars: width, thickness, length
+      if (selectedProduct.width) {
+        parts.push(`${String(selectedProduct.width).trim()}mm`);
+      }
+      if (selectedProduct.thickness) {
+        parts.push(`${String(selectedProduct.thickness).trim()}mm`);
+      }
+      if (selectedProduct.length) {
+        parts.push(`${String(selectedProduct.length).trim()}mm`);
+      }
+    }
+
+    // displayName = parts joined by hyphen (NO origin/mill)
     const displayName = parts.filter(p => p).join('-');
 
-    // fullName = displayName + origin (matching unique_name in database)
+    // fullName = displayName + origin_status + mill_name (matching database trigger logic)
     const fullNameParts = [...parts.filter(p => p)];
-    if (selectedProduct.origin) fullNameParts.push(String(selectedProduct.origin).trim().toUpperCase());
-    const fullName = fullNameParts.join('-');
+    
+    // Compute origin_status from mill_country (matches database trigger)
+    const millCountry = selectedProduct.mill_country || selectedProduct.millCountry;
+    const originStatus = (millCountry === 'AE') ? 'LOCAL' : 'IMPORTED';
+    fullNameParts.push(originStatus);
+    
+    // Append sanitized mill_name (alphanumeric only, matches database trigger)
+    const millName = selectedProduct.mill_name || selectedProduct.millName;
+    if (millName) {
+      const sanitizedMill = String(millName).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (sanitizedMill) {
+        fullNameParts.push(sanitizedMill);
+      }
+    }
 
-    // Only update if the generated names are different from current ones
-    if (selectedProduct.displayName !== displayName || selectedProduct.fullName !== fullName) {
+    // Only update if the generated displayName is different from current one
+    if (selectedProduct.displayName !== displayName) {
       setSelectedProduct(prev => ({
         ...prev,
         displayName,
         display_name: displayName,
-        fullName,
-        full_name: fullName,
-        name: displayName, // Update name field as well
         regenerateName: false, // Reset the flag after regeneration
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    selectedProduct?.commodity,
+    // Note: Using granular selectedProduct properties instead of full object to avoid unnecessary rerenders
+    selectedProduct?.id,
+    selectedProduct?.form_type,
     selectedProduct?.category,
     selectedProduct?.grade,
     selectedProduct?.gradeVariant,
     selectedProduct?.finish,
-    selectedProduct?.size,
+    selectedProduct?.width,
     selectedProduct?.sizeInch,
     selectedProduct?.od,
     selectedProduct?.length,
     selectedProduct?.thickness,
-    selectedProduct?.origin,
+    selectedProduct?.schedule,
+    selectedProduct?.mill_country,
+    selectedProduct?.millCountry,
+    selectedProduct?.mill_name,
+    selectedProduct?.millName,
     selectedProduct?.regenerateName,
-    selectedProduct?.displayName,
-    selectedProduct?.fullName,
+    categories,
   ]);
 
   const handleEditProduct = async () => {
@@ -744,9 +1294,7 @@ const SteelProducts = () => {
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
       // Convert empty strings to appropriate default values
       const productData = {
-        name: selectedProduct.displayName || selectedProduct.name, // Use auto-generated displayName
-        displayName: selectedProduct.displayName, // Include displayName
-        fullName: selectedProduct.fullName, // Include fullName
+        displayName: selectedProduct.displayName, // User-editable product name
         category: selectedProduct.category,
         commodity: selectedProduct.commodity || 'SS',
         grade: selectedProduct.grade,
@@ -766,11 +1314,11 @@ const SteelProducts = () => {
         sellingPrice: selectedProduct.sellingPrice === '' ? 0 : Number(selectedProduct.sellingPrice),  // API Gateway converts to selling_price
         supplier: selectedProduct.supplier,
         location: selectedProduct.location,
-        origin: selectedProduct.origin || 'UAE',  // Country of origin
-        specifications: {
+        millCountry: selectedProduct.millCountry || undefined,  // API Gateway converts to mill_country
+        specifications: JSON.stringify({
           ...(selectedProduct.specifications || {}),
           thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || '',
-        },
+        }),
       };
 
       console.log('📤 Sending product data (camelCase):', productData);
@@ -779,8 +1327,7 @@ const SteelProducts = () => {
       const result = await updateProduct(selectedProduct.id, productData);
       console.log('✅ Product updated successfully:', result);
 
-      // Clear cache on update
-      clearCache(CACHE_KEYS.PRODUCTS_LIST);
+      // TODO: Implement proper cache utility
 
       console.log('🔄 Starting products refetch...');
       console.log('📊 Current products data before refetch:', productsData);
@@ -823,8 +1370,7 @@ const SteelProducts = () => {
 
     try {
       await deleteProduct(productId);
-      // Clear cache on delete
-      clearCache(CACHE_KEYS.PRODUCTS_LIST);
+      // TODO: Implement proper cache utility
       refetchProducts();
       notificationService.success('Product deleted successfully');
     } catch (error) {
@@ -1157,14 +1703,14 @@ const SteelProducts = () => {
                           {product.size}
                         </span>
                       )}
-                      {/* Origin Badge - Show country of origin */}
-                      {product.origin && (
+                      {/* Origin Badge - Show origin status derived from mill_country */}
+                      {(product.millCountry || product.mill_country) && (
                         <span className={`px-2 py-1 text-xs rounded-md border font-medium ${
                           isDarkMode
                             ? 'bg-amber-900/30 text-amber-300 border-amber-700'
                             : 'bg-amber-100 text-amber-800 border-amber-200'
                         }`}>
-                          {product.origin}
+                          {(product.millCountry === 'AE' || product.mill_country === 'AE') ? 'LOCAL' : 'IMPORTED'}
                         </span>
                       )}
                     </div>
@@ -1408,82 +1954,360 @@ const SteelProducts = () => {
 
               {/* Modal Content */}
               <div className="p-6 space-y-6">
-                {/* Basic Information */}
+                {/* Phase 2: Enhanced Quick Start Templates with Dropdown & Clear */}
+                <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-teal-50 border-teal-200'}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-teal-500" />
+                      <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Quick Start Templates
+                      </h3>
+                    </div>
+                    <Button
+                      onClick={handleClearForm}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1"
+                    >
+                      <RotateCcw size={14} />
+                      Clear Form
+                    </Button>
+                  </div>
+                  <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Select a template to quickly pre-fill common product specifications
+                  </p>
+                  
+                  {/* Template Dropdown Selector */}
+                  <div className="mb-3">
+                    <Select
+                      label="Choose Template"
+                      options={[
+                        { value: '', label: 'Start from scratch...' },
+                        ...productTemplates.map(t => ({ value: t.id, label: t.name })),
+                      ]}
+                      value={selectedTemplate}
+                      onChange={(e) => {
+                        const template = productTemplates.find(t => t.id === e.target.value);
+                        if (template) {
+                          handleTemplateSelect(template);
+                        } else {
+                          setSelectedTemplate('');
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Template Quick Buttons */}
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {productTemplates.map(template => (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => handleTemplateSelect(template)}
+                        className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all ${
+                          selectedTemplate === template.id
+                            ? (isDarkMode ? 'border-teal-500 bg-teal-900/50 shadow-lg' : 'border-teal-500 bg-teal-100 shadow-md')
+                            : (isDarkMode ? 'border-gray-600 bg-gray-800 hover:border-teal-600' : 'border-gray-300 bg-white hover:border-teal-400')
+                        }`}
+                      >
+                        <div className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {template.name.split(' ')[0]} {/* Show emoji */}
+                        </div>
+                        <div className={`text-[10px] mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {template.grade}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Phase 5: Copy from Existing Product Button */}
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowCopyModal(true)}
+                      className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300'
+                          : 'border-gray-300 bg-white hover:bg-gray-50 text-gray-700'
+                      }`}
+                    >
+                      <Copy size={16} />
+                      Copy from Existing Product
+                    </button>
+                  </div>
+                </div>
+
+                {/* Phase 4: Visual Product Name Builder */}
+                <ProductNameSegments 
+                  productData={newProduct} 
+                  focusedField={focusedField}
+                  isDarkMode={isDarkMode}
+                />
+
+                {/* Basic Information with Tooltips */}
                 <div>
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Commodity"
-                      value={newProduct.commodity}
-                      onChange={(e) => setNewProduct({...newProduct, commodity: e.target.value})}
-                      placeholder="e.g., SS"
-                    />
-                    <Input
-                      label="Product Name Preview (auto-generated)"
-                      value={newProduct.name || '(Fill fields above to generate)'}
-                      readOnly
-                      className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
-                    />
-                    <Select
-                      label="Category"
-                      options={categories}
-                      value={newProduct.category}
-                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                    />
-                    <Select
-                      label="Grade"
-                      options={grades.map(grade => ({ value: grade, label: grade }))}
-                      value={newProduct.grade}
-                      onChange={(e) => setNewProduct({...newProduct, grade: e.target.value})}
-                    />
-                    <Select
-                      label="Finish"
-                      options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
-                      value={(newProduct.finish || '').trim()}
-                      onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
-                    />
-                    <Select
-                      label="Origin (Country)"
-                      options={originOptions}
-                      value={newProduct.origin || 'UAE'}
-                      onChange={(e) => setNewProduct({ ...newProduct, origin: e.target.value })}
-                      placeholder="Select origin..."
-                    />
+                    
+                    {/* Commodity */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                          Commodity
+                        </label>
+                        <Tooltip content="Material type (SS = Stainless Steel, MS = Mild Steel, GI = Galvanized Iron)">
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <input
+                        type="text"
+                        value={newProduct.commodity}
+                        onChange={(e) => setNewProduct({...newProduct, commodity: e.target.value})}
+                        onFocus={() => setFocusedField('commodity')}
+                        onBlur={() => setFocusedField(null)}
+                        placeholder="e.g., SS"
+                        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                          Form Type / Category
+                        </label>
+                        <Tooltip content="Product form: Sheet (flat), Pipe (round hollow), Tube (square/rectangular hollow), Coil (rolled), etc.">
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                          onFocus={() => setFocusedField('category')}
+                          onBlur={() => setFocusedField(null)}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        >
+                          {categories.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.icon} {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      </div>
+                    </div>
+
+                    {/* Grade with Validation */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                          Grade
+                        </label>
+                        <Tooltip content={gradeHelp[newProduct.grade] || 'Steel grade determines corrosion resistance, strength, and application. Common grades: 304 (general), 316L (marine), 201 (budget).'}>
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={newProduct.grade}
+                          onChange={(e) => {
+                            setNewProduct({...newProduct, grade: e.target.value});
+                            const validation = validateGrade(e.target.value);
+                            setValidationErrors({...validationErrors, grade: validation});
+                          }}
+                          onFocus={() => setFocusedField('grade')}
+                          onBlur={() => setFocusedField(null)}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        >
+                          <option value="">Select grade...</option>
+                          {grades.map(grade => (
+                            <option key={grade} value={grade}>{grade}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      </div>
+                      {validationErrors.grade && (
+                        <ValidationMessage 
+                          type={validationErrors.grade.type}
+                          message={validationErrors.grade.message}
+                          suggestion={validationErrors.grade.suggestion}
+                        />
+                      )}
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        Do not include &apos;GR&apos; prefix - it will be added automatically.
+                      </p>
+                    </div>
+
+                    {/* Finish */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                          Surface Finish
+                        </label>
+                        <Tooltip content={finishHelp[newProduct.finish] || 'Surface finish affects appearance and application. 2B (standard), BA (mirror), HL (brushed), Polished (shiny).'}>
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={(newProduct.finish || '').trim()}
+                          onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
+                          onFocus={() => setFocusedField('finish')}
+                          onBlur={() => setFocusedField(null)}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
+                        >
+                          <option value="">Select finish...</option>
+                          {allFinishes.map(finish => (
+                            <option key={finish} value={finish}>{finish} Finish</option>
+                          ))}
+                        </select>
+                        <ChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      </div>
+                    </div>
+                    {/* Origin */}
+
+
+                    {/* Dimensions - Dynamic based on category */}
                     {(/pipe|tube/i.test(newProduct.category || '')) ? (
                       <>
-                        <Input
-                          label={'Size (inch " )'}
-                          value={newProduct.sizeInch}
-                          onChange={(e) => setNewProduct({ ...newProduct, sizeInch: e.target.value })}
-                          placeholder={'e.g., 2"'}
-                        />
-                        <Input
-                          label={'OD (")'}
-                          value={newProduct.od}
-                          onChange={(e) => setNewProduct({ ...newProduct, od: e.target.value })}
-                          placeholder={'e.g., 2"'}
-                        />
-                        <Input
-                          label={'Length (")'}
-                          value={newProduct.length}
-                          onChange={(e) => setNewProduct({ ...newProduct, length: e.target.value })}
-                          placeholder={'e.g., 96"'}
-                        />
+                        {/* Pipe/Tube Dimensions */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                              Size (inches)
+                            </label>
+                            <Tooltip content='Nominal pipe size in inches (e.g., 2", 4", 6"). Standard sizes: 1/2", 3/4", 1", 1.5", 2", 3", 4", 6", 8".'>
+                              <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <input
+                            type="text"
+                            value={newProduct.sizeInch}
+                            onChange={(e) => setNewProduct({ ...newProduct, sizeInch: e.target.value })}
+                            onFocus={() => setFocusedField('dimensions')}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder='e.g., 2"'
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                              OD (Outer Diameter)
+                            </label>
+                            <Tooltip content="Outer diameter in inches or mm. For precise measurement and wall thickness calculation.">
+                              <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <input
+                            type="text"
+                            value={newProduct.od}
+                            onChange={(e) => setNewProduct({ ...newProduct, od: e.target.value })}
+                            onFocus={() => setFocusedField('dimensions')}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder='e.g., 2.375"'
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                              Length
+                            </label>
+                            <Tooltip content='Standard length in mm or inches. Common: 6m (236"), 3m (118"), custom lengths available.'>
+                              <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <input
+                            type="text"
+                            value={newProduct.length}
+                            onChange={(e) => setNewProduct({ ...newProduct, length: e.target.value })}
+                            onFocus={() => setFocusedField('dimensions')}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder='e.g., 6000mm or 236"'
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                              isDarkMode 
+                                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                            }`}
+                          />
+                        </div>
                       </>
                     ) : (
-                      <Input
-                        label="Size (MM)"
-                        value={newProduct.size}
-                        onChange={(e) => setNewProduct({ ...newProduct, size: e.target.value })}
-                        placeholder="e.g., 50x50x6"
-                      />
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                            Dimensions (mm)
+                          </label>
+                          <Tooltip content="Dimensions in millimeters. Format: Width x Length (e.g., 1220x2440) or Width x Thickness x Length. Standard sheet: 1220x2440mm (4'x8').">
+                            <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                          </Tooltip>
+                        </div>
+                        <input
+                          type="text"
+                          value={newProduct.size}
+                          onChange={(e) => setNewProduct({ ...newProduct, size: e.target.value })}
+                          onFocus={() => setFocusedField('dimensions')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="e.g., 1220x2440 or 50x50"
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                      </div>
                     )}
-                    <Input
-                      label="Thickness"
-                      value={newProduct.thickness}
-                      onChange={(e) => setNewProduct({...newProduct, thickness: e.target.value})}
-                      placeholder="e.g., 1.2mm"
-                    />
+                    
+                    {/* Thickness */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                          Thickness
+                        </label>
+                        <Tooltip content="Material thickness in mm. Common: 0.5mm, 1.0mm, 1.2mm, 1.5mm, 2.0mm, 3.0mm. Thicker = stronger but heavier.">
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <input
+                        type="text"
+                        value={newProduct.thickness}
+                        onChange={(e) => setNewProduct({...newProduct, thickness: e.target.value})}
+                        onFocus={() => setFocusedField('dimensions')}
+                        onBlur={() => setFocusedField(null)}
+                        placeholder="e.g., 1.5mm"
+                        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        }`}
+                      />
+                    </div>
                     <Input
                       label="Weight (kg/pc or kg/m)"
                       value={newProduct.weight}
@@ -1680,11 +2504,17 @@ const SteelProducts = () => {
                       error={newProduct.hsCode && !/^\d{6,10}$/.test(newProduct.hsCode) ? 'Must be 6-10 digits' : ''}
                     />
                     <Select
-                      label="Country of Origin (Manufacturing)"
+                      label="Mill Country"
                       options={originOptions}
-                      value={newProduct.countryOfOrigin || ''}
-                      onChange={(e) => setNewProduct({...newProduct, countryOfOrigin: e.target.value})}
-                      placeholder="Select country..."
+                      value={newProduct.millCountry || ''}
+                      onChange={(e) => setNewProduct({...newProduct, millCountry: e.target.value})}
+                      placeholder="Select manufacturing country..."
+                    />
+                    <Input
+                      label="Origin Status"
+                      value={newProduct.millCountry === 'AE' ? 'LOCAL' : (newProduct.millCountry ? 'IMPORTED' : '')}
+                      readOnly
+                      placeholder="Auto-computed from mill country"
                     />
                     <Input
                       label="Mill Name / Manufacturer"
@@ -1711,6 +2541,83 @@ const SteelProducts = () => {
                 </div>
               </div>
 
+              {/* Phase 7: Similar Products Sidebar (Optional) */}
+              {similarProducts.length > 0 && (
+                <div className={`p-6 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Lightbulb className="w-5 h-5 text-amber-500" />
+                    <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Similar Products Found ({similarProducts.length})
+                    </h3>
+                  </div>
+                  <p className={`text-xs mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    These products match your specifications. You might want to review them before adding a new product.
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+                    {similarProducts.map(product => (
+                      <div
+                        key={product.id}
+                        className={`p-3 rounded-lg border ${
+                          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm font-medium truncate mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {product.displayName || product.display_name || product.name}
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {product.grade && (
+                                <span className={`px-2 py-0.5 text-xs rounded ${
+                                  isDarkMode ? 'bg-teal-900/30 text-teal-300' : 'bg-teal-100 text-teal-800'
+                                }`}>
+                                  {product.grade}
+                                </span>
+                              )}
+                              {product.finish && (
+                                <span className={`px-2 py-0.5 text-xs rounded ${
+                                  isDarkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {product.finish}
+                                </span>
+                              )}
+                              <span className={`px-2 py-0.5 text-xs rounded ${
+                                isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
+                              }`}>
+                                Stock: {product.currentStock || 0}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setShowSpecModal(true);
+                              }}
+                              className={`p-1.5 rounded transition-colors ${
+                                isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                              }`}
+                              title="View Details"
+                            >
+                              <Eye size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleCopyFromProduct(product)}
+                              className={`p-1.5 rounded transition-colors ${
+                                isDarkMode ? 'hover:bg-gray-700 text-teal-400' : 'hover:bg-gray-100 text-teal-600'
+                              }`}
+                              title="Copy Specifications"
+                            >
+                              <Copy size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Modal Footer */}
               <div className={`flex justify-end gap-3 p-6 border-t ${
                 isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
@@ -1720,7 +2627,7 @@ const SteelProducts = () => {
                 </Button>
                 <Button
                   onClick={handleAddProduct}
-                  disabled={!newProduct.name}
+                  disabled={!newProduct.displayName}
                 >
                   <Save size={16} />
                   Add Product
@@ -1760,11 +2667,15 @@ const SteelProducts = () => {
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
                         <Input
-                          label="Display Name (auto-generated)"
-                          value={selectedProduct.displayName || selectedProduct.display_name || selectedProduct.fullName || selectedProduct.full_name || selectedProduct.name || ''}
-                          readOnly
-                          className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium`}
-                          placeholder="Auto-generated from fields below"
+                          label="Product Name"
+                          value={selectedProduct.displayName || selectedProduct.display_name || ''}
+                          onChange={(e) => setSelectedProduct(prev => ({
+                            ...prev,
+                            displayName: e.target.value,
+                            display_name: e.target.value
+                          }))}
+                          className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} font-medium`}
+                          placeholder="Enter custom product name or use Regenerate"
                         />
                       </div>
                       <button
@@ -1785,13 +2696,24 @@ const SteelProducts = () => {
                       Click &quot;Regenerate&quot; to update name from current field values
                     </p>
                   </div>
-                  <Input
-                    label="Full Name with Origin (auto-generated)"
-                    value={selectedProduct.fullName || ''}
-                    readOnly
-                    className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium text-sm`}
-                    placeholder="Auto-generated with origin"
-                  />
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="System ID (Technical Identifier)"
+                      value={selectedProduct.uniqueName || selectedProduct.unique_name || ''}
+                      readOnly
+                      className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium font-mono text-sm`}
+                      placeholder="Auto-generated system identifier"
+                    />
+                  </div>
+                  
+                  {/* Divider */}
+                  <div className="sm:col-span-2">
+                    <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} my-2`}></div>
+                    <p className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>
+                      Product Attributes
+                    </p>
+                  </div>
+                  
                   <Select
                     label="Category"
                     options={categories}
@@ -1803,23 +2725,21 @@ const SteelProducts = () => {
                     value={selectedProduct.commodity || 'SS'}
                     onChange={(e) => setSelectedProduct({...selectedProduct, commodity: e.target.value})}
                   />
-                  <Input
-                    label="Grade"
-                    value={selectedProduct.grade}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, grade: e.target.value })}
-                  />
+                  <div>
+                    <Input
+                      label="Grade (GR)"
+                      value={selectedProduct.grade}
+                      onChange={(e) => setSelectedProduct({ ...selectedProduct, grade: e.target.value })}
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Enter grade number only (e.g., 304, 316L)
+                    </p>
+                  </div>
                   <Select
                     label="Finish"
                     options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
                     value={(selectedProduct.finish || '').trim()}
                     onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim() })}
-                  />
-                  <Select
-                    label="Origin (Country)"
-                    options={originOptions}
-                    value={selectedProduct.origin || 'UAE'}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, origin: e.target.value })}
-                    placeholder="Select origin..."
                   />
                   {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                     <>
@@ -1928,11 +2848,17 @@ const SteelProducts = () => {
                         error={selectedProduct.hsCode && !/^\d{6,10}$/.test(selectedProduct.hsCode) ? 'Must be 6-10 digits' : ''}
                       />
                       <Select
-                        label="Country of Origin (Manufacturing)"
+                        label="Mill Country"
                         options={originOptions}
-                        value={selectedProduct.countryOfOrigin || ''}
-                        onChange={(e) => setSelectedProduct({...selectedProduct, countryOfOrigin: e.target.value})}
-                        placeholder="Select country..."
+                        value={selectedProduct.millCountry || ''}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, millCountry: e.target.value})}
+                        placeholder="Select manufacturing country..."
+                      />
+                      <Input
+                        label="Origin Status"
+                        value={selectedProduct.millCountry === 'AE' ? 'LOCAL' : (selectedProduct.millCountry ? 'IMPORTED' : '')}
+                        readOnly
+                        placeholder="Auto-computed from mill country"
                       />
                       <Input
                         label="Mill Name / Manufacturer"
@@ -2084,11 +3010,11 @@ const SteelProducts = () => {
                         {categories.find(c => c.value === selectedProduct.category)?.label || selectedProduct.category}
                       </span>
                     )}
-                    {selectedProduct.origin && (
+                    {(selectedProduct.millCountry || selectedProduct.mill_country) && (
                       <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
                         isDarkMode ? 'bg-amber-900/30 text-amber-300 border-amber-700' : 'bg-amber-100 text-amber-700 border-amber-200'
                       }`}>
-                        {selectedProduct.origin}
+                        {(selectedProduct.millCountry === 'AE' || selectedProduct.mill_country === 'AE') ? 'LOCAL' : 'IMPORTED'}
                       </span>
                     )}
                     {selectedProduct.commodity && (
@@ -2229,6 +3155,119 @@ const SteelProducts = () => {
           );
         })()}
 
+        {/* Copy from Existing Modal */}
+        {showCopyModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-4 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Copy from Existing Product
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowCopyModal(false);
+                    setCopySearchTerm('');
+                  }}
+                  className={`p-2 rounded transition-colors ${
+                    isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Search Bar */}
+              <div className="p-4 border-b">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="text"
+                    value={copySearchTerm}
+                    onChange={(e) => setCopySearchTerm(e.target.value)}
+                    placeholder="Search by name, grade, category..."
+                    className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Product List */}
+              <div className="p-4 overflow-y-auto max-h-96">
+                {products
+                  .filter(p => {
+                    const term = copySearchTerm.toLowerCase();
+                    return (
+                      (p.displayName || p.display_name || '').toLowerCase().includes(term) ||
+                      (p.fullName || p.full_name || '').toLowerCase().includes(term) ||
+                      (p.grade || '').toLowerCase().includes(term) ||
+                      (p.category || '').toLowerCase().includes(term)
+                    );
+                  })
+                  .map(product => (
+                    <div
+                      key={product.id}
+                      className={`p-3 rounded-lg mb-2 border transition-colors ${
+                        isDarkMode
+                          ? 'border-gray-700 hover:bg-gray-800'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {product.displayName || product.display_name || product.fullName || product.full_name}
+                          </h4>
+                          <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {product.grade} • {product.category} • {product.finish}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setNewProduct({
+                              ...newProduct,
+                              category: product.category || '',
+                              commodity: product.commodity || 'SS',
+                              grade: product.grade || '',
+                              finish: product.finish || '',
+                              millCountry: product.millCountry || product.mill_country || '',
+                              thickness: product.thickness || '',
+                              width: product.width || '',
+                              length: product.length || '',
+                              size: product.size || '',
+                              sizeInch: product.sizeInch || product.size_inch || '',
+                              od: product.od || '',
+                              schedule: product.schedule || '',
+                              description: product.description || '',
+                              weight: product.weight || '',
+                            });
+                            setShowCopyModal(false);
+                            setCopySearchTerm('');
+                            notificationService.success('Product attributes copied! Adjust stock and pricing.');
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            isDarkMode
+                              ? 'bg-teal-700 hover:bg-teal-600 text-white'
+                              : 'bg-teal-100 hover:bg-teal-200 text-teal-700'
+                          }`}
+                        >
+                          Select
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Product Upload Modal */}
         <ProductUpload
           isOpen={showUploadModal}
@@ -2249,6 +3288,106 @@ const SteelProducts = () => {
           onConfirm={handleConfirm}
           onCancel={handleCancel}
         />
+
+        {/* Phase 5: Copy from Existing Product Modal */}
+        {showCopyModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className={`rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col ${
+              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            }`}>
+              {/* Modal Header */}
+              <div className={`flex justify-between items-center p-6 border-b ${
+                isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+              }`}>
+                <div>
+                  <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Copy from Existing Product
+                  </h2>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Select a product to copy its specifications (stock and pricing will not be copied)
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowCopyModal(false)}
+                  className={`p-2 rounded transition-colors bg-transparent ${
+                    isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="p-4 border-b" style={{ borderColor: isDarkMode ? '#37474F' : '#E5E7EB' }}>
+                <div className="relative">
+                  <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <input
+                    type="text"
+                    placeholder="Search products by name, grade, or category..."
+                    value={copySearchTerm}
+                    onChange={(e) => setCopySearchTerm(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Product List */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {products
+                    .filter(p => {
+                      if (!copySearchTerm) return true;
+                      const search = copySearchTerm.toLowerCase();
+                      return (
+                        (p.displayName || p.name || '').toLowerCase().includes(search) ||
+                        (p.grade || '').toLowerCase().includes(search) ||
+                        (p.category || '').toLowerCase().includes(search) ||
+                        (p.finish || '').toLowerCase().includes(search)
+                      );
+                    })
+                    .map(product => (
+                      <button
+                        key={product.id}
+                        onClick={() => handleCopyFromProduct(product)}
+                        className={`p-4 rounded-lg border-2 text-left transition-all hover:shadow-lg ${
+                          isDarkMode
+                            ? 'bg-gray-800 border-gray-700 hover:border-teal-500'
+                            : 'bg-white border-gray-200 hover:border-teal-500'
+                        }`}
+                      >
+                        <div className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {product.displayName || product.display_name || product.name}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className={`px-2 py-1 text-xs rounded border ${
+                            isDarkMode ? 'bg-teal-900/30 text-teal-300 border-teal-700' : 'bg-teal-100 text-teal-800 border-teal-300'
+                          }`}>
+                            {product.grade}
+                          </span>
+                          <span className={`px-2 py-1 text-xs rounded border ${
+                            isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}>
+                            {product.category}
+                          </span>
+                          {product.finish && (
+                            <span className={`px-2 py-1 text-xs rounded border ${
+                              isDarkMode ? 'bg-indigo-900/30 text-indigo-300 border-indigo-700' : 'bg-indigo-100 text-indigo-800 border-indigo-300'
+                            }`}>
+                              {product.finish}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

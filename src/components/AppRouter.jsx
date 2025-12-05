@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -8,16 +7,12 @@ import InvoiceForm from '../pages/InvoiceForm';
 import InvoiceList from '../pages/InvoiceList';
 import CustomerManagement from './CustomerManagement';
 import SteelProducts from './SteelProducts';
-import PriceCalculator from './PriceCalculator';
-import SalesAnalytics from './SalesAnalytics';
 import CompanySettings from './CompanySettings';
 import SearchResults from './SearchResults';
-import RevenueTrends from './RevenueTrends';
 import InventoryList from './InventoryList';
 import DeliveryNoteList from '../pages/DeliveryNoteList';
 import DeliveryNoteForm from '../pages/DeliveryNoteForm';
 import DeliveryNoteDetails from '../pages/DeliveryNoteDetails';
-import PurchaseOrderList from '../pages/PurchaseOrderList';
 import PurchaseOrderForm from '../pages/PurchaseOrderForm';
 import Login from './Login';
 import MarketingHome from '../marketing/MarketingHome';
@@ -31,8 +26,6 @@ import QuotationList from '../pages/QuotationList';
 import QuotationForm from '../pages/QuotationForm';
 import CreditNoteList from '../pages/CreditNoteList';
 import CreditNoteForm from '../pages/CreditNoteForm';
-import Payables from '../pages/Payables';
-import Receivables from '../pages/Receivables';
 import CustomerPerspective from '../pages/CustomerPerspective';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -49,9 +42,6 @@ import FinanceDashboard from '../pages/FinanceDashboard';
 
 // Purchases Dashboard
 import PurchasesDashboard from '../pages/PurchasesDashboard';
-
-// Business Components
-import BusinessDashboard from '../pages/BusinessDashboard';
 
 // Admin Components
 import AuditLogs from '../pages/AuditLogs';
@@ -90,9 +80,6 @@ import CustomerCreditManagement from '../pages/CustomerCreditManagement';
 // Masters Components
 import CountriesList from '../pages/CountriesList';
 import ExchangeRateList from '../pages/ExchangeRateList';
-
-// Settings Components
-import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Ship, FileCheck, Anchor, Globe, ArrowDownToLine, ArrowUpFromLine, TrendingUp, AlertCircle } from 'lucide-react';
+import { Ship, FileCheck, ArrowDownToLine, ArrowUpFromLine, TrendingUp, AlertCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { importOrderService } from '../services/importOrderService';
 import { exportOrderService } from '../services/exportOrderService';

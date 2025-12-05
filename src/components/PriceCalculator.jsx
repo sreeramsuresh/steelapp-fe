@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Calculator, 
   Ruler, 
@@ -182,7 +182,7 @@ const PriceCalculator = () => {
 
     // Reset grade when product changes
     setSelectedGrade(productTypes[selectedProduct].grades[0]);
-  }, [selectedProduct]);
+  }, [selectedProduct, productTypes]);
 
   const calculateWeight = useMemo(() => {
     const { weightFormula } = productTypes[selectedProduct];
@@ -246,7 +246,7 @@ const PriceCalculator = () => {
     }
 
     return weightPerUnit * quantity;
-  }, [selectedProduct, dimensions]);
+  }, [selectedProduct, dimensions, productTypes, steelDensity]);
 
   const calculatePrice = useMemo(() => {
     const basePrice = basePrices[selectedProduct][selectedGrade] || 50;
@@ -321,7 +321,7 @@ const PriceCalculator = () => {
       total: subtotal,
       pricePerKg: totalWeight > 0 ? subtotal / totalWeight : 0,
     };
-  }, [selectedProduct, selectedGrade, calculateWeight, dimensions, customRules, bulkDiscounts]);
+  }, [selectedProduct, selectedGrade, calculateWeight, dimensions, customRules, bulkDiscounts, basePrices]);
 
   const handleAddRule = () => {
     const rule = {

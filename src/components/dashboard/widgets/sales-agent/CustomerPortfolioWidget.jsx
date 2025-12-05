@@ -5,18 +5,15 @@
  * Shows customer concentration, diversification score, and segment breakdown
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Users,
-  Building2,
   AlertTriangle,
   CheckCircle,
   Info,
   RefreshCw,
-  PieChart,
   TrendingUp,
-  Briefcase,
 } from 'lucide-react';
 
 // Mock portfolio data

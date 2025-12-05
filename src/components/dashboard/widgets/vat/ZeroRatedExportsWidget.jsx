@@ -11,7 +11,7 @@
  * - Time limit for obtaining documentation: 90 days
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   Globe, 

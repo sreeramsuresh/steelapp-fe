@@ -222,7 +222,8 @@ const useInvoiceTemplates = (initialTemplate = 'standard', companySettings = nul
     };
 
     loadCompanySettings();
-  }, [companySettings?.settings?.invoiceTemplate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companySettings?.settings?.invoiceTemplate]); // loadCompanySettings is stable
 
   // Get current template
   const currentTemplate = useMemo(() => {

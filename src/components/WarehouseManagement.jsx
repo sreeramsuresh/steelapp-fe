@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus as Add,
   Edit,
@@ -8,13 +8,9 @@ import {
   MapPin,
   Package,
   Users,
-  AlertTriangle,
   X,
-  CheckCircle,
   Building,
-  Map,
   Phone,
-  Mail,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -77,7 +73,6 @@ const WarehouseManagement = () => {
       
       setWarehouses(transformedData);
     } catch (fetchError) {
-      console.error('Error fetching warehouses:', fetchError);
       notificationService.error('Failed to load warehouses');
     } finally {
       setLoading(false);
@@ -155,7 +150,6 @@ const WarehouseManagement = () => {
       await fetchWarehouses();
       handleCloseDialog();
     } catch (saveError) {
-      console.error('Error saving warehouse:', saveError);
       if (saveError.response?.data?.error) {
         setError(saveError.response.data.error);
       } else {
@@ -182,7 +176,6 @@ const WarehouseManagement = () => {
       setWarehouses(prev => prev.filter(w => w.id !== id));
       notificationService.success('Warehouse deleted successfully');
     } catch (deleteError) {
-      console.error('Error deleting warehouse:', deleteError);
       if (deleteError.response?.data?.error) {
         notificationService.error(deleteError.response.data.error);
       } else {
@@ -280,11 +273,9 @@ const WarehouseManagement = () => {
               try {
                 setLoading(true);
                 const response = await apiClient.post('/warehouses/seed');
-                console.log('Seed response:', response);
                 notificationService.success(`Seeded ${response.warehousesInserted} warehouses successfully`);
                 await fetchWarehouses();
               } catch (seedError) {
-                console.error('Error seeding warehouses:', seedError);
                 notificationService.error('Failed to seed warehouses');
               } finally {
                 setLoading(false);
@@ -299,10 +290,8 @@ const WarehouseManagement = () => {
             onClick={async () => {
               try {
                 const response = await apiClient.get('/warehouses/debug');
-                console.log('Debug response:', response);
                 notificationService.success(`Found ${response.companyCount} companies and ${response.warehouseCount} warehouses`);
               } catch (debugError) {
-                console.error('Error fetching debug data:', debugError);
                 notificationService.error('Failed to fetch debug data');
               }
             }}

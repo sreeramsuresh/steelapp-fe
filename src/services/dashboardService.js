@@ -148,7 +148,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching dashboard metrics from APIs...');
+      // console.log('[dashboardService] Fetching dashboard metrics from APIs...');
 
       // Fetch all data in parallel from real APIs
       const [
@@ -273,14 +273,14 @@ export const dashboardService = {
         fetchedAt: new Date().toISOString(),
       };
 
-      console.log('[dashboardService] Dashboard metrics fetched successfully');
+      // console.log('[dashboardService] Dashboard metrics fetched successfully');
 
       return metrics;
     } catch (error) {
       console.error('[dashboardService] Error fetching dashboard metrics:', error);
 
       // Fall back to empty data structure
-      console.log('[dashboardService] Returning empty data structure as fallback');
+      // console.log('[dashboardService] Returning empty data structure as fallback');
       return {
         summary: {
           totalRevenue: 0,
@@ -313,7 +313,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching product analytics from APIs...');
+      // console.log('[dashboardService] Fetching product analytics from APIs...');
 
       const [
         productPerformance,
@@ -436,7 +436,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] Product analytics fetched successfully');
+      // console.log('[dashboardService] Product analytics fetched successfully');
       return analytics;
     } catch (error) {
       console.error('[dashboardService] Error fetching product analytics:', error);
@@ -466,7 +466,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching agent performance from commission APIs...');
+      // console.log('[dashboardService] Fetching agent performance from commission APIs...');
 
       // Fetch commission data from real APIs
       const [
@@ -581,7 +581,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] Agent performance fetched successfully');
+      // console.log('[dashboardService] Agent performance fetched successfully');
       return performance;
     } catch (error) {
       console.error('[dashboardService] Error fetching agent performance:', error);
@@ -616,7 +616,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching inventory health from APIs...');
+      // console.log('[dashboardService] Fetching inventory health from APIs...');
 
       const [
         inventorySummary,
@@ -656,7 +656,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] Inventory health fetched successfully');
+      // console.log('[dashboardService] Inventory health fetched successfully');
       return health;
     } catch (error) {
       console.error('[dashboardService] Error fetching inventory health:', error);
@@ -675,7 +675,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching VAT metrics from VAT service...');
+      // console.log('[dashboardService] Fetching VAT metrics from VAT service...');
 
       // Try to get VAT dashboard metrics from the VAT service
       const vatMetrics = await vatService.getVATDashboardMetrics().catch((err) => {
@@ -684,12 +684,12 @@ export const dashboardService = {
       });
 
       if (vatMetrics) {
-        console.log('[dashboardService] VAT metrics fetched successfully');
+        // console.log('[dashboardService] VAT metrics fetched successfully');
         return vatMetrics;
       }
 
       // Fallback: Calculate from invoices if VAT service fails
-      console.log('[dashboardService] Falling back to invoice-based VAT calculation...');
+      // console.log('[dashboardService] Falling back to invoice-based VAT calculation...');
 
       const currentDate = new Date();
       const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
@@ -784,7 +784,7 @@ export const dashboardService = {
           severity: 'low',
         });
       }
-      console.log('[dashboardService] VAT metrics calculated from', invoices.length, 'invoices');
+      // console.log('[dashboardService] VAT metrics calculated from', invoices.length, 'invoices');
       return vatData;
     } catch (error) {
       console.error('[dashboardService] Error fetching VAT metrics:', error);
@@ -824,7 +824,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching customer insights from APIs...');
+      // console.log('[dashboardService] Fetching customer insights from APIs...');
 
       const [
         customerAnalysis,
@@ -850,7 +850,7 @@ export const dashboardService = {
 
       if (customers.length === 0) {
         // No customers, return empty structure
-        console.log('[dashboardService] No customers found');
+        // console.log('[dashboardService] No customers found');
         return {
           topCustomers: [],
           atRiskCustomers: [],
@@ -1019,7 +1019,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] Customer insights calculated from', customers.length, 'customers and', invoices.length, 'invoices');
+      // console.log('[dashboardService] Customer insights calculated from', customers.length, 'customers and', invoices.length, 'invoices');
       return result;
     } catch (error) {
       console.error('[dashboardService] Error fetching customer insights:', error);
@@ -1054,7 +1054,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching net profit from API...');
+      // console.log('[dashboardService] Fetching net profit from API...');
       const response = await analyticsService.getNetProfit(options.params || {});
 
       // Transform API response to widget-expected format
@@ -1086,7 +1086,7 @@ export const dashboardService = {
       if (!netProfitData.netMarginPercent && netProfitData.revenue > 0) {
         netProfitData.netMarginPercent = (netProfitData.netProfit / netProfitData.revenue) * 100;
       }
-      console.log('[dashboardService] Net profit fetched successfully');
+      // console.log('[dashboardService] Net profit fetched successfully');
       return netProfitData;
     } catch (error) {
       console.error('[dashboardService] Error fetching net profit:', error);
@@ -1117,7 +1117,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching AP aging from API...');
+      // console.log('[dashboardService] Fetching AP aging from API...');
       const response = await analyticsService.getAPAging();
 
       // Transform API response to widget-expected format
@@ -1138,7 +1138,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] AP aging fetched successfully');
+      // console.log('[dashboardService] AP aging fetched successfully');
       return apAgingData;
     } catch (error) {
       console.error('[dashboardService] Error fetching AP aging:', error);
@@ -1164,7 +1164,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching cash flow from API...');
+      // console.log('[dashboardService] Fetching cash flow from API...');
       const response = await analyticsService.getCashFlow(options.params || {});
 
       // Transform API response to widget-expected format
@@ -1201,7 +1201,7 @@ export const dashboardService = {
 
       cashFlowData.isMockData = false;
       cashFlowData.fetchedAt = new Date().toISOString();
-      console.log('[dashboardService] Cash flow fetched successfully');
+      // console.log('[dashboardService] Cash flow fetched successfully');
       return cashFlowData;
     } catch (error) {
       console.error('[dashboardService] Error fetching cash flow:', error);
@@ -1227,7 +1227,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching stock turnover from API...');
+      // console.log('[dashboardService] Fetching stock turnover from API...');
       const response = await analyticsService.getStockTurnover(options.params || {});
 
       // Get last 6 months for labels
@@ -1269,7 +1269,7 @@ export const dashboardService = {
         stockTurnoverData.bestPerformer = sorted[0]?.name || '';
         stockTurnoverData.worstPerformer = sorted[sorted.length - 1]?.name || '';
       }
-      console.log('[dashboardService] Stock turnover fetched successfully');
+      // console.log('[dashboardService] Stock turnover fetched successfully');
       return stockTurnoverData;
     } catch (error) {
       console.error('[dashboardService] Error fetching stock turnover:', error);
@@ -1299,7 +1299,7 @@ export const dashboardService = {
     const { forceRefresh = false } = options;
 
     try {
-      console.log('[dashboardService] Fetching warehouse utilization from API...');
+      // console.log('[dashboardService] Fetching warehouse utilization from API...');
       const response = await warehouseService.getAll({ limit: 50 });
       const warehouses = response?.data || [];
 
@@ -1331,7 +1331,7 @@ export const dashboardService = {
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
-      console.log('[dashboardService] Warehouse utilization fetched successfully');
+      // console.log('[dashboardService] Warehouse utilization fetched successfully');
       return warehouseData;
     } catch (error) {
       console.error('[dashboardService] Error fetching warehouse utilization:', error);
@@ -1352,7 +1352,7 @@ export const dashboardService = {
    * Force-refreshes all cached data
    */
   async refreshAll() {
-    console.log('[dashboardService] Refreshing all dashboard data...');
+    // console.log('[dashboardService] Refreshing all dashboard data...');
     return Promise.all([
       this.getDashboardMetrics({ forceRefresh: true }),
       this.getProductAnalytics({ forceRefresh: true }),

@@ -70,7 +70,7 @@ export function SupplierList() {
 
   const paginatedSuppliers = suppliers.slice(
     (page - 1) * itemsPerPage,
-    page * itemsPerPage
+    page * itemsPerPage,
   );
 
   return (
@@ -193,8 +193,8 @@ export function SupplierList() {
                     setPage(
                       Math.min(
                         Math.ceil(suppliers.length / itemsPerPage),
-                        page + 1
-                      )
+                        page + 1,
+                      ),
                     )
                   }
                   disabled={page * itemsPerPage >= suppliers.length}

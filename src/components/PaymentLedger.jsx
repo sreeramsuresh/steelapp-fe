@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Trash2, Edit2, Plus, Download, CheckCircle, Printer } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../utils/invoiceUtils';
@@ -51,7 +51,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
       const result = await generatePaymentReceipt(payment, invoice, company, paymentIndex);
       if (result.success) {
         // Success - PDF will be automatically downloaded
-        console.log(`Receipt downloaded: ${result.fileName}`);
+
       } else {
         alert(`Error generating receipt: ${result.error}`);
       }
@@ -74,7 +74,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
       const result = await printPaymentReceipt(payment, invoice, company, paymentIndex);
       if (result.success) {
         // Success - PDF will be opened in new tab with print dialog
-        console.log(`Receipt opened for printing: ${result.receiptNumber}`);
+
       } else {
         alert(`Error printing receipt: ${result.error}`);
       }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Bell, Search, ChevronDown, User, Settings, LogOut, HelpCircle, Sun, Moon, Check, Award } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -45,12 +45,12 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = 'Dashboard' 
   };
 
   const handleLogout = () => {
-    console.log('🚨 TopNavbar handleLogout clicked!');
-    console.log('🚨 onLogout function:', typeof onLogout);
+    // console.log('🚨 TopNavbar handleLogout clicked!');
+    // console.log('🚨 onLogout function:', typeof onLogout);
     setShowProfileDropdown(false);
-    console.log('🚨 About to call onLogout...');
+    // console.log('🚨 About to call onLogout...');
     onLogout();
-    console.log('🚨 onLogout called successfully');
+    // console.log('🚨 onLogout called successfully');
   };
 
   // Notifications are provided by context now

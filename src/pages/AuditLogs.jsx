@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { apiService } from '../services/axiosApi';
 import {
@@ -47,7 +47,8 @@ const AuditLogs = () => {
   useEffect(() => {
     fetchLogs();
     fetchStats();
-  }, [currentPage, filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, filters]); // fetchLogs and fetchStats are stable
 
   const fetchLogs = async () => {
     try {

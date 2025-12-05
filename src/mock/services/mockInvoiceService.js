@@ -100,12 +100,6 @@ export const getInvoices = async (params = {}) => {
     },
   };
   
-  console.log('🎭 Mock getInvoices returning:', {
-    invoicesCount: result.invoices.length,
-    isArray: Array.isArray(result.invoices),
-    pagination: result.pagination,
-  });
-  
   return result;
 };
 

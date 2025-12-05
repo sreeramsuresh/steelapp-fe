@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * Mock Data for Role Management Tests
  *
@@ -480,7 +481,7 @@ export const validateRoleName = (name, existingRoles = [], editingRoleId = null)
 
   // Check duplicates
   const duplicate = existingRoles.find(
-    (r) => r.id !== editingRoleId && r.name?.toLowerCase() === name.toLowerCase()
+    (r) => r.id !== editingRoleId && r.name?.toLowerCase() === name.toLowerCase(),
   );
   if (duplicate) {
     errors.push('A role with this name already exists');

@@ -3,7 +3,7 @@
  * Dashboard view for a single warehouse with tabs for Overview, Stock, Activity
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,

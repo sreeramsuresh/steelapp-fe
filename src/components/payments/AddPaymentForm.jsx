@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Banknote, Globe } from 'lucide-react';
 import { PAYMENT_MODES } from '../../services/dataService';
 import { formatCurrency } from '../../utils/invoiceUtils';

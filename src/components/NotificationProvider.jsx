@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -712,7 +712,7 @@ const ExportOrderDetails = () => {
             Export Order Not Found
           </h2>
           <p className={`text-lg mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            The export order you're looking for doesn't exist or has been deleted.
+            The export order you&apos;re looking for doesn&apos;t exist or has been deleted.
           </p>
           <Link
             to="/export-orders"

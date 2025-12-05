@@ -1,4 +1,3 @@
-import React from 'react';
 import { CreditCard } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 import { useTheme } from '../../../../contexts/ThemeContext';

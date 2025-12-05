@@ -5,7 +5,7 @@
  * Submits to backend which handles inventory restock and scrap creation.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ClipboardCheck, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import { creditNoteService } from '../../services/creditNoteService';
 import { notificationService } from '../../services/notificationService';

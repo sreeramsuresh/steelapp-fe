@@ -16,6 +16,7 @@ const transformCreditNoteForServer = (creditNoteData) => {
     subtotal: parseFloat(creditNoteData.subtotal || 0),
     vat_amount: parseFloat(creditNoteData.vatAmount || 0),
     total_credit: parseFloat(creditNoteData.totalCredit || 0),
+    manual_credit_amount: parseFloat(creditNoteData.manualCreditAmount || 0),
     // Ensure items is array with numeric fields converted
     items: (creditNoteData.items || []).map(item => ({
       ...item,

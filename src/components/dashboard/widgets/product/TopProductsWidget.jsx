@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { TrendingUp, Package, ChevronRight, BarChart3 } from 'lucide-react';
+import { TrendingUp, ChevronRight, BarChart3 } from 'lucide-react';
 
 
 const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {

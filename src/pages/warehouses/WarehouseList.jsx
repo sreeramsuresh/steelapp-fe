@@ -3,7 +3,7 @@
  * Main entry point for Warehouse module - displays all warehouses with summary cards
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -11,7 +11,6 @@ import {
   RefreshCw,
   MapPin,
   Package,
-  AlertTriangle,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { warehouseService } from '../../services/warehouseService';

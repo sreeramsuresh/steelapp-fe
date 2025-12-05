@@ -56,7 +56,6 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
   const comp = company || {};
   const compAddr = comp.address || {};
   const cust = q.customerDetails || {};
-  const custAddr = cust.address || {};
   const items = Array.isArray(q.items) ? q.items : [];
   const hasDescription = items.some((it) => !!it.description);
   const hasItemDiscount = items.some((it) => (parseFloat(it.discount) || 0) > 0);

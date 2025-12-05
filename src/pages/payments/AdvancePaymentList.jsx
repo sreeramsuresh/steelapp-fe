@@ -5,7 +5,7 @@
  * UAE VAT requires VAT to be accounted for when advance payment is received.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,

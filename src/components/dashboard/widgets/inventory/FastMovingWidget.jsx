@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { Zap, TrendingUp, Clock, Package } from 'lucide-react';
+import { Zap, TrendingUp, Package } from 'lucide-react';
 
 
-const MiniTrendLine = ({ data, width = 50, height = 20, isDarkMode }) => {
+const MiniTrendLine = ({ data, width = 50, height = 20 }) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;

@@ -62,7 +62,6 @@ const hexToRgb = (hex) => {
  * @deprecated Use backend API endpoint instead: POST /api/invoices/:id/pdf
  */
 export const generateInvoicePDF = async (invoice, company) => {
-  console.warn('[DEPRECATED] generateInvoicePDF is deprecated. Use backend API endpoint POST /api/invoices/:id/pdf instead.');
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF('p', 'mm', 'a4');
 
@@ -161,7 +160,6 @@ export const generateInvoicePDF = async (invoice, company) => {
     const logoX = pageWidth - margin - logoWidth;
     pdf.addImage(logoCompany, 'PNG', logoX, margin, logoWidth, logoHeight);
   } catch (error) {
-    console.error('Error adding logo:', error);
   }
 
   currentY += 3;
@@ -721,7 +719,6 @@ export const generateInvoicePDF = async (invoice, company) => {
     pdf.text('Building Materials', margin + sealSize + 3, signatureY + 12);
     pdf.text('Trading LLC', margin + sealSize + 3, signatureY + 15);
   } catch (error) {
-    console.error('Error adding seal:', error);
     // Fallback: just show text if seal image fails
     pdf.setDrawColor(60);
     pdf.rect(margin, signatureY, 20, 20);
@@ -781,12 +778,10 @@ export const generateInvoicePDF = async (invoice, company) => {
 
 // Export placeholder functions for compatibility
 const createInvoiceElement = (invoice, company) => {
-  console.log('createInvoiceElement is deprecated - using new PDF generator');
   return null;
 };
 
 const waitForImages = (container) => {
-  console.log('waitForImages is deprecated - using new PDF generator');
   return Promise.resolve();
 };
 

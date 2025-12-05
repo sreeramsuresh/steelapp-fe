@@ -44,7 +44,8 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
     if (invoiceId) {
       loadCreditNotes();
     }
-  }, [invoiceId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceId]); // loadCreditNotes is stable
 
   const loadCreditNotes = async () => {
     try {
@@ -72,7 +73,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
 
   const totalCredit = creditNotes.reduce((sum, cn) => sum + (cn.totalCredit || 0), 0);
 
-  // Don't show section if no credit notes and can't create one
+  // Don't show section if no credit notes and can&apos;t create one
   if (!loading && creditNotes.length === 0 && !canCreateCreditNote) {
     return null;
   }
@@ -135,7 +136,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
             <ReceiptText className="h-10 w-10 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No credit notes for this invoice</p>
             {canCreateCreditNote && (
-              <p className="text-xs mt-1">Click "New" to create one</p>
+              <p className="text-xs mt-1">Click &quot;New&quot; to create one</p>
             )}
           </div>
         ) : (

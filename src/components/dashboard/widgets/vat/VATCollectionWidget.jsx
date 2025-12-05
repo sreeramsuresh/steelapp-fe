@@ -11,7 +11,7 @@
  * - Net VAT: Output VAT - Input VAT (payable if positive, refundable if negative)
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   TrendingUp, 

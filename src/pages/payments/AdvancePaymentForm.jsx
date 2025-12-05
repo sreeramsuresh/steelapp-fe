@@ -6,7 +6,7 @@
  * Standard rate of 5% applies to advance payments.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   Loader2,
   User,
-  Calendar,
   CreditCard,
   FileText,
   Building2,

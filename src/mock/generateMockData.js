@@ -128,7 +128,6 @@ fs.writeFileSync(
   JSON.stringify(customers, null, 2),
 );
 
-console.log('✅ Generated 50 customers');
 console.log(`   - Active: ${customers.filter(c => c.status === 'active').length}`);
 console.log(`   - Inactive: ${customers.filter(c => c.status === 'inactive').length}`);
 console.log(`   - Suspended: ${customers.filter(c => c.status === 'suspended').length}`);
@@ -244,7 +243,6 @@ fs.writeFileSync(
   JSON.stringify(products, null, 2),
 );
 
-console.log('✅ Generated 100 products');
 console.log(`   - Sheets: ${products.filter(p => p.category === 'sheet').length}`);
 console.log(`   - Pipes: ${products.filter(p => p.category === 'pipe').length}`);
 console.log(`   - Tubes: ${products.filter(p => p.category === 'tube').length}`);
@@ -399,7 +397,6 @@ fs.writeFileSync(
   JSON.stringify(invoices, null, 2),
 );
 
-console.log('✅ Generated 200 invoices');
 console.log(`   - Draft: ${invoices.filter(i => i.status === 'draft').length}`);
 console.log(`   - Proforma: ${invoices.filter(i => i.status === 'proforma').length}`);
 console.log(`   - Sent: ${invoices.filter(i => i.status === 'sent').length}`);

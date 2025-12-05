@@ -1,9 +1,8 @@
-import React, {
+import {
   useState,
   useEffect,
   useMemo,
   useCallback,
-  memo,
   useRef,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -19,34 +18,26 @@ import {
   Info,
   ArrowLeft,
   Pin,
-  PinOff,
   Settings,
   Loader2,
   Banknote,
-  FileText,
   List,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   createInvoice,
-  createCompany,
   createSteelItem,
-  DELIVERY_TERMS,
-  DISCOUNT_TYPES,
   STEEL_GRADES,
   FINISHES,
   UAE_EMIRATES,
 } from '../types';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
 import {
-  generateInvoiceNumber,
   calculateItemAmount,
   calculateSubtotal,
-  calculateTotalTRN,
   calculateTotal,
   formatCurrency,
   formatDateForInput,
-  formatDateDMY,
   titleCase,
   normalizeLLC,
   calculateDiscountedTRN,
@@ -509,7 +500,7 @@ const Autocomplete = ({
     return dpPrev[lb];
   };
 
-  const tokenMatch = (token, optLabel) => {
+  const tokenMatch = useCallback((token, optLabel) => {
     const t = norm(token);
     const l = norm(optLabel);
     if (!t) return true;
@@ -520,9 +511,9 @@ const Autocomplete = ({
       if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
     }
     return false;
-  };
+  }, []);
 
-  const fuzzyFilter = (opts, query) => {
+  const fuzzyFilter = useCallback((opts, query) => {
     const q = norm(query);
     if (!q) return opts;
     const tokens = q.split(/\s+/).filter(Boolean);
@@ -542,7 +533,7 @@ const Autocomplete = ({
     }
     scored.sort((a, b) => a.score - b.score);
     return scored.map(s => s.o);
-  };
+  }, [tokenMatch]);
 
   useEffect(() => {
     if (inputValue) {
@@ -551,7 +542,7 @@ const Autocomplete = ({
     } else {
       setFilteredOptions(options);
     }
-  }, [options, inputValue]);
+  }, [options, inputValue, fuzzyFilter]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
@@ -602,7 +593,7 @@ const Autocomplete = ({
     }
   };
 
-  const updateDropdownPosition = () => {
+  const updateDropdownPosition = useCallback(() => {
     if (dropdownRef.current && inputRef.current && isOpen) {
       const inputRect = inputRef.current.getBoundingClientRect();
       const dropdown = dropdownRef.current;
@@ -616,7 +607,7 @@ const Autocomplete = ({
       dropdown.style.maxWidth = '90vw';
       dropdown.style.zIndex = '9999';
     }
-  };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -632,7 +623,7 @@ const Autocomplete = ({
         window.removeEventListener('resize', handleResize);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, updateDropdownPosition]);
 
   return (
     <div className="relative">
@@ -1094,7 +1085,7 @@ const InvoiceForm = ({ onSave }) => {
     }));
 
     return isValid;
-  }, []);
+  }, [invoice?.status]);
 
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
@@ -1451,7 +1442,7 @@ const InvoiceForm = ({ onSave }) => {
   // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
   useEffect(() => {
     refetchProducts();
-  }, []);
+  }, [refetchProducts]);
 
   // Also refetch when window regains focus (user returns from product management)
   useEffect(() => {
@@ -1523,7 +1514,8 @@ const InvoiceForm = ({ onSave }) => {
       }
     };
     fetchWarehouses();
-  }, [id]); // Removed invoice.warehouseId to prevent unnecessary re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Mount-only: Load warehouses once when component mounts or id changes
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(
@@ -1630,7 +1622,9 @@ const InvoiceForm = ({ onSave }) => {
       validateField('currency', invoice.currency);
       validateField('items', invoice.items);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice.customer.id, invoice.dueDate, invoice.status, invoice.modeOfPayment, invoice.warehouseId, invoice.currency, invoice.items.length, validateField]);
+  // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
@@ -1773,7 +1767,7 @@ const InvoiceForm = ({ onSave }) => {
       // Re-call with skip flag
       handleProductSelectInternal(index, product, true);
     }
-  }, []);
+  }, [handleProductSelectInternal]);
 
   // Handle duplicate confirmation - update existing quantity
   const handleDuplicateUpdateExisting = useCallback(() => {
@@ -2106,22 +2100,18 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   const handleSave = async () => {
-    console.log('🔍 handleSave called - id:', id, 'status:', invoice.status);
 
     // Prevent double-click / rapid clicks at entry point
     if (isSaving) {
-      console.log('⏸️  Save already in progress, ignoring click');
       return;
     }
 
     // For new invoices with Final Tax Invoice status, show confirmation first
     if (!id && invoice.status === 'issued') {
-      console.log('✅ Showing Final Tax Invoice confirmation dialog');
       setShowSaveConfirmDialog(true);
       return;
     }
 
-    console.log('⏩ Proceeding directly to performSave (no confirmation needed)');
     // Otherwise proceed with save directly
     await performSave();
   };
@@ -2232,7 +2222,7 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
-    // Validate required fields silently (don't show errors, just set flag)
+    // Validate required fields silently (don&apos;t show errors, just set flag)
     const validation = validateRequiredFields();
     setIsFormValidForSave(validation.isValid);
 
@@ -2306,7 +2296,6 @@ const InvoiceForm = ({ onSave }) => {
   const performSave = async (statusOverride = null) => {
     // Prevent double-saves
     if (isSaving) {
-      console.log('Save already in progress, skipping duplicate save');
       return;
     }
 
@@ -2315,10 +2304,6 @@ const InvoiceForm = ({ onSave }) => {
     const effectiveStatus = statusOverride || invoice.status;
 
     // DEBUG: Log status at start of performSave
-    console.log('📋 [performSave] Starting save - invoice.status:', invoice.status);
-    console.log('📋 [performSave] statusOverride:', statusOverride);
-    console.log('📋 [performSave] effectiveStatus:', effectiveStatus);
-    console.log('📋 [performSave] Is new invoice (no id):', !id);
 
     // Filter out blank items before validation
     const nonBlankItems = (invoice.items || []).filter(item => {
@@ -2447,7 +2432,6 @@ const InvoiceForm = ({ onSave }) => {
         }
       } else {
         // Create new invoice
-        console.log('📤 Creating new invoice - processedInvoice.status:', processedInvoice.status);
         const newInvoice = await saveInvoice(processedInvoice);
         if (onSave) onSave(newInvoice);
 
@@ -2532,7 +2516,6 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleConfirmSave = async () => {
-    console.log('🔐 handleConfirmSave called - invoice.status:', invoice.status);
     setShowSaveConfirmDialog(false);
 
     // Pass 'issued' explicitly since user confirmed Final Tax Invoice dialog
@@ -2578,7 +2561,7 @@ const InvoiceForm = ({ onSave }) => {
     }, 300);
   };
 
-  const handleSuccessModalClose = () => {
+  const handleSuccessModalClose = useCallback(() => {
     setShowSuccessModal(false);
 
     // Navigate to edit mode to prevent duplicate creation
@@ -2587,7 +2570,7 @@ const InvoiceForm = ({ onSave }) => {
       navigate(`/edit/${createdInvoiceId}`);
       notificationService.success('Invoice created successfully! Now in edit mode.');
     }
-  };
+  }, [createdInvoiceId, navigate]);
 
   // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
@@ -2607,9 +2590,9 @@ const InvoiceForm = ({ onSave }) => {
         document.removeEventListener('keydown', handleEscKey);
       };
     }
-  }, [showSuccessModal, createdInvoiceId, invoice.status]);
+  }, [showSuccessModal, createdInvoiceId, invoice.status, handleSuccessModalClose]);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = useCallback(async () => {
     // Use either the route ID or the newly created invoice ID
     const invoiceId = id || createdInvoiceId;
 
@@ -2638,7 +2621,7 @@ const InvoiceForm = ({ onSave }) => {
     } finally {
       setIsGeneratingPDF(false);
     }
-  };
+  }, [id, createdInvoiceId, loadingCompany]);
 
   // Auto-retry PDF generation once company finishes loading if user requested it
   const [pdfPending, setPdfPending] = useState(false);
@@ -2648,7 +2631,7 @@ const InvoiceForm = ({ onSave }) => {
       // Retry PDF download now that company details are loaded
       handleDownloadPDF();
     }
-  }, [pdfPending, loadingCompany]);
+  }, [pdfPending, loadingCompany, handleDownloadPDF]);
 
   // ============================================================
   // KEYBOARD SHORTCUTS - Scoped to this page only
@@ -2910,7 +2893,10 @@ const InvoiceForm = ({ onSave }) => {
                       return (
                         <li 
                           key={index}
+                          role={fieldName ? 'button' : undefined}
                           onClick={() => fieldName && scrollToField(fieldName)}
+                          onKeyDown={(e) => fieldName && (e.key === 'Enter' || e.key === ' ') && scrollToField(fieldName)}
+                          tabIndex={fieldName ? 0 : undefined}
                           className={`flex items-center gap-2 ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : ''}`}
                           title={fieldName ? 'Click to scroll to field' : ''}
                         >
@@ -3210,9 +3196,9 @@ const InvoiceForm = ({ onSave }) => {
                         </p>
                         <p className={`text-sm font-medium ${
                           invoice.commissionStatus === 'PAID' ? 'text-green-600' :
-                          invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
-                          invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
-                          'text-red-600'
+                            invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
+                              invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
+                                'text-red-600'
                         }`}>
                           {invoice.commissionStatus}
                         </p>
@@ -3466,7 +3452,7 @@ const InvoiceForm = ({ onSave }) => {
                       <VatHelpIcon content={[
                         'When required: Mandatory for all invoices.',
                         'Specifies which Emirate the supply is made from.',
-                        'Used for compliance with FTA Form 201.'
+                        'Used for compliance with FTA Form 201.',
                       ]} />
                     </div>
                   }
@@ -3494,7 +3480,7 @@ const InvoiceForm = ({ onSave }) => {
                       <VatHelpIcon content={[
                         'When required: Mandatory. Determines VAT liability date.',
                         'Must be the date supply is made (goods delivered/services rendered).',
-                        'Defaults to invoice date if empty.'
+                        'Defaults to invoice date if empty.',
                       ]} />
                     </div>
                   }
@@ -3533,7 +3519,7 @@ const InvoiceForm = ({ onSave }) => {
                     <VatHelpIcon content={[
                       'When required: Only if customer is registered VAT business.',
                       'Transfers VAT liability to customer under Article 48 of VAT Law.',
-                      'Supplier records 0% VAT; customer accounts for VAT on receipt.'
+                      'Supplier records 0% VAT; customer accounts for VAT on receipt.',
                     ]} />
                   </span>
                 </label>
@@ -4199,11 +4185,11 @@ const InvoiceForm = ({ onSave }) => {
                 <VatHelpIcon 
                   heading="Auxiliary Charges & VAT Treatment (Article 45)"
                   content={[
-                  'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
-                  'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
-                  'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
-                  'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.'
-                ]} />
+                    'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
+                    'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
+                    'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
+                    'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
+                  ]} />
               </h3>
               {/* Export Toggle */}
               <label className={`flex items-center gap-2 cursor-pointer ${
@@ -4234,7 +4220,7 @@ const InvoiceForm = ({ onSave }) => {
                     'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
                     'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
                     'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
-                    'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.'
+                    'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
                   ]} />
                 </span>
               </label>
@@ -4562,12 +4548,12 @@ const InvoiceForm = ({ onSave }) => {
                 <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                    <span>VAT Tax Notes</span>
-                    <VatHelpIcon content={[
-                      'When required: Required if supply is zero-rated or reverse charge applies.',
-                      'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
-                      'Part of FTA Form 201 compliance documentation.'
-                    ]} />
+                  <span>VAT Tax Notes</span>
+                  <VatHelpIcon content={[
+                    'When required: Required if supply is zero-rated or reverse charge applies.',
+                    'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
+                    'Part of FTA Form 201 compliance documentation.',
+                  ]} />
                 </h3>
                 <Textarea
                   value={invoice.taxNotes || ''}

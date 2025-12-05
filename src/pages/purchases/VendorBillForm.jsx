@@ -5,7 +5,7 @@
  * Supports VAT categories, reverse charge, blocked VAT, and line items.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   Loader2,
   Building2,
-  Calendar,
+
   FileText,
   Package,
 } from 'lucide-react';

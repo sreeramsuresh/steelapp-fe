@@ -12,13 +12,12 @@
  * - Must be reported in VAT Return Form 201 Box 9
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   RotateCcw, 
   Globe2, 
-  Building, 
-  FileText,
+  Building,
   ArrowRight,
   Info,
   ChevronRight,

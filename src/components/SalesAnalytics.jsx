@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -7,7 +7,7 @@ import {
   Package,
   Target,
   Calendar,
-  Filter,
+
   Download,
   ArrowUp,
   ArrowDown,
@@ -16,8 +16,7 @@ import {
   Award,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  Eye,
+
   RefreshCw,
   ChevronDown,
 } from 'lucide-react';
@@ -64,17 +63,17 @@ const SalesAnalytics = () => {
     return { startDate: prevStart, endDate: prevEnd };
   }, [selectedPeriod, dateRange]);
 
-  const { data: dashboardData, loading: loadingDashboard, refetch: refetchDashboard } = useApiData(
+  const { data: dashboardData } = useApiData(
     () => analyticsService.getDashboardData(dateParams),
     [dateParams],
   );
 
-  const { data: salesTrends, loading: loadingSales } = useApiData(
+  const { data: salesTrends } = useApiData(
     () => analyticsService.getSalesTrends(dateParams),
     [dateParams],
   );
 
-  const { data: productPerformance, loading: loadingProducts } = useApiData(
+  const { data: productPerformance } = useApiData(
     () => analyticsService.getProductPerformance(dateParams),
     [dateParams],
   );
@@ -89,14 +88,9 @@ const SalesAnalytics = () => {
     [prevDateParams],
   );
 
-  const { data: customerAnalysis, loading: loadingCustomers } = useApiData(
+  const { data: customerAnalysis } = useApiData(
     () => analyticsService.getCustomerAnalysis(dateParams),
     [dateParams],
-  );
-
-  const { data: inventoryInsights, loading: loadingInventory } = useApiData(
-    analyticsService.getInventoryInsights,
-    [],
   );
 
 
@@ -244,7 +238,7 @@ const SalesAnalytics = () => {
       categoryPerformance: categoryPerf,
       monthlyTrend,
     };
-  }, [dashboardData, productPerformance, customerAnalysis, salesTrends, selectedPeriod, dateRange, isDarkMode]);
+  }, [dashboardData, dashboardPrev, productPerformance, productPerformancePrev, customerAnalysis, salesTrends, selectedPeriod, dateRange, isDarkMode]);
 
 
   const formatCurrency = (amount) => {

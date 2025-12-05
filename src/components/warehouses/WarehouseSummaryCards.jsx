@@ -3,7 +3,6 @@
  * Displays KPI summary cards at the top of the warehouse list page
  */
 
-import React from 'react';
 import {
   MapPin,
   CheckCircle,

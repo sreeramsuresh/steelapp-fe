@@ -10,7 +10,7 @@
  * - Consistent filter bar styling
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Package,
   ArrowLeftRight,
@@ -77,7 +77,7 @@ const StockMovementPage = () => {
     }
 
     if (tabId === 'reconciliation' && action === 'audit') {
-      // ReconciliationDashboard has its own internal tabs, we can't control them from here
+      // ReconciliationDashboard has its own internal tabs, we can&apos;t control them from here
       // But navigating to reconciliation tab is the correct behavior
     }
   };

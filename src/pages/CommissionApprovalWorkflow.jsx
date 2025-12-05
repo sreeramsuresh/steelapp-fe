@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, AlertCircle, DollarSign } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle, Clock, DollarSign } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 
 export default function CommissionApprovalWorkflow() {
@@ -21,12 +21,12 @@ export default function CommissionApprovalWorkflow() {
       const data = await commissionService.getPendingApprovals(50);
       
       // Log the response structure for debugging
-      console.log('[CommissionApprovalWorkflow] API response:', data);
-      console.log('[CommissionApprovalWorkflow] Response keys:', Object.keys(data));
+
+
       
       // Handle both snake_case (pending_approvals) and camelCase (pendingApprovals)
       const approvals = data.pendingApprovals || data.pending_approvals || [];
-      console.log('[CommissionApprovalWorkflow] Parsed approvals:', approvals);
+
       
       setPendingApprovals(approvals);
       
@@ -67,7 +67,7 @@ export default function CommissionApprovalWorkflow() {
       
       await commissionService.approveCommission(
         commission.invoiceId,
-        approvedByUserId
+        approvedByUserId,
       );
       
       setSuccessMessage(`Commission for Invoice ${commission.invoiceNumber} approved!`);
@@ -87,7 +87,7 @@ export default function CommissionApprovalWorkflow() {
 
   const handleRejectCommission = async (commission) => {
     // In a real scenario, this would be a separate action
-    console.log('Rejecting commission:', commission);
+
   };
 
   if (loading) return <div className="flex justify-center items-center h-96">Loading approvals...</div>;
@@ -255,53 +255,53 @@ export default function CommissionApprovalWorkflow() {
                     </div>
                   </div>
 
-                {/* Approval Workflow */}
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-3">Approval Workflow</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-yellow-600" />
-                      <div>
-                        <p className="font-semibold">1. Pending Approval</p>
-                        <p className="text-sm text-gray-600">Commission accrued, waiting for manager approval</p>
+                  {/* Approval Workflow */}
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-3">Approval Workflow</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-5 h-5 text-yellow-600" />
+                        <div>
+                          <p className="font-semibold">1. Pending Approval</p>
+                          <p className="text-sm text-gray-600">Commission accrued, waiting for manager approval</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="font-semibold">2. Approved</p>
-                        <p className="text-sm text-gray-600">Manager approved, forwarded to finance</p>
+                      <div className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-gray-400" />
+                        <div>
+                          <p className="font-semibold">2. Approved</p>
+                          <p className="text-sm text-gray-600">Manager approved, forwarded to finance</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <DollarSign className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="font-semibold">3. Paid</p>
-                        <p className="text-sm text-gray-600">Finance processed payment</p>
+                      <div className="flex items-center gap-3">
+                        <DollarSign className="w-5 h-5 text-gray-400" />
+                        <div>
+                          <p className="font-semibold">3. Paid</p>
+                          <p className="text-sm text-gray-600">Finance processed payment</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-                  <div className="p-6 border-t flex gap-3 justify-end">
-                    <button
-                      onClick={() => setSelectedCommission(null)}
-                      className="px-4 py-2 border rounded hover:bg-gray-50"
-                    >
+                <div className="p-6 border-t flex gap-3 justify-end">
+                  <button
+                    onClick={() => setSelectedCommission(null)}
+                    className="px-4 py-2 border rounded hover:bg-gray-50"
+                  >
                       Close
-                    </button>
-                    <button
-                      onClick={() => handleApproveCommission(selectedCommission)}
-                      disabled={updating}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-                    >
-                      {updating ? 'Approving...' : 'Approve Commission'}
-                    </button>
-                  </div>
+                  </button>
+                  <button
+                    onClick={() => handleApproveCommission(selectedCommission)}
+                    disabled={updating}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {updating ? 'Approving...' : 'Approve Commission'}
+                  </button>
                 </div>
               </div>
-            );
+            </div>
+          );
         })()}
       </div>
     </div>

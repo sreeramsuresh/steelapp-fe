@@ -15,7 +15,7 @@ const customerCreditService = {
   getHighRiskCustomers: async (limit = 50) => {
     try {
       const response = await api.get('/customers/credit-risk/high', {
-        params: { limit }
+        params: { limit },
       });
       return response.data;
     } catch (error) {
@@ -101,7 +101,7 @@ const customerCreditService = {
   getCustomerPaymentHistory: async (customerId, monthsBack = 12) => {
     try {
       const response = await api.get(`/customers/${customerId}/payment-history`, {
-        params: { monthsBack }
+        params: { monthsBack },
       });
       return response.data;
     } catch (error) {
@@ -120,7 +120,7 @@ const customerCreditService = {
   getCustomerDSOTrend: async (customerId, monthsBack = 6) => {
     try {
       const response = await api.get(`/customers/${customerId}/dso-trend`, {
-        params: { monthsBack }
+        params: { monthsBack },
       });
       return response.data;
     } catch (error) {
@@ -139,7 +139,7 @@ const customerCreditService = {
   getCustomerCreditUtilizationTrend: async (customerId, monthsBack = 6) => {
     try {
       const response = await api.get(`/customers/${customerId}/credit-utilization-trend`, {
-        params: { monthsBack }
+        params: { monthsBack },
       });
       return response.data;
     } catch (error) {
@@ -179,7 +179,7 @@ const customerCreditService = {
           page,
           pageSize,
           ...filters,
-        }
+        },
       });
       return response.data;
     } catch (error) {

@@ -6,7 +6,7 @@
  * Lists all stock reservations with filtering and actions
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -130,7 +130,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         search: searchQuery || undefined,
       });
 
-      // Client-side search filter if API doesn't support it
+      // Client-side search filter if API doesn&apos;t support it
       let filteredData = result.data || [];
       if (searchQuery) {
         const query = searchQuery.toLowerCase();

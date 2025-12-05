@@ -37,7 +37,7 @@ export const companyService = {
     return company;
   },
 
-  async uploadLogo(file) {
+  async uploadLogo(_file) {
     await delay();
     // Simulate file upload - return mock URL
     const mockUrl = `/mock-assets/company-logo.svg`;
@@ -46,34 +46,34 @@ export const companyService = {
     return { logo_url: mockUrl, pdf_logo_url: mockUrl };
   },
 
-  async deleteLogo(filename) {
+  async deleteLogo(_filename) {
     await delay();
     company.logoUrl = null;
     company.pdfLogoUrl = null;
     return { message: 'Logo deleted successfully' };
   },
 
-  async uploadPdfLogo(file) {
+  async uploadPdfLogo(_file) {
     await delay();
     const mockUrl = `/mock-assets/company-logo.svg`;
     company.pdfLogoUrl = mockUrl;
     return { pdf_logo_url: mockUrl };
   },
 
-  async deletePdfLogo(filename) {
+  async deletePdfLogo(_filename) {
     await delay();
     company.pdfLogoUrl = null;
     return { message: 'PDF logo deleted successfully' };
   },
 
-  async uploadSeal(file) {
+  async uploadSeal(_file) {
     await delay();
     const mockUrl = `/mock-assets/company-seal.svg`;
     company.pdfSealUrl = mockUrl;
     return { pdf_seal_url: mockUrl };
   },
 
-  async deleteSeal(filename) {
+  async deleteSeal(_filename) {
     await delay();
     company.pdfSealUrl = null;
     return { message: 'Seal deleted successfully' };

@@ -4,10 +4,9 @@
  * Date: 2025-12-02
  */
 
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, TrendingDown, Truck, Clock, Target, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { AlertTriangle, Truck, Clock, Target, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useApi } from '../../hooks/useApi';
 import LoadingOverlay from '../LoadingOverlay';
 import { deliveryVarianceService } from '../../services/deliveryVarianceService';
 
@@ -23,7 +22,8 @@ const DeliveryVarianceDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, [daysBack]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daysBack]); // loadDashboardData is stable
 
   const loadDashboardData = async () => {
     try {
@@ -89,8 +89,8 @@ const DeliveryVarianceDashboard = () => {
                 daysBack === days
                   ? 'bg-teal-600 text-white'
                   : isDarkMode
-                  ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
               {days} Days

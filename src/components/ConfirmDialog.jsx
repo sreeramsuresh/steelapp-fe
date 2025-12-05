@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { AlertTriangle, CheckCircle, Info, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 

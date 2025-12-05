@@ -6,7 +6,6 @@
  * - Different invoice: Offer to resume, discard, or start fresh
  */
 
-import React from 'react';
 import {
   AlertTriangle,
   FileText,

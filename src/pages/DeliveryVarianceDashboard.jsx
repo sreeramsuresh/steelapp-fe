@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+import { useState, useEffect } from 'react';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,7 +23,7 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 export default function DeliveryVarianceDashboard() {

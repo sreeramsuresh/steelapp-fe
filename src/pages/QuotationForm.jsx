@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Save,
@@ -6,15 +6,12 @@ import {
   Trash2,
   ArrowLeft,
   User,
-  Calendar,
-  Clock,
   FileText,
   Calculator,
   Package,
   AlertCircle,
   CheckCircle,
   X,
-  AlertTriangle,
   Pin,
   Settings,
   Loader2,
@@ -118,7 +115,6 @@ const QuotationForm = () => {
       const autoSaveTimer = setTimeout(() => {
         const draftKey = `quotation-draft-${Date.now()}`;
         localStorage.setItem(draftKey, JSON.stringify(formData));
-        console.log('Auto-saved quotation draft');
       }, 30000); // Auto-save every 30 seconds
 
       return () => clearTimeout(autoSaveTimer);
@@ -294,7 +290,8 @@ const QuotationForm = () => {
 
       fetchQuotation();
     }
-  }, [isEdit, id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, id]); // quotationsAPI and setState functions are stable
 
   // Run field validation when key fields change
   useEffect(() => {
@@ -545,6 +542,7 @@ const QuotationForm = () => {
   // Recalculate when charges or discount changes
   useEffect(() => {
     calculateTotals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formData.packingCharges,
     formData.freightCharges,
@@ -554,7 +552,8 @@ const QuotationForm = () => {
     formData.discountType,
     formData.discountPercentage,
     formData.discountAmount,
-  ]);
+    formData.items,
+  ]); // calculateTotals is intentionally not in deps to avoid recreation on every render
 
   const handleSubmit = async (e) => {
     e.preventDefault();

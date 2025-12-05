@@ -5,18 +5,13 @@
  * Displays base commission, tier bonuses, and progress toward earning tiers
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Wallet,
-  TrendingUp,
   Gift,
-  Target,
-  Award,
   Info,
   RefreshCw,
-  ChevronRight,
-  Zap,
   CheckCircle,
   Circle,
 } from 'lucide-react';

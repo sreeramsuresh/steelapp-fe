@@ -5,7 +5,7 @@
  * Links to original vendor bill and supports line item copying.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -22,7 +22,6 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import debitNoteService from '../../services/debitNoteService';
 import vendorBillService from '../../services/vendorBillService';
-import { supplierService } from '../../services/supplierService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
 

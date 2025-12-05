@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye, Pin, PinOff } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -243,7 +243,7 @@ const Autocomplete = ({
     return false;
   };
 
-  const fuzzyFilter = (opts, query) => {
+  const fuzzyFilter = useCallback((opts, query) => {
     const q = norm(query);
     if (!q) return opts;
     const tokens = q.split(/\s+/).filter(Boolean);
@@ -263,7 +263,7 @@ const Autocomplete = ({
     }
     scored.sort((a, b) => a.score - b.score);
     return scored.map(s => s.o);
-  };
+  }, []);
 
   useEffect(() => {
     if (inputValue) {
@@ -272,7 +272,7 @@ const Autocomplete = ({
     } else {
       setFilteredOptions(options);
     }
-  }, [options, inputValue]);
+  }, [options, inputValue, fuzzyFilter]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
@@ -285,7 +285,7 @@ const Autocomplete = ({
     setIsOpen(false);
   };
 
-  const updateDropdownPosition = () => {
+  const updateDropdownPosition = useCallback(() => {
     if (dropdownRef.current && inputRef.current && isOpen) {
       const inputRect = inputRef.current.getBoundingClientRect();
       const dropdown = dropdownRef.current;
@@ -298,7 +298,7 @@ const Autocomplete = ({
       dropdown.style.maxWidth = '90vw';
       dropdown.style.zIndex = '9999';
     }
-  };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -322,7 +322,7 @@ const Autocomplete = ({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, updateDropdownPosition]);
 
   return (
     <div className={`relative ${className}`}>
@@ -641,6 +641,7 @@ const PurchaseOrderForm = () => {
         handleInputChange('dueDate', calculatedDueDate);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseOrder.poDate, purchaseOrder.paymentTerms]);
 
   // Update payment status when total changes
@@ -648,6 +649,7 @@ const PurchaseOrderForm = () => {
     if (payments.length > 0) {
       updatePaymentStatus(payments, purchaseOrder.total);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseOrder.total]);
 
   // Normalize date value for <input type="date">
@@ -783,7 +785,6 @@ const PurchaseOrderForm = () => {
       const products = response?.products || [];
       setAvailableProducts(products);
     } catch (error) {
-      console.warn('Failed to fetch products:', error);
       // Fallback to static product types if service fails
       setAvailableProducts(PRODUCT_TYPES.map(type => ({ id: type, name: type, category: type })));
     }
@@ -800,16 +801,12 @@ const PurchaseOrderForm = () => {
         return;
       }
     } catch (error) {
-      console.warn('Failed to fetch warehouses from API:', error);
-      
-      // Try to seed warehouses if they don't exist
+      // Try to seed warehouses if they don&apos;t exist
       try {
-        console.log('Attempting to seed warehouses...');
         await purchaseOrdersAPI.seedWarehouses();
         notificationService.success('Warehouses initialized successfully. Please try again.');
         return;
       } catch (seedError) {
-        console.warn('Failed to seed warehouses:', seedError);
       }
     }
     
@@ -895,7 +892,6 @@ const PurchaseOrderForm = () => {
         if (numMatch) return `${numMatch[0]}mm`;
       }
     } catch (err) {
-      console.warn('Error extracting thickness from product:', err);
     }
     return '';
   };
@@ -999,12 +995,10 @@ const PurchaseOrderForm = () => {
           const resp = await productService.getProducts({ search: term, limit: 20 });
           setSearchInputs((prev) => ({ ...prev, __results: resp?.products || [] }));
         } catch (err) {
-          console.warn('Product search failed:', err);
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
     } catch (err) {
-      console.error('Error setting up product search timer:', err);
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -17,9 +17,6 @@ import {
   Calculator,
   Building2,
   Globe,
-  Calendar,
-  Anchor,
-  Info,
   Search,
   CheckCircle,
   AlertCircle,

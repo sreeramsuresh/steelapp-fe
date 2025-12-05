@@ -155,7 +155,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
   const toggleSection = (section) => {
     setOpenSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
   

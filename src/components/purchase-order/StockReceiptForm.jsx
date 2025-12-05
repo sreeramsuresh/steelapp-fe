@@ -10,7 +10,7 @@
  * - Notes and batch/coil/heat tracking
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -118,7 +118,8 @@ const StockReceiptForm = ({
     if (open) {
       fetchWarehouses();
     }
-  }, [open]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]); // fetchWarehouses is stable
 
   // Initialize selected items and quantities when poItems change
   useEffect(() => {

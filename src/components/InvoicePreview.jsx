@@ -1,4 +1,4 @@
-import React from 'react';
+// React import removed (unused)
 import { X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import InvoiceTemplate from './invoice/InvoiceTemplate';

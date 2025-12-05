@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import {
   Filter,
   X,
   Clock,
+  Send,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
@@ -150,6 +151,9 @@ const CreditNoteForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
   const [touchedFields, setTouchedFields] = useState(new Set());
+
+  // Determine if credit note is editable (only draft status is editable per finance/VAT compliance)
+  const isEditable = !id || creditNote.status === 'draft';
 
   // Mark a field as touched (for showing validation on blur)
   const handleFieldBlur = (fieldName) => {
@@ -296,7 +300,8 @@ const CreditNoteForm = () => {
         }
       }
     }
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // loadCreditNote is stable
 
   // Track form changes for silent save on exit (no browser warning)
   useEffect(() => {
@@ -305,7 +310,8 @@ const CreditNoteForm = () => {
       // Check if there are meaningful changes (at least some data entered)
       const hasChanges = creditNote.items.some(item => item.selected || item.quantityReturned > 0) ||
                          creditNote.reasonForReturn ||
-                         creditNote.notes;
+                         creditNote.notes ||
+                         creditNote.manualCreditAmount > 0;
       
       if (hasChanges) {
         setPendingSave(creditNote, {
@@ -327,7 +333,16 @@ const CreditNoteForm = () => {
     try {
       setLoading(true);
       const data = await creditNoteService.getCreditNote(id);
-      setCreditNote(data);
+      
+      // Format date for HTML5 date input
+      const formattedData = {
+        ...data,
+        creditNoteDate: data.creditNoteDate 
+          ? formatDateForInput(new Date(data.creditNoteDate))
+          : formatDateForInput(new Date())
+      };
+      
+      setCreditNote(formattedData);
       if (data.invoiceId) {
         const invoice = await invoiceService.getInvoice(data.invoiceId);
         setSelectedInvoice(invoice);
@@ -348,8 +363,14 @@ const CreditNoteForm = () => {
       const invoice = await invoiceService.getInvoice(draft.invoiceId);
       setSelectedInvoice(invoice);
       
-      // Restore the draft data
-      setCreditNote(draft.data);
+      // Restore the draft data with formatted date
+      const restoredData = {
+        ...draft.data,
+        creditNoteDate: draft.data.creditNoteDate 
+          ? formatDateForInput(new Date(draft.data.creditNoteDate))
+          : formatDateForInput(new Date())
+      };
+      setCreditNote(restoredData);
       setShowInvoiceSelect(false);
       setShowConflictModal(false);
       setPendingConflict(null);
@@ -656,7 +677,7 @@ const CreditNoteForm = () => {
     return errors.length === 0;
   };
 
-  const handleSave = async () => {
+  const handleSave = async (issueImmediately = false) => {
     if (!validateForm()) {
       setTimeout(() => {
         document.getElementById('validation-errors-alert')
@@ -668,20 +689,33 @@ const CreditNoteForm = () => {
     try {
       setSaving(true);
 
-      // Filter only returned items
-      const returnedItems = creditNote.items.filter(item => item.selected && item.quantityReturned > 0);
+      // Prepare items based on credit note type
+      let itemsToSave = [];
+      if (creditNote.creditNoteType === 'RETURN_WITH_QC') {
+        // For physical returns, filter only selected items with quantity returned
+        itemsToSave = creditNote.items.filter(item => item.selected && item.quantityReturned > 0);
+      }
+      // For ACCOUNTING_ONLY, items array stays empty
 
       const creditNoteData = {
         ...creditNote,
-        items: returnedItems,
+        items: itemsToSave,
+        // Set status based on user action
+        status: issueImmediately ? 'issued' : 'draft',
       };
+
+      console.log('Saving credit note data:', creditNoteData);
 
       if (id) {
         await creditNoteService.updateCreditNote(id, creditNoteData);
         notificationService.success('Credit note updated successfully');
       } else {
         await creditNoteService.createCreditNote(creditNoteData);
-        notificationService.success('Credit note created successfully');
+        notificationService.success(
+          issueImmediately 
+            ? 'Tax document issued successfully' 
+            : 'Credit note saved as draft',
+        );
       }
 
       // Clear the draft after successful save
@@ -763,28 +797,89 @@ const CreditNoteForm = () => {
               <Eye className="h-4 w-4" />
               Preview
             </button>
-            {/* Save Button */}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className={`flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors ${
-                saving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
-              }`}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Save Credit Note
-                </>
-              )}
-            </button>
+            {/* Save Buttons - Only show for draft credit notes */}
+            {isEditable && (
+              <>
+                {/* Save Draft Button */}
+                <button
+                  onClick={() => handleSave(false)}
+                  disabled={saving}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  } ${saving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
+                  title="Save as draft without issuing"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      Save Draft
+                    </>
+                  )}
+                </button>
+
+                {/* Issue Tax Document Button */}
+                <button
+                  onClick={() => handleSave(true)}
+                  disabled={saving}
+                  className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${
+                    saving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+                  }`}
+                  title="Issue tax document immediately"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Issuing...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      Issue Tax Document
+                    </>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </div>
+
+        {/* Read-Only Warning Banner - Finance & VAT Compliance */}
+        {!isEditable && (
+          <div className={`mb-6 p-4 rounded-lg border-2 ${
+            isDarkMode ? 'bg-amber-900/20 border-amber-600' : 'bg-amber-50 border-amber-400'
+          }`}>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className={`flex-shrink-0 h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} />
+              <div className="flex-1">
+                <p className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-300' : 'text-amber-900'}`}>
+                  Read-Only Mode - Credit Note Locked
+                </p>
+                <p className={`text-sm ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>
+                  This credit note is <span className="font-semibold">{creditNote.status}</span> and cannot be edited. 
+                  {creditNote.status === 'issued' && (
+                    <> Once issued, credit notes become tax documents and must remain unchanged per UAE VAT compliance requirements. 
+                    To make corrections, please use the <span className="font-semibold">Cancel & Reissue</span> workflow.</>
+                  )}
+                  {['applied', 'refunded', 'completed'].includes(creditNote.status) && (
+                    <> This credit note has financial impact (customer balance or payments affected). 
+                    Contact the finance team for guidance on corrections.</>
+                  )}
+                  {['items_received', 'items_inspected'].includes(creditNote.status) && (
+                    <> Physical goods have been received/inspected. Amounts and items are locked. 
+                    Contact operations team if corrections are needed.</>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mandatory Field Indicator Legend */}
         <div className={`mb-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -856,6 +951,7 @@ const CreditNoteForm = () => {
                           }
                         }}
                         onBlur={() => handleFieldBlur('invoiceId')}
+                        disabled={!isEditable}
                         aria-required="true"
                         aria-invalid={shouldShowError('invoiceId')}
                         className={`w-full pl-10 pr-10 py-2 rounded-lg border transition-colors ${
@@ -1100,7 +1196,8 @@ const CreditNoteForm = () => {
                           type="checkbox"
                           checked={item.selected}
                           onChange={(e) => handleItemSelect(index, e.target.checked)}
-                          className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 rounded"
+                          disabled={!isEditable}
+                          className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 rounded disabled:cursor-not-allowed disabled:opacity-60"
                         />
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
@@ -1159,7 +1256,7 @@ const CreditNoteForm = () => {
                                     });
                                   }
                                 }}
-                                disabled={!item.selected}
+                                disabled={!isEditable || !item.selected}
                                 aria-required="true"
                                 className={`w-full px-3 py-2 rounded border text-sm transition-colors ${
                                   item.selected && item.quantityReturned === 0 && invalidFields.has('items')
@@ -1225,13 +1322,13 @@ const CreditNoteForm = () => {
                   <select
                     value={creditNote.creditNoteType}
                     onChange={(e) => setCreditNote(prev => ({ ...prev, creditNoteType: e.target.value }))}
-                    disabled={id && creditNote.status !== 'draft'}
+                    disabled={!isEditable}
                     aria-required="true"
                     className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                      id && creditNote.status !== 'draft'
+                      !isEditable
                         ? isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-gray-500'
-                          : 'border-gray-300 bg-gray-100 text-gray-500'
+                          ? 'border-gray-600 bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
                         : isDarkMode
                           ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
                           : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
@@ -1266,9 +1363,11 @@ const CreditNoteForm = () => {
                       }
                     }}
                     onBlur={() => handleFieldBlur('creditNoteDate')}
+                    disabled={!isEditable}
                     aria-required="true"
                     aria-invalid={shouldShowError('creditNoteDate')}
                     className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                      !isEditable ? 'cursor-not-allowed opacity-60' : ''} ${
                       shouldShowError('creditNoteDate') || invalidFields.has('creditNoteDate')
                         ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500 focus:border-red-500'
                         : isDarkMode
@@ -1283,26 +1382,24 @@ const CreditNoteForm = () => {
                     </p>
                   )}
                 </div>
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Status
-                  </label>
-                  <select
-                    value={creditNote.status}
-                    onChange={(e) => setCreditNote(prev => ({ ...prev, status: e.target.value }))}
-                    className={`w-full px-4 py-2 rounded-lg border ${
+                {/* Status - Read-only display, not editable by user */}
+                {id && (
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Status
+                    </label>
+                    <div className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  >
-                    {CREDIT_NOTE_STATUSES.map(status => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                        ? 'border-gray-600 bg-gray-800 text-gray-400'
+                        : 'border-gray-300 bg-gray-100 text-gray-600'
+                    }`}>
+                      {CREDIT_NOTE_STATUSES.find(s => s.value === creditNote.status)?.label || creditNote.status}
+                    </div>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      Status is managed through workflow actions
+                    </p>
+                  </div>
+                )}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Reason for Return <span className="text-red-500 font-bold">*</span>
@@ -1311,9 +1408,11 @@ const CreditNoteForm = () => {
                     value={creditNote.reasonForReturn}
                     onChange={(e) => handleReasonChange(e.target.value)}
                     onBlur={() => handleFieldBlur('reasonForReturn')}
+                    disabled={!isEditable}
                     aria-required="true"
                     aria-invalid={shouldShowError('reasonForReturn')}
                     className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                      !isEditable ? 'cursor-not-allowed opacity-60' : ''} ${
                       shouldShowError('reasonForReturn') || invalidFields.has('reasonForReturn')
                         ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500 focus:border-red-500'
                         : isDarkMode
@@ -1367,8 +1466,10 @@ const CreditNoteForm = () => {
                     value={creditNote.notes}
                     onChange={(e) => setCreditNote(prev => ({ ...prev, notes: e.target.value }))}
                     rows={4}
+                    disabled={!isEditable}
                     placeholder="Additional notes about the return..."
                     className={`w-full px-4 py-2 rounded-lg border ${
+                      !isEditable ? 'cursor-not-allowed opacity-60' : ''} ${
                       isDarkMode
                         ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
                         : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'

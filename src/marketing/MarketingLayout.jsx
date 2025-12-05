@@ -1,4 +1,4 @@
-import React from 'react';
+
 import MarketingHeader from './MarketingHeader';
 import MarketingFooter from './MarketingFooter';
 

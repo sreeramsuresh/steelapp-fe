@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { LineChart, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
@@ -64,7 +64,8 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
       setProducts([]);
       setSelectedProduct(null);
     }
-  }, [data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]); // setProducts and setSelectedProduct are stable setState functions
 
   // Check if we have valid data
   const hasData = data && data.products && data.products.length > 0;

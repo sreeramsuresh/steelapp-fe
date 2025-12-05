@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus as Add,
   Edit,
   Trash2 as Delete,
   Search,
   Package,
-  TrendingDown,
   TrendingUp,
   Warehouse,
-  DollarSign,
-  Filter,
   AlertTriangle,
   X,
-  CheckCircle,
-  AlertCircle,
   ChevronDown,
   Upload,
 } from 'lucide-react';
@@ -69,17 +64,7 @@ const InventoryList = () => {
     };
   });
 
-  useEffect(() => {
-    fetchInventory();
-    fetchWarehouses();
-  }, []);
-
-  // Refetch when status filter changes
-  useEffect(() => {
-    fetchInventory();
-  }, [statusFilter]);
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
       const params = {};
@@ -94,11 +79,10 @@ const InventoryList = () => {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]); // inventoryService is a stable import
 
-
-
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       // Fetch real warehouses from API
       const response = await (await import('../services/api')).apiClient.get('/warehouses');
@@ -121,7 +105,17 @@ const InventoryList = () => {
       // Fallback to empty array - user can still add inventory without warehouse
       setWarehouses([]);
     }
-  };
+  }, []); // Intentionally empty - runs once on mount, uses dynamic import
+
+  useEffect(() => {
+    fetchInventory();
+    fetchWarehouses();
+  }, [fetchInventory, fetchWarehouses]);
+
+  // Refetch when status filter changes
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
   const handleOpenDialog = (item = null) => {
     if (item) {
@@ -330,7 +324,7 @@ const InventoryList = () => {
   };
 
   const filteredInventory = inventory
-  // Note: We don't filter out items based on transit PO names anymore
+  // Note: We don&apos;t filter out items based on transit PO names anymore
   // because items can have the same name but different statuses
   // (one in transit, one actually in inventory from retain POs)
     

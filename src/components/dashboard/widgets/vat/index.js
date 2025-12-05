@@ -162,13 +162,6 @@ export const UAE_DESIGNATED_ZONES = [
   { code: 'ADGM', name: 'Abu Dhabi Global Market', emirate: 'Abu Dhabi' },
 ];
 
-export default {
-  VATCollectionWidget,
-  VATReturnStatusWidget,
-  VATComplianceAlertsWidget,
-  DesignatedZoneWidget,
-  ZeroRatedExportsWidget,
-  ReverseChargeWidget,
-  VATReconciliationWidget,
-  TRNValidationWidget,
-};
+// Note: Individual widgets are exported as named exports above (lines 13-22)
+// Default export removed to avoid circular dependency issues
+// Use named imports: import { VATCollectionWidget } from './vat';

@@ -2,7 +2,7 @@
  * WidgetSuspense - Suspense boundary with error handling for lazy widgets
  */
 
-import React, { Suspense, Component } from 'react';
+import { Suspense, Component } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import WidgetSkeleton from './WidgetSkeleton';

@@ -8,7 +8,7 @@
  * - NO action buttons inside preview modal (only X close button)
  * - Shows validation warnings at bottom if incomplete
  */
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';

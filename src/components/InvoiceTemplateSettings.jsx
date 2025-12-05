@@ -156,7 +156,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setDocumentTemplates(defaultDocTemplates);
       setOriginalDocumentTemplates(defaultDocTemplates);
     }
-  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.documentTemplates]); // Only re-run when company ID or template changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.documentTemplates]); // Helper functions and constants are stable imports
 
   // Check for changes
   useEffect(() => {

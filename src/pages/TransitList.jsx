@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Eye,
   Navigation,
@@ -7,7 +7,7 @@ import {
   Search,
   ChevronDown,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 

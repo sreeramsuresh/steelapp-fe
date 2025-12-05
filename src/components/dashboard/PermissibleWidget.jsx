@@ -3,7 +3,7 @@
  * Wrapper component for permission-based widget rendering
  */
 
-import React from 'react';
+
 import { useDashboardPermissions } from '../../hooks/useDashboardPermissions';
 
 export const PermissibleWidget = ({ widgetId, children, fallback = null }) => {

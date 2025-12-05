@@ -47,6 +47,30 @@ const Sidebar = ({ isOpen, onToggle }) => {
     setShowBottomFade(scrollTop + clientHeight < scrollHeight - threshold);
   };
 
+  // Scroll to top when top chevron is clicked
+  const handleScrollUp = (e) => {
+    e.stopPropagation();
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    container.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  // Scroll to bottom when bottom chevron is clicked
+  const handleScrollDown = (e) => {
+    e.stopPropagation();
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
   // Check scroll on mount and when content changes
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -306,8 +330,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
       <div className="flex-1 relative min-h-0">
         {/* Top fade indicator */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-8 pointer-events-none z-10 transition-opacity duration-300 ${
-            showTopFade ? 'opacity-100' : 'opacity-0'
+          onClick={handleScrollUp}
+          className={`absolute top-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
+            showTopFade ? 'opacity-100 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           style={{
             background: isDarkMode 
@@ -318,7 +343,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           <div className="absolute inset-0 flex items-center justify-center">
             <ChevronUp 
               size={16} 
-              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transition-transform hover:scale-110`}
               style={{ opacity: 0.7 }}
             />
           </div>
@@ -401,8 +426,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
         {/* Bottom fade indicator */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 transition-opacity duration-300 ${
-            showBottomFade ? 'opacity-100' : 'opacity-0'
+          onClick={handleScrollDown}
+          className={`absolute bottom-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
+            showBottomFade ? 'opacity-100 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           style={{
             background: isDarkMode 
@@ -413,7 +439,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           <div className="absolute inset-0 flex items-center justify-center">
             <ChevronDown 
               size={16} 
-              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transition-transform hover:scale-110`}
               style={{ opacity: 0.7 }}
             />
           </div>

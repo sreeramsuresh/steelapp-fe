@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Clock } from 'lucide-react';
 import BaseWidget, { MetricValue } from '../BaseWidget';
 

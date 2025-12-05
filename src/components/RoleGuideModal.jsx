@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   X,
   Shield,
@@ -10,7 +9,6 @@ import {
   Info,
   TrendingUp,
   Database,
-  ShoppingCart,
   FileText,
   DollarSign,
   Package,

@@ -771,7 +771,7 @@ export function guardProductDev(product: any): any {
 
       // ℹ️ INFO: Unknown camelCase field
       if (!ALLOWED_PRODUCT_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.warn(
           `ℹ️ Unknown Product field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_PRODUCT_KEYS in devGuards.ts`,
         );
@@ -872,7 +872,7 @@ export function guardCustomerDev(customer: any): any {
       }
 
       if (!ALLOWED_CUSTOMER_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.warn(
           `ℹ️ Unknown Customer field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_CUSTOMER_KEYS in devGuards.ts`,
         );
@@ -967,7 +967,7 @@ export function guardSupplierDev(supplier: any): any {
       }
 
       if (!ALLOWED_SUPPLIER_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.log(
           `ℹ️ Unknown Supplier field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_SUPPLIER_KEYS in devGuards.ts`,
         );
@@ -1065,7 +1065,7 @@ export function guardPaymentDev(payment: any): any {
       }
 
       if (!ALLOWED_PAYMENT_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.log(
           `ℹ️ Unknown Payment field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_PAYMENT_KEYS in devGuards.ts`,
         );
@@ -1185,7 +1185,7 @@ export function guardPurchaseOrderDev(purchaseOrder: any): any {
       }
 
       if (!ALLOWED_PURCHASE_ORDER_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.log(
           `ℹ️ Unknown PurchaseOrder field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_PURCHASE_ORDER_KEYS in devGuards.ts`,
         );
@@ -1287,7 +1287,7 @@ export function guardDeliveryNoteDev(deliveryNote: any): any {
       }
 
       if (!ALLOWED_DELIVERY_NOTE_KEYS.has(propName) && !propName.startsWith('_')) {
-        console.info(
+        console.log(
           `ℹ️ Unknown DeliveryNote field '${propName}' accessed. ` +
           `If this is a new field, add it to ALLOWED_DELIVERY_NOTE_KEYS in devGuards.ts`,
         );

@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
-  Filter,
   Edit,
   Trash2,
   Eye,
   FileText,
   Download,
-  RotateCcw,
-  Package,
   Clock,
   PlayCircle,
 } from 'lucide-react';
@@ -128,7 +125,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   useEffect(() => {
     loadCreditNotes();
-  }, [currentPage, pageSize, debouncedSearch, statusFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize, debouncedSearch, statusFilter]); // loadCreditNotes is stable
 
   const loadCreditNotes = async () => {
     try {
@@ -250,7 +248,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   return (
     <div className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-[1920px] mx-auto px-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -393,7 +391,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-auto">
                 <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
                     <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -429,12 +427,16 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   {creditNotes.map((creditNote) => (
                     <tr
                       key={creditNote.id}
-                      className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors cursor-pointer`}
-                      onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                      className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}
                     >
                       <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         <div className="font-medium flex items-center">
-                          {creditNote.creditNoteNumber}
+                          <button
+                            onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                            className="hover:text-teal-600 hover:underline cursor-pointer text-left"
+                          >
+                            {creditNote.creditNoteNumber}
+                          </button>
                           <NewBadge createdAt={creditNote.createdAt || creditNote.created_at} />
                         </div>
                       </td>

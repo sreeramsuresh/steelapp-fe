@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   TrendingUp,
   TrendingDown,
@@ -23,11 +23,9 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
+import { format, subMonths, addMonths } from 'date-fns';
 import { analyticsService } from '../services/analyticsService';
-import { toUAEDateForInput, toUAETime } from '../utils/timezone';
 import { useApiData } from '../hooks/useApi';
-
 
 const RevenueTrends = () => {
   const { isDarkMode } = useTheme();

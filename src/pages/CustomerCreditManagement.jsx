@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { AlertCircle, TrendingUp, Clock } from 'lucide-react';
 import { customerCreditService } from '../services/customerCreditService';
 
 export default function CustomerCreditManagement() {
@@ -22,25 +22,25 @@ export default function CustomerCreditManagement() {
   const loadCreditData = async () => {
     try {
       setLoading(true);
-      console.log('[CustomerCreditManagement] Loading credit data...');
+
       
       const [highRisk, overLimit] = await Promise.all([
         customerCreditService.getHighRiskCustomers(50),
         customerCreditService.getOverLimitCustomers(),
       ]);
 
-      console.log('[CustomerCreditManagement] High risk response:', highRisk);
-      console.log('[CustomerCreditManagement] Over limit response:', overLimit);
+
+
 
       // Handle both null and array responses
-      const highRiskCustomers = highRisk?.customers || [];
-      const overLimitCustomers = overLimit?.customers || [];
+      const highRiskData = highRisk?.customers || [];
+      const overLimitData = overLimit?.customers || [];
       
-      console.log('[CustomerCreditManagement] Parsed high risk customers:', highRiskCustomers);
-      console.log('[CustomerCreditManagement] Parsed over limit customers:', overLimitCustomers);
 
-      setHighRiskCustomers(highRiskCustomers);
-      setOverLimitCustomers(overLimitCustomers);
+
+
+      setHighRiskCustomers(highRiskData);
+      setOverLimitCustomers(overLimitData);
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Failed to load credit data';
       setError(errorMsg);
@@ -53,15 +53,15 @@ export default function CustomerCreditManagement() {
   const handleSelectCustomer = async (customer) => {
     try {
       setSelectedCustomer(customer);
-      console.log('[CustomerCreditManagement] Loading details for customer:', customer.id);
+
       
       const [details, aging] = await Promise.all([
         customerCreditService.getCustomerCreditSummary(customer.id),
         customerCreditService.getCustomerAging(customer.id),
       ]);
 
-      console.log('[CustomerCreditManagement] Credit details:', details);
-      console.log('[CustomerCreditManagement] Aging data:', aging);
+
+
 
       setCreditDetails(details);
       setAgingData(aging);
@@ -82,7 +82,7 @@ export default function CustomerCreditManagement() {
       await customerCreditService.updateCreditLimit(
         selectedCustomer.id,
         parseFloat(newCreditLimit),
-        adjustmentReason || 'Manual adjustment'
+        adjustmentReason || 'Manual adjustment',
       );
 
       setError(null);

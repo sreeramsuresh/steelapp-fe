@@ -16,7 +16,7 @@
  * - Right 40%: Help documentation (full height, always visible)
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Shield,
   Key,

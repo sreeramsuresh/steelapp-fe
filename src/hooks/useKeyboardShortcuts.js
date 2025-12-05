@@ -110,7 +110,8 @@ const useKeyboardShortcuts = (
     Object.keys(shortcutsRef.current).forEach((shortcut) => {
       parsedShortcutsRef.current.set(shortcut, parseShortcut(shortcut));
     });
-  }, [Object.keys(shortcuts).join(',')]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.keys(shortcuts).join(',')]); // parseShortcut is stable
 
   const handleKeyDown = useCallback((event) => {
     if (!enabled) return;

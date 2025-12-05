@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Activity, Package, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { safeEntries, safeKeys, safeNumber } from '../../../../utils/safeAccess';
@@ -195,21 +195,21 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
             Stock by Category
           </p>
           <div className={`h-4 rounded-full overflow-hidden flex ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}>
-            {safeEntries(healthData.breakdown).map(([category, data]) => (
+            {safeEntries(healthData.breakdown).map(([category, categoryData]) => (
               <div
                 key={category}
                 className={`h-full ${getCategoryBarColor(category)} transition-all`}
-                style={{ width: `${safeNumber(data?.percentage, 0)}%` }}
-                title={`${category}: ${safeNumber(data?.percentage, 0)}%`}
+                style={{ width: `${safeNumber(categoryData?.percentage, 0)}%` }}
+                title={`${category}: ${safeNumber(categoryData?.percentage, 0)}%`}
               />
             ))}
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {safeEntries(healthData.breakdown).map(([category, data]) => (
+            {safeEntries(healthData.breakdown).map(([category, categoryData]) => (
               <div key={category} className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full ${getCategoryBarColor(category)}`} />
                 <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)} ({safeNumber(data?.percentage, 0)}%)
+                  {category.charAt(0).toUpperCase() + category.slice(1)} ({safeNumber(categoryData?.percentage, 0)}%)
                 </span>
               </div>
             ))}

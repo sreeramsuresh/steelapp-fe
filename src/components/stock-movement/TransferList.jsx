@@ -6,7 +6,7 @@
  * Lists all stock transfers with filtering and actions
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -120,7 +120,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         search: searchQuery || undefined,
       });
 
-      // Client-side search filter if API doesn't support it
+      // Client-side search filter if API doesn&apos;t support it
       let filteredData = result.data || [];
       if (searchQuery) {
         const query = searchQuery.toLowerCase();

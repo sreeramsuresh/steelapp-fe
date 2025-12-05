@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   Banknote,
   TrendingUp,
   TrendingDown,
-  BarChart3,
   RotateCcw,
   FileText,
   DollarSign,
@@ -19,7 +18,7 @@ import CommissionDashboard from './CommissionDashboard';
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('receivables');
 
   // Auto-open tab if navigated with tab parameter

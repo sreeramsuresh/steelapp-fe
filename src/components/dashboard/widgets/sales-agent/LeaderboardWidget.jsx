@@ -5,7 +5,7 @@
  * Displays ranked agents with medals, scores, badges, and performance trends
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Trophy,

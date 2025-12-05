@@ -5,20 +5,18 @@
  * Displays collection rate, DSO, overdue amounts, and aging breakdown
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Receipt,
   Clock,
   AlertCircle,
-  CheckCircle,
+
   TrendingUp,
   TrendingDown,
   Info,
-  RefreshCw,
-  DollarSign,
+  RefreshCw
 } from 'lucide-react';
-
 // Mock collection data for agents
 const MOCK_COLLECTION_DATA = {
   agentId: 1,

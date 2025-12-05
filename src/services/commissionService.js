@@ -95,10 +95,10 @@ const commissionService = {
       const response = await api.get('/commissions/pending-approvals', {
         params: { limit },
       });
-      console.log('[commissionService] getPendingApprovals response:', response);
-      console.log('[commissionService] response.data:', response?.data);
+
+
       const data = response?.data || response;
-      console.log('[commissionService] returning data:', data);
+
       return data;
     } catch (error) {
       console.error('[commissionService] Error fetching pending approvals:', error);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, AlertTriangle, Loader2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';

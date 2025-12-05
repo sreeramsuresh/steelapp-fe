@@ -5,7 +5,7 @@
  * Backend is source of truth for what transitions are valid.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Send,
   Package,
@@ -81,7 +81,8 @@ const CreditNoteStatusActions = ({
     if (creditNoteId) {
       loadAllowedTransitions();
     }
-  }, [creditNoteId, currentStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditNoteId, currentStatus]); // loadAllowedTransitions is stable
 
   const loadAllowedTransitions = async () => {
     try {

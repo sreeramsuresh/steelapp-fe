@@ -5,7 +5,7 @@
  * Design aligned with ImportExportOverview pattern
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Package,
   Truck,
@@ -38,7 +38,8 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally run once on mount
 
   const loadDashboardData = useCallback(async () => {
     setLoading(true);

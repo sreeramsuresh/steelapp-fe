@@ -5,7 +5,7 @@
  * Displays revenue vs target, achievement percentage, growth, and team rank
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Target,

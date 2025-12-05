@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Banknote, Download, RefreshCw, X, Trash2, CheckCircle, Printer } from 'lucide-react';
@@ -171,7 +171,7 @@ const POTab = ({ canManage }) => {
           setLoading(false);
           return;
         }
-        // Cache is stale, continue to fetch but don't show loading (stale-while-revalidate)
+        // Cache is stale, continue to fetch but don&apos;t show loading (stale-while-revalidate)
         setLoading(false);
       } else {
         setLoading(true);

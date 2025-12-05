@@ -533,7 +533,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [searchTerm, statusFilter, showDeleted, currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, statusFilter, showDeleted]); // currentPage intentionally omitted to avoid infinite loop
 
   // Initialize search from URL param
   useEffect(() => {
@@ -542,7 +543,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       setSearchTerm(q);
       setCurrentPage(1);
     }
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]); // searchTerm intentionally omitted - only sync from URL on mount/URL change
 
   // Auto-open payment drawer when navigating with openPayment query param
   // (e.g., from Create Invoice success modal)
@@ -561,7 +563,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         paymentParamProcessedRef.current = true;
 
         // Fetch full invoice data (including payments) before opening drawer
-        // List view doesn't include payments array, need to call getInvoice
+        // List view doesn&apos;t include payments array, need to call getInvoice
         invoiceService.getInvoice(invoiceToOpen.id)
           .then(fullInvoiceData => {
             setPaymentDrawerInvoice(fullInvoiceData);

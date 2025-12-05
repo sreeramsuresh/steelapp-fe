@@ -5,7 +5,7 @@
  * Displays customer distribution by industry, size, and geography
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   PieChart,
@@ -13,10 +13,8 @@ import {
   MapPin,
   Users,
   Info,
-  RefreshCw,
-  ChevronDown,
+  RefreshCw
 } from 'lucide-react';
-
 // Mock segmentation data
 const MOCK_SEGMENTS_DATA = {
   byIndustry: [

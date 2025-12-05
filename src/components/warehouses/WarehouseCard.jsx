@@ -8,7 +8,6 @@ import {
   MapPin,
   Package,
   Phone,
-  Mail,
   User,
   Edit,
   Trash2,

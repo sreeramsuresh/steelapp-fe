@@ -17,20 +17,18 @@
  * - Goods physically located in the zone at time of supply
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   MapPin, 
-  Package, 
-  FileCheck, 
+
   AlertTriangle,
   CheckCircle,
-  XCircle,
+
   Info,
   ChevronRight,
   Building2,
 } from 'lucide-react';
-
 // UAE Designated Zones list
 const DESIGNATED_ZONES = [
   { code: 'JAFZA', name: 'Jebel Ali Free Zone', emirate: 'Dubai' },

@@ -5,7 +5,7 @@
  * Identifies customers with declining activity, payment delays, or complaints
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   AlertTriangle,
@@ -19,7 +19,6 @@ import {
   RefreshCw,
   ChevronRight,
   ShieldAlert,
-  AlertCircle,
 } from 'lucide-react';
 
 // Mock at-risk customer data

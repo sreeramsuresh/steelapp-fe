@@ -9,8 +9,6 @@ import {
   Search,
   Package,
   AlertTriangle,
-  Filter,
-  ArrowRight,
   RefreshCw,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';

@@ -6,7 +6,7 @@
  * Shows IN movements created when stock is received
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -75,7 +75,8 @@ const POStockMovements = ({ purchaseOrderId, poNumber, defaultExpanded = true })
     if (purchaseOrderId) {
       fetchMovements();
     }
-  }, [purchaseOrderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchaseOrderId]); // fetchMovements is stable
 
   const fetchMovements = async () => {
     try {

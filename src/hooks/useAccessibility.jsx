@@ -36,7 +36,7 @@ export const useAnnounce = () => {
   const announceRef = useRef(null);
 
   useEffect(() => {
-    // Create announcer element if it doesn't exist
+    // Create announcer element if it doesn&apos;t exist
     if (!announceRef.current) {
       const announcer = document.createElement('div');
       announcer.setAttribute('aria-live', 'polite');

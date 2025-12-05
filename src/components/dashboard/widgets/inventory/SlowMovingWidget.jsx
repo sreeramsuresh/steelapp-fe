@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Snail, Calendar, DollarSign, Tag, Megaphone, Search, Trash2 } from 'lucide-react';
 

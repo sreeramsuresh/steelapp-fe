@@ -19,14 +19,13 @@
  * />
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   CheckCircle,
   XCircle,
   AlertCircle,
   Loader2,
   ExternalLink,
-  Info,
   ShieldCheck,
   Copy,
   Check,
@@ -80,7 +79,7 @@ const TRNVerifyInput = ({
     if (verificationResult) {
       setVerificationResult(null);
     }
-  }, [localValue, countryCode, autoValidate]);
+  }, [localValue, countryCode, autoValidate, verificationResult]);
 
   // Handle input change
   const handleChange = useCallback((e) => {

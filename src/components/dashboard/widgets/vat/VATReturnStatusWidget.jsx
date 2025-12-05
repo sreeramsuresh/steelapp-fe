@@ -11,19 +11,16 @@
  * - FTA submission via EmaraTax portal
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   FileText, 
   CheckCircle, 
-  Clock, 
-  AlertTriangle,
+  Clock,
   XCircle,
   Calendar,
-  Download,
   ExternalLink,
   Info,
-  ChevronRight,
 } from 'lucide-react';
 
 

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { Warehouse, ArrowRightLeft, TrendingUp, MapPin, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Warehouse, ArrowRightLeft, MapPin, RefreshCw } from 'lucide-react';
 
 // Fallback mock data for warehouse utilization (used only when no API data is available)
 const generateFallbackData = () => ({

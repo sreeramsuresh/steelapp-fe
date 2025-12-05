@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertTriangle, X, RefreshCw } from 'lucide-react';
 import { useApiHealth } from '../../hooks/useApiHealth';
 import { useTheme } from '../../contexts/ThemeContext';

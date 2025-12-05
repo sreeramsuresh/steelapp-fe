@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, XCircle, Phone, X } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -100,7 +100,7 @@ const OrderBlockingLogic = ({
     onClose();
   };
 
-  // If customer is not blocked, don't show modal
+  // If customer is not blocked, don&apos;t show modal
   if (!isBlocked) {
     return null;
   }

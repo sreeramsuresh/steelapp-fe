@@ -353,7 +353,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           </Alert>
         ) : items.length === 0 ? (
           <Alert severity="info">
-            No items added. Click "Add Item" to add products to this transfer.
+            No items added. Click &quot;Add Item&quot; to add products to this transfer.
           </Alert>
         ) : (
           <TableContainer>

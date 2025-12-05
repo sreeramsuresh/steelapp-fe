@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MarketingLayout from './MarketingLayout';
 
@@ -114,7 +114,7 @@ const Home = () => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, []); // heroSlides.length is stable - uses functional setState
 
   // Intersection Observer for scroll animations
   useEffect(() => {

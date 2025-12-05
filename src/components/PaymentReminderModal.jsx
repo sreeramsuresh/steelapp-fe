@@ -58,7 +58,8 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
     if (isOpen && invoice?.id) {
       fetchReminders();
     }
-  }, [isOpen, invoice?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, invoice?.id]); // fetchReminders is stable within component lifecycle
 
   // Auto-resize textarea as user types
   useEffect(() => {
@@ -162,7 +163,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
       await apiService.delete(`/invoices/payment-reminders/${deleteConfirmId}`);
       setReminders(reminders.filter(r => r.id !== deleteConfirmId));
       notificationService.success('Note deleted successfully');
-      console.log('Note deleted successfully');
+      // console.log('Note deleted successfully');
       setDeleteConfirmId(null); // Close confirmation dialog
     } catch (err) {
       console.error('Failed to delete note:', err);

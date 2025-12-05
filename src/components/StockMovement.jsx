@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus as Add,
   Edit,
@@ -7,12 +7,9 @@ import {
   TrendingUp,
   TrendingDown,
   Package,
-  Calendar,
-  Download,
   Filter,
   X,
   AlertCircle,
-  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { stockMovementService } from '../services/stockMovementService';
@@ -55,7 +52,6 @@ const StockMovement = () => {
       
       // Fetch all purchase orders and filter for in-transit ones
       const poResponse = await purchaseOrdersAPI.getAll();
-      console.log('PO API Response:', poResponse);
       let allPOs = [];
       
       // Handle different response formats
@@ -66,23 +62,14 @@ const StockMovement = () => {
       } else if (poResponse.purchaseOrders && Array.isArray(poResponse.purchaseOrders)) {
         allPOs = poResponse.purchaseOrders;
       }
-      
-      console.log('All POs:', allPOs);
-      console.log('Sample PO structure:', allPOs[0]);
-      
       // Filter for in-transit purchase orders.
-      // Backend doesn't expose transit_status; use stock_status === 'transit'
+      // Backend doesn&apos;t expose transit_status; use stock_status === 'transit'
       // and exclude ones already received/cancelled.
       const inTransitPOs = allPOs.filter(po =>
         (po.stockStatus === 'transit') && po.status !== 'received' && po.status !== 'cancelled',
       );
-      console.log('Found in-transit POs:', inTransitPOs);
-      
       // Use the sync service to generate transit movements
       const inTransitMovements = purchaseOrderSyncService.generateTransitStockMovements(allPOs);
-      
-      console.log('Created transit movements:', inTransitMovements);
-      
       // Build a quick map of PO number -> status/stock_status for filtering
       const poMap = new Map();
       for (const po of allPOs) {
@@ -108,7 +95,6 @@ const StockMovement = () => {
 
       setMovements(combined);
     } catch (fetchError) {
-      console.error('Error fetching stock movements:', fetchError);
       setError('Failed to load stock movements');
     } finally {
       setLoading(false);
@@ -153,7 +139,6 @@ const StockMovement = () => {
       await fetchMovements();
       handleCloseDialog();
     } catch (saveError) {
-      console.error('Error saving stock movement:', saveError);
       setError('Failed to save stock movement');
     }
   };
@@ -172,7 +157,6 @@ const StockMovement = () => {
       await stockMovementService.deleteMovement(id);
       await fetchMovements();
     } catch (deleteError) {
-      console.error('Error deleting stock movement:', deleteError);
       setError('Failed to delete stock movement');
     }
   };

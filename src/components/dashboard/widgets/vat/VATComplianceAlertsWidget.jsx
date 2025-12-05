@@ -11,7 +11,7 @@
  * - Proper tax invoice format per FTA requirements
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   AlertTriangle, 

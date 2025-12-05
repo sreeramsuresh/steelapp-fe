@@ -1,0 +1,1388 @@
+/**
+ * CreditNoteForm - Smoke Tests
+ *
+ * Comprehensive smoke tests covering ALL form fields, buttons, icons, and UI elements
+ * in the Create/Edit Credit Note Form.
+ *
+ * Test Coverage:
+ * - Header section (Back arrow, Preview button, Save Draft, Issue Tax Document)
+ * - Basic Information fields (Type, Invoice, Date, Reason, Notes)
+ * - Customer Information display (read-only)
+ * - Items section (checkboxes, quantities, table)
+ * - Refund Information (Method, Date, Reference)
+ * - Financial Summary (Subtotal, VAT, Total)
+ * - Status display (read-only for existing credit notes)
+ * - Manual Credit Amount field (ACCOUNTING_ONLY)
+ * - Return Logistics section (RETURN_WITH_QC)
+ * - Validation messages and error states
+ * - Conditional rendering based on credit note type
+ * - Dark mode compatibility
+ * - Loading states
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import CreditNoteForm from '../CreditNoteForm';
+import { ThemeContext } from '../../contexts/ThemeContext';
+import { creditNoteService } from '../../services/creditNoteService';
+import { invoiceService } from '../../services/invoiceService';
+import { companyService } from '../../services/companyService';
+import { notificationService } from '../../services/notificationService';
+
+// Mock services - Must return objects matching the exact export structure
+vi.mock('../../services/creditNoteService', () => {
+  return {
+    creditNoteService: {
+      getNextCreditNoteNumber: vi.fn(),
+      getCreditNote: vi.fn(),
+      createCreditNote: vi.fn(),
+      updateCreditNote: vi.fn(),
+      getAllCreditNotes: vi.fn(),
+      deleteCreditNote: vi.fn(),
+      downloadPDF: vi.fn(),
+      getAllowedTransitions: vi.fn().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
+    }
+  };
+});
+
+vi.mock('../../services/invoiceService', () => {
+  return {
+    invoiceService: {
+      getInvoice: vi.fn(),
+      searchForCreditNote: vi.fn(),
+    }
+  };
+});
+
+vi.mock('../../services/companyService', () => {
+  return {
+    companyService: {
+      getCompany: vi.fn(),
+    }
+  };
+});
+
+vi.mock('../../services/notificationService', () => {
+  return {
+    notificationService: {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
+    }
+  };
+});
+vi.mock('../../hooks/useCreditNoteDrafts', () => ({
+  default: () => ({
+    saveDraft: vi.fn(),
+    getDraft: vi.fn(),
+    deleteDraft: vi.fn(),
+    hasDraftForInvoice: vi.fn().mockReturnValue(false),
+    checkConflict: vi.fn().mockReturnValue({ type: null }),
+    setPendingSave: vi.fn(),
+    clearPendingSave: vi.fn(),
+    refreshDrafts: vi.fn(),
+  }),
+  getDraftStatusMessage: vi.fn().mockReturnValue('Draft saved'),
+}));
+
+// Mock data
+const mockInvoice = {
+  id: 1,
+  invoiceNumber: 'INV-2024-001',
+  date: '2024-01-15',
+  status: 'issued',
+  total: 10000,
+  customer: {
+    id: 1,
+    name: 'Test Customer',
+    address: {
+      street: '123 Test St',
+      city: 'Dubai',
+      state: 'Dubai',
+      postal_code: '12345',
+      country: 'UAE',
+    },
+    phone: '+971501234567',
+    email: 'test@customer.com',
+    trn: '123456789012345',
+  },
+  items: [
+    {
+      id: 1,
+      productId: 1,
+      name: 'Steel Product 1',
+      productName: 'Steel Product 1',
+      description: 'High quality steel',
+      quantity: 10,
+      rate: 500,
+      amount: 5000,
+      vatRate: 5,
+    },
+    {
+      id: 2,
+      productId: 2,
+      name: 'Steel Product 2',
+      productName: 'Steel Product 2',
+      description: 'Premium steel',
+      quantity: 5,
+      rate: 1000,
+      amount: 5000,
+      vatRate: 5,
+    },
+  ],
+};
+
+const mockCreditNote = {
+  id: 1,
+  creditNoteNumber: 'CN-2024-001',
+  invoiceId: 1,
+  invoiceNumber: 'INV-2024-001',
+  creditNoteDate: '2024-01-20',
+  status: 'draft',
+  creditNoteType: 'RETURN_WITH_QC',
+  reasonForReturn: 'defective',
+  notes: 'Test notes',
+  items: [],
+  subtotal: 0,
+  vatAmount: 0,
+  totalCredit: 0,
+  customer: mockInvoice.customer,
+  refundMethod: '',
+  refundDate: '',
+  refundReference: '',
+  expectedReturnDate: '2024-01-25',
+  manualCreditAmount: 0,
+};
+
+const mockCompany = {
+  id: 1,
+  name: 'Ultimate Steels LLC',
+  address: '123 Steel St',
+  trn: '123456789012345',
+};
+
+// Test wrapper component with mocked ThemeContext
+const TestWrapper = ({ children, isDarkMode = false, route = '/credit-notes/new' }) => {
+  const mockThemeContext = {
+    isDarkMode,
+    toggleDarkMode: vi.fn(),
+    themeMode: isDarkMode ? 'dark' : 'light',
+    toggleTheme: vi.fn(),
+    setTheme: vi.fn(),
+  };
+
+  return (
+    <MemoryRouter initialEntries={[route]}>
+      <ThemeContext.Provider value={mockThemeContext}>
+        {children}
+      </ThemeContext.Provider>
+    </MemoryRouter>
+  );
+};
+
+describe('CreditNoteForm - Smoke Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    // Default mock implementations
+    creditNoteService.getNextCreditNoteNumber.mockResolvedValue({
+      nextNumber: 'CN-2024-001',
+    });
+
+    creditNoteService.getCreditNote.mockResolvedValue(mockCreditNote);
+    creditNoteService.createCreditNote.mockResolvedValue({});
+    creditNoteService.updateCreditNote.mockResolvedValue({});
+
+    invoiceService.getInvoice.mockResolvedValue(mockInvoice);
+    invoiceService.searchForCreditNote.mockResolvedValue([mockInvoice]);
+
+    companyService.getCompany.mockResolvedValue(mockCompany);
+
+    notificationService.success = vi.fn();
+    notificationService.error = vi.fn();
+    notificationService.warning = vi.fn();
+    notificationService.info = vi.fn();
+  });
+
+  describe('Header Section', () => {
+    it('renders page title "New Credit Note"', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+      });
+    });
+
+    it('renders page subtitle', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/create credit note for returned items/i)).toBeInTheDocument();
+      });
+    });
+
+    it('renders Back arrow button', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const buttons = screen.getAllByRole('button');
+        const backButton = buttons.find(btn => btn.querySelector('svg'));
+        expect(backButton).toBeInTheDocument();
+      });
+    });
+
+    it('renders Preview button with Eye icon', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /preview/i })).toBeInTheDocument();
+      });
+    });
+
+    it('renders "Save Draft" button', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
+      });
+    });
+
+    it('renders "Issue Tax Document" button', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /issue tax document/i })).toBeInTheDocument();
+      });
+    });
+
+    it('Save Draft button has Save icon', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
+        expect(saveDraftButton.querySelector('svg')).toBeInTheDocument();
+      });
+    });
+
+    it('Issue Tax Document button has Send icon', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const issueButton = screen.getByRole('button', { name: /issue tax document/i });
+        expect(issueButton.querySelector('svg')).toBeInTheDocument();
+      });
+    });
+
+    it('Back button is clickable', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const buttons = screen.getAllByRole('button');
+        const backButton = buttons.find(btn => btn.querySelector('svg') && !btn.textContent.includes('Preview'));
+        expect(backButton).toBeInTheDocument();
+      });
+    });
+
+    it('Preview button is clickable', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /preview/i })).toBeInTheDocument();
+      });
+
+      const previewButton = screen.getByRole('button', { name: /preview/i });
+      await user.click(previewButton);
+
+      // Preview modal should be triggered (implementation depends on modal)
+      expect(previewButton).toBeEnabled();
+    });
+  });
+
+  describe('Basic Information Fields', () => {
+    it('renders Credit Note Number field (read-only)', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const input = screen.getByDisplayValue('CN-2024-001');
+        expect(input).toBeInTheDocument();
+        expect(input).toBeDisabled();
+      });
+    });
+
+    it('renders Credit Note Type dropdown', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const label = screen.getByText(/credit note type/i);
+        expect(label).toBeInTheDocument();
+      });
+
+      const select = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="ACCOUNTING_ONLY"]')
+      );
+      expect(select).toBeInTheDocument();
+    });
+
+    it('Credit Note Type dropdown has both options', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="ACCOUNTING_ONLY"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="ACCOUNTING_ONLY"]')
+      );
+
+      const options = within(typeSelect).getAllByRole('option');
+      const optionValues = options.map(opt => opt.value);
+
+      expect(optionValues).toContain('ACCOUNTING_ONLY');
+      expect(optionValues).toContain('RETURN_WITH_QC');
+    });
+
+    it('renders Credit Note Date picker with required indicator', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const label = screen.getByText(/^date/i);
+        expect(label.textContent).toContain('*');
+      });
+
+      const dateInput = screen.getByPlaceholderText(/select date/i) || screen.getAllByRole('textbox').find(input => input.getAttribute('type') === 'date');
+      expect(dateInput).toBeTruthy();
+    });
+
+    it('renders Reason for Return dropdown with required indicator', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const label = screen.getByText(/reason for return/i);
+        expect(label.textContent).toContain('*');
+      });
+    });
+
+    it('Reason dropdown has all options including physical return reasons', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const reasonSelect = selects.find(s => s.querySelector('option[value="defective"]'));
+        expect(reasonSelect).toBeInTheDocument();
+      });
+
+      const reasonSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="defective"]')
+      );
+
+      const options = within(reasonSelect).getAllByRole('option');
+      const optionValues = options.map(opt => opt.value);
+
+      // Physical return reasons
+      expect(optionValues).toContain('defective');
+      expect(optionValues).toContain('damaged');
+      expect(optionValues).toContain('wrong_item');
+      expect(optionValues).toContain('quality_issue');
+
+      // Financial only reasons
+      expect(optionValues).toContain('overcharge');
+      expect(optionValues).toContain('duplicate_order');
+      expect(optionValues).toContain('goodwill_credit');
+
+      // Other
+      expect(optionValues).toContain('other');
+    });
+
+    it('renders Notes textarea', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const textarea = screen.getByPlaceholderText(/additional notes about the return/i);
+        expect(textarea).toBeInTheDocument();
+      });
+    });
+
+    it('Notes textarea allows typing', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/additional notes about the return/i)).toBeInTheDocument();
+      });
+
+      const textarea = screen.getByPlaceholderText(/additional notes about the return/i);
+      await user.type(textarea, 'Test note');
+
+      expect(textarea).toHaveValue('Test note');
+    });
+  });
+
+  describe('Invoice Selection', () => {
+    it('renders invoice search input with Search icon', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const input = screen.getByPlaceholderText(/start typing invoice number or customer name/i);
+        expect(input).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText(/start typing invoice number or customer name/i);
+      expect(searchInput.parentElement.querySelector('svg')).toBeInTheDocument();
+    });
+
+    it('invoice search input has required indicator', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const label = screen.getByText(/invoice number/i);
+        expect(label.textContent).toContain('*');
+      });
+    });
+
+    it('allows typing in invoice search', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/start typing invoice number or customer name/i)).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText(/start typing invoice number or customer name/i);
+      await user.type(searchInput, 'INV');
+
+      expect(searchInput).toHaveValue('INV');
+    });
+
+    it('renders filter controls when search has results', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/start typing invoice number or customer name/i)).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText(/start typing invoice number or customer name/i);
+      await user.type(searchInput, 'INV');
+
+      await waitFor(() => {
+        expect(invoiceService.searchForCreditNote).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Customer Information Display', () => {
+    it('renders customer name when invoice is selected', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+      });
+    });
+
+    it('customer information is read-only', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+      });
+
+      // Customer info should be displayed as text, not input fields
+      const customerNameInput = screen.queryByDisplayValue('Test Customer');
+      if (customerNameInput) {
+        expect(customerNameInput).toBeDisabled();
+      }
+    });
+  });
+
+  describe('Items Section - RETURN_WITH_QC', () => {
+    it('renders items section header when invoice is selected', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/select items to/i)).toBeInTheDocument();
+      });
+    });
+
+    it('renders item checkboxes for each invoice item', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('renders item names', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Steel Product 1')).toBeInTheDocument();
+        expect(screen.getByText('Steel Product 2')).toBeInTheDocument();
+      });
+    });
+
+    it('renders Original Qty field for each item', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const labels = screen.getAllByText(/original qty/i);
+        expect(labels.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('renders Return Qty field for each item with required indicator', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const labels = screen.getAllByText(/return qty/i);
+        expect(labels.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('renders Amount field for each item', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const labels = screen.getAllByText(/^amount$/i);
+        expect(labels.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('checkboxes are clickable', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      expect(checkbox).toBeChecked();
+    });
+
+    it('quantity input allows numeric input', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      // First select the checkbox
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      // Find the quantity input (should be enabled after checkbox is checked)
+      const quantityInputs = screen.getAllByRole('spinbutton');
+      const returnQtyInput = quantityInputs.find(input =>
+        !input.disabled && input.getAttribute('min') === '0'
+      );
+
+      if (returnQtyInput) {
+        await user.clear(returnQtyInput);
+        await user.type(returnQtyInput, '5');
+        await waitFor(() => {
+          expect(returnQtyInput).toHaveValue(5);
+        });
+      }
+    });
+  });
+
+  describe('Refund Information Section', () => {
+    it('does not render refund section for draft credit notes', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText(/refund information/i)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Financial Summary', () => {
+    it('renders Credit Summary section when items are selected or manual amount entered', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(screen.getByText(/credit summary/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays Subtotal in summary', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(screen.getByText(/subtotal/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays VAT Amount in summary', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(screen.getByText(/vat \(5%\)/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays Total Credit in summary', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(screen.getByText(/total credit/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays Net Refund in summary', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes[0]).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getAllByRole('checkbox')[0];
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(screen.getByText(/net refund/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Manual Credit Amount - ACCOUNTING_ONLY', () => {
+    it('renders Manual Credit Amount section when type is ACCOUNTING_ONLY', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="ACCOUNTING_ONLY"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      // Type is already ACCOUNTING_ONLY by default
+      await waitFor(() => {
+        expect(screen.getByText(/manual credit amount/i)).toBeInTheDocument();
+      });
+    });
+
+    it('Manual Credit Amount input allows numeric input', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/manual credit amount/i)).toBeInTheDocument();
+      });
+
+      const inputs = screen.getAllByRole('spinbutton');
+      const manualAmountInput = inputs.find(input =>
+        input.getAttribute('placeholder') === '0.00'
+      );
+
+      if (manualAmountInput) {
+        await user.type(manualAmountInput, '1000');
+        expect(manualAmountInput).toHaveValue(1000);
+      }
+    });
+
+    it('renders helper text for manual credit amount', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/use this for goodwill credits/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Return Logistics - RETURN_WITH_QC', () => {
+    it('renders Return Logistics section when type is RETURN_WITH_QC', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="ACCOUNTING_ONLY"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      // Change to RETURN_WITH_QC
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        expect(screen.getByText(/return logistics/i)).toBeInTheDocument();
+      });
+    });
+
+    it('renders Expected Return Date with required indicator', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="RETURN_WITH_QC"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        const label = screen.getByText(/expected return date/i);
+        expect(label.textContent).toContain('*');
+      });
+    });
+
+    it('renders Return Shipping Cost field', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="RETURN_WITH_QC"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        expect(screen.getByText(/return shipping cost/i)).toBeInTheDocument();
+      });
+    });
+
+    it('renders Restocking Fee field with helper text', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="RETURN_WITH_QC"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        expect(screen.getByText(/restocking fee/i)).toBeInTheDocument();
+        expect(screen.getByText(/fee charged for processing the return/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Validation Messages', () => {
+    it('shows validation errors when Save Draft is clicked without required fields', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
+      });
+
+      const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
+      await user.click(saveDraftButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/please fix the following errors/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays required field indicator legend', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/indicates required fields/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows red asterisk for required fields', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const labels = screen.getAllByText('*');
+        expect(labels.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Conditional Rendering', () => {
+    it('items section is required for RETURN_WITH_QC', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const typeSelect = selects.find(s => s.querySelector('option[value="RETURN_WITH_QC"]'));
+        expect(typeSelect).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        const itemsLabel = screen.getByText(/select items to return/i);
+        expect(itemsLabel.textContent).toContain('*');
+      });
+    });
+
+    it('items section is optional for ACCOUNTING_ONLY', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/optional/i)).toBeInTheDocument();
+      });
+    });
+
+    it('logistics section only shows for RETURN_WITH_QC', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText(/return logistics/i)).not.toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        expect(screen.getByText(/return logistics/i)).toBeInTheDocument();
+      });
+    });
+
+    it('manual credit amount only shows for ACCOUNTING_ONLY', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/manual credit amount/i)).toBeInTheDocument();
+      });
+
+      const typeSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="RETURN_WITH_QC"]')
+      );
+      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+
+      await waitFor(() => {
+        expect(screen.queryByText(/manual credit amount/i)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Dark Mode Compatibility', () => {
+    it.skip('applies dark mode classes when isDarkMode is true', async () => {
+      // Skipped: Tests implementation details (CSS classes) rather than user-facing behavior
+      render(
+        <TestWrapper isDarkMode={true}>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const container = screen.getByText('New Credit Note').closest('div');
+        expect(container?.className).toContain('dark:');
+      });
+    });
+
+    it('renders in light mode by default', async () => {
+      render(
+        <TestWrapper isDarkMode={false}>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Loading States', () => {
+    it('shows loading spinner while fetching credit note', () => {
+      creditNoteService.getCreditNote.mockImplementation(
+        () => new Promise(resolve => setTimeout(resolve, 1000))
+      );
+
+      render(
+        <TestWrapper route="/credit-notes/1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      expect(screen.getByText(/loading credit note/i)).toBeInTheDocument();
+    });
+
+    it('shows saving state on Save Draft button when saving', async () => {
+      const user = userEvent.setup();
+
+      creditNoteService.createCreditNote.mockImplementation(
+        () => new Promise(resolve => setTimeout(resolve, 1000))
+      );
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
+      });
+
+      // Fill required fields first
+      const reasonSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="defective"]')
+      );
+      await user.selectOptions(reasonSelect, 'defective');
+
+      const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
+      await user.click(saveDraftButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/saving/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Read-Only Mode for Issued Credit Notes', () => {
+    it('shows read-only warning banner for issued credit notes', async () => {
+      const issuedCreditNote = {
+        ...mockCreditNote,
+        status: 'issued',
+      };
+
+      creditNoteService.getCreditNote.mockResolvedValue(issuedCreditNote);
+
+      render(
+        <TestWrapper route="/credit-notes/1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/read-only mode/i)).toBeInTheDocument();
+        expect(screen.getByText(/credit note locked/i)).toBeInTheDocument();
+      });
+    });
+
+    it('hides Save and Issue buttons for non-draft credit notes', async () => {
+      const issuedCreditNote = {
+        ...mockCreditNote,
+        status: 'issued',
+      };
+
+      creditNoteService.getCreditNote.mockResolvedValue(issuedCreditNote);
+
+      render(
+        <TestWrapper route="/credit-notes/1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: /save draft/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /issue tax document/i })).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('API Integration', () => {
+    it('calls getNextCreditNoteNumber on mount for new credit note', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(creditNoteService.getNextCreditNoteNumber).toHaveBeenCalled();
+      });
+    });
+
+    it('calls getCompany on mount', async () => {
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(companyService.getCompany).toHaveBeenCalled();
+      });
+    });
+
+    it('calls getInvoice when invoiceId is in URL params', async () => {
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(invoiceService.getInvoice).toHaveBeenCalledWith('1');
+      });
+    });
+
+    it('calls searchForCreditNote when typing in invoice search', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/start typing invoice number or customer name/i)).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText(/start typing invoice number or customer name/i);
+      await user.type(searchInput, 'INV');
+
+      await waitFor(() => {
+        expect(invoiceService.searchForCreditNote).toHaveBeenCalled();
+      }, { timeout: 1000 });
+    });
+  });
+
+  describe('Helper Text and Icons', () => {
+    it('displays helper icon and text for reason auto-selection', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const reasonSelect = selects.find(s => s.querySelector('option[value="defective"]'));
+        expect(reasonSelect).toBeInTheDocument();
+      });
+
+      const reasonSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="defective"]')
+      );
+      await user.selectOptions(reasonSelect, 'defective');
+
+      await waitFor(() => {
+        expect(screen.getByText(/physical return - items and logistics required/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows financial-only helper text when selecting financial reason', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <TestWrapper>
+          <CreditNoteForm />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        const reasonSelect = selects.find(s => s.querySelector('option[value="overcharge"]'));
+        expect(reasonSelect).toBeInTheDocument();
+      });
+
+      const reasonSelect = screen.getAllByRole('combobox').find(s =>
+        s.querySelector('option[value="overcharge"]')
+      );
+      await user.selectOptions(reasonSelect, 'overcharge');
+
+      await waitFor(() => {
+        expect(screen.getByText(/financial only - items optional/i)).toBeInTheDocument();
+      });
+    });
+  });
+});

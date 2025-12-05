@@ -81,7 +81,7 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       createdAt: parseDate(rawDN.created_at || rawDN.createdAt),
       updatedAt: parseDate(rawDN.updated_at || rawDN.updatedAt),
       createdBy: rawDN.created_by || rawDN.createdBy || undefined,
-      updatedBy: rawDN.updated_by || rawDN.updatedBy || undefined
+      updatedBy: rawDN.updated_by || rawDN.updatedBy || undefined,
       tooltip: rawDN.tooltip || undefined,
       enabled: Boolean(rawDN.enabled)
     };

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   FileText,
-  Calendar,
   DollarSign,
   Download,
   RefreshCw,
@@ -11,15 +10,11 @@ import {
   CheckCircle,
   MapPin,
   Building2,
-  ArrowRight,
   Info,
   FileDown,
   FileSpreadsheet,
   Send,
   TrendingUp,
-  TrendingDown,
-  Minus,
-  Clock,
   ShoppingCart,
   Banknote,
   Ban,
@@ -113,7 +108,8 @@ const VATReturnReport = () => {
     if (periodId) {
       loadVATReturnData(periodId);
     }
-  }, [periodId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [periodId]); // loadVATReturnData is stable within component lifecycle
 
   const loadPeriods = async () => {
     try {
@@ -1170,7 +1166,7 @@ const VATReturnReport = () => {
             No Report Generated
           </h3>
           <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-            Select a tax period and click "Generate Report" to view VAT return data
+            Select a tax period and click &quot;Generate Report&quot; to view VAT return data
           </p>
         </div>
       )}

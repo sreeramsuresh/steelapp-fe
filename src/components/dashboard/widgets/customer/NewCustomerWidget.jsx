@@ -5,18 +5,15 @@
  * Displays acquisition count, sources, first order value, and retention
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   UserPlus,
   TrendingUp,
   TrendingDown,
   Target,
-  Users,
-  DollarSign,
   Info,
   RefreshCw,
-  Calendar,
   Award,
   Handshake,
   Megaphone,

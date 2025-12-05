@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { RefreshCw, TrendingUp, Info } from 'lucide-react';
+import { RefreshCw, TrendingUp } from 'lucide-react';
 
 // Fallback mock data for stock turnover heatmap (used only when no API data is available)
 const generateFallbackData = () => {

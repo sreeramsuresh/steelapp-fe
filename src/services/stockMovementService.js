@@ -178,7 +178,6 @@ class StockMovementService {
   async create(movementData) {
     const payload = toServer(movementData);
     const response = await apiClient.post(this.endpoint, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return fromServer(response);
   }
 
@@ -188,7 +187,6 @@ class StockMovementService {
   async update(id, movementData) {
     const payload = { notes: movementData.notes };
     const response = await apiClient.put(`${this.endpoint}/${id}`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return fromServer(response);
   }
 
@@ -197,7 +195,6 @@ class StockMovementService {
    */
   async delete(id) {
     const response = await apiClient.delete(`${this.endpoint}/${id}`);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return response;
   }
 
@@ -456,7 +453,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/adjustment`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return fromServer(response);
   }
 
@@ -470,7 +466,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/from-invoice`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return {
       success: response.success,
       movements: (response.movements || []).map(fromServer),
@@ -500,7 +495,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/from-purchase-order`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return {
       success: response.success,
       movements: (response.movements || []).map(fromServer),
@@ -532,7 +526,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/reverse-invoice`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return {
       success: response.success,
       movements: (response.movements || []).map(fromServer),
@@ -593,7 +586,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/transfers`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapTransferFromServer(response);
   }
 
@@ -609,7 +601,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/transfers/${id}/ship`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapTransferFromServer(response);
   }
 
@@ -628,7 +619,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/transfers/${id}/receive`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapTransferFromServer(response);
   }
 
@@ -637,7 +627,6 @@ class StockMovementService {
    */
   async cancelTransfer(id) {
     const response = await apiClient.post(`${this.endpoint}/transfers/${id}/cancel`, {});
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapTransferFromServer(response);
   }
 
@@ -734,7 +723,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/reservations`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapReservationFromServer(response);
   }
 
@@ -749,7 +737,6 @@ class StockMovementService {
     };
 
     const response = await apiClient.post(`${this.endpoint}/reservations/${id}/fulfill`, payload);
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapReservationFromServer(response);
   }
 
@@ -758,7 +745,6 @@ class StockMovementService {
    */
   async cancelReservation(id, reason = '') {
     const response = await apiClient.post(`${this.endpoint}/reservations/${id}/cancel`, { reason });
-    clearStockLevelsCache(); // Invalidate cache on stock change
     return this.mapReservationFromServer(response);
   }
 

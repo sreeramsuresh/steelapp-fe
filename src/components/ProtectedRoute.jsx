@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Navigate, useLocation } from 'react-router-dom';
 import { Lock, ArrowLeft } from 'lucide-react';
 import { authService } from '../services/axiosAuthService';
@@ -17,8 +17,7 @@ const ProtectedRoute = ({
 
   // Check if user is authenticated - use auth service as primary source of truth
   const isAuthenticated = authService.isAuthenticated();
-  
-  console.log('🔒 ProtectedRoute check:', {
+  console.log({
     isAuthenticated,
     hasUserProp: !!user,
     userEmail: user?.email,
@@ -38,7 +37,7 @@ const ProtectedRoute = ({
 
   // If authenticated but no user object, show loading state instead of redirect
   if (!user) {
-    console.log('🔒 ProtectedRoute SHOWING SPINNER - user is null/undefined, path:', location.pathname);
+
     return (
       <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
@@ -47,7 +46,7 @@ const ProtectedRoute = ({
     );
   }
 
-  console.log('🔒 ProtectedRoute RENDERING CHILDREN - user exists:', user?.email, 'path:', location.pathname);
+
 
   // DEVELOPMENT MODE: Skip role check
   // Check role-based access (supports single role or array of roles)
@@ -58,7 +57,7 @@ const ProtectedRoute = ({
       ? authService.hasRole(requiredRole)
       : true;
 
-  if (false && (requiredRole || requiredRoles) && !hasRequiredRole) {
+  if ((requiredRole || requiredRoles) && !hasRequiredRole) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
         <Lock size={64} className="text-red-500 mb-4" />

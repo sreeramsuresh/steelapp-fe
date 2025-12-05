@@ -5,7 +5,7 @@
  * Visualizes sales pipeline stages from quotes to converted orders
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Filter,

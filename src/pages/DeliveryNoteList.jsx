@@ -164,10 +164,7 @@ const DeliveryNoteList = () => {
       setTotalCount(total);
     } catch (err) {
       setError(`Failed to fetch delivery notes: ${err.message}`);
-      // Only clear state if no cached data to fall back on
-      if (!hasCachedData) {
-        setDeliveryNotes([]);
-      }
+      setDeliveryNotes([]);
     } finally {
       setLoading(false);
     }

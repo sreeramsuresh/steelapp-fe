@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Settings,
   Building,
@@ -18,18 +18,14 @@ import {
   Phone,
   MapPin,
   Globe,
-  Palette,
   Download,
-  Copy,
   CheckCircle,
   AlertCircle,
   Camera,
   ChevronDown,
   ChevronUp,
   Printer,
-  HelpCircle,
   Clock,
-  Calendar,
   UserCheck,
   UserPlus,
   History,
@@ -39,18 +35,17 @@ import {
   Activity,
   DollarSign,
   TrendingUp,
-  ShoppingCart,
   ShoppingBag,
-  Package,
   Warehouse,
   Receipt,
   ClipboardList,
   Box,
-  Archive,
   Truck,
   FilePlus,
   Pencil,
   ThumbsUp,
+  Tag,
+  Circle,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -745,7 +740,7 @@ const CompanySettings = () => {
         dueDays: defaultTemplate.defaultDueDays,
       });
     }
-  }, [templatesData?.length, templatesData?.[0]?.id]); // Only re-run when data actually changes
+  }, [templatesData]); // Only re-run when data actually changes
 
   // Load VAT rates once on mount
   useEffect(() => {
@@ -773,7 +768,8 @@ const CompanySettings = () => {
         setVatRates([]);
       }
     })();
-  }, []); // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount - vatRateService and notificationService are stable imports
 
   // Load users once on mount (admin only)
   useEffect(() => {
@@ -796,7 +792,8 @@ const CompanySettings = () => {
         setUsers([]);
       }
     })();
-  }, []); // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount - userAdminAPI is a stable import
 
   // Load printing settings once on mount
   useEffect(() => {
@@ -2582,213 +2579,213 @@ const CompanySettings = () => {
               </div>
             </div>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <Input
-            placeholder="Search users by name, email, or role..."
-            value={userSearchTerm}
-            onChange={(e) => setUserSearchTerm(e.target.value)}
-            startIcon={<Users size={16} />}
-            className="max-w-md"
-          />
-        </div>
-
-        {/* User List */}
-        <div className="space-y-4">
-          {filteredUsers.length === 0 ? (
-            <div className="text-center py-12">
-              <Users size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
-              <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {userSearchTerm ? 'No users found matching your search' : 'No users yet. Add your first user to get started.'}
-              </p>
+            {/* Search Bar */}
+            <div className="mb-6">
+              <Input
+                placeholder="Search users by name, email, or role..."
+                value={userSearchTerm}
+                onChange={(e) => setUserSearchTerm(e.target.value)}
+                startIcon={<Users size={16} />}
+                className="max-w-md"
+              />
             </div>
-          ) : null}
-          {filteredUsers.map(user => (
-            <SettingsCard key={user.id} className={user.status === 'active' ? '' : 'opacity-60'}>
-              <div className="p-6">
-                {/* User Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
-                      isDarkMode ? 'bg-teal-600' : 'bg-teal-500'
-                    }`}>
-                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
-                    <div>
-                      <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {user.name || 'Unnamed User'}
-                      </h4>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {user.email || 'No email'}
-                      </p>
-                      {/* Display Roles */}
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {user.roles && user.roles.length > 0 ? (
-                          user.roles.map((role, idx) => (
-                            <span
-                              key={idx}
-                              className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
-                                role.isDirector
-                                  ? isDarkMode
-                                    ? 'text-purple-400 border-purple-600 bg-purple-900/20'
-                                    : 'text-purple-600 border-purple-300 bg-purple-50'
-                                  : isDarkMode
-                                    ? 'text-teal-400 border-teal-600 bg-teal-900/20'
-                                    : 'text-teal-600 border-teal-300 bg-teal-50'
-                              }`}
-                            >
-                              {role.displayName}
-                            </span>
-                          ))
-                        ) : (
-                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
-                            isDarkMode
-                              ? 'text-gray-400 border-gray-600 bg-gray-800'
-                              : 'text-gray-600 border-gray-300 bg-gray-50'
-                          }`}>
+
+            {/* User List */}
+            <div className="space-y-4">
+              {filteredUsers.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {userSearchTerm ? 'No users found matching your search' : 'No users yet. Add your first user to get started.'}
+                  </p>
+                </div>
+              ) : null}
+              {filteredUsers.map(user => (
+                <SettingsCard key={user.id} className={user.status === 'active' ? '' : 'opacity-60'}>
+                  <div className="p-6">
+                    {/* User Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
+                          isDarkMode ? 'bg-teal-600' : 'bg-teal-500'
+                        }`}>
+                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div>
+                          <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {user.name || 'Unnamed User'}
+                          </h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {user.email || 'No email'}
+                          </p>
+                          {/* Display Roles */}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {user.roles && user.roles.length > 0 ? (
+                              user.roles.map((role, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
+                                    role.isDirector
+                                      ? isDarkMode
+                                        ? 'text-purple-400 border-purple-600 bg-purple-900/20'
+                                        : 'text-purple-600 border-purple-300 bg-purple-50'
+                                      : isDarkMode
+                                        ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                                        : 'text-teal-600 border-teal-300 bg-teal-50'
+                                  }`}
+                                >
+                                  {role.displayName}
+                                </span>
+                              ))
+                            ) : (
+                              <span className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
+                                isDarkMode
+                                  ? 'text-gray-400 border-gray-600 bg-gray-800'
+                                  : 'text-gray-600 border-gray-300 bg-gray-50'
+                              }`}>
                             No roles assigned
-                          </span>
-                        )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      checked={user.status === 'active'}
-                      onChange={() => toggleUserStatus(user.id)}
-                      label={user.status === 'active' ? 'Active' : 'Inactive'}
-                    />
-                    <button
-                      onClick={async () => {
-                        try {
-                          setViewPermissionsModal({
-                            open: true,
-                            userId: user.id,
-                            userName: user.name,
-                            rolePermissions: [],
-                            customGrants: [],
-                            loading: true,
-                          });
-
-                          const userPermissions = await roleService.getUserPermissions(user.id);
-
-                          setViewPermissionsModal(prev => ({
-                            ...prev,
-                            rolePermissions: userPermissions.roles || [],
-                            customGrants: userPermissions.customPermissions || [],
-                            loading: false,
-                          }));
-                        } catch (error) {
-                          console.error('Error loading permissions:', error);
-                          notificationService.error('Failed to load permissions');
-                          setViewPermissionsModal(prev => ({ ...prev, loading: false }));
-                        }
-                      }}
-                      className={`p-2 rounded-lg transition-colors duration-200 ${
-                        isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
-                      }`}
-                      title="View All Permissions"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={async () => {
-                        try {
-                          const userPermissions = await roleService.getUserPermissions(user.id);
-                          setEditUserModal({
-                            open: true,
-                            user: {
-                              ...user,
-                              role_ids: userPermissions.roles.map(r => r.id),
-                              roles: userPermissions.roles,
-                            },
-                          });
-                          setSelectedUserRoles(userPermissions.roles.map(r => r.id));
-                        } catch (error) {
-                          console.error('Error loading user data:', error);
-                          notificationService.error('Failed to load user data');
-                        }
-                      }}
-                      className={`p-2 rounded-lg transition-colors duration-200 ${
-                        isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    {isDirector && (
-                      <>
+                      <div className="flex items-center space-x-3">
+                        <Switch
+                          checked={user.status === 'active'}
+                          onChange={() => toggleUserStatus(user.id)}
+                          label={user.status === 'active' ? 'Active' : 'Inactive'}
+                        />
                         <button
                           onClick={async () => {
                             try {
-                              const logs = await roleService.getAuditLog(user.id, 50);
-                              setAuditLogModal({ open: true, userId: user.id, logs });
+                              setViewPermissionsModal({
+                                open: true,
+                                userId: user.id,
+                                userName: user.name,
+                                rolePermissions: [],
+                                customGrants: [],
+                                loading: true,
+                              });
+
+                              const userPermissions = await roleService.getUserPermissions(user.id);
+
+                              setViewPermissionsModal(prev => ({
+                                ...prev,
+                                rolePermissions: userPermissions.roles || [],
+                                customGrants: userPermissions.customPermissions || [],
+                                loading: false,
+                              }));
                             } catch (error) {
-                              console.error('Error loading audit log:', error);
-                              notificationService.error('Failed to load audit log');
+                              console.error('Error loading permissions:', error);
+                              notificationService.error('Failed to load permissions');
+                              setViewPermissionsModal(prev => ({ ...prev, loading: false }));
                             }
                           }}
                           className={`p-2 rounded-lg transition-colors duration-200 ${
-                            isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                            isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-green-600'
                           }`}
-                          title="View Audit Log"
+                          title="View All Permissions"
                         >
-                          <History size={16} />
+                          <Eye size={16} />
                         </button>
                         <button
-                          onClick={() => {
-                            setCustomPermissionModal({ open: true, userId: user.id });
-                            setCustomPermission({
-                              permission_keys: [],
-                              reason: '',
-                              expires_at: null,
-                            });
-                            setPermissionSearch('');
-                            setExpandedModules({});
+                          onClick={async () => {
+                            try {
+                              const userPermissions = await roleService.getUserPermissions(user.id);
+                              setEditUserModal({
+                                open: true,
+                                user: {
+                                  ...user,
+                                  role_ids: userPermissions.roles.map(r => r.id),
+                                  roles: userPermissions.roles,
+                                },
+                              });
+                              setSelectedUserRoles(userPermissions.roles.map(r => r.id));
+                            } catch (error) {
+                              console.error('Error loading user data:', error);
+                              notificationService.error('Failed to load user data');
+                            }
                           }}
                           className={`p-2 rounded-lg transition-colors duration-200 ${
-                            isDarkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-yellow-600'
+                            isDarkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
                           }`}
-                          title="Grant Custom Permissions"
                         >
-                          <UserCheck size={16} />
+                          <Edit size={16} />
                         </button>
-                      </>
-                    )}
-                    <button
-                      onClick={() => deleteUser(user.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
+                        {isDirector && (
+                          <>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const logs = await roleService.getAuditLog(user.id, 50);
+                                  setAuditLogModal({ open: true, userId: user.id, logs });
+                                } catch (error) {
+                                  console.error('Error loading audit log:', error);
+                                  notificationService.error('Failed to load audit log');
+                                }
+                              }}
+                              className={`p-2 rounded-lg transition-colors duration-200 ${
+                                isDarkMode ? 'hover:bg-gray-700 text-blue-400' : 'hover:bg-gray-100 text-blue-600'
+                              }`}
+                              title="View Audit Log"
+                            >
+                              <History size={16} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setCustomPermissionModal({ open: true, userId: user.id });
+                                setCustomPermission({
+                                  permission_keys: [],
+                                  reason: '',
+                                  expires_at: null,
+                                });
+                                setPermissionSearch('');
+                                setExpandedModules({});
+                              }}
+                              className={`p-2 rounded-lg transition-colors duration-200 ${
+                                isDarkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-yellow-600'
+                              }`}
+                              title="Grant Custom Permissions"
+                            >
+                              <UserCheck size={16} />
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => deleteUser(user.id)}
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
 
-                <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                    <hr className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-                {/* User Stats */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {/* User Stats */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Created
-                    </p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatDateOnly(user.createdAt)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        </p>
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatDateOnly(user.createdAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Last Login
-                    </p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatDateTime(user.lastLogin)}
-                    </p>
+                        </p>
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {formatDateTime(user.lastLogin)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </SettingsCard>
-          ))}
-        </div>
+                </SettingsCard>
+              ))}
+            </div>
           </div>
         </SettingsPaper>
       </div>
@@ -4190,6 +4187,154 @@ const CompanySettings = () => {
     );
   };
 
+  const renderProductNamingSystem = () => {
+    return (
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+        {/* Left Column - Actionable Content (60%) */}
+        <div className="lg:w-3/5 space-y-4">
+          <div className={`rounded-xl shadow-sm border ${
+            isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <div className="p-6">
+              {/* Header */}
+              <div className="mb-6">
+                <h3 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  📘 Product Naming Formats
+                </h3>
+                <p className={`text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  These are the naming patterns used across the system for all stainless-steel products.
+                  They define how Unique ID and Display Name are structured.
+                </p>
+              </div>
+
+              {/* Sheets / Plates */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Sheets / Plates
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Sheet-{'{Finish}'}-{'{Width}'}mm-{'{Thickness}'}mm-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Pipes */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Pipes
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Pipe-{'{Finish}'}-{'{Diameter}'}{'{Unit}'}-{'{Schedule}'}-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Tubes */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Tubes
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Tube-{'{Finish}'}-{'{OuterDiameter}'}{'{Unit}'}-{'{Thickness}'}mm-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Coils */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Coils
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Coil-{'{Finish}'}-{'{Width}'}mm-{'{Thickness}'}mm-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Bars */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Bars
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Bar-{'{Subtype}'}-{'{Finish}'}-{'{Dimensions}'}-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Angle Bar */}
+              <div className={`mb-4 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                  Angle Bar
+                </h4>
+                <div className={`p-2 rounded font-mono text-base ${
+                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
+                }`}>
+                  SS-{'{Grade}'}-Angle-{'{Subtype}'}-{'{Finish}'}-{'{LegA}'}mm-{'{LegB}'}mm-{'{Thickness}'}mm-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
+                </div>
+              </div>
+
+              {/* Verify Button */}
+              <div className={`mt-6 p-4 rounded-lg border ${
+                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  🔍 Verify Naming Logic
+                </h4>
+                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Checks whether DB, backend, and UI naming patterns match this specification
+                </p>
+                <Button
+                  onClick={() => {
+                    // Logic will be implemented later
+                    console.log('Verify naming logic clicked');
+                  }}
+                  className="w-full"
+                >
+                  Verify Naming Patterns
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Documentation/Help (40%) */}
+        <div className="lg:w-2/5 lg:self-stretch">
+          <div className={`h-full rounded-xl shadow-sm border overflow-hidden ${
+            isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <div className="p-6">
+              {/* Empty - Ready for documentation/help content */}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const isAdmin = authService.hasRole('admin');
   const tabs = [
     { id: 'profile', label: 'Company Profile', icon: Building },
@@ -4197,6 +4342,7 @@ const CompanySettings = () => {
     { id: 'printing', label: 'Printing & Documents', icon: Printer },
     { id: 'tax', label: 'VAT Rates', icon: Calculator },
     { id: 'fta', label: 'FTA Integration', icon: Key },
+    { id: 'product-naming', label: 'Product Naming System', icon: Tag },
     ...(isAdmin ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
   ];
 
@@ -4259,6 +4405,7 @@ const CompanySettings = () => {
         {activeTab === 'printing' && renderPrintingSettings()}
         {activeTab === 'tax' && renderVatSettings()}
         {activeTab === 'fta' && <FTAIntegrationSettings embedded />}
+        {activeTab === 'product-naming' && renderProductNamingSystem()}
         {isAdmin && activeTab === 'users' && (
           <>
             {renderUserManagement()}

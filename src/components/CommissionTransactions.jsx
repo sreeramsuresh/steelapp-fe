@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   FileText,
   Search,
-  Filter,
   CheckCircle,
-  Clock,
   DollarSign,
-  Calendar,
   User,
-  Download,
   RefreshCw,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';

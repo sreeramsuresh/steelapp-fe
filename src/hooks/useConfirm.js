@@ -60,14 +60,18 @@ export const useConfirm = () => {
   }, []);
 
   const handleConfirm = useCallback(() => {
-    dialogState.resolve?.(true);
-    setDialogState(prev => ({ ...prev, open: false }));
-  }, [dialogState.resolve]);
+    setDialogState(prev => {
+      prev.resolve?.(true);
+      return { ...prev, open: false };
+    });
+  }, []); // Uses functional setState - no external dependencies needed
 
   const handleCancel = useCallback(() => {
-    dialogState.resolve?.(false);
-    setDialogState(prev => ({ ...prev, open: false }));
-  }, [dialogState.resolve]);
+    setDialogState(prev => {
+      prev.resolve?.(false);
+      return { ...prev, open: false };
+    });
+  }, []); // Uses functional setState - no external dependencies needed
 
   return {
     confirm,

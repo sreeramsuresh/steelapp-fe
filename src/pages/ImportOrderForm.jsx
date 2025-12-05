@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Plus,
@@ -652,7 +652,7 @@ const ImportOrderForm = () => {
         // Check if port has designated zone
         const portInfo = COMMON_PORTS.find(p => p.value === value);
         if (portInfo?.has_designated_zone) {
-          // Suggest designated zone but don't auto-enable
+          // Suggest designated zone but don&apos;t auto-enable
           updated.designated_zone_name = portInfo.zone_code || '';
         }
       }

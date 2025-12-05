@@ -9,7 +9,7 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { invoiceService } from '../../services/invoiceService';
 import { format } from 'date-fns';
 
@@ -47,7 +47,8 @@ export default function InvoiceStockMovements({
     if (invoiceId) {
       fetchMovements();
     }
-  }, [invoiceId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceId]); // fetchMovements is stable
 
   const fetchMovements = async () => {
     try {

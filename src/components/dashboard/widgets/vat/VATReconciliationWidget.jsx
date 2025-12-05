@@ -11,7 +11,7 @@
  * - Regular reconciliation required for FTA audit readiness
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   Scale, 
