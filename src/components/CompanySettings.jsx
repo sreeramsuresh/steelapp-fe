@@ -4313,7 +4313,6 @@ const CompanySettings = () => {
                     // Logic will be implemented later
                     console.log('Verify naming logic clicked');
                   }}
-                  className="w-full"
                 >
                   Verify Naming Patterns
                 </Button>
@@ -4327,9 +4326,7 @@ const CompanySettings = () => {
           <div className={`h-full rounded-xl shadow-sm border overflow-hidden ${
             isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>
-            <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">
-              <ProductNamingHelpPanel />
-            </div>
+            <ProductNamingHelpPanel />
           </div>
         </div>
       </div>

@@ -147,7 +147,7 @@ const ProductNamingHelpPanel = ({ onClose }) => {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-5">
+      <div className="flex-1 overflow-y-auto px-5 pb-6">
         {/* Section 1: What the Naming System Is */}
         <HelpSection
           title="Understanding the Product Naming System"
