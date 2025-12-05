@@ -57,6 +57,7 @@ const ProtectedRoute = ({
       ? authService.hasRole(requiredRole)
       : true;
 
+  // eslint-disable-next-line no-constant-condition
   if ((requiredRole || requiredRoles) && !hasRequiredRole) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>

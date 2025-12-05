@@ -1040,53 +1040,6 @@ const InvoiceForm = ({ onSave }) => {
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
 
-  // Validate individual field in real-time
-  const validateField = useCallback((fieldName, value) => {
-    let isValid = false;
-
-    switch(fieldName) {
-      case 'customer':
-        isValid = value && value.id && value.name;
-        break;
-      case 'dueDate':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'status':
-        isValid = value && ['draft', 'proforma', 'issued'].includes(value);
-        break;
-      case 'paymentMode':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'warehouse': {
-        // Warehouse is optional for drafts, required for issued/proforma
-        const invoiceStatus = invoice?.status || 'draft';
-        if (invoiceStatus === 'draft') {
-          isValid = true; // Optional for drafts
-        } else {
-          isValid = value && String(value).trim() !== '';
-        }
-        break;
-      }
-      case 'currency':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'items':
-        isValid = Array.isArray(value) && value.length > 0 && value.every(item =>
-          item.name && item.quantity > 0 && item.rate > 0,
-        );
-        break;
-      default:
-        isValid = true;
-    }
-
-    setFieldValidation(prev => ({
-      ...prev,
-      [fieldName]: isValid ? 'valid' : 'invalid',
-    }));
-
-    return isValid;
-  }, [invoice?.status]);
-
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
     const desired =
@@ -1173,6 +1126,53 @@ const InvoiceForm = ({ onSave }) => {
     newInvoice.invoiceNumber = '(Auto-assigned on save)';
     return newInvoice;
   });
+
+  // Validate individual field in real-time
+  const validateField = useCallback((fieldName, value) => {
+    let isValid = false;
+
+    switch(fieldName) {
+      case 'customer':
+        isValid = value && value.id && value.name;
+        break;
+      case 'dueDate':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'status':
+        isValid = value && ['draft', 'proforma', 'issued'].includes(value);
+        break;
+      case 'paymentMode':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'warehouse': {
+        // Warehouse is optional for drafts, required for issued/proforma
+        const invoiceStatus = invoice?.status || 'draft';
+        if (invoiceStatus === 'draft') {
+          isValid = true; // Optional for drafts
+        } else {
+          isValid = value && String(value).trim() !== '';
+        }
+        break;
+      }
+      case 'currency':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'items':
+        isValid = Array.isArray(value) && value.length > 0 && value.every(item =>
+          item.name && item.quantity > 0 && item.rate > 0,
+        );
+        break;
+      default:
+        isValid = true;
+    }
+
+    setFieldValidation(prev => ({
+      ...prev,
+      [fieldName]: isValid ? 'valid' : 'invalid',
+    }));
+
+    return isValid;
+  }, [invoice?.status]);
 
   // Track if form has unsaved changes (for navigation warning)
   const [formDirty, setFormDirty] = useState(false);
@@ -1442,7 +1442,8 @@ const InvoiceForm = ({ onSave }) => {
   // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
   useEffect(() => {
     refetchProducts();
-  }, [refetchProducts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   // Also refetch when window regains focus (user returns from product management)
   useEffect(() => {
@@ -1451,7 +1452,8 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [refetchProducts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // refetchProducts is stable enough for event handlers
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {
@@ -1600,7 +1602,9 @@ const InvoiceForm = ({ onSave }) => {
       // Auto-populate date to today if empty (common in Odoo/Zoho)
       const invoiceWithDate = {
         ...existingInvoice,
-        date: existingInvoice.date || new Date().toISOString().split('T')[0],
+        date: existingInvoice.date 
+          ? formatDateForInput(new Date(existingInvoice.date))
+          : formatDateForInput(new Date()),
       };
       setInvoice(invoiceWithDate);
 
@@ -1753,61 +1757,10 @@ const InvoiceForm = ({ onSave }) => {
   // Check if product already exists in items (excluding current index)
   const findDuplicateProduct = useCallback((productId, excludeIndex) => {
     if (!productId) return null;
-    return invoice.items.findIndex((item, idx) => 
+    return invoice.items.findIndex((item, idx) =>
       idx !== excludeIndex && item.productId === productId,
     );
   }, [invoice.items]);
-
-  // Handle duplicate confirmation - add anyway
-  const handleDuplicateAddAnyway = useCallback(() => {
-    if (pendingProductRef.current) {
-      const { index, product, skipDuplicateCheck } = pendingProductRef.current;
-      pendingProductRef.current = null;
-      setDuplicateWarning(null);
-      // Re-call with skip flag
-      handleProductSelectInternal(index, product, true);
-    }
-  }, [handleProductSelectInternal]);
-
-  // Handle duplicate confirmation - update existing quantity
-  const handleDuplicateUpdateExisting = useCallback(() => {
-    if (pendingProductRef.current && duplicateWarning) {
-      const { product } = pendingProductRef.current;
-      const existingIndex = duplicateWarning.existingIndex;
-      
-      // Update existing item's quantity by adding 1
-      setInvoice((prev) => {
-        const newItems = [...prev.items];
-        const existingItem = newItems[existingIndex];
-        const newQuantity = (existingItem.quantity || 0) + 1;
-        newItems[existingIndex] = {
-          ...existingItem,
-          quantity: newQuantity,
-          amount: calculateItemAmount(newQuantity, existingItem.rate),
-        };
-        return { ...prev, items: newItems };
-      });
-
-      // Remove the empty row that was being edited
-      const { index } = pendingProductRef.current;
-      if (invoice.items[index] && !invoice.items[index].productId) {
-        setInvoice((prev) => ({
-          ...prev,
-          items: prev.items.filter((_, idx) => idx !== index),
-        }));
-      }
-
-      pendingProductRef.current = null;
-      setDuplicateWarning(null);
-      notificationService.success(`Quantity updated for ${product.displayName || product.name}`);
-    }
-  }, [duplicateWarning, invoice.items]);
-
-  // Cancel duplicate warning
-  const handleDuplicateCancel = useCallback(() => {
-    pendingProductRef.current = null;
-    setDuplicateWarning(null);
-  }, []);
 
   const handleProductSelectInternal = useCallback(async (index, product, skipDuplicateCheck = false) => {
     if (product && typeof product === 'object') {
@@ -1899,6 +1852,57 @@ const InvoiceForm = ({ onSave }) => {
       setSearchInputs((prev) => ({ ...prev, [index]: '' }));
     }
   }, [selectedPricelistId, findDuplicateProduct, invoice.items]);
+
+  // Handle duplicate confirmation - add anyway
+  const handleDuplicateAddAnyway = useCallback(() => {
+    if (pendingProductRef.current) {
+      const { index, product, skipDuplicateCheck } = pendingProductRef.current;
+      pendingProductRef.current = null;
+      setDuplicateWarning(null);
+      // Re-call with skip flag
+      handleProductSelectInternal(index, product, true);
+    }
+  }, [handleProductSelectInternal]);
+
+  // Handle duplicate confirmation - update existing quantity
+  const handleDuplicateUpdateExisting = useCallback(() => {
+    if (pendingProductRef.current && duplicateWarning) {
+      const { product } = pendingProductRef.current;
+      const existingIndex = duplicateWarning.existingIndex;
+      
+      // Update existing item's quantity by adding 1
+      setInvoice((prev) => {
+        const newItems = [...prev.items];
+        const existingItem = newItems[existingIndex];
+        const newQuantity = (existingItem.quantity || 0) + 1;
+        newItems[existingIndex] = {
+          ...existingItem,
+          quantity: newQuantity,
+          amount: calculateItemAmount(newQuantity, existingItem.rate),
+        };
+        return { ...prev, items: newItems };
+      });
+
+      // Remove the empty row that was being edited
+      const { index } = pendingProductRef.current;
+      if (invoice.items[index] && !invoice.items[index].productId) {
+        setInvoice((prev) => ({
+          ...prev,
+          items: prev.items.filter((_, idx) => idx !== index),
+        }));
+      }
+
+      pendingProductRef.current = null;
+      setDuplicateWarning(null);
+      notificationService.success(`Quantity updated for ${product.displayName || product.name}`);
+    }
+  }, [duplicateWarning, invoice.items]);
+
+  // Cancel duplicate warning
+  const handleDuplicateCancel = useCallback(() => {
+    pendingProductRef.current = null;
+    setDuplicateWarning(null);
+  }, []);
 
   // Public handler that includes duplicate checking
   const handleProductSelect = useCallback((index, product) => {
@@ -2891,20 +2895,19 @@ const InvoiceForm = ({ onSave }) => {
                       }
                       
                       return (
-                        <li 
-                          key={index}
-                          role={fieldName ? 'button' : undefined}
-                          onClick={() => fieldName && scrollToField(fieldName)}
-                          onKeyDown={(e) => fieldName && (e.key === 'Enter' || e.key === ' ') && scrollToField(fieldName)}
-                          tabIndex={fieldName ? 0 : undefined}
-                          className={`flex items-center gap-2 ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : ''}`}
-                          title={fieldName ? 'Click to scroll to field' : ''}
-                        >
-                          <span className="text-red-500">•</span>
-                          <span>{error}</span>
-                          {fieldName && (
-                            <span className="text-xs opacity-60">↓</span>
-                          )}
+                        <li key={index}>
+                          <button
+                            onClick={() => fieldName && scrollToField(fieldName)}
+                            disabled={!fieldName}
+                            className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
+                            title={fieldName ? 'Click to scroll to field' : ''}
+                          >
+                            <span className="text-red-500">•</span>
+                            <span>{error}</span>
+                            {fieldName && (
+                              <span className="text-xs opacity-60">↓</span>
+                            )}
+                          </button>
                         </li>
                       );
                     })}
@@ -3600,10 +3603,13 @@ const InvoiceForm = ({ onSave }) => {
                             newItem.finish = product.finish || '';
                             newItem.thickness = product.thickness || '';
                             newItem.size = product.size || '';
+                            const newIndex = invoice.items.length;
                             setInvoice((prev) => ({
                               ...prev,
                               items: [...prev.items, newItem],
                             }));
+                            // Clear search input for the new row to prevent autocomplete issues
+                            setSearchInputs((prev) => ({ ...prev, [newIndex]: '' }));
                           }}
                           className={`w-full px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
                             isPinned

@@ -306,7 +306,7 @@ const CreditNoteForm = () => {
   // Track form changes for silent save on exit (no browser warning)
   useEffect(() => {
     // Only track if we have an invoice selected and not editing existing credit note
-    if (!id && creditNote.invoiceId && creditNote.items.length > 0) {
+    if (!id && creditNote.invoiceId) {
       // Check if there are meaningful changes (at least some data entered)
       const hasChanges = creditNote.items.some(item => item.selected || item.quantityReturned > 0) ||
                          creditNote.reasonForReturn ||

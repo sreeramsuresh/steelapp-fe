@@ -83,7 +83,7 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       createdBy: rawDN.created_by || rawDN.createdBy || undefined,
       updatedBy: rawDN.updated_by || rawDN.updatedBy || undefined,
       tooltip: rawDN.tooltip || undefined,
-      enabled: Boolean(rawDN.enabled)
+      enabled: Boolean(rawDN.enabled),
     };
 
     // Log validation errors if any

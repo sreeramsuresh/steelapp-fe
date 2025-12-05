@@ -3,7 +3,7 @@ import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loa
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
-import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import { formatCurrency, formatDate, formatDateForInput } from '../utils/invoiceUtils';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 
 const DeliveryNoteForm = () => {
@@ -111,10 +111,16 @@ const DeliveryNoteForm = () => {
       setFormData({
         deliveryNoteNumber: deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || '',
         invoiceId: deliveryNote.invoiceId || deliveryNote.invoice_id || '',
-        deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date || '',
+        deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date 
+          ? formatDateForInput(new Date(deliveryNote.deliveryDate || deliveryNote.delivery_date))
+          : '',
         // Phase 4: GRN date fields
-        goodsReceiptDate: deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date || new Date().toISOString().split('T')[0],
-        inspectionDate: deliveryNote.inspectionDate || deliveryNote.inspection_date || new Date().toISOString().split('T')[0],
+        goodsReceiptDate: deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date 
+          ? formatDateForInput(new Date(deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date))
+          : formatDateForInput(new Date()),
+        inspectionDate: deliveryNote.inspectionDate || deliveryNote.inspection_date 
+          ? formatDateForInput(new Date(deliveryNote.inspectionDate || deliveryNote.inspection_date))
+          : formatDateForInput(new Date()),
         deliveryAddress: {
           street: parsedAddress.street || '',
           city: parsedAddress.city || '',

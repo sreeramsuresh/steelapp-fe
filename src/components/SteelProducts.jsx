@@ -2672,7 +2672,7 @@ const SteelProducts = () => {
                           onChange={(e) => setSelectedProduct(prev => ({
                             ...prev,
                             displayName: e.target.value,
-                            display_name: e.target.value
+                            display_name: e.target.value,
                           }))}
                           className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} font-medium`}
                           placeholder="Enter custom product name or use Regenerate"

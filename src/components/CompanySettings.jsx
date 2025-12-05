@@ -46,6 +46,8 @@ import {
   ThumbsUp,
   Tag,
   Circle,
+  LockKeyhole,
+  Unlock,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -602,6 +604,9 @@ const CompanySettings = () => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+
+  // Product naming system
+  const [isVerifyUnlocked, setIsVerifyUnlocked] = useState(false);
 
   // Printing settings state
   const [printingSettings, setPrintingSettings] = useState({
@@ -4302,20 +4307,45 @@ const CompanySettings = () => {
               <div className={`mt-6 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  🔍 Verify Naming Logic
-                </h4>
-                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    🔍 Verify Naming Logic
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsVerifyUnlocked(!isVerifyUnlocked)}
+                      className={`p-2 rounded-lg transition-all duration-200 text-xl ${
+                        isVerifyUnlocked
+                          ? isDarkMode
+                            ? 'bg-green-900/30 hover:bg-green-900/50'
+                            : 'bg-green-50 hover:bg-green-100'
+                          : isDarkMode
+                          ? 'bg-red-900/30 hover:bg-red-900/50'
+                          : 'bg-red-50 hover:bg-red-100'
+                      }`}
+                      title={isVerifyUnlocked ? 'Click to lock' : 'Click to unlock'}
+                    >
+                      {isVerifyUnlocked ? '🔓' : '🔒'}
+                    </button>
+                    <Button
+                      onClick={() => {
+                        if (isVerifyUnlocked) {
+                          // Logic will be implemented later
+                          console.log('Verify naming logic clicked');
+                          // Auto-lock after verification
+                          setIsVerifyUnlocked(false);
+                        }
+                      }}
+                      disabled={!isVerifyUnlocked}
+                      className={!isVerifyUnlocked ? 'ring-2 ring-red-500' : ''}
+                    >
+                      Verify Naming Patterns
+                    </Button>
+                  </div>
+                </div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Checks whether DB, backend, and UI naming patterns match this specification
                 </p>
-                <Button
-                  onClick={() => {
-                    // Logic will be implemented later
-                    console.log('Verify naming logic clicked');
-                  }}
-                >
-                  Verify Naming Patterns
-                </Button>
               </div>
             </div>
           </div>
