@@ -69,7 +69,7 @@ const useURLState = (initial) => {
       if (v !== null) obj[key] = v;
     }
     return obj;
-  }, [searchParams]);
+  }, [searchParams, initial]);
   const setState = (patch) => {
     const next = { ...state, ...(typeof patch === 'function' ? patch(state) : patch) };
     const entries = Object.entries(next).filter(([,v]) => v !== '' && v !== undefined && v !== null);

@@ -58,6 +58,7 @@ import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
+import ProductNamingHelpPanel from './ProductNamingHelpPanel';
 import VATRulesHelpPanel from './VATRulesHelpPanel';
 import { roleService } from '../services/roleService';
 import RolesHelpPanel from './RolesHelpPanel';
@@ -4326,8 +4327,8 @@ const CompanySettings = () => {
           <div className={`h-full rounded-xl shadow-sm border overflow-hidden ${
             isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>
-            <div className="p-6">
-              {/* Empty - Ready for documentation/help content */}
+            <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">
+              <ProductNamingHelpPanel />
             </div>
           </div>
         </div>

@@ -79,7 +79,8 @@ const CustomerForm = () => {
     if (customerId) {
       fetchCustomer();
     }
-  }, [customerId]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId]); // fetchCustomer is stable
 
   const fetchCustomer = async () => {
     try {

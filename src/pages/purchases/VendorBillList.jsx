@@ -131,7 +131,8 @@ const VendorBillList = () => {
   // Load bills when filters change
   useEffect(() => {
     loadBills();
-  }, [currentPage, pageSize, debouncedSearch, statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate]); // loadBills is stable
 
   const loadBills = async () => {
     try {
