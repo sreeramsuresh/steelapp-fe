@@ -5,7 +5,7 @@
  * Based on concatenated naming architecture for stainless steel products
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   HelpCircle,
   ChevronDown,
@@ -13,7 +13,6 @@ import {
   BookOpen,
   Package,
   Settings,
-  Shield,
   AlertCircle,
   Database,
   FileText,
@@ -58,7 +57,7 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
   );
 };
 
-const ProductNamingHelpPanel = ({ onClose }) => {
+const ProductNamingHelpPanel = ({ hasMismatch = false }) => {
   const { isDarkMode } = useTheme();
 
   // State to track which sections are open (all start collapsed)
@@ -74,6 +73,18 @@ const ProductNamingHelpPanel = ({ onClose }) => {
     faq: false,
     technical: false,
   });
+
+  // Auto-expand troubleshooting sections when there's a mismatch
+  useEffect(() => {
+    if (hasMismatch) {
+      setOpenSections(prev => ({
+        ...prev,
+        incorrect: true,  // Section 5
+        recovery: true,   // Section 6
+        technical: true,  // Section 10
+      }));
+    }
+  }, [hasMismatch]);
 
   const expandAll = () => {
     setOpenSections({
@@ -179,7 +190,7 @@ const ProductNamingHelpPanel = ({ onClose }) => {
               <p>Short, editable label for user convenience.</p>
             </div>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Unique ID follows strict patterns documented in the 60% panel.</li>
+              <li>Unique ID follows strict patterns documented in the Product Naming Formats section.</li>
               <li>Display Name typically excludes Origin and Mill for brevity, but follows the same base structure. Display Name is derived from the same product master attributes.</li>
               <li>Only Unique ID is used for stock tracing and system references.</li>
             </ul>
@@ -227,30 +238,32 @@ const ProductNamingHelpPanel = ({ onClose }) => {
         </HelpSection>
 
         {/* Section 5: What to Do if Naming Looks Incorrect */}
-        <HelpSection
-          title="If a Name Looks Wrong – What You Should Check"
-          icon={AlertCircle}
-          isOpen={openSections.incorrect}
-          onToggle={() => toggleSection('incorrect')}
-        >
-          <div className="space-y-2 text-sm">
-            <p>Compare the product's Unique ID with the patterns shown in the 60% section.</p>
-            <p>
-              If the dimensions or attributes look incorrect, edit the product master attributes—the Unique ID 
-              will be automatically regenerated from the updated attributes.
-            </p>
-            <p>
-              If the Unique ID itself is off-pattern, use the Verify Naming Logic button to check system logic.
-            </p>
-            <p>If verification flags an issue, follow the recovery steps in the next section.</p>
-            <div className={`mt-3 p-3 rounded-lg border ${
-              isDarkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'
-            }`}>
-              <p className="font-semibold">Important:</p>
-              <p>Never attempt to manually edit the Unique ID field directly—it is always computed from product master attributes.</p>
+        <div data-help-section="troubleshooting">
+          <HelpSection
+            title="If a Name Looks Wrong – What You Should Check"
+            icon={AlertCircle}
+            isOpen={openSections.incorrect}
+            onToggle={() => toggleSection('incorrect')}
+          >
+            <div className="space-y-2 text-sm">
+              <p>Compare the product's Unique ID with the patterns shown in the Product Naming Formats section.</p>
+              <p>
+                If the dimensions or attributes look incorrect, edit the product master attributes—the Unique ID 
+                will be automatically regenerated from the updated attributes.
+              </p>
+              <p>
+                If the Unique ID itself is off-pattern, use the Verify Naming Logic button to check system logic.
+              </p>
+              <p>If verification flags an issue, follow the recovery steps in the next section.</p>
+              <div className={`mt-3 p-3 rounded-lg border ${
+                isDarkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'
+              }`}>
+                <p className="font-semibold">Important:</p>
+                <p>Never attempt to manually edit the Unique ID field directly—it is always computed from product master attributes.</p>
+              </div>
             </div>
-          </div>
-        </HelpSection>
+          </HelpSection>
+        </div>
 
         {/* Section 6: Recovery After Database Reset / Migration */}
         <HelpSection
@@ -266,7 +279,7 @@ const ProductNamingHelpPanel = ({ onClose }) => {
             </p>
             <p>After a database reset, run migrations to recreate the naming engine.</p>
             <p>
-              Use the 60% section concatenation templates to visually verify that generated Unique IDs 
+              Use the Product Naming Formats section patterns to visually verify that generated Unique IDs 
               match expected patterns for each product form.
             </p>
             <p>If DB output differs from expected patterns, re-apply the migration that defines naming logic.</p>

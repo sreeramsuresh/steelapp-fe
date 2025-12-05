@@ -801,8 +801,8 @@ const Dashboard = () => {
                       <div className="min-w-0">
                         <p className={`text-sm font-semibold mb-1 truncate ${
                           isDarkMode ? 'text-white' : 'text-gray-900'
-                        }`} title={product.displayName || product.name}>
-                          {product.displayName || product.name}
+                        }`} title={product.displayName || product.display_name || 'N/A'}>
+                          {product.displayName || product.display_name || 'N/A'}
                         </p>
                         <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {product.category}

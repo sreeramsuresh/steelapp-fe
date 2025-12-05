@@ -722,7 +722,7 @@ const ImportOrderForm = () => {
         newItems[index] = {
           ...newItems[index],
           product_id: productId,
-          product_name: product.name || '',
+          product_name: product.displayName || product.display_name || product.uniqueName || product.unique_name || '',
           description: product.description || '',
           grade: product.grade || '',
           finish: product.finish || '',
@@ -1313,7 +1313,9 @@ const ImportOrderForm = () => {
                         >
                           <option value="">Select Product</option>
                           {products.map(product => (
-                            <option key={product.id} value={product.id}>{product.name}</option>
+                            <option key={product.id} value={product.id}>
+                              {product.displayName || product.display_name || 'N/A'}
+                            </option>
                           ))}
                         </Select>
                         <input

@@ -1314,7 +1314,7 @@ const InvoiceForm = ({ onSave }) => {
   // Remove deferred value which might be causing delays
   const deferredItems = invoice.items;
 
-  const { data: company, loading: loadingCompany } = useApiData(
+  const { data: company, loading: loadingCompany, refetch: refetchCompany } = useApiData(
     companyService.getCompany,
     [],
     true,
@@ -1454,6 +1454,16 @@ const InvoiceForm = ({ onSave }) => {
     return () => window.removeEventListener('focus', handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refetchProducts is stable enough for event handlers
+
+  // Refetch company data when window regains focus (user returns from company settings)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchCompany();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // refetchCompany is stable enough for event handlers
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {
@@ -1771,7 +1781,7 @@ const InvoiceForm = ({ onSave }) => {
           // Store pending selection and show warning
           pendingProductRef.current = { index, product };
           setDuplicateWarning({
-            productName: product.displayName || product.name,
+            productName: product.displayName || product.display_name || 'N/A',
             existingIndex,
             existingQuantity: invoice.items[existingIndex]?.quantity || 0,
           });
@@ -1823,7 +1833,7 @@ const InvoiceForm = ({ onSave }) => {
           ...newItems[index],
           productId: product.id,
           // Use displayName (without origin) for invoice line items
-          name: product.displayName || product.display_name || product.name,
+          name: product.displayName || product.display_name || product.uniqueName || product.unique_name,
           category: product.category || '',
           commodity: product.commodity || 'SS',
           grade: product.grade || '',
@@ -1894,7 +1904,7 @@ const InvoiceForm = ({ onSave }) => {
 
       pendingProductRef.current = null;
       setDuplicateWarning(null);
-      notificationService.success(`Quantity updated for ${product.displayName || product.name}`);
+      notificationService.success(`Quantity updated for ${product.displayName || product.display_name || 'N/A'}`);
     }
   }, [duplicateWarning, invoice.items]);
 
@@ -1956,7 +1966,7 @@ const InvoiceForm = ({ onSave }) => {
       const searchValue = searchInputs[index] || '';
       const products = productsData?.products || [];
       return products.some(
-        (product) => (product.displayName || product.display_name || product.name).toLowerCase() === searchValue.toLowerCase(),
+        (product) => (product.displayName || product.display_name || product.uniqueName || product.unique_name || '').toLowerCase() === searchValue.toLowerCase(),
       );
     },
     [productsData, searchInputs],
@@ -2005,17 +2015,17 @@ const InvoiceForm = ({ onSave }) => {
     const list = productsData?.products || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case field names from API
-      const fullName = product.fullName || product.full_name;
+      const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
-      const label = fullName || displayName || product.name;
+      // Priority: displayName for user-facing display
+      const label = displayName || uniqueName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        fullName: fullName || '',
+        uniqueName: uniqueName || '',
         displayName: displayName || '',
         subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
@@ -2026,17 +2036,17 @@ const InvoiceForm = ({ onSave }) => {
     const list = searchInputs?.__results || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case field names from API
-      const fullName = product.fullName || product.full_name;
+      const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
-      const label = fullName || displayName || product.name;
+      // Priority: displayName for user-facing display
+      const label = displayName || uniqueName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        fullName: fullName || '',
+        uniqueName: uniqueName || '',
         displayName: displayName || '',
         subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
@@ -2220,10 +2230,18 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   // Handler for preview button - validates before opening preview
-  const handlePreviewClick = () => {
+  const handlePreviewClick = async () => {
     if (!company) {
       notificationService.warning('Company data is still loading. Please wait...');
       return;
+    }
+
+    // Refetch company data to ensure latest template colors are used
+    try {
+      await refetchCompany();
+    } catch (error) {
+      console.warn('Failed to refresh company data:', error);
+      // Continue with cached data rather than blocking preview
     }
 
     // Validate required fields silently (don&apos;t show errors, just set flag)
@@ -3592,7 +3610,7 @@ const InvoiceForm = ({ onSave }) => {
                             const newItem = createSteelItem();
                             newItem.productId = product.id;
                             // Use displayName (without origin) for invoice line items
-                            newItem.name = product.displayName || product.display_name || product.name;
+                            newItem.name = product.displayName || product.display_name || product.uniqueName || product.unique_name;
                             newItem.unit = product.unit || 'kg';
                             newItem.rate = parseFloat(product.price) || 0;
                             newItem.hsnCode = product.hsnCode || '';
@@ -3620,9 +3638,9 @@ const InvoiceForm = ({ onSave }) => {
                                 ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
-                          title={product.displayName || product.display_name || product.name}
+                          title={product.displayName || product.display_name || 'N/A'}
                         >
-                          {product.displayName || product.display_name || product.name}
+                          {product.displayName || product.display_name || 'N/A'}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}

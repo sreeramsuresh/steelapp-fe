@@ -186,7 +186,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
                   <PriorityIcon size={16} className={priority.color} />
                   <div>
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.name}
+                      {product.displayName || product.display_name || 'N/A'}
                     </p>
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {product.category}

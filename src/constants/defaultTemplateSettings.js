@@ -289,24 +289,49 @@ export const validateTemplateSettings = (settings) => {
  * @returns {string} Hex color code for the document template
  */
 export const getDocumentTemplateColor = (documentType, companySettings) => {
+  // Convert camelCase to snake_case for database lookup
+  // e.g., 'purchaseOrder' -> 'purchase_order'
+  const snakeCaseType = documentType.replace(/([A-Z])/g, '_$1').toLowerCase();
+
   // Get the invoice/main template color as fallback
   const invoiceColor = companySettings?.settings?.invoiceTemplate?.colors?.primary
+    || companySettings?.settings?.invoice_template?.colors?.primary
     || companySettings?.settings?.templateCustomColors?.primary
     || DEFAULT_TEMPLATE_SETTINGS.colors.primary
     || '#0d9488';
 
-  // Get document-specific settings
-  const docSettings = companySettings?.settings?.documentTemplates?.[documentType];
+  // Get document-specific settings (handle both camelCase and snake_case)
+  // Frontend uses camelCase, backend/database uses snake_case
+  // Try camelCase first (for preview/temp company objects), then snake_case (for database)
+  const docSettings = companySettings?.settings?.documentTemplates?.[documentType]
+    || companySettings?.settings?.document_templates?.[snakeCaseType]
+    || companySettings?.settings?.document_templates?.[documentType];
+
+  // Debug logging
+  console.log(`[getDocumentTemplateColor] Document Type (camelCase): ${documentType}`);
+  console.log(`[getDocumentTemplateColor] Document Type (snake_case): ${snakeCaseType}`);
+  console.log(`[getDocumentTemplateColor] Invoice Color: ${invoiceColor}`);
+  console.log(`[getDocumentTemplateColor] Document Settings:`, docSettings);
+  console.log(`[getDocumentTemplateColor] All Document Templates (camelCase):`, companySettings?.settings?.documentTemplates);
+  console.log(`[getDocumentTemplateColor] All Document Templates (snake_case):`, companySettings?.settings?.document_templates);
+
+  // Check useInvoiceSettings flag (handle both camelCase and snake_case)
+  const useInvoiceSettings = docSettings?.useInvoiceSettings ?? docSettings?.use_invoice_settings ?? false;
 
   // If no document settings exist or useInvoiceSettings is true, use invoice color
-  if (!docSettings || docSettings.useInvoiceSettings) {
-    return invoiceColor;
+  if (!docSettings || useInvoiceSettings) {
+    const color = invoiceColor;
+    console.log(`[getDocumentTemplateColor] Using invoice color (${useInvoiceSettings ? 'synced' : 'no custom settings'}): ${color}`);
+    return color;
   }
 
-  // Return document-specific color, or default if not set
-  return docSettings.primaryColor
+  // Return document-specific color (handle both camelCase and snake_case), or default if not set
+  const color = docSettings.primaryColor
+    || docSettings.primary_color
     || DEFAULT_DOCUMENT_TEMPLATE_COLORS[documentType]?.primaryColor
     || invoiceColor;
+  console.log(`[getDocumentTemplateColor] Using custom color: ${color}`);
+  return color;
 };
 
 /**

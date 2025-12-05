@@ -420,7 +420,9 @@ const PriceCalculator = () => {
                 }`}
               >
                 {Object.entries(productTypes).map(([key, product]) => (
-                  <option key={key} value={key}>{product.name}</option>
+                  <option key={key} value={key}>
+                    {product.displayName || product.display_name || product.name || 'N/A'}
+                  </option>
                 ))}
               </select>
             </div>

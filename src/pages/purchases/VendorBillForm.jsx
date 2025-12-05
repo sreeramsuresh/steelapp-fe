@@ -246,7 +246,7 @@ const VendorBillForm = () => {
       const product = products.find((p) => p.id === value || p.id === parseInt(value));
       if (product) {
         item.productId = product.id;
-        item.description = product.name || product.description || '';
+        item.description = product.displayName || product.display_name || product.uniqueName || product.unique_name || product.description || '';
         item.unitPrice = product.purchasePrice || product.cost || product.price || 0;
       }
     } else {
@@ -700,7 +700,7 @@ const VendorBillForm = () => {
                           <option value="">Select or type description...</option>
                           {products.map((product) => (
                             <option key={product.id} value={product.id}>
-                              {product.name}
+                              {product.displayName || product.display_name || 'N/A'}
                             </option>
                           ))}
                         </select>

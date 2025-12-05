@@ -303,31 +303,7 @@ const CreditNoteForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // loadCreditNote is stable
 
-  // Track form changes for silent save on exit (no browser warning)
-  useEffect(() => {
-    // Only track if we have an invoice selected and not editing existing credit note
-    if (!id && creditNote.invoiceId) {
-      // Check if there are meaningful changes (at least some data entered)
-      const hasChanges = creditNote.items.some(item => item.selected || item.quantityReturned > 0) ||
-                         creditNote.reasonForReturn ||
-                         creditNote.notes ||
-                         creditNote.manualCreditAmount > 0;
-      
-      if (hasChanges) {
-        setPendingSave(creditNote, {
-          invoiceId: creditNote.invoiceId,
-          invoiceNumber: creditNote.invoiceNumber,
-          customerName: creditNote.customer?.name || '',
-        });
-      } else {
-        clearPendingSave();
-      }
-    }
-    
-    return () => {
-      // Cleanup on unmount is handled by the hook
-    };
-  }, [creditNote, id, setPendingSave, clearPendingSave]);
+  // AUTO-SAVE REMOVED - User only wants explicit "Save Draft" button
 
   const loadCreditNote = async () => {
     try {

@@ -1,4 +1,4 @@
-// React import removed (unused)
+import { useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import InvoiceTemplate from './invoice/InvoiceTemplate';
@@ -30,9 +30,12 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
     }
   };
 
-  // Get template colors from company settings or use defaults
-  const templateSettings = company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
-  const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
+  // Get template color reactively from company settings (handles both camelCase and snake_case)
+  const primaryColor = useMemo(() => {
+    return company?.settings?.invoiceTemplate?.colors?.primary
+      || company?.settings?.invoice_template?.colors?.primary
+      || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
+  }, [company?.settings?.invoiceTemplate, company?.settings?.invoice_template]);
 
   // Check if form has required fields based on invoice status
   const checkFormValidity = () => {

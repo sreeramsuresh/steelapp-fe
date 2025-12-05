@@ -292,8 +292,8 @@ const InventoryList = () => {
       ...prev,
       // Product catalog link
       productId: product.id,
-      // Use fullName first (with origin) to align with dropdown display order
-      productName: product.fullName || product.full_name || product.uniqueName || product.unique_name || product.displayName || product.display_name || product.name,
+      // Use displayName for user-facing display
+      productName: product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A',
       // Product type from category
       productType: product.category || product.productType || prev.productType,
       // Steel specifications

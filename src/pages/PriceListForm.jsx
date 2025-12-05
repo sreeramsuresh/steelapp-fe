@@ -378,7 +378,7 @@ export default function PriceListForm() {
                         return (
                           <TableRow key={product.id}>
                             <TableCell>
-                              <Typography variant="body2">{product.displayName || product.name}</Typography>
+                              <Typography variant="body2">{product.displayName || product.display_name || 'N/A'}</Typography>
                               <Typography variant="caption" color="textSecondary">
                                 {product.category} | {product.grade}
                               </Typography>

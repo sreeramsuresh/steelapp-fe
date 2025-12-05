@@ -46,8 +46,6 @@ import {
   ThumbsUp,
   Tag,
   Circle,
-  LockKeyhole,
-  Unlock,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -58,6 +56,7 @@ import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
+import { productNamingService } from '../services/productNamingService';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
 import ProductNamingHelpPanel from './ProductNamingHelpPanel';
@@ -607,6 +606,17 @@ const CompanySettings = () => {
 
   // Product naming system
   const [isVerifyUnlocked, setIsVerifyUnlocked] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [lastVerificationTime, setLastVerificationTime] = useState(null);
+  // Per-product-type verification status: { productType: { status: 'not-verified'|'success'|'error', error?: string } }
+  const [productVerificationStatus, setProductVerificationStatus] = useState({
+    sheet: { status: 'not-verified' },
+    pipe: { status: 'not-verified' },
+    tube: { status: 'not-verified' },
+    coil: { status: 'not-verified' },
+    bar: { status: 'not-verified' },
+    anglebar: { status: 'not-verified' },
+  });
 
   // Printing settings state
   const [printingSettings, setPrintingSettings] = useState({
@@ -4194,6 +4204,51 @@ const CompanySettings = () => {
   };
 
   const renderProductNamingSystem = () => {
+    // Helper function to render inline verification status (compact for heading)
+    const renderVerificationStatus = (productType) => {
+      const status = productVerificationStatus[productType];
+      
+      if (!status || status.status === 'not-verified') {
+        return (
+          <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <span>⚪</span>
+            <span>Not verified</span>
+          </span>
+        );
+      }
+      
+      if (status.status === 'success') {
+        return (
+          <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+            <span>✅</span>
+            <span className="font-medium">Verified</span>
+          </span>
+        );
+      }
+      
+      // Error status
+      return (
+        <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+          <span>❌</span>
+          <span className="font-medium">
+            Mismatch –{' '}
+            <a 
+              href="#help-troubleshooting" 
+              className={`underline ${isDarkMode ? 'text-red-300 hover:text-red-200' : 'text-red-700 hover:text-red-800'}`}
+              onClick={(e) => {
+                e.preventDefault();
+                // Scroll to help panel troubleshooting section
+                const helpPanel = document.querySelector('[data-help-section="troubleshooting"]');
+                if (helpPanel) helpPanel.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              troubleshoot
+            </a>
+          </span>
+        </span>
+      );
+    };
+
     return (
       <div className="flex flex-col lg:flex-row gap-6 items-stretch">
         {/* Left Column - Actionable Content (60%) */}
@@ -4217,10 +4272,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Sheets / Plates
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Sheets / Plates
+                  </h4>
+                  {renderVerificationStatus('sheet')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4232,10 +4290,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Pipes
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Pipes
+                  </h4>
+                  {renderVerificationStatus('pipe')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4247,10 +4308,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Tubes
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Tubes
+                  </h4>
+                  {renderVerificationStatus('tube')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4262,10 +4326,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Coils
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Coils
+                  </h4>
+                  {renderVerificationStatus('coil')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4277,10 +4344,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Bars
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Bars
+                  </h4>
+                  {renderVerificationStatus('bar')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4292,10 +4362,13 @@ const CompanySettings = () => {
               <div className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                  Angle Bar
-                </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
+                    Angle Bar
+                  </h4>
+                  {renderVerificationStatus('anglebar')}
+                </div>
                 <div className={`p-2 rounded font-mono text-base ${
                   isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
                 }`}>
@@ -4320,32 +4393,103 @@ const CompanySettings = () => {
                             ? 'bg-green-900/30 hover:bg-green-900/50'
                             : 'bg-green-50 hover:bg-green-100'
                           : isDarkMode
-                          ? 'bg-red-900/30 hover:bg-red-900/50'
-                          : 'bg-red-50 hover:bg-red-100'
+                            ? 'bg-red-900/30 hover:bg-red-900/50'
+                            : 'bg-red-50 hover:bg-red-100'
                       }`}
                       title={isVerifyUnlocked ? 'Click to lock' : 'Click to unlock'}
                     >
                       {isVerifyUnlocked ? '🔓' : '🔒'}
                     </button>
                     <Button
-                      onClick={() => {
+                      onClick={async () => {
                         if (isVerifyUnlocked) {
-                          // Logic will be implemented later
-                          console.log('Verify naming logic clicked');
-                          // Auto-lock after verification
-                          setIsVerifyUnlocked(false);
+                          setIsVerifying(true);
+                          try {
+                            const results = await productNamingService.verifyAllProductTypes();
+                            const timestamp = new Date();
+                            setLastVerificationTime(timestamp);
+                            
+                            // Update status for each product type
+                            const newStatus = {};
+                            results.forEach(result => {
+                              if (result.productType === 'error') {
+                                // Global error - mark all as error
+                                Object.keys(productVerificationStatus).forEach(type => {
+                                  newStatus[type] = {
+                                    status: 'error',
+                                    error: result.error,
+                                  };
+                                });
+                              } else {
+                                newStatus[result.productType] = {
+                                  status: result.status === 'success' ? 'success' : 'error',
+                                  error: result.error,
+                                  uniqueName: result.uniqueName,
+                                  displayName: result.displayName,
+                                };
+                              }
+                            });
+                            
+                            setProductVerificationStatus(prev => ({ ...prev, ...newStatus }));
+                          } catch (error) {
+                            console.error('Verification failed:', error);
+                            const timestamp = new Date();
+                            setLastVerificationTime(timestamp);
+                            const errorStatus = {
+                              status: 'error',
+                              error: error.message || 'Failed to verify naming patterns',
+                            };
+                            setProductVerificationStatus({
+                              sheet: errorStatus,
+                              pipe: errorStatus,
+                              tube: errorStatus,
+                              coil: errorStatus,
+                              bar: errorStatus,
+                              anglebar: errorStatus,
+                            });
+                          } finally {
+                            setIsVerifying(false);
+                            setIsVerifyUnlocked(false);
+                          }
                         }
                       }}
-                      disabled={!isVerifyUnlocked}
+                      disabled={!isVerifyUnlocked || isVerifying}
                       className={!isVerifyUnlocked ? 'ring-2 ring-red-500' : ''}
                     >
-                      Verify Naming Patterns
+                      {isVerifying ? 'Verifying...' : 'Verify Naming Patterns'}
                     </Button>
                   </div>
                 </div>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Checks whether DB, backend, and UI naming patterns match this specification
+                  Checks whether DB, backend, and UI naming patterns match this specification. Results will appear inline in each product type card above.
                 </p>
+
+                {/* Last Verification Timestamp */}
+                {lastVerificationTime && !isVerifying && (
+                  <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className="font-medium">Last verification:</span> {lastVerificationTime.toLocaleString()}
+                  </div>
+                )}
+
+                {!lastVerificationTime && !isVerifying && (
+                  <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} italic`}>
+                    (No verification run yet)
+                  </div>
+                )}
+
+                {/* Global Loading Indicator */}
+                {isVerifying && (
+                  <div className={`mt-4 p-4 rounded-lg border ${
+                    isDarkMode ? 'bg-blue-900/20 border-blue-700' : 'bg-blue-50 border-blue-200'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+                      <span className={isDarkMode ? 'text-blue-300' : 'text-blue-700'}>
+                        Verifying naming patterns across all product types...
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -4356,7 +4500,9 @@ const CompanySettings = () => {
           <div className={`h-full rounded-xl shadow-sm border overflow-hidden ${
             isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>
-            <ProductNamingHelpPanel />
+            <ProductNamingHelpPanel 
+              hasMismatch={Object.values(productVerificationStatus).some(status => status.status === 'error')}
+            />
           </div>
         </div>
       </div>

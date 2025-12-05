@@ -347,7 +347,7 @@ const StockMovementForm = () => {
                     <option value="">Select a product...</option>
                     {products.map(product => (
                       <option key={product.id} value={product.id}>
-                        {product.name} {product.sku ? `(${product.sku})` : ''}
+                        {product.displayName || product.display_name || 'N/A'} {product.sku ? `(${product.sku})` : ''}
                       </option>
                     ))}
                   </select>

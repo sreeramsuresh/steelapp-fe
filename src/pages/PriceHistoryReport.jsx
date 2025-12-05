@@ -136,7 +136,7 @@ export default function PriceHistoryReport() {
               <MenuItem value="">-- Select Product --</MenuItem>
               {products.map((product) => (
                 <MenuItem key={product.id} value={product.id}>
-                  {product.displayName || product.name}
+                  {product.displayName || product.display_name || 'N/A'}
                 </MenuItem>
               ))}
             </TextField>

@@ -545,7 +545,7 @@ const PurchaseOrderForm = () => {
 
   // Quick add item from speed button (matching Invoice form)
   const handleQuickAddItem = useCallback((product) => {
-    const productDisplayName = product.displayName || product.display_name || product.name;
+    const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
     const newItem = {
       productType: productDisplayName,
       name: productDisplayName,
@@ -674,16 +674,16 @@ const PurchaseOrderForm = () => {
   const productOptions = useMemo(() => {
     return (availableProducts || []).map((product) => {
       // Handle both camelCase and snake_case from API
-      const fullName = product.fullName || product.full_name;
+      const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
-      const label = fullName || displayName || product.name;
+      // Priority: displayName for user-facing display
+      const label = displayName || uniqueName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
-        fullName: fullName || '',
+        uniqueName: uniqueName || '',
         displayName: displayName || '',
         subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
@@ -694,16 +694,16 @@ const PurchaseOrderForm = () => {
     const list = searchInputs?.__results || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case from API
-      const fullName = product.fullName || product.full_name;
+      const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: fullName (with origin) > displayName (hyphenated) > name (legacy)
-      const label = fullName || displayName || product.name;
+      // Priority: displayName for user-facing display
+      const label = displayName || uniqueName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
-        fullName: fullName || '',
+        uniqueName: uniqueName || '',
         displayName: displayName || '',
         subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
@@ -918,7 +918,7 @@ const PurchaseOrderForm = () => {
       
       const thickness = product.thickness || product.thick || getThickness(product);
       
-      const productDisplayName = product.displayName || product.display_name || product.name;
+      const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
       updatedItems[index] = {
         ...updatedItems[index],
         productType: productDisplayName,
@@ -2003,9 +2003,9 @@ const PurchaseOrderForm = () => {
                                 ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
-                          title={product.displayName || product.display_name || product.name}
+                          title={product.displayName || product.display_name || 'N/A'}
                         >
-                          {product.displayName || product.display_name || product.name}
+                          {product.displayName || product.display_name || 'N/A'}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}

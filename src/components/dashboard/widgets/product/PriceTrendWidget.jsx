@@ -162,7 +162,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <p className={`text-sm font-medium truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {product.name}
+                    {product.displayName || product.display_name || 'N/A'}
                   </p>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                     isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'

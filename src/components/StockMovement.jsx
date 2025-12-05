@@ -205,8 +205,8 @@ const StockMovement = () => {
     setFormData((prev) => ({
       ...prev,
       productId: product.id,
-      // Use fullName (with origin) as display name
-      productName: product.fullName || product.full_name || product.uniqueName || product.unique_name || product.displayName || product.display_name || product.name,
+      // Use displayName for user-facing display
+      productName: product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A',
       // Product type from category
       productType: product.category || product.productType || prev.productType,
       // Steel specifications

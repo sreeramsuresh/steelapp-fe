@@ -300,7 +300,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
           <div className="space-y-1">
             {filteredProducts.slice(0, 3).map((product) => (
               <div key={product.id} className="flex items-center justify-between text-xs">
-                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{product.name}</span>
+                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{product.displayName || product.display_name || 'N/A'}</span>
                 <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
                   {product.margin.toFixed(1)}% | {product.volume.toFixed(1)} MT
                 </span>

@@ -419,12 +419,24 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         warehouseCode: 'WH-001',
       };
 
-      // Create temporary company object with current settings
+      // Get base template colors and merge with any custom overrides for preview
+      const baseTemplate = INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
+      const finalColors = customColors
+        ? { ...baseTemplate.colors, ...customColors }
+        : baseTemplate.colors;
+
+      // Create temporary company object with current settings (including document templates)
       const tempCompany = {
         ...company,
         settings: {
           ...company?.settings,
-          invoice_template: settings,
+          invoiceTemplate: {
+            id: selectedTemplateId,
+            name: baseTemplate.name,
+            colors: finalColors,
+            settings,  // Advanced settings (layout, typography, etc.)
+          },
+          documentTemplates,  // Include document template colors for preview
         },
       };
 

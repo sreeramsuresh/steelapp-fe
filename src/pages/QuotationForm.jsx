@@ -368,7 +368,7 @@ const QuotationForm = () => {
   // Quick add item from speed button
   const quickAddItem = (product) => {
     // Handle both camelCase and snake_case field names
-    const productDisplayName = product.displayName || product.display_name || product.fullName || product.full_name || product.name || '';
+    const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name || '';
     const newItem = {
       productId: product.id || '',
       name: productDisplayName,
@@ -448,7 +448,7 @@ const QuotationForm = () => {
     if (field === 'productId' && value) {
       const product = products.find(p => p.id === parseInt(value));
       if (product) {
-        const productDisplayName = product.displayName || product.display_name || product.fullName || product.full_name || product.name;
+        const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
         newItems[index] = {
           ...newItems[index],
           name: productDisplayName,
@@ -1139,7 +1139,7 @@ const QuotationForm = () => {
                               : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                         }`}
                       >
-                        {product.displayName || product.display_name || product.fullName || product.full_name || product.name}
+                        {product.displayName || product.display_name || 'N/A'}
                       </button>
                       <button
                         type="button"
@@ -1192,7 +1192,7 @@ const QuotationForm = () => {
                         <option value="">Select or enter manually</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.displayName || product.display_name || product.fullName || product.full_name || product.name}
+                            {product.displayName || product.display_name || 'N/A'}
                           </option>
                         ))}
                       </Select>

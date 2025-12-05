@@ -163,9 +163,9 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 } group-hover:text-teal-500`}
                 onClick={() => onProductClick?.(product)}
-                title={product.name}
+                title={product.displayName || product.display_name || 'N/A'}
               >
-                {product.name}
+                {product.displayName || product.display_name || 'N/A'}
               </div>
               <div className="flex-1 flex gap-0.5">
                 {product.data.map((value, monthIndex) => (
@@ -173,9 +173,9 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                     key={monthIndex}
                     className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50`}
                     style={{ opacity: getTurnoverOpacity(value) }}
-                    onMouseEnter={() => setHoveredCell({ product: product.name, month: turnoverData.months[monthIndex], value })}
+                    onMouseEnter={() => setHoveredCell({ product: product.displayName || product.display_name || 'N/A', month: turnoverData.months[monthIndex], value })}
                     onMouseLeave={() => setHoveredCell(null)}
-                    title={`${product.name} - ${turnoverData.months[monthIndex]}: ${value}x`}
+                    title={`${product.displayName || product.display_name || 'N/A'} - ${turnoverData.months[monthIndex]}: ${value}x`}
                   />
                 ))}
               </div>

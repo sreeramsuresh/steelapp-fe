@@ -160,7 +160,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
                       {index + 1}
                     </span>
                     <p className={`text-sm font-medium truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.name}
+                      {product.displayName || product.display_name || 'N/A'}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 mt-1 ml-6">
