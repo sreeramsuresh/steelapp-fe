@@ -274,14 +274,26 @@ export const getCompanyImages = (company) => {
 
 /**
  * Format an address object to displayable strings
- * @param {Object|string} address - Address object or string
+ * @param {Object|string} address - Address object, JSON string, or plain string
  * @returns {Object} { line1, line2, full }
  */
 export const formatAddress = (address) => {
   if (!address) return { line1: '', line2: '', full: '' };
 
-  // If already a string, return as-is
+  // If string, check if it's JSON and try to parse it
   if (typeof address === 'string') {
+    // Try to parse as JSON if it looks like JSON
+    if (address.startsWith('{') || address.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(address);
+        // Recursively call with parsed object
+        return formatAddress(parsed);
+      } catch {
+        // Not valid JSON, treat as plain string
+        return { line1: address, line2: '', full: address };
+      }
+    }
+    // Plain string address
     return { line1: address, line2: '', full: address };
   }
 
