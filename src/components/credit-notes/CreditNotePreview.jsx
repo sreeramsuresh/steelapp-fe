@@ -222,7 +222,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   <h3 className={`text-sm font-semibold uppercase mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Manual Credit Amount
                   </h3>
-                  <p className="text-xl font-bold" style={{ color: templateColor }}>-{formatCurrency(manualAmount)}</p>
+                  <p className="text-xl font-bold" style={{ color: templateColor }}>{formatCurrency(manualAmount)}</p>
                 </div>
               ) : null}
 
@@ -245,7 +245,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   )}
                   <div className="flex justify-between py-3 text-lg font-bold" style={{ color: templateColor }}>
                     <span>Total Credit:</span>
-                    <span>-{formatCurrency(totalCredit || manualAmount)}</span>
+                    <span>{formatCurrency(totalCredit || manualAmount)}</span>
                   </div>
                 </div>
               </div>
