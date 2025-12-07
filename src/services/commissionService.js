@@ -172,6 +172,103 @@ const commissionService = {
       throw error;
     }
   },
+
+  // Reverse a commission (e.g., invoice cancelled, credit note issued)
+  reverseCommission: async (commissionId, reversalReason, notes = '') => {
+    try {
+      const response = await api.post(`/commissions/${commissionId}/reverse`, {
+        reversalReason,
+        notes,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error reversing commission:', error);
+      throw error;
+    }
+  },
+
+  // Check if an invoice is eligible for commission
+  getCommissionEligibility: async (invoiceId) => {
+    try {
+      const response = await api.get(`/commissions/eligibility/${invoiceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error checking commission eligibility:', error);
+      throw error;
+    }
+  },
+
+  // Adjust commission when a credit note is issued
+  adjustCommissionForCreditNote: async (creditNoteId, invoiceId, notes = '') => {
+    try {
+      const response = await api.post('/commissions/credit-note-adjustment', {
+        creditNoteId,
+        invoiceId,
+        notes,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adjusting commission for credit note:', error);
+      throw error;
+    }
+  },
+
+  // Get commission tracker data for a sales agent
+  getCommissionTrackerData: async (salesPersonId, daysBack = 90) => {
+    try {
+      // Fetch stats and commissions in parallel
+      const [statsResponse, commissionsResponse, plansResponse] = await Promise.all([
+        api.get(`/commissions/sales-person/${salesPersonId}/stats`, { params: { daysBack } }),
+        api.get(`/commissions/sales-person/${salesPersonId}`, { params: { status: 'ALL', daysBack } }),
+        api.get('/commissions/plans'),
+      ]);
+
+      const stats = statsResponse.data;
+      const commissions = commissionsResponse.data?.commissions || [];
+      const plans = plansResponse.data?.plans || [];
+
+      // Calculate summary
+      const totalEarned = parseFloat(stats.total_commission_earned || stats.totalCommissionEarned || 0);
+      const approvedAmount = parseFloat(stats.total_commission_approved || stats.totalCommissionApproved || 0);
+      const paidAmount = parseFloat(stats.total_commission_paid || stats.totalCommissionPaid || 0);
+      const pendingAmount = totalEarned - paidAmount;
+
+      // Build tiers from plan data (simplified - actual tiered calculation done on backend)
+      const activePlan = plans.find(p => p.isActive || p.is_active) || plans[0];
+      const baseRate = parseFloat(activePlan?.baseRate || activePlan?.base_rate || 10);
+
+      return {
+        agentId: salesPersonId,
+        period: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        summary: {
+          baseCommission: totalEarned,
+          tier1Bonus: 0,
+          tier2Bonus: 0,
+          specialBonus: 0,
+          totalEarned,
+          projectedTotal: totalEarned,
+          paidAmount,
+          pendingAmount,
+        },
+        tiers: [
+          {
+            name: 'Base Commission',
+            description: `${baseRate}% of total sales`,
+            current: totalEarned / (baseRate / 100),
+            target: null,
+            earned: totalEarned,
+            percent: 100,
+            achieved: true,
+          },
+        ],
+        specialBonuses: [],
+        commissions,
+      };
+    } catch (error) {
+      console.error('Error fetching commission tracker data:', error);
+      throw error;
+    }
+  },
 };
 
 export { commissionService };

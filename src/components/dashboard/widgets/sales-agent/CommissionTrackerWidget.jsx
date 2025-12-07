@@ -3,10 +3,12 @@
  *
  * Commission Breakdown and Tracker
  * Displays base commission, tier bonuses, and progress toward earning tiers
+ * Updated: Connected to real API - removed mock data
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
+import { commissionService } from '../../../../services/commissionService';
 import {
   Wallet,
   Gift,
@@ -14,107 +16,101 @@ import {
   RefreshCw,
   CheckCircle,
   Circle,
+  AlertCircle,
 } from 'lucide-react';
 
-// Mock commission data for agents
-const MOCK_COMMISSION_DATA = {
-  agentId: 1,
-  agentName: 'Rajesh Kumar',
-  period: 'December 2024',
+// Default empty state when no data is available
+const EMPTY_COMMISSION_DATA = {
+  agentId: null,
+  period: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
   summary: {
-    baseCommission: 38250,
-    tier1Bonus: 15000,
+    baseCommission: 0,
+    tier1Bonus: 0,
     tier2Bonus: 0,
-    specialBonus: 8000,
-    totalEarned: 61250,
-    projectedTotal: 75000,
-    paidAmount: 45000,
-    pendingAmount: 16250,
+    specialBonus: 0,
+    totalEarned: 0,
+    projectedTotal: 0,
+    paidAmount: 0,
+    pendingAmount: 0,
   },
-  tiers: [
-    {
-      name: 'Base Commission',
-      description: '1% of total sales',
-      current: 3825000,
-      target: null,
-      earned: 38250,
-      percent: 100,
-      achieved: true,
-    },
-    {
-      name: 'Tier 1 Bonus',
-      description: 'Achieve 80% of target',
-      current: 3825000,
-      target: 3600000,
-      earned: 15000,
-      percent: 106,
-      achieved: true,
-    },
-    {
-      name: 'Tier 2 Bonus',
-      description: 'Achieve 100% of target',
-      current: 3825000,
-      target: 4500000,
-      earned: 0,
-      percent: 85,
-      achieved: false,
-    },
-    {
-      name: 'Tier 3 Bonus',
-      description: 'Achieve 110% of target',
-      current: 3825000,
-      target: 4950000,
-      earned: 0,
-      percent: 77,
-      achieved: false,
-    },
-  ],
-  specialBonuses: [
-    { name: 'New Customer Acquisition', count: 8, rate: 1000, total: 8000 },
-    { name: 'Large Deal Bonus (>50L)', count: 0, rate: 5000, total: 0 },
-  ],
-  history: [
-    { month: 'Nov 2024', earned: 52000, paid: true },
-    { month: 'Oct 2024', earned: 48500, paid: true },
-    { month: 'Sep 2024', earned: 55200, paid: true },
-  ],
+  tiers: [],
+  specialBonuses: [],
 };
-
-const AGENTS_LIST = [
-  { id: 1, name: 'Rajesh Kumar' },
-  { id: 2, name: 'Priya Sharma' },
-  { id: 3, name: 'Amit Patel' },
-  { id: 4, name: 'Deepak Singh' },
-  { id: 5, name: 'Neha Gupta' },
-];
 
 const CommissionTrackerWidget = ({
   data: propData,
+  salesPersonId: propSalesPersonId,
   onRefresh,
   onViewDetails,
   isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
-  const [selectedAgentId, setSelectedAgentId] = useState(1);
-  const [commissionData, setCommissionData] = useState(propData || MOCK_COMMISSION_DATA);
+  const [agents, setAgents] = useState([]);
+  const [selectedAgentId, setSelectedAgentId] = useState(propSalesPersonId || null);
+  const [commissionData, setCommissionData] = useState(propData || EMPTY_COMMISSION_DATA);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+
+  // Fetch agents list on mount
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const response = await commissionService.getAgents(1, 50, true);
+        const agentsList = response?.agents || [];
+        setAgents(agentsList.map(a => ({
+          id: a.user_id || a.userId,
+          name: a.user_name || a.userName || 'Unknown',
+        })));
+        // Set first agent as selected if none provided
+        if (!propSalesPersonId && agentsList.length > 0) {
+          setSelectedAgentId(agentsList[0].user_id || agentsList[0].userId);
+        }
+      } catch (err) {
+        console.error('Error fetching agents:', err);
+        setError('Failed to load agents');
+      }
+    };
+    fetchAgents();
+  }, [propSalesPersonId]);
+
+  // Fetch commission data when agent changes
+  const fetchCommissionData = useCallback(async (agentId) => {
+    if (!agentId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await commissionService.getCommissionTrackerData(agentId);
+      setCommissionData(data);
+    } catch (err) {
+      console.error('Error fetching commission data:', err);
+      setError('Failed to load commission data');
+      setCommissionData(EMPTY_COMMISSION_DATA);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (propData) {
       setCommissionData(propData);
+    } else if (selectedAgentId) {
+      fetchCommissionData(selectedAgentId);
     }
-  }, [propData]);
+  }, [propData, selectedAgentId, fetchCommissionData]);
 
   const handleRefresh = async () => {
-    setLoading(true);
-    try {
-      if (onRefresh) {
+    if (onRefresh) {
+      setLoading(true);
+      try {
         const freshData = await onRefresh(selectedAgentId);
-        setCommissionData(freshData || MOCK_COMMISSION_DATA);
+        setCommissionData(freshData || EMPTY_COMMISSION_DATA);
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
+    } else {
+      fetchCommissionData(selectedAgentId);
     }
   };
 
@@ -148,7 +144,60 @@ const CommissionTrackerWidget = ({
     return 'bg-gray-400';
   };
 
-  if (!commissionData) {
+  // Loading state
+  if (loading && !commissionData?.summary?.totalEarned) {
+    return (
+      <div className={`rounded-xl border p-6 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Wallet size={20} className="text-green-500" />
+          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Commission Tracker
+          </h3>
+        </div>
+        <div className="text-center py-8">
+          <RefreshCw size={32} className={`mx-auto mb-4 animate-spin ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Loading commission data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={`rounded-xl border p-6 ${
+        isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+      }`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Wallet size={20} className="text-green-500" />
+          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Commission Tracker
+          </h3>
+        </div>
+        <div className="text-center py-8">
+          <AlertCircle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {error}
+          </p>
+          <button
+            onClick={handleRefresh}
+            className={`mt-4 px-4 py-2 rounded-lg text-sm ${
+              isDarkMode ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-green-500 hover:bg-green-600 text-white'
+            }`}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!commissionData || !commissionData.summary) {
     return (
       <div className={`rounded-xl border p-6 ${
         isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
@@ -204,19 +253,21 @@ const CommissionTrackerWidget = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <select
-            value={selectedAgentId}
-            onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
-            className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500 ${
-              isDarkMode
-                ? 'bg-[#2E3B4E] border-[#37474F] text-white'
-                : 'bg-gray-50 border-gray-200 text-gray-700'
-            }`}
-          >
-            {AGENTS_LIST.map(agent => (
-              <option key={agent.id} value={agent.id}>{agent.name}</option>
-            ))}
-          </select>
+          {agents.length > 0 && (
+            <select
+              value={selectedAgentId || ''}
+              onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
+              className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                isDarkMode
+                  ? 'bg-[#2E3B4E] border-[#37474F] text-white'
+                  : 'bg-gray-50 border-gray-200 text-gray-700'
+              }`}
+            >
+              {agents.map(agent => (
+                <option key={agent.id} value={agent.id}>{agent.name}</option>
+              ))}
+            </select>
+          )}
           <button
             onClick={handleRefresh}
             disabled={loading || isLoading}
