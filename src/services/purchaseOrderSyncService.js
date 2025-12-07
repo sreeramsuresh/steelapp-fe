@@ -15,6 +15,7 @@ class PurchaseOrderSyncService {
    */
   async handlePOStatusChange(po, newStatus, newStockStatus) {
     try {
+      // eslint-disable-next-line no-console
       console.log('Handling PO status change:', { po, newStatus, newStockStatus });
       
       // If PO is marked as received, add items to inventory
@@ -29,6 +30,7 @@ class PurchaseOrderSyncService {
       
       return true;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error handling PO status change:', error);
       notificationService.error('Failed to sync PO with inventory');
       throw error;
@@ -55,7 +57,8 @@ class PurchaseOrderSyncService {
               ...existingItem,
               quantity: newQuantity,
             });
-            
+
+            // eslint-disable-next-line no-console
             console.log(`Updated existing inventory item ${existingItem.id} with additional quantity ${item.quantity}`);
           } else {
             // Create new inventory item
@@ -76,16 +79,18 @@ class PurchaseOrderSyncService {
             };
 
             await inventoryService.createItem(inventoryItem);
+            // eslint-disable-next-line no-console
             console.log('Created new inventory item:', inventoryItem);
           }
-          
+
           // Create stock movement
           await this.createStockMovement(po, item, 'IN', `Received from PO #${po.poNumber}`);
         }
       }
-      
+
       notificationService.success(`Added ${po.items.length} items to inventory from PO #${po.poNumber}`);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error adding PO items to inventory:', error);
       throw error;
     }
@@ -100,9 +105,10 @@ class PurchaseOrderSyncService {
       // This will be handled by the stock movement filtering logic
       // Transit items will automatically disappear from stock movement view
       // when stock_status changes from 'transit' to 'retain'
-      
+
       notificationService.success(`PO #${po.poNumber} items moved from transit to stock`);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error moving PO from transit to stock:', error);
       throw error;
     }
@@ -143,10 +149,12 @@ class PurchaseOrderSyncService {
         seller: po.supplierName,
         notes,
       };
-      
+
       await stockMovementService.createMovement(stockMovement);
+      // eslint-disable-next-line no-console
       console.log('Created stock movement:', stockMovement);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error creating stock movement:', error);
       throw error;
     }

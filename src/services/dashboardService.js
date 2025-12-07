@@ -112,7 +112,7 @@ const prefetchAdjacentTabs = (currentTab) => {
  * Standard widget data structure
  * All widget data should follow this pattern for consistency
  */
-const createWidgetData = (data, options = {}) => ({
+const _createWidgetData = (data, options = {}) => ({
   // The actual data payload
   data,
   // Metadata
@@ -145,7 +145,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Aggregated dashboard metrics
    */
   async getDashboardMetrics(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching dashboard metrics from APIs...');
@@ -310,7 +310,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Product analytics
    */
   async getProductAnalytics(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching product analytics from APIs...');
@@ -463,7 +463,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Agent performance data
    */
   async getAgentPerformance(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching agent performance from commission APIs...');
@@ -613,7 +613,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Inventory health data
    */
   async getInventoryHealth(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching inventory health from APIs...');
@@ -672,7 +672,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} VAT metrics
    */
   async getVATMetrics(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching VAT metrics from VAT service...');
@@ -821,7 +821,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Customer insights
    */
   async getCustomerInsights(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching customer insights from APIs...');
@@ -1051,7 +1051,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Net profit data
    */
   async getNetProfit(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching net profit from API...');
@@ -1114,7 +1114,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} AP aging buckets data
    */
   async getAPAging(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching AP aging from API...');
@@ -1161,7 +1161,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Cash flow data with MTD, QTD, YTD breakdowns
    */
   async getCashFlow(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching cash flow from API...');
@@ -1224,7 +1224,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Stock turnover heatmap data
    */
   async getStockTurnover(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching stock turnover from API...');
@@ -1296,7 +1296,7 @@ export const dashboardService = {
    * @returns {Promise<Object>} Warehouse utilization data
    */
   async getWarehouseUtilization(options = {}) {
-    const { forceRefresh = false } = options;
+    const { forceRefresh: _forceRefresh = false } = options;
 
     try {
       // console.log('[dashboardService] Fetching warehouse utilization from API...');

@@ -2,25 +2,17 @@
  * Invoice Footer Notes Component
  * Displays payment terms, notes, and warehouse information
  * ONLY SHOWN ON LAST PAGE
- * Supports template-based styling for B&W printing
- *
- * CSS Properties:
- * - page-break-inside: avoid - Prevents page breaks within this component
- * - break-inside: avoid - Modern equivalent for preventing breaks
  */
 const InvoiceFooterNotes = ({ invoice, template = null }) => {
   const colors = template?.colors || {};
   const fonts = template?.fonts || {};
 
-  const textColor = colors.text || '#333333';
-  const _secondaryColor = colors.secondary || '#666666'; // Reserved for future use
-  const primaryColor = colors.primary || '#000000';
-  const borderColor = colors.border || '#cccccc';
-  const _headerBg = colors.headerBg || '#e8e8e8'; // Reserved for future use
-  const accentColor = colors.accent || '#f5f5f5';
+  const textColor = colors.text || '#555';
+  const primaryColor = colors.primary || '#111';
+  const borderColor = colors.border || '#e5e7eb';
+  const accentColor = colors.accent || '#f9fafb';
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 
-  // Check if there's any terms content to show
   const hasTermsContent = invoice.terms || invoice.notes || invoice.warehouseName || invoice.warehouseCode;
 
   return (
@@ -32,7 +24,6 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
         breakInside: 'avoid',
       }}
     >
-      {/* TERMS & CONDITIONS SECTION - only show if there's content */}
       {hasTermsContent && (
         <div
           className="terms-section"
@@ -41,16 +32,23 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
             breakInside: 'avoid',
           }}
         >
-          {/* Terms Header - styled like other section headers */}
           <h3
-            className="text-base font-bold mb-3"
-            style={{ color: primaryColor }}
+            style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+              color: primaryColor,
+            }}
           >
             Terms & Conditions:
           </h3>
 
-          {/* FOOTER SECTION */}
-          <div className="space-y-1.5 text-xs mb-6" style={{ color: textColor }}>
+          <div style={{
+            fontSize: '11px',
+            lineHeight: 1.6,
+            color: textColor,
+            marginBottom: '20px',
+          }}>
             {invoice.terms && (
               <div className="whitespace-pre-wrap">{invoice.terms}</div>
             )}
@@ -74,39 +72,54 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
         </div>
       )}
 
-      {/* TAX NOTES SECTION (UAE VAT Compliance) */}
       {invoice.taxNotes && (
-        <div className="mb-6 p-3" style={{
-          backgroundColor: accentColor,
-          borderLeft: `4px solid ${borderColor}`,
+        <div style={{
+          marginBottom: '20px',
+          padding: '10px',
+          backgroundColor: '#f0f9ff',
+          borderLeft: `3px solid ${primaryColor}`,
         }}>
-          <h4 className="text-sm font-bold mb-2" style={{ color: primaryColor }}>Tax Notes:</h4>
-          <div className="text-sm whitespace-pre-wrap" style={{ color: textColor }}>{invoice.taxNotes}</div>
+          <h4 style={{
+            fontSize: '11px',
+            fontWeight: 'bold',
+            marginBottom: '8px',
+            color: primaryColor,
+          }}>Tax Notes:</h4>
+          <div style={{
+            fontSize: '11px',
+            lineHeight: 1.6,
+            whiteSpace: 'pre-wrap',
+            color: textColor,
+          }}>{invoice.taxNotes}</div>
         </div>
       )}
 
-      {/* PAYMENT HISTORY (Optional) */}
       {invoice.payments && invoice.payments.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-base font-bold mb-2" style={{ color: primaryColor }}>Payment History</h3>
-          <table className="w-full border-collapse" style={{ borderColor }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginBottom: '8px',
+            color: primaryColor,
+          }}>Payment History</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: `1px solid ${borderColor}` }}>
             <thead>
               <tr style={{ backgroundColor: primaryColor, color: '#ffffff' }}>
-                <th className="px-2 py-2 text-left text-sm font-bold">Sr.</th>
-                <th className="px-2 py-2 text-left text-sm font-bold">Date</th>
-                <th className="px-2 py-2 text-left text-sm font-bold">Method</th>
-                <th className="px-2 py-2 text-left text-sm font-bold">Ref.</th>
-                <th className="px-2 py-2 text-right text-sm font-bold">Amount</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '10.5px', fontWeight: 'bold' }}>Sr.</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '10.5px', fontWeight: 'bold' }}>Date</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '10.5px', fontWeight: 'bold' }}>Method</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '10.5px', fontWeight: 'bold' }}>Ref.</th>
+                <th style={{ padding: '12px 10px', textAlign: 'right', fontSize: '10.5px', fontWeight: 'bold' }}>Amount</th>
               </tr>
             </thead>
             <tbody>
               {invoice.payments.map((payment, index) => (
                 <tr key={index} style={{ backgroundColor: index % 2 === 0 ? accentColor : 'white' }}>
-                  <td className="px-2 py-1.5 text-sm" style={{ color: textColor }}>{index + 1}</td>
-                  <td className="px-2 py-1.5 text-sm" style={{ color: textColor }}>{payment.date || ''}</td>
-                  <td className="px-2 py-1.5 text-sm" style={{ color: textColor }}>{payment.method || ''}</td>
-                  <td className="px-2 py-1.5 text-sm" style={{ color: textColor }}>{payment.reference || ''}</td>
-                  <td className="px-2 py-1.5 text-sm text-right" style={{ color: textColor }}>AED {payment.amount || 0}</td>
+                  <td style={{ padding: '12px 10px', fontSize: '10px', color: textColor }}>{index + 1}</td>
+                  <td style={{ padding: '12px 10px', fontSize: '10px', color: textColor }}>{payment.date || ''}</td>
+                  <td style={{ padding: '12px 10px', fontSize: '10px', color: textColor }}>{payment.method || ''}</td>
+                  <td style={{ padding: '12px 10px', fontSize: '10px', color: textColor }}>{payment.reference || ''}</td>
+                  <td style={{ padding: '12px 10px', fontSize: '10px', textAlign: 'right', color: textColor }}>AED {payment.amount || 0}</td>
                 </tr>
               ))}
             </tbody>

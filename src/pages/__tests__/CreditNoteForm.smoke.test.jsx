@@ -43,7 +43,7 @@ vi.mock('../../services/creditNoteService', () => {
       deleteCreditNote: vi.fn(),
       downloadPDF: vi.fn(),
       getAllowedTransitions: vi.fn().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
-    }
+    },
   };
 });
 
@@ -52,7 +52,7 @@ vi.mock('../../services/invoiceService', () => {
     invoiceService: {
       getInvoice: vi.fn(),
       searchForCreditNote: vi.fn(),
-    }
+    },
   };
 });
 
@@ -60,7 +60,7 @@ vi.mock('../../services/companyService', () => {
   return {
     companyService: {
       getCompany: vi.fn(),
-    }
+    },
   };
 });
 
@@ -71,7 +71,7 @@ vi.mock('../../services/notificationService', () => {
       error: vi.fn(),
       warning: vi.fn(),
       info: vi.fn(),
-    }
+    },
   };
 });
 vi.mock('../../hooks/useCreditNoteDrafts', () => ({
@@ -212,7 +212,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -224,7 +224,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -236,7 +236,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -250,7 +250,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -262,7 +262,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -274,7 +274,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -286,7 +286,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -299,7 +299,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -314,7 +314,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -330,7 +330,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -350,7 +350,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -364,7 +364,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -373,7 +373,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const select = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="ACCOUNTING_ONLY"]')
+        s.querySelector('option[value="ACCOUNTING_ONLY"]'),
       );
       expect(select).toBeInTheDocument();
     });
@@ -382,7 +382,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -392,7 +392,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="ACCOUNTING_ONLY"]')
+        s.querySelector('option[value="ACCOUNTING_ONLY"]'),
       );
 
       const options = within(typeSelect).getAllByRole('option');
@@ -406,7 +406,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -422,7 +422,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -435,7 +435,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -445,7 +445,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="defective"]')
+        s.querySelector('option[value="defective"]'),
       );
 
       const options = within(reasonSelect).getAllByRole('option');
@@ -470,7 +470,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -485,7 +485,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -504,7 +504,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -520,7 +520,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -535,7 +535,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -554,7 +554,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -575,7 +575,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -587,7 +587,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -607,7 +607,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -619,7 +619,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -632,7 +632,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -645,7 +645,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -658,7 +658,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -671,7 +671,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -686,7 +686,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -706,7 +706,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -721,7 +721,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       // Find the quantity input (should be enabled after checkbox is checked)
       const quantityInputs = screen.getAllByRole('spinbutton');
       const returnQtyInput = quantityInputs.find(input =>
-        !input.disabled && input.getAttribute('min') === '0'
+        !input.disabled && input.getAttribute('min') === '0',
       );
 
       if (returnQtyInput) {
@@ -739,7 +739,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -755,7 +755,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -777,7 +777,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -799,7 +799,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -821,7 +821,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -843,7 +843,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -867,7 +867,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -888,7 +888,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -897,7 +897,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       const inputs = screen.getAllByRole('spinbutton');
       const manualAmountInput = inputs.find(input =>
-        input.getAttribute('placeholder') === '0.00'
+        input.getAttribute('placeholder') === '0.00',
       );
 
       if (manualAmountInput) {
@@ -910,7 +910,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -926,7 +926,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -937,7 +937,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       // Change to RETURN_WITH_QC
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -952,7 +952,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -962,7 +962,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -978,7 +978,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -988,7 +988,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -1003,7 +1003,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1013,7 +1013,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -1031,7 +1031,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1050,7 +1050,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1062,7 +1062,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1079,7 +1079,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1089,7 +1089,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -1103,7 +1103,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1117,7 +1117,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1125,7 +1125,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -1140,7 +1140,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1148,7 +1148,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="RETURN_WITH_QC"]')
+        s.querySelector('option[value="RETURN_WITH_QC"]'),
       );
       await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
 
@@ -1164,7 +1164,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper isDarkMode={true}>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1177,7 +1177,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper isDarkMode={false}>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1189,13 +1189,13 @@ describe('CreditNoteForm - Smoke Tests', () => {
   describe('Loading States', () => {
     it('shows loading spinner while fetching credit note', () => {
       creditNoteService.getCreditNote.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+        () => new Promise(resolve => setTimeout(resolve, 1000)),
       );
 
       render(
         <TestWrapper route="/credit-notes/1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(screen.getByText(/loading credit note/i)).toBeInTheDocument();
@@ -1205,13 +1205,13 @@ describe('CreditNoteForm - Smoke Tests', () => {
       const user = userEvent.setup();
 
       creditNoteService.createCreditNote.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+        () => new Promise(resolve => setTimeout(resolve, 1000)),
       );
 
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1220,7 +1220,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       // Fill required fields first
       const reasonSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="defective"]')
+        s.querySelector('option[value="defective"]'),
       );
       await user.selectOptions(reasonSelect, 'defective');
 
@@ -1245,7 +1245,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1265,7 +1265,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1280,7 +1280,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1292,7 +1292,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1304,7 +1304,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1318,7 +1318,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1341,7 +1341,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1351,7 +1351,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="defective"]')
+        s.querySelector('option[value="defective"]'),
       );
       await user.selectOptions(reasonSelect, 'defective');
 
@@ -1366,7 +1366,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -1376,7 +1376,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="overcharge"]')
+        s.querySelector('option[value="overcharge"]'),
       );
       await user.selectOptions(reasonSelect, 'overcharge');
 

@@ -3,26 +3,21 @@ import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettin
 
 /**
  * Get display name for invoice line item
- * UAE products: show only name (display_name)
- * Non-UAE products: show name + " - " + origin
  */
 const getItemDisplayName = (item) => {
   const name = item.name || item.displayName || item.display_name || '';
   const origin = item.origin || item.productOrigin || '';
-  
-  // If origin is UAE or empty, just show the name
+
   if (!origin || origin.toUpperCase() === 'UAE') {
     return name;
   }
-  
-  // For non-UAE products, append origin
+
   return `${name} - ${origin}`;
 };
 
 /**
  * Invoice Items Table Component
  * Displays line items for current page
- * Supports different table styles based on template
  */
 const InvoiceItemsTable = ({
   items,
@@ -36,19 +31,16 @@ const InvoiceItemsTable = ({
   const layout = template?.layout || {};
   const colors = template?.colors || {};
   const fonts = template?.fonts || {};
-  
-  // Get table style from template
+
   const itemsStyle = layout.itemsStyle || 'full-grid';
   const alternatingRows = layout.alternatingRows !== false;
-  const headerBg = colors.primary || color; // Use primary color for header
-  const borderColor = colors.border || '#cccccc';
-  const accentColor = colors.accent || '#f0f0f0';
+  const headerBg = colors.primary || color;
+  const borderColor = colors.border || '#e5e7eb';
+  const accentColor = colors.accent || '#f9fafb';
 
-  // Check if header should use light or dark text (B&W template has light gray header)
   const isLightHeader = itemsStyle === 'no-borders' || itemsStyle === 'bold-header';
   const headerTextColor = isLightHeader ? (colors.primary || color) : '#ffffff';
 
-  // Table style configurations
   const getTableStyles = () => {
     switch (itemsStyle) {
       case 'horizontal-lines':
@@ -58,7 +50,7 @@ const InvoiceItemsTable = ({
           headerCell: { border: 'none', borderBottom: `2px solid ${headerBg}` },
           bodyRow: () => ({
             backgroundColor: '#ffffff',
-            borderBottom: `1px solid ${borderColor}`,
+            borderBottom: '1px solid #e5e7eb',
           }),
           bodyCell: { border: 'none' },
         };
@@ -70,10 +62,9 @@ const InvoiceItemsTable = ({
           bodyRow: () => ({
             backgroundColor: 'transparent',
           }),
-          bodyCell: { border: 'none', borderBottom: `1px solid #eeeeee` },
+          bodyCell: { border: 'none', borderBottom: '1px solid #eeeeee' },
         };
       case 'bold-header':
-        // Print Ready (B&W) - uses light gray header with dark text
         return {
           table: { borderCollapse: 'collapse', border: `1px solid ${borderColor}` },
           headerRow: { backgroundColor: colors.headerBg || '#e0e0e0', borderBottom: `2px solid ${borderColor}` },
@@ -101,25 +92,84 @@ const InvoiceItemsTable = ({
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 
   return (
-    <div className="invoice-items-table mb-6" style={{ fontFamily }}>
-      {/* Continuation indicator for pages after first */}
+    <div className="invoice-items-table" style={{ fontFamily, marginBottom: '20px' }}>
       {isContinued && !isFirstPage && (
-        <div className="table-continued-header mb-2 text-xs italic" style={{ color: colors.secondary || '#666666' }}>
+        <div style={{
+          marginBottom: '8px',
+          fontSize: '10px',
+          fontStyle: 'italic',
+          color: colors.secondary || '#666',
+        }}>
           (Continued from previous page)
         </div>
       )}
 
-      {/* TABLE SECTION - UAE VAT Compliant */}
-      <table className="w-full" style={{ ...styles.table, fontSize: '11px' }}>
+      <table style={{ ...styles.table, width: '100%', fontSize: '10px' }}>
         <thead>
           <tr style={styles.headerRow}>
-            <th className="px-2 py-2 text-left text-xs font-bold" style={{ ...styles.headerCell, width: '4%', color: headerTextColor }}>Sr.</th>
-            <th className="px-2 py-2 text-left text-xs font-bold" style={{ ...styles.headerCell, width: '44%', color: headerTextColor }}>Description</th>
-            <th className="px-2 py-2 text-center text-xs font-bold" style={{ ...styles.headerCell, width: '6%', color: headerTextColor }}>Qty</th>
-            <th className="px-2 py-2 text-right text-xs font-bold" style={{ ...styles.headerCell, width: '10%', color: headerTextColor }}>Unit Price</th>
-            <th className="px-2 py-2 text-right text-xs font-bold" style={{ ...styles.headerCell, width: '10%', color: headerTextColor }}>Net Amt</th>
-            <th className="px-2 py-2 text-right text-xs font-bold" style={{ ...styles.headerCell, width: '16%', color: headerTextColor }}>VAT</th>
-            <th className="px-2 py-2 text-right text-xs font-bold" style={{ ...styles.headerCell, width: '10%', color: headerTextColor }}>Total</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'left',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '4%',
+              color: headerTextColor,
+            }}>Sr.</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'left',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '44%',
+              color: headerTextColor,
+            }}>Description</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'center',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '6%',
+              color: headerTextColor,
+            }}>Qty</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'right',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '10%',
+              color: headerTextColor,
+            }}>Unit Price</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'right',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '10%',
+              color: headerTextColor,
+            }}>Net Amt</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'right',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '16%',
+              color: headerTextColor,
+            }}>VAT</th>
+            <th style={{
+              ...styles.headerCell,
+              padding: '12px 10px',
+              textAlign: 'right',
+              fontSize: '10.5px',
+              fontWeight: 'bold',
+              width: '10%',
+              color: headerTextColor,
+            }}>Total</th>
           </tr>
         </thead>
         <tbody>
@@ -132,20 +182,69 @@ const InvoiceItemsTable = ({
 
             return (
               <tr key={index} style={styles.bodyRow(index)}>
-                <td className="px-2 py-2 text-xs" style={styles.bodyCell}>{globalIndex + 1}</td>
-                <td className="px-2 py-2 text-xs font-medium" style={styles.bodyCell}>{getItemDisplayName(item)}</td>
-                <td className="px-2 py-2 text-xs text-center" style={styles.bodyCell}>{item.quantity || 0}</td>
-                <td className="px-2 py-2 text-xs text-right" style={styles.bodyCell}>{formatNumber(item.rate || 0)}</td>
-                <td className="px-2 py-2 text-xs text-right" style={styles.bodyCell}>{formatNumber(amountNum)}</td>
-                <td className="px-2 py-2 text-xs text-right" style={styles.bodyCell}>{formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : '0%'})</td>
-                <td className="px-2 py-2 text-xs text-right font-medium" style={styles.bodyCell}>{formatNumber(totalWithVAT)}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{globalIndex + 1}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{getItemDisplayName(item)}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  textAlign: 'center',
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{item.quantity || 0}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  textAlign: 'right',
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{formatNumber(item.rate || 0)}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  textAlign: 'right',
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{formatNumber(amountNum)}</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  textAlign: 'right',
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : '0%'})</td>
+                <td style={{
+                  ...styles.bodyCell,
+                  padding: '12px 10px',
+                  fontSize: '10px',
+                  textAlign: 'right',
+                  fontWeight: 500,
+                  verticalAlign: 'top',
+                  lineHeight: 1.5,
+                }}>{formatNumber(totalWithVAT)}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
       {itemsStyle !== 'no-borders' && (
-        <div style={{ borderTop: `2px solid ${borderColor}`, marginTop: '2px' }}></div>
+        <div style={{ borderTop: '2px solid #d1d5db', marginTop: '5px', marginBottom: '15px' }}></div>
       )}
     </div>
   );

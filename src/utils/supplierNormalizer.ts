@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Supplier Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizeSupplier(rawSupplier: any, source = 'unknown'): any | n
     console.error(`❌ [Supplier Normalizer] Invalid supplier data from ${source}:`, rawSupplier);
     return null;
   }
-
-  const errors: string[] = [];
 
   // Helper to safely parse dates
   const parseDate = (value: any): string | undefined => {
@@ -72,12 +71,6 @@ export function normalizeSupplier(rawSupplier: any, source = 'unknown'): any | n
       // Notes
       notes: rawSupplier.notes || undefined,
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [Supplier Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

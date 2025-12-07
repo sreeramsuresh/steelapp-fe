@@ -12,6 +12,7 @@ import type { Invoice, CustomerDetails, InvoiceItem, PaymentRecord, DeliveryStat
  * @param rawStatus - Raw status from API (e.g., "STATUS_DRAFT", "STATUS_ISSUED")
  * @returns Normalized status: 'draft' | 'proforma' | 'issued' | 'sent' | 'cancelled'
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeInvoiceStatus(rawStatus: any): string {
   // Handle null/undefined/empty
   if (!rawStatus || rawStatus === '') {
@@ -60,6 +61,7 @@ function normalizeInvoiceStatus(rawStatus: any): string {
  * @param rawStatus - Raw payment status from API (e.g., "PAYMENT_STATUS_UNPAID")
  * @returns Normalized payment status: 'unpaid' | 'partially_paid' | 'paid' | 'fully_paid'
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizePaymentStatus(rawStatus: any): string {
   // Handle null/undefined/empty
   if (!rawStatus || rawStatus === '') {
@@ -107,6 +109,7 @@ function normalizePaymentStatus(rawStatus: any): string {
  * @param source - Source of the data for debugging
  * @returns Normalized Invoice with camelCase fields
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice | null {
   if (!rawInvoice || typeof rawInvoice !== 'object') {
     console.error(`❌ [Invoice Normalizer] Invalid invoice data from ${source}:`, rawInvoice);
@@ -117,6 +120,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
 
   try {
     // Helper to safely parse dates
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parseDate = (value: any, fieldName: string): string => {
       if (!value) return new Date().toISOString();
       
@@ -140,6 +144,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Helper to safely parse numbers
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parseNumber = (value: any, fallback = 0): number => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
@@ -147,6 +152,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Normalize customer details (handle both snake_case and camelCase)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeCustomerDetails = (raw: any): CustomerDetails => {
       if (!raw) {
         return {
@@ -166,6 +172,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Normalize invoice items
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeItems = (items: any[]): InvoiceItem[] => {
       if (!Array.isArray(items)) return [];
       
@@ -184,6 +191,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Normalize payments
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizePayments = (payments: any[]): PaymentRecord[] | undefined => {
       if (!Array.isArray(payments)) return undefined;
       
@@ -198,6 +206,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     };
 
     // Normalize delivery status
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeDeliveryStatus = (status: any): DeliveryStatus | undefined => {
       if (!status) return undefined;
       
@@ -355,6 +364,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
  * @param source - Source identifier for debugging
  * @returns Array of normalized Invoice objects
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeInvoices(rawInvoices: any[], source = 'list'): Invoice[] {
   if (!Array.isArray(rawInvoices)) {
     console.error(`❌ [Invoice Normalizer] Expected array, got ${typeof rawInvoices}`);

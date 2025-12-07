@@ -38,7 +38,7 @@ vi.mock('../../services/creditNoteService', () => {
       createCreditNote: vi.fn(),
       updateCreditNote: vi.fn(),
       getAllowedTransitions: vi.fn().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
-    }
+    },
   };
 });
 
@@ -46,7 +46,7 @@ vi.mock('../../services/companyService', () => {
   return {
     companyService: {
       getCompany: vi.fn(),
-    }
+    },
   };
 });
 
@@ -57,7 +57,7 @@ vi.mock('../../services/notificationService', () => {
       error: vi.fn(),
       warning: vi.fn(),
       info: vi.fn(),
-    }
+    },
   };
 });
 vi.mock('../../hooks/useConfirm', () => ({
@@ -175,7 +175,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -187,7 +187,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -199,7 +199,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -215,7 +215,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -235,7 +235,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -249,7 +249,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -267,7 +267,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -284,7 +284,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -298,7 +298,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -326,7 +326,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -345,7 +345,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -357,7 +357,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -369,7 +369,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -381,7 +381,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -393,7 +393,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -405,7 +405,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -417,7 +417,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -429,7 +429,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -443,7 +443,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -457,7 +457,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -471,7 +471,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -485,7 +485,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -499,7 +499,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -513,7 +513,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -529,7 +529,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -542,7 +542,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -555,7 +555,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -568,7 +568,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -583,7 +583,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -602,7 +602,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -623,7 +623,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -661,7 +661,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -690,7 +690,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -719,7 +719,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -748,7 +748,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -778,7 +778,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -798,7 +798,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -818,7 +818,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -837,13 +837,13 @@ describe('CreditNoteList - Smoke Tests', () => {
   describe('Loading States', () => {
     it('shows loading spinner on initial load', () => {
       creditNoteService.getAllCreditNotes.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+        () => new Promise(resolve => setTimeout(resolve, 1000)),
       );
 
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(screen.getByText(/loading credit notes/i)).toBeInTheDocument();
@@ -853,13 +853,13 @@ describe('CreditNoteList - Smoke Tests', () => {
       const user = userEvent.setup();
 
       creditNoteService.downloadPDF.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+        () => new Promise(resolve => setTimeout(resolve, 1000)),
       );
 
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -881,7 +881,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper isDarkMode={true}>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -894,7 +894,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper isDarkMode={false}>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -908,7 +908,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -924,7 +924,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -946,7 +946,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -963,7 +963,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -977,7 +977,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -991,7 +991,7 @@ describe('CreditNoteList - Smoke Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteList />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {

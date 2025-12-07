@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Product Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizeProduct(rawProduct: any, source = 'unknown'): any | nul
     console.error(`❌ [Product Normalizer] Invalid product data from ${source}:`, rawProduct);
     return null;
   }
-
-  const errors: string[] = [];
 
   try {
     // Helper to safely parse numbers
@@ -102,12 +101,6 @@ export function normalizeProduct(rawProduct: any, source = 'unknown'): any | nul
       product: rawProduct.product || undefined,
       image: rawProduct.image || undefined,
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [Product Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

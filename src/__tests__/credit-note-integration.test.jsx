@@ -154,7 +154,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Step 1: Wait for invoice to load
@@ -245,7 +245,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Step 1: Resume draft
@@ -306,7 +306,7 @@ describe('Credit Note Integration Tests', () => {
       const { container } = render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Step 1: Verify date loaded correctly
@@ -348,7 +348,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -383,7 +383,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -429,7 +429,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -472,7 +472,7 @@ describe('Credit Note Integration Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {

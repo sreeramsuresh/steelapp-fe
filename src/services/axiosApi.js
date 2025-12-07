@@ -61,11 +61,13 @@ api.interceptors.request.use((config) => {
 
   // For FormData, let the browser set the Content-Type with boundary
   if (config.data instanceof FormData) {
+    /* eslint-disable no-console */
     console.log('[axios interceptor] Detected FormData, deleting Content-Type header');
     console.log('[axios interceptor] Request URL:', config.url);
     console.log('[axios interceptor] Headers before deletion:', config.headers);
     delete config.headers['Content-Type'];
     console.log('[axios interceptor] Headers after deletion:', config.headers);
+    /* eslint-enable no-console */
   }
 
   return config;
@@ -90,14 +92,14 @@ api.interceptors.response.use(
       }
       
       try {
-        console.log('[Interceptor] Attempting token refresh');
+        console.log('[Interceptor] Attempting token refresh'); // eslint-disable-line no-console
         const { data } = await axios.post(
           `${API_BASE_URL}${REFRESH_ENDPOINT}`,
           { refreshToken },
           { withCredentials: true },
         );
-        
-        console.log('[Interceptor] Refresh response:', data); // Debug log
+
+        console.log('[Interceptor] Refresh response:', data); // eslint-disable-line no-console
 
         // Backend already sends camelCase
         const newAccessToken = data.accessToken || data.token;
@@ -117,7 +119,7 @@ api.interceptors.response.use(
           throw new Error('No tokens in refresh response');
         }
       } catch (refreshError) {
-        console.error('[Interceptor] Token refresh failed:', refreshError);
+        console.error('[Interceptor] Token refresh failed:', refreshError); // eslint-disable-line no-console
         // Clear tokens on refresh failure
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
@@ -201,7 +203,7 @@ export const apiService = {
       return response.data;
     } catch (error) {
       const label = `${config.method || 'GET'} ${config.url}`;
-      console.error(`${label} error:`, error.response?.data || error.message);
+      console.error(`${label} error:`, error.response?.data || error.message); // eslint-disable-line no-console
       throw error;
     }
   },

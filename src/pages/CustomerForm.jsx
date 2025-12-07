@@ -53,10 +53,10 @@ const CustomerForm = () => {
     creditGrade: 'A',
     dsoDays: 0,
     agingCurrent: 0,
-    aging1_30: 0,
-    aging31_60: 0,
-    aging61_90: 0,
-    aging90_plus: 0,
+    aging1To30: 0,
+    aging31To60: 0,
+    aging61To90: 0,
+    aging90Plus: 0,
     lastPaymentDate: null,
     creditReviewDate: null,
     lastCreditUpdated: null,
@@ -111,10 +111,10 @@ const CustomerForm = () => {
         creditGrade: customer.creditGrade || 'A',
         dsoDays: customer.dsoDay || customer.dsoDays || 0,
         agingCurrent: customer.agingCurrent || 0,
-        aging1_30: customer.aging1_30 || 0,
-        aging31_60: customer.aging31_60 || 0,
-        aging61_90: customer.aging61_90 || 0,
-        aging90_plus: customer.aging90_plus || 0,
+        aging1To30: customer.aging1To30 || 0,
+        aging31To60: customer.aging31To60 || 0,
+        aging61To90: customer.aging61To90 || 0,
+        aging90Plus: customer.aging90Plus || 0,
         lastPaymentDate: customer.lastPaymentDate || null,
         creditReviewDate: customer.creditReviewDate || null,
         lastCreditUpdated: customer.lastCreditUpdated || null,
@@ -646,10 +646,10 @@ const CustomerForm = () => {
           <div className="space-y-4">
             {[
               { label: 'Current (0 days)', value: creditData.agingCurrent, color: 'text-green-600' },
-              { label: '1-30 days overdue', value: creditData.aging1_30, color: 'text-yellow-600' },
-              { label: '31-60 days overdue', value: creditData.aging31_60, color: 'text-orange-600' },
-              { label: '61-90 days overdue', value: creditData.aging61_90, color: 'text-orange-700' },
-              { label: '90+ days overdue', value: creditData.aging90_plus, color: 'text-red-600' },
+              { label: '1-30 days overdue', value: creditData.aging1To30, color: 'text-yellow-600' },
+              { label: '31-60 days overdue', value: creditData.aging31To60, color: 'text-orange-600' },
+              { label: '61-90 days overdue', value: creditData.aging61To90, color: 'text-orange-700' },
+              { label: '90+ days overdue', value: creditData.aging90Plus, color: 'text-red-600' },
             ].map((bucket, idx) => (
               <div key={idx} className="flex items-center justify-between">
                 <span className={mutedColor}>{bucket.label}</span>
@@ -663,7 +663,7 @@ const CustomerForm = () => {
             }`}>
               <span className={textColor}>Total Outstanding</span>
               <span className={textColor}>
-                AED {(creditData.agingCurrent + creditData.aging1_30 + creditData.aging31_60 + creditData.aging61_90 + creditData.aging90_plus).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                AED {(creditData.agingCurrent + creditData.aging1To30 + creditData.aging31To60 + creditData.aging61To90 + creditData.aging90Plus).toLocaleString('en-US', { maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>

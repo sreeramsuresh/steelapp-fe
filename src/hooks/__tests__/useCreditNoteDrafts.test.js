@@ -58,7 +58,7 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should save a draft with manual credit amount', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       const draftData = {
@@ -89,7 +89,7 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should retrieve a saved draft', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       const draftData = {
@@ -115,14 +115,14 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should delete a draft', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       // Save draft
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
         );
       });
 
@@ -143,11 +143,11 @@ describe('useCreditNoteDrafts Hook', () => {
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test 1' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test 1' },
         );
         result.current.saveDraft(
           { manualCreditAmount: 750, items: [] },
-          { invoiceId: 338, invoiceNumber: 'INV-002', customerName: 'Test 2' }
+          { invoiceId: 338, invoiceNumber: 'INV-002', customerName: 'Test 2' },
         );
       });
 
@@ -170,7 +170,7 @@ describe('useCreditNoteDrafts Hook', () => {
   describe('Auto-Save with Manual Credit Amount', () => {
     it('should save draft with manual credit amount and no items', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       const draftData = {
@@ -202,14 +202,14 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should update manual credit amount in existing draft', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       // Initial save
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
         );
       });
 
@@ -219,7 +219,7 @@ describe('useCreditNoteDrafts Hook', () => {
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 750, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
         );
       });
 
@@ -228,7 +228,7 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should save draft with both items and manual amount', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       const draftData = {
@@ -271,7 +271,7 @@ describe('useCreditNoteDrafts Hook', () => {
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
         );
       });
 
@@ -289,7 +289,7 @@ describe('useCreditNoteDrafts Hook', () => {
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test 1' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test 1' },
         );
       });
 
@@ -375,7 +375,7 @@ describe('useCreditNoteDrafts Hook', () => {
   describe('Pending Save', () => {
     it('should track pending save data', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       const pendingData = {
@@ -438,13 +438,13 @@ describe('useCreditNoteDrafts Hook', () => {
   describe('localStorage Persistence', () => {
     it('should persist drafts to localStorage', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       act(() => {
         result.current.saveDraft(
           { manualCreditAmount: 500, items: [] },
-          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+          { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
         );
       });
 
@@ -475,7 +475,7 @@ describe('useCreditNoteDrafts Hook', () => {
       localStorageMock['credit_note_drafts'] = JSON.stringify(existingDrafts);
 
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       // Should load existing draft
@@ -507,7 +507,7 @@ describe('useCreditNoteDrafts Hook', () => {
 
       const success = result.current.saveDraft(
         { manualCreditAmount: 500 },
-        { invoiceId: null }
+        { invoiceId: null },
       );
 
       expect(success).toBe(false);
@@ -515,13 +515,13 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should handle missing invoice info', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       act(() => {
         result.current.saveDraft(
           { invoiceId: 337, manualCreditAmount: 500, items: [] },
-          {} // Empty invoice info
+          {}, // Empty invoice info
         );
       });
 
@@ -532,7 +532,7 @@ describe('useCreditNoteDrafts Hook', () => {
 
     it('should handle multiple rapid saves', () => {
       const { result } = renderHook(() =>
-        useCreditNoteDrafts({ currentInvoiceId: 337 })
+        useCreditNoteDrafts({ currentInvoiceId: 337 }),
       );
 
       // Rapid saves
@@ -540,7 +540,7 @@ describe('useCreditNoteDrafts Hook', () => {
         for (let i = 0; i < 10; i++) {
           result.current.saveDraft(
             { manualCreditAmount: 100 + i, items: [] },
-            { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' }
+            { invoiceId: 337, invoiceNumber: 'INV-001', customerName: 'Test' },
           );
         }
       });

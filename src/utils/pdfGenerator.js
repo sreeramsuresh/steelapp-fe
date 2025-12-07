@@ -25,15 +25,15 @@
  */
 
 import {
-  formatCurrency,
-  formatDate,
+  formatCurrency as _formatCurrency,
+  formatDate as _formatDate,
   calculateTRN,
   calculateSubtotal,
-  calculateTotalTRN,
+  calculateTotalTRN as _calculateTotalTRN,
   calculateTotal,
   titleCase,
   formatNumber,
-  formatDateDMY,
+  formatDateDMY as _formatDateDMY,
   calculateDiscountedTRN,
   getCompanyImages,
   toUAEDateProfessional,
@@ -70,7 +70,7 @@ export const generateInvoicePDF = async (invoice, company) => {
 
   // Get template settings (merge company settings with defaults)
   const templateSettings = mergeTemplateSettings(company?.settings?.invoiceTemplate || {});
-  const { colors, layout, typography, branding, visibility, table, formatting, labels } = templateSettings;
+  const { colors, layout, typography, branding, visibility: _visibility, table: _table, formatting: _formatting, labels: _labels } = templateSettings;
 
   // Page dimensions
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -87,8 +87,8 @@ export const generateInvoicePDF = async (invoice, company) => {
   // Helper functions for colors
   const setTextPrimary = () => pdf.setTextColor(...textPrimaryColor);
   const setTextSecondary = () => pdf.setTextColor(...textSecondaryColor);
-  const setTextLight = () => pdf.setTextColor(...textLightColor);
-  const setPrimaryColor = () => pdf.setTextColor(...primaryColor);
+  const _setTextLight = () => pdf.setTextColor(...textLightColor);
+  const _setPrimaryColor = () => pdf.setTextColor(...primaryColor);
   const setBlack = () => pdf.setTextColor(0, 0, 0);
   const setDarkGray = () => pdf.setTextColor(80, 80, 80);
 
@@ -159,7 +159,8 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     const logoX = pageWidth - margin - logoWidth;
     pdf.addImage(logoCompany, 'PNG', logoX, margin, logoWidth, logoHeight);
-  } catch (error) {
+  } catch {
+    // Logo loading failed - continue without logo
   }
 
   currentY += 3;
@@ -361,7 +362,7 @@ export const generateInvoicePDF = async (invoice, company) => {
   }
 
   // ==================== TABLE SECTION (UAE VAT Compliant) ====================
-  const tableStartY = currentY;
+  const _tableStartY = currentY;
 
   // Table column configuration - Updated for UAE VAT compliance
   // Matches preview proportions: 4%, 44%, 6%, 10%, 10%, 16%, 10%
@@ -777,11 +778,11 @@ export const generateInvoicePDF = async (invoice, company) => {
 };
 
 // Export placeholder functions for compatibility
-const createInvoiceElement = (invoice, company) => {
+const createInvoiceElement = (_invoice, _company) => {
   return null;
 };
 
-const waitForImages = (container) => {
+const waitForImages = (_container) => {
   return Promise.resolve();
 };
 

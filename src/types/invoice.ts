@@ -185,7 +185,7 @@ export interface Invoice {
 /**
  * Type guard to check if object is a valid Invoice
  */
-export function isInvoice(obj: any): obj is Invoice {
+export function isInvoice(obj: unknown): obj is Invoice {
   return (
     obj &&
     typeof obj === 'object' &&

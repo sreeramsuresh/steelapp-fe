@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Delivery Note Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
     console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
     return null;
   }
-
-  const errors: string[] = [];
 
   try {
     // Helper to safely parse dates
@@ -85,12 +84,6 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       tooltip: rawDN.tooltip || undefined,
       enabled: Boolean(rawDN.enabled),
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [DeliveryNote Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

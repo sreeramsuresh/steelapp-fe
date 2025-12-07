@@ -1,5 +1,9 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { lazy } from 'react';
+
+// Lazy loaded components
+const CustomerDetail = lazy(() => import('../pages/CustomerDetail'));
 
 // Components
 import Dashboard from './DashboardV2';
@@ -767,6 +771,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="customers.read">
               <CustomerManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/:customerId"
+          element={
+            <ProtectedRoute user={user} requiredPermission="customers.read">
+              <CustomerDetail />
             </ProtectedRoute>
           }
         />

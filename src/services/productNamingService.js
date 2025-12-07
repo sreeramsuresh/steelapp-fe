@@ -21,8 +21,8 @@ export const productNamingService = {
         },
         body: JSON.stringify({
           productType,
-          ...attributes
-        })
+          ...attributes,
+        }),
       });
 
       if (!response.ok) {
@@ -51,7 +51,7 @@ export const productNamingService = {
         thickness: '2mm',
         length: '2440mm',
         millCountry: 'KR',
-        mill: 'POSCO'
+        mill: 'POSCO',
       },
       {
         productType: 'pipe',
@@ -60,7 +60,7 @@ export const productNamingService = {
         diameter: '2inch',
         schedule: 'Sch40',
         millCountry: 'TH',
-        mill: 'TISCO'
+        mill: 'TISCO',
       },
       {
         productType: 'tube',
@@ -69,7 +69,7 @@ export const productNamingService = {
         diameter: '25mm',
         thickness: '1.5mm',
         millCountry: 'IN',
-        mill: 'JINDAL'
+        mill: 'JINDAL',
       },
       {
         productType: 'coil',
@@ -78,7 +78,7 @@ export const productNamingService = {
         width: '1000mm',
         thickness: '1mm',
         millCountry: 'CN',
-        mill: 'TISCO'
+        mill: 'TISCO',
       },
       {
         productType: 'bar',
@@ -86,7 +86,7 @@ export const productNamingService = {
         finish: 'BRIGHT',
         diameter: '20mm',
         millCountry: 'JP',
-        mill: 'NSC'
+        mill: 'NSC',
       },
       {
         productType: 'anglebar',
@@ -94,8 +94,8 @@ export const productNamingService = {
         finish: '2B',
         size: '50x50x6mm',
         millCountry: 'KR',
-        mill: 'POSCO'
-      }
+        mill: 'POSCO',
+      },
     ];
 
     const results = await Promise.allSettled(
@@ -106,16 +106,16 @@ export const productNamingService = {
           return {
             productType,
             status: 'success',
-            ...result
+            ...result,
           };
         } catch (error) {
           return {
             productType,
             status: 'error',
-            error: error.message
+            error: error.message,
           };
         }
-      })
+      }),
     );
 
     return results.map((result, index) => {
@@ -125,9 +125,9 @@ export const productNamingService = {
         return {
           productType: testCases[index].productType,
           status: 'error',
-          error: result.reason?.message || 'Unknown error'
+          error: result.reason?.message || 'Unknown error',
         };
       }
     });
-  }
+  },
 };

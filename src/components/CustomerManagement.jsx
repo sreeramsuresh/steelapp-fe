@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { format } from 'date-fns';
 import { customerService } from '../services/customerService';
@@ -37,6 +37,7 @@ import CustomerUpload from './CustomerUpload';
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   // Set notification service theme
@@ -147,6 +148,11 @@ const CustomerManagement = () => {
     const q = searchParams.get('search') || '';
     setSearchTerm(q);
   }, [searchParams]);
+
+  // Navigate to customer detail page
+  const handleCustomerClick = (customerId) => {
+    navigate(`/customers/${customerId}?tab=overview`);
+  };
 
   const handleAddCustomer = async () => {
     const trnError = validateTRN(newCustomer.trnNumber);
@@ -541,6 +547,18 @@ const CustomerManagement = () => {
                   {customer.creditLimit > 0 ? Math.round(((customer.currentCredit || 0) / customer.creditLimit) * 100) : 0}% used
                 </p>
               </div>
+
+              {/* View Details Button */}
+              <button
+                onClick={() => handleCustomerClick(customer.id)}
+                className={`w-full mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  isDarkMode
+                    ? 'bg-[#008B8B] text-white hover:bg-[#00695C]'
+                    : 'bg-[#008B8B] text-white hover:bg-[#00695C]'
+                }`}
+              >
+                View Details
+              </button>
             </div>
           ))
         )}

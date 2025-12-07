@@ -34,8 +34,8 @@ const CommissionDashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await commissionService.getDashboard();
-      setDashboardData(response.data);
+      const data = await commissionService.getDashboard();
+      setDashboardData(data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {

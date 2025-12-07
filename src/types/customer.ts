@@ -59,7 +59,7 @@ export interface Customer {
 /**
  * Type guard to check if object is a valid Customer
  */
-export function isCustomer(obj: any): obj is Customer {
+export function isCustomer(obj: unknown): obj is Customer {
   return (
     obj &&
     typeof obj === 'object' &&

@@ -4,6 +4,9 @@
  * ONLY ACTIVE IN DEVELOPMENT (production has zero overhead)
  */
 
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import type { Invoice } from '../types/invoice';
 
 /**

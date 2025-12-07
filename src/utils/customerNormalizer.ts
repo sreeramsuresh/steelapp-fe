@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Customer Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizeCustomer(rawCustomer: any, source = 'unknown'): any | n
     console.error(`❌ [Customer Normalizer] Invalid customer data from ${source}:`, rawCustomer);
     return null;
   }
-
-  const errors: string[] = [];
 
   try {
     // Helper to safely parse numbers
@@ -54,12 +53,6 @@ export function normalizeCustomer(rawCustomer: any, source = 'unknown'): any | n
       orders: parseNumber(rawCustomer.orders, undefined),
       customer: rawCustomer.customer || undefined,
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [Customer Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

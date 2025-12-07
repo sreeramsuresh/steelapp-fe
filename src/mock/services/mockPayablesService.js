@@ -9,7 +9,7 @@ const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 export const payablesService = {
   async getInvoices(params = {}) {
     await delay();
-    const { page = 1, limit = 20, dateType } = params;
+    const { page = 1, limit = 20, dateType: _dateType } = params;
     
     // Use invoice data
     const filtered = [...invoicesData];
@@ -25,12 +25,12 @@ export const payablesService = {
     };
   },
 
-  async recordPayment(invoiceId, paymentData) {
+  async recordPayment(_invoiceId, _paymentData) {
     await delay();
     return { message: 'Payment recorded successfully' };
   },
 
-  async getPaymentHistory(invoiceId) {
+  async getPaymentHistory(_invoiceId) {
     await delay();
     return { payments: [] };
   },

@@ -54,6 +54,7 @@ export interface PurchaseOrder {
   incoterms?: string;
   
   // Items & Status
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   stockStatus?: string;
   
@@ -70,7 +71,7 @@ export interface PurchaseOrder {
 /**
  * Type guard to check if object is a valid PurchaseOrder
  */
-export function isPurchaseOrder(obj: any): obj is PurchaseOrder {
+export function isPurchaseOrder(obj: unknown): obj is PurchaseOrder {
   return (
     obj &&
     typeof obj === 'object' &&

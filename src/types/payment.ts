@@ -48,7 +48,7 @@ export interface Payment {
 /**
  * Type guard to check if object is a valid Payment
  */
-export function isPayment(obj: any): obj is Payment {
+export function isPayment(obj: unknown): obj is Payment {
   return (
     obj &&
     typeof obj === 'object' &&

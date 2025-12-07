@@ -38,7 +38,7 @@ const SalesAgentsManagement = () => {
     try {
       setLoading(true);
       const response = await commissionService.getAgents();
-      setAgents(response.data || []);
+      setAgents(response?.agents || []);
     } catch (error) {
       console.error('Error loading agents:', error);
       notificationService.error('Failed to load sales agents');

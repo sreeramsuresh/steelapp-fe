@@ -150,6 +150,28 @@ const commissionService = {
       throw error;
     }
   },
+
+  // Get list of commission plans
+  getPlans: async () => {
+    try {
+      const response = await api.get('/commissions/plans');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching commission plans:', error);
+      throw error;
+    }
+  },
+
+  // Batch calculate commissions for all eligible invoices
+  batchCalculateCommissions: async () => {
+    try {
+      const response = await api.post('/commissions/batch-calculate');
+      return response.data;
+    } catch (error) {
+      console.error('Error batch calculating commissions:', error);
+      throw error;
+    }
+  },
 };
 
 export { commissionService };

@@ -58,8 +58,8 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   const setTextPrimary = () => pdf.setTextColor(...textPrimaryRgb);
   const setTextSecondary = () => pdf.setTextColor(...textSecondaryRgb);
-  const setTextLight = () => pdf.setTextColor(...textLightRgb);
-  const setPrimaryColor = () => pdf.setTextColor(...primaryRgb);
+  const _setTextLight = () => pdf.setTextColor(...textLightRgb);
+  const _setPrimaryColor = () => pdf.setTextColor(...primaryRgb);
 
   let currentY = layout.marginTop;
 
@@ -251,7 +251,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   currentY = Math.max(currentY, rightY) + layout.sectionSpacing;
 
   // ==================== TABLE SECTION ====================
-  const tableStartY = currentY;
+  const _tableStartY = currentY;
 
   // Calculate column widths from settings (percentage to actual mm)
   const tableWidth = pageWidth - layout.marginLeft - layout.marginRight;

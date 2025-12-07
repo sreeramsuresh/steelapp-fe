@@ -40,7 +40,7 @@ export const generateStatementPDF = async ({ customerName, periodStart, periodEn
   }
 };
 
-const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {}, logoUrl: logoCompany, sealUrl: sealImage, templateColor = '#4f46e5' }) => {
+const createStatementElement = ({ customerName, periodStart, periodEnd, items = [], company = {}, logoUrl: logoCompany, sealUrl: _sealImage, templateColor = '#4f46e5' }) => {
   const el = document.createElement('div');
   el.style.cssText = `
     width: 210mm;

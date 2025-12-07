@@ -73,7 +73,7 @@ export const customerService = {
     return customers[index];
   },
 
-  async deleteCustomer(id, config = {}) {
+  async deleteCustomer(id, _config = {}) {
     await delay();
     const index = customers.findIndex(c => c.id === parseInt(id));
     if (index === -1) {

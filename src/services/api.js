@@ -187,16 +187,54 @@ export const invoicesAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
+    // eslint-disable-next-line no-console
+    console.log('[invoicesAPI.downloadPDF] Starting PDF download for id:', id);
+
     const blob = await apiService.request({
       method: 'GET',
       url: `/invoices/${id}/pdf`,
       responseType: 'blob',
+      timeout: 60000, // 60 seconds for PDF generation
     });
+
+    // eslint-disable-next-line no-console
+    console.log('[invoicesAPI.downloadPDF] Received blob:', {
+      type: blob?.type,
+      size: blob?.size,
+      isBlob: blob instanceof Blob,
+    });
+
+    // Check if the response is actually a PDF or an error
+    if (!blob || !(blob instanceof Blob)) {
+      // eslint-disable-next-line no-console
+      console.error('[invoicesAPI.downloadPDF] Response is not a blob:', blob);
+      throw new Error('Invalid response from server - expected PDF blob');
+    }
+
+    // If the blob is JSON (error response), parse and throw
+    if (blob.type === 'application/json') {
+      const errorText = await blob.text();
+      // eslint-disable-next-line no-console
+      console.error('[invoicesAPI.downloadPDF] Server returned error JSON:', errorText);
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.message || errorData.error || 'PDF generation failed');
+    }
+
+    // Verify it's a PDF
+    if (blob.type !== 'application/pdf' && blob.size < 1000) {
+      // eslint-disable-next-line no-console
+      console.warn('[invoicesAPI.downloadPDF] Unexpected blob type:', blob.type);
+    }
+
     const downloadUrl = window.URL.createObjectURL(blob);
+    // eslint-disable-next-line no-console
+    console.log('[invoicesAPI.downloadPDF] Created download URL:', downloadUrl);
 
     // Get invoice number for filename
     const invoice = await invoicesAPI.getById(id);
     const filename = `invoice-${invoice.invoiceNumber}.pdf`;
+    // eslint-disable-next-line no-console
+    console.log('[invoicesAPI.downloadPDF] Downloading as:', filename);
 
     // Create download link
     const link = document.createElement('a');
@@ -208,6 +246,8 @@ export const invoicesAPI = {
 
     // Clean up
     window.URL.revokeObjectURL(downloadUrl);
+    // eslint-disable-next-line no-console
+    console.log('[invoicesAPI.downloadPDF] Download complete');
   },
 };
 

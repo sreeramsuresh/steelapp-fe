@@ -31,6 +31,7 @@ export interface DeliveryNote {
   vehicleNumber?: string;
   
   // Items & Status
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   status?: string;
   isPartial?: boolean;
@@ -45,7 +46,7 @@ export interface DeliveryNote {
 /**
  * Type guard to check if object is a valid DeliveryNote
  */
-export function isDeliveryNote(obj: any): obj is DeliveryNote {
+export function isDeliveryNote(obj: unknown): obj is DeliveryNote {
   return (
     obj &&
     typeof obj === 'object' &&

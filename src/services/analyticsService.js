@@ -65,7 +65,7 @@ export const analyticsService = {
     // Use the new AR Aging Report API with summary_only mode
     const response = await apiClient.get('/reports/ar-aging', {
       summary_only: true,
-      page_size: 5
+      page_size: 5,
     });
 
     // Transform the response to match the widget's expected format
@@ -78,27 +78,27 @@ export const analyticsService = {
           {
             label: 'Current',
             amount: totals.agingCurrent || 0,
-            percentage: totalAr > 0 ? ((totals.agingCurrent || 0) / totalAr) * 100 : 0
+            percentage: totalAr > 0 ? ((totals.agingCurrent || 0) / totalAr) * 100 : 0,
           },
           {
             label: '1-30 Days',
             amount: totals.aging1To30 || 0,
-            percentage: totalAr > 0 ? ((totals.aging1To30 || 0) / totalAr) * 100 : 0
+            percentage: totalAr > 0 ? ((totals.aging1To30 || 0) / totalAr) * 100 : 0,
           },
           {
             label: '31-60 Days',
             amount: totals.aging31To60 || 0,
-            percentage: totalAr > 0 ? ((totals.aging31To60 || 0) / totalAr) * 100 : 0
+            percentage: totalAr > 0 ? ((totals.aging31To60 || 0) / totalAr) * 100 : 0,
           },
           {
             label: '61-90 Days',
             amount: totals.aging61To90 || 0,
-            percentage: totalAr > 0 ? ((totals.aging61To90 || 0) / totalAr) * 100 : 0
+            percentage: totalAr > 0 ? ((totals.aging61To90 || 0) / totalAr) * 100 : 0,
           },
           {
             label: '90+ Days',
             amount: totals.aging90Plus || 0,
-            percentage: totalAr > 0 ? ((totals.aging90Plus || 0) / totalAr) * 100 : 0
+            percentage: totalAr > 0 ? ((totals.aging90Plus || 0) / totalAr) * 100 : 0,
           },
         ],
         total_ar: totalAr,

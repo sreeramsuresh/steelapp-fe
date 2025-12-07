@@ -27,8 +27,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   createInvoice,
   createSteelItem,
-  STEEL_GRADES,
-  FINISHES,
   UAE_EMIRATES,
 } from '../types';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
@@ -55,7 +53,7 @@ import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } fro
 import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
 import useBulkActions, { BulkCheckbox, BulkActionsToolbar } from '../hooks/useBulkActions';
 import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
-import useAccessibility, { useReducedMotion } from '../hooks/useAccessibility';
+import { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
 
@@ -406,10 +404,17 @@ const VatHelpIcon = ({ content, heading }) => {
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto"
           onClick={handleCloseModal}
+          role="button"
+          tabIndex={-1}
+          onKeyDown={(e) => e.key === 'Escape' && handleCloseModal()}
         >
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
             <button
               type="button"
@@ -443,7 +448,7 @@ const VatHelpIcon = ({ content, heading }) => {
 
 const Autocomplete = ({
   options = [],
-  value,
+  value: _value,
   onChange,
   onInputChange,
   inputValue,
@@ -668,6 +673,9 @@ const Autocomplete = ({
                       ? 'hover:bg-gray-700 text-white border-gray-700'
                       : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                 }`}
+                role="option"
+                aria-selected={index === highlightedIndex}
+                tabIndex={-1}
                 onMouseDown={() => handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
@@ -704,7 +712,7 @@ const Autocomplete = ({
   );
 };
 
-const Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
+const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   const { isDarkMode } = useTheme();
 
   if (!isOpen) return null;
@@ -719,7 +727,13 @@ const Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity" onClick={onClose}>
+        <div
+          className="fixed inset-0 transition-opacity"
+          onClick={onClose}
+          role="button"
+          tabIndex={-1}
+          onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        >
           <div
             className={`absolute inset-0 ${
               isDarkMode ? 'bg-gray-900' : 'bg-black'
@@ -883,7 +897,7 @@ const InvoiceForm = ({ onSave }) => {
   const { isDarkMode } = useTheme();
 
   // Helper function to generate auto-concatenated product name
-  const generateProductName = useCallback((item) => {
+  const _generateProductName = useCallback((item) => {
     const parts = [];
     // Commodity is not available in steel item, we'll use a default "SS" if not set
     // Category/Product Type
@@ -907,7 +921,7 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   // Debounce timeout refs for charges fields
-  const chargesTimeout = useRef(null);
+  const _chargesTimeout = useRef(null);
 
   // Field refs for scroll-to-field functionality (Option C Hybrid UX)
   const customerRef = useRef(null);
@@ -967,39 +981,11 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   const [showPreview, setShowPreview] = useState(false);
-  const [isFormValidForSave, setIsFormValidForSave] = useState(true);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
+  const [_isFormValidForSave, setIsFormValidForSave] = useState(true);
+  const [_isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [_pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showAddProductModal, setShowAddProductModal] = useState(false);
-  const [newProductData, setNewProductData] = useState({
-    name: '',
-    category: 'rebar',
-    grade: '',
-    size: '',
-    weight: '',
-    unit: 'kg',
-    description: '',
-    current_stock: '',
-    min_stock: '',
-    max_stock: '',
-    cost_price: '',
-    selling_price: '',
-    supplier: '',
-    location: '',
-    specifications: {
-      length: '',
-      width: '',
-      thickness: '',
-      diameter: '',
-      tensileStrength: '',
-      yieldStrength: '',
-      carbonContent: '',
-      coating: '',
-      standard: '',
-    },
-  });
-  const [selectedProductForRow, setSelectedProductForRow] = useState(-1);
+  // Removed unused state: selectedProductForRow, setSelectedProductForRow
   const [searchInputs, setSearchInputs] = useState({});
   const [customerSearchInput, setCustomerSearchInput] = useState('');
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
@@ -1014,6 +1000,7 @@ const InvoiceForm = ({ onSave }) => {
 
   // Form preferences state (with localStorage persistence)
   const [showFormSettings, setShowFormSettings] = useState(false);
+  const [showFreightCharges, setShowFreightCharges] = useState(false);
   const [formPreferences, setFormPreferences] = useState(() => {
     const saved = localStorage.getItem('invoiceFormPreferences');
     return saved ? JSON.parse(saved) : {
@@ -1098,32 +1085,12 @@ const InvoiceForm = ({ onSave }) => {
    *
    * Backend should enforce inventory deduction ONLY when status changes to 'issued'
    */
-  const ALLOWED_STATUS_TRANSITIONS = {
-    'draft': ['proforma', 'issued'],
-    'proforma': ['issued'],
-    'issued': [], // Final Tax Invoice cannot be changed (requires credit note)
-  };
-
-  const isValidStatusTransition = (fromStatus, toStatus) => {
-    if (fromStatus === toStatus) return true;
-    const allowedTargets = ALLOWED_STATUS_TRANSITIONS[fromStatus] || [];
-    return allowedTargets.includes(toStatus);
-  };
-
-  const needsConfirmation = (fromStatus, toStatus) => {
-    // Require confirmation when moving to 'issued' (Final Tax Invoice)
-    return toStatus === 'issued' && fromStatus !== 'issued';
-  };
-
-  const canEditInvoice = (status) => {
-    // Cannot edit Final Tax Invoice (issued status) - requires credit note
-    return status !== 'issued';
-  };
-
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
     // Invoice number will be auto-generated by the database on save
     newInvoice.invoiceNumber = '(Auto-assigned on save)';
+    // Start with one empty item row
+    newInvoice.items = [createSteelItem()];
     return newInvoice;
   });
 
@@ -1157,6 +1124,12 @@ const InvoiceForm = ({ onSave }) => {
       case 'currency':
         isValid = value && value.trim() !== '';
         break;
+      case 'placeOfSupply':
+        isValid = value && value.trim() !== '';
+        break;
+      case 'supplyDate':
+        isValid = value && value.trim() !== '';
+        break;
       case 'items':
         isValid = Array.isArray(value) && value.length > 0 && value.every(item =>
           item.name && item.quantity > 0 && item.rate > 0,
@@ -1176,8 +1149,7 @@ const InvoiceForm = ({ onSave }) => {
 
   // Track if form has unsaved changes (for navigation warning)
   const [formDirty, setFormDirty] = useState(false);
-  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState(null);
+  // Removed unused states: showExitConfirmModal, setShowExitConfirmModal, pendingNavigation, setPendingNavigation
 
   // Track the ORIGINAL saved status for isLocked calculation
   // This prevents the locked banner from showing when just changing the dropdown
@@ -1330,7 +1302,7 @@ const InvoiceForm = ({ onSave }) => {
     [id],
     { immediate: !!id, skipInitialLoading: !id },
   );
-  const { data: nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
+  const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
     () => invoiceService.getNextInvoiceNumber(),
     [],
     !id,
@@ -1348,13 +1320,13 @@ const InvoiceForm = ({ onSave }) => {
     loading: loadingProducts,
     refetch: refetchProducts,
   } = useApiData(() => productService.getProducts({ limit: 1000 }), []);
-  const { execute: createProduct, loading: creatingProduct } = useApi(
+  const { execute: _createProduct, loading: _creatingProduct } = useApi(
     productService.createProduct,
   );
 
   // Pinned products state
   const [pinnedProductIds, setPinnedProductIds] = useState([]);
-  const { data: pinnedData, refetch: refetchPinned } = useApiData(
+  const { data: pinnedData, refetch: _refetchPinned } = useApiData(
     () => pinnedProductsService.getPinnedProducts(),
     [],
   );
@@ -1372,7 +1344,7 @@ const InvoiceForm = ({ onSave }) => {
   // ============================================================
 
   // Reduced motion preference for accessibility
-  const prefersReducedMotion = useReducedMotion();
+  const _prefersReducedMotion = useReducedMotion();
 
   // Drag reorder for line items
   const handleItemsReorder = useCallback((newItems) => {
@@ -1391,10 +1363,10 @@ const InvoiceForm = ({ onSave }) => {
 
   // Bulk selection for line items
   const {
-    selectedIds: selectedItemIds,
+    selectedIds: _selectedItemIds,
     isSelected: isItemSelected,
     toggleSelect: toggleItemSelect,
-    selectAll: selectAllItems,
+    selectAll: _selectAllItems,
     clearSelection: clearItemSelection,
     toggleSelectAll: toggleSelectAllItems,
     deleteSelected: deleteSelectedItems,
@@ -1634,10 +1606,12 @@ const InvoiceForm = ({ onSave }) => {
       validateField('paymentMode', invoice.modeOfPayment);
       validateField('warehouse', invoice.warehouseId);
       validateField('currency', invoice.currency);
+      validateField('placeOfSupply', invoice.placeOfSupply);
+      validateField('supplyDate', invoice.supplyDate);
       validateField('items', invoice.items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice.customer.id, invoice.dueDate, invoice.status, invoice.modeOfPayment, invoice.warehouseId, invoice.currency, invoice.items.length, validateField]);
+  }, [invoice.customer.id, invoice.dueDate, invoice.status, invoice.modeOfPayment, invoice.warehouseId, invoice.currency, invoice.placeOfSupply || '', invoice.supplyDate || '', invoice.items.length, validateField]);
   // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
   const checkTradeLicenseStatus = async (customerId) => {
@@ -1764,12 +1738,20 @@ const InvoiceForm = ({ onSave }) => {
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const pendingProductRef = useRef(null);
 
+  // Speed button quantity increment animation
+  const [blinkingRowIndex, setBlinkingRowIndex] = useState(null);
+
   // Check if product already exists in items (excluding current index)
   const findDuplicateProduct = useCallback((productId, excludeIndex) => {
     if (!productId) return null;
     return invoice.items.findIndex((item, idx) =>
       idx !== excludeIndex && item.productId === productId,
     );
+  }, [invoice.items]);
+
+  // Find the first empty item row (no product selected, no name entered)
+  const findEmptyItemIndex = useCallback(() => {
+    return invoice.items.findIndex((item) => !item.productId && !item.name?.trim());
   }, [invoice.items]);
 
   const handleProductSelectInternal = useCallback(async (index, product, skipDuplicateCheck = false) => {
@@ -1866,7 +1848,7 @@ const InvoiceForm = ({ onSave }) => {
   // Handle duplicate confirmation - add anyway
   const handleDuplicateAddAnyway = useCallback(() => {
     if (pendingProductRef.current) {
-      const { index, product, skipDuplicateCheck } = pendingProductRef.current;
+      const { index, product } = pendingProductRef.current;
       pendingProductRef.current = null;
       setDuplicateWarning(null);
       // Re-call with skip flag
@@ -1961,17 +1943,6 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, []);
 
-  const isProductExisting = useCallback(
-    (index) => {
-      const searchValue = searchInputs[index] || '';
-      const products = productsData?.products || [];
-      return products.some(
-        (product) => (product.displayName || product.display_name || product.uniqueName || product.unique_name || '').toLowerCase() === searchValue.toLowerCase(),
-      );
-    },
-    [productsData, searchInputs],
-  );
-
   const handleItemChange = useCallback((index, field, value) => {
     setInvoice((prev) => {
       const newItems = [...prev.items];
@@ -2053,50 +2024,6 @@ const InvoiceForm = ({ onSave }) => {
     });
   }, [searchInputs.__results]);
 
-  // Dynamic option lists augmented from products data
-  const allGrades = useMemo(() => {
-    try {
-      const set = new Set(STEEL_GRADES || []);
-      (productsData?.products || []).forEach((p) => {
-        if (p && p.grade && String(p.grade).trim()) set.add(String(p.grade).trim());
-      });
-      return Array.from(set);
-    } catch {
-      return STEEL_GRADES || [];
-    }
-  }, [productsData]);
-
-  const allFinishes = useMemo(() => {
-    try {
-      const set = new Set(FINISHES || []);
-      (productsData?.products || []).forEach((p) => {
-        if (p && p.finish && String(p.finish).trim()) set.add(String(p.finish).trim());
-      });
-      return Array.from(set);
-    } catch {
-      return FINISHES || [];
-    }
-  }, [productsData]);
-
-  // Simplified filtering to reduce computation
-  const getFilteredOptions = useCallback((options, inputValue) => {
-    if (!inputValue) return options.slice(0, 20);
-    return options
-      .filter((option) =>
-        option.name.toLowerCase().includes(inputValue.toLowerCase()),
-      )
-      .slice(0, 20);
-  }, []);
-
-  // Debounced handler for charges fields to prevent calculation blocking
-  const handleChargeChange = useCallback((field, value) => {
-    // Update UI immediately for responsive typing
-    setInvoice((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  }, []);
-
   const addItem = useCallback(() => {
     setInvoice((prev) => ({
       ...prev,
@@ -2107,10 +2034,14 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   const removeItem = useCallback((index) => {
-    setInvoice((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }));
+    setInvoice((prev) => {
+      const newItems = prev.items.filter((_, i) => i !== index);
+      // Always maintain at least one empty row
+      if (newItems.length === 0) {
+        newItems.push(createSteelItem());
+      }
+      return { ...prev, items: newItems };
+    });
   }, []);
 
   const handleSave = async () => {
@@ -2250,69 +2181,6 @@ const InvoiceForm = ({ onSave }) => {
 
     // Always open preview - save button will be disabled if invalid
     setShowPreview(true);
-  };
-
-  // Wrapper function for preview window save - validates first, closes preview if errors
-  const handleSaveFromPreview = async () => {
-    // Run validation check first
-    const errors = [];
-    const invalidFieldsSet = new Set();
-
-    // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
-      errors.push('Customer name is required');
-      invalidFieldsSet.add('customer.name');
-    }
-
-    // Check if there are any items
-    if (!invoice.items || invoice.items.length === 0) {
-      errors.push('At least one item is required');
-    } else {
-      // Validate each item
-      invoice.items.forEach((item, index) => {
-        if (!item.name || item.name.trim() === '') {
-          errors.push(`Item ${index + 1}: Product name is required`);
-          invalidFieldsSet.add(`item.${index}.name`);
-        }
-        if (!item.quantity || item.quantity <= 0) {
-          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
-          invalidFieldsSet.add(`item.${index}.quantity`);
-        }
-        if (!item.rate || item.rate <= 0) {
-          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
-          invalidFieldsSet.add(`item.${index}.rate`);
-        }
-      });
-    }
-
-    // Check dates
-    if (!invoice.date) {
-      errors.push('Invoice date is required');
-      invalidFieldsSet.add('date');
-    }
-    if (!invoice.dueDate) {
-      errors.push('Due date is required');
-      invalidFieldsSet.add('dueDate');
-    }
-
-    // Check status (required field)
-    if (!invoice.status || !['draft', 'proforma', 'issued'].includes(invoice.status)) {
-      errors.push('Invoice status is required');
-      invalidFieldsSet.add('status');
-    }
-
-    // If there are validation errors, set them and throw error
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      setInvalidFields(invalidFieldsSet);
-
-      // Throw error immediately to stop InvoicePreview from trying to download PDF
-      // The preview component will catch this and close itself
-      throw new Error('VALIDATION_FAILED');
-    }
-
-    // If validation passes, proceed with actual save
-    await performSave();
   };
 
   const performSave = async (statusOverride = null) => {
@@ -2660,19 +2528,19 @@ const InvoiceForm = ({ onSave }) => {
   // ============================================================
   useKeyboardShortcuts(
     {
-      [INVOICE_SHORTCUTS.SAVE]: (e) => {
+      [INVOICE_SHORTCUTS.SAVE]: () => {
         // Ctrl+S - Save invoice
         if (!isSaving && !savingInvoice && !updatingInvoice) {
           handleSave();
         }
       },
-      [INVOICE_SHORTCUTS.PREVIEW]: (e) => {
+      [INVOICE_SHORTCUTS.PREVIEW]: () => {
         // Ctrl+P - Preview invoice (override browser print)
         if (!showPreview) {
           handlePreviewClick();
         }
       },
-      [INVOICE_SHORTCUTS.CLOSE]: (e) => {
+      [INVOICE_SHORTCUTS.CLOSE]: () => {
         // Escape - Close modals or go back
         if (showSuccessModal) {
           handleSuccessModalClose();
@@ -3001,74 +2869,63 @@ const InvoiceForm = ({ onSave }) => {
                   )}
                 </div>
 
-                {/* Display selected customer details */}
-                {invoice.customer.name && (
-                  <div
-                    className={`p-4 rounded-lg border ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600'
-                        : 'bg-gray-100 border-gray-200'
+                {/* Display customer details - always visible */}
+                <div
+                  className={`p-4 rounded-lg border ${
+                    isDarkMode
+                      ? 'bg-gray-700 border-gray-600'
+                      : 'bg-gray-100 border-gray-200'
+                  }`}
+                >
+                  <h4
+                    className={`font-medium mb-2 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}
                   >
-                    <h4
-                      className={`font-medium mb-2 ${
-                        isDarkMode ? 'text-white' : 'text-gray-900'
-                      }`}
-                    >
-                        Selected Customer:
-                    </h4>
-                    <div
-                      className={`space-y-1 text-sm ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    >
-                      <p>
-                        <span className="font-medium">Name:</span>{' '}
-                        {titleCase(normalizeLLC(invoice.customer.name))}
-                      </p>
-                      {invoice.customer.email && (
-                        <p>
-                          <span className="font-medium">Email:</span>{' '}
-                          {invoice.customer.email}
-                        </p>
-                      )}
-                      {invoice.customer.phone && (
-                        <p>
-                          <span className="font-medium">Phone:</span>{' '}
-                          {invoice.customer.phone}
-                        </p>
-                      )}
-                      {invoice.customer.vatNumber && (
-                        <p>
-                          <span className="font-medium">TRN:</span>{' '}
-                          {invoice.customer.vatNumber}
-                        </p>
-                      )}
-                      {(invoice.customer.address.street ||
-                          invoice.customer.address.city) && (
-                        <p>
-                          <span className="font-medium">Address:</span>{' '}
-                          {[
-                            invoice.customer.address.street,
-                            invoice.customer.address.city,
-                            invoice.customer.address.emirate,
-                            invoice.customer.address.poBox,
-                          ]
-                            .filter(Boolean)
-                            .join(', ')}
-                        </p>
-                      )}
+                    {invoice.customer.name ? 'Selected Customer:' : 'Customer Details:'}
+                  </h4>
+                  <div
+                    className={`space-y-1 text-sm ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}
+                  >
+                    <p>
+                      <span className="font-medium">Name:</span>{' '}
+                      {invoice.customer.name ? titleCase(normalizeLLC(invoice.customer.name)) : ''}
+                    </p>
+                    <p>
+                      <span className="font-medium">Email:</span>{' '}
+                      {invoice.customer.email || ''}
+                    </p>
+                    <p>
+                      <span className="font-medium">Phone:</span>{' '}
+                      {invoice.customer.phone || ''}
+                    </p>
+                    <p>
+                      <span className="font-medium">TRN:</span>{' '}
+                      {invoice.customer.vatNumber || ''}
+                    </p>
+                    <p>
+                      <span className="font-medium">Address:</span>{' '}
+                      {(invoice.customer.address?.street || invoice.customer.address?.city)
+                        ? [
+                          invoice.customer.address.street,
+                          invoice.customer.address.city,
+                          invoice.customer.address.emirate,
+                          invoice.customer.address.poBox,
+                        ].filter(Boolean).join(', ')
+                        : ''}
+                    </p>
+                    <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                      <span className="font-medium">Price List:</span>{' '}
                       {pricelistName && (
-                        <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
-                          <span className="font-medium">Price List:</span>{' '}
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
-                            {pricelistName}
-                          </span>
-                        </p>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                          {pricelistName}
+                        </span>
                       )}
-                    </div>
+                    </p>
                   </div>
-                )}
+                </div>
 
                 {/* Trade License Status Alert */}
                 {showTradeLicenseAlert && tradeLicenseStatus && (
@@ -3150,83 +3007,80 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 )}
 
-                {/* Phase 5: Commission Details */}
-                <div className="border-t pt-4 mt-4" style={{
-                  borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
-                }}>
-                  <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    Commission (Phase 5)
-                  </h3>
-                  <div className="space-y-3">
-                    <Input
-                      label="Commission Percentage (%)"
-                      type="number"
-                      value={invoice.commissionPercentage || 10}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        if (raw === '') {
-                          setInvoice((prev) => ({ ...prev, commissionPercentage: 0 }));
-                          return;
-                        }
-                        const num = Number(raw);
-                        if (Number.isNaN(num)) return;
-                        const clamped = Math.max(0, Math.min(100, num));
-                        setInvoice((prev) => ({ ...prev, commissionPercentage: clamped }));
-                      }}
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      placeholder="10.00"
-                      inputMode="decimal"
-                      onKeyDown={(e) => {
-                        const blocked = ['e', 'E', '+', '-'];
-                        if (blocked.includes(e.key)) e.preventDefault();
-                      }}
-                      disabled={isLocked}
-                      className="text-base"
-                    />
-                    <div className={`p-3 rounded ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                    }`}>
-                      <p className={`text-xs ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      } mb-2`}>
+                {/* Commission Details - Only shown when sales agent is selected */}
+                {invoice.salesAgentId && (
+                  <div className="border-t pt-4 mt-4" style={{
+                    borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
+                  }}>
+                    <div className="space-y-3">
+                      <Input
+                        label="Commission Percentage (%)"
+                        type="number"
+                        value={invoice.commissionPercentage || 10}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === '') {
+                            setInvoice((prev) => ({ ...prev, commissionPercentage: 0 }));
+                            return;
+                          }
+                          const num = Number(raw);
+                          if (Number.isNaN(num)) return;
+                          const clamped = Math.max(0, Math.min(100, num));
+                          setInvoice((prev) => ({ ...prev, commissionPercentage: clamped }));
+                        }}
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        placeholder="10.00"
+                        inputMode="decimal"
+                        onKeyDown={(e) => {
+                          const blocked = ['e', 'E', '+', '-'];
+                          if (blocked.includes(e.key)) e.preventDefault();
+                        }}
+                        disabled={isLocked}
+                        className="text-base"
+                      />
+                      <div className={`p-3 rounded ${
+                        isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                      }`}>
+                        <p className={`text-xs ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        } mb-2`}>
                         Commission Amount (Accrual)
-                      </p>
-                      <p className={`text-lg font-bold ${
-                        isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                      }`}>
-                        AED {((computedTotal * (invoice.commissionPercentage || 10)) / 100).toFixed(2)}
-                      </p>
-                      <p className={`text-xs ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-500'
-                      } mt-2`}>
-                        Accrues when invoice is issued. 15-day grace period for adjustments.
-                      </p>
-                    </div>
-                    {id && invoice.commissionStatus && (
-                      <div className={`p-3 rounded border ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-blue-50 border-blue-200'
-                      }`}>
-                        <p className={`text-xs font-semibold ${
-                          isDarkMode ? 'text-blue-300' : 'text-blue-800'
-                        } mb-1`}>
-                          Commission Status
                         </p>
-                        <p className={`text-sm font-medium ${
-                          invoice.commissionStatus === 'PAID' ? 'text-green-600' :
-                            invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
-                              invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
-                                'text-red-600'
+                        <p className={`text-lg font-bold ${
+                          isDarkMode ? 'text-teal-400' : 'text-teal-600'
                         }`}>
-                          {invoice.commissionStatus}
+                        AED {((computedTotal * (invoice.commissionPercentage || 10)) / 100).toFixed(2)}
+                        </p>
+                        <p className={`text-xs ${
+                          isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                        } mt-2`}>
+                        Accrues when invoice is issued. 15-day grace period for adjustments.
                         </p>
                       </div>
-                    )}
+                      {id && invoice.commissionStatus && (
+                        <div className={`p-3 rounded border ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-blue-50 border-blue-200'
+                        }`}>
+                          <p className={`text-xs font-semibold ${
+                            isDarkMode ? 'text-blue-300' : 'text-blue-800'
+                          } mb-1`}>
+                          Commission Status
+                          </p>
+                          <p className={`text-sm font-medium ${
+                            invoice.commissionStatus === 'PAID' ? 'text-green-600' :
+                              invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
+                                invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
+                                  'text-red-600'
+                          }`}>
+                            {invoice.commissionStatus}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </Card>
 
@@ -3292,7 +3146,6 @@ const InvoiceForm = ({ onSave }) => {
                     error={invalidFields.has('status')}
                     onChange={(e) => {
                       const newStatus = e.target.value;
-                      console.log('📝 Status dropdown changed to:', newStatus);
                       setInvoice((prev) => ({
                         ...prev,
                         status: newStatus,
@@ -3337,252 +3190,168 @@ const InvoiceForm = ({ onSave }) => {
                     ))}
                   </Select>
                 </div>
-              </div>
-            </Card>
-          </div>
 
-          {/* Compact Settings Row - Warehouse, Currency, PO Fields */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-                Additional Settings
-            </h3>
-            <div className="space-y-4">
-              {/* Warehouse and Currency */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                <Select
-                  label="Warehouse"
-                  value={invoice.warehouseId || ''}
-                  required={invoice.status !== 'draft'}
-                  validationState={fieldValidation.warehouse}
-                  showValidation={formPreferences.showValidationHighlighting}
-                  onChange={(e) => {
-                    const warehouseId = e.target.value;
-                    const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
-                    setInvoice((prev) => ({
-                      ...prev,
-                      warehouseId,
-                      warehouseName: w ? w.name : '',
-                      warehouseCode: w ? w.code : '',
-                      warehouseCity: w ? w.city : '',
-                    }));
-                    validateField('warehouse', warehouseId);
-                  }}
-                  className="text-base min-h-[44px]"
-                >
-                  <option value="">Select warehouse</option>
-                  {warehouses.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name} - {w.city}
-                    </option>
-                  ))}
-                </Select>
-                <Select
-                  label="Currency"
-                  value={invoice.currency || 'AED'}
-                  required={true}
-                  validationState={fieldValidation.currency}
-                  showValidation={formPreferences.showValidationHighlighting}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setInvoice((prev) => ({
-                      ...prev,
-                      currency: value,
-                    }));
-                    validateField('currency', value);
-                  }}
-                  className="text-base min-h-[44px]"
-                >
-                  <option value="AED">AED (UAE Dirham)</option>
-                  <option value="USD">USD (US Dollar)</option>
-                  <option value="EUR">EUR (Euro)</option>
-                  <option value="GBP">GBP (British Pound)</option>
-                  <option value="SAR">SAR (Saudi Riyal)</option>
-                  <option value="QAR">QAR (Qatari Riyal)</option>
-                  <option value="OMR">OMR (Omani Rial)</option>
-                  <option value="BHD">BHD (Bahraini Dinar)</option>
-                  <option value="KWD">KWD (Kuwaiti Dinar)</option>
-                </Select>
-              </div>
+                {/* Warehouse and Currency */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <Select
+                    label="Warehouse"
+                    value={invoice.warehouseId || ''}
+                    required={invoice.status !== 'draft'}
+                    validationState={fieldValidation.warehouse}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    onChange={(e) => {
+                      const warehouseId = e.target.value;
+                      const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
+                      setInvoice((prev) => ({
+                        ...prev,
+                        warehouseId,
+                        warehouseName: w ? w.name : '',
+                        warehouseCode: w ? w.code : '',
+                        warehouseCity: w ? w.city : '',
+                      }));
+                      validateField('warehouse', warehouseId);
+                    }}
+                    className="text-base min-h-[44px]"
+                  >
+                    <option value="">Select warehouse</option>
+                    {warehouses.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name} - {w.city}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    label="Currency"
+                    value={invoice.currency || 'AED'}
+                    required={true}
+                    validationState={fieldValidation.currency}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setInvoice((prev) => ({
+                        ...prev,
+                        currency: value,
+                      }));
+                      validateField('currency', value);
+                    }}
+                    className="text-base min-h-[44px]"
+                  >
+                    <option value="AED">AED (UAE Dirham)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="GBP">GBP (British Pound)</option>
+                    <option value="SAR">SAR (Saudi Riyal)</option>
+                    <option value="QAR">QAR (Qatari Riyal)</option>
+                    <option value="OMR">OMR (Omani Rial)</option>
+                    <option value="BHD">BHD (Bahraini Dinar)</option>
+                    <option value="KWD">KWD (Kuwaiti Dinar)</option>
+                  </Select>
+                </div>
 
-              {/* Exchange Rate - Conditional */}
-              {invoice.currency && invoice.currency !== 'AED' && (
-                <Input
-                  label="Exchange Rate"
-                  type="number"
-                  value={invoice.exchangeRate || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      exchangeRate: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., 3.67 for USD"
-                  step="0.000001"
-                  min="0"
-                  inputMode="decimal"
-                  className="text-base min-h-[44px]"
-                />
-              )}
-
-              {/* Customer PO Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                <Input
-                  label="Customer PO Number"
-                  value={invoice.customerPurchaseOrderNumber || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      customerPurchaseOrderNumber: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter customer PO number"
-                  className="text-base min-h-[44px]"
-                />
-                <Input
-                  label="Customer PO Date"
-                  type="date"
-                  value={invoice.customerPurchaseOrderDate || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      customerPurchaseOrderDate: e.target.value,
-                    }))
-                  }
-                  className="text-base min-h-[44px]"
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* UAE VAT Compliance Section */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              UAE VAT Compliance (FTA Form 201)
-            </h3>
-            <div className="space-y-4">
-              {/* Place of Supply and Supply Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                <Select
-                  label={
-                    <div className="flex items-center gap-1">
-                      <span>Place of Supply (Emirate)</span>
-                      <VatHelpIcon content={[
-                        'When required: Mandatory for all invoices.',
-                        'Specifies which Emirate the supply is made from.',
-                        'Used for compliance with FTA Form 201.',
-                      ]} />
-                    </div>
-                  }
-                  value={invoice.placeOfSupply || ''}
-                  required={invoice.status === 'issued'}
-                  onChange={(e) => {
-                    setInvoice((prev) => ({
-                      ...prev,
-                      placeOfSupply: e.target.value,
-                    }));
-                  }}
-                  className="text-base min-h-[44px]"
-                >
-                  <option value="">Select emirate</option>
-                  {UAE_EMIRATES.map((emirate) => (
-                    <option key={emirate} value={emirate}>
-                      {emirate}
-                    </option>
-                  ))}
-                </Select>
-                <Input
-                  label={
-                    <div className="flex items-center gap-1">
-                      <span>Supply Date (Tax Point)</span>
-                      <VatHelpIcon content={[
-                        'When required: Mandatory. Determines VAT liability date.',
-                        'Must be the date supply is made (goods delivered/services rendered).',
-                        'Defaults to invoice date if empty.',
-                      ]} />
-                    </div>
-                  }
-                  type="date"
-                  value={invoice.supplyDate || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      supplyDate: e.target.value,
-                    }))
-                  }
-                  placeholder="Defaults to invoice date if empty"
-                  className="text-base min-h-[44px]"
-                />
-              </div>
-
-              {/* Reverse Charge */}
-              <div className="flex items-center gap-4">
-                <label className={`flex items-center gap-2 cursor-pointer ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  <input
-                    type="checkbox"
-                    checked={invoice.isReverseCharge || false}
+                {/* Customer PO Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <Input
+                    label="Customer PO Number"
+                    value={invoice.customerPurchaseOrderNumber || ''}
                     onChange={(e) =>
                       setInvoice((prev) => ({
                         ...prev,
-                        isReverseCharge: e.target.checked,
-                        reverseChargeAmount: e.target.checked ? prev.reverseChargeAmount : 0,
+                        customerPurchaseOrderNumber: e.target.value,
                       }))
                     }
-                    className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                    placeholder="PO number"
+                    className="text-base min-h-[44px]"
                   />
-                  <span className="text-sm font-medium flex items-center gap-1">
-                    Reverse Charge Applies (Article 48)
-                    <VatHelpIcon content={[
-                      'When required: Only if customer is registered VAT business.',
-                      'Transfers VAT liability to customer under Article 48 of VAT Law.',
-                      'Supplier records 0% VAT; customer accounts for VAT on receipt.',
-                    ]} />
-                  </span>
-                </label>
+                  <Input
+                    label="Customer PO Date"
+                    type="date"
+                    value={invoice.customerPurchaseOrderDate || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderDate: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[44px]"
+                  />
+                </div>
+
+                {/* VAT Compliance Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <Select
+                    label={
+                      <span className="inline-flex items-center gap-1">
+                        <span>Place of Supply{invoice.status === 'issued' && <span className="text-red-500 ml-0.5">*</span>}</span>
+                        <VatHelpIcon content={[
+                          'When required: Mandatory for all invoices.',
+                          'Specifies which Emirate the supply is made from.',
+                          'Used for compliance with FTA Form 201.',
+                        ]} />
+                      </span>
+                    }
+                    value={invoice.placeOfSupply || ''}
+                    validationState={fieldValidation.placeOfSupply}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    onChange={(e) => {
+                      setInvoice((prev) => ({
+                        ...prev,
+                        placeOfSupply: e.target.value,
+                      }));
+                      validateField('placeOfSupply', e.target.value);
+                    }}
+                    className="text-base min-h-[44px]"
+                  >
+                    <option value="">Select emirate</option>
+                    {UAE_EMIRATES.map((emirate) => (
+                      <option key={emirate} value={emirate}>
+                        {emirate}
+                      </option>
+                    ))}
+                  </Select>
+                  <Input
+                    label={
+                      <span className="inline-flex items-center gap-1">
+                        <span>Supply Date</span>
+                        <VatHelpIcon content={[
+                          'When required: Mandatory. Determines VAT liability date.',
+                          'Must be the date supply is made (goods delivered/services rendered).',
+                          'Defaults to invoice date if empty.',
+                        ]} />
+                      </span>
+                    }
+                    type="date"
+                    value={invoice.supplyDate || ''}
+                    validationState={fieldValidation.supplyDate}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    onChange={(e) => {
+                      setInvoice((prev) => ({
+                        ...prev,
+                        supplyDate: e.target.value,
+                      }));
+                      validateField('supplyDate', e.target.value);
+                    }}
+                    className="text-base min-h-[44px]"
+                  />
+                </div>
+
+                {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
+                {invoice.currency && invoice.currency !== 'AED' && (
+                  <Input
+                    label="Exchange Rate Date"
+                    type="date"
+                    value={invoice.exchangeRateDate || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        exchangeRateDate: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[44px]"
+                  />
+                )}
               </div>
-
-              {/* Reverse Charge Amount - Conditional */}
-              {invoice.isReverseCharge && (
-                <Input
-                  label="Reverse Charge Amount"
-                  type="number"
-                  value={invoice.reverseChargeAmount || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      reverseChargeAmount: parseFloat(e.target.value) || 0,
-                    }))
-                  }
-                  placeholder="Amount subject to reverse charge"
-                  step="0.01"
-                  min="0"
-                  inputMode="decimal"
-                  className="text-base min-h-[44px]"
-                />
-              )}
-
-              {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
-              {invoice.currency && invoice.currency !== 'AED' && (
-                <Input
-                  label="Exchange Rate Date"
-                  type="date"
-                  value={invoice.exchangeRateDate || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      exchangeRateDate: e.target.value,
-                    }))
-                  }
-                  className="text-base min-h-[44px]"
-                />
-              )}
-            </div>
-          </Card>
+            </Card>
+          </div>
 
           {/* Items Section - Responsive */}
           <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`} ref={itemsRef}>
@@ -3607,36 +3376,48 @@ const InvoiceForm = ({ onSave }) => {
                       <div key={product.id} className="relative group">
                         <button
                           onClick={() => {
-                            const newItem = createSteelItem();
-                            newItem.productId = product.id;
-                            // Use displayName (without origin) for invoice line items
-                            newItem.name = product.displayName || product.display_name || product.uniqueName || product.unique_name;
-                            newItem.unit = product.unit || 'kg';
-                            newItem.rate = parseFloat(product.price) || 0;
-                            newItem.hsnCode = product.hsnCode || '';
-                            newItem.gstRate = parseFloat(product.gstRate) || 5;
-                            // Copy product specifications
-                            newItem.grade = product.grade || '';
-                            newItem.productType = product.category || '';
-                            newItem.finish = product.finish || '';
-                            newItem.thickness = product.thickness || '';
-                            newItem.size = product.size || '';
-                            const newIndex = invoice.items.length;
-                            setInvoice((prev) => ({
-                              ...prev,
-                              items: [...prev.items, newItem],
-                            }));
-                            // Clear search input for the new row to prevent autocomplete issues
-                            setSearchInputs((prev) => ({ ...prev, [newIndex]: '' }));
+                            // Check if product already exists - if so, increment quantity directly
+                            const existingIndex = findDuplicateProduct(product.id, -1);
+                            if (existingIndex !== -1 && existingIndex !== null) {
+                              // Product exists - increment quantity and recalculate amount
+                              setInvoice((prev) => {
+                                const newItems = [...prev.items];
+                                const existingItem = newItems[existingIndex];
+                                const newQuantity = (existingItem.quantity || 0) + 1;
+                                newItems[existingIndex] = {
+                                  ...existingItem,
+                                  quantity: newQuantity,
+                                  amount: calculateItemAmount(newQuantity, existingItem.rate),
+                                };
+                                return { ...prev, items: newItems };
+                              });
+                              // Trigger blink animation (3 seconds)
+                              setBlinkingRowIndex(existingIndex);
+                              setTimeout(() => setBlinkingRowIndex(null), 3000);
+                              return;
+                            }
+
+                            // Product doesn't exist - fill empty row or create new one
+                            let targetIndex = findEmptyItemIndex();
+                            if (targetIndex === -1) {
+                              // No empty row - add one and use that index
+                              targetIndex = invoice.items.length;
+                              setInvoice((prev) => ({
+                                ...prev,
+                                items: [...prev.items, createSteelItem()],
+                              }));
+                            }
+                            // Use handleProductSelect for consistent pricing (pricelist support)
+                            setTimeout(() => handleProductSelect(targetIndex, product), 0);
                           }}
-                          className={`w-full px-3 py-2 pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
+                          className={`w-full px-3 py-2 pr-8 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
                             isPinned
                               ? isDarkMode
-                                ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg'
-                                : 'border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg'
+                                ? 'border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm'
+                                : 'border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm'
                               : isDarkMode
-                                ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
-                                : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
+                                ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                           title={product.displayName || product.display_name || 'N/A'}
                         >
@@ -3647,11 +3428,11 @@ const InvoiceForm = ({ onSave }) => {
                           className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                             isPinned
                               ? isDarkMode
-                                ? 'text-teal-300 hover:text-teal-200'
-                                : 'text-teal-700 hover:text-teal-800'
+                                ? 'text-gray-300 hover:text-white'
+                                : 'text-gray-700 hover:text-gray-900'
                               : isDarkMode
-                                ? 'text-gray-400 hover:text-teal-400'
-                                : 'text-gray-500 hover:text-teal-600'
+                                ? 'text-gray-500 hover:text-gray-300'
+                                : 'text-gray-400 hover:text-gray-600'
                           }`}
                           title={isPinned ? 'Unpin product' : 'Pin product'}
                         >
@@ -3832,7 +3613,7 @@ const InvoiceForm = ({ onSave }) => {
                             />
                           </div>
                         </td>
-                        <td className="px-2 py-2 align-middle">
+                        <td className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 ring-inset rounded animate-pulse' : ''}`}>
                           <Input
                             type="number"
                             value={item.quantity || ''}
@@ -3954,11 +3735,10 @@ const InvoiceForm = ({ onSave }) => {
                         <td className="px-2 py-2 align-middle text-center">
                           <button
                             onClick={() => removeItem(index)}
-                            disabled={invoice.items.length === 1}
                             className={`hover:text-red-300 ${
                               isDarkMode
-                                ? 'text-red-400 disabled:text-gray-600'
-                                : 'text-red-500 disabled:text-gray-400'
+                                ? 'text-red-400'
+                                : 'text-red-500'
                             }`}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -3999,11 +3779,10 @@ const InvoiceForm = ({ onSave }) => {
                       </h4>
                       <button
                         onClick={() => removeItem(index)}
-                        disabled={invoice.items.length === 1}
                         className={`hover:text-red-300 ${
                           isDarkMode
-                            ? 'text-red-400 disabled:text-gray-600'
-                            : 'text-red-500 disabled:text-gray-400'
+                            ? 'text-red-400'
+                            : 'text-red-500'
                         }`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -4048,57 +3827,59 @@ const InvoiceForm = ({ onSave }) => {
                       {/* Removed Grade, Finish, Size, Thickness fields */}
 
                       <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          label="Qty"
-                          type="number"
-                          value={item.quantity || ''}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              'quantity',
-                              e.target.value === ''
-                                ? ''
-                                : Number.isNaN(Number(e.target.value))
+                        <div className={`transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 rounded animate-pulse' : ''}`}>
+                          <Input
+                            label="Qty"
+                            type="number"
+                            value={item.quantity || ''}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                'quantity',
+                                e.target.value === ''
                                   ? ''
-                                  : parseInt(e.target.value, 10),
-                            )
-                          }
-                          min="0"
-                          step="1"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          error={invalidFields.has(`item.${index}.quantity`)}
-                          onKeyDown={(e) => {
-                            const allow = [
-                              'Backspace',
-                              'Delete',
-                              'Tab',
-                              'Escape',
-                              'Enter',
-                              'ArrowLeft',
-                              'ArrowRight',
-                              'Home',
-                              'End',
-                            ];
-                            if (allow.includes(e.key) || (e.ctrlKey || e.metaKey)) {
-                              return;
+                                  : Number.isNaN(Number(e.target.value))
+                                    ? ''
+                                    : parseInt(e.target.value, 10),
+                              )
                             }
-                            if (!/^[0-9]$/.test(e.key)) {
+                            min="0"
+                            step="1"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            error={invalidFields.has(`item.${index}.quantity`)}
+                            onKeyDown={(e) => {
+                              const allow = [
+                                'Backspace',
+                                'Delete',
+                                'Tab',
+                                'Escape',
+                                'Enter',
+                                'ArrowLeft',
+                                'ArrowRight',
+                                'Home',
+                                'End',
+                              ];
+                              if (allow.includes(e.key) || (e.ctrlKey || e.metaKey)) {
+                                return;
+                              }
+                              if (!/^[0-9]$/.test(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onPaste={(e) => {
                               e.preventDefault();
-                            }
-                          }}
-                          onPaste={(e) => {
-                            e.preventDefault();
-                            const t = (e.clipboardData || window.clipboardData).getData('text');
-                            const digits = (t || '').replace(/\D/g, '');
-                            handleItemChange(
-                              index,
-                              'quantity',
-                              digits ? parseInt(digits, 10) : '',
-                            );
-                          }}
-                          onWheel={(e) => e.currentTarget.blur()}
-                        />
+                              const t = (e.clipboardData || window.clipboardData).getData('text');
+                              const digits = (t || '').replace(/\D/g, '');
+                              handleItemChange(
+                                index,
+                                'quantity',
+                                digits ? parseInt(digits, 10) : '',
+                              );
+                            }}
+                            onWheel={(e) => e.currentTarget.blur()}
+                          />
+                        </div>
                         <Input
                           label="Rate"
                           type="number"
@@ -4117,10 +3898,11 @@ const InvoiceForm = ({ onSave }) => {
                           error={invalidFields.has(`item.${index}.rate`)}
                         />
                         <div>
-                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <label htmlFor={`supply-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             Supply Type
                           </label>
                           <select
+                            id={`supply-type-${index}`}
                             value={item.supplyType || 'standard'}
                             onChange={(e) =>
                               handleItemChange(index, 'supplyType', e.target.value)
@@ -4199,360 +3981,382 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           </Card>
 
-          {/* Additional Charges & VAT (Phase 1) */}
+          {/* Freight and Loading Charges (Phase 1) */}
           <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                <span>Additional Charges & VAT</span>
-                <VatHelpIcon 
-                  heading="Auxiliary Charges & VAT Treatment (Article 45)"
-                  content={[
-                    'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
-                    'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
-                    'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
-                    'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                  ]} />
-              </h3>
-              {/* Export Toggle */}
-              <label className={`flex items-center gap-2 cursor-pointer ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                <input
-                  type="checkbox"
-                  checked={invoice.isExport || false}
-                  onChange={(e) => {
-                    const isExport = e.target.checked;
-                    // When export flag changes, recalculate all charge VAT values
-                    setInvoice(prev => ({
-                      ...prev,
-                      isExport,
-                      packingChargesVat: isExport ? 0 : (parseFloat(prev.packingCharges) || 0) * 0.05,
-                      freightChargesVat: isExport ? 0 : (parseFloat(prev.freightCharges) || 0) * 0.05,
-                      insuranceChargesVat: isExport ? 0 : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
-                      loadingChargesVat: isExport ? 0 : (parseFloat(prev.loadingCharges) || 0) * 0.05,
-                      otherChargesVat: isExport ? 0 : (parseFloat(prev.otherCharges) || 0) * 0.05,
-                    }));
-                  }}
-                  className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
-                />
-                <span className="text-sm font-medium flex items-center gap-1">
+              <div className="flex items-center gap-3">
+                <h3 className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <span>Freight and Loading Charges</span>
+                  <VatHelpIcon
+                    heading="Auxiliary Charges & VAT Treatment (Article 45)"
+                    content={[
+                      'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
+                      'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
+                      'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
+                      'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
+                    ]} />
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowFreightCharges(!showFreightCharges)}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                    showFreightCharges
+                      ? isDarkMode
+                        ? 'bg-teal-600 text-white'
+                        : 'bg-teal-500 text-white'
+                      : isDarkMode
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  {showFreightCharges ? 'ON' : 'OFF'}
+                </button>
+              </div>
+              {showFreightCharges && (
+                <label className={`flex items-center gap-2 cursor-pointer ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={invoice.isExport || false}
+                    onChange={(e) => {
+                      const isExport = e.target.checked;
+                      // When export flag changes, recalculate all charge VAT values
+                      setInvoice(prev => ({
+                        ...prev,
+                        isExport,
+                        packingChargesVat: isExport ? 0 : (parseFloat(prev.packingCharges) || 0) * 0.05,
+                        freightChargesVat: isExport ? 0 : (parseFloat(prev.freightCharges) || 0) * 0.05,
+                        insuranceChargesVat: isExport ? 0 : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
+                        loadingChargesVat: isExport ? 0 : (parseFloat(prev.loadingCharges) || 0) * 0.05,
+                        otherChargesVat: isExport ? 0 : (parseFloat(prev.otherCharges) || 0) * 0.05,
+                      }));
+                    }}
+                    className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
+                  />
+                  <span className="text-sm font-medium flex items-center gap-1">
                   Export Invoice (0% VAT)
-                  <VatHelpIcon content={[
-                    'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
-                    'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
-                    'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
-                    'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
-                    'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                  ]} />
-                </span>
-              </label>
+                    <VatHelpIcon content={[
+                      'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
+                      'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
+                      'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
+                      'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
+                      'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
+                    ]} />
+                  </span>
+                </label>
+              )}
             </div>
 
-            {/* Charge Inputs with VAT */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {/* Packing Charges */}
-              <div className="space-y-1">
-                <Input
-                  label="Packing Charges"
-                  type="number"
-                  value={invoice.packingCharges || ''}
-                  onChange={(e) => {
-                    const amount = parseFloat(e.target.value) || 0;
-                    const vat = invoice.isExport ? 0 : amount * 0.05;
-                    setInvoice(prev => ({ ...prev, packingCharges: amount, packingChargesVat: vat }));
-                  }}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                />
-                <div className={`text-xs px-2 py-1 rounded ${
-                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                }`}>
+            {showFreightCharges && (
+              <>
+                {/* Charge Inputs with VAT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {/* Packing Charges */}
+                  <div className="space-y-1">
+                    <Input
+                      label="Packing Charges"
+                      type="number"
+                      value={invoice.packingCharges || ''}
+                      onChange={(e) => {
+                        const amount = parseFloat(e.target.value) || 0;
+                        const vat = invoice.isExport ? 0 : amount * 0.05;
+                        setInvoice(prev => ({ ...prev, packingCharges: amount, packingChargesVat: vat }));
+                      }}
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <div className={`text-xs px-2 py-1 rounded ${
+                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                    }`}>
                   VAT: {formatCurrency(invoice.packingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Freight Charges */}
-              <div className="space-y-1">
-                <Input
-                  label="Freight Charges"
-                  type="number"
-                  value={invoice.freightCharges || ''}
-                  onChange={(e) => {
-                    const amount = parseFloat(e.target.value) || 0;
-                    const vat = invoice.isExport ? 0 : amount * 0.05;
-                    setInvoice(prev => ({ ...prev, freightCharges: amount, freightChargesVat: vat }));
-                  }}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                />
-                <div className={`text-xs px-2 py-1 rounded ${
-                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                }`}>
+                  {/* Freight Charges */}
+                  <div className="space-y-1">
+                    <Input
+                      label="Freight Charges"
+                      type="number"
+                      value={invoice.freightCharges || ''}
+                      onChange={(e) => {
+                        const amount = parseFloat(e.target.value) || 0;
+                        const vat = invoice.isExport ? 0 : amount * 0.05;
+                        setInvoice(prev => ({ ...prev, freightCharges: amount, freightChargesVat: vat }));
+                      }}
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <div className={`text-xs px-2 py-1 rounded ${
+                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                    }`}>
                   VAT: {formatCurrency(invoice.freightChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Insurance Charges */}
-              <div className="space-y-1">
-                <Input
-                  label="Insurance Charges"
-                  type="number"
-                  value={invoice.insuranceCharges || ''}
-                  onChange={(e) => {
-                    const amount = parseFloat(e.target.value) || 0;
-                    const vat = invoice.isExport ? 0 : amount * 0.05;
-                    setInvoice(prev => ({ ...prev, insuranceCharges: amount, insuranceChargesVat: vat }));
-                  }}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                />
-                <div className={`text-xs px-2 py-1 rounded ${
-                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                }`}>
+                  {/* Insurance Charges */}
+                  <div className="space-y-1">
+                    <Input
+                      label="Insurance Charges"
+                      type="number"
+                      value={invoice.insuranceCharges || ''}
+                      onChange={(e) => {
+                        const amount = parseFloat(e.target.value) || 0;
+                        const vat = invoice.isExport ? 0 : amount * 0.05;
+                        setInvoice(prev => ({ ...prev, insuranceCharges: amount, insuranceChargesVat: vat }));
+                      }}
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <div className={`text-xs px-2 py-1 rounded ${
+                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                    }`}>
                   VAT: {formatCurrency(invoice.insuranceChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Loading Charges */}
-              <div className="space-y-1">
-                <Input
-                  label="Loading Charges"
-                  type="number"
-                  value={invoice.loadingCharges || ''}
-                  onChange={(e) => {
-                    const amount = parseFloat(e.target.value) || 0;
-                    const vat = invoice.isExport ? 0 : amount * 0.05;
-                    setInvoice(prev => ({ ...prev, loadingCharges: amount, loadingChargesVat: vat }));
-                  }}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                />
-                <div className={`text-xs px-2 py-1 rounded ${
-                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                }`}>
+                  {/* Loading Charges */}
+                  <div className="space-y-1">
+                    <Input
+                      label="Loading Charges"
+                      type="number"
+                      value={invoice.loadingCharges || ''}
+                      onChange={(e) => {
+                        const amount = parseFloat(e.target.value) || 0;
+                        const vat = invoice.isExport ? 0 : amount * 0.05;
+                        setInvoice(prev => ({ ...prev, loadingCharges: amount, loadingChargesVat: vat }));
+                      }}
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <div className={`text-xs px-2 py-1 rounded ${
+                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                    }`}>
                   VAT: {formatCurrency(invoice.loadingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Other Charges */}
-              <div className="space-y-1">
-                <Input
-                  label="Other Charges"
-                  type="number"
-                  value={invoice.otherCharges || ''}
-                  onChange={(e) => {
-                    const amount = parseFloat(e.target.value) || 0;
-                    const vat = invoice.isExport ? 0 : amount * 0.05;
-                    setInvoice(prev => ({ ...prev, otherCharges: amount, otherChargesVat: vat }));
-                  }}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                />
-                <div className={`text-xs px-2 py-1 rounded ${
-                  isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                }`}>
+                  {/* Other Charges */}
+                  <div className="space-y-1">
+                    <Input
+                      label="Other Charges"
+                      type="number"
+                      value={invoice.otherCharges || ''}
+                      onChange={(e) => {
+                        const amount = parseFloat(e.target.value) || 0;
+                        const vat = invoice.isExport ? 0 : amount * 0.05;
+                        setInvoice(prev => ({ ...prev, otherCharges: amount, otherChargesVat: vat }));
+                      }}
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    <div className={`text-xs px-2 py-1 rounded ${
+                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                    }`}>
                   VAT: {formatCurrency(invoice.otherChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Total Charge VAT Summary */}
-              <div className={`p-3 rounded-lg ${
-                isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
-              }`}>
-                <div className={`text-xs font-semibold uppercase mb-1 ${
-                  isDarkMode ? 'text-gray-400' : 'text-teal-700'
-                }`}>
+                  {/* Total Charge VAT Summary */}
+                  <div className={`p-3 rounded-lg ${
+                    isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
+                  }`}>
+                    <div className={`text-xs font-semibold uppercase mb-1 ${
+                      isDarkMode ? 'text-gray-400' : 'text-teal-700'
+                    }`}>
                   Total Charges VAT
-                </div>
-                <div className={`text-lg font-bold ${
-                  isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                }`}>
-                  {formatCurrency(
-                    (invoice.packingChargesVat || 0) +
+                    </div>
+                    <div className={`text-lg font-bold ${
+                      isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                    }`}>
+                      {formatCurrency(
+                        (invoice.packingChargesVat || 0) +
                     (invoice.freightChargesVat || 0) +
                     (invoice.insuranceChargesVat || 0) +
                     (invoice.loadingChargesVat || 0) +
                     (invoice.otherChargesVat || 0),
-                  )}
-                </div>
-                {invoice.isExport && (
-                  <div className="text-xs text-amber-600 mt-1">
+                      )}
+                    </div>
+                    {invoice.isExport && (
+                      <div className="text-xs text-amber-600 mt-1">
                     Zero-rated for export
-                  </div>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          {/* Invoice Summary - Single Column */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-                Summary & Totals
-            </h3>
-            <div className="max-w-lg ml-auto">
-
-              <div className="space-y-4">
-                <div
-                  className={`flex justify-between items-center ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}
-                >
-                  <span>Subtotal:</span>
-                  <span className="font-medium">
-                    {formatCurrency(computedSubtotal)}
-                  </span>
-                </div>
-
-                {/* Discount Section */}
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 gap-3">
-                    <Select
-                      label="Discount Type"
-                      value={invoice.discountType || 'amount'}
-                      onChange={(e) =>
-                        setInvoice((prev) => ({
-                          ...prev,
-                          discountType: e.target.value,
-                          discountAmount: '',
-                          discountPercentage: '',
-                        }))
-                      }
-                    >
-                      <option value="amount">Amount</option>
-                      <option value="percentage">Percentage</option>
-                    </Select>
-
-                    {invoice.discountType === 'percentage' ? (
-                      <Input
-                        label="Discount Percentage (%)"
-                        type="number"
-                        value={invoice.discountPercentage || ''}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '') {
-                            setInvoice((prev) => ({ ...prev, discountPercentage: '' }));
-                            return;
-                          }
-                          const num = Number(raw);
-                          if (Number.isNaN(num)) return;
-                          const clamped = Math.max(0, Math.min(100, num));
-                          setInvoice((prev) => ({
-                            ...prev,
-                            discountPercentage: clamped,
-                          }));
-                        }}
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        placeholder="0.00"
-                        inputMode="decimal"
-                        onKeyDown={(e) => {
-                          // Disallow exponent & plus/minus signs
-                          const blocked = ['e', 'E', '+', '-'];
-                          if (blocked.includes(e.key)) e.preventDefault();
-                        }}
-                      />
-                    ) : (
-                      <Input
-                        label="Discount Amount"
-                        type="number"
-                        value={invoice.discountAmount || ''}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '') {
-                            setInvoice((prev) => ({ ...prev, discountAmount: '' }));
-                            return;
-                          }
-                          const num = Number(raw);
-                          if (Number.isNaN(num)) return;
-                          const clamped = Math.max(0, Math.min(computedSubtotal, num));
-                          setInvoice((prev) => ({ ...prev, discountAmount: clamped }));
-                        }}
-                        min="0"
-                        max={computedSubtotal}
-                        step="0.01"
-                        placeholder="0.00"
-                        inputMode="decimal"
-                        onKeyDown={(e) => {
-                          const blocked = ['e', 'E', '+', '-'];
-                          if (blocked.includes(e.key)) e.preventDefault();
-                        }}
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
+                      </div>
                     )}
                   </div>
                 </div>
+              </>
+            )}
+          </Card>
 
-                {computedDiscountAmount > 0 && (
+          {/* Summary & Notes - Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            {/* LEFT COLUMN: Invoice Summary */}
+            <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                Summary & Totals
+              </h3>
+              <div>
+
+                <div className="space-y-4">
                   <div
                     className={`flex justify-between items-center ${
                       isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}
                   >
-                    <span>Discount:</span>
-                    <span className="font-medium text-red-500">
-                        -{formatCurrency(computedDiscountAmount)}
+                    <span>Subtotal:</span>
+                    <span className="font-medium">
+                      {formatCurrency(computedSubtotal)}
                     </span>
                   </div>
-                )}
 
-                <div
-                  className={`flex justify-between items-center ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}
-                >
-                  <span>VAT Amount:</span>
-                  <span className="font-medium">
-                    {formatCurrency(computedVatAmount)}
-                  </span>
-                </div>
+                  {/* Discount Section */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 gap-3">
+                      <Select
+                        label="Discount Type"
+                        value={invoice.discountType || 'amount'}
+                        onChange={(e) =>
+                          setInvoice((prev) => ({
+                            ...prev,
+                            discountType: e.target.value,
+                            discountAmount: '',
+                            discountPercentage: '',
+                          }))
+                        }
+                      >
+                        <option value="amount">Amount</option>
+                        <option value="percentage">Percentage</option>
+                      </Select>
 
-                <div
-                  className={`border-t pt-4 ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span
-                      className={`text-lg font-bold ${
+                      {invoice.discountType === 'percentage' ? (
+                        <Input
+                          label="Discount Percentage (%)"
+                          type="number"
+                          value={invoice.discountPercentage || ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setInvoice((prev) => ({ ...prev, discountPercentage: '' }));
+                              return;
+                            }
+                            const num = Number(raw);
+                            if (Number.isNaN(num)) return;
+                            const clamped = Math.max(0, Math.min(100, num));
+                            setInvoice((prev) => ({
+                              ...prev,
+                              discountPercentage: clamped,
+                            }));
+                          }}
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          placeholder="0.00"
+                          inputMode="decimal"
+                          onKeyDown={(e) => {
+                          // Disallow exponent & plus/minus signs
+                            const blocked = ['e', 'E', '+', '-'];
+                            if (blocked.includes(e.key)) e.preventDefault();
+                          }}
+                        />
+                      ) : (
+                        <Input
+                          label="Discount Amount"
+                          type="number"
+                          value={invoice.discountAmount || ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setInvoice((prev) => ({ ...prev, discountAmount: '' }));
+                              return;
+                            }
+                            const num = Number(raw);
+                            if (Number.isNaN(num)) return;
+                            const clamped = Math.max(0, Math.min(computedSubtotal, num));
+                            setInvoice((prev) => ({ ...prev, discountAmount: clamped }));
+                          }}
+                          min="0"
+                          max={computedSubtotal}
+                          step="0.01"
+                          placeholder="0.00"
+                          inputMode="decimal"
+                          onKeyDown={(e) => {
+                            const blocked = ['e', 'E', '+', '-'];
+                            if (blocked.includes(e.key)) e.preventDefault();
+                          }}
+                          onWheel={(e) => e.currentTarget.blur()}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {computedDiscountAmount > 0 && (
+                    <div
+                      className={`flex justify-between items-center ${
                         isDarkMode ? 'text-white' : 'text-gray-900'
                       }`}
                     >
-                        Total:
-                    </span>
-                    <span className="text-lg font-bold text-teal-400">
-                      {formatCurrency(computedTotal)}
+                      <span>Discount:</span>
+                      <span className="font-medium text-red-500">
+                        -{formatCurrency(computedDiscountAmount)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    className={`flex justify-between items-center ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
+                    <span>VAT Amount:</span>
+                    <span className="font-medium">
+                      {formatCurrency(computedVatAmount)}
                     </span>
                   </div>
-                </div>
 
-                {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
-                <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <div
+                    className={`border-t pt-4 ${
+                      isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`text-lg font-bold ${
+                          isDarkMode ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
+                        Total:
+                      </span>
+                      <span className="text-lg font-bold text-teal-400">
+                        {formatCurrency(computedTotal)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
+                  <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                   Payments are recorded after invoice creation via the Payment Drawer
-                </p>
+                  </p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Two-Column Notes Footer - General Notes + VAT Tax Notes (left) | Payment Terms (right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* LEFT COLUMN: General Notes & VAT Tax Notes */}
+            {/* RIGHT COLUMN: Notes & Payment Terms */}
             <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               {/* Invoice Notes */}
               <div className="mb-4">
                 <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                    Notes
+                  Notes
                 </h3>
                 <Textarea
                   value={invoice.notes}
@@ -4589,28 +4393,30 @@ const InvoiceForm = ({ onSave }) => {
                   className="text-base min-h-[44px]"
                 />
                 <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Required when items are zero-rated or exempt from VAT
+                  Required when items are zero-rated or exempt from VAT
                 </p>
               </div>
-            </Card>
 
-            {/* RIGHT COLUMN: Payment Terms */}
-            <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
+              {/* Payment Terms - Inline */}
+              <div className="border-t pt-4" style={{
+                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
+              }}>
+                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
                   Payment Terms & Conditions
-              </h3>
-              <Textarea
-                value={invoice.terms}
-                onChange={(e) =>
-                  setInvoice((prev) => ({ ...prev, terms: e.target.value }))
-                }
-                placeholder="Enter payment terms and conditions..."
-                rows="3"
-                autoGrow={true}
-                className="text-base min-h-[44px]"
-              />
+                </h3>
+                <Textarea
+                  value={invoice.terms}
+                  onChange={(e) =>
+                    setInvoice((prev) => ({ ...prev, terms: e.target.value }))
+                  }
+                  placeholder="Enter payment terms and conditions..."
+                  rows="2"
+                  autoGrow={true}
+                  className="text-base min-h-[44px]"
+                />
+              </div>
             </Card>
           </div>
         </main>
@@ -4723,12 +4529,19 @@ const InvoiceForm = ({ onSave }) => {
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             onClick={canContinueEditing ? handleSuccessModalClose : undefined}
+            role="button"
+            tabIndex={canContinueEditing ? 0 : -1}
+            onKeyDown={(e) => canContinueEditing && e.key === 'Escape' && handleSuccessModalClose()}
           >
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
             <div
               className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
                 isDarkMode ? 'bg-gray-900' : 'bg-white'
               }`}
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
             >
               {/* Success Header with Gradient */}
               <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
@@ -4833,7 +4646,7 @@ const InvoiceForm = ({ onSave }) => {
 
       {/* Duplicate Product Warning Dialog */}
       {duplicateWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opa bg-opacity-50">
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
               isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'

@@ -36,8 +36,11 @@ const InvoiceTemplate = ({
   template = null,
   documentType = 'invoice',
 }) => {
-  // Get template colors - prioritize passed template, then company settings, then defaults
-  const templateSettings = template || company?.settings?.invoiceTemplate || DEFAULT_TEMPLATE_SETTINGS;
+  // Get template colors - prioritize passed template, then company settings (camelCase or snake_case), then defaults
+  const templateSettings = template
+    || company?.settings?.invoiceTemplate
+    || company?.settings?.invoice_template
+    || DEFAULT_TEMPLATE_SETTINGS;
   const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
   return (

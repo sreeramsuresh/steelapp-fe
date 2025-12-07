@@ -26,6 +26,7 @@ import {
   DEFAULT_DOCUMENT_TEMPLATE_COLORS,
   mergeDocumentTemplateSettings,
 } from '../constants/defaultTemplateSettings';
+import { PDF_FONT_SIZES, PDF_FONT_FAMILIES } from '../constants/pdfAlignedStyles';
 import { generateConfigurablePDF } from '../utils/configurablePdfGenerator';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
@@ -1126,10 +1127,23 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             />
             {expandedSections.typography && (
               <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                {/* PDF-Aligned Typography Reference */}
+                <div className={`mb-4 p-3 rounded-lg border ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'}`}>
+                  <p className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                    PDF Typography Reference (Source of Truth)
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                    Company: {PDF_FONT_SIZES.companyName} | Title: {PDF_FONT_SIZES.documentTitle} | Headers: {PDF_FONT_SIZES.sectionHeader} | Body: {PDF_FONT_SIZES.body} | Table: {PDF_FONT_SIZES.tableBody}
+                  </p>
+                </div>
+
                 <div className="mb-4">
                   <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Font Family
                   </label>
+                  <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    PDF uses: {PDF_FONT_FAMILIES.base}
+                  </p>
                   <select
                     value={settings.typography.fontFamily}
                     onChange={(e) => updateSetting('typography.fontFamily', e.target.value)}
@@ -1139,7 +1153,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                         : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   >
-                    <option value="helvetica">Helvetica</option>
+                    <option value="helvetica">Helvetica (PDF Default)</option>
+                    <option value="arial">Arial</option>
                     <option value="times">Times</option>
                     <option value="courier">Courier</option>
                   </select>
@@ -1156,38 +1171,43 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                     min={10}
                     max={24}
                     unit="pt"
+                    description={`PDF default: ${PDF_FONT_SIZES.companyName}`}
                   />
                   <NumberInput
-                    label="Large (Headings)"
+                    label="Large (Document Title)"
                     value={settings.typography.fontSize.large}
                     onChange={(val) => updateSetting('typography.fontSize.large', val)}
                     min={9}
                     max={18}
                     unit="pt"
+                    description={`PDF default: ${PDF_FONT_SIZES.documentTitle}`}
                   />
                   <NumberInput
-                    label="Medium (Body Text)"
+                    label="Medium (Section Headers)"
                     value={settings.typography.fontSize.medium}
                     onChange={(val) => updateSetting('typography.fontSize.medium', val)}
                     min={7}
                     max={14}
                     unit="pt"
+                    description={`PDF default: ${PDF_FONT_SIZES.sectionHeader}`}
                   />
                   <NumberInput
-                    label="Base (Default)"
+                    label="Base (Body Text)"
                     value={settings.typography.fontSize.base}
                     onChange={(val) => updateSetting('typography.fontSize.base', val)}
                     min={7}
                     max={14}
                     unit="pt"
+                    description={`PDF default: ${PDF_FONT_SIZES.body}`}
                   />
                   <NumberInput
-                    label="Small (Footer)"
+                    label="Small (Table & Footer)"
                     value={settings.typography.fontSize.small}
                     onChange={(val) => updateSetting('typography.fontSize.small', val)}
                     min={6}
                     max={12}
                     unit="pt"
+                    description={`PDF default: ${PDF_FONT_SIZES.tableBody}`}
                   />
                 </div>
               </div>

@@ -13,7 +13,7 @@
  * - Exchange rate tracking for FX payments
  */
 
-import { formatCurrency, formatDate } from './invoiceUtils';
+import { formatCurrency } from './invoiceUtils';
 
 /**
  * Generate FTA-compliant receipt HTML
@@ -49,7 +49,7 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
   const receiptNumber = payment?.receiptNumber || payment?.receipt_number || 'N/A';
   const compositeReference = payment?.compositeReference || payment?.composite_reference || '';
   const isAdvancePayment = payment?.isAdvancePayment || payment?.is_advance_payment || false;
-  const remarks = payment?.remarks || '';
+  const _remarks = payment?.remarks || '';
 
   const currencyCode = payment?.currencyCode || payment?.currency_code || 'AED';
   const exchangeRate = payment?.exchangeRate || payment?.exchange_rate || 1.0;

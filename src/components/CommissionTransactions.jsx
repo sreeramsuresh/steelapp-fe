@@ -35,8 +35,8 @@ const CommissionTransactions = () => {
         commissionService.getTransactions(),
         commissionService.getAgents(),
       ]);
-      setTransactions(transactionsRes.data || []);
-      setAgents(agentsRes.data || []);
+      setTransactions(transactionsRes?.transactions || []);
+      setAgents(agentsRes?.agents || []);
     } catch (error) {
       console.error('Error loading data:', error);
       notificationService.error('Failed to load commission transactions');

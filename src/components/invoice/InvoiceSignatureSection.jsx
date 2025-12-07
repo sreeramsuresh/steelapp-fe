@@ -5,20 +5,13 @@
  * Displays company seal and authorized signatory
  * ONLY SHOWN ON LAST PAGE (UAE Best Practice + Industry Standard)
  * Uses seal uploaded in Company Settings (pdf_seal_url or seal_url)
- * Supports template-based styling for color customization
- *
- * CSS Properties:
- * - page-break-inside: avoid - Prevents page breaks within this component
- * - break-inside: avoid - Modern equivalent for preventing breaks
  */
 const InvoiceSignatureSection = ({ company, template = null }) => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
 
-  // Get template colors
   const colors = template?.colors || {};
-  const primaryColor = colors.primary || '#1a1a1a';
-  const secondaryColor = colors.secondary || '#6b7280';
-  const textColor = colors.text || '#1f2937';
+  const primaryColor = colors.primary || '#111';
+  const secondaryColor = colors.secondary || '#555';
 
   // Get seal from company profile
   let companySeal = null;
@@ -38,23 +31,67 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
       style={{
         pageBreakInside: 'avoid',
         breakInside: 'avoid',
+        fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      {/* SIGNATURE AND SEAL SECTION */}
-      <div className="flex justify-between items-end mb-6 mt-8">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        marginTop: '30px',
+        marginBottom: '20px',
+      }}>
         {/* Company Seal - Left */}
-        <div className="flex flex-col items-center gap-1">
-          <img src={companySeal} alt="Company Seal" className="w-28 h-28 object-contain" />
-          <p className="text-xs" style={{ color: secondaryColor, opacity: 0.6 }}>Company Seal</p>
-        </div>
+        {companySeal && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <img
+              src={companySeal}
+              alt="Company Seal"
+              style={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'contain',
+              }}
+            />
+            <p style={{
+              fontSize: '9px',
+              color: secondaryColor,
+              opacity: 0.6,
+            }}>Company Seal</p>
+          </div>
+        )}
 
         {/* Authorized Signatory - Right */}
-        <div className="flex flex-col items-center min-w-[200px]">
-          <p className="text-sm mb-6" style={{ color: secondaryColor, opacity: 0.6 }}>Authorised Signatory</p>
-          <div className="w-full border-b-2 mb-3" style={{ borderColor: primaryColor }}></div>
-          <div className="text-center">
-            <p className="text-xs font-bold leading-tight" style={{ color: primaryColor }}>ULTIMATE STEELS</p>
-            <p className="text-xs font-bold leading-tight" style={{ color: primaryColor }}>BUILDING MATERIALS TRADING</p>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          minWidth: '180px',
+        }}>
+          <p style={{
+            fontSize: '9px',
+            color: secondaryColor,
+            opacity: 0.6,
+            marginBottom: '30px',
+          }}>Authorised Signatory</p>
+          <div style={{
+            width: '100%',
+            borderBottom: '1px solid #333',
+            marginBottom: '8px',
+          }}></div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{
+              fontSize: '9px',
+              fontWeight: 'bold',
+              lineHeight: 1.5,
+              color: primaryColor,
+            }}>ULTIMATE STEELS</p>
+            <p style={{
+              fontSize: '9px',
+              fontWeight: 'bold',
+              lineHeight: 1.5,
+              color: primaryColor,
+            }}>BUILDING MATERIALS TRADING</p>
           </div>
         </div>
       </div>

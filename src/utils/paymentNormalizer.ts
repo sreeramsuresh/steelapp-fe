@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Payment Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizePayment(rawPayment: any, source = 'unknown'): any | nul
     console.error(`❌ [Payment Normalizer] Invalid payment data from ${source}:`, rawPayment);
     return null;
   }
-
-  const errors: string[] = [];
 
   try {
     // Helper to safely parse numbers
@@ -81,12 +80,6 @@ export function normalizePayment(rawPayment: any, source = 'unknown'): any | nul
       voidedBy: rawPayment.voided_by || rawPayment.voidedBy || undefined,
       voidReason: rawPayment.void_reason || rawPayment.voidReason || undefined,
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [Payment Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

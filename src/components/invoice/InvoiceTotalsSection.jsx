@@ -10,13 +10,11 @@ import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettin
  * Invoice Totals Section Component
  * Displays subtotal, discount, VAT, total, advance, and balance due
  * ONLY SHOWN ON LAST PAGE
- * Supports template-based styling for B&W printing
  */
 const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
   const colors = template?.colors || {};
   const fonts = template?.fonts || {};
-  const layout = template?.layout || {};
 
   // Compute summary values
   const computedSubtotal = calculateSubtotal(invoice.items || []);
@@ -46,51 +44,95 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
   const balanceDue = Math.max(0, computedTotal - advanceAmount);
 
-  // Get style based on template
   const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
-  const textColor = colors.text || '#333333';
-  const primaryTextColor = colors.primary || '#000000';
-  const borderColor = colors.border || color;
-  const compactMode = layout.compactMode || false;
 
   return (
     <div className="invoice-totals-section" style={{ fontFamily }}>
-      {/* TOTALS SECTION */}
-      <div className="flex justify-end mb-6">
-        <div className={`${compactMode ? 'w-56' : 'w-64'} space-y-2 text-sm`} style={{ color: textColor }}>
-          <div className="flex justify-between">
-            <span>SubTotal</span>
-            <span>AED {formatNumber(computedSubtotal)}</span>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+        <div style={{
+          width: '300px',
+          padding: '15px',
+          backgroundColor: '#f9fafb',
+          borderRadius: '4px',
+        }}>
+          {/* SubTotal */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+            fontSize: '10.5pt',
+            padding: '5px 0',
+          }}>
+            <span style={{ color: '#555', fontWeight: 500 }}>SubTotal</span>
+            <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>AED {formatNumber(computedSubtotal)}</span>
           </div>
+
+          {/* Discount */}
           {computedDiscount > 0 && (
-            <div className="flex justify-between">
-              <span>Discount</span>
-              <span>- AED {formatNumber(computedDiscount)}</span>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              fontSize: '10.5pt',
+              padding: '5px 0',
+            }}>
+              <span style={{ color: '#555', fontWeight: 500 }}>Discount</span>
+              <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>- AED {formatNumber(computedDiscount)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span>VAT</span>
-            <span>AED {formatNumber(computedVatAmount)}</span>
+
+          {/* VAT */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+            fontSize: '10.5pt',
+            padding: '5px 0',
+          }}>
+            <span style={{ color: '#555', fontWeight: 500 }}>VAT</span>
+            <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>AED {formatNumber(computedVatAmount)}</span>
           </div>
-          <div className="flex justify-between font-bold border-t pt-2" style={{
-            borderColor,
-            color: primaryTextColor,
+
+          {/* TOTAL */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            borderTop: `2px solid ${colors.primary || color}`,
+            paddingTop: '12px',
+            marginTop: '10px',
+            fontSize: '13pt',
+            fontWeight: 'bold',
           }}>
             <span>TOTAL</span>
-            <span>AED {formatNumber(computedTotal)}</span>
+            <span style={{ textAlign: 'right' }}>AED {formatNumber(computedTotal)}</span>
           </div>
+
+          {/* Advance and Balance Due */}
           {advanceAmount > 0 && (
             <>
-              <div className="flex justify-between" style={{ color: colors.secondary || '#666666' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                borderTop: '2px solid #d1d5db',
+                paddingTop: '10px',
+                marginTop: '10px',
+                fontSize: '11pt',
+                color: colors.primary || color,
+              }}>
                 <span>Less: Advance Received</span>
-                <span>- AED {formatNumber(advanceAmount)}</span>
+                <span style={{ textAlign: 'right' }}>- AED {formatNumber(advanceAmount)}</span>
               </div>
-              <div className="flex justify-between font-bold border-t-2 pt-2" style={{
-                borderColor: primaryTextColor,
-                color: primaryTextColor,
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginTop: '8px',
+                fontSize: '12pt',
+                fontWeight: 'bold',
+                color: balanceDue > 0 ? '#dc2626' : '#059669',
               }}>
                 <span>Balance Due</span>
-                <span>AED {formatNumber(balanceDue)}</span>
+                <span style={{ textAlign: 'right' }}>AED {formatNumber(balanceDue)}</span>
               </div>
             </>
           )}

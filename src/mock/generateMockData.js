@@ -4,6 +4,8 @@
  * Run: node src/mock/generateMockData.js
  */
 
+/* eslint-disable no-console */
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -146,7 +148,6 @@ function generateProducts(count = 100) {
   const gradeVariants = ['', 'L', 'H', 'N'];
   const finishes = ['HL', 'BA', '2B', 'No.4', 'Mirror'];
   const finishWeights = [40, 25, 20, 10, 5];
-  const statuses = ['active', 'inactive'];
 
   for (let i = 1; i <= count; i++) {
     const category = weightedChoice(categories, categoryWeights);

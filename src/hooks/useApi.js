@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export const useApi = (apiFunction, dependencies = [], options = {}) => {
+export const useApi = (apiFunction, _dependencies = [], options = {}) => {
   const { initialData = null } = options;
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);

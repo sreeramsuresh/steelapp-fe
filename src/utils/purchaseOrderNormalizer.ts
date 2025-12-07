@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Frontend Purchase Order Data Normalizer
  * CRITICAL: Converts snake_case API fields to camelCase frontend schema
@@ -15,8 +16,6 @@ export function normalizePurchaseOrder(rawPO: any, source = 'unknown'): any | nu
     console.error(`❌ [PurchaseOrder Normalizer] Invalid purchase order data from ${source}:`, rawPO);
     return null;
   }
-
-  const errors: string[] = [];
 
   try {
     // Helper to safely parse numbers
@@ -123,12 +122,6 @@ export function normalizePurchaseOrder(rawPO: any, source = 'unknown'): any | nu
       createdBy: rawPO.created_by || rawPO.createdBy || undefined,
       updatedBy: rawPO.updated_by || rawPO.updatedBy || undefined,
     };
-
-    // Log validation errors if any
-    if (errors.length > 0) {
-      console.warn(`⚠️ [PurchaseOrder Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
-    }
 
     return normalized;
     

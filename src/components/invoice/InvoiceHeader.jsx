@@ -5,38 +5,34 @@ import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettin
  * Invoice Header Component
  * Displays on every page of the invoice
  * Shows company info and optionally invoice details on first page
- * Uses logo uploaded in Company Settings (pdf_logo_url or logo_url)
- * Respects document-type-specific visibility settings from company.settings.documentImages
  */
 const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template = null, documentType = 'invoice' }) => {
   const compAddr = company?.address || {};
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
-  
-  // Get document-type-specific image visibility settings
+
   const docImageSettings = company?.settings?.documentImages?.[documentType] || {
     showLogo: true,
     showSeal: true,
   };
-  
-  // Get logo from company profile
+
   let companyLogo = null;
   if (docImageSettings.showLogo) {
     if (company?.pdfLogoUrl) {
-      companyLogo = company.pdfLogoUrl.startsWith('/') 
-        ? `${baseUrl}${company.pdfLogoUrl}` 
+      companyLogo = company.pdfLogoUrl.startsWith('/')
+        ? `${baseUrl}${company.pdfLogoUrl}`
         : company.pdfLogoUrl;
     } else if (company?.logoUrl) {
-      companyLogo = company.logoUrl.startsWith('/') 
-        ? `${baseUrl}${company.logoUrl}` 
+      companyLogo = company.logoUrl.startsWith('/')
+        ? `${baseUrl}${company.logoUrl}`
         : company.logoUrl;
     }
   }
-  
+
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
   const layout = template?.layout || {};
   const fonts = template?.fonts || {};
   const colors = template?.colors || {};
-  
+
   const headerStyle = layout.headerStyle || 'centered';
   const showLogo = layout.showLogo !== false && docImageSettings.showLogo;
   const showWatermark = layout.showWatermark === true;
@@ -44,7 +40,6 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
 
   return (
     <div className="invoice-header" style={{ fontFamily }}>
-      {/* Watermark for Professional template */}
       {showWatermark && (
         <div style={{
           position: 'absolute',
@@ -61,43 +56,52 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
       )}
 
-      {/* HEADER SECTION */}
-      <div className={`flex ${headerStyle === 'centered' ? 'flex-col items-center text-center' : 'justify-between items-start'} mb-4`}>
-        {/* Company Info */}
-        <div className={headerStyle === 'centered' ? 'mb-3' : ''}>
-          <h1 className="text-lg font-bold" style={{ color: colors.primary || '#1a1a1a', fontFamily }}>
+      <div className={`flex ${headerStyle === 'centered' ? 'flex-col items-center text-center' : 'justify-between items-start'}`} style={{ marginBottom: '15px' }}>
+        <div className={headerStyle === 'centered' ? 'mb-3' : ''} style={{ flex: 1 }}>
+          <h1 style={{
+            fontSize: '16pt',
+            fontWeight: 'bold',
+            color: colors.primary || '#111',
+            fontFamily,
+            marginBottom: '5px',
+          }}>
             {company?.name || 'Ultimate Steels Building Materials Trading'}
           </h1>
-          <div className="text-sm mt-1" style={{ color: colors.secondary || '#4a4a4a' }}>
+          <div style={{
+            fontSize: '10pt',
+            lineHeight: 1.6,
+            color: '#555',
+          }}>
             {compAddr.street && <p>{compAddr.street}</p>}
             {(compAddr.city || compAddr.country) && (
               <p>{[compAddr.city, compAddr.country].filter(Boolean).join(', ')}</p>
             )}
-            {company?.phone && <p>Mobile: {company.phone}</p>}
-            {company?.email && <p>Email: {company.email}</p>}
-            <p className="font-semibold mt-1">VAT Reg No: 104858252000003</p>
+            {company?.phone && <p><strong>Mobile:</strong> {company.phone}</p>}
+            {company?.email && <p><strong>Email:</strong> {company.email}</p>}
+            <p style={{ fontWeight: 600, marginTop: '4px' }}>VAT Reg No: 104858252000003</p>
           </div>
         </div>
 
-        {/* Logo */}
         {showLogo && companyLogo && (
-          <div className={headerStyle === 'centered' ? 'mb-3' : ''}>
-            <img src={companyLogo} alt="Company Logo" className="h-24 w-auto" />
+          <div className={headerStyle === 'centered' ? 'mb-3' : ''} style={{ marginLeft: '20px' }}>
+            <img src={companyLogo} alt="Company Logo" style={{ maxHeight: '100px', maxWidth: '300px' }} />
           </div>
         )}
       </div>
 
-      {/* Horizontal Line - Different styles per template */}
-      <div className="mb-6" style={{ 
+      <div style={{
         borderTop: headerStyle === 'letterhead' ? `3px double ${color}` : `2px solid ${color}`,
+        marginBottom: '20px',
       }}></div>
 
-      {/* INVOICE TITLE */}
-      <div className="mb-6">
-        <div className="px-3 py-1.5 text-center font-bold text-base" style={{
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{
           backgroundColor: colors.primary || color,
           color: '#ffffff',
-          border: `1px solid ${colors.primary || color}`,
+          textAlign: 'center',
+          padding: '8px',
+          fontSize: '14pt',
+          fontWeight: 'bold',
         }}>
           {invoice.status === 'draft' && 'DRAFT INVOICE'}
           {invoice.status === 'proforma' && 'PROFORMA INVOICE'}
@@ -105,54 +109,79 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
       </div>
 
-      {/* INVOICE TO & INFO SECTION - Only on first page */}
       {isFirstPage && (
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          {/* Left - Invoice To */}
-          <div>
-            <h3 className="text-base font-bold mb-2" style={{ color: colors.primary || '#1a1a1a' }}>Invoice To:</h3>
-            <div className="text-sm" style={{ color: colors.text || '#333333' }}>
-              {invoice.customer?.name && <p className="font-medium">{invoice.customer.name}</p>}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '25px',
+          marginBottom: '20px',
+        }}>
+          <div style={{ flex: 1 }}>
+            <h3 style={{
+              fontSize: '13pt',
+              fontWeight: 'bold',
+              color: colors.primary || '#111',
+              marginBottom: '8px',
+            }}>Invoice To:</h3>
+            <div style={{
+              fontSize: '10pt',
+              lineHeight: 1.7,
+              color: '#555',
+            }}>
+              {invoice.customer?.name && <p style={{ fontWeight: 500 }}>{invoice.customer.name}</p>}
               {invoice.customer?.address?.street && <p>{invoice.customer.address.street}</p>}
               {(invoice.customer?.address?.city || invoice.customer?.address?.country) && (
                 <p>{[invoice.customer.address.city, invoice.customer.address.country].filter(Boolean).join(', ')}</p>
               )}
-              {invoice.customer?.email && <p><span className="font-semibold">Email:</span> {invoice.customer.email}</p>}
+              {invoice.customer?.email && <p><strong style={{ fontWeight: 600, color: '#333' }}>Email:</strong> {invoice.customer.email}</p>}
               {invoice.customer?.phone && <p>Phone: {invoice.customer.phone}</p>}
               {invoice.customer?.vatNumber && <p>TRN: {invoice.customer.vatNumber}</p>}
             </div>
           </div>
 
-          {/* Right - Invoice Info Box */}
-          <div className="border" style={{ borderColor: colors.primary || color }}>
-            <div className="px-3 py-1.5 flex justify-between items-center" style={{
+          <div style={{
+            flex: '0 0 300px',
+            border: `2px solid ${colors.primary || color}`,
+            borderRadius: '4px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
               backgroundColor: colors.primary || color,
               color: '#ffffff',
+              padding: '10px 15px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '12pt',
+              fontWeight: 'bold',
             }}>
-              <span className="font-bold">Invoice No:</span>
-              <span className="font-bold">{invoice.invoiceNumber || ''}</span>
+              <span>Invoice No:</span>
+              <span>{invoice.invoiceNumber || ''}</span>
             </div>
-            <div className="px-3 py-2 text-sm space-y-1.5" style={{ color: colors.text || '#333333' }}>
-              <div className="flex justify-between">
-                <span className="font-semibold">Invoice Date:</span>
-                <span>{toUAEDateProfessional(invoice.date || new Date())}</span>
+            <div style={{
+              padding: '15px',
+              fontSize: '10pt',
+              backgroundColor: '#f9fafb',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 600, color: '#333' }}>Invoice Date:</span>
+                <span style={{ textAlign: 'right', color: '#555' }}>{toUAEDateProfessional(invoice.date || new Date())}</span>
               </div>
               {invoice.customerPurchaseOrderNumber && (
-                <div className="flex justify-between">
-                  <span className="font-semibold">SO:</span>
-                  <span>{invoice.customerPurchaseOrderNumber}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 600, color: '#333' }}>SO:</span>
+                  <span style={{ textAlign: 'right', color: '#555' }}>{invoice.customerPurchaseOrderNumber}</span>
                 </div>
               )}
               {invoice.customerPurchaseOrderDate && (
-                <div className="flex justify-between">
-                  <span className="font-semibold">Order Date:</span>
-                  <span>{toUAEDateProfessional(invoice.customerPurchaseOrderDate)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 600, color: '#333' }}>Order Date:</span>
+                  <span style={{ textAlign: 'right', color: '#555' }}>{toUAEDateProfessional(invoice.customerPurchaseOrderDate)}</span>
                 </div>
               )}
               {invoice.dueDate && (
-                <div className="flex justify-between">
-                  <span className="font-semibold">Due Date:</span>
-                  <span>{toUAEDateProfessional(invoice.dueDate)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontWeight: 600, color: '#333' }}>Due Date:</span>
+                  <span style={{ textAlign: 'right', color: '#555' }}>{toUAEDateProfessional(invoice.dueDate)}</span>
                 </div>
               )}
             </div>
@@ -160,10 +189,16 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
       )}
 
-      {/* CURRENCY & EXCHANGE RATE - Compact one-liner (UAE VAT Compliance) - Only on first page */}
       {isFirstPage && invoice.currency && invoice.currency !== 'AED' && (
-        <div className="mb-2 text-xs" style={{ color: colors.text || '#666666' }}>
-          <span className="italic">Exchange Rate: 1 {invoice.currency} = {invoice.exchangeRate || 1} AED</span>
+        <div style={{
+          backgroundColor: '#f0f9ff',
+          borderLeft: `3px solid ${colors.primary || color}`,
+          padding: '10px',
+          marginTop: '10px',
+          fontSize: '11pt',
+          color: '#111',
+        }}>
+          <span style={{ fontStyle: 'italic' }}>Exchange Rate: 1 {invoice.currency} = {invoice.exchangeRate || 1} AED</span>
         </div>
       )}
     </div>

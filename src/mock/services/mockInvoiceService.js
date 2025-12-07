@@ -5,8 +5,6 @@
  */
 
 import invoicesData from '../data/invoices.json';
-import customersData from '../data/customers.json';
-import productsData from '../data/products.json';
 
 // In-memory copy of invoices (allows create/update/delete without affecting JSON file)
 let invoices = [...invoicesData];

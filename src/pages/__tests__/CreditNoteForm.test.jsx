@@ -211,7 +211,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       const { container } = render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for data to load
@@ -272,7 +272,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       const { container } = render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for conflict modal or resume banner
@@ -313,7 +313,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for invoice to load
@@ -357,7 +357,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for invoice to load
@@ -428,7 +428,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Check that "Resume Draft" banner appears
@@ -469,7 +469,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for invoice to load
@@ -520,7 +520,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Wait for invoice info to display
@@ -544,7 +544,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Try entering data without selecting invoice
@@ -575,7 +575,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       const { container } = render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await waitFor(() => {
@@ -615,7 +615,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Resume draft

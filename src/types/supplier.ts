@@ -30,7 +30,7 @@ export interface Supplier {
 /**
  * Type guard to check if object is a valid Supplier
  */
-export function isSupplier(obj: any): obj is Supplier {
+export function isSupplier(obj: unknown): obj is Supplier {
   return (
     obj &&
     typeof obj === 'object' &&

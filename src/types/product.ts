@@ -91,7 +91,7 @@ export interface Product {
 /**
  * Type guard to check if object is a valid Product
  */
-export function isProduct(obj: any): obj is Product {
+export function isProduct(obj: unknown): obj is Product {
   return (
     obj &&
     typeof obj === 'object' &&

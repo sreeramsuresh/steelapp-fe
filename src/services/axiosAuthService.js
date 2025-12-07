@@ -19,6 +19,7 @@ class AuthService {
         password,
       });
 
+      // eslint-disable-next-line no-console
       console.log('Login response:', response); // Debug log
 
       // Support both response formats: SteelApp (token) and GigLabz (accessToken)
@@ -35,13 +36,16 @@ class AuthService {
         
         // Store user data in sessionStorage
         tokenUtils.setUser(user);
-        
+
+
         return response;
       } else {
+        // eslint-disable-next-line no-console
         console.error('Missing required fields in response:', { accessToken, refreshToken, user });
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Login failed:', error);
       const data = error.response?.data;
       const status = error.response?.status;
@@ -67,6 +71,7 @@ class AuthService {
         await apiService.post('/auth/logout', { refreshToken });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Logout API call failed:', error);
     } finally {
       // Always clear session regardless of API call result
@@ -89,6 +94,7 @@ class AuthService {
 
       return response;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Registration failed:', error);
       throw new Error(error.response?.data?.message || 'Registration failed');
     }
@@ -106,6 +112,7 @@ class AuthService {
 
       return response;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Get current user failed:', error);
       throw error;
     }
@@ -124,6 +131,7 @@ class AuthService {
         refreshToken,
       });
 
+      // eslint-disable-next-line no-console
       console.log('Refresh response:', response); // Debug log
 
       // Support both response formats
@@ -140,6 +148,7 @@ class AuthService {
 
       throw new Error('Token refresh failed - no tokens in response');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Token refresh failed:', error);
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         this.clearSession();
@@ -158,6 +167,7 @@ class AuthService {
 
       return response;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Change password failed:', error);
       throw new Error(error.response?.data?.message || 'Password change failed');
     }
@@ -165,6 +175,7 @@ class AuthService {
 
   // Clear all session data (matching GigLabz comprehensive cleanup)
   clearSession() {
+    // eslint-disable-next-line no-console
     console.log('[Auth] Clearing session - User will be logged out');
     tokenUtils.clearSession();
     // Clear page size preferences on logout

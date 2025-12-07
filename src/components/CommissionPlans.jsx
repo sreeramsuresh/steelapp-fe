@@ -36,7 +36,7 @@ const CommissionPlans = () => {
     try {
       setLoading(true);
       const response = await commissionService.getPlans();
-      setPlans(response.data || []);
+      setPlans(response?.plans || []);
     } catch (error) {
       console.error('Error loading plans:', error);
       notificationService.error('Failed to load commission plans');
