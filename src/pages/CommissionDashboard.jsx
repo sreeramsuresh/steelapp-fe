@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   DollarSign,
@@ -12,13 +12,38 @@ import {
   FileText,
   Settings,
   Calculator,
+  BarChart3,
+  PieChart as PieChartIcon,
 } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { notificationService } from '../services/notificationService';
 import SalesAgentsManagement from '../components/SalesAgentsManagement';
 import CommissionTransactions from '../components/CommissionTransactions';
 import CommissionPlans from '../components/CommissionPlans';
+
+// Chart color palette
+const CHART_COLORS = ['#14B8A6', '#3B82F6', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6'];
+const STATUS_COLORS = {
+  pending: '#F59E0B',
+  approved: '#3B82F6',
+  paid: '#22C55E',
+};
 
 const CommissionDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -245,6 +270,181 @@ const CommissionDashboard = () => {
                     <DollarSign className="h-6 w-6 text-purple-600" />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Commission Trend Chart */}
+              <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                    <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Commission Trend
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-4" style={{ height: 300 }}>
+                  {(dashboardData?.trendData || []).length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={dashboardData.trendData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#E5E7EB'} />
+                        <XAxis 
+                          dataKey="period" 
+                          tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                          axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+                        />
+                        <YAxis 
+                          tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                          axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
+                            borderRadius: '0.5rem',
+                            color: isDarkMode ? '#F9FAFB' : '#111827',
+                          }}
+                          formatter={(value) => [formatCurrency(value), 'Commission']}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="amount" 
+                          stroke="#14B8A6" 
+                          strokeWidth={2}
+                          dot={{ fill: '#14B8A6', strokeWidth: 2 }}
+                          name="Commission Amount"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>No trend data available</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Distribution Pie Chart */}
+              <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2">
+                    <PieChartIcon className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                    <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Status Distribution
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-4" style={{ height: 300 }}>
+                  {(summary.pendingAmount || summary.approvedAmount || summary.paidAmount) ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Pending', value: parseFloat(summary.pendingAmount || 0), color: STATUS_COLORS.pending },
+                            { name: 'Approved', value: parseFloat(summary.approvedAmount || 0), color: STATUS_COLORS.approved },
+                            { name: 'Paid', value: parseFloat(summary.paidAmount || 0), color: STATUS_COLORS.paid },
+                          ].filter(d => d.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          labelLine={{ stroke: isDarkMode ? '#6B7280' : '#9CA3AF' }}
+                        >
+                          {[
+                            { name: 'Pending', value: parseFloat(summary.pendingAmount || 0), color: STATUS_COLORS.pending },
+                            { name: 'Approved', value: parseFloat(summary.approvedAmount || 0), color: STATUS_COLORS.approved },
+                            { name: 'Paid', value: parseFloat(summary.paidAmount || 0), color: STATUS_COLORS.paid },
+                          ].filter(d => d.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
+                            borderRadius: '0.5rem',
+                            color: isDarkMode ? '#F9FAFB' : '#111827',
+                          }}
+                          formatter={(value) => formatCurrency(value)}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>No commission data available</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Top Agents Bar Chart */}
+            <div className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Top Agents by Commission
+                  </h3>
+                </div>
+              </div>
+              <div className="p-4" style={{ height: 300 }}>
+                {(dashboardData?.topAgents || []).length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={dashboardData.topAgents.slice(0, 8).map(a => ({
+                        name: a.fullName?.split(' ')[0] || 'Agent',
+                        commission: parseFloat(a.totalCommission || 0),
+                        sales: parseFloat(a.totalSales || 0),
+                      }))}
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#E5E7EB'} />
+                      <XAxis 
+                        type="number"
+                        tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                        axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+                        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                      />
+                      <YAxis 
+                        type="category"
+                        dataKey="name"
+                        tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                        axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+                        width={80}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                          border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
+                          borderRadius: '0.5rem',
+                          color: isDarkMode ? '#F9FAFB' : '#111827',
+                        }}
+                        formatter={(value, name) => [formatCurrency(value), name === 'commission' ? 'Commission' : 'Sales']}
+                      />
+                      <Legend />
+                      <Bar dataKey="commission" fill="#14B8A6" name="Commission" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>No agent data available</p>
+                  </div>
+                )}
               </div>
             </div>
 

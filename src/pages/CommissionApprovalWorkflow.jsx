@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { CheckCircle, Clock, DollarSign, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
+import { notificationService } from '../services/notificationService';
 
 export default function CommissionApprovalWorkflow() {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -10,6 +11,10 @@ export default function CommissionApprovalWorkflow() {
   const [updating, setUpdating] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [salesPersonStats, setSalesPersonStats] = useState({});
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     loadPendingApprovals();
@@ -90,13 +95,33 @@ export default function CommissionApprovalWorkflow() {
 
   };
 
+  // Pagination calculations
+  const totalCount = pendingApprovals.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const paginatedApprovals = useMemo(() => {
+    const startIdx = (currentPage - 1) * pageSize;
+    return pendingApprovals.slice(startIdx, startIdx + pageSize);
+  }, [pendingApprovals, currentPage, pageSize]);
+
   if (loading) return <div className="flex justify-center items-center h-96">Loading approvals...</div>;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Commission Approval Workflow</h1>
-        <p className="text-gray-600 mb-6">Manage and approve pending commission payouts</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Commission Approval Workflow</h1>
+            <p className="text-gray-600">Manage and approve pending commission payouts</p>
+          </div>
+          <button
+            onClick={loadPendingApprovals}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center space-x-2 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
 
         {successMessage && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -147,7 +172,7 @@ export default function CommissionApprovalWorkflow() {
             </div>
           ) : (
             <div className="divide-y">
-              {pendingApprovals.map((commission, idx) => {
+              {paginatedApprovals.map((commission, idx) => {
                 // Handle both snake_case and camelCase field names
                 const salesPersonId = commission.salesPersonId || commission.sales_person_id;
                 const invoiceNumber = commission.invoiceNumber || commission.invoice_number;
@@ -207,6 +232,44 @@ export default function CommissionApprovalWorkflow() {
                   </div>
                 );
               })}
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">
+                  Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                </span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+                  className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm"
+                >
+                  <option value={5}>5 per page</option>
+                  <option value={10}>10 per page</option>
+                  <option value={20}>20 per page</option>
+                  <option value={50}>50 per page</option>
+                </select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded hover:bg-gray-200 text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded hover:bg-gray-200 text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           )}
         </div>

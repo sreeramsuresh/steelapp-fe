@@ -24,6 +24,7 @@ import {
   Edit2,
   ThumbsUp,
 } from 'lucide-react';
+import { notificationService } from '../../services/notificationService';
 
 /**
  * CommissionPanel Component
@@ -86,7 +87,7 @@ const CommissionPanel = ({
 
   const handleAdjustCommission = () => {
     if (adjustedAmount < 0) {
-      alert('Commission amount cannot be negative');
+      notificationService.warning('Commission amount cannot be negative');
       return;
     }
     onAdjustCommission({

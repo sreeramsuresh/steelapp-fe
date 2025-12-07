@@ -667,15 +667,42 @@ const CreditNoteForm = () => {
 
       // Prepare items based on credit note type
       let itemsToSave = [];
+      let subtotal = creditNote.subtotal;
+      let vatAmount = creditNote.vatAmount;
+      let totalCredit = creditNote.totalCredit;
+
       if (creditNote.creditNoteType === 'RETURN_WITH_QC') {
         // For physical returns, filter only selected items with quantity returned
         itemsToSave = creditNote.items.filter(item => item.selected && item.quantityReturned > 0);
+      } else if (creditNote.creditNoteType === 'ACCOUNTING_ONLY' && creditNote.manualCreditAmount > 0) {
+        // For ACCOUNTING_ONLY with manual amount, calculate totals from manualCreditAmount
+        // Assume manual amount is VAT-inclusive (total credit)
+        totalCredit = parseFloat(creditNote.manualCreditAmount) || 0;
+        // Calculate VAT-exclusive subtotal (VAT is 5%)
+        subtotal = totalCredit / 1.05;
+        vatAmount = totalCredit - subtotal;
       }
-      // For ACCOUNTING_ONLY, items array stays empty
+
+      // Format customer address as string if it's an object
+      let customerAddress = creditNote.customer?.address;
+      if (customerAddress && typeof customerAddress === 'object') {
+        const parts = [
+          customerAddress.street,
+          customerAddress.city,
+          customerAddress.state,
+          customerAddress.postal_code,
+          customerAddress.country,
+        ].filter(Boolean);
+        customerAddress = parts.join(', ');
+      }
 
       const creditNoteData = {
         ...creditNote,
         items: itemsToSave,
+        subtotal,
+        vatAmount,
+        totalCredit,
+        customerAddress,
         // Set status based on user action
         status: issueImmediately ? 'issued' : 'draft',
       };

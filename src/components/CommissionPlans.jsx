@@ -10,6 +10,9 @@ import {
   Percent,
   Users,
   Info,
+  UserPlus,
+  Check,
+  Calendar,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { notificationService } from '../services/notificationService';
@@ -27,6 +30,15 @@ const CommissionPlans = () => {
     is_active: true,
     tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
   });
+  
+  // Assignment modal state
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assigningPlan, setAssigningPlan] = useState(null);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [effectiveDate, setEffectiveDate] = useState('');
+  const [assigning, setAssigning] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     loadPlans();
@@ -134,6 +146,65 @@ const CommissionPlans = () => {
     setFormData({ ...formData, tiers: newTiers });
   };
 
+  const openAssignModal = async (plan) => {
+    setAssigningPlan(plan);
+    setSelectedUsers(new Set());
+    setEffectiveDate(new Date().toISOString().split('T')[0]);
+    setShowAssignModal(true);
+    
+    try {
+      setLoadingUsers(true);
+      const response = await commissionService.getAgents(1, 100, false);
+      setAvailableUsers(response?.agents || []);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      notificationService.error('Failed to load users');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const toggleUserSelection = (userId) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+  };
+
+  const handleAssignPlan = async () => {
+    if (selectedUsers.size === 0) {
+      notificationService.warning('Please select at least one user');
+      return;
+    }
+    if (!effectiveDate) {
+      notificationService.warning('Please select an effective date');
+      return;
+    }
+
+    try {
+      setAssigning(true);
+      const userIds = Array.from(selectedUsers);
+      
+      // Assign plan to each selected user
+      for (const userId of userIds) {
+        await commissionService.assignPlanToUser(assigningPlan.id, userId, effectiveDate);
+      }
+      
+      notificationService.success(`Plan assigned to ${userIds.length} user(s)`);
+      setShowAssignModal(false);
+      setAssigningPlan(null);
+      loadPlans(); // Refresh to update agent counts
+    } catch (error) {
+      console.error('Error assigning plan:', error);
+      notificationService.error(error.message || 'Failed to assign plan');
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -219,6 +290,17 @@ const CommissionPlans = () => {
                   )}
                 </div>
                 <div className="flex space-x-1">
+                  <button
+                    onClick={() => openAssignModal(plan)}
+                    className={`p-2 rounded-lg ${
+                      isDarkMode
+                        ? 'hover:bg-blue-900/20 text-gray-400 hover:text-blue-400'
+                        : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
+                    }`}
+                    title="Assign to Users"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                  </button>
                   <button
                     onClick={() => handleEdit(plan)}
                     className={`p-2 rounded-lg ${
@@ -519,6 +601,128 @@ const CommissionPlans = () => {
               >
                 <Save className="h-4 w-4" />
                 <span>{saving ? 'Saving...' : 'Save Plan'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assignment Modal */}
+      {showAssignModal && assigningPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden ${
+            isDarkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            {/* Modal Header */}
+            <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex items-center space-x-2">
+                <UserPlus className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Assign Plan: {assigningPlan.name}
+                </h3>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 space-y-4 overflow-y-auto max-h-[50vh]">
+              {/* Effective Date */}
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Calendar className="w-4 h-4 inline mr-1" />
+                  Effective Date
+                </label>
+                <input
+                  type="date"
+                  value={effectiveDate}
+                  onChange={(e) => setEffectiveDate(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border ${
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+              </div>
+
+              {/* User Selection */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Select Users ({selectedUsers.size} selected)
+                </label>
+                
+                {loadingUsers ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className={`ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading users...</span>
+                  </div>
+                ) : availableUsers.length === 0 ? (
+                  <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p>No sales agents available</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {availableUsers.map((user) => (
+                      <div
+                        key={user.id}
+                        onClick={() => toggleUserSelection(user.id)}
+                        className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                          selectedUsers.has(user.id)
+                            ? isDarkMode ? 'bg-blue-900/30 border-blue-700' : 'bg-blue-50 border-blue-300'
+                            : isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+                            }`}>
+                              <Users className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {user.fullName || user.username}
+                              </p>
+                              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {user.email || `ID: ${user.id}`}
+                              </p>
+                            </div>
+                          </div>
+                          {selectedUsers.has(user.id) && (
+                            <Check className="w-5 h-5 text-blue-500" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className={`p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-end space-x-3`}>
+              <button
+                onClick={() => { setShowAssignModal(false); setAssigningPlan(null); }}
+                disabled={assigning}
+                className={`px-4 py-2 rounded-lg ${
+                  isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                } disabled:opacity-50`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAssignPlan}
+                disabled={assigning || selectedUsers.size === 0}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 flex items-center space-x-2"
+              >
+                {assigning ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Assigning...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Assign to {selectedUsers.size} User(s)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

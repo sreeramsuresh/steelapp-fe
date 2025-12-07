@@ -269,6 +269,133 @@ const commissionService = {
       throw error;
     }
   },
+
+  // List pay periods
+  listPayPeriods: async () => {
+    try {
+      const response = await api.get('/commissions/pay-periods');
+      return response.data;
+    } catch (error) {
+      console.error('Error listing pay periods:', error);
+      throw error;
+    }
+  },
+
+  // Close a pay period
+  closePayPeriod: async (periodId) => {
+    try {
+      const response = await api.post(`/commissions/pay-periods/${periodId}/close`);
+      return response.data;
+    } catch (error) {
+      console.error('Error closing pay period:', error);
+      throw error;
+    }
+  },
+
+  // Process pay period payments
+  processPayPeriodPayments: async (periodId) => {
+    try {
+      const response = await api.post(`/commissions/pay-periods/${periodId}/process`);
+      return response.data;
+    } catch (error) {
+      console.error('Error processing pay period payments:', error);
+      throw error;
+    }
+  },
+
+  // Assign a plan to a user
+  assignPlanToUser: async (planId, userId, effectiveDate) => {
+    try {
+      const response = await api.post('/commissions/plans/assign', {
+        planId,
+        userId,
+        effectiveDate,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error assigning plan to user:', error);
+      throw error;
+    }
+  },
+
+  // Bulk approve commissions
+  bulkApprove: async (commissionIds) => {
+    try {
+      const response = await api.post('/commissions/bulk-approve', {
+        commissionIds,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error bulk approving commissions:', error);
+      throw error;
+    }
+  },
+
+  // Bulk mark commissions as paid
+  bulkMarkPaid: async (commissionIds) => {
+    try {
+      const response = await api.post('/commissions/bulk-mark-paid', {
+        commissionIds,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error bulk marking commissions as paid:', error);
+      throw error;
+    }
+  },
+
+  // Create a new commission plan
+  createPlan: async (planData) => {
+    try {
+      const response = await api.post('/commissions/plans', planData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating commission plan:', error);
+      throw error;
+    }
+  },
+
+  // Update an existing commission plan
+  updatePlan: async (planId, planData) => {
+    try {
+      const response = await api.put(`/commissions/plans/${planId}`, planData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating commission plan:', error);
+      throw error;
+    }
+  },
+
+  // Delete a commission plan
+  deletePlan: async (planId) => {
+    try {
+      const response = await api.delete(`/commissions/plans/${planId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting commission plan:', error);
+      throw error;
+    }
+  },
+
+  // Get commission history for a user (with filters)
+  getCommissionHistory: async (userId, filters = {}) => {
+    try {
+      const { status, dateFrom, dateTo, page = 1, limit = 50 } = filters;
+      const response = await api.get(`/commissions/history/${userId}`, {
+        params: {
+          ...(status && { status }),
+          ...(dateFrom && { date_from: dateFrom }),
+          ...(dateTo && { date_to: dateTo }),
+          page,
+          limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching commission history:', error);
+      throw error;
+    }
+  },
 };
 
 export { commissionService };
