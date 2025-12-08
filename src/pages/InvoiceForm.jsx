@@ -1794,14 +1794,13 @@ const InvoiceForm = ({ onSave }) => {
         return '';
       };
 
-      // Fetch price from pricelist if available
+      // Fetch price from pricelist if available (with volume discount support)
       let sellingPrice = product.sellingPrice || 0;
       if (selectedPricelistId) {
         try {
-          const priceResponse = await pricelistService.getProductPrice(product.id, {
-            pricelist_id: selectedPricelistId,
-          });
-          sellingPrice = priceResponse.data?.price || product.sellingPrice || 0;
+          // Use getPriceForQuantity for volume discount support
+          const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+          sellingPrice = priceResponse.price || priceResponse.data?.price || product.sellingPrice || 0;
         } catch (error) {
           console.error('Error fetching pricelist price:', error);
           // Fallback to default product price
@@ -1943,7 +1942,8 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, []);
 
-  const handleItemChange = useCallback((index, field, value) => {
+  const handleItemChange = useCallback(async (index, field, value) => {
+    // First, update the item immediately
     setInvoice((prev) => {
       const newItems = [...prev.items];
       newItems[index] = {
@@ -1980,7 +1980,37 @@ const InvoiceForm = ({ onSave }) => {
         items: newItems,
       };
     });
-  }, []);
+
+    // If quantity changed and we have a pricelist, re-fetch price for volume discount
+    if (field === 'quantity' && selectedPricelistId) {
+      // Get current item to check if it has a product
+      setInvoice((prev) => {
+        const item = prev.items[index];
+        if (item?.productId && value > 0) {
+          // Fetch volume-based price asynchronously
+          pricelistService.getPriceForQuantity(item.productId, selectedPricelistId, value)
+            .then((priceResponse) => {
+              const newPrice = priceResponse.price || priceResponse.data?.price;
+              if (newPrice && newPrice !== item.rate) {
+                setInvoice((prevInv) => {
+                  const newItems = [...prevInv.items];
+                  newItems[index] = {
+                    ...newItems[index],
+                    rate: newPrice,
+                    amount: calculateItemAmount(newItems[index].quantity, newPrice),
+                  };
+                  return { ...prevInv, items: newItems };
+                });
+              }
+            })
+            .catch((err) => {
+              console.debug('Volume discount price fetch failed:', err.message);
+            });
+        }
+        return prev; // No change in this callback
+      });
+    }
+  }, [selectedPricelistId]);
 
   const productOptions = useMemo(() => {
     const list = productsData?.products || [];

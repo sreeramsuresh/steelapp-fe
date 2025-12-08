@@ -37,8 +37,8 @@ const BaseWidget = ({
   children,
   headerAction,
   loading = false,
-  error = false,
-  errorMessage = 'Failed to load data',
+  error = false, // Can be boolean or string message
+  errorMessage, // Optional separate error message (deprecated, use error string instead)
   onRefresh,
   size = 'md',
   className = '',
@@ -58,6 +58,7 @@ const BaseWidget = ({
 
   return (
     <div
+      data-testid="base-widget"
       className={`rounded-xl border transition-all duration-300 hover:shadow-lg ${
         isDarkMode
           ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500/50'
@@ -154,7 +155,7 @@ const BaseWidget = ({
           <WidgetLoadingState size={size} isDarkMode={isDarkMode} />
         ) : error ? (
           <WidgetErrorState
-            message={errorMessage}
+            message={typeof error === 'string' ? error : (errorMessage || 'Failed to load data')}
             onRetry={onRefresh}
             isDarkMode={isDarkMode}
           />
@@ -180,6 +181,8 @@ const WidgetLoadingState = ({ size, isDarkMode }) => {
 
   return (
     <div
+      data-testid="loading"
+      role="status"
       className={`flex items-center justify-center ${heightClasses[size]}`}
     >
       <div className="flex items-center gap-3">
@@ -206,7 +209,7 @@ const WidgetLoadingState = ({ size, isDarkMode }) => {
 
 const WidgetErrorState = ({ message, onRetry, isDarkMode }) => {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+    <div data-testid="error" className="flex flex-col items-center justify-center py-8 px-4 text-center">
       <AlertCircle
         size={32}
         className={`mb-3 ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}
@@ -221,6 +224,7 @@ const WidgetErrorState = ({ message, onRetry, isDarkMode }) => {
       {onRetry && (
         <button
           onClick={onRetry}
+          aria-label="Retry"
           className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
             isDarkMode
               ? 'bg-gray-700 hover:bg-gray-600 text-white'
@@ -241,14 +245,18 @@ const WidgetErrorState = ({ message, onRetry, isDarkMode }) => {
 export const WidgetEmptyState = ({
   icon: Icon,
   title,
+  message, // Alias for title (for backward compatibility)
   description,
   action,
+  onAction, // Alias for action (for backward compatibility)
   actionLabel,
 }) => {
   const { isDarkMode } = useTheme();
+  const displayTitle = title || message;
+  const handleAction = action || onAction;
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+    <div data-testid="empty" className="flex flex-col items-center justify-center py-8 px-4 text-center">
       {Icon && (
         <Icon
           size={48}
@@ -257,13 +265,15 @@ export const WidgetEmptyState = ({
           }`}
         />
       )}
-      <h4
-        className={`text-base font-semibold mb-1 ${
-          isDarkMode ? 'text-white' : 'text-gray-900'
-        }`}
-      >
-        {title}
-      </h4>
+      {displayTitle && (
+        <h4
+          className={`text-base font-semibold mb-1 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}
+        >
+          {displayTitle}
+        </h4>
+      )}
       {description && (
         <p
           className={`text-sm mb-4 ${
@@ -273,9 +283,9 @@ export const WidgetEmptyState = ({
           {description}
         </p>
       )}
-      {action && actionLabel && (
+      {handleAction && actionLabel && (
         <button
-          onClick={action}
+          onClick={handleAction}
           className="text-sm px-4 py-2 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-all"
         >
           {actionLabel}

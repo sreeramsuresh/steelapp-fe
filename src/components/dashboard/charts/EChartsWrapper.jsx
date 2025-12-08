@@ -138,15 +138,17 @@ export const EChartsWrapper = ({
   };
 
   return (
-    <ReactEChartsCore
-      ref={chartRef}
-      echarts={echarts}
-      option={themedOption}
-      style={{ height, width: '100%', ...style }}
-      opts={{ renderer: 'canvas' }}
-      onEvents={onEvents}
-      notMerge={true}
-    />
+    <div data-testid="echarts">
+      <ReactEChartsCore
+        ref={chartRef}
+        echarts={echarts}
+        option={themedOption}
+        style={{ height, width: '100%', ...style }}
+        opts={{ renderer: 'canvas' }}
+        onEvents={onEvents}
+        notMerge={true}
+      />
+    </div>
   );
 };
 

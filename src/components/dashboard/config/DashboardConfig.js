@@ -52,7 +52,7 @@ export const WIDGET_VISIBILITY = {
   // ============================================================================
   // SALES AGENT WIDGETS
   // ============================================================================
-  'agent-scorecard': ['ceo', 'sales_manager', 'admin'],
+  'agent-scorecard': ['ceo', 'sales_manager', 'sales_agent', 'admin'],
   'leaderboard': ['ceo', 'sales_manager', 'sales_agent', 'admin'],
   'commission': ['ceo', 'cfo', 'sales_manager', 'sales_agent', 'admin'],
   'conversion-rate': ['ceo', 'sales_manager', 'admin'],

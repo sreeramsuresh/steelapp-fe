@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { quotationsAPI, customersAPI, productsAPI, apiClient } from '../services/api';
+import pricelistService from '../services/pricelistService';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
 import QuotationPreview from '../components/quotations/QuotationPreview';
@@ -99,6 +100,10 @@ const QuotationForm = () => {
   const [success, setSuccess] = useState('');
   const [showPreferences, setShowPreferences] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Pricelist state
+  const [selectedPricelistId, setSelectedPricelistId] = useState(null);
+  const [pricelistName, setPricelistName] = useState(null);
 
   // Pinned products (localStorage)
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
@@ -302,7 +307,7 @@ const QuotationForm = () => {
     if (formData.currency) validateField('currency', formData.currency);
   }, [formData.quotationNumber, formData.customerDetails.name, formData.quotationDate, formData.warehouseId, formData.currency, formData.status, validateField]);
 
-  const handleCustomerChange = (customerId) => {
+  const handleCustomerChange = async (customerId) => {
     const customer = customers.find(c => c.id === parseInt(customerId));
     if (customer) {
       setFormData(prev => ({
@@ -322,6 +327,24 @@ const QuotationForm = () => {
           vatNumber: customer.vatNumber || '',
         },
       }));
+
+      // Fetch customer's pricelist
+      if (customer.pricelistId || customer.pricelist_id) {
+        try {
+          const pricelistId = customer.pricelistId || customer.pricelist_id;
+          const response = await pricelistService.getById(pricelistId);
+          setSelectedPricelistId(pricelistId);
+          setPricelistName(response.pricelist?.name || response.data?.name || 'Custom Price List');
+        } catch (error) {
+          // Silently ignore - pricelist is optional
+          setSelectedPricelistId(null);
+          setPricelistName(null);
+        }
+      } else {
+        // Use default pricelist
+        setSelectedPricelistId(null);
+        setPricelistName('Default Price List');
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -340,6 +363,8 @@ const QuotationForm = () => {
           vatNumber: '',
         },
       }));
+      setSelectedPricelistId(null);
+      setPricelistName(null);
     }
   };
 
@@ -366,9 +391,22 @@ const QuotationForm = () => {
   }, [products, pinnedProductIds]);
 
   // Quick add item from speed button
-  const quickAddItem = (product) => {
+  const quickAddItem = async (product) => {
     // Handle both camelCase and snake_case field names
     const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name || '';
+
+    // Fetch price from pricelist if available
+    let sellingPrice = parseFloat(product.sellingPrice || product.price) || 0;
+    if (selectedPricelistId) {
+      try {
+        const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+        sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
+      } catch (error) {
+        // Fallback to default product price
+        console.debug('Pricelist price not found, using default:', error.message);
+      }
+    }
+
     const newItem = {
       productId: product.id || '',
       name: productDisplayName,
@@ -381,7 +419,7 @@ const QuotationForm = () => {
       hsnCode: product.hsnCode || '',
       unit: product.unit || 'kg',
       quantity: 1,
-      rate: parseFloat(product.sellingPrice || product.price) || 0,
+      rate: sellingPrice,
       discount: 0,
       discountType: 'amount',
       taxableAmount: 0,
@@ -440,7 +478,7 @@ const QuotationForm = () => {
     setTimeout(calculateTotals, 0);
   };
 
-  const updateItem = (index, field, value) => {
+  const updateItem = async (index, field, value) => {
     const newItems = [...formData.items];
     newItems[index][field] = value;
 
@@ -449,6 +487,19 @@ const QuotationForm = () => {
       const product = products.find(p => p.id === parseInt(value));
       if (product) {
         const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
+
+        // Fetch price from pricelist if available
+        let sellingPrice = product.sellingPrice || product.price || 0;
+        if (selectedPricelistId) {
+          try {
+            const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+            sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
+          } catch (error) {
+            // Fallback to default product price
+            console.debug('Pricelist price not found, using default:', error.message);
+          }
+        }
+
         newItems[index] = {
           ...newItems[index],
           name: productDisplayName,
@@ -460,7 +511,7 @@ const QuotationForm = () => {
           description: product.description || '',
           hsnCode: product.hsnCode || '',
           unit: product.unit || 'pcs',
-          rate: product.sellingPrice || product.price || 0,
+          rate: sellingPrice,
         };
       }
     }

@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { AlertTriangle, X, RefreshCw } from 'lucide-react';
-import { useApiHealth } from '../../hooks/useApiHealth';
+import { useApiHealthContext } from '../../contexts/ApiHealthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -8,34 +7,18 @@ import { useTheme } from '../../contexts/ThemeContext';
  *
  * Features:
  * - Polls the health endpoint every 30 seconds
+ * - Instantly appears when any API call fails with network error
  * - Displays a dismissible warning when the API is down
- * - Automatically reappears if the API remains unhealthy on the next check
- * - Fixed position at top of page for visibility
+ * - Automatically reappears if the API remains unhealthy
  *
  * Usage:
- *   Place this at the root of your app (e.g., in App.jsx):
+ *   Wrap app with <ApiHealthProvider>, then place:
  *   <ApiStatusBanner />
  */
 const ApiStatusBanner = () => {
   const { isDarkMode } = useTheme();
-  const { isHealthy, isChecking, error, checkNow, lastChecked } = useApiHealth({
-    pollingInterval: 30000, // Check every 30 seconds
-  });
-
-  // Track if user has dismissed the banner
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  // Reset dismissed state when health status changes from healthy to unhealthy
-  // This makes the banner reappear on each new failure
-  useEffect(() => {
-    if (!isHealthy && isDismissed) {
-      // Small delay to avoid flashing
-      const timer = setTimeout(() => {
-        setIsDismissed(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isHealthy, isDismissed, lastChecked]);
+  const { isHealthy, isChecking, error, isDismissed, checkNow, dismiss } =
+    useApiHealthContext();
 
   // Don't show anything if API is healthy or banner is dismissed
   if (isHealthy || isDismissed) {
@@ -79,7 +62,8 @@ const ApiStatusBanner = () => {
                 isDarkMode ? 'text-amber-300' : 'text-amber-600'
               }`}
             >
-              Some features may not work. Please ensure the API Gateway is running on port 3000.
+              Some features may not work. Please ensure the API Gateway is
+              running on port 3000.
               {error && ` (${error})`}
             </p>
           </div>
@@ -97,16 +81,13 @@ const ApiStatusBanner = () => {
                 : 'bg-amber-100 hover:bg-amber-200 text-amber-800'
             } ${isChecking ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <RefreshCw
-              size={14}
-              className={isChecking ? 'animate-spin' : ''}
-            />
+            <RefreshCw size={14} className={isChecking ? 'animate-spin' : ''} />
             {isChecking ? 'Checking...' : 'Retry'}
           </button>
 
           {/* Dismiss Button */}
           <button
-            onClick={() => setIsDismissed(true)}
+            onClick={dismiss}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
                 ? 'hover:bg-amber-800 text-amber-300'

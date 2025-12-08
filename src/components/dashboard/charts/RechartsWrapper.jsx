@@ -123,12 +123,13 @@ export const BarChartWrapper = ({
   const chartColors = colors || themeColors.palette;
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <BarChart
-        data={data}
-        layout={layout}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-      >
+    <div data-testid="bar-chart">
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart
+          data={data}
+          layout={layout}
+          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        >
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
@@ -186,8 +187,9 @@ export const BarChartWrapper = ({
             ))}
           </Bar>
         )}
-      </BarChart>
-    </ResponsiveContainer>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -213,11 +215,12 @@ export const LineChartWrapper = ({
   const chartColors = colors || themeColors.palette;
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <LineChart
-        data={data}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-      >
+    <div data-testid="line-chart">
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart
+          data={data}
+          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        >
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
@@ -270,6 +273,7 @@ export const LineChartWrapper = ({
         )}
       </LineChart>
     </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -296,6 +300,7 @@ export const AreaChartWrapper = ({
   const chartColors = colors || themeColors.palette;
 
   return (
+    <div data-testid="area-chart">
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={data}
@@ -377,6 +382,7 @@ export const AreaChartWrapper = ({
         )}
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -422,6 +428,7 @@ export const PieChartWrapper = ({
   };
 
   return (
+    <div data-testid="pie-chart">
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie
@@ -456,6 +463,7 @@ export const PieChartWrapper = ({
         )}
       </PieChart>
     </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -478,6 +486,7 @@ export const RadarChartWrapper = ({
   const chartColors = colors || themeColors.palette;
 
   return (
+    <div data-testid="radar-chart">
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart data={data} cx="50%" cy="50%" outerRadius="80%">
         <PolarGrid stroke={themeColors.grid} />
@@ -519,6 +528,7 @@ export const RadarChartWrapper = ({
         )}
       </RadarChart>
     </ResponsiveContainer>
+    </div>
   );
 };
 

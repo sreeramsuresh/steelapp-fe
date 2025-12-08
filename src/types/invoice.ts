@@ -186,11 +186,11 @@ export interface Invoice {
  * Type guard to check if object is a valid Invoice
  */
 export function isInvoice(obj: unknown): obj is Invoice {
+  if (!obj || typeof obj !== 'object') return false;
+  const record = obj as Record<string, unknown>;
   return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.id === 'number' &&
-    typeof obj.invoiceNumber === 'string' &&
-    typeof obj.status === 'string'
+    typeof record.id === 'number' &&
+    typeof record.invoiceNumber === 'string' &&
+    typeof record.status === 'string'
   );
 }

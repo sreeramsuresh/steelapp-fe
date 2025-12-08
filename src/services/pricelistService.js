@@ -93,6 +93,33 @@ const pricelistService = {
     });
     return result;
   },
+
+  // Get price for a product based on quantity (volume discount support)
+  async getPriceForQuantity(productId, pricelistId, quantity) {
+    const data = await api.get('/pricelists/price-for-quantity', {
+      params: {
+        product_id: productId,
+        pricelist_id: pricelistId,
+        quantity: quantity,
+      },
+    });
+    return data;
+  },
+
+  // Get price change history (audit trail)
+  async getHistory(pricelistId, params = {}) {
+    const data = await api.get(`/pricelists/${pricelistId}/history`, {
+      params: {
+        product_id: params.productId || undefined,
+        change_type: params.changeType || undefined,
+        from_date: params.fromDate || undefined,
+        to_date: params.toDate || undefined,
+        limit: params.limit || 50,
+        offset: params.offset || 0,
+      },
+    });
+    return data;
+  },
 };
 
 export default pricelistService;

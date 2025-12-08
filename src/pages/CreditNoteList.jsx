@@ -349,7 +349,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   <div className="flex items-center gap-2">
                     {draft.data?.totalCredit > 0 && (
                       <span className={`text-sm font-medium mr-2 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
-                        -{formatCurrency(draft.data.totalCredit)}
+                        {formatCurrency(draft.data.totalCredit)}
                       </span>
                     )}
                     <button
@@ -450,7 +450,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         {formatDate(creditNote.creditNoteDate)}
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap font-medium text-red-600`}>
-                        -{formatCurrency(creditNote.totalCredit)}
+                        {formatCurrency(creditNote.totalCredit)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {(() => {
@@ -516,22 +516,26 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                               <Download className="h-4 w-4" />
                             )}
                           </button>
-                          {/* Edit Button */}
-                          <button
-                            onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
-                            className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
-                            title="Edit"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleDelete(creditNote)}
-                            className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {/* Edit Button - Only show for drafts */}
+                          {creditNote.status === 'draft' && (
+                            <button
+                              onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                              title="Edit"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                          )}
+                          {/* Delete Button - Only show for drafts */}
+                          {creditNote.status === 'draft' && (
+                            <button
+                              onClick={() => handleDelete(creditNote)}
+                              className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

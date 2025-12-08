@@ -70,10 +70,10 @@ const RevenueTrends = () => {
     // Convert API data to chart format
     const revenueData = sortedData.map(item => ({
       month: format(new Date(item.period), 'MMM yyyy'),
-      revenue: parseFloat(item.revenue),
-      invoiceCount: parseInt(item.invoiceCount),
-      avgOrderValue: parseFloat(item.averageOrderValue),
-      uniqueCustomers: parseInt(item.uniqueCustomers),
+      revenue: parseFloat(item.revenue) || 0,
+      invoiceCount: parseInt(item.invoiceCount) || 0,
+      avgOrderValue: parseFloat(item.averageOrderValue) || 0,
+      uniqueCustomers: parseInt(item.uniqueCustomers) || 0,
       period: new Date(item.period),
     }));
 
@@ -178,17 +178,19 @@ const RevenueTrends = () => {
   };
 
   const formatCurrency = (amount) => {
+    const safeAmount = isNaN(amount) || amount === null || amount === undefined ? 0 : amount;
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',
       currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   const formatGrowth = (growth) => {
-    const absGrowth = Math.abs(growth);
-    const sign = growth > 0 ? '+' : growth < 0 ? '' : '';
+    const safeGrowth = isNaN(growth) || growth === null || growth === undefined ? 0 : growth;
+    const absGrowth = Math.abs(safeGrowth);
+    const sign = safeGrowth > 0 ? '+' : safeGrowth < 0 ? '' : '';
     return `${sign}${absGrowth.toFixed(1)}%`;
   };
 

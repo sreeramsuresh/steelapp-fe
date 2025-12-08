@@ -6,6 +6,7 @@ import TopNavbar from './components/TopNavbar';
 import AppRouter from './components/AppRouter';
 import NotificationProvider from './components/NotificationProvider';
 import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
+import { ApiHealthProvider } from './contexts/ApiHealthContext';
 import { authService } from './services/axiosAuthService';
 import ApiStatusBanner from './components/common/ApiStatusBanner';
 
@@ -243,22 +244,24 @@ function App() {
   // console.log('🌍 APP.JSX - rendering full app with Router');
   return (
     <ThemeProvider>
-      <Router>
-        <NotificationCenterProvider>
-          <NotificationProvider>
-            {/* API Status Banner - Shows warning when backend is unavailable */}
-            <ApiStatusBanner />
-            <ThemedApp
-              user={user}
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-              handleLogout={handleLogout}
-              handleSaveInvoice={handleSaveInvoice}
-              onLoginSuccess={handleLoginSuccess}
-            />
-          </NotificationProvider>
-        </NotificationCenterProvider>
-      </Router>
+      <ApiHealthProvider>
+        <Router>
+          <NotificationCenterProvider>
+            <NotificationProvider>
+              {/* API Status Banner - Shows warning when backend is unavailable */}
+              <ApiStatusBanner />
+              <ThemedApp
+                user={user}
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+                handleLogout={handleLogout}
+                handleSaveInvoice={handleSaveInvoice}
+                onLoginSuccess={handleLoginSuccess}
+              />
+            </NotificationProvider>
+          </NotificationCenterProvider>
+        </Router>
+      </ApiHealthProvider>
     </ThemeProvider>
   );
 }

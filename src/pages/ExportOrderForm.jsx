@@ -31,6 +31,7 @@ import { customerService } from '../services/customerService';
 import { productService } from '../services/productService';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { notificationService } from '../services/notificationService';
+import pricelistService from '../services/pricelistService';
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -695,6 +696,10 @@ const ExportOrderForm = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
+  // Pricelist state
+  const [selectedPricelistId, setSelectedPricelistId] = useState(null);
+  const [pricelistName, setPricelistName] = useState(null);
+
   // Search States
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -912,7 +917,7 @@ const ExportOrderForm = () => {
     }
   }, [errors]);
 
-  const handleCustomerChange = useCallback((customerId) => {
+  const handleCustomerChange = useCallback(async (customerId) => {
     const customer = customers.find(c => c.id === customerId || c.id === parseInt(customerId));
     if (customer) {
       setOrder(prev => ({
@@ -929,6 +934,24 @@ const ExportOrderForm = () => {
       }));
       setShowCustomerDropdown(false);
       setCustomerSearchTerm('');
+
+      // Fetch customer's pricelist
+      if (customer.pricelistId || customer.pricelist_id) {
+        try {
+          const pricelistId = customer.pricelistId || customer.pricelist_id;
+          const response = await pricelistService.getById(pricelistId);
+          setSelectedPricelistId(pricelistId);
+          setPricelistName(response.pricelist?.name || response.data?.name || 'Custom Price List');
+        } catch (error) {
+          // Silently ignore - pricelist is optional
+          setSelectedPricelistId(null);
+          setPricelistName(null);
+        }
+      } else {
+        // Use default pricelist
+        setSelectedPricelistId(null);
+        setPricelistName('Default Price List');
+      }
     }
   }, [customers]);
 
@@ -965,9 +988,21 @@ const ExportOrderForm = () => {
     }
   }, [errors]);
 
-  const handleProductSelect = useCallback((index, productId) => {
+  const handleProductSelect = useCallback(async (index, productId) => {
     const product = products.find(p => p.id === productId || p.id === parseInt(productId));
     if (product) {
+      // Fetch price from pricelist if available
+      let sellingPrice = product.sellingPrice || product.selling_price || product.price || 0;
+      if (selectedPricelistId) {
+        try {
+          const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+          sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
+        } catch (error) {
+          // Fallback to default product price
+          console.debug('Pricelist price not found, using default:', error.message);
+        }
+      }
+
       setOrder(prev => {
         const newItems = [...prev.items];
         newItems[index] = {
@@ -979,11 +1014,13 @@ const ExportOrderForm = () => {
           finish: product.finish || '',
           hs_code: product.hs_code || '',
           country_of_origin: 'AE', // Default to UAE for exports
+          unit_price: sellingPrice,
+          total_price: (parseFloat(newItems[index].quantity) || 0) * sellingPrice,
         };
         return { ...prev, items: newItems };
       });
     }
-  }, [products]);
+  }, [products, selectedPricelistId]);
 
   const addLineItem = useCallback(() => {
     setOrder(prev => ({
