@@ -74,12 +74,16 @@ const CREDIT_NOTE_STATUSES = [
 ];
 
 const REFUND_METHODS = [
-  { value: 'cash', label: 'Cash' },
+  { value: 'credit_adjustment', label: 'Credit Adjustment (Apply to Account)' },
+  { value: 'offset_invoice', label: 'Offset Against Invoice' },
   { value: 'bank_transfer', label: 'Bank Transfer' },
   { value: 'cheque', label: 'Cheque' },
-  { value: 'credit_adjustment', label: 'Credit Adjustment' },
-  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'cash', label: 'Cash' },
+  { value: 'credit_card', label: 'Credit Card Refund' },
 ];
+
+// Methods that require a reference number
+const METHODS_REQUIRING_REFERENCE = ['bank_transfer', 'cheque', 'credit_card', 'offset_invoice'];
 
 const CREDIT_NOTE_TYPES = [
   { value: 'ACCOUNTING_ONLY', label: 'Accounting Only', description: 'Financial adjustment without physical return' },
@@ -634,6 +638,27 @@ const CreditNoteForm = () => {
       if (!hasItems && !hasManualAmount) {
         errors.push('Either select items to credit OR enter a manual credit amount');
         invalidFieldsSet.add('manualCreditAmount');
+      }
+
+      // When manual credit amount is entered, settlement method is required
+      if (hasManualAmount) {
+        touchedFieldsSet.add('refundMethod');
+
+        if (!creditNote.refundMethod) {
+          errors.push('Please specify how the credit will be settled (Settlement Method)');
+          invalidFieldsSet.add('refundMethod');
+        }
+
+        // Require reference for specific methods
+        if (creditNote.refundMethod && METHODS_REQUIRING_REFERENCE.includes(creditNote.refundMethod)) {
+          touchedFieldsSet.add('refundReference');
+
+          if (!creditNote.refundReference) {
+            const methodLabel = REFUND_METHODS.find(m => m.value === creditNote.refundMethod)?.label || creditNote.refundMethod;
+            errors.push(`Reference number is required for ${methodLabel}`);
+            invalidFieldsSet.add('refundReference');
+          }
+        }
       }
     }
 
@@ -1482,37 +1507,59 @@ const CreditNoteForm = () => {
               </div>
             </div>
 
-            {/* Refund Information */}
-            {(creditNote.status === 'refunded' || creditNote.status === 'completed') && (
+            {/* Settlement Method - Show for ACCOUNTING_ONLY with manual amount during draft/issued, OR for refunded/completed */}
+            {((creditNote.creditNoteType === 'ACCOUNTING_ONLY' &&
+               creditNote.manualCreditAmount > 0 &&
+               ['draft', 'issued'].includes(creditNote.status)) ||
+              ['refunded', 'completed'].includes(creditNote.status)) && (
               <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-                <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Refund Information
+                <h2 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Settlement Method
+                  {creditNote.manualCreditAmount > 0 && <span className="text-red-500 ml-1">*</span>}
                 </h2>
+                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Specify how this credit will be applied or refunded to the customer.
+                </p>
                 <div className="space-y-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Refund Method
+                      Settlement Method {creditNote.manualCreditAmount > 0 && <span className="text-red-500">*</span>}
                     </label>
                     <select
                       value={creditNote.refundMethod}
-                      onChange={(e) => setCreditNote(prev => ({ ...prev, refundMethod: e.target.value }))}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white'
-                          : 'border-gray-300 bg-white text-gray-900'
+                      onChange={(e) => {
+                        setCreditNote(prev => ({ ...prev, refundMethod: e.target.value }));
+                        if (e.target.value) {
+                          setInvalidFields(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete('refundMethod');
+                            return newSet;
+                          });
+                        }
+                      }}
+                      onBlur={() => handleFieldBlur('refundMethod')}
+                      className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                        invalidFields.has('refundMethod')
+                          ? 'border-red-500 ring-1 ring-red-500'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-700 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     >
-                      <option value="">Select method...</option>
+                      <option value="">Select settlement method...</option>
                       {REFUND_METHODS.map(method => (
                         <option key={method.value} value={method.value}>
                           {method.label}
                         </option>
                       ))}
                     </select>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      Credit Adjustment: Apply to customer account • Offset: Apply to specific invoice • Bank/Cheque/Cash: Direct refund
+                    </p>
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Refund Date
+                      Settlement Date
                     </label>
                     <input
                       type="date"
@@ -1527,17 +1574,38 @@ const CreditNoteForm = () => {
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Refund Reference/Transaction ID
+                      Reference / Transaction ID
+                      {creditNote.refundMethod && METHODS_REQUIRING_REFERENCE.includes(creditNote.refundMethod) && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     <input
                       type="text"
                       value={creditNote.refundReference}
-                      onChange={(e) => setCreditNote(prev => ({ ...prev, refundReference: e.target.value }))}
-                      placeholder="e.g., TXN12345, CHQ67890"
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                      onChange={(e) => {
+                        setCreditNote(prev => ({ ...prev, refundReference: e.target.value }));
+                        if (e.target.value) {
+                          setInvalidFields(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete('refundReference');
+                            return newSet;
+                          });
+                        }
+                      }}
+                      onBlur={() => handleFieldBlur('refundReference')}
+                      placeholder={
+                        creditNote.refundMethod === 'bank_transfer' ? 'Bank transaction ID' :
+                        creditNote.refundMethod === 'cheque' ? 'Cheque number' :
+                        creditNote.refundMethod === 'credit_card' ? 'Card transaction ID' :
+                        creditNote.refundMethod === 'offset_invoice' ? 'Invoice number to offset' :
+                        'Reference number (optional)'
+                      }
+                      className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                        invalidFields.has('refundReference')
+                          ? 'border-red-500 ring-1 ring-red-500'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
