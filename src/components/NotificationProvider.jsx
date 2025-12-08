@@ -18,6 +18,7 @@ const NotificationProvider = ({ children }) => {
         position="top-right"
         reverseOrder={false}
         gutter={8}
+        visibleToasts={3}
         containerClassName=""
         containerStyle={{
           top: 20,

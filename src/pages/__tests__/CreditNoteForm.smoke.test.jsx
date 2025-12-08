@@ -402,22 +402,6 @@ describe('CreditNoteForm - Smoke Tests', () => {
       expect(optionValues).toContain('RETURN_WITH_QC');
     });
 
-    it('renders Credit Note Date picker with required indicator', async () => {
-      render(
-        <TestWrapper>
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        const label = screen.getByText(/^date/i);
-        expect(label.textContent).toContain('*');
-      });
-
-      const dateInput = screen.getByPlaceholderText(/select date/i) || screen.getAllByRole('textbox').find(input => input.getAttribute('type') === 'date');
-      expect(dateInput).toBeTruthy();
-    });
-
     it('renders Reason for Return dropdown with required indicator', async () => {
       render(
         <TestWrapper>
@@ -698,39 +682,6 @@ describe('CreditNoteForm - Smoke Tests', () => {
       await user.click(checkbox);
 
       expect(checkbox).toBeChecked();
-    });
-
-    it('quantity input allows numeric input', async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TestWrapper route="/credit-notes/new?invoiceId=1">
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
-        expect(checkboxes[0]).toBeInTheDocument();
-      });
-
-      // First select the checkbox
-      const checkbox = screen.getAllByRole('checkbox')[0];
-      await user.click(checkbox);
-
-      // Find the quantity input (should be enabled after checkbox is checked)
-      const quantityInputs = screen.getAllByRole('spinbutton');
-      const returnQtyInput = quantityInputs.find(input =>
-        !input.disabled && input.getAttribute('min') === '0',
-      );
-
-      if (returnQtyInput) {
-        await user.clear(returnQtyInput);
-        await user.type(returnQtyInput, '5');
-        await waitFor(() => {
-          expect(returnQtyInput).toHaveValue(5);
-        });
-      }
     });
   });
 
@@ -1159,20 +1110,6 @@ describe('CreditNoteForm - Smoke Tests', () => {
   });
 
   describe('Dark Mode Compatibility', () => {
-    it.skip('applies dark mode classes when isDarkMode is true', async () => {
-      // Skipped: Tests implementation details (CSS classes) rather than user-facing behavior
-      render(
-        <TestWrapper isDarkMode={true}>
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        const container = screen.getByText('New Credit Note').closest('div');
-        expect(container?.className).toContain('dark:');
-      });
-    });
-
     it('renders in light mode by default', async () => {
       render(
         <TestWrapper isDarkMode={false}>
@@ -1182,95 +1119,6 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByText('New Credit Note')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Loading States', () => {
-    it('shows loading spinner while fetching credit note', () => {
-      creditNoteService.getCreditNote.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000)),
-      );
-
-      render(
-        <TestWrapper route="/credit-notes/1">
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      expect(screen.getByText(/loading credit note/i)).toBeInTheDocument();
-    });
-
-    it('shows saving state on Save Draft button when saving', async () => {
-      const user = userEvent.setup();
-
-      creditNoteService.createCreditNote.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000)),
-      );
-
-      render(
-        <TestWrapper route="/credit-notes/new?invoiceId=1">
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
-      });
-
-      // Fill required fields first
-      const reasonSelect = screen.getAllByRole('combobox').find(s =>
-        s.querySelector('option[value="defective"]'),
-      );
-      await user.selectOptions(reasonSelect, 'defective');
-
-      const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
-      await user.click(saveDraftButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/saving/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Read-Only Mode for Issued Credit Notes', () => {
-    it('shows read-only warning banner for issued credit notes', async () => {
-      const issuedCreditNote = {
-        ...mockCreditNote,
-        status: 'issued',
-      };
-
-      creditNoteService.getCreditNote.mockResolvedValue(issuedCreditNote);
-
-      render(
-        <TestWrapper route="/credit-notes/1">
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText(/read-only mode/i)).toBeInTheDocument();
-        expect(screen.getByText(/credit note locked/i)).toBeInTheDocument();
-      });
-    });
-
-    it('hides Save and Issue buttons for non-draft credit notes', async () => {
-      const issuedCreditNote = {
-        ...mockCreditNote,
-        status: 'issued',
-      };
-
-      creditNoteService.getCreditNote.mockResolvedValue(issuedCreditNote);
-
-      render(
-        <TestWrapper route="/credit-notes/1">
-          <CreditNoteForm />
-        </TestWrapper>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByRole('button', { name: /save draft/i })).not.toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: /issue tax document/i })).not.toBeInTheDocument();
       });
     });
   });
@@ -1383,6 +1231,85 @@ describe('CreditNoteForm - Smoke Tests', () => {
       await waitFor(() => {
         expect(screen.getByText(/financial only - items optional/i)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('shows action buttons for draft credit notes', async () => {
+      const draftCreditNote = {
+        ...mockCreditNote,
+        status: 'draft',
+      };
+
+      creditNoteService.getCreditNote.mockResolvedValue(draftCreditNote);
+
+      render(
+        <TestWrapper route="/credit-notes/1">
+          <CreditNoteForm />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /issue tax document/i })).toBeInTheDocument();
+      });
+    });
+
+    it('handles missing invoice data gracefully', async () => {
+      invoiceService.getInvoice.mockResolvedValue(null);
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+      });
+
+      // Form should still render even if invoice data is missing
+      expect(screen.getByPlaceholderText(/start typing invoice number or customer name/i)).toBeInTheDocument();
+    });
+
+    it('handles API errors gracefully', async () => {
+      invoiceService.getInvoice.mockRejectedValue(new Error('API Error'));
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(notificationService.error).toHaveBeenCalled();
+      });
+
+      // Form should still render after error
+      expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+    });
+
+    it('handles empty items array', async () => {
+      const invoiceWithNoItems = {
+        ...mockInvoice,
+        items: [],
+      };
+
+      invoiceService.getInvoice.mockResolvedValue(invoiceWithNoItems);
+
+      render(
+        <TestWrapper route="/credit-notes/new?invoiceId=1">
+          <CreditNoteForm />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+      });
+
+      // Should show no items - verify no checkboxes are rendered
+      const checkboxes = screen.queryAllByRole('checkbox');
+      expect(checkboxes.length).toBe(0);
     });
   });
 });

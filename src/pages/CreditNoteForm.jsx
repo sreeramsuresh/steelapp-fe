@@ -1721,6 +1721,7 @@ const CreditNoteForm = () => {
                       }}
                       onBlur={() => handleFieldBlur('manualCreditAmount')}
                       placeholder="0.00"
+                      data-testid="manual-credit-amount"
                       aria-required={!hasSelectedItems}
                       aria-invalid={shouldShowError('manualCreditAmount')}
                       className={`w-full px-4 py-2 rounded-lg border transition-colors ${

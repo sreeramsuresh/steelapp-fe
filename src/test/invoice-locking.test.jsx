@@ -93,7 +93,7 @@ describe('Invoice Locking UI Behavior', () => {
 
   describe('Issue Button visibility', () => {
     const shouldShowIssueButton = (invoice, isLocked) => {
-      return invoice.id && !isLocked && invoice.status !== 'issued';
+      return Boolean(invoice.id) && !isLocked && invoice.status !== 'issued';
     };
 
     it('should show Issue button for saved draft invoices', () => {

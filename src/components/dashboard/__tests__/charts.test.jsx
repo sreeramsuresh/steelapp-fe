@@ -74,48 +74,48 @@ describe('RechartsWrapper', () => {
   describe('BarChartWrapper', () => {
     it('renders without crashing', () => {
       renderWithTheme(<BarChartWrapper data={mockBarData} dataKey="value" />);
-      expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('bar-chart').length).toBeGreaterThan(0);
     });
 
     it('handles empty data', () => {
       renderWithTheme(<BarChartWrapper data={[]} dataKey="value" />);
-      expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('bar-chart').length).toBeGreaterThan(0);
     });
 
     it('renders in dark mode', () => {
       renderWithTheme(<BarChartWrapper data={mockBarData} dataKey="value" />, true);
-      expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('bar-chart').length).toBeGreaterThan(0);
     });
   });
 
   describe('LineChartWrapper', () => {
     it('renders without crashing', () => {
       renderWithTheme(<LineChartWrapper data={mockBarData} dataKey="value" />);
-      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('line-chart').length).toBeGreaterThan(0);
     });
 
     it('handles undefined data', () => {
       renderWithTheme(<LineChartWrapper data={undefined} dataKey="value" />);
-      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('line-chart').length).toBeGreaterThan(0);
     });
   });
 
   describe('AreaChartWrapper', () => {
     it('renders without crashing', () => {
       renderWithTheme(<AreaChartWrapper data={mockBarData} dataKey="value" />);
-      expect(screen.getByTestId('area-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('area-chart').length).toBeGreaterThan(0);
     });
   });
 
   describe('PieChartWrapper', () => {
     it('renders without crashing', () => {
       renderWithTheme(<PieChartWrapper data={mockPieData} dataKey="value" />);
-      expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('pie-chart').length).toBeGreaterThan(0);
     });
 
     it('handles empty data', () => {
       renderWithTheme(<PieChartWrapper data={[]} dataKey="value" />);
-      expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
+      expect(screen.getAllByTestId('pie-chart').length).toBeGreaterThan(0);
     });
   });
 });

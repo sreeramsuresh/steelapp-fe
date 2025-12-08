@@ -183,6 +183,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
             />
           </div>
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`p-2 rounded-lg border ${showFilters ? 'bg-emerald-50 border-emerald-300 text-emerald-600' : 'border-gray-300 text-gray-600'}`}
           >
@@ -191,6 +192,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={fetchHistory}
             className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
             title="Refresh"
@@ -198,6 +200,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
             <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
+            type="button"
             onClick={handleExportCSV}
             disabled={filteredHistory.length === 0}
             className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -251,6 +254,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
             </div>
             <div className="flex items-end">
               <button
+                type="button"
                 onClick={handleClearFilters}
                 className="w-full px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100"
               >
@@ -349,6 +353,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
                 className="p-2 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
@@ -359,6 +364,7 @@ const PriceHistoryTab = ({ pricelistId, products = [] }) => {
                 Page {page + 1} of {totalPages}
               </span>
               <button
+                type="button"
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
                 className="p-2 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"

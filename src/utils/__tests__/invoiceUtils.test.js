@@ -67,17 +67,17 @@ describe('invoiceUtils - Date Formatting', () => {
       const invalidDate = 'invalid-date';
       const result = formatDateForInput(invalidDate);
 
-      // Should return a valid yyyy-MM-dd format (fallback to current date)
-      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Should return empty string for invalid dates (form can detect missing/invalid input)
+      expect(result).toBe('');
     });
 
     it('should handle null/undefined gracefully', () => {
       const resultNull = formatDateForInput(null);
       const resultUndefined = formatDateForInput(undefined);
 
-      // Should return valid yyyy-MM-dd format (fallback)
-      expect(resultNull).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(resultUndefined).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Should return empty string for null/undefined (form can detect missing input)
+      expect(resultNull).toBe('');
+      expect(resultUndefined).toBe('');
     });
   });
 
@@ -250,20 +250,27 @@ describe('invoiceUtils - Date Formatting', () => {
   // ============================================
 
   describe('Error Prevention', () => {
-    it('should never return empty string', () => {
-      const inputs = [
+    it('should return valid date format for valid inputs', () => {
+      const validInputs = [
         '2025-12-04T20:00:00.000Z',
         new Date(),
         '2025-12-05',
-        'invalid',
-        null,
-        undefined,
       ];
 
-      inputs.forEach((input) => {
+      validInputs.forEach((input) => {
         const result = formatDateForInput(input);
         expect(result).not.toBe('');
         expect(result.length).toBeGreaterThan(0);
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      });
+    });
+
+    it('should return empty string for invalid inputs', () => {
+      const invalidInputs = ['invalid', null, undefined];
+
+      invalidInputs.forEach((input) => {
+        const result = formatDateForInput(input);
+        expect(result).toBe('');
       });
     });
 

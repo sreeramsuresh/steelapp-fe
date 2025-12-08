@@ -204,7 +204,7 @@ const useCreditNoteDrafts = ({
   const hasDraftForInvoice = useCallback((invoiceId) => {
     if (!invoiceId) return false;
     const draft = drafts[invoiceId];
-    return draft && !isDraftExpired(draft);
+    return draft ? !isDraftExpired(draft) : false;
   }, [drafts]);
 
   /**

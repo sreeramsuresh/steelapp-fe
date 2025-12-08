@@ -69,24 +69,25 @@ describe('RevenueKPIWidget', () => {
 describe('VATCollectionWidget', () => {
   it('renders widget', () => {
     renderWithTheme(<VATCollectionWidget outputVAT={25000} inputVAT={18000} />);
-    expect(screen.getByTestId('base-widget')).toBeInTheDocument();
+    expect(screen.getByText('VAT Collection')).toBeInTheDocument();
   });
 
   it('handles loading state', () => {
-    renderWithTheme(<VATCollectionWidget loading={true} />);
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
+    renderWithTheme(<VATCollectionWidget isLoading={true} />);
+    // VATCollectionWidget shows content even while loading (spinner on refresh button)
+    expect(screen.getByText('VAT Collection')).toBeInTheDocument();
   });
 });
 
 describe('InventoryHealthWidget', () => {
   it('renders widget', () => {
-    renderWithTheme(<InventoryHealthWidget healthScore={85} totalValue={2500000} />);
-    expect(screen.getByTestId('base-widget')).toBeInTheDocument();
+    renderWithTheme(<InventoryHealthWidget data={{ healthScore: 85, totalValue: 2500000, daysOfStock: 45, breakdown: {}, alerts: {} }} />);
+    expect(screen.getByText('Inventory Health')).toBeInTheDocument();
   });
 
-  it('handles loading state', () => {
-    renderWithTheme(<InventoryHealthWidget loading={true} />);
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
+  it('handles no data state', () => {
+    renderWithTheme(<InventoryHealthWidget />);
+    expect(screen.getByText('No data available')).toBeInTheDocument();
   });
 });
 

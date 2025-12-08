@@ -37,9 +37,12 @@ const validateRoleForm = (formData, existingRoles = [], editingRole = null) => {
     }
 
     // Check for reserved names
-    const reservedNames = ['admin', 'superuser', 'root'];
+    const reservedNames = ['admin', 'superuser', 'root', 'super_user'];
+    // Normalize: lowercase and replace special chars with underscore
     const normalized = formData.displayName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
-    if (reservedNames.includes(normalized)) {
+    // Also check without underscores to catch variations like "Super-User" -> "superuser"
+    const normalizedNoUnderscore = normalized.replace(/_/g, '');
+    if (reservedNames.includes(normalized) || reservedNames.includes(normalizedNoUnderscore)) {
       errors.displayName = `"${formData.displayName}" is a reserved name and cannot be used`;
     }
 
