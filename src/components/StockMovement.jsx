@@ -222,6 +222,10 @@ const StockMovement = () => {
       commodity: product.commodity || 'SS',
       // Origin
       origin: product.origin || '',
+      // Unit of Measure fields (added 2025-12-09)
+      primaryUom: product.primaryUom || product.primary_uom || 'PCS',
+      unitWeightKg: product.unitWeightKg || product.unit_weight_kg || null,
+      allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
     }));
     setProductQuery('');
     setProductOptions([]);
@@ -562,7 +566,7 @@ const StockMovement = () => {
                                 className={`w-full text-left px-3 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                               >
                                 <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                  {p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}
+                                  {p.displayName || p.display_name || p.uniqueName || p.unique_name || p.name}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                   {p.origin ? `${p.origin} | ` : ''}{p.category} {p.grade ? `| ${p.grade}` : ''} {p.size ? `| ${p.size}` : ''} {p.thickness ? `| ${p.thickness}mm` : ''}
@@ -720,18 +724,36 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Quantity
+                      Quantity {formData.primaryUom ? `(${formData.primaryUom})` : ''}
                     </label>
                     <input
                       type="number"
+                      step={formData.allowDecimalQuantity ? '0.001' : '1'}
                       value={formData.quantity || ''}
-                      onChange={(e) => handleInputChange('quantity', e.target.value === '' ? '' : parseFloat(e.target.value) || '')}
+                      onChange={(e) => {
+                        let value = e.target.value === '' ? '' : parseFloat(e.target.value);
+                        // For piece-based products, enforce whole numbers
+                        if (value !== '' && !formData.allowDecimalQuantity && !Number.isInteger(value)) {
+                          value = Math.round(value);
+                        }
+                        handleInputChange('quantity', value || '');
+                      }}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode 
                           ? 'bg-[#121418] border-[#37474F] text-white' 
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     />
+                    {formData.primaryUom === 'PCS' && formData.unitWeightKg && formData.quantity && (
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                        Total weight: {(formData.unitWeightKg * formData.quantity).toFixed(2)} kg
+                      </p>
+                    )}
+                    {!formData.allowDecimalQuantity && (
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        Whole numbers only (piece-based product)
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>

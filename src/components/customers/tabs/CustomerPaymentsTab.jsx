@@ -22,7 +22,7 @@
  * @returns {JSX.Element} Payment list with allocation details
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { apiClient } from '../../../services/api';
 import { formatCurrency, formatDate } from '../../../utils/invoiceUtils';
@@ -346,11 +346,11 @@ export default function CustomerPaymentsTab({ customerId }) {
                 paginatedPayments.map((payment) => {
                   const isExpanded = expandedRows.has(payment.id);
                   const hasAllocations = payment.allocations && payment.allocations.length > 0;
-                  
+
                   return (
-                    <>
+                    <React.Fragment key={payment.id}>
                       {/* Main payment row */}
-                      <tr key={payment.id} className={hoverBg}>
+                      <tr className={hoverBg}>
                         <td className="px-4 py-3">
                           {hasAllocations && (
                             <button
@@ -405,7 +405,7 @@ export default function CustomerPaymentsTab({ customerId }) {
                                 </thead>
                                 <tbody>
                                   {payment.allocations.map((allocation, idx) => (
-                                    <tr key={idx} className={`border-b ${borderColor}`}>
+                                    <tr key={`${payment.id}-alloc-${idx}`} className={`border-b ${borderColor}`}>
                                       <td className={`py-2 ${primaryText}`}>{allocation.invoiceNumber}</td>
                                       <td className={`py-2 text-right ${primaryText}`}>
                                         {formatCurrency(allocation.amount)}
@@ -418,7 +418,7 @@ export default function CustomerPaymentsTab({ customerId }) {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })
               )}

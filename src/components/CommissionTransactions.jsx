@@ -193,7 +193,7 @@ const CommissionTransactions = () => {
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -578,10 +578,11 @@ const CommissionTransactions = () => {
                 </p>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="reversal-reason" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Reason for Reversal <span className="text-red-500">*</span>
                 </label>
                 <select
+                  id="reversal-reason"
                   value={reversalReason}
                   onChange={(e) => setReversalReason(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
@@ -597,8 +598,9 @@ const CommissionTransactions = () => {
                 </select>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Additional Notes</label>
+                <label htmlFor="reversal-notes" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Additional Notes</label>
                 <textarea
+                  id="reversal-notes"
                   value={reversalNotes}
                   onChange={(e) => setReversalNotes(e.target.value)}
                   rows={3}
@@ -644,7 +646,14 @@ const CommissionTransactions = () => {
 
       {/* Click outside to close action menu */}
       {actionMenuOpen && (
-        <div className="fixed inset-0 z-0" onClick={() => setActionMenuOpen(null)} />
+        <div 
+          className="fixed inset-0 z-0" 
+          onClick={() => setActionMenuOpen(null)}
+          onKeyDown={(e) => e.key === 'Escape' && setActionMenuOpen(null)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close action menu"
+        />
       )}
     </div>
   );

@@ -1314,7 +1314,7 @@ const ImportOrderForm = () => {
                           <option value="">Select Product</option>
                           {products.map(product => (
                             <option key={product.id} value={product.id}>
-                              {product.displayName || product.display_name || 'N/A'}
+                              {product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A'}
                             </option>
                           ))}
                         </Select>
@@ -1348,7 +1348,7 @@ const ImportOrderForm = () => {
                       <input
                         type="text"
                         value={item.finish}
-                        onChange={(e) => handleItemChange(index, 'finish', e.target.value)}
+                        onChange={(e) => handleItemChange(index, 'finish', e.target.value.toUpperCase())}
                         placeholder="2B, BA"
                         className={`w-full px-2 py-1 text-xs border rounded ${
                           isDarkMode

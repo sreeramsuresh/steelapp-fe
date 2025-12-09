@@ -677,8 +677,8 @@ const PurchaseOrderForm = () => {
       const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: displayName for user-facing display
-      const label = displayName || uniqueName || 'N/A';
+      // Use uniqueName for dropdown display, displayName for documents
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
@@ -697,8 +697,8 @@ const PurchaseOrderForm = () => {
       const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: displayName for user-facing display
-      const label = displayName || uniqueName || 'N/A';
+      // Use uniqueName for dropdown display, displayName for documents
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
@@ -2005,7 +2005,7 @@ const PurchaseOrderForm = () => {
                           }`}
                           title={product.displayName || product.display_name || 'N/A'}
                         >
-                          {product.displayName || product.display_name || 'N/A'}
+                          {product.uniqueName || product.unique_name || 'N/A'}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}
@@ -2105,7 +2105,7 @@ const PurchaseOrderForm = () => {
                               error={invalidFields.has(`item.${index}.name`)}
                               renderOption={(option) => (
                                 <div>
-                                  <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.label || option.name}</div>
+                                  <div className="font-medium">{option.uniqueName || option.unique_name || option.displayName || option.display_name}</div>
                                   <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                                   </div>
@@ -2251,7 +2251,7 @@ const PurchaseOrderForm = () => {
                       error={invalidFields.has(`item.${index}.name`)}
                       renderOption={(option) => (
                         <div>
-                          <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.label || option.name}</div>
+                          <div className="font-medium">{option.uniqueName || option.unique_name || option.displayName || option.display_name}</div>
                           <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                           </div>

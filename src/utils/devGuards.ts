@@ -148,7 +148,9 @@ const ALLOWED_PRODUCT_KEYS = new Set<string>([
   // Core identifiers
   'id',
   'name',
-  'fullName',
+  'uniqueName',       // Technical identifier with origin (source of truth)
+  'displayName',      // User-friendly name for documents (without origin)
+  'fullName',         // Deprecated alias for uniqueName
   'title',
   
   // Category & Classification

@@ -11,15 +11,15 @@ import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
-import { 
-  FaUsers, 
-  FaPlus, 
-  FaSearch, 
-  FaEdit, 
-  FaTrash, 
-  FaPhone, 
-  FaEnvelope, 
-  FaMapMarkerAlt, 
+import {
+  FaUsers,
+  FaPlus,
+  FaSearch,
+  FaEdit,
+  FaTrash,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
   FaCreditCard,
   FaHistory,
   FaChartBar,
@@ -33,7 +33,30 @@ import {
   FaUpload,
   FaArchive,
 } from 'react-icons/fa';
+import { ArrowUp, ArrowDown, ArrowUpDown, Copy, Settings2 } from 'lucide-react';
 import CustomerUpload from './CustomerUpload';
+
+// Column definitions for Customers table
+const CUSTOMER_COLUMNS = [
+  { key: 'name', label: 'Customer Name', width: 'w-[200px]', required: true },
+  { key: 'company', label: 'Company', width: 'w-[150px]' },
+  { key: 'email', label: 'Email', width: 'w-[180px]' },
+  { key: 'phone', label: 'Phone', width: 'w-[120px]' },
+  { key: 'creditLimit', label: 'Credit Limit', width: 'w-[120px]' },
+  { key: 'creditUsed', label: 'Credit Used', width: 'w-[120px]' },
+  { key: 'status', label: 'Status', width: 'w-[100px]' },
+];
+
+// Column definitions for Suppliers table
+const SUPPLIER_COLUMNS = [
+  { key: 'name', label: 'Supplier Name', width: 'w-[200px]', required: true },
+  { key: 'company', label: 'Company', width: 'w-[150px]' },
+  { key: 'email', label: 'Email', width: 'w-[180px]' },
+  { key: 'phone', label: 'Phone', width: 'w-[120px]' },
+  { key: 'trnNumber', label: 'TRN', width: 'w-[140px]' },
+  { key: 'paymentTerms', label: 'Payment Terms', width: 'w-[120px]' },
+  { key: 'status', label: 'Status', width: 'w-[100px]' },
+];
 
 const CustomerManagement = () => {
   const { isDarkMode } = useTheme();
@@ -48,6 +71,22 @@ const CustomerManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
+
+  // Table sorting state
+  const [customerSortConfig, setCustomerSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [supplierSortConfig, setSupplierSortConfig] = useState({ key: 'name', direction: 'asc' });
+
+  // Column visibility state
+  const [customerVisibleColumns, setCustomerVisibleColumns] = useState(
+    CUSTOMER_COLUMNS.map(col => col.key)
+  );
+  const [supplierVisibleColumns, setSupplierVisibleColumns] = useState(
+    SUPPLIER_COLUMNS.map(col => col.key)
+  );
+
+  // Column picker visibility
+  const [showCustomerColumnPicker, setShowCustomerColumnPicker] = useState(false);
+  const [showSupplierColumnPicker, setShowSupplierColumnPicker] = useState(false);
   
   const canReadCustomers = authService.hasPermission('customers','read') || authService.hasRole('admin');
 
@@ -141,6 +180,107 @@ const CustomerManagement = () => {
 
   const filteredCustomers = customers.filter(c => showArchived ? true : (c.status !== 'archived'));
   const suppliers = suppliersData?.suppliers || [];
+
+  // Helper to get cell value for customer columns
+  const getCustomerCellValue = (customer, columnKey) => {
+    switch (columnKey) {
+      case 'name':
+        return customer.name || 'N/A';
+      case 'company':
+        return customer.company || '-';
+      case 'email':
+        return customer.email || '-';
+      case 'phone':
+        return customer.phone || '-';
+      case 'creditLimit':
+        return Number(customer.creditLimit) || 0;
+      case 'creditUsed':
+        return Number(customer.currentCredit) || 0;
+      case 'status':
+        return customer.status || 'active';
+      default:
+        return '-';
+    }
+  };
+
+  // Helper to get cell value for supplier columns
+  const getSupplierCellValue = (supplier, columnKey) => {
+    switch (columnKey) {
+      case 'name':
+        return supplier.name || 'N/A';
+      case 'company':
+        return supplier.company || '-';
+      case 'email':
+        return supplier.email || '-';
+      case 'phone':
+        return supplier.phone || '-';
+      case 'trnNumber':
+        return supplier.trnNumber || '-';
+      case 'paymentTerms':
+        return supplier.paymentTerms || '-';
+      case 'status':
+        return supplier.status || 'active';
+      default:
+        return '-';
+    }
+  };
+
+  // Sort customers
+  const sortedCustomers = [...filteredCustomers].sort((a, b) => {
+    const aVal = getCustomerCellValue(a, customerSortConfig.key);
+    const bVal = getCustomerCellValue(b, customerSortConfig.key);
+    const aStr = String(aVal).toLowerCase();
+    const bStr = String(bVal).toLowerCase();
+    if (customerSortConfig.direction === 'asc') {
+      return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+    }
+    return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+  });
+
+  // Sort suppliers
+  const sortedSuppliers = [...suppliers].sort((a, b) => {
+    const aVal = getSupplierCellValue(a, supplierSortConfig.key);
+    const bVal = getSupplierCellValue(b, supplierSortConfig.key);
+    const aStr = String(aVal).toLowerCase();
+    const bStr = String(bVal).toLowerCase();
+    if (supplierSortConfig.direction === 'asc') {
+      return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+    }
+    return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+  });
+
+  // Handle customer sort
+  const handleCustomerSort = (key) => {
+    setCustomerSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  // Handle supplier sort
+  const handleSupplierSort = (key) => {
+    setSupplierSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  // Toggle column visibility
+  const toggleCustomerColumn = (key) => {
+    const col = CUSTOMER_COLUMNS.find(c => c.key === key);
+    if (col?.required) return;
+    setCustomerVisibleColumns(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const toggleSupplierColumn = (key) => {
+    const col = SUPPLIER_COLUMNS.find(c => c.key === key);
+    if (col?.required) return;
+    setSupplierVisibleColumns(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
 
   // Sync search from URL param
   const [searchParams] = useSearchParams();
@@ -384,20 +524,20 @@ const CustomerManagement = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 w-full ${
-                isDarkMode 
-                  ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]' 
+                isDarkMode
+                  ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
                   : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
               }`}
             />
           </div>
-          
+
           {/* Status Filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
-              isDarkMode 
-                ? 'border-[#37474F] bg-[#1E2328] text-white' 
+              isDarkMode
+                ? 'border-[#37474F] bg-[#1E2328] text-white'
                 : 'border-[#E0E0E0] bg-white text-[#212121]'
             }`}
           >
@@ -419,9 +559,55 @@ const CustomerManagement = () => {
             <span className="text-sm">Show archived</span>
           </label>
         </div>
-        
+
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          {/* Column Picker */}
+          <div className="relative">
+            <button
+              onClick={() => setShowCustomerColumnPicker(!showCustomerColumnPicker)}
+              className={`p-2 rounded-lg border transition-colors ${
+                isDarkMode
+                  ? 'border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              }`}
+              title="Configure Columns"
+            >
+              <Settings2 size={16} />
+            </button>
+            {showCustomerColumnPicker && (
+              <div className={`absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border shadow-lg ${
+                isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+              }`}>
+                <div className={`px-3 py-2 border-b text-sm font-medium ${
+                  isDarkMode ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-700'
+                }`}>
+                  Show Columns
+                </div>
+                <div className="p-2 max-h-64 overflow-y-auto">
+                  {CUSTOMER_COLUMNS.map(col => (
+                    <label
+                      key={col.key}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
+                        col.required ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={customerVisibleColumns.includes(col.key)}
+                        onChange={() => toggleCustomerColumn(col.key)}
+                        disabled={col.required}
+                        className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span>{col.label}</span>
+                      {col.required && <span className="text-xs text-gray-500">(required)</span>}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setShowAddModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
@@ -429,7 +615,7 @@ const CustomerManagement = () => {
             <FaPlus />
             Add Customer
           </button>
-          
+
           <button
             onClick={() => setShowUploadModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
@@ -440,128 +626,154 @@ const CustomerManagement = () => {
         </div>
       </div>
 
-      {/* Customer Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
-        {filteredCustomers.length === 0 ? (
-          <div className="col-span-full text-center py-8">
-            <p className={textMuted}>
-              {loadingCustomers ? 'Loading...' : customersError ? 'Error loading customers.' : 'No customers found. Try creating a new customer.'}
-            </p>
-          </div>
-        ) : (
-          filteredCustomers.map(customer => (
-            <div key={customer.id} className={`${cardClasses} p-6 hover:-translate-y-1 hover:shadow-lg hover:border-[#008B8B]`}>
-              {/* Customer Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className={`text-lg font-semibold mb-1 truncate ${textPrimary}`}>
-                    {customer.name}
-                  </h3>
-                  <p className={`text-sm mb-2 truncate ${textSecondary}`}>{customer.company}</p>
-                  <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider rounded-full ${
-                    customer.status === 'active' 
-                      ? 'bg-green-100 text-green-800 border border-green-200' 
-                      : 'bg-gray-100 text-gray-600 border border-gray-200'
-                  }`}>
-                    {customer.status}
-                  </span>
-                </div>
-                
-                {/* Actions */}
-                <div className="flex gap-1 ml-2">
-                  <button
-                    onClick={() => openContactHistory(customer)}
-                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'}`}
-                    title="Contact History"
-                  >
-                    <FaHistory className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedCustomer(customer);
-                      setShowEditModal(true);
-                    }}
-                    className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'}`}
-                    title="Edit Customer"
-                  >
-                    <FaEdit className="w-4 h-4" />
-                  </button>
-                  {canDeleteCustomers && (
-                    <button
-                      onClick={() => handleDeleteCustomer(customer.id)}
-                      className={`p-2 rounded transition-colors bg-transparent ${isDarkMode ? 'text-yellow-400 hover:text-yellow-300' : 'hover:bg-gray-100 text-yellow-600'}`}
-                      title="Archive Customer"
+      {/* Customer Table */}
+      <div className={`overflow-x-auto rounded-lg border ${
+        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+      }`}>
+        <table className="w-full min-w-[800px] table-fixed">
+          {/* Table Header */}
+          <thead className={`sticky top-0 z-10 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+          }`}>
+            <tr>
+              {CUSTOMER_COLUMNS.filter(col => customerVisibleColumns.includes(col.key)).map(col => (
+                <th
+                  key={col.key}
+                  onClick={() => handleCustomerSort(col.key)}
+                  className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors ${col.width} ${
+                    isDarkMode
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>{col.label}</span>
+                    {customerSortConfig.key === col.key ? (
+                      customerSortConfig.direction === 'asc' ? (
+                        <ArrowUp size={14} className="text-teal-500" />
+                      ) : (
+                        <ArrowDown size={14} className="text-teal-500" />
+                      )
+                    ) : (
+                      <ArrowUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
+                </th>
+              ))}
+              <th className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[100px] ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            {sortedCustomers.length === 0 ? (
+              <tr>
+                <td colSpan={customerVisibleColumns.length + 1} className="text-center py-8">
+                  <p className={textMuted}>
+                    {loadingCustomers ? 'Loading...' : customersError ? 'Error loading customers.' : 'No customers found. Try creating a new customer.'}
+                  </p>
+                </td>
+              </tr>
+            ) : (
+              sortedCustomers.map(customer => (
+                <tr
+                  key={customer.id}
+                  className={`transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-900 hover:bg-gray-800'
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  {CUSTOMER_COLUMNS.filter(col => customerVisibleColumns.includes(col.key)).map(col => (
+                    <td
+                      key={col.key}
+                      className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}
                     >
-                      <FaArchive className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Customer Details */}
-              <div className="space-y-2 mb-4">
-                <div className={`flex items-center gap-2 text-sm ${textSecondary}`}>
-                  <FaEnvelope className={`w-4 h-4 ${textMuted}`} />
-                  <span className="truncate">{customer.email}</span>
-                </div>
-                <div className={`flex items-center gap-2 text-sm ${textSecondary}`}>
-                  <FaPhone className={`w-4 h-4 ${textMuted}`} />
-                  <span className="truncate">{customer.phone}</span>
-                </div>
-                <div className={`flex items-center gap-2 text-sm ${textSecondary}`}>
-                  <FaMapMarkerAlt className={`w-4 h-4 ${textMuted}`} />
-                  <span className="truncate">
-                    {customer.address && typeof customer.address === 'object'
-                      ? `${customer.address.street || ''}, ${customer.address.city || ''}`.trim().replace(/^,\s*|,\s*$/, '') || 'No address'
-                      : customer.address || 'No address'
-                    }
-                  </span>
-                </div>
-              </div>
-
-              {/* Credit Info */}
-              <div className={`border-t pt-4 ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className={`text-xs ${textMuted}`}>Credit Limit</span>
-                  <span className={`text-sm font-semibold ${textPrimary}`}>
-                    {formatCurrency(Number(customer.creditLimit) || 0)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className={`text-xs ${textMuted}`}>Used</span>
-                  <span className={`text-sm font-semibold ${textPrimary}`}>
-                    {formatCurrency(Number(customer.currentCredit) || 0)}
-                  </span>
-                </div>
-                
-                {/* Progress Bar */}
-                <div className={`relative w-full rounded-full h-2 mb-1 ${isDarkMode ? 'bg-[#37474F]' : 'bg-gray-200'}`}>
-                  <div 
-                    className="bg-[#008B8B] h-2 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%`, 
-                    }}
-                  />
-                </div>
-                <p className={`text-xs text-right ${textMuted}`}>
-                  {customer.creditLimit > 0 ? Math.round(((customer.currentCredit || 0) / customer.creditLimit) * 100) : 0}% used
-                </p>
-              </div>
-
-              {/* View Details Button */}
-              <button
-                onClick={() => handleCustomerClick(customer.id)}
-                className={`w-full mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  isDarkMode
-                    ? 'bg-[#008B8B] text-white hover:bg-[#00695C]'
-                    : 'bg-[#008B8B] text-white hover:bg-[#00695C]'
-                }`}
-              >
-                View Details
-              </button>
-            </div>
-          ))
-        )}
+                      {col.key === 'name' ? (
+                        <div>
+                          <button
+                            onClick={() => handleCustomerClick(customer.id)}
+                            className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                          >
+                            {getCustomerCellValue(customer, col.key)}
+                          </button>
+                          {customer.company && (
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {customer.company}
+                            </div>
+                          )}
+                        </div>
+                      ) : col.key === 'creditLimit' || col.key === 'creditUsed' ? (
+                        <span className={col.key === 'creditUsed' ? 'font-medium' : ''}>
+                          {formatCurrency(getCustomerCellValue(customer, col.key))}
+                        </span>
+                      ) : col.key === 'status' ? (
+                        <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                          customer.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : customer.status === 'archived'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {customer.status}
+                        </span>
+                      ) : (
+                        getCustomerCellValue(customer, col.key)
+                      )}
+                    </td>
+                  ))}
+                  {/* Actions Column */}
+                  <td className="px-3 py-2 text-right w-[100px]">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setShowEditModal(true);
+                        }}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                            : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
+                        }`}
+                        title="Edit"
+                      >
+                        <FaEdit size={14} />
+                      </button>
+                      <button
+                        onClick={() => openContactHistory(customer)}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700'
+                            : 'text-blue-600 hover:text-blue-700 hover:bg-gray-100'
+                        }`}
+                        title="Contact History"
+                      >
+                        <FaHistory size={14} />
+                      </button>
+                      {canDeleteCustomers && (
+                        <button
+                          onClick={() => handleDeleteCustomer(customer.id)}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-700'
+                              : 'text-yellow-600 hover:text-yellow-700 hover:bg-gray-100'
+                          }`}
+                          title="Archive"
+                        >
+                          <FaArchive size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -569,57 +781,209 @@ const CustomerManagement = () => {
   const renderSuppliers = () => (
     <div className={`${cardClasses} p-6 mb-6`}>
       {/* Controls */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 mb-6">
         <h3 className={`text-lg font-semibold ${textPrimary}`}>Suppliers</h3>
-        <button
-          onClick={() => setShowAddSupplierModal(true)}
-          className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
-        >
-          <FaPlus /> Add Supplier
-        </button>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 items-center">
+          {/* Column Picker */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSupplierColumnPicker(!showSupplierColumnPicker)}
+              className={`p-2 rounded-lg border transition-colors ${
+                isDarkMode
+                  ? 'border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              }`}
+              title="Configure Columns"
+            >
+              <Settings2 size={16} />
+            </button>
+            {showSupplierColumnPicker && (
+              <div className={`absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border shadow-lg ${
+                isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+              }`}>
+                <div className={`px-3 py-2 border-b text-sm font-medium ${
+                  isDarkMode ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-700'
+                }`}>
+                  Show Columns
+                </div>
+                <div className="p-2 max-h-64 overflow-y-auto">
+                  {SUPPLIER_COLUMNS.map(col => (
+                    <label
+                      key={col.key}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
+                        col.required ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={supplierVisibleColumns.includes(col.key)}
+                        onChange={() => toggleSupplierColumn(col.key)}
+                        disabled={col.required}
+                        className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span>{col.label}</span>
+                      {col.required && <span className="text-xs text-gray-500">(required)</span>}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setShowAddSupplierModal(true)}
+            className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            <FaPlus />
+            Add Supplier
+          </button>
+        </div>
       </div>
+
       {/* Errors */}
       {suppliersError && (
         <div className={`rounded p-3 mb-4 ${isDarkMode ? 'bg-red-900/20 text-red-200' : 'bg-red-50 text-red-700'}`}>Failed to load suppliers</div>
       )}
-      {/* List */}
-      {loadingSuppliers ? (
-        <div className="py-8 text-center">Loading suppliers...</div>
-      ) : suppliers.length === 0 ? (
-        <div className={`py-8 text-center ${textSecondary}`}>No suppliers yet. Add one.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suppliers.map((s) => (
-            <div key={s.id} className={`${cardClasses} p-4`}>
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className={`font-semibold ${textPrimary}`}>{s.name}</div>
-                  <div className={`text-sm ${textSecondary}`}>{s.company}</div>
-                </div>
-                <div className="flex gap-2">
-                  <button className={`p-2 rounded ${isDarkMode ? 'text-teal-300 hover:bg-gray-700' : 'text-teal-700 hover:bg-gray-100'}`}
-                    onClick={() => { setSelectedSupplier(s); setShowEditSupplierModal(true); }} title="Edit">
-                    <FaEdit className="w-4 h-4" />
-                  </button>
-                  <button className={`p-2 rounded ${isDarkMode ? 'text-red-300 hover:bg-gray-700' : 'text-red-600 hover:bg-gray-100'}`}
-                    onClick={() => handleDeleteSupplier(s.id)} title="Delete">
-                    <FaTrash className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <div className={`text-sm space-y-1 ${textSecondary}`}>
-                {s.email && <div><FaEnvelope className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.email}</div>}
-                {s.phone && <div><FaPhone className={`inline w-4 h-4 mr-1 ${textMuted}`} />{s.phone}</div>}
-                {s.address && <div><FaMapMarkerAlt className={`inline w-4 h-4 mr-1 ${textMuted}`} />{typeof s.address === 'object' ? [s.address.street, s.address.city, s.address.state, s.address.postalCode, s.address.country].filter(Boolean).join(', ') : s.address}</div>}
-                {s.trnNumber && <div>TRN: {s.trnNumber}</div>}
-                {s.defaultCurrency && <div>Currency: {s.defaultCurrency}</div>}
-                {s.paymentTerms && <div>Payment Terms: {s.paymentTerms}</div>}
-                {s.contactName && <div>Contact: {s.contactName}{s.contactEmail ? ` • ${s.contactEmail}` : ''}{s.contactPhone ? ` • ${s.contactPhone}` : ''}</div>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
+      {/* Supplier Table */}
+      <div className={`overflow-x-auto rounded-lg border ${
+        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+      }`}>
+        <table className="w-full min-w-[800px] table-fixed">
+          {/* Table Header */}
+          <thead className={`sticky top-0 z-10 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+          }`}>
+            <tr>
+              {SUPPLIER_COLUMNS.filter(col => supplierVisibleColumns.includes(col.key)).map(col => (
+                <th
+                  key={col.key}
+                  onClick={() => handleSupplierSort(col.key)}
+                  className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors ${col.width} ${
+                    isDarkMode
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>{col.label}</span>
+                    {supplierSortConfig.key === col.key ? (
+                      supplierSortConfig.direction === 'asc' ? (
+                        <ArrowUp size={14} className="text-teal-500" />
+                      ) : (
+                        <ArrowDown size={14} className="text-teal-500" />
+                      )
+                    ) : (
+                      <ArrowUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
+                </th>
+              ))}
+              <th className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[100px] ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            {loadingSuppliers ? (
+              <tr>
+                <td colSpan={supplierVisibleColumns.length + 1} className="text-center py-8">
+                  <p className={textMuted}>Loading suppliers...</p>
+                </td>
+              </tr>
+            ) : sortedSuppliers.length === 0 ? (
+              <tr>
+                <td colSpan={supplierVisibleColumns.length + 1} className="text-center py-8">
+                  <p className={textMuted}>No suppliers yet. Add one.</p>
+                </td>
+              </tr>
+            ) : (
+              sortedSuppliers.map(supplier => (
+                <tr
+                  key={supplier.id}
+                  className={`transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-900 hover:bg-gray-800'
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  {SUPPLIER_COLUMNS.filter(col => supplierVisibleColumns.includes(col.key)).map(col => (
+                    <td
+                      key={col.key}
+                      className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}
+                    >
+                      {col.key === 'name' ? (
+                        <div>
+                          <button
+                            onClick={() => {
+                              setSelectedSupplier(supplier);
+                              setShowEditSupplierModal(true);
+                            }}
+                            className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                          >
+                            {getSupplierCellValue(supplier, col.key)}
+                          </button>
+                          {supplier.company && (
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {supplier.company}
+                            </div>
+                          )}
+                        </div>
+                      ) : col.key === 'status' ? (
+                        <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                          supplier.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {supplier.status || 'active'}
+                        </span>
+                      ) : (
+                        getSupplierCellValue(supplier, col.key)
+                      )}
+                    </td>
+                  ))}
+                  {/* Actions Column */}
+                  <td className="px-3 py-2 text-right w-[100px]">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => {
+                          setSelectedSupplier(supplier);
+                          setShowEditSupplierModal(true);
+                        }}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                            : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
+                        }`}
+                        title="Edit"
+                      >
+                        <FaEdit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSupplier(supplier.id)}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
+                            : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
+                        }`}
+                        title="Delete"
+                      >
+                        <FaTrash size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 

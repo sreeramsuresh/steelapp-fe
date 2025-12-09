@@ -346,7 +346,7 @@ const InventoryList = () => {
   const generateDescription = (item) => {
     const parts = [];
     if (item.productType) parts.push(`SS ${item.productType.toUpperCase()}`);
-    if (item.grade) parts.push(`GR${item.grade}`);
+    if (item.grade) parts.push(item.grade.replace(/^(gr|ss)\s*/i, '').toUpperCase());
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
     if (item.thickness) parts.push(`${item.thickness}MM`);
@@ -836,7 +836,7 @@ const InventoryList = () => {
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                               >
-                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}</div>
+                                <div className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{p.displayName || p.display_name || p.uniqueName || p.unique_name || p.name}</div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.origin ? `${p.origin} • ` : ''}{p.category} {p.grade ? `• ${p.grade}` : ''} {p.size ? `• ${p.size}` : ''} {p.thickness ? `• ${p.thickness}mm` : ''}</div>
                               </button>
                             ))}
@@ -922,7 +922,7 @@ const InventoryList = () => {
                     <input
                       type="text"
                       value={formData.finish}
-                      onChange={(e) => handleInputChange('finish', e.target.value)}
+                      onChange={(e) => handleInputChange('finish', e.target.value.toUpperCase())}
                       placeholder="e.g., Mirror, HL, 2B"
                       list="finishes"
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${

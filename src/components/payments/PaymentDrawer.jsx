@@ -63,12 +63,19 @@ const PaymentDrawer = ({
 }) => {
   if (!isOpen || !invoice) return null;
 
-  const normalizedPaymentStatus = (invoice.paymentStatus || 'unpaid')
-    .toLowerCase()
-    .replace('payment_status_', '');
+  const invoiceAmount = invoice.invoiceAmount || invoice.totalAmount || invoice.total || 0;
+  const received = invoice.received || 0;
+  const outstanding = invoice.outstanding || 0;
+
+  // Compute actual status from amounts (not from potentially stale paymentStatus field)
+  const computedStatus = (() => {
+    if (outstanding <= 0 && invoiceAmount > 0) return 'paid';
+    if (received > 0 && outstanding > 0) return 'partially_paid';
+    return 'unpaid';
+  })();
 
   const getPaymentStatusColor = () => {
-    switch (normalizedPaymentStatus) {
+    switch (computedStatus) {
       case 'paid':
         return isDarkMode
           ? 'bg-green-900/30 text-green-400 border-green-700'
@@ -85,7 +92,7 @@ const PaymentDrawer = ({
   };
 
   const getPaymentStatusLabel = () => {
-    switch (normalizedPaymentStatus) {
+    switch (computedStatus) {
       case 'paid':
         return 'Paid';
       case 'partially_paid':
@@ -94,10 +101,6 @@ const PaymentDrawer = ({
         return 'Unpaid';
     }
   };
-
-  const invoiceAmount = invoice.invoiceAmount || invoice.total || 0;
-  const received = invoice.received || 0;
-  const outstanding = invoice.outstanding || 0;
 
   return (
     <div className="fixed inset-0 z-[1100] flex">
@@ -236,8 +239,9 @@ const PaymentDrawer = ({
               <div>
                 <strong>Invoice Date:</strong> {formatDate(invoice.invoiceDate) || 'N/A'}
               </div>
-              <div>
+              <div className={computedStatus === 'paid' ? 'opacity-50 line-through' : ''}>
                 <strong>Due Date:</strong> {formatDate(invoice.dueDate) || 'N/A'}
+                {computedStatus === 'paid' && <span className="ml-1 no-underline">(Cleared)</span>}
               </div>
             </div>
           </div>

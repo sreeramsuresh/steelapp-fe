@@ -700,7 +700,7 @@ const VendorBillForm = () => {
                           <option value="">Select or type description...</option>
                           {products.map((product) => (
                             <option key={product.id} value={product.id}>
-                              {product.displayName || product.display_name || 'N/A'}
+                              {product.uniqueName || product.unique_name || 'N/A'}
                             </option>
                           ))}
                         </select>

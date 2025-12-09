@@ -19,9 +19,30 @@ const InvoiceStatusColumn = React.memo(({ invoice, isDarkMode, onPromiseClick })
     return null;
   }
 
+  // Separate status badges (invoice + payment) from other badges (reminder, promise)
+  const statusBadges = badges.filter(b => b.type === 'invoice_status' || b.type === 'payment_status');
+  const otherBadges = badges.filter(b => b.type !== 'invoice_status' && b.type !== 'payment_status');
+
   return (
-    <div className="flex flex-col gap-2">
-      {badges.map((badge, index) => (
+    <div className="inline-flex flex-col gap-1">
+      {/* Invoice status + Payment status side by side, width driven by content below */}
+      {statusBadges.length > 0 && (
+        <div className="grid grid-cols-2 gap-1">
+          {statusBadges.map((badge, index) => (
+            <StatusBadge
+              key={`${badge.type}-${index}`}
+              label={badge.label}
+              icon={badge.icon}
+              config={badge.config}
+              isDarkMode={isDarkMode}
+              size="sm"
+              fullWidth
+            />
+          ))}
+        </div>
+      )}
+      {/* Reminder and promise badges below - these determine the width */}
+      {otherBadges.map((badge, index) => (
         <StatusBadge
           key={`${badge.type}-${index}`}
           label={badge.label}
@@ -30,6 +51,7 @@ const InvoiceStatusColumn = React.memo(({ invoice, isDarkMode, onPromiseClick })
           isDarkMode={isDarkMode}
           onClick={badge.type === 'promise' && onPromiseClick ? () => onPromiseClick(invoice) : undefined}
           title={badge.title}
+          size="sm"
         />
       ))}
     </div>

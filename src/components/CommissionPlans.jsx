@@ -400,12 +400,13 @@ const CommissionPlans = () => {
               {/* Basic Info */}
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${
+                  <label htmlFor="plan-name" className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}>
                     Plan Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="plan-name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -419,12 +420,13 @@ const CommissionPlans = () => {
                 </div>
 
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${
+                  <label htmlFor="plan-description" className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}>
                     Description
                   </label>
                   <textarea
+                    id="plan-description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={2}
@@ -456,11 +458,11 @@ const CommissionPlans = () => {
               {/* Tiers */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className={`text-sm font-medium ${
+                  <span className={`text-sm font-medium ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}>
                     Commission Tiers
-                  </label>
+                  </span>
                   <button
                     onClick={addTier}
                     className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center space-x-1"
@@ -514,12 +516,13 @@ const CommissionPlans = () => {
                       </div>
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className={`block text-xs mb-1 ${
+                          <label htmlFor={`tier-${index}-min`} className={`block text-xs mb-1 ${
                             isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}>
                             Min Amount (₹)
                           </label>
                           <input
+                            id={`tier-${index}-min`}
                             type="number"
                             step="0.01"
                             min="0"
@@ -533,12 +536,13 @@ const CommissionPlans = () => {
                           />
                         </div>
                         <div>
-                          <label className={`block text-xs mb-1 ${
+                          <label htmlFor={`tier-${index}-max`} className={`block text-xs mb-1 ${
                             isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}>
                             Max Amount (₹)
                           </label>
                           <input
+                            id={`tier-${index}-max`}
                             type="number"
                             step="0.01"
                             min="0"
@@ -553,12 +557,13 @@ const CommissionPlans = () => {
                           />
                         </div>
                         <div>
-                          <label className={`block text-xs mb-1 ${
+                          <label htmlFor={`tier-${index}-rate`} className={`block text-xs mb-1 ${
                             isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}>
                             Rate (%)
                           </label>
                           <input
+                            id={`tier-${index}-rate`}
                             type="number"
                             step="0.01"
                             min="0"
@@ -627,11 +632,12 @@ const CommissionPlans = () => {
             <div className="p-4 space-y-4 overflow-y-auto max-h-[50vh]">
               {/* Effective Date */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="effective-date" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   <Calendar className="w-4 h-4 inline mr-1" />
                   Effective Date
                 </label>
                 <input
+                  id="effective-date"
                   type="date"
                   value={effectiveDate}
                   onChange={(e) => setEffectiveDate(e.target.value)}
@@ -663,6 +669,10 @@ const CommissionPlans = () => {
                       <div
                         key={user.id}
                         onClick={() => toggleUserSelection(user.id)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleUserSelection(user.id)}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={selectedUsers.has(user.id)}
                         className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedUsers.has(user.id)
                             ? isDarkMode ? 'bg-blue-900/30 border-blue-700' : 'bg-blue-50 border-blue-300'

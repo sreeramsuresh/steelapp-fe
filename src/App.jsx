@@ -100,7 +100,14 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
   return (
     <div className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
       {/* Sidebar Overlay for mobile */}
-      <div className={`md:hidden ${sidebarOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-[999]`} onClick={toggleSidebar} />
+      <div 
+        className={`md:hidden ${sidebarOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-[999]`} 
+        onClick={toggleSidebar}
+        onKeyDown={(e) => e.key === 'Escape' && toggleSidebar()}
+        role="button"
+        tabIndex={0}
+        aria-label="Close sidebar"
+      />
       
       <Sidebar 
         isOpen={sidebarOpen}
@@ -122,7 +129,6 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
           handleSaveInvoice={handleSaveInvoice}
           onLoginSuccess={onLoginSuccess}
         />
-        {console.log('🎯 App.jsx rendering AppRouter with user:', user?.email || 'null')}
       </div>
     </div>
   );
@@ -202,9 +208,8 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleSaveInvoice = (invoice) => {
+  const handleSaveInvoice = () => {
     // Invoice state is now managed by individual components
-    // console.log('Invoice saved:', invoice.invoiceNumber);
   };
 
   const handleLoginSuccess = async (userData) => {

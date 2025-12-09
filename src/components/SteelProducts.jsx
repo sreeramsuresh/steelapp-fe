@@ -22,6 +22,10 @@ import {
   Lightbulb,
   RotateCcw,
   Sparkles,
+  Settings2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { productService } from '../services/dataService';
@@ -496,7 +500,72 @@ const SteelProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [productCategoryFilter, setProductCategoryFilter] = useState('all');  // Phase 3: Product category filter
-  const [showSpeedButtons, setShowSpeedButtons] = useState(true);
+  const [showSpeedButtons, setShowSpeedButtons] = useState(() => {
+    const saved = localStorage.getItem('steelProducts_showQuickFilters');
+    return saved !== null ? JSON.parse(saved) : false; // Default OFF
+  });
+
+  // Column configuration for list view
+  const ALL_COLUMNS = [
+    { key: 'productName', label: 'Product Name', required: true, width: 'min-w-[280px]' },
+    { key: 'stock', label: 'Stock', required: true, width: 'w-[90px]' },
+    { key: 'buyPrice', label: 'Buy Price', required: true, width: 'w-[100px]' },
+    { key: 'sellPrice', label: 'Sell Price', required: true, width: 'w-[100px]' },
+    { key: 'margin', label: 'Margin', required: true, width: 'w-[80px]' },
+    { key: 'supplier', label: 'Supplier', required: false, width: 'w-[120px]' },
+    { key: 'location', label: 'Location', required: false, width: 'w-[120px]' },
+    { key: 'minStock', label: 'Min Stock', required: false, width: 'w-[90px]' },
+    { key: 'maxStock', label: 'Max Stock', required: false, width: 'w-[90px]' },
+    { key: 'category', label: 'Category', required: false, width: 'w-[100px]' },
+    { key: 'grade', label: 'Grade', required: false, width: 'w-[80px]' },
+    { key: 'finish', label: 'Finish', required: false, width: 'w-[80px]' },
+    { key: 'origin', label: 'Origin', required: false, width: 'w-[80px]' },
+  ];
+
+  const DEFAULT_VISIBLE_COLUMNS = ['productName', 'stock', 'buyPrice', 'sellPrice', 'margin'];
+
+  const [visibleColumns, setVisibleColumns] = useState(() => {
+    const saved = localStorage.getItem('steelProducts_visibleColumns');
+    return saved ? JSON.parse(saved) : DEFAULT_VISIBLE_COLUMNS;
+  });
+
+  const [showColumnPicker, setShowColumnPicker] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const columnPickerRef = useRef(null);
+
+  // Persist column preferences
+  useEffect(() => {
+    localStorage.setItem('steelProducts_visibleColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+  // Close column picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (columnPickerRef.current && !columnPickerRef.current.contains(event.target)) {
+        setShowColumnPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleColumn = (columnKey) => {
+    const column = ALL_COLUMNS.find(c => c.key === columnKey);
+    if (column?.required) return; // Can't toggle required columns
+
+    setVisibleColumns(prev =>
+      prev.includes(columnKey)
+        ? prev.filter(k => k !== columnKey)
+        : [...prev, columnKey]
+    );
+  };
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
 
   const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
     () => productService.getProducts({
@@ -514,19 +583,26 @@ const SteelProducts = () => {
 
   const products = useMemo(() => productsData?.products || [], [productsData?.products]);
 
-  // Build a robust list of finishes: predefined + those present in products
+  // Build a robust list of finishes: predefined + those present in products (all UPPERCASE)
   const allFinishes = useMemo(() => {
     try {
       const set = new Set(FINISHES || []);
       (products || []).forEach((p) => {
-        if (p && p.finish && String(p.finish).trim()) set.add(String(p.finish).trim());
+        if (p && p.finish && String(p.finish).trim()) {
+          set.add(String(p.finish).trim().toUpperCase());
+        }
       });
       return Array.from(set);
     } catch {
       return FINISHES || [];
     }
   }, [products]);
-  
+
+  // Persist Quick Filters visibility to localStorage
+  useEffect(() => {
+    localStorage.setItem('steelProducts_showQuickFilters', JSON.stringify(showSpeedButtons));
+  }, [showSpeedButtons]);
+
   // Debug products data structure
   console.log('🏗️ Products data structure:', {
     productsData,
@@ -583,6 +659,10 @@ const SteelProducts = () => {
     countryOfOrigin: '',  // Manufacturing country
     millName: '',  // Steel mill/manufacturer name
     productCategory: '',  // Product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
+    // Unit of Measure fields (added 2025-12-09 - Piece-Based Inventory)
+    primaryUom: 'PCS',  // Primary unit: PCS, KG, MT, METER
+    unitWeightKg: '',   // Weight of one piece in kg
+    allowDecimalQuantity: false,  // Whether fractional quantities allowed
     specifications: {
       length: '',
       width: '',
@@ -1020,6 +1100,119 @@ const SteelProducts = () => {
 
     return matchesSearch && matchesCategory && matchesStock && matchesGradeGroup && matchesProductCategory;
   });
+
+  // Apply sorting to filtered products
+  const sortedProducts = useMemo(() => {
+    if (!sortConfig.key) return filteredProducts;
+
+    return [...filteredProducts].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (sortConfig.key) {
+        case 'productName':
+          aVal = (a.displayName || a.display_name || a.uniqueName || a.unique_name || '').toLowerCase();
+          bVal = (b.displayName || b.display_name || b.uniqueName || b.unique_name || '').toLowerCase();
+          break;
+        case 'stock':
+          aVal = Number(a.currentStock ?? a.current_stock ?? 0);
+          bVal = Number(b.currentStock ?? b.current_stock ?? 0);
+          break;
+        case 'buyPrice':
+          aVal = Number(a.costPrice ?? a.cost_price ?? 0);
+          bVal = Number(b.costPrice ?? b.cost_price ?? 0);
+          break;
+        case 'sellPrice':
+          aVal = Number(a.sellingPrice ?? a.selling_price ?? 0);
+          bVal = Number(b.sellingPrice ?? b.selling_price ?? 0);
+          break;
+        case 'margin':
+          const aCost = Number(a.costPrice ?? a.cost_price ?? 0);
+          const aSell = Number(a.sellingPrice ?? a.selling_price ?? 0);
+          aVal = aCost > 0 ? ((aSell - aCost) / aCost) * 100 : 0;
+          const bCost = Number(b.costPrice ?? b.cost_price ?? 0);
+          const bSell = Number(b.sellingPrice ?? b.selling_price ?? 0);
+          bVal = bCost > 0 ? ((bSell - bCost) / bCost) * 100 : 0;
+          break;
+        case 'supplier':
+          aVal = (a.supplier || '').toLowerCase();
+          bVal = (b.supplier || '').toLowerCase();
+          break;
+        case 'location':
+          aVal = (a.location || '').toLowerCase();
+          bVal = (b.location || '').toLowerCase();
+          break;
+        case 'minStock':
+          aVal = Number(a.minStock ?? a.min_stock ?? 0);
+          bVal = Number(b.minStock ?? b.min_stock ?? 0);
+          break;
+        case 'maxStock':
+          aVal = Number(a.maxStock ?? a.max_stock ?? 0);
+          bVal = Number(b.maxStock ?? b.max_stock ?? 0);
+          break;
+        case 'category':
+          aVal = (a.category || '').toLowerCase();
+          bVal = (b.category || '').toLowerCase();
+          break;
+        case 'grade':
+          aVal = (a.grade || '').toLowerCase();
+          bVal = (b.grade || '').toLowerCase();
+          break;
+        case 'finish':
+          aVal = (a.finish || '').toLowerCase();
+          bVal = (b.finish || '').toLowerCase();
+          break;
+        case 'origin':
+          aVal = (a.origin || a.millCountry || a.mill_country || '').toLowerCase();
+          bVal = (b.origin || b.millCountry || b.mill_country || '').toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [filteredProducts, sortConfig]);
+
+  // Helper to get cell value for a column
+  const getCellValue = (product, columnKey) => {
+    const stockStatus = getStockStatus(product);
+    switch (columnKey) {
+      case 'productName':
+        return product.uniqueName || product.unique_name || product.displayName || product.display_name || 'N/A';
+      case 'stock':
+        return { value: product.currentStock ?? product.current_stock ?? 0, status: stockStatus };
+      case 'buyPrice':
+        return product.costPrice ?? product.cost_price ?? 0;
+      case 'sellPrice':
+        return product.sellingPrice ?? product.selling_price ?? 0;
+      case 'margin': {
+        const cost = Number(product.costPrice ?? product.cost_price ?? 0);
+        const sell = Number(product.sellingPrice ?? product.selling_price ?? 0);
+        return cost > 0 ? Math.round(((sell - cost) / cost) * 100) : 0;
+      }
+      case 'supplier':
+        return product.supplier || '-';
+      case 'location':
+        return product.location || '-';
+      case 'minStock':
+        return product.minStock ?? product.min_stock ?? 0;
+      case 'maxStock':
+        return product.maxStock ?? product.max_stock ?? 0;
+      case 'category':
+        return product.category || '-';
+      case 'grade':
+        return (product.grade || '').toString().replace(/^(gr|ss)\s*/i, '').toUpperCase() || '-';
+      case 'finish':
+        return product.finish || '-';
+      case 'origin':
+        return (product.millCountry === 'AE' || product.mill_country === 'AE') ? 'Local' :
+               (product.millCountry || product.mill_country || product.origin || '-');
+      default:
+        return '-';
+    }
+  };
 
   const handleAddProduct = async () => {
     try {
@@ -1533,58 +1726,87 @@ const SteelProducts = () => {
         </div>
       </div>
 
-      {/* Controls - Compact row */}
+      {/* Controls - Compact row with uniform heights */}
       <div className="flex flex-wrap gap-2 mb-3 items-center">
-        <div className="relative flex-1 min-w-64">
-          <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-64 max-w-md">
+          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
           <input
             type="text"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-8 pr-3 py-1.5 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`w-full h-9 pl-9 pr-3 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
             }`}
           />
         </div>
-        <Select
-          label="Category"
-          options={[{ value: 'all', label: 'All Categories' }, ...categories]}
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="min-w-36"
-        />
-        <Select
-          label="Stock"
-          options={[
-            { value: 'all', label: 'All Stock' },
-            { value: 'low', label: 'Low Stock' },
-            { value: 'normal', label: 'Normal' },
-            { value: 'high', label: 'High Stock' },
-          ]}
-          value={stockFilter}
-          onChange={(e) => setStockFilter(e.target.value)}
-          className="min-w-28"
-        />
-        <Select
-          label="Product Category"
-          options={[
-            { value: 'all', label: 'All Categories' },
-            { value: 'COIL', label: 'COIL' },
-            { value: 'SHEET', label: 'SHEET' },
-            { value: 'PLATE', label: 'PLATE' },
-            { value: 'PIPE', label: 'PIPE' },
-            { value: 'TUBE', label: 'TUBE' },
-            { value: 'BAR', label: 'BAR' },
-            { value: 'FLAT', label: 'FLAT' },
-          ]}
-          value={productCategoryFilter}
-          onChange={(e) => setProductCategoryFilter(e.target.value)}
-          className="min-w-40"
-        />
-        <Button
+
+        {/* Category Filter */}
+        <div className="relative">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              isDarkMode
+                ? 'bg-gray-800 border-gray-600 text-white'
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
+          >
+            <option value="all">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
+          <ChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+        </div>
+
+        {/* Stock Filter */}
+        <div className="relative">
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              isDarkMode
+                ? 'bg-gray-800 border-gray-600 text-white'
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
+          >
+            <option value="all">All Stock</option>
+            <option value="low">Low Stock</option>
+            <option value="normal">Normal</option>
+            <option value="high">High Stock</option>
+          </select>
+          <ChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+        </div>
+
+        {/* Product Category Filter */}
+        <div className="relative">
+          <select
+            value={productCategoryFilter}
+            onChange={(e) => setProductCategoryFilter(e.target.value)}
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              isDarkMode
+                ? 'bg-gray-800 border-gray-600 text-white'
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
+          >
+            <option value="all">All Types</option>
+            <option value="COIL">COIL</option>
+            <option value="SHEET">SHEET</option>
+            <option value="PLATE">PLATE</option>
+            <option value="PIPE">PIPE</option>
+            <option value="TUBE">TUBE</option>
+            <option value="BAR">BAR</option>
+            <option value="FLAT">FLAT</option>
+          </select>
+          <ChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+        </div>
+
+        {/* Action Buttons */}
+        <button
           onClick={async () => {
             try {
               await productService.downloadProducts();
@@ -1593,280 +1815,263 @@ const SteelProducts = () => {
               notificationService.error('Failed to download products');
             }
           }}
-          variant="outline"
-          size="sm"
+          className={`h-9 px-3 text-sm font-medium rounded-lg border inline-flex items-center gap-1.5 transition-colors ${
+            isDarkMode
+              ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}
         >
           <Package size={16} />
           Download
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => setShowUploadModal(true)}
-          size="sm"
-          className="bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600"
+          className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-teal-600 text-white hover:bg-teal-500 transition-colors"
         >
           <Upload size={16} />
           Upload
-        </Button>
-        <Button onClick={() => setShowAddModal(true)} size="sm">
+        </button>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+        >
           <Plus size={16} />
           Add Product
-        </Button>
-      </div>
+        </button>
 
-      {/* Products Grid - Compact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filteredProducts.map(product => {
-          const stockStatus = getStockStatus(product);
-          return (
-            <div key={product.id} className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
-              isDarkMode 
-                ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500' 
-                : 'bg-white border-[#E0E0E0] hover:border-teal-500'
+        {/* Column Picker Button */}
+        <div className="relative" ref={columnPickerRef}>
+          <button
+            onClick={() => setShowColumnPicker(!showColumnPicker)}
+            className={`h-9 w-9 rounded-lg border inline-flex items-center justify-center transition-colors ${
+              isDarkMode
+                ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            }`}
+            title="Configure Columns"
+          >
+            <Settings2 size={16} />
+          </button>
+          {showColumnPicker && (
+            <div className={`absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border shadow-lg ${
+              isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
-              <div className="p-6">
-                {/* Product Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className={`text-lg font-semibold font-mono mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.uniqueName || product.unique_name || 'N/A'}
-                    </h3>
-                    <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {product.displayName || product.display_name || ''}
-                    </p>
-                    <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      {categories.find(c => c.value === product.category)?.label}
-                    </p>
-                    <div className="flex gap-2 mb-3">
-                      <span className={`px-2 py-1 text-xs rounded-md border ${
-                        isDarkMode 
-                          ? 'bg-teal-900/30 text-teal-300 border-teal-700' 
-                          : 'bg-teal-100 text-teal-800 border-teal-200'
-                      }`}>
-                        {(() => {
-                          const g = (product.grade || '').toString().trim();
-                          if (!g) return '';
-                          const m = g.match(/^gr\s*(.+)$/i);
-                          return m ? `GR${m[1]}` : `GR${g}`;
-                        })()}
-                      </span>
-                      {product.finish && (
-                        <span className={`px-2 py-1 text-xs rounded-md border ${
-                          isDarkMode 
-                            ? 'bg-blue-900/30 text-blue-300 border-blue-700' 
-                            : 'bg-blue-100 text-blue-800 border-blue-200'
-                        }`}>
-                          {(() => { const f=(product.finish||'').toString().trim(); return f ? (/\bfinish$/i.test(f)? f : `${f} Finish`) : ''; })()}
-                        </span>
-                      )}
-                      {(/pipe|tube/i.test(product.category || '')) ? (
-                        <>
-                          {product.sizeInch && (
-                            <span className={`px-2 py-1 text-xs rounded-md border ${
-                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
-                            }`}>
-                              {product.sizeInch}
-                            </span>
-                          )}
-                          {product.od && (
-                            <span className={`px-2 py-1 text-xs rounded-md border ${
-                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
-                            }`}>
-                              {(() => {
-                                const hay = [product.size, product.sizeInch, product.displayName, product.description]
-                                  .filter(Boolean)
-                                  .join(' ');
-                                const hasDia = /dia\b/i.test(hay) || /[øØ∅φΦ]/.test(hay);
-                                const odText = String(product.od || '').replace(/"/g, '').toUpperCase();
-                                return `(${odText})${hasDia ? 'DIA' : ''}`;
-                              })()}
-                            </span>
-                          )}
-                          {product.length && (
-                            <span className={`px-2 py-1 text-xs rounded-md border ${
-                              isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'
-                            }`}>
-                              L: {product.length}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className={`px-2 py-1 text-xs rounded-md border ${
-                          isDarkMode 
-                            ? 'bg-gray-700 text-gray-300 border-gray-600' 
-                            : 'bg-gray-100 text-gray-700 border-gray-300'
-                        }`}>
-                          {product.size}
-                        </span>
-                      )}
-                      {/* Origin Badge - Show origin status derived from mill_country */}
-                      {(product.millCountry || product.mill_country) && (
-                        <span className={`px-2 py-1 text-xs rounded-md border font-medium ${
-                          isDarkMode
-                            ? 'bg-amber-900/30 text-amber-300 border-amber-700'
-                            : 'bg-amber-100 text-amber-800 border-amber-200'
-                        }`}>
-                          {(product.millCountry === 'AE' || product.mill_country === 'AE') ? 'LOCAL' : 'IMPORTED'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setShowSpecModal(true);
-                      }}
-                      className={`p-1.5 rounded transition-colors bg-transparent ${
-                        isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'hover:bg-gray-100 text-gray-600'
-                      }`}
-                      title="View Specifications"
+              <div className={`px-3 py-2 border-b text-sm font-medium ${
+                isDarkMode ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-700'
+              }`}>
+                Show Columns
+              </div>
+              <div className="p-2 max-h-64 overflow-y-auto">
+                {ALL_COLUMNS.map(col => (
+                  <label
+                    key={col.key}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
+                      col.required ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
                     >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        console.log('✏️ Edit button clicked for product:', product);
-                        console.log('🔍 Product fields available:', Object.keys(product));
-                        console.log('💰 Cost price field values:', {
-                          costPrice: product.costPrice,
-                          cost_price: product.cost_price,
-                          selling_price: product.selling_price,
-                          sellingPrice: product.sellingPrice,
-                        });
-
-                        // Convert ALL snake_case to camelCase for form and normalize strings
-                        // Handle both snake_case and camelCase from backend
-                        const formattedProduct = {
-                          ...product,
-                          // Size fields - handle both naming conventions
-                          sizeInch: product.sizeInch || product.size_inch || '',
-                          od: product.od || '',
-                          length: product.length || '',
-                          thickness: product.thickness || '',
-                          // Finish field
-                          finish: product.finish ? String(product.finish).trim() : '',
-                          // Stock fields - handle both naming conventions
-                          currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || '',
-                          minStock: product.minStock !== undefined ? product.minStock : product.min_stock || '',
-                          maxStock: product.maxStock !== undefined ? product.maxStock : product.max_stock || '',
-                          // Price fields - handle both naming conventions
-                          costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || '',
-                          sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || '',
-                          // Other fields
-                          displayName: product.displayName || product.display_name || '',
-                          uniqueName: product.uniqueName || product.unique_name || '',
-                        };
-
-                        console.log('🔄 Formatted product for form:', formattedProduct);
-                        setSelectedProduct(formattedProduct);
-                        setShowEditModal(true);
-                        console.log('📝 Edit modal should now be visible');
-                      }}
-                      className={`p-1.5 rounded transition-colors bg-transparent ${
-                        isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'hover:bg-gray-100 text-teal-600'
-                      }`}
-                      title="Edit Product"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      className={`p-1.5 rounded transition-colors bg-transparent ${
-                        isDarkMode ? 'text-red-400 hover:text-red-300' : 'hover:bg-gray-100 text-red-600'
-                      }`}
-                      title="Delete Product"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {product.description}
-                </p>
-
-                {/* Product Stats */}
-                <div className="mb-4 space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Qty:</span>
-                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.currentStock}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Supplier:</span>
-                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.supplier}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Location:</span>
-                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.location}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Stock Info */}
-                <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock Level</span>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
-                      stockStatus === 'out_of_stock'
-                        ? (isDarkMode ? 'bg-red-950/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800 border-red-300')
-                        : stockStatus === 'low'
-                          ? (isDarkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-700 border-red-200')
-                          : stockStatus === 'high'
-                            ? (isDarkMode ? 'bg-green-900/30 text-green-300 border-green-700' : 'bg-green-50 text-green-700 border-green-200')
-                            : (isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200')
-                    }`}>
-                      {stockStatus === 'out_of_stock' ? <AlertTriangle size={12} /> :
-                        stockStatus === 'low' ? <AlertTriangle size={12} /> :
-                          stockStatus === 'high' ? <Package size={12} /> :
-                            <CheckCircle size={12} />}
-                      {getStockStatusLabel(stockStatus)}
-                    </span>
-                  </div>
-                  <h4 className={`text-xl font-semibold mb-1 ${
-                    stockStatus === 'out_of_stock'
-                      ? 'text-red-500'
-                      : isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    {product.currentStock || 0}
-                  </h4>
-                  <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Min: {product.minStock || 0} | Max: {product.maxStock || 0}
-                  </p>
-                  <StockProgressBar
-                    value={product.maxStock > 0 ? Math.min((product.currentStock / product.maxStock) * 100, 100) : 0}
-                    stockStatus={stockStatus}
-                  />
-                </div>
-
-                {/* Price Info */}
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cost Price</p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>د.إ{product.costPrice || '0.00'}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selling Price</p>
-                    <p className="text-sm font-semibold text-green-600">د.إ{product.sellingPrice || '0.00'}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Margin</p>
-                    <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {product.costPrice > 0 ? 
-                        Math.round(((product.sellingPrice - product.costPrice) / product.costPrice) * 100) 
-                        : 0}%
-                    </p>
-                  </div>
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns.includes(col.key)}
+                        onChange={() => toggleColumn(col.key)}
+                        disabled={col.required}
+                        className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span>{col.label}</span>
+                      {col.required && <span className="text-xs text-gray-500">(required)</span>}
+                    </label>
+                  ))}
                 </div>
               </div>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        </div>
+
+      {/* Table Container */}
+      <div className={`overflow-x-auto rounded-lg border ${
+        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+      }`}>
+        <table className="w-full min-w-[800px] table-fixed">
+          {/* Table Header */}
+          <thead className={`sticky top-0 z-10 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+          }`}>
+            <tr>
+              {ALL_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => (
+                <th
+                  key={col.key}
+                  onClick={() => handleSort(col.key)}
+                  className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors ${col.width} ${
+                    isDarkMode
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                    <div className="flex items-center gap-1">
+                      <span>{col.label}</span>
+                      {sortConfig.key === col.key ? (
+                        sortConfig.direction === 'asc' ? (
+                          <ArrowUp size={14} className="text-teal-500" />
+                        ) : (
+                          <ArrowDown size={14} className="text-teal-500" />
+                        )
+                      ) : (
+                        <ArrowUpDown size={14} className="opacity-40" />
+                      )}
+                    </div>
+                  </th>
+                ))}
+                <th className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[120px] ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              {sortedProducts.map(product => {
+                const stockData = getCellValue(product, 'stock');
+                return (
+                  <tr
+                    key={product.id}
+                    className={`transition-colors ${
+                      isDarkMode
+                        ? 'bg-gray-900 hover:bg-gray-800'
+                        : 'bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    {ALL_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => (
+                      <td
+                        key={col.key}
+                        className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}
+                      >
+                        {col.key === 'stock' ? (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                stockData.status === 'out_of_stock'
+                                  ? 'bg-red-500'
+                                  : stockData.status === 'low'
+                                    ? 'bg-yellow-500'
+                                    : stockData.status === 'high'
+                                      ? 'bg-green-500'
+                                      : 'bg-blue-500'
+                              }`}
+                            />
+                            <span className="font-medium">{stockData.value}</span>
+                          </div>
+                        ) : col.key === 'buyPrice' || col.key === 'sellPrice' ? (
+                          <span className={col.key === 'sellPrice' ? 'text-green-600 font-medium' : ''}>
+                            AED {Number(getCellValue(product, col.key)).toFixed(2)}
+                          </span>
+                        ) : col.key === 'margin' ? (
+                          <span className={`font-medium ${
+                            getCellValue(product, col.key) > 20
+                              ? 'text-green-600'
+                              : getCellValue(product, col.key) > 10
+                                ? 'text-yellow-600'
+                                : 'text-red-500'
+                          }`}>
+                            {getCellValue(product, col.key)}%
+                          </span>
+                        ) : col.key === 'productName' ? (
+                          <div>
+                            <button
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setShowSpecModal(true);
+                              }}
+                              className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                            >
+                              {getCellValue(product, col.key)}
+                            </button>
+                            {product.displayName || product.display_name ? (
+                              <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                {product.displayName || product.display_name}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          getCellValue(product, col.key)
+                        )}
+                      </td>
+                    ))}
+                    {/* Actions Column */}
+                    <td className="px-3 py-2 text-right w-[100px]">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => {
+                            const formattedProduct = {
+                              ...product,
+                              sizeInch: product.sizeInch || product.size_inch || '',
+                              od: product.od || '',
+                              length: product.length || '',
+                              thickness: product.thickness || '',
+                              finish: product.finish ? String(product.finish).trim() : '',
+                              currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || '',
+                              minStock: product.minStock !== undefined ? product.minStock : product.min_stock || '',
+                              maxStock: product.maxStock !== undefined ? product.maxStock : product.max_stock || '',
+                              costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || '',
+                              sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || '',
+                              displayName: product.displayName || product.display_name || '',
+                              uniqueName: product.uniqueName || product.unique_name || '',
+                              // UOM fields (added 2025-12-09)
+                              primaryUom: product.primaryUom || product.primary_uom || 'PCS',
+                              unitWeightKg: product.unitWeightKg || product.unit_weight_kg || '',
+                              allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
+                            };
+                            setSelectedProduct(formattedProduct);
+                            setShowEditModal(true);
+                          }}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                              : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
+                          }`}
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            console.log('Copy product:', product.id);
+                            notificationService.info('Copy feature coming soon');
+                          }}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                          }`}
+                          title="Copy"
+                        >
+                          <Copy size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
+                              : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
+                          }`}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+        {/* Empty State */}
+        {sortedProducts.length === 0 && (
+          <div className={`p-8 text-center ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+            No products found matching your criteria.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2158,7 +2363,7 @@ const SteelProducts = () => {
                       <div className="relative">
                         <select
                           value={(newProduct.finish || '').trim()}
-                          onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim() })}
+                          onChange={(e) => setNewProduct({ ...newProduct, finish: e.target.value.trim().toUpperCase() })}
                           onFocus={() => setFocusedField('finish')}
                           onBlur={() => setFocusedField(null)}
                           className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -2733,7 +2938,7 @@ const SteelProducts = () => {
                     label="Finish"
                     options={allFinishes.map(finish => ({ value: finish, label: `${finish} Finish` }))}
                     value={(selectedProduct.finish || '').trim()}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim() })}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, finish: e.target.value.trim().toUpperCase() })}
                   />
                   {(/pipe|tube/i.test(selectedProduct.category || '')) ? (
                     <>
@@ -2783,6 +2988,77 @@ const SteelProducts = () => {
                     value={selectedProduct.maxStock || ''}
                     onChange={(e) => setSelectedProduct({...selectedProduct, maxStock: e.target.value === '' ? '' : Number(e.target.value) || ''})}
                   />
+                  
+                  {/* Unit of Measure Section (added 2025-12-09) */}
+                  <div className="sm:col-span-2 pt-2">
+                    <p className={`text-xs font-semibold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'} mb-2`}>
+                      Unit of Measure
+                    </p>
+                  </div>
+                  <Select
+                    label="Primary UOM"
+                    options={[
+                      { value: 'PCS', label: 'Pieces (PCS)' },
+                      { value: 'KG', label: 'Kilograms (KG)' },
+                      { value: 'MT', label: 'Metric Tons (MT)' },
+                      { value: 'METER', label: 'Meters' },
+                      { value: 'SQM', label: 'Square Meters' },
+                      { value: 'BUNDLE', label: 'Bundles' },
+                    ]}
+                    value={selectedProduct.primaryUom || selectedProduct.primary_uom || 'PCS'}
+                    onChange={(e) => {
+                      const uom = e.target.value;
+                      const allowDecimal = ['KG', 'MT', 'METER', 'SQM'].includes(uom);
+                      setSelectedProduct({
+                        ...selectedProduct,
+                        primaryUom: uom,
+                        primary_uom: uom,
+                        allowDecimalQuantity: allowDecimal,
+                        allow_decimal_quantity: allowDecimal,
+                      });
+                    }}
+                  />
+                  <Input
+                    label="Unit Weight (kg/piece)"
+                    type="number"
+                    step="0.001"
+                    value={selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg || ''}
+                    onChange={(e) => setSelectedProduct({
+                      ...selectedProduct,
+                      unitWeightKg: e.target.value === '' ? '' : Number(e.target.value) || '',
+                      unit_weight_kg: e.target.value === '' ? '' : Number(e.target.value) || '',
+                    })}
+                    placeholder="Weight of one piece in kg"
+                    disabled={['KG', 'MT'].includes(selectedProduct.primaryUom || selectedProduct.primary_uom || 'PCS')}
+                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="allowDecimalQty"
+                      checked={selectedProduct.allowDecimalQuantity || selectedProduct.allow_decimal_quantity || false}
+                      onChange={(e) => setSelectedProduct({
+                        ...selectedProduct,
+                        allowDecimalQuantity: e.target.checked,
+                        allow_decimal_quantity: e.target.checked,
+                      })}
+                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                    />
+                    <label htmlFor="allowDecimalQty" className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Allow decimal quantities
+                    </label>
+                  </div>
+                  {(selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg) && (selectedProduct.currentStock || selectedProduct.current_stock) && (
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Total Weight: {((selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg || 0) * (selectedProduct.currentStock || selectedProduct.current_stock || 0)).toFixed(2)} kg
+                    </div>
+                  )}
+                  
+                  {/* Divider before pricing */}
+                  <div className="sm:col-span-2 pt-2">
+                    <p className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>
+                      Pricing
+                    </p>
+                  </div>
                   <div className="relative">
                     <Input
                       label="Cost Price"
@@ -2907,10 +3183,10 @@ const SteelProducts = () => {
 
         {/* Specifications Modal - Zoho-Style Accordion Drawer */}
         {showSpecModal && selectedProduct && (() => {
-          // Format grade with GR prefix
+          // Format grade (clean, no prefix)
           const getFormattedGrade = () => {
             const g = (selectedProduct.grade || '').toString().trim();
-            return g ? (g.match(/^gr\s*(.+)$/i)?.[1] ? `GR${g.match(/^gr\s*(.+)$/i)[1]}` : `GR${g}`) : '';
+            return g ? g.replace(/^(gr|ss)\s*/i, '').toUpperCase() : '';
           };
 
           // Format finish with "Finish" suffix
@@ -2959,188 +3235,186 @@ const SteelProducts = () => {
 
           const isPipeOrTube = /pipe|tube/i.test(selectedProduct.category || '');
 
+          // Determine origin status
+          const originStatus = selectedProduct.origin?.toLowerCase() === 'uae' ||
+                               selectedProduct.origin?.toLowerCase() === 'local' ||
+                               !selectedProduct.origin ? 'Local' : 'Imported';
+          const isImported = originStatus === 'Imported';
+
           return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className={`rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
-                isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-              } shadow-2xl`}>
-                {/* Modal Header */}
-                <div className={`sticky top-0 z-10 flex justify-between items-center px-6 py-4 border-b ${
-                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-white'
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+              <div className={`rounded-lg w-full max-w-xl shadow-xl ${
+                isDarkMode ? 'bg-[#1e2328]' : 'bg-white'
+              }`}>
+                {/* Compact Header */}
+                <div className={`flex items-center justify-between px-4 py-3 border-b ${
+                  isDarkMode ? 'border-gray-700 bg-[#252b32]' : 'border-gray-200 bg-gray-50'
                 }`}>
-                  <div className="flex-1">
-                    <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      Product Specifications
+                  <div className="flex items-center gap-3">
+                    <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {selectedProduct.displayName || selectedProduct.display_name || 'Product'}
                     </h2>
-                    <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Complete product information
-                    </p>
+                    <div className="flex gap-1.5">
+                      {selectedProduct.category && (
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          isDarkMode ? 'bg-teal-500/20 text-teal-300' : 'bg-teal-100 text-teal-700'
+                        }`}>
+                          {categories.find(c => c.value === selectedProduct.category)?.label || selectedProduct.category}
+                        </span>
+                      )}
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        isImported
+                          ? isDarkMode ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-100 text-amber-700'
+                          : isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700'
+                      }`}>
+                        {originStatus}
+                      </span>
+                    </div>
                   </div>
                   <button
                     onClick={() => setShowSpecModal(false)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                    className={`p-1.5 rounded-md transition ${
+                      isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-500'
                     }`}
                   >
-                    <X size={20} />
+                    <X size={18} />
                   </button>
                 </div>
 
-                {/* Product Identity Header */}
-                <div className="px-6 py-4">
-                  <h3 className={`text-lg font-bold font-mono mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                {/* Content */}
+                <div className={`px-4 py-3 ${isDarkMode ? 'bg-[#1e2328]' : 'bg-white'}`}>
+                  {/* Unique Name */}
+                  <p className={`text-xs font-mono mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {selectedProduct.uniqueName || selectedProduct.unique_name || 'N/A'}
-                  </h3>
-                  <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {selectedProduct.displayName || selectedProduct.display_name || ''}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProduct.category && (
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
-                        isDarkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-100 text-blue-700 border-blue-200'
-                      }`}>
-                        {categories.find(c => c.value === selectedProduct.category)?.label || selectedProduct.category}
-                      </span>
-                    )}
-                    {(selectedProduct.millCountry || selectedProduct.mill_country) && (
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
-                        isDarkMode ? 'bg-amber-900/30 text-amber-300 border-amber-700' : 'bg-amber-100 text-amber-700 border-amber-200'
-                      }`}>
-                        {(selectedProduct.millCountry === 'AE' || selectedProduct.mill_country === 'AE') ? 'LOCAL' : 'IMPORTED'}
-                      </span>
-                    )}
-                    {selectedProduct.commodity && (
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
-                        isDarkMode ? 'bg-purple-900/30 text-purple-300 border-purple-700' : 'bg-purple-100 text-purple-700 border-purple-200'
-                      }`}>
-                        {selectedProduct.commodity}
-                      </span>
-                    )}
-                  </div>
-                </div>
 
-                {/* Accordion Sections */}
-                <div>
-                  {/* Classification & Specs Section */}
-                  <AccordionSection
-                    title="Classification & Specs"
-                    isOpen={accordionState.classification}
-                    onToggle={() => toggleSection('classification')}
-                    isEmpty={!getFormattedGrade() && !getFormattedFinish() && !selectedProduct.size}
-                  >
-                    <div className="space-y-0">
-                      <SpecRow label="Grade" value={getFormattedGrade()} />
-                      <SpecRow label="Finish" value={getFormattedFinish()} />
-                      {isPipeOrTube ? (
-                        <>
-                          <SpecRow label="Size (Inch)" value={selectedProduct.sizeInch ? `${selectedProduct.sizeInch}"` : null} />
-                          <SpecRow label="OD" value={selectedProduct.od ? `(${selectedProduct.od})` : null} />
-                          <SpecRow label="Length" value={selectedProduct.length ? `L: ${selectedProduct.length}` : null} />
-                        </>
-                      ) : (
-                        <SpecRow label="Size" value={selectedProduct.size} />
-                      )}
-                      <SpecRow label="Thickness" value={selectedProduct.thickness} />
-                      <SpecRow label="Weight" value={selectedProduct.weight ? `${selectedProduct.weight} kg` : null} />
-                    </div>
-                  </AccordionSection>
-
-                  {/* Inventory Section */}
-                  <AccordionSection
-                    title="Inventory"
-                    isOpen={accordionState.inventory}
-                    onToggle={() => toggleSection('inventory')}
-                    isEmpty={selectedProduct.currentStock === undefined && !selectedProduct.minStock && !selectedProduct.maxStock && !selectedProduct.location}
-                  >
-                    <div className="space-y-0">
-                      <SpecRow
-                        label="Current Stock"
-                        value={selectedProduct.currentStock !== undefined ? selectedProduct.currentStock : null}
-                        badge={getStockBadge()}
-                      />
-                      <SpecRow label="Min Stock" value={selectedProduct.minStock} />
-                      <SpecRow label="Max Stock" value={selectedProduct.maxStock} />
-                      <SpecRow label="Location" value={selectedProduct.location} />
-                    </div>
-                  </AccordionSection>
-
-                  {/* Pricing Section */}
-                  <AccordionSection
-                    title="Pricing"
-                    isOpen={accordionState.pricing}
-                    onToggle={() => toggleSection('pricing')}
-                    isEmpty={!selectedProduct.costPrice && !selectedProduct.sellingPrice && !selectedProduct.supplier}
-                  >
-                    <div className="space-y-0">
-                      <SpecRow
-                        label="Cost Price"
-                        value={selectedProduct.costPrice ? `${Number(selectedProduct.costPrice).toFixed(2)} د.إ` : null}
-                      />
-                      <SpecRow
-                        label="Selling Price"
-                        value={selectedProduct.sellingPrice ? `${Number(selectedProduct.sellingPrice).toFixed(2)} د.إ` : null}
-                      />
-                      {margin !== null && (
-                        <SpecRow
-                          label="Margin"
-                          value={`${margin}%`}
-                          className="border-t border-gray-600/20 pt-2 mt-2"
-                        />
-                      )}
-                      {selectedProduct.supplier && (
-                        <SpecRow
-                          label="Supplier"
-                          value={selectedProduct.supplier}
-                          className="border-t border-gray-600/20 pt-2 mt-2"
-                        />
-                      )}
-                    </div>
-                  </AccordionSection>
-
-                  {/* Description Section - Only show if has data */}
-                  {hasDescription && (
-                    <AccordionSection
-                      title="Description"
-                      isOpen={accordionState.description}
-                      onToggle={() => toggleSection('description')}
-                    >
-                      <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {selectedProduct.description}
-                      </p>
-                    </AccordionSection>
-                  )}
-
-                  {/* Technical Specs Section - Only show if has data */}
-                  {hasTechnicalSpecs && (
-                    <AccordionSection
-                      title="Technical Specs"
-                      isOpen={accordionState.technical}
-                      onToggle={() => toggleSection('technical')}
-                    >
-                      <div className="space-y-0">
-                        <SpecRow label="Length" value={specs.length} />
-                        <SpecRow label="Width" value={specs.width} />
-                        <SpecRow label="Thickness" value={specs.thickness} />
-                        <SpecRow label="Diameter" value={specs.diameter} />
-                        <SpecRow label="Tensile Strength" value={specs.tensileStrength} />
-                        <SpecRow label="Yield Strength" value={specs.yieldStrength} />
-                        <SpecRow label="Carbon Content" value={specs.carbonContent} />
-                        <SpecRow label="Coating" value={specs.coating} />
-                        <SpecRow label="Standard" value={specs.standard} />
+                  {/* Key Metrics - Compact Row */}
+                  <div className={`grid grid-cols-4 gap-2 p-2 rounded-md mb-3 ${
+                    isDarkMode ? 'bg-[#252b32]' : 'bg-gray-100'
+                  }`}>
+                    <div className="text-center">
+                      <div className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock</div>
+                      <div className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.currentStock ?? 0}
                       </div>
-                    </AccordionSection>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sell</div>
+                      <div className={`text-base font-bold ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                        {selectedProduct.sellingPrice ? Number(selectedProduct.sellingPrice).toLocaleString() : '—'}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cost</div>
+                      <div className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedProduct.costPrice ? Number(selectedProduct.costPrice).toLocaleString() : '—'}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Margin</div>
+                      <div className={`text-base font-bold ${
+                        margin && margin > 0
+                          ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600'
+                          : isDarkMode ? 'text-red-400' : 'text-red-600'
+                      }`}>
+                        {margin !== null ? `${margin}%` : '—'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Specifications Table - Compact */}
+                  <div className={`text-sm border rounded-md overflow-hidden ${
+                    isDarkMode ? 'border-gray-700' : 'border-gray-200'
+                  }`}>
+                    <table className="w-full">
+                      <tbody>
+                        {getFormattedGrade() && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`} style={{width: '40%'}}>Grade</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{getFormattedGrade()}</td>
+                          </tr>
+                        )}
+                        {getFormattedFinish() && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Finish</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{getFormattedFinish()}</td>
+                          </tr>
+                        )}
+                        {selectedProduct.thickness && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Thickness</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.thickness}</td>
+                          </tr>
+                        )}
+                        {selectedProduct.width && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Width</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.width}</td>
+                          </tr>
+                        )}
+                        {selectedProduct.length && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Length</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.length}</td>
+                          </tr>
+                        )}
+                        {isPipeOrTube && selectedProduct.od && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>OD</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.od}</td>
+                          </tr>
+                        )}
+                        {isPipeOrTube && selectedProduct.sizeInch && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Size (Inch)</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.sizeInch}"</td>
+                          </tr>
+                        )}
+                        {selectedProduct.weight && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Weight</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.weight} kg</td>
+                          </tr>
+                        )}
+                        <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                          <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Min / Max Stock</td>
+                          <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {selectedProduct.minStock ?? 0} / {selectedProduct.maxStock ?? 0}
+                          </td>
+                        </tr>
+                        {selectedProduct.location && (
+                          <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Location</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.location}</td>
+                          </tr>
+                        )}
+                        {selectedProduct.supplier && (
+                          <tr className={isDarkMode ? '' : ''}>
+                            <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Supplier</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.supplier}</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Description if exists */}
+                  {hasDescription && (
+                    <div className={`mt-3 p-2.5 rounded-md text-sm ${
+                      isDarkMode ? 'bg-[#252b32] text-gray-200' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {selectedProduct.description}
+                    </div>
                   )}
                 </div>
 
-                {/* Modal Footer */}
-                <div className={`sticky bottom-0 px-6 py-3 border-t ${
-                  isDarkMode ? 'border-[#37474F] bg-[#1E2328]' : 'border-gray-200 bg-gray-50'
+                {/* Compact Footer */}
+                <div className={`px-4 py-2 border-t flex justify-end ${
+                  isDarkMode ? 'border-gray-700 bg-[#252b32]' : 'border-gray-200 bg-gray-50'
                 }`}>
-                  <div className="flex justify-end">
-                    <Button onClick={() => setShowSpecModal(false)} variant="secondary" size="sm">
-                      Close
-                    </Button>
-                  </div>
+                  <Button onClick={() => setShowSpecModal(false)} variant="secondary" size="sm">
+                    Close
+                  </Button>
                 </div>
               </div>
             </div>

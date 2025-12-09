@@ -902,11 +902,10 @@ const InvoiceForm = ({ onSave }) => {
     // Commodity is not available in steel item, we'll use a default "SS" if not set
     // Category/Product Type
     if (item.productType) parts.push(item.productType);
-    // Grade with GR prefix
+    // Grade (clean, no prefix)
     if (item.grade) {
-      const g = String(item.grade).trim();
-      const m = g.match(/^gr\s*(.+)$/i);
-      parts.push(m ? `GR${m[1]}` : `GR${g}`);
+      const g = String(item.grade).trim().replace(/^(gr|ss)\s*/i, '').toUpperCase();
+      parts.push(g);
     }
     // Finish
     if (item.finish) parts.push(item.finish);
@@ -2019,8 +2018,8 @@ const InvoiceForm = ({ onSave }) => {
       const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: displayName for user-facing display
-      const label = displayName || uniqueName || 'N/A';
+      // Use uniqueName for dropdown display, displayName for documents
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
@@ -2040,8 +2039,8 @@ const InvoiceForm = ({ onSave }) => {
       const uniqueName = product.uniqueName || product.unique_name;
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Priority: displayName for user-facing display
-      const label = displayName || uniqueName || 'N/A';
+      // Use uniqueName for dropdown display, displayName for documents
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
@@ -3451,7 +3450,7 @@ const InvoiceForm = ({ onSave }) => {
                           }`}
                           title={product.displayName || product.display_name || 'N/A'}
                         >
-                          {product.displayName || product.display_name || 'N/A'}
+                          {product.uniqueName || product.unique_name || 'N/A'}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}
@@ -3632,7 +3631,7 @@ const InvoiceForm = ({ onSave }) => {
                               renderOption={(option) => (
                                 <div>
                                   <div className="font-medium">
-                                    {option.fullName || option.full_name || option.uniqueName || option.unique_name || option.searchDisplay || option.displayName || option.display_name || option.name}
+                                    {option.uniqueName || option.unique_name || option.displayName || option.display_name}
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
@@ -3845,7 +3844,7 @@ const InvoiceForm = ({ onSave }) => {
                         error={invalidFields.has(`item.${index}.name`)}
                         renderOption={(option) => (
                           <div>
-                            <div className="font-medium">{option.fullName || option.full_name || option.uniqueName || option.unique_name || option.searchDisplay || option.displayName || option.display_name || option.name}</div>
+                            <div className="font-medium">{option.displayName || option.display_name || option.uniqueName || option.unique_name || option.name}</div>
                             <div className="text-sm text-gray-500">
                               {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
                             </div>

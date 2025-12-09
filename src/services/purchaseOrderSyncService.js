@@ -168,7 +168,7 @@ class PurchaseOrderSyncService {
   generateItemDescription(item) {
     const parts = [];
     if (item.productType || item.name) parts.push(`SS ${(item.productType || item.name).toUpperCase()}`);
-    if (item.grade) parts.push(`GR${item.grade}`);
+    if (item.grade) parts.push(item.grade.replace(/^(gr|ss)\s*/i, '').toUpperCase());
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
     if (item.thickness) parts.push(`${item.thickness}MM`);

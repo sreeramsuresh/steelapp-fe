@@ -326,30 +326,7 @@ const TextField = ({ label, value, onChange, placeholder, multiline, rows, start
   );
 };
 
-const Checkbox = ({ checked, onChange, label, disabled = false }) => {
-  const { isDarkMode } = useTheme();
-  
-  return (
-    <label className="flex items-center space-x-2 cursor-pointer">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        disabled={disabled}
-        className={`w-4 h-4 rounded border focus:ring-2 focus:ring-teal-500 ${
-          isDarkMode 
-            ? 'bg-gray-800 border-gray-600' 
-            : 'bg-white border-gray-300'
-        } text-teal-600 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-      />
-      {label && (
-        <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-          {label}
-        </span>
-      )}
-    </label>
-  );
-};
+// Checkbox component removed - unused
 
 const Switch = ({ checked, onChange, label, disabled = false }) => {
   const { isDarkMode } = useTheme();
@@ -419,12 +396,12 @@ const CompanySettings = () => {
     return Shield;
   };
   
-  const { data: companyData, loading: loadingCompany, refetch: refetchCompany } = useApiData(
+  const { data: companyData, loading: _loadingCompany, refetch: refetchCompany } = useApiData(
     companyService.getCompany,
     [],
   );
   
-  const { data: templatesData, loading: loadingTemplates, refetch: refetchTemplates } = useApiData(
+  const { data: _templatesData, loading: _loadingTemplates } = useApiData(
     templateService.getTemplates,
     [],
   );
@@ -438,8 +415,6 @@ const CompanySettings = () => {
   // Upload functions called directly, not through useApi hook
   const [uploadingBrandmark, setUploadingBrandmark] = useState(false);
   const [uploadingSeal, setUploadingSeal] = useState(false);
-  const { execute: createTemplate, loading: creatingTemplate } = useApi(templateService.createTemplate);
-  const { execute: updateTemplate, loading: updatingTemplate } = useApi(templateService.updateTemplate);
   
   const [companyProfile, setCompanyProfile] = useState({
     name: '',
@@ -470,7 +445,7 @@ const CompanySettings = () => {
 
   useEffect(() => {
     if (companyData) {
-      console.log('Loading company data:', companyData);
+      // console.log('Loading company data:', companyData);
       
       // Extract address fields from JSONB or keep as string for backwards compatibility
       const addressData = companyData.address;
@@ -515,22 +490,13 @@ const CompanySettings = () => {
         },
       };
       
-      console.log('Mapped company profile:', mappedData);
-      console.log('Logo URL:', mappedData.logoUrl);
+      // console.log('Mapped company profile:', mappedData);
+      // console.log('Logo URL:', mappedData.logoUrl);
       setCompanyProfile(mappedData);
     }
   }, [companyData]);
 
-  const [invoiceSettings, setInvoiceSettings] = useState({
-    templateStyle: 'modern',
-    primaryColor: '#2563eb',
-    showLogo: true,
-    showBankDetails: true,
-    footer: '',
-    terms: '',
-    invoiceNumberFormat: 'INV-{YYYY}-{MM}-{###}',
-    dueDays: '',
-  });
+
 
   const [vatRates, setVatRates] = useState([]);
   const [users, setUsers] = useState([]);
@@ -660,18 +626,18 @@ const CompanySettings = () => {
     }
   };
 
-  // Permission module label mapping
-  const moduleLabel = (module) => {
-    const map = {
-      invoices: 'Create Invoices',
-      invoices_all: 'All Invoices',
-      purchase_orders: 'Purchase Orders',
-      delivery_notes: 'Delivery Notes',
-      quotations: 'Quotations',
-      payables: 'Payables',
-    };
-    return map[module] || module.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  };
+  // Permission module label mapping - currently unused
+  // const moduleLabel = (module) => {
+  //   const map = {
+  //     invoices: 'Create Invoices',
+  //     invoices_all: 'All Invoices',
+  //     purchase_orders: 'Purchase Orders',
+  //     delivery_notes: 'Delivery Notes',
+  //     quotations: 'Quotations',
+  //     payables: 'Payables',
+  //   };
+  //   return map[module] || module.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  // };
 
   // User validation helpers
   const validateEmail = (email) => {
@@ -727,36 +693,23 @@ const CompanySettings = () => {
     notificationService.setTheme(isDarkMode);
   }, [isDarkMode]);
 
-  const templateStyles = [
-    { id: 'modern', name: 'Modern', description: 'Clean and professional design' },
-    { id: 'classic', name: 'Classic', description: 'Traditional business format' },
-    { id: 'minimal', name: 'Minimal', description: 'Simple and elegant layout' },
-    { id: 'detailed', name: 'Detailed', description: 'Comprehensive information display' },
-  ];
+  // Template styles - currently unused
+  // const templateStyles = [
+  //   { id: 'modern', name: 'Modern', description: 'Clean and professional design' },
+  //   { id: 'classic', name: 'Classic', description: 'Traditional business format' },
+  //   { id: 'minimal', name: 'Minimal', description: 'Simple and elegant layout' },
+  //   { id: 'detailed', name: 'Detailed', description: 'Comprehensive information display' },
+  // ];
 
-  const userRoles = [
-    { id: 'admin', name: 'Administrator', description: 'Full system access' },
-    { id: 'manager', name: 'Manager', description: 'Manage operations and view reports' },
-    { id: 'user', name: 'User', description: 'Basic access to create invoices' },
-    { id: 'viewer', name: 'Viewer', description: 'Read-only access' },
-  ];
+  // User roles - currently unused (using RBAC instead)
+  // const userRoles = [
+  //   { id: 'admin', name: 'Administrator', description: 'Full system access' },
+  //   { id: 'manager', name: 'Manager', description: 'Manage operations and view reports' },
+  //   { id: 'user', name: 'User', description: 'Basic access to create invoices' },
+  //   { id: 'viewer', name: 'Viewer', description: 'Read-only access' },
+  // ];
 
-  // Load invoice settings when templates data changes
-  useEffect(() => {
-    if (templatesData && templatesData.length > 0) {
-      const defaultTemplate = templatesData.find(t => t.isDefault) || templatesData[0];
-      setInvoiceSettings({
-        templateStyle: defaultTemplate.templateStyle,
-        primaryColor: defaultTemplate.primaryColor,
-        showLogo: defaultTemplate.showLogo,
-        showBankDetails: defaultTemplate.showBankDetails,
-        footer: defaultTemplate.footerText || '',
-        terms: defaultTemplate.termsAndConditions || '',
-        invoiceNumberFormat: defaultTemplate.invoiceNumberFormat,
-        dueDays: defaultTemplate.defaultDueDays,
-      });
-    }
-  }, [templatesData]); // Only re-run when data actually changes
+
 
   // Load VAT rates once on mount
   useEffect(() => {
@@ -918,7 +871,7 @@ const CompanySettings = () => {
         },
       };
       
-      console.log('Sending company data:', updateData);
+      // console.log('Sending company data:', updateData);
       
       await updateCompany(updateData);
       notificationService.success('Company profile saved successfully!');
@@ -929,42 +882,43 @@ const CompanySettings = () => {
     }
   };
 
-  const saveInvoiceSettings = async () => {
-    try {
-      const templateData = {
-        template_name: 'Default',
-        template_style: invoiceSettings.templateStyle,
-        primary_color: invoiceSettings.primaryColor,
-        show_logo: invoiceSettings.showLogo,
-        show_bank_details: invoiceSettings.showBankDetails,
-        invoice_number_format: invoiceSettings.invoiceNumberFormat,
-        default_due_days: invoiceSettings.dueDays === '' ? 30 : Number(invoiceSettings.dueDays),
-        footer_text: invoiceSettings.footer,
-        terms_and_conditions: invoiceSettings.terms,
-        is_default: true,
-      };
-
-      if (templatesData && templatesData.length > 0) {
-        const defaultTemplate = templatesData.find(t => t.isDefault) || templatesData[0];
-        await updateTemplate(defaultTemplate.id, templateData);
-      } else {
-        await createTemplate(templateData);
-      }
-
-      notificationService.success('Invoice settings saved successfully!');
-      refetchTemplates();
-    } catch (error) {
-      console.error('Error saving invoice settings:', error);
-      notificationService.error('Failed to save invoice settings. Please try again.');
-    }
-  };
+  // Invoice settings save function - currently unused (using InvoiceTemplateSettings component)
+  // const saveInvoiceSettings = async () => {
+  //   try {
+  //     const templateData = {
+  //       template_name: 'Default',
+  //       template_style: invoiceSettings.templateStyle,
+  //       primary_color: invoiceSettings.primaryColor,
+  //       show_logo: invoiceSettings.showLogo,
+  //       show_bank_details: invoiceSettings.showBankDetails,
+  //       invoice_number_format: invoiceSettings.invoiceNumberFormat,
+  //       default_due_days: invoiceSettings.dueDays === '' ? 30 : Number(invoiceSettings.dueDays),
+  //       footer_text: invoiceSettings.footer,
+  //       terms_and_conditions: invoiceSettings.terms,
+  //       is_default: true,
+  //     };
+  //
+  //     if (templatesData && templatesData.length > 0) {
+  //       const defaultTemplate = templatesData.find(t => t.isDefault) || templatesData[0];
+  //       await updateTemplate(defaultTemplate.id, templateData);
+  //     } else {
+  //       await createTemplate(templateData);
+  //     }
+  //
+  //     notificationService.success('Invoice settings saved successfully!');
+  //     refetchTemplates();
+  //   } catch (error) {
+  //     console.error('Error saving invoice settings:', error);
+  //     notificationService.error('Failed to save invoice settings. Please try again.');
+  //   }
+  // };
 
   // No longer needed - using database directly
   // const saveVatRates = () => {
   //   localStorage.setItem('steel-app-vat-rates', JSON.stringify(vatRates));
   // };
 
-  const saveUsers = () => {};
+  // const saveUsers = () => {}; // Unused - users are saved via API directly
 
   const savePrintingSettings = async () => {
     try {
@@ -1143,12 +1097,12 @@ const CompanySettings = () => {
         throw new Error('Invalid response from server - no brandmark URL received');
       }
 
-      console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
+      // console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
 
       // Save only the relative path to database (not the full URL)
       const relativeBrandmarkUrl = brandmarkUrl.startsWith('/uploads/') ? brandmarkUrl : brandmarkUrl.replace(/^https?:\/\/[^/]+/, '');
 
-      console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
+      // console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
 
       // Update company profile immediately with relative path
       setCompanyProfile(prev => ({ ...prev, brandmark_url: relativeBrandmarkUrl }));
@@ -1254,10 +1208,10 @@ const CompanySettings = () => {
     }
 
     try {
-      console.log('[Seal Upload] Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+      // console.log('[Seal Upload] Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       setUploadingSeal(true);
       const response = await companyService.uploadSeal(file);
-      console.log('[Seal Upload] Response received:', response);
+      // console.log('[Seal Upload] Response received:', response);
 
       // Handle different possible response structures
       const sealUrl = response?.pdfSealUrl || response?.pdf_seal_url || response?.url || response?.path;
@@ -1267,13 +1221,13 @@ const CompanySettings = () => {
         throw new Error('Invalid response from server - no seal URL received');
       }
 
-      console.log('[Seal Upload] Seal URL from server:', sealUrl);
+      // console.log('[Seal Upload] Seal URL from server:', sealUrl);
 
       // Save only the relative path to database (not the full URL)
       // This ensures consistency when fetching from database later
       const relativeSealUrl = sealUrl.startsWith('/uploads/') ? sealUrl : sealUrl.replace(/^https?:\/\/[^/]+/, '');
 
-      console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
+      // console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
 
       // Update company profile immediately with relative path
       setCompanyProfile(prev => ({ ...prev, pdf_seal_url: relativeSealUrl }));
@@ -1367,47 +1321,48 @@ const CompanySettings = () => {
     }
   };
 
-  const handleAddUser = async () => {
-    try {
-      const payload = {
-        name: newUser.name,
-        email: newUser.email,
-        password: newUser.password,
-        role: newUser.role,
-        permissions: newUser.permissions,
-      };
-      await userAdminAPI.create(payload);
-      notificationService.success('User created successfully!');
-      const remoteUsers = await userAdminAPI.list();
-      const mapped = remoteUsers.map(u => ({
-        id: String(u.id),
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        status: u.status || 'active',
-        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.lastLogin || u.lastLogin || null,
-        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
-      }));
-      setUsers(mapped);
-      setNewUser({
-        name: '',
-        email: '',
-        role: 'user',
-        password: '',
-        permissions: {
-          invoices: { create: false, read: false, update: false, delete: false },
-          customers: { create: false, read: false, update: false, delete: false },
-          products: { create: false, read: false, update: false, delete: false },
-          analytics: { read: false },
-          settings: { read: false, update: false },
-        },
-      });
-      setShowAddUserModal(false);
-    } catch (e) {
-      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to add user');
-    }
-  };
+  // Commented out unused function - eslint no-unused-vars
+  // const handleAddUser = async () => {
+  //   try {
+  //     const payload = {
+  //       name: newUser.name,
+  //       email: newUser.email,
+  //       password: newUser.password,
+  //       role: newUser.role,
+  //       permissions: newUser.permissions,
+  //     };
+  //     await userAdminAPI.create(payload);
+  //     notificationService.success('User created successfully!');
+  //     const remoteUsers = await userAdminAPI.list();
+  //     const mapped = remoteUsers.map(u => ({
+  //       id: String(u.id),
+  //       name: u.name,
+  //       email: u.email,
+  //       role: u.role,
+  //       status: u.status || 'active',
+  //       createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+  //       lastLogin: u.lastLogin || u.lastLogin || null,
+  //       permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+  //     }));
+  //     setUsers(mapped);
+  //     setNewUser({
+  //       name: '',
+  //       email: '',
+  //       role: 'user',
+  //       password: '',
+  //       permissions: {
+  //         invoices: { create: false, read: false, update: false, delete: false },
+  //         customers: { create: false, read: false, update: false, delete: false },
+  //         products: { create: false, read: false, update: false, delete: false },
+  //         analytics: { read: false },
+  //         settings: { read: false, update: false },
+  //       },
+  //     });
+  //     setShowAddUserModal(false);
+  //   } catch (e) {
+  //     notificationService.error(e?.response?.data?.error || e?.message || 'Failed to add user');
+  //   }
+  // };
 
   const handleAddVatRate = async () => {
     try {
@@ -1584,229 +1539,230 @@ const CompanySettings = () => {
     }
   };
 
-  const handleRoleChange = (role) => {
-    // Align permissions with backend defaultPermissions in routes/auth.js
-    let permissions;
-    switch (role) {
-      case 'admin':
-        permissions = {
-          invoices: { create: true, read: true, update: true, delete: true },
-          customers: { create: true, read: true, update: true, delete: true },
-          products: { create: true, read: true, update: true, delete: true },
-          analytics: { read: true },
-          settings: { read: true, update: true },
-          payables: { create: true, read: true, update: true, delete: true },
-          invoices_all: { create: true, read: true, update: true, delete: true },
-          quotations: { create: true, read: true, update: true, delete: true },
-          delivery_notes: { create: true, read: true, update: true, delete: true },
-          purchase_orders: { create: true, read: true, update: true, delete: true },
-        };
-        break;
-      case 'manager':
-        permissions = {
-          invoices: { create: true, read: true, update: true, delete: false },
-          customers: { create: true, read: true, update: true, delete: false },
-          products: { create: true, read: true, update: true, delete: false },
-          analytics: { read: true },
-          settings: { read: true, update: false },
-          payables: { create: true, read: true, update: true, delete: false },
-          invoices_all: { create: true, read: true, update: true, delete: false },
-          quotations: { create: true, read: true, update: true, delete: false },
-          delivery_notes: { create: true, read: true, update: true, delete: false },
-          purchase_orders: { create: true, read: true, update: true, delete: false },
-        };
-        break;
-      case 'user':
-        permissions = {
-          invoices: { create: true, read: true, update: true, delete: false },
-          customers: { create: true, read: true, update: true, delete: false },
-          products: { create: false, read: true, update: false, delete: false },
-          analytics: { read: false },
-          settings: { read: false, update: false },
-          payables: { create: false, read: true, update: false, delete: false },
-          invoices_all: { create: false, read: true, update: false, delete: false },
-          quotations: { create: false, read: true, update: false, delete: false },
-          delivery_notes: { create: false, read: true, update: false, delete: false },
-          purchase_orders: { create: false, read: true, update: false, delete: false },
-        };
-        break;
-      default: // 'viewer'
-        permissions = {
-          invoices: { create: false, read: true, update: false, delete: false },
-          customers: { create: false, read: true, update: false, delete: false },
-          products: { create: false, read: true, update: false, delete: false },
-          analytics: { read: false },
-          settings: { read: false, update: false },
-          payables: { create: false, read: true, update: false, delete: false },
-          invoices_all: { create: false, read: true, update: false, delete: false },
-          quotations: { create: false, read: true, update: false, delete: false },
-          delivery_notes: { create: false, read: true, update: false, delete: false },
-          purchase_orders: { create: false, read: true, update: false, delete: false },
-        };
-    }
-    setNewUser({ ...newUser, role, permissions });
-  };
+  // Commented out unused function - was used for legacy role-based permissions before RBAC migration
+  // const handleRoleChange = (role) => {
+  //   // Align permissions with backend defaultPermissions in routes/auth.js
+  //   let permissions;
+  //   switch (role) {
+  //     case 'admin':
+  //       permissions = {
+  //         invoices: { create: true, read: true, update: true, delete: true },
+  //         customers: { create: true, read: true, update: true, delete: true },
+  //         products: { create: true, read: true, update: true, delete: true },
+  //         analytics: { read: true },
+  //         settings: { read: true, update: true },
+  //         payables: { create: true, read: true, update: true, delete: true },
+  //         invoices_all: { create: true, read: true, update: true, delete: true },
+  //         quotations: { create: true, read: true, update: true, delete: true },
+  //         delivery_notes: { create: true, read: true, update: true, delete: true },
+  //         purchase_orders: { create: true, read: true, update: true, delete: true },
+  //       };
+  //       break;
+  //     case 'manager':
+  //       permissions = {
+  //         invoices: { create: true, read: true, update: true, delete: false },
+  //         customers: { create: true, read: true, update: true, delete: false },
+  //         products: { create: true, read: true, update: true, delete: false },
+  //         analytics: { read: true },
+  //         settings: { read: true, update: false },
+  //         payables: { create: true, read: true, update: true, delete: false },
+  //         invoices_all: { create: true, read: true, update: true, delete: false },
+  //         quotations: { create: true, read: true, update: true, delete: false },
+  //         delivery_notes: { create: true, read: true, update: true, delete: false },
+  //         purchase_orders: { create: true, read: true, update: true, delete: false },
+  //       };
+  //       break;
+  //     case 'user':
+  //       permissions = {
+  //         invoices: { create: true, read: true, update: true, delete: false },
+  //         customers: { create: true, read: true, update: true, delete: false },
+  //         products: { create: false, read: true, update: false, delete: false },
+  //         analytics: { read: false },
+  //         settings: { read: false, update: false },
+  //         payables: { create: false, read: true, update: false, delete: false },
+  //         invoices_all: { create: false, read: true, update: false, delete: false },
+  //         quotations: { create: false, read: true, update: false, delete: false },
+  //         delivery_notes: { create: false, read: true, update: false, delete: false },
+  //         purchase_orders: { create: false, read: true, update: false, delete: false },
+  //       };
+  //       break;
+  //     default: // 'viewer'
+  //       permissions = {
+  //         invoices: { create: false, read: true, update: false, delete: false },
+  //         customers: { create: false, read: true, update: false, delete: false },
+  //         products: { create: false, read: true, update: false, delete: false },
+  //         analytics: { read: false },
+  //         settings: { read: false, update: false },
+  //         payables: { create: false, read: true, update: false, delete: false },
+  //         invoices_all: { create: false, read: true, update: false, delete: false },
+  //         quotations: { create: false, read: true, update: false, delete: false },
+  //         delivery_notes: { create: false, read: true, update: false, delete: false },
+  //         purchase_orders: { create: false, read: true, update: false, delete: false },
+  //       };
+  //   }
+  //   setNewUser({ ...newUser, role, permissions });
+  // };
 
-  // Edit user handlers
-  const openEditUser = (user) => {
-    // Ensure new modules exist in permissions for editing visibility
-    const ensureModules = (p) => {
-      const base = { ...p };
-      const mods = ['invoices','invoices_all','purchase_orders','delivery_notes','quotations','payables','customers','products','analytics','settings'];
-      for (const m of mods) {
-        if (base[m] === undefined) base[m] = { read: false };
-      }
-      return base;
-    };
-    setEditUserModal({
-      open: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-        permissions: ensureModules(JSON.parse(JSON.stringify(user.permissions || {}))),
-      },
-    });
-  };
+  // Edit user handlers - Commented out unused functions - eslint no-unused-vars
+  // const openEditUser = (user) => {
+  //   // Ensure new modules exist in permissions for editing visibility
+  //   const ensureModules = (p) => {
+  //     const base = { ...p };
+  //     const mods = ['invoices','invoices_all','purchase_orders','delivery_notes','quotations','payables','customers','products','analytics','settings'];
+  //     for (const m of mods) {
+  //       if (base[m] === undefined) base[m] = { read: false };
+  //     }
+  //     return base;
+  //   };
+  //   setEditUserModal({
+  //     open: true,
+  //     user: {
+  //       id: user.id,
+  //       name: user.name,
+  //       email: user.email,
+  //       role: user.role,
+  //       currentPassword: '',
+  //       newPassword: '',
+  //       confirmPassword: '',
+  //       permissions: ensureModules(JSON.parse(JSON.stringify(user.permissions || {}))),
+  //     },
+  //   });
+  // };
 
-  const setEditPermission = (module, action, value) => {
-    setEditUserModal(prev => ({
-      ...prev,
-      user: {
-        ...prev.user,
-        permissions: {
-          ...prev.user.permissions,
-          [module]: { ...(prev.user.permissions?.[module] || {}), [action]: value },
-        },
-      },
-    }));
-  };
+  // const setEditPermission = (module, action, value) => {
+  //   setEditUserModal(prev => ({
+  //     ...prev,
+  //     user: {
+  //       ...prev.user,
+  //       permissions: {
+  //         ...prev.user.permissions,
+  //         [module]: { ...(prev.user.permissions?.[module] || {}), [action]: value },
+  //       },
+  //     },
+  //   }));
+  // };
 
-  const handleEditRoleChange = (role) => {
-    // reuse role mapping
-    setNewUser({ ...newUser, role });
-    // apply to edit user by invoking mapping and copying
-    const snapshot = { ...newUser, role };
-    // build permissions by calling handleRoleChange-like map
-    let perms;
-    switch (role) {
-      case 'admin':
-        perms = {
-          invoices: { create: true, read: true, update: true, delete: true },
-          customers: { create: true, read: true, update: true, delete: true },
-          products: { create: true, read: true, update: true, delete: true },
-          analytics: { read: true },
-          settings: { read: true, update: true },
-          payables: { create: true, read: true, update: true, delete: true },
-          invoices_all: { create: true, read: true, update: true, delete: true },
-          quotations: { create: true, read: true, update: true, delete: true },
-          delivery_notes: { create: true, read: true, update: true, delete: true },
-          purchase_orders: { create: true, read: true, update: true, delete: true },
-        };
-        break;
-      case 'manager':
-        perms = {
-          invoices: { create: true, read: true, update: true, delete: false },
-          customers: { create: true, read: true, update: true, delete: false },
-          products: { create: true, read: true, update: true, delete: false },
-          analytics: { read: true },
-          settings: { read: true, update: false },
-          payables: { create: true, read: true, update: true, delete: false },
-          invoices_all: { create: true, read: true, update: true, delete: false },
-          quotations: { create: true, read: true, update: true, delete: false },
-          delivery_notes: { create: true, read: true, update: true, delete: false },
-          purchase_orders: { create: true, read: true, update: true, delete: false },
-        };
-        break;
-      case 'user':
-        perms = {
-          invoices: { create: true, read: true, update: true, delete: false },
-          customers: { create: true, read: true, update: true, delete: false },
-          products: { create: false, read: true, update: false, delete: false },
-          analytics: { read: false },
-          settings: { read: false, update: false },
-          payables: { create: false, read: true, update: false, delete: false },
-          invoices_all: { create: false, read: true, update: false, delete: false },
-          quotations: { create: false, read: true, update: false, delete: false },
-          delivery_notes: { create: false, read: true, update: false, delete: false },
-          purchase_orders: { create: false, read: true, update: false, delete: false },
-        };
-        break;
-      default:
-        perms = {
-          invoices: { create: false, read: true, update: false, delete: false },
-          customers: { create: false, read: true, update: false, delete: false },
-          products: { create: false, read: true, update: false, delete: false },
-          analytics: { read: false },
-          settings: { read: false, update: false },
-          payables: { create: false, read: true, update: false, delete: false },
-          invoices_all: { create: false, read: true, update: false, delete: false },
-          quotations: { create: false, read: true, update: false, delete: false },
-          delivery_notes: { create: false, read: true, update: false, delete: false },
-          purchase_orders: { create: false, read: true, update: false, delete: false },
-        };
-    }
-    setEditUserModal(prev => ({ ...prev, user: { ...prev.user, role, permissions: perms } }));
-  };
+  // const handleEditRoleChange = (role) => {
+  //   // reuse role mapping
+  //   setNewUser({ ...newUser, role });
+  //   // apply to edit user by invoking mapping and copying
+  //   const snapshot = { ...newUser, role };
+  //   // build permissions by calling handleRoleChange-like map
+  //   let perms;
+  //   switch (role) {
+  //     case 'admin':
+  //       perms = {
+  //         invoices: { create: true, read: true, update: true, delete: true },
+  //         customers: { create: true, read: true, update: true, delete: true },
+  //         products: { create: true, read: true, update: true, delete: true },
+  //         analytics: { read: true },
+  //         settings: { read: true, update: true },
+  //         payables: { create: true, read: true, update: true, delete: true },
+  //         invoices_all: { create: true, read: true, update: true, delete: true },
+  //         quotations: { create: true, read: true, update: true, delete: true },
+  //         delivery_notes: { create: true, read: true, update: true, delete: true },
+  //         purchase_orders: { create: true, read: true, update: true, delete: true },
+  //       };
+  //       break;
+  //     case 'manager':
+  //       perms = {
+  //         invoices: { create: true, read: true, update: true, delete: false },
+  //         customers: { create: true, read: true, update: true, delete: false },
+  //         products: { create: true, read: true, update: true, delete: false },
+  //         analytics: { read: true },
+  //         settings: { read: true, update: false },
+  //         payables: { create: true, read: true, update: true, delete: false },
+  //         invoices_all: { create: true, read: true, update: true, delete: false },
+  //         quotations: { create: true, read: true, update: true, delete: false },
+  //         delivery_notes: { create: true, read: true, update: true, delete: false },
+  //         purchase_orders: { create: true, read: true, update: true, delete: false },
+  //       };
+  //       break;
+  //     case 'user':
+  //       perms = {
+  //         invoices: { create: true, read: true, update: true, delete: false },
+  //         customers: { create: true, read: true, update: true, delete: false },
+  //         products: { create: false, read: true, update: false, delete: false },
+  //         analytics: { read: false },
+  //         settings: { read: false, update: false },
+  //         payables: { create: false, read: true, update: false, delete: false },
+  //         invoices_all: { create: false, read: true, update: false, delete: false },
+  //         quotations: { create: false, read: true, update: false, delete: false },
+  //         delivery_notes: { create: false, read: true, update: false, delete: false },
+  //         purchase_orders: { create: false, read: true, update: false, delete: false },
+  //       };
+  //       break;
+  //     default:
+  //       perms = {
+  //         invoices: { create: false, read: true, update: false, delete: false },
+  //         customers: { create: false, read: true, update: false, delete: false },
+  //         products: { create: false, read: true, update: false, delete: false },
+  //         analytics: { read: false },
+  //         settings: { read: false, update: false },
+  //         payables: { create: false, read: true, update: false, delete: false },
+  //         invoices_all: { create: false, read: true, update: false, delete: false },
+  //         quotations: { create: false, read: true, update: false, delete: false },
+  //         delivery_notes: { create: false, read: true, update: false, delete: false },
+  //         purchase_orders: { create: false, read: true, update: false, delete: false },
+  //       };
+  //   }
+  //   setEditUserModal(prev => ({ ...prev, user: { ...prev.user, role, permissions: perms } }));
+  // };
 
-  const saveEditUser = async () => {
-    try {
-      const currentUser = authService.getUser();
-      const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
+  // const saveEditUser = async () => {
+  //   try {
+  //     const currentUser = authService.getUser();
+  //     const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
 
-      // Handle password change: self requires current+new+confirm; admin-reset allows new+confirm only
-      if (editUserModal.user.newPassword || editUserModal.user.currentPassword || editUserModal.user.confirmPassword) {
-        if (!editUserModal.user.newPassword || !editUserModal.user.confirmPassword) {
-          notificationService.error('Please enter new and confirm password');
-          return;
-        }
-        if (editUserModal.user.newPassword !== editUserModal.user.confirmPassword) {
-          notificationService.error('New password and confirm password do not match');
-          return;
-        }
-        if (isSelf) {
-          if (!editUserModal.user.currentPassword) {
-            notificationService.error('Please enter your current password');
-            return;
-          }
-          // Call self password change endpoint
-          await apiService.post('/auth/change-password', {
-            currentPassword: editUserModal.user.currentPassword,
-            newPassword: editUserModal.user.newPassword,
-          });
-        } else {
-          // Admin reset password via admin users API
-          await userAdminAPI.update(editUserModal.user.id, { password: editUserModal.user.newPassword });
-        }
-      }
+  //     // Handle password change: self requires current+new+confirm; admin-reset allows new+confirm only
+  //     if (editUserModal.user.newPassword || editUserModal.user.currentPassword || editUserModal.user.confirmPassword) {
+  //       if (!editUserModal.user.newPassword || !editUserModal.user.confirmPassword) {
+  //         notificationService.error('Please enter new and confirm password');
+  //         return;
+  //       }
+  //       if (editUserModal.user.newPassword !== editUserModal.user.confirmPassword) {
+  //         notificationService.error('New password and confirm password do not match');
+  //         return;
+  //       }
+  //       if (isSelf) {
+  //         if (!editUserModal.user.currentPassword) {
+  //           notificationService.error('Please enter your current password');
+  //           return;
+  //         }
+  //         // Call self password change endpoint
+  //         await apiService.post('/auth/change-password', {
+  //           currentPassword: editUserModal.user.currentPassword,
+  //           newPassword: editUserModal.user.newPassword,
+  //         });
+  //       } else {
+  //         // Admin reset password via admin users API
+  //         await userAdminAPI.update(editUserModal.user.id, { password: editUserModal.user.newPassword });
+  //       }
+  //     }
 
-      // Update role/permissions if changed
-      await userAdminAPI.update(editUserModal.user.id, {
-        role: editUserModal.user.role,
-        permissions: editUserModal.user.permissions,
-      });
-      notificationService.success('User updated successfully');
-      const remoteUsers = await userAdminAPI.list();
-      const mapped = remoteUsers.map(u => ({
-        id: String(u.id),
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        status: u.status || 'active',
-        createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
-        lastLogin: u.lastLogin || u.lastLogin || null,
-        permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
-      }));
-      setUsers(mapped);
-      setEditUserModal({ open: false, user: null });
-    } catch (e) {
-      notificationService.error(e?.response?.data?.error || e?.message || 'Failed to update user');
-    }
-  };
+  //     // Update role/permissions if changed
+  //     await userAdminAPI.update(editUserModal.user.id, {
+  //       role: editUserModal.user.role,
+  //       permissions: editUserModal.user.permissions,
+  //     });
+  //     notificationService.success('User updated successfully');
+  //     const remoteUsers = await userAdminAPI.list();
+  //     const mapped = remoteUsers.map(u => ({
+  //       id: String(u.id),
+  //       name: u.name,
+  //       email: u.email,
+  //       role: u.role,
+  //       status: u.status || 'active',
+  //       createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
+  //       lastLogin: u.lastLogin || u.lastLogin || null,
+  //       permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
+  //     }));
+  //     setUsers(mapped);
+  //     setEditUserModal({ open: false, user: null });
+  //   } catch (e) {
+  //     notificationService.error(e?.response?.data?.error || e?.message || 'Failed to update user');
+  //   }
+  // };
 
   const renderProfile = () => (
     <SettingsPaper className="max-w-3xl">
@@ -1998,19 +1954,19 @@ const CompanySettings = () => {
                           </div>
                         ) : companyProfile.logoUrl ? (
                           <div className="relative w-full h-full">
-                            {console.log('Rendering logo with URL:', companyProfile.logoUrl)}
+                            {/* {console.log('Rendering logo with URL:', companyProfile.logoUrl)} */}
                             <img
                               src={`${companyProfile.logoUrl}?t=${Date.now()}`}
                               alt="Company Logo"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
-                              onLoad={() => console.log('Logo loaded successfully:', companyProfile.logoUrl)}
+                              onLoad={() => {/* console.log('Logo loaded successfully:', companyProfile.logoUrl) */}}
                               onError={(e) => {
                                 console.error('Logo failed to load:', companyProfile.logoUrl, e);
                                 console.error('Image load error details:', e.type, e.target?.src);
                                 // Try to reload without cache-busting query first
                                 if (e.target.src.includes('?t=')) {
-                                  console.log('Retrying without cache-busting query...');
+                                  // console.log('Retrying without cache-busting query...');
                                   e.target.src = companyProfile.logoUrl;
                                 } else {
                                   // If that also fails, show upload option
@@ -2343,7 +2299,7 @@ const CompanySettings = () => {
   );
 
   const renderVatSettings = () => {
-    console.log('renderVatSettings called - VATRulesHelpPanel should render');
+    // console.log('renderVatSettings called - VATRulesHelpPanel should render');
     return (
       <div className="flex flex-col lg:flex-row gap-6 lg:min-h-[600px]">
         {/* Left Column - VAT Configuration (60%) */}
@@ -2439,7 +2395,7 @@ const CompanySettings = () => {
                         </div>
 
                         <div className="flex items-center gap-3 ml-4">
-                          <label className="relative inline-flex items-center cursor-pointer">
+                          <label className="relative inline-flex items-center cursor-pointer" aria-label={`Toggle ${vatRate.name} active status`}>
                             <input
                               type="checkbox"
                               checked={vatRate.active}
@@ -3001,11 +2957,12 @@ const CompanySettings = () => {
                 <Switch
                   checked={roleFormData.isDirector}
                   onChange={(e) => setRoleFormData({ ...roleFormData, isDirector: e.target.checked })}
+                  label="Director Role"
                 />
                 <div>
-                  <label className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Director Role
-                  </label>
+                  </span>
                   <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     Grants elevated privileges and access to sensitive operations
                   </p>
@@ -3106,13 +3063,16 @@ const CompanySettings = () => {
 
               {/* Multi-Role Selection */}
               <div className="mt-6">
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                <div className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
                   Assign Roles (select multiple) <span className="text-red-500">*</span>
-                </label>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map(role => (
                     <div
                       key={role.id}
+                      role="checkbox"
+                      tabIndex={0}
+                      aria-checked={selectedUserRoles.includes(role.id)}
                       onClick={() => {
                         const isSelected = selectedUserRoles.includes(role.id);
                         if (isSelected) {
@@ -3122,6 +3082,20 @@ const CompanySettings = () => {
                         }
                         if (userValidationErrors.roles) {
                           setUserValidationErrors({...userValidationErrors, roles: null});
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          const isSelected = selectedUserRoles.includes(role.id);
+                          if (isSelected) {
+                            setSelectedUserRoles(selectedUserRoles.filter(id => id !== role.id));
+                          } else {
+                            setSelectedUserRoles([...selectedUserRoles, role.id]);
+                          }
+                          if (userValidationErrors.roles) {
+                            setUserValidationErrors({...userValidationErrors, roles: null});
+                          }
                         }
                       }}
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
@@ -3295,9 +3269,9 @@ const CompanySettings = () => {
 
               {/* Multi-Role Selection */}
               <div className="mt-6">
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                <div className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
                   Assigned Roles (select multiple) <span className="text-red-500">*</span>
-                </label>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map(role => (
                     <div
@@ -3310,6 +3284,20 @@ const CompanySettings = () => {
                           setSelectedUserRoles([...selectedUserRoles, role.id]);
                         }
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          const isSelected = selectedUserRoles.includes(role.id);
+                          if (isSelected) {
+                            setSelectedUserRoles(selectedUserRoles.filter(id => id !== role.id));
+                          } else {
+                            setSelectedUserRoles([...selectedUserRoles, role.id]);
+                          }
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={selectedUserRoles.includes(role.id)}
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                         selectedUserRoles.includes(role.id)
                           ? isDarkMode
@@ -3469,10 +3457,11 @@ const CompanySettings = () => {
 
                 {/* Search Box */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  <label htmlFor="permission-search" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
                     Search Permissions
                   </label>
                   <input
+                    id="permission-search"
                     type="text"
                     value={permissionSearch}
                     onChange={(e) => setPermissionSearch(e.target.value)}
@@ -3487,9 +3476,9 @@ const CompanySettings = () => {
 
                 {/* Permission Checklist */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  <div className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
                     Select Permissions
-                  </label>
+                  </div>
                   <div className={`border rounded-lg max-h-64 overflow-y-auto ${
                     isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white'
                   }`}>
@@ -3533,6 +3522,15 @@ const CompanySettings = () => {
                                   isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                                 }`}
                                 onClick={() => setExpandedModules(prev => ({ ...prev, [module]: !isExpanded }))}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setExpandedModules(prev => ({ ...prev, [module]: !isExpanded }));
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-expanded={isExpanded}
                               >
                                 <div className="flex items-center flex-1">
                                   <input
@@ -3572,6 +3570,7 @@ const CompanySettings = () => {
                                       className={`flex items-start p-3 pl-10 cursor-pointer transition-colors ${
                                         isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
                                       }`}
+                                      aria-label={perm.description}
                                     >
                                       <input
                                         type="checkbox"
@@ -3613,10 +3612,11 @@ const CompanySettings = () => {
                 />
 
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  <label htmlFor="permission-expires-at" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
                     Expires At (optional)
                   </label>
                   <input
+                    id="permission-expires-at"
                     type="datetime-local"
                     value={customPermission.expiresAt || ''}
                     onChange={(e) => setCustomPermission({...customPermission, expires_at: e.target.value})}
@@ -3986,10 +3986,11 @@ const CompanySettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Receipt Size */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="receipt-size" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Size
               </label>
               <select
+                id="receipt-size"
                 value={printingSettings.receipt_size || 'A5'}
                 onChange={(e) => setPrintingSettings({...printingSettings, receipt_size: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
@@ -4009,10 +4010,11 @@ const CompanySettings = () => {
 
             {/* Print On Paper Size */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="print-on-paper-size" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Print On Paper Size
               </label>
               <select
+                id="print-on-paper-size"
                 value={printingSettings.print_on_paper_size || 'A4'}
                 onChange={(e) => setPrintingSettings({...printingSettings, print_on_paper_size: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
@@ -4047,10 +4049,11 @@ const CompanySettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Receipt Printer */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="receipt-printer" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Printer
               </label>
               <select
+                id="receipt-printer"
                 value={printingSettings.receipt_printer || 'default'}
                 onChange={(e) => setPrintingSettings({...printingSettings, receipt_printer: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
@@ -4070,10 +4073,11 @@ const CompanySettings = () => {
 
             {/* Invoice Printer */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="invoice-printer" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Invoice Printer
               </label>
               <select
+                id="invoice-printer"
                 value={printingSettings.invoice_printer || 'default'}
                 onChange={(e) => setPrintingSettings({...printingSettings, invoice_printer: e.target.value})}
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
@@ -4108,10 +4112,11 @@ const CompanySettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Receipt Copies */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="receipt-copies" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Receipt Copies
               </label>
               <input
+                id="receipt-copies"
                 type="number"
                 min="1"
                 max="5"
@@ -4130,10 +4135,11 @@ const CompanySettings = () => {
 
             {/* Invoice Copies */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="invoice-copies" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Invoice Copies
               </label>
               <input
+                id="invoice-copies"
                 type="number"
                 min="1"
                 max="5"
@@ -4152,9 +4158,9 @@ const CompanySettings = () => {
 
             {/* Auto Print */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <div className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Auto Print
-              </label>
+              </div>
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -4521,7 +4527,7 @@ const CompanySettings = () => {
   ];
 
   // Debug logging
-  console.log('CompanySettings isDarkMode:', isDarkMode);
+  // console.log('CompanySettings isDarkMode:', isDarkMode);
 
   return (
     <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
@@ -4552,6 +4558,7 @@ const CompanySettings = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
+                  role="tab"
                   aria-selected={isActive}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 ${
                     isDarkMode

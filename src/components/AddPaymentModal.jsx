@@ -167,6 +167,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           {/* Payment Date */}
           <div>
             <label
+              htmlFor="payment-date"
               className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -174,6 +175,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Payment Date <span className="text-red-500">*</span>
             </label>
             <input
+              id="payment-date"
               type="date"
               value={payment.date}
               onChange={(e) =>
@@ -190,6 +192,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           {/* Amount */}
           <div>
             <label
+              htmlFor="payment-amount"
               className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -197,6 +200,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Amount (AED) <span className="text-red-500">*</span>
             </label>
             <input
+              id="payment-amount"
               type="number"
               value={payment.amount}
               onChange={(e) =>
@@ -222,6 +226,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           {/* Payment Mode */}
           <div>
             <label
+              htmlFor="payment-mode"
               className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -229,6 +234,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Payment Mode <span className="text-red-500">*</span>
             </label>
             <select
+              id="payment-mode"
               value={payment.paymentMethod}
               onChange={(e) =>
                 setPayment((prev) => ({
@@ -254,6 +260,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           {/* Reference Number */}
           <div>
             <label
+              htmlFor="payment-reference"
               className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -264,6 +271,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               )}
             </label>
             <input
+              id="payment-reference"
               type="text"
               value={payment.referenceNumber}
               onChange={(e) =>
@@ -289,6 +297,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           {/* Notes */}
           <div>
             <label
+              htmlFor="payment-notes"
               className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -296,6 +305,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               Notes
             </label>
             <textarea
+              id="payment-notes"
               value={payment.notes}
               onChange={(e) =>
                 setPayment((prev) => ({ ...prev, notes: e.target.value }))

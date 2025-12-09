@@ -5,7 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: true,
+    // Open Chrome with remote debugging enabled (port 9222 for DevTools MCP)
+    open: {
+      app: {
+        name: 'chrome',
+        arguments: ['--remote-debugging-port=9222'],
+      },
+    },
     port: 5173,
     host: '0.0.0.0',
     proxy: {

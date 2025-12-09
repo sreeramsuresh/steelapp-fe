@@ -954,7 +954,7 @@ export default function PriceListForm() {
                                       onClick={() => setSelectedProduct(product)}
                                       className={`font-medium text-sm text-left hover:text-teal-500 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                     >
-                                      {product.displayName || product.display_name || 'N/A'}
+                                      {product.uniqueName || product.unique_name || 'N/A'}
                                     </button>
                                     <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                                       {product.isImported || product.is_imported

@@ -314,14 +314,47 @@ const Receivables = () => {
     else if (newOutstanding < invoiceAmount) newStatus = 'partially_paid';
     const derived = { received: newReceived, outstanding: newOutstanding, status: newStatus };
     const updatedInv = { ...updated, ...derived };
+    // Store original state for rollback
+    const originalInv = inv;
+
+    // Optimistic UI update
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
+
     try {
       // Send standardized payload to API
       await invoiceService.addInvoicePayment(inv.id, apiPayload);
+
+      notificationService.success('Payment recorded successfully!');
+
+      // Fetch fresh data to get backend-generated receipt number
+      const freshData = await invoiceService.getInvoice(inv.id);
+      const freshComputed = {
+        received: freshData.received || newReceived,
+        outstanding: freshData.outstanding || newOutstanding,
+        status: freshData.payment_status || freshData.paymentStatus || newStatus,
+        invoiceAmount: freshData.invoiceAmount || freshData.total || invoiceAmount,
+      };
+      const freshInv = { ...freshData, ...freshComputed };
+      setDrawer({ open: true, item: freshInv });
+      setItems(prev => prev.map(i => i.id === inv.id ? freshInv : i));
     } catch (e) {
-      // Ignore - optimistic UI already updated, backend error doesn&apos;t affect display
-      console.warn('Failed to persist payment to backend:', e.message);
+      // Error - show notification and reload fresh data
+      console.error('Failed to persist payment to backend:', e);
+      const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message || 'Failed to record payment';
+      notificationService.error(errorMsg);
+
+      // Reload fresh data to restore correct state
+      try {
+        const freshData = await invoiceService.getInvoice(inv.id);
+        setDrawer({ open: true, item: freshData });
+        setItems(prev => prev.map(i => i.id === inv.id ? freshData : i));
+      } catch (reloadErr) {
+        console.error('Error reloading invoice:', reloadErr);
+        // Fallback to original state if reload fails
+        setDrawer({ open: true, item: originalInv });
+        setItems(prev => prev.map(i => i.id === inv.id ? originalInv : i));
+      }
     } finally {
       setIsSavingPayment(false);
     }
@@ -343,13 +376,31 @@ const Receivables = () => {
     const outstanding = Math.max(0, +(invoiceAmount-received).toFixed(2));
     let status = 'unpaid'; if (outstanding === 0) status='paid'; else if (outstanding < invoiceAmount) status='partially_paid';
     const updatedInv = { ...updated, received, outstanding, status };
+    // Optimistic UI update
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
+
     try {
       await invoiceService.voidInvoicePayment(inv.id, last.id, 'User void via UI');
-    } catch(e){
-      // Ignore - optimistic UI already voided payment, backend error doesn&apos;t affect display
-      console.warn('Failed to persist void to backend:', e.message);
+      notificationService.success('Payment voided successfully');
+
+      // Fetch fresh data
+      const freshData = await invoiceService.getInvoice(inv.id);
+      setDrawer({ open: true, item: freshData });
+      setItems(prev => prev.map(i => i.id === inv.id ? freshData : i));
+    } catch (e) {
+      console.error('Failed to persist void to backend:', e);
+      const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message || 'Failed to void payment';
+      notificationService.error(errorMsg);
+
+      // Reload fresh data to restore correct state
+      try {
+        const freshData = await invoiceService.getInvoice(inv.id);
+        setDrawer({ open: true, item: freshData });
+        setItems(prev => prev.map(i => i.id === inv.id ? freshData : i));
+      } catch (reloadErr) {
+        console.error('Error reloading invoice:', reloadErr);
+      }
     }
   };
 
@@ -389,6 +440,7 @@ const Receivables = () => {
       status,
     };
 
+    // Optimistic UI update
     setDrawer({ open: true, item: updatedInv });
     setItems(prev => prev.map(i => i.id === inv.id ? updatedInv : i));
 
@@ -397,9 +449,24 @@ const Receivables = () => {
       setVoidDropdownPaymentId(null);
       setVoidCustomReason('');
       notificationService.success('Payment voided successfully');
+
+      // Fetch fresh data
+      const freshData = await invoiceService.getInvoice(inv.id);
+      setDrawer({ open: true, item: freshData });
+      setItems(prev => prev.map(i => i.id === inv.id ? freshData : i));
     } catch (error) {
       console.error('Error voiding payment:', error);
-      notificationService.error('Failed to void payment');
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to void payment';
+      notificationService.error(errorMsg);
+
+      // Reload fresh data to restore correct state
+      try {
+        const freshData = await invoiceService.getInvoice(inv.id);
+        setDrawer({ open: true, item: freshData });
+        setItems(prev => prev.map(i => i.id === inv.id ? freshData : i));
+      } catch (reloadErr) {
+        console.error('Error reloading invoice:', reloadErr);
+      }
     } finally {
       setIsVoidingPayment(false);
     }

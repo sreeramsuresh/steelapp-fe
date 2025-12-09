@@ -45,7 +45,7 @@ const computeInvoiceDerived = (inv) => {
   else status = 'unpaid';
   const overdue = (dueDate < today) && outstanding > 0;
   if (overdue) status = 'overdue';
-  return { received, outstanding, status };
+  return { received, outstanding, status, invoiceAmount: total };
 };
 
 const computePODerived = (po) => {

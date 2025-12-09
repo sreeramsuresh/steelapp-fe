@@ -347,7 +347,7 @@ const StockMovementForm = () => {
                     <option value="">Select a product...</option>
                     {products.map(product => (
                       <option key={product.id} value={product.id}>
-                        {product.displayName || product.display_name || 'N/A'} {product.sku ? `(${product.sku})` : ''}
+                        {product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A'} {product.sku ? `(${product.sku})` : ''}
                       </option>
                     ))}
                   </select>
@@ -361,7 +361,7 @@ const StockMovementForm = () => {
                   <div>
                     <div className="font-medium text-teal-500">
                       {selectedProduct
-                        ? (selectedProduct.fullName || selectedProduct.full_name || selectedProduct.uniqueName || selectedProduct.unique_name || selectedProduct.displayName || selectedProduct.display_name || selectedProduct.name)
+                        ? (selectedProduct.displayName || selectedProduct.display_name || selectedProduct.uniqueName || selectedProduct.unique_name || selectedProduct.name)
                         : products.find(p => p.id.toString() === formData.productId.toString())?.name || 'Product Selected'}
                     </div>
                     <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -405,7 +405,7 @@ const StockMovementForm = () => {
                           }`}
                         >
                           <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {p.fullName || p.full_name || p.uniqueName || p.unique_name || p.displayName || p.display_name || p.name}
+                            {p.displayName || p.display_name || p.uniqueName || p.unique_name || p.name}
                           </div>
                           <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             {p.origin ? `${p.origin} | ` : ''}{p.category} {p.grade ? `| ${p.grade}` : ''} {p.size ? `| ${p.size}` : ''}

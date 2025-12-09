@@ -264,7 +264,11 @@ describe('Credit Note Integration Tests', () => {
       await userEvent.clear(manualCreditInput);
       await userEvent.type(manualCreditInput, '500');
 
-      // Step 4: Save draft explicitly (skip localStorage auto-save check since hook is mocked)
+      // Step 4: Select settlement method (required when manual credit amount > 0)
+      const settlementMethodSelect = screen.getByDisplayValue('Select settlement method...');
+      await userEvent.selectOptions(settlementMethodSelect, 'credit_adjustment');
+
+      // Step 5: Save draft explicitly (skip localStorage auto-save check since hook is mocked)
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       await userEvent.click(saveDraftButton);
 
@@ -273,10 +277,11 @@ describe('Credit Note Integration Tests', () => {
         expect(mockCreateCreditNote).toHaveBeenCalled();
       });
 
-      // Step 6: Verify saved data
+      // Step 7: Verify saved data
       const callArgs = mockCreateCreditNote.mock.calls[0][0];
       expect(callArgs.manualCreditAmount).toBe(500);
       expect(callArgs.reasonForReturn).toBe('goodwill_credit');
+      expect(callArgs.refundMethod).toBe('credit_adjustment');
       expect(callArgs.status).toBe('draft');
       expect(callArgs.invoiceId).toBe(337);
     });
@@ -298,6 +303,7 @@ describe('Credit Note Integration Tests', () => {
           reasonForReturn: 'goodwill_credit',
           creditNoteType: 'ACCOUNTING_ONLY',
           manualCreditAmount: 500,
+          refundMethod: 'credit_adjustment',
           items: mockInvoice.items.map(item => ({
             ...item,
             selected: false,
@@ -316,7 +322,7 @@ describe('Credit Note Integration Tests', () => {
       // Configure mock to return a draft conflict
       mockCheckConflict.mockReturnValue({
         type: 'same_invoice',
-        existingDraft: existingDraft,
+        existingDraft,
         allDrafts: [existingDraft],
       });
 
@@ -383,6 +389,8 @@ describe('Credit Note Integration Tests', () => {
         creditNoteDate: '2025-12-04T20:00:00.000Z', // ISO from backend
         status: 'draft',
         reasonForReturn: 'overcharge',
+        creditNoteType: 'ACCOUNTING_ONLY',
+        manualCreditAmount: 0,
         items: [],
         customer: mockInvoice.customer,
       };
@@ -409,11 +417,18 @@ describe('Credit Note Integration Tests', () => {
       await userEvent.clear(manualCreditInput);
       await userEvent.type(manualCreditInput, '100');
 
-      // Step 3: Save
+      // Step 3: Wait for and select settlement method (appears after manual credit amount > 0)
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Select settlement method...')).toBeInTheDocument();
+      });
+      const settlementMethodSelect = screen.getByDisplayValue('Select settlement method...');
+      await userEvent.selectOptions(settlementMethodSelect, 'credit_adjustment');
+
+      // Step 4: Save
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       await userEvent.click(saveDraftButton);
 
-      // Step 4: Verify date maintained in save
+      // Step 5: Verify date maintained in save
       await waitFor(() => {
         expect(mockUpdateCreditNote).toHaveBeenCalled();
         const callArgs = mockUpdateCreditNote.mock.calls[0][1];
@@ -485,6 +500,10 @@ describe('Credit Note Integration Tests', () => {
       await userEvent.clear(manualCreditInput);
       await userEvent.type(manualCreditInput, '500');
 
+      // Select settlement method (required when manual credit amount > 0)
+      const settlementMethodSelect = screen.getByDisplayValue('Select settlement method...');
+      await userEvent.selectOptions(settlementMethodSelect, 'credit_adjustment');
+
       // Save
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       await userEvent.click(saveDraftButton);
@@ -529,6 +548,10 @@ describe('Credit Note Integration Tests', () => {
       const manualCreditInput = screen.getByTestId('manual-credit-amount');
       await userEvent.clear(manualCreditInput);
       await userEvent.type(manualCreditInput, '500');
+
+      // Select settlement method (required when manual credit amount > 0)
+      const settlementMethodSelect = screen.getByDisplayValue('Select settlement method...');
+      await userEvent.selectOptions(settlementMethodSelect, 'credit_adjustment');
 
       // Click "Issue Tax Document" instead of "Save Draft"
       const issueButton = screen.getByRole('button', { name: /issue tax document/i });
