@@ -229,7 +229,7 @@ const commissionService = {
 
       // Calculate summary
       const totalEarned = parseFloat(stats.total_commission_earned || stats.totalCommissionEarned || 0);
-      const approvedAmount = parseFloat(stats.total_commission_approved || stats.totalCommissionApproved || 0);
+      const _approvedAmount = parseFloat(stats.total_commission_approved || stats.totalCommissionApproved || 0);
       const paidAmount = parseFloat(stats.total_commission_paid || stats.totalCommissionPaid || 0);
       const pendingAmount = totalEarned - paidAmount;
 
