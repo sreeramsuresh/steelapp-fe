@@ -13,8 +13,14 @@
 export interface Product {
   // Core identifiers
   id: number;
-  name: string;
-  fullName?: string;
+  
+  // SSOT Naming Fields (canonical product naming)
+  uniqueName?: string;       // Technical identifier: SS-304-Sheet-2B-1220mm-1.5mm-2440mm (with origin)
+  displayName?: string;      // User-friendly display name (without origin, for invoices/documents)
+  
+  // Legacy naming fields (keep for backward compatibility)
+  name: string;              // Deprecated: use displayName instead
+  fullName?: string;         // Deprecated: use uniqueName instead
   title?: string;
   description?: string;
   

@@ -45,6 +45,7 @@ export const createSteelItem = () => ({
   vatRate: 5, // TRN Rate
   netAmount: 0,
   serialNumber: '',
+  sourceType: 'WAREHOUSE', // Default to warehouse stock
 });
 
 export const createInvoice = () => ({

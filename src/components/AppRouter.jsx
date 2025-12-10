@@ -41,6 +41,9 @@ import ExportOrderForm from '../pages/ExportOrderForm';
 import ExportOrderDetails from '../pages/ExportOrderDetails';
 import TransitList from '../pages/TransitList';
 
+// Container Management Components
+import { ContainerList } from '../pages/containers';
+
 // Finance Components
 import FinanceDashboard from '../pages/FinanceDashboard';
 
@@ -85,6 +88,10 @@ import ARAgingReport from '../pages/ARAgingReport';
 // Masters Components
 import CountriesList from '../pages/CountriesList';
 import ExchangeRateList from '../pages/ExchangeRateList';
+
+// Supplier Components (Phase 4 Procurement)
+import { SupplierList } from '../pages/SupplierList';
+import { SupplierForm } from '../pages/SupplierForm';
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
@@ -588,6 +595,34 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           }
         />
 
+        {/* Supplier Management Routes (Phase 4 Procurement) */}
+        <Route
+          path="/suppliers"
+          element={
+            <ProtectedRoute user={user} requiredPermission="suppliers.read">
+              <SupplierList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/suppliers/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="suppliers.create">
+              <SupplierForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/suppliers/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="suppliers.update">
+              <SupplierForm />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Phase 4: Delivery Variance Dashboard */}
         <Route
           path="/dashboards/delivery-variance"
@@ -745,6 +780,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="import_orders.read">
               <TransitList />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Container Management Routes */}
+        <Route
+          path="/containers"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.read">
+              <ContainerList />
             </ProtectedRoute>
           }
         />

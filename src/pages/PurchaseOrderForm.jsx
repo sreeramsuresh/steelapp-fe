@@ -19,6 +19,7 @@ import { useApiData } from '../hooks/useApi';
 import { supplierService } from '../services/supplierService';
 import { notificationService } from '../services/notificationService';
 import { pinnedProductsService } from '../services/pinnedProductsService';
+import { importContainerService } from '../services/importContainerService';
 import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
 const { PAYMENT_MODES } = payablesService;
 
@@ -477,6 +478,7 @@ const PurchaseOrderForm = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  const [importContainers, setImportContainers] = useState([]);
   const [searchInputs, setSearchInputs] = useState({});
   const [payments, setPayments] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
@@ -565,6 +567,10 @@ const PurchaseOrderForm = () => {
       vatRate: 5,
       supplyType: 'standard',
       amount: 0,
+      // Procurement channel fields (v2)
+      procurementChannel: 'LOCAL',
+      importContainerId: null,
+      expectedMarginPct: 8,
     };
 
     setPurchaseOrder((prev) => {
@@ -773,10 +779,11 @@ const PurchaseOrderForm = () => {
     loadExisting();
   }, [id]);
 
-  // Fetch available products and warehouses
+  // Fetch available products, warehouses, and import containers
   useEffect(() => {
     fetchAvailableProducts();
     fetchWarehouses();
+    fetchImportContainers();
   }, []);
 
   const fetchAvailableProducts = async () => {
@@ -818,6 +825,22 @@ const PurchaseOrderForm = () => {
     ];
     setWarehouses(sampleWarehouses.filter(w => w.isActive));
     notificationService.warning('Using offline warehouse data. Some features may not work properly.');
+  };
+
+  // Fetch import containers for procurement channel selection
+  const fetchImportContainers = async () => {
+    try {
+      const response = await importContainerService.getContainers({
+        companyId: 1,
+        status: 'PENDING', // Only show containers that can receive goods
+        limit: 50,
+      });
+      const containers = response?.containers || response?.data || response || [];
+      setImportContainers(Array.isArray(containers) ? containers : []);
+    } catch (error) {
+      console.error('Failed to fetch import containers:', error);
+      setImportContainers([]);
+    }
   };
 
   // Get next PO number from server (only for new purchase orders)
@@ -1018,6 +1041,16 @@ const PurchaseOrderForm = () => {
       }
     }
 
+    // Auto-update expected margin based on procurement channel
+    if (field === 'procurementChannel') {
+      if (value === 'IMPORTED') {
+        updatedItems[index].expectedMarginPct = 18; // Default 18% for imports
+      } else {
+        updatedItems[index].expectedMarginPct = 8; // Default 8% for local
+        updatedItems[index].importContainerId = null; // Clear container reference
+      }
+    }
+
     // Calculate amount when quantity, rate, discount, or VAT changes
     if (field === 'quantity' || field === 'rate' || field === 'discount' || field === 'discountType' || field === 'vatRate' || field === 'supplyType') {
       const item = updatedItems[index];
@@ -1103,6 +1136,10 @@ const PurchaseOrderForm = () => {
           vatRate: 5,
           supplyType: 'standard',
           amount: 0,
+          // Procurement channel fields (v2)
+          procurementChannel: 'LOCAL',
+          importContainerId: null,
+          expectedMarginPct: 8, // Default 8% for LOCAL, 18% for IMPORTED
         },
       ],
     }));
@@ -2046,25 +2083,28 @@ const PurchaseOrderForm = () => {
               <table className="min-w-full table-fixed divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}">
                 <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '38%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '28%' }}>
                       Product
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
                       Qty
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
                       Rate
                     </th>
                     <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
+                      Channel
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
                       Supply Type
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '6%' }}>
                       VAT %
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '14%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
                       Amount
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '6%' }}>
                       Action
                     </th>
                   </tr>
@@ -2144,6 +2184,45 @@ const PurchaseOrderForm = () => {
                                 : 'bg-white border-gray-300 text-gray-900'
                             } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
                           />
+                        </td>
+                        {/* Procurement Channel Column */}
+                        <td className="px-2 py-2 align-middle">
+                          <div className="space-y-1">
+                            <select
+                              value={item.procurementChannel || 'LOCAL'}
+                              onChange={(e) => handleItemChange(index, 'procurementChannel', e.target.value)}
+                              className={`w-full px-2 py-1 border rounded text-xs ${
+                                isDarkMode
+                                  ? 'bg-gray-700 border-gray-600 text-white'
+                                  : 'bg-white border-gray-300 text-gray-900'
+                              } ${item.procurementChannel === 'IMPORTED' 
+                                ? isDarkMode ? 'border-emerald-600' : 'border-emerald-400'
+                                : isDarkMode ? 'border-blue-600' : 'border-blue-400'
+                              }`}
+                            >
+                              <option value="LOCAL">LOCAL</option>
+                              <option value="IMPORTED">IMPORTED</option>
+                            </select>
+                            {item.procurementChannel === 'IMPORTED' && (
+                              <select
+                                value={item.importContainerId || ''}
+                                onChange={(e) => handleItemChange(index, 'importContainerId', e.target.value || null)}
+                                className={`w-full px-2 py-1 border rounded text-xs ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-white border-gray-300 text-gray-900'
+                                }`}
+                                title="Link to import container (optional)"
+                              >
+                                <option value="">No container</option>
+                                {importContainers.map((container) => (
+                                  <option key={container.id} value={container.id}>
+                                    {container.containerNumber || `Container #${container.id}`}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <select
@@ -2293,6 +2372,53 @@ const PurchaseOrderForm = () => {
                           } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
                         />
                       </div>
+                    </div>
+
+                    {/* Procurement Channel - Mobile */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Procurement
+                        </label>
+                        <select
+                          value={item.procurementChannel || 'LOCAL'}
+                          onChange={(e) => handleItemChange(index, 'procurementChannel', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${item.procurementChannel === 'IMPORTED' 
+                            ? isDarkMode ? 'border-emerald-600' : 'border-emerald-400'
+                            : isDarkMode ? 'border-blue-600' : 'border-blue-400'
+                          }`}
+                        >
+                          <option value="LOCAL">LOCAL</option>
+                          <option value="IMPORTED">IMPORTED</option>
+                        </select>
+                      </div>
+                      {item.procurementChannel === 'IMPORTED' && (
+                        <div>
+                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            Container
+                          </label>
+                          <select
+                            value={item.importContainerId || ''}
+                            onChange={(e) => handleItemChange(index, 'importContainerId', e.target.value || null)}
+                            className={`w-full px-3 py-2 border rounded-md ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">No container</option>
+                            {importContainers.map((container) => (
+                              <option key={container.id} value={container.id}>
+                                {container.containerNumber || `#${container.id}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

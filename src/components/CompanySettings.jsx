@@ -49,7 +49,6 @@ import {
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
-import { templateService } from '../services/templateService';
 import { useApiData, useApi } from '../hooks/useApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
@@ -401,11 +400,6 @@ const CompanySettings = () => {
     [],
   );
   
-  const { data: _templatesData, loading: _loadingTemplates } = useApiData(
-    templateService.getTemplates,
-    [],
-  );
-  
   const { execute: updateCompany, loading: updatingCompany } = useApi(companyService.updateCompany);
   const { execute: uploadLogo, loading: uploadingLogo } = useApi(companyService.uploadLogo);
   const { execute: deleteLogo } = useApi(companyService.deleteLogo);
@@ -570,19 +564,7 @@ const CompanySettings = () => {
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
 
-  // Product naming system
-  const [isVerifyUnlocked, setIsVerifyUnlocked] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [lastVerificationTime, setLastVerificationTime] = useState(null);
-  // Per-product-type verification status: { productType: { status: 'not-verified'|'success'|'error', error?: string } }
-  const [productVerificationStatus, setProductVerificationStatus] = useState({
-    sheet: { status: 'not-verified' },
-    pipe: { status: 'not-verified' },
-    tube: { status: 'not-verified' },
-    coil: { status: 'not-verified' },
-    bar: { status: 'not-verified' },
-    anglebar: { status: 'not-verified' },
-  });
+  // Product naming system - templates handled in renderProductNamingSystem()
 
   // Printing settings state
   const [printingSettings, setPrintingSettings] = useState({
@@ -600,6 +582,25 @@ const CompanySettings = () => {
 
   // Image section collapse state
   const [imagesExpanded, setImagesExpanded] = useState(false);
+
+  // Product Naming Templates State (must be at top level for hooks)
+  const [displayTemplates, setDisplayTemplates] = useState({
+    product_dropdown_template: '{unique_name}',
+    document_line_template: '{unique_name}',
+    report_template: '{unique_name}',
+  });
+  const [savingTemplates, setSavingTemplates] = useState(false);
+  const [sampleProduct, setSampleProduct] = useState({
+    grade: '316',
+    form: 'Sheet',
+    finish: '2B',
+    width: '1220',
+    thickness: '1.5',
+    length: '2440',
+    origin: 'UAE',
+    mill: 'Emirates Steel',
+  });
+  const [productVerificationStatus, setProductVerificationStatus] = useState({});
 
   // Formatters
   const formatDateTime = (value) => {
@@ -829,6 +830,17 @@ const CompanySettings = () => {
       loadRoles();
     }
   }, [showManageRolesModal]);
+
+  // Load product naming templates from company data
+  useEffect(() => {
+    if (companyData) {
+      setDisplayTemplates({
+        product_dropdown_template: companyData.product_dropdown_template || '{unique_name}',
+        document_line_template: companyData.document_line_template || '{unique_name}',
+        report_template: companyData.report_template || '{unique_name}',
+      });
+    }
+  }, [companyData]);
 
   const saveCompanyProfile = async () => {
     try {
@@ -1321,49 +1333,6 @@ const CompanySettings = () => {
     }
   };
 
-  // Commented out unused function - eslint no-unused-vars
-  // const handleAddUser = async () => {
-  //   try {
-  //     const payload = {
-  //       name: newUser.name,
-  //       email: newUser.email,
-  //       password: newUser.password,
-  //       role: newUser.role,
-  //       permissions: newUser.permissions,
-  //     };
-  //     await userAdminAPI.create(payload);
-  //     notificationService.success('User created successfully!');
-  //     const remoteUsers = await userAdminAPI.list();
-  //     const mapped = remoteUsers.map(u => ({
-  //       id: String(u.id),
-  //       name: u.name,
-  //       email: u.email,
-  //       role: u.role,
-  //       status: u.status || 'active',
-  //       createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
-  //       lastLogin: u.lastLogin || u.lastLogin || null,
-  //       permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
-  //     }));
-  //     setUsers(mapped);
-  //     setNewUser({
-  //       name: '',
-  //       email: '',
-  //       role: 'user',
-  //       password: '',
-  //       permissions: {
-  //         invoices: { create: false, read: false, update: false, delete: false },
-  //         customers: { create: false, read: false, update: false, delete: false },
-  //         products: { create: false, read: false, update: false, delete: false },
-  //         analytics: { read: false },
-  //         settings: { read: false, update: false },
-  //       },
-  //     });
-  //     setShowAddUserModal(false);
-  //   } catch (e) {
-  //     notificationService.error(e?.response?.data?.error || e?.message || 'Failed to add user');
-  //   }
-  // };
-
   const handleAddVatRate = async () => {
     try {
       const vatRateData = {
@@ -1538,231 +1507,6 @@ const CompanySettings = () => {
       notificationService.error('Failed to delete role');
     }
   };
-
-  // Commented out unused function - was used for legacy role-based permissions before RBAC migration
-  // const handleRoleChange = (role) => {
-  //   // Align permissions with backend defaultPermissions in routes/auth.js
-  //   let permissions;
-  //   switch (role) {
-  //     case 'admin':
-  //       permissions = {
-  //         invoices: { create: true, read: true, update: true, delete: true },
-  //         customers: { create: true, read: true, update: true, delete: true },
-  //         products: { create: true, read: true, update: true, delete: true },
-  //         analytics: { read: true },
-  //         settings: { read: true, update: true },
-  //         payables: { create: true, read: true, update: true, delete: true },
-  //         invoices_all: { create: true, read: true, update: true, delete: true },
-  //         quotations: { create: true, read: true, update: true, delete: true },
-  //         delivery_notes: { create: true, read: true, update: true, delete: true },
-  //         purchase_orders: { create: true, read: true, update: true, delete: true },
-  //       };
-  //       break;
-  //     case 'manager':
-  //       permissions = {
-  //         invoices: { create: true, read: true, update: true, delete: false },
-  //         customers: { create: true, read: true, update: true, delete: false },
-  //         products: { create: true, read: true, update: true, delete: false },
-  //         analytics: { read: true },
-  //         settings: { read: true, update: false },
-  //         payables: { create: true, read: true, update: true, delete: false },
-  //         invoices_all: { create: true, read: true, update: true, delete: false },
-  //         quotations: { create: true, read: true, update: true, delete: false },
-  //         delivery_notes: { create: true, read: true, update: true, delete: false },
-  //         purchase_orders: { create: true, read: true, update: true, delete: false },
-  //       };
-  //       break;
-  //     case 'user':
-  //       permissions = {
-  //         invoices: { create: true, read: true, update: true, delete: false },
-  //         customers: { create: true, read: true, update: true, delete: false },
-  //         products: { create: false, read: true, update: false, delete: false },
-  //         analytics: { read: false },
-  //         settings: { read: false, update: false },
-  //         payables: { create: false, read: true, update: false, delete: false },
-  //         invoices_all: { create: false, read: true, update: false, delete: false },
-  //         quotations: { create: false, read: true, update: false, delete: false },
-  //         delivery_notes: { create: false, read: true, update: false, delete: false },
-  //         purchase_orders: { create: false, read: true, update: false, delete: false },
-  //       };
-  //       break;
-  //     default: // 'viewer'
-  //       permissions = {
-  //         invoices: { create: false, read: true, update: false, delete: false },
-  //         customers: { create: false, read: true, update: false, delete: false },
-  //         products: { create: false, read: true, update: false, delete: false },
-  //         analytics: { read: false },
-  //         settings: { read: false, update: false },
-  //         payables: { create: false, read: true, update: false, delete: false },
-  //         invoices_all: { create: false, read: true, update: false, delete: false },
-  //         quotations: { create: false, read: true, update: false, delete: false },
-  //         delivery_notes: { create: false, read: true, update: false, delete: false },
-  //         purchase_orders: { create: false, read: true, update: false, delete: false },
-  //       };
-  //   }
-  //   setNewUser({ ...newUser, role, permissions });
-  // };
-
-  // Edit user handlers - Commented out unused functions - eslint no-unused-vars
-  // const openEditUser = (user) => {
-  //   // Ensure new modules exist in permissions for editing visibility
-  //   const ensureModules = (p) => {
-  //     const base = { ...p };
-  //     const mods = ['invoices','invoices_all','purchase_orders','delivery_notes','quotations','payables','customers','products','analytics','settings'];
-  //     for (const m of mods) {
-  //       if (base[m] === undefined) base[m] = { read: false };
-  //     }
-  //     return base;
-  //   };
-  //   setEditUserModal({
-  //     open: true,
-  //     user: {
-  //       id: user.id,
-  //       name: user.name,
-  //       email: user.email,
-  //       role: user.role,
-  //       currentPassword: '',
-  //       newPassword: '',
-  //       confirmPassword: '',
-  //       permissions: ensureModules(JSON.parse(JSON.stringify(user.permissions || {}))),
-  //     },
-  //   });
-  // };
-
-  // const setEditPermission = (module, action, value) => {
-  //   setEditUserModal(prev => ({
-  //     ...prev,
-  //     user: {
-  //       ...prev.user,
-  //       permissions: {
-  //         ...prev.user.permissions,
-  //         [module]: { ...(prev.user.permissions?.[module] || {}), [action]: value },
-  //       },
-  //     },
-  //   }));
-  // };
-
-  // const handleEditRoleChange = (role) => {
-  //   // reuse role mapping
-  //   setNewUser({ ...newUser, role });
-  //   // apply to edit user by invoking mapping and copying
-  //   const snapshot = { ...newUser, role };
-  //   // build permissions by calling handleRoleChange-like map
-  //   let perms;
-  //   switch (role) {
-  //     case 'admin':
-  //       perms = {
-  //         invoices: { create: true, read: true, update: true, delete: true },
-  //         customers: { create: true, read: true, update: true, delete: true },
-  //         products: { create: true, read: true, update: true, delete: true },
-  //         analytics: { read: true },
-  //         settings: { read: true, update: true },
-  //         payables: { create: true, read: true, update: true, delete: true },
-  //         invoices_all: { create: true, read: true, update: true, delete: true },
-  //         quotations: { create: true, read: true, update: true, delete: true },
-  //         delivery_notes: { create: true, read: true, update: true, delete: true },
-  //         purchase_orders: { create: true, read: true, update: true, delete: true },
-  //       };
-  //       break;
-  //     case 'manager':
-  //       perms = {
-  //         invoices: { create: true, read: true, update: true, delete: false },
-  //         customers: { create: true, read: true, update: true, delete: false },
-  //         products: { create: true, read: true, update: true, delete: false },
-  //         analytics: { read: true },
-  //         settings: { read: true, update: false },
-  //         payables: { create: true, read: true, update: true, delete: false },
-  //         invoices_all: { create: true, read: true, update: true, delete: false },
-  //         quotations: { create: true, read: true, update: true, delete: false },
-  //         delivery_notes: { create: true, read: true, update: true, delete: false },
-  //         purchase_orders: { create: true, read: true, update: true, delete: false },
-  //       };
-  //       break;
-  //     case 'user':
-  //       perms = {
-  //         invoices: { create: true, read: true, update: true, delete: false },
-  //         customers: { create: true, read: true, update: true, delete: false },
-  //         products: { create: false, read: true, update: false, delete: false },
-  //         analytics: { read: false },
-  //         settings: { read: false, update: false },
-  //         payables: { create: false, read: true, update: false, delete: false },
-  //         invoices_all: { create: false, read: true, update: false, delete: false },
-  //         quotations: { create: false, read: true, update: false, delete: false },
-  //         delivery_notes: { create: false, read: true, update: false, delete: false },
-  //         purchase_orders: { create: false, read: true, update: false, delete: false },
-  //       };
-  //       break;
-  //     default:
-  //       perms = {
-  //         invoices: { create: false, read: true, update: false, delete: false },
-  //         customers: { create: false, read: true, update: false, delete: false },
-  //         products: { create: false, read: true, update: false, delete: false },
-  //         analytics: { read: false },
-  //         settings: { read: false, update: false },
-  //         payables: { create: false, read: true, update: false, delete: false },
-  //         invoices_all: { create: false, read: true, update: false, delete: false },
-  //         quotations: { create: false, read: true, update: false, delete: false },
-  //         delivery_notes: { create: false, read: true, update: false, delete: false },
-  //         purchase_orders: { create: false, read: true, update: false, delete: false },
-  //       };
-  //   }
-  //   setEditUserModal(prev => ({ ...prev, user: { ...prev.user, role, permissions: perms } }));
-  // };
-
-  // const saveEditUser = async () => {
-  //   try {
-  //     const currentUser = authService.getUser();
-  //     const isSelf = currentUser && String(currentUser.id) === String(editUserModal.user.id);
-
-  //     // Handle password change: self requires current+new+confirm; admin-reset allows new+confirm only
-  //     if (editUserModal.user.newPassword || editUserModal.user.currentPassword || editUserModal.user.confirmPassword) {
-  //       if (!editUserModal.user.newPassword || !editUserModal.user.confirmPassword) {
-  //         notificationService.error('Please enter new and confirm password');
-  //         return;
-  //       }
-  //       if (editUserModal.user.newPassword !== editUserModal.user.confirmPassword) {
-  //         notificationService.error('New password and confirm password do not match');
-  //         return;
-  //       }
-  //       if (isSelf) {
-  //         if (!editUserModal.user.currentPassword) {
-  //           notificationService.error('Please enter your current password');
-  //           return;
-  //         }
-  //         // Call self password change endpoint
-  //         await apiService.post('/auth/change-password', {
-  //           currentPassword: editUserModal.user.currentPassword,
-  //           newPassword: editUserModal.user.newPassword,
-  //         });
-  //       } else {
-  //         // Admin reset password via admin users API
-  //         await userAdminAPI.update(editUserModal.user.id, { password: editUserModal.user.newPassword });
-  //       }
-  //     }
-
-  //     // Update role/permissions if changed
-  //     await userAdminAPI.update(editUserModal.user.id, {
-  //       role: editUserModal.user.role,
-  //       permissions: editUserModal.user.permissions,
-  //     });
-  //     notificationService.success('User updated successfully');
-  //     const remoteUsers = await userAdminAPI.list();
-  //     const mapped = remoteUsers.map(u => ({
-  //       id: String(u.id),
-  //       name: u.name,
-  //       email: u.email,
-  //       role: u.role,
-  //       status: u.status || 'active',
-  //       createdAt: (u.createdAt || u.createdAt || '').toString().substring(0,10),
-  //       lastLogin: u.lastLogin || u.lastLogin || null,
-  //       permissions: typeof u.permissions === 'string' ? JSON.parse(u.permissions) : (u.permissions || {}),
-  //     }));
-  //     setUsers(mapped);
-  //     setEditUserModal({ open: false, user: null });
-  //   } catch (e) {
-  //     notificationService.error(e?.response?.data?.error || e?.message || 'Failed to update user');
-  //   }
-  // };
 
   const renderProfile = () => (
     <SettingsPaper className="max-w-3xl">
@@ -4210,49 +3954,42 @@ const CompanySettings = () => {
   };
 
   const renderProductNamingSystem = () => {
-    // Helper function to render inline verification status (compact for heading)
-    const renderVerificationStatus = (productType) => {
-      const status = productVerificationStatus[productType];
+    // Template renderer
+    const renderTemplate = (template, product) => {
+      const uniqueName = `SS-${product.grade}-${product.form}-${product.finish}-${product.width}mm-${product.thickness}mm-${product.length}mm`;
       
-      if (!status || status.status === 'not-verified') {
-        return (
-          <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            <span>⚪</span>
-            <span>Not verified</span>
-          </span>
-        );
+      let result = template;
+      result = result.replace(/{unique_name}/g, uniqueName);
+      result = result.replace(/{Grade}/g, product.grade);
+      result = result.replace(/{Form}/g, product.form);
+      result = result.replace(/{Finish}/g, product.finish);
+      result = result.replace(/{Width}/g, product.width);
+      result = result.replace(/{Thickness}/g, product.thickness);
+      result = result.replace(/{Length}/g, product.length);
+      result = result.replace(/{Origin}/g, product.origin);
+      result = result.replace(/{Mill}/g, product.mill);
+      
+      return result;
+    };
+
+    const saveTemplates = async () => {
+      try {
+        setSavingTemplates(true);
+        await updateCompany({
+          name: companyProfile.name,
+          address: companyProfile.address,
+          product_dropdown_template: displayTemplates.product_dropdown_template,
+          document_line_template: displayTemplates.document_line_template,
+          report_template: displayTemplates.report_template,
+        });
+        notificationService.success('Display templates saved successfully');
+        refetchCompany();
+      } catch (error) {
+        console.error('Failed to save templates:', error);
+        notificationService.error('Failed to save templates');
+      } finally {
+        setSavingTemplates(false);
       }
-      
-      if (status.status === 'success') {
-        return (
-          <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-            <span>✅</span>
-            <span className="font-medium">Verified</span>
-          </span>
-        );
-      }
-      
-      // Error status
-      return (
-        <span className={`text-sm flex items-center gap-1.5 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
-          <span>❌</span>
-          <span className="font-medium">
-            Mismatch –{' '}
-            <a 
-              href="#help-troubleshooting" 
-              className={`underline ${isDarkMode ? 'text-red-300 hover:text-red-200' : 'text-red-700 hover:text-red-800'}`}
-              onClick={(e) => {
-                e.preventDefault();
-                // Scroll to help panel troubleshooting section
-                const helpPanel = document.querySelector('[data-help-section="troubleshooting"]');
-                if (helpPanel) helpPanel.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              troubleshoot
-            </a>
-          </span>
-        </span>
-      );
     };
 
     return (
@@ -4266,237 +4003,199 @@ const CompanySettings = () => {
               {/* Header */}
               <div className="mb-6">
                 <h3 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  📘 Product Naming Formats
+                  📘 Product Naming System
                 </h3>
                 <p className={`text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  These are the naming patterns used across the system for all stainless-steel products.
-                  They define how Unique ID and Display Name are structured.
+                  Configure how products are identified (fixed SSOT pattern) and displayed (customizable templates).
+                  The identity pattern ensures data consistency, while display templates control presentation.
                 </p>
               </div>
 
-              {/* Sheets / Plates */}
-              <div className={`mb-4 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+              {/* SSOT Product Identity Pattern (Read-Only) */}
+              <div className={`mb-6 p-6 rounded-lg border-2 ${
+                isDarkMode ? 'bg-teal-900/10 border-teal-700' : 'bg-teal-50 border-teal-300'
               }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Sheets / Plates
-                  </h4>
-                  {renderVerificationStatus('sheet')}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-teal-900/30' : 'bg-teal-100'}`}>
+                    <Shield size={24} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+                  </div>
+                  <div>
+                    <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Product Identity (SSOT - Fixed Pattern)
+                    </h4>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      This is the canonical product identifier used across the system. <strong>It cannot be changed</strong> as it ensures data consistency.
+                    </p>
+                  </div>
                 </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Sheet-{'{Finish}'}-{'{Width}'}mm-{'{Thickness}'}mm-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
+                
+                <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                  <div className="space-y-3">
+                    <div>
+                      <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>PATTERN:</p>
+                      <code className={`block p-3 rounded font-mono text-sm ${
+                        isDarkMode ? 'bg-gray-900 text-teal-300' : 'bg-gray-50 text-teal-700'
+                      }`}>
+                        SS-{'{Grade}'}-{'{Form}'}-{'{Finish}'}-{'{Width}'}mm-{'{Thickness}'}mm-{'{Length}'}mm
+                      </code>
+                    </div>
+                    
+                    <div>
+                      <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>EXAMPLES:</p>
+                      <ul className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <li className="font-mono">• SS-316-Sheet-2B-1220mm-1.5mm-2440mm</li>
+                        <li className="font-mono">• SS-304-Pipe-Polished-2inch-SCH40-6000mm</li>
+                        <li className="font-mono">• SS-316L-Coil-2B-1000mm-1.2mm-0mm</li>
+                      </ul>
+                    </div>
+
+                    <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-300'} border`}>
+                      <p className={`text-xs font-medium ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                        ⚠️ <strong>Important:</strong> Origin, mill, and supplier info are stored separately and NOT part of product identity.
+                        Same material spec = same product, regardless of source.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Pipes */}
-              <div className={`mb-4 p-4 rounded-lg border ${
+              {/* Display Templates (User Configurable) */}
+              <div className={`mb-4 p-6 rounded-lg border ${
                 isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
               }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Pipes
-                  </h4>
-                  {renderVerificationStatus('pipe')}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-purple-900/30' : 'bg-purple-100'}`}>
+                    <Edit size={24} className={isDarkMode ? 'text-purple-400' : 'text-purple-600'} />
+                  </div>
+                  <div>
+                    <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Display Templates (Editable)
+                    </h4>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Control how products appear in different contexts. Templates can include both product AND batch-level info.
+                    </p>
+                  </div>
                 </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Pipe-{'{Finish}'}-{'{Diameter}'}{'{Unit}'}-{'{Schedule}'}-{'{Origin}'}-{'{Mill}'}
-                </div>
-              </div>
 
-              {/* Tubes */}
-              <div className={`mb-4 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Tubes
-                  </h4>
-                  {renderVerificationStatus('tube')}
-                </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Tube-{'{Finish}'}-{'{OuterDiameter}'}{'{Unit}'}-{'{Thickness}'}mm-{'{Origin}'}-{'{Mill}'}
-                </div>
-              </div>
-
-              {/* Coils */}
-              <div className={`mb-4 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Coils
-                  </h4>
-                  {renderVerificationStatus('coil')}
-                </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Coil-{'{Finish}'}-{'{Width}'}mm-{'{Thickness}'}mm-{'{Origin}'}-{'{Mill}'}
-                </div>
-              </div>
-
-              {/* Bars */}
-              <div className={`mb-4 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Bars
-                  </h4>
-                  {renderVerificationStatus('bar')}
-                </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Bar-{'{Subtype}'}-{'{Finish}'}-{'{Dimensions}'}-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
-                </div>
-              </div>
-
-              {/* Angle Bar */}
-              <div className={`mb-4 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Circle size={8} className={`fill-current ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`} />
-                    Angle Bar
-                  </h4>
-                  {renderVerificationStatus('anglebar')}
-                </div>
-                <div className={`p-2 rounded font-mono text-base ${
-                  isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-white text-teal-700'
-                }`}>
-                  SS-{'{Grade}'}-Angle-{'{Subtype}'}-{'{Finish}'}-{'{LegA}'}mm-{'{LegB}'}mm-{'{Thickness}'}mm-{'{Length}'}mm-{'{Origin}'}-{'{Mill}'}
-                </div>
-              </div>
-
-              {/* Verify Button */}
-              <div className={`mt-6 p-4 rounded-lg border ${
-                isDarkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}>
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    🔍 Verify Naming Logic
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setIsVerifyUnlocked(!isVerifyUnlocked)}
-                      className={`p-2 rounded-lg transition-all duration-200 text-xl ${
-                        isVerifyUnlocked
-                          ? isDarkMode
-                            ? 'bg-green-900/30 hover:bg-green-900/50'
-                            : 'bg-green-50 hover:bg-green-100'
-                          : isDarkMode
-                            ? 'bg-red-900/30 hover:bg-red-900/50'
-                            : 'bg-red-50 hover:bg-red-100'
+                <div className="space-y-4">
+                  {/* Product Dropdown Template */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Product Dropdown Template
+                    </label>
+                    <input
+                      type="text"
+                      value={displayTemplates.product_dropdown_template}
+                      onChange={(e) => setDisplayTemplates({...displayTemplates, product_dropdown_template: e.target.value})}
+                      className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
+                        isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
                       }`}
-                      title={isVerifyUnlocked ? 'Click to lock' : 'Click to unlock'}
-                    >
-                      {isVerifyUnlocked ? '🔓' : '🔒'}
-                    </button>
+                      placeholder="{unique_name}"
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      How products appear in selection lists (product-level only)
+                    </p>
+                    <div className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Preview:</p>
+                      <code className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                        {renderTemplate(displayTemplates.product_dropdown_template, sampleProduct)}
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Document Line Template */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Document Line Template
+                    </label>
+                    <input
+                      type="text"
+                      value={displayTemplates.document_line_template}
+                      onChange={(e) => setDisplayTemplates({...displayTemplates, document_line_template: e.target.value})}
+                      className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
+                        isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="{unique_name} | {Origin} | {Mill}"
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      How products appear on invoices/delivery notes (can include batch info)
+                    </p>
+                    <div className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Preview:</p>
+                      <code className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                        {renderTemplate(displayTemplates.document_line_template, sampleProduct)}
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Report Template */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Report Template
+                    </label>
+                    <input
+                      type="text"
+                      value={displayTemplates.report_template}
+                      onChange={(e) => setDisplayTemplates({...displayTemplates, report_template: e.target.value})}
+                      className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
+                        isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="SS {Grade} {Form} {Finish} - {Origin} ({Mill})"
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      How products appear in reports and analytics
+                    </p>
+                    <div className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Preview:</p>
+                      <code className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                        {renderTemplate(displayTemplates.report_template, sampleProduct)}
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Available Placeholders Help */}
+                  <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-blue-900/10 border-blue-700' : 'bg-blue-50 border-blue-200'}`}>
+                    <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+                      Available Placeholders:
+                    </p>
+                    <div className={`grid grid-cols-2 gap-2 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div>
+                        <p className="font-semibold mb-1">Product-Level:</p>
+                        <ul className="space-y-0.5 font-mono">
+                          <li>{'{unique_name}'}</li>
+                          <li>{'{Grade}'}</li>
+                          <li>{'{Form}'}</li>
+                          <li>{'{Finish}'}</li>
+                          <li>{'{Width}'}, {'{Thickness}'}, {'{Length}'}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Batch-Level:</p>
+                        <ul className="space-y-0.5 font-mono">
+                          <li>{'{Origin}'}</li>
+                          <li>{'{Mill}'}</li>
+                          <li>{'{MillCountry}'}</li>
+                          <li>{'{BatchNumber}'}</li>
+                          <li>{'{Container}'}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end">
                     <Button
-                      onClick={async () => {
-                        if (isVerifyUnlocked) {
-                          setIsVerifying(true);
-                          try {
-                            const results = await productNamingService.verifyAllProductTypes();
-                            const timestamp = new Date();
-                            setLastVerificationTime(timestamp);
-                            
-                            // Update status for each product type
-                            const newStatus = {};
-                            results.forEach(result => {
-                              if (result.productType === 'error') {
-                                // Global error - mark all as error
-                                Object.keys(productVerificationStatus).forEach(type => {
-                                  newStatus[type] = {
-                                    status: 'error',
-                                    error: result.error,
-                                  };
-                                });
-                              } else {
-                                newStatus[result.productType] = {
-                                  status: result.status === 'success' ? 'success' : 'error',
-                                  error: result.error,
-                                  uniqueName: result.uniqueName,
-                                  displayName: result.displayName,
-                                };
-                              }
-                            });
-                            
-                            setProductVerificationStatus(prev => ({ ...prev, ...newStatus }));
-                          } catch (error) {
-                            console.error('Verification failed:', error);
-                            const timestamp = new Date();
-                            setLastVerificationTime(timestamp);
-                            const errorStatus = {
-                              status: 'error',
-                              error: error.message || 'Failed to verify naming patterns',
-                            };
-                            setProductVerificationStatus({
-                              sheet: errorStatus,
-                              pipe: errorStatus,
-                              tube: errorStatus,
-                              coil: errorStatus,
-                              bar: errorStatus,
-                              anglebar: errorStatus,
-                            });
-                          } finally {
-                            setIsVerifying(false);
-                            setIsVerifyUnlocked(false);
-                          }
-                        }
-                      }}
-                      disabled={!isVerifyUnlocked || isVerifying}
-                      className={!isVerifyUnlocked ? 'ring-2 ring-red-500' : ''}
+                      startIcon={<Save size={20} />}
+                      onClick={saveTemplates}
+                      disabled={savingTemplates}
                     >
-                      {isVerifying ? 'Verifying...' : 'Verify Naming Patterns'}
+                      {savingTemplates ? 'Saving...' : 'Save Templates'}
                     </Button>
                   </div>
                 </div>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Checks whether DB, backend, and UI naming patterns match this specification. Results will appear inline in each product type card above.
-                </p>
-
-                {/* Last Verification Timestamp */}
-                {lastVerificationTime && !isVerifying && (
-                  <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    <span className="font-medium">Last verification:</span> {lastVerificationTime.toLocaleString()}
-                  </div>
-                )}
-
-                {!lastVerificationTime && !isVerifying && (
-                  <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} italic`}>
-                    (No verification run yet)
-                  </div>
-                )}
-
-                {/* Global Loading Indicator */}
-                {isVerifying && (
-                  <div className={`mt-4 p-4 rounded-lg border ${
-                    isDarkMode ? 'bg-blue-900/20 border-blue-700' : 'bg-blue-50 border-blue-200'
-                  }`}>
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-                      <span className={isDarkMode ? 'text-blue-300' : 'text-blue-700'}>
-                        Verifying naming patterns across all product types...
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
+
+
             </div>
           </div>
         </div>

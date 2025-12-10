@@ -56,6 +56,7 @@ import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
 import { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
+import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 
 // Custom Tailwind Components
 const Button = ({
@@ -1284,6 +1285,15 @@ const InvoiceForm = ({ onSave }) => {
 
   // Remove deferred value which might be causing delays
   const deferredItems = invoice.items;
+
+  // Check if any line items require warehouse (sourceType === 'WAREHOUSE')
+  const needsWarehouseSelector = useMemo(() => {
+    // Show warehouse selector if no items exist (new invoice) or if any item uses warehouse stock
+    if (!invoice.items || invoice.items.length === 0) {
+      return true;
+    }
+    return invoice.items.some(item => !item.sourceType || item.sourceType === 'WAREHOUSE');
+  }, [invoice.items]);
 
   const { data: company, loading: loadingCompany, refetch: refetchCompany } = useApiData(
     companyService.getCompany,
@@ -3221,34 +3231,36 @@ const InvoiceForm = ({ onSave }) => {
                 </div>
 
                 {/* Warehouse and Currency */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Select
-                    label="Warehouse"
-                    value={invoice.warehouseId || ''}
-                    required={invoice.status !== 'draft'}
-                    validationState={fieldValidation.warehouse}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    onChange={(e) => {
-                      const warehouseId = e.target.value;
-                      const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
-                      setInvoice((prev) => ({
-                        ...prev,
-                        warehouseId,
-                        warehouseName: w ? w.name : '',
-                        warehouseCode: w ? w.code : '',
-                        warehouseCity: w ? w.city : '',
-                      }));
-                      validateField('warehouse', warehouseId);
-                    }}
-                    className="text-base min-h-[44px]"
-                  >
-                    <option value="">Select warehouse</option>
-                    {warehouses.map((w) => (
-                      <option key={w.id} value={w.id}>
-                        {w.name} - {w.city}
-                      </option>
-                    ))}
-                  </Select>
+                <div className={`grid grid-cols-1 ${needsWarehouseSelector ? 'md:grid-cols-2' : ''} gap-2`}>
+                  {needsWarehouseSelector && (
+                    <Select
+                      label="Warehouse"
+                      value={invoice.warehouseId || ''}
+                      required={invoice.status !== 'draft'}
+                      validationState={fieldValidation.warehouse}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      onChange={(e) => {
+                        const warehouseId = e.target.value;
+                        const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
+                        setInvoice((prev) => ({
+                          ...prev,
+                          warehouseId,
+                          warehouseName: w ? w.name : '',
+                          warehouseCode: w ? w.code : '',
+                          warehouseCity: w ? w.city : '',
+                        }));
+                        validateField('warehouse', warehouseId);
+                      }}
+                      className="text-base min-h-[44px]"
+                    >
+                      <option value="">Select warehouse</option>
+                      {warehouses.map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.name} - {w.city}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
                   <Select
                     label="Currency"
                     value={invoice.currency || 'AED'}
@@ -3509,21 +3521,27 @@ const InvoiceForm = ({ onSave }) => {
                     </th>
                     <th
                       className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '38%' }}
+                      style={{ width: '30%' }}
                     >
                         Product
                     </th>
                     <th
                       className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '10%' }}
+                      style={{ width: '8%' }}
                     >
                         Qty
                     </th>
                     <th
                       className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '12%' }}
+                      style={{ width: '10%' }}
                     >
                         Rate
+                    </th>
+                    <th
+                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '20%' }}
+                    >
+                        Source Type
                     </th>
                     <th
                       className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
@@ -3717,6 +3735,15 @@ const InvoiceForm = ({ onSave }) => {
                             step="0.01"
                             className="w-full text-right"
                             error={invalidFields.has(`item.${index}.rate`)}
+                          />
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <SourceTypeSelector
+                            value={item.sourceType || 'WAREHOUSE'}
+                            onChange={(sourceType) =>
+                              handleItemChange(index, 'sourceType', sourceType)
+                            }
+                            disabled={false}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
@@ -3926,6 +3953,23 @@ const InvoiceForm = ({ onSave }) => {
                           step="0.01"
                           error={invalidFields.has(`item.${index}.rate`)}
                         />
+                      </div>
+
+                      {/* Source Type Selector */}
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Source Type
+                        </label>
+                        <SourceTypeSelector
+                          value={item.sourceType || 'WAREHOUSE'}
+                          onChange={(sourceType) =>
+                            handleItemChange(index, 'sourceType', sourceType)
+                          }
+                          disabled={false}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label htmlFor={`supply-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             Supply Type

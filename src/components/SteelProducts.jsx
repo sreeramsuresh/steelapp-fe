@@ -287,24 +287,17 @@ const ProductNameSegments = ({ productData, focusedField, isDarkMode }) => {
     dimensionValue = productData.size || '___';
   }
   
-  segments.push({ 
-    key: 'dimensions', 
-    value: dimensionValue, 
+  segments.push({
+    key: 'dimensions',
+    value: dimensionValue,
     label: 'Dimensions',
     color: isDarkMode ? 'bg-amber-900/40 text-amber-300 border-amber-700' : 'bg-amber-100 text-amber-800 border-amber-300',
     placeholder: dimensionValue === '___',
   });
-  
-  if (productData.millCountry || productData.mill_country) {
-    const millCountry = productData.millCountry || productData.mill_country;
-    const originStatus = (millCountry === 'AE') ? 'LOCAL' : 'IMPORTED';
-    segments.push({ 
-      key: 'origin', 
-      value: originStatus, 
-      label: 'Origin',
-      color: isDarkMode ? 'bg-emerald-900/40 text-emerald-300 border-emerald-700' : 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    });
-  }
+
+  // NOTE: Origin (LOCAL/IMPORTED) is NOT part of product identity per SSOT rules.
+  // Origin is stored at batch level, not product level.
+  // Same product (e.g., SS-304-Sheet-2B-1219mm-0.8mm) can exist as both local and imported batches.
 
   return (
     <div className={`p-4 rounded-lg border-2 ${
@@ -313,7 +306,10 @@ const ProductNameSegments = ({ productData, focusedField, isDarkMode }) => {
       <div className="flex items-center gap-2 mb-2">
         <Sparkles className="w-4 h-4 text-teal-500" />
         <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          PRODUCT NAME PREVIEW
+          PRODUCT IDENTITY PREVIEW
+        </span>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>
+          SSOT
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -507,7 +503,7 @@ const SteelProducts = () => {
 
   // Column configuration for list view
   const ALL_COLUMNS = [
-    { key: 'productName', label: 'Product Name', required: true, width: 'min-w-[280px]' },
+    { key: 'productName', label: 'Product Identity', required: true, width: 'min-w-[280px]' },
     { key: 'stock', label: 'Stock', required: true, width: 'w-[90px]' },
     { key: 'buyPrice', label: 'Buy Price', required: true, width: 'w-[100px]' },
     { key: 'sellPrice', label: 'Sell Price', required: true, width: 'w-[100px]' },
@@ -556,14 +552,14 @@ const SteelProducts = () => {
     setVisibleColumns(prev =>
       prev.includes(columnKey)
         ? prev.filter(k => k !== columnKey)
-        : [...prev, columnKey]
+        : [...prev, columnKey],
     );
   };
 
   const handleSort = (key) => {
     setSortConfig(prev => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -1125,7 +1121,7 @@ const SteelProducts = () => {
           aVal = Number(a.sellingPrice ?? a.selling_price ?? 0);
           bVal = Number(b.sellingPrice ?? b.selling_price ?? 0);
           break;
-        case 'margin':
+        case 'margin': {
           const aCost = Number(a.costPrice ?? a.cost_price ?? 0);
           const aSell = Number(a.sellingPrice ?? a.selling_price ?? 0);
           aVal = aCost > 0 ? ((aSell - aCost) / aCost) * 100 : 0;
@@ -1133,6 +1129,7 @@ const SteelProducts = () => {
           const bSell = Number(b.sellingPrice ?? b.selling_price ?? 0);
           bVal = bCost > 0 ? ((bSell - bCost) / bCost) * 100 : 0;
           break;
+        }
         case 'supplier':
           aVal = (a.supplier || '').toLowerCase();
           bVal = (b.supplier || '').toLowerCase();
@@ -1207,8 +1204,9 @@ const SteelProducts = () => {
       case 'finish':
         return product.finish || '-';
       case 'origin':
-        return (product.millCountry === 'AE' || product.mill_country === 'AE') ? 'Local' :
-               (product.millCountry || product.mill_country || product.origin || '-');
+        return (product.millCountry === 'AE' || product.mill_country === 'AE')
+          ? 'Local'
+          : (product.millCountry || product.mill_country || product.origin || '-');
       default:
         return '-';
     }
@@ -1867,24 +1865,24 @@ const SteelProducts = () => {
                     key={col.key}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
                       col.required ? 'opacity-50 cursor-not-allowed' : ''
-                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={visibleColumns.includes(col.key)}
-                        onChange={() => toggleColumn(col.key)}
-                        disabled={col.required}
-                        className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
-                      />
-                      <span>{col.label}</span>
-                      {col.required && <span className="text-xs text-gray-500">(required)</span>}
-                    </label>
-                  ))}
-                </div>
+                    } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={visibleColumns.includes(col.key)}
+                      onChange={() => toggleColumn(col.key)}
+                      disabled={col.required}
+                      className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span>{col.label}</span>
+                    {col.required && <span className="text-xs text-gray-500">(required)</span>}
+                  </label>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+      </div>
 
       {/* Table Container */}
       <div className={`overflow-x-auto rounded-lg border ${
@@ -1906,165 +1904,166 @@ const SteelProducts = () => {
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                    <div className="flex items-center gap-1">
-                      <span>{col.label}</span>
-                      {sortConfig.key === col.key ? (
-                        sortConfig.direction === 'asc' ? (
-                          <ArrowUp size={14} className="text-teal-500" />
-                        ) : (
-                          <ArrowDown size={14} className="text-teal-500" />
-                        )
+                  <div className="flex items-center gap-1">
+                    <span>{col.label}</span>
+                    {sortConfig.key === col.key ? (
+                      sortConfig.direction === 'asc' ? (
+                        <ArrowUp size={14} className="text-teal-500" />
                       ) : (
-                        <ArrowUpDown size={14} className="opacity-40" />
-                      )}
-                    </div>
-                  </th>
-                ))}
-                <th className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[120px] ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>
-                  Actions
+                        <ArrowDown size={14} className="text-teal-500" />
+                      )
+                    ) : (
+                      <ArrowUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-              {sortedProducts.map(product => {
-                const stockData = getCellValue(product, 'stock');
-                return (
-                  <tr
-                    key={product.id}
-                    className={`transition-colors ${
-                      isDarkMode
-                        ? 'bg-gray-900 hover:bg-gray-800'
-                        : 'bg-white hover:bg-gray-50'
-                    }`}
-                  >
-                    {ALL_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => (
-                      <td
-                        key={col.key}
-                        className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        {col.key === 'stock' ? (
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                                stockData.status === 'out_of_stock'
-                                  ? 'bg-red-500'
-                                  : stockData.status === 'low'
-                                    ? 'bg-yellow-500'
-                                    : stockData.status === 'high'
-                                      ? 'bg-green-500'
-                                      : 'bg-blue-500'
-                              }`}
-                            />
-                            <span className="font-medium">{stockData.value}</span>
-                          </div>
-                        ) : col.key === 'buyPrice' || col.key === 'sellPrice' ? (
-                          <span className={col.key === 'sellPrice' ? 'text-green-600 font-medium' : ''}>
+              ))}
+              <th className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[120px] ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                  Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            {sortedProducts.map(product => {
+              const stockData = getCellValue(product, 'stock');
+              return (
+                <tr
+                  key={product.id}
+                  className={`transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-900 hover:bg-gray-800'
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  {ALL_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => (
+                    <td
+                      key={col.key}
+                      className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}
+                    >
+                      {col.key === 'stock' ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              stockData.status === 'out_of_stock'
+                                ? 'bg-red-500'
+                                : stockData.status === 'low'
+                                  ? 'bg-yellow-500'
+                                  : stockData.status === 'high'
+                                    ? 'bg-green-500'
+                                    : 'bg-blue-500'
+                            }`}
+                          />
+                          <span className="font-medium">{stockData.value}</span>
+                        </div>
+                      ) : col.key === 'buyPrice' || col.key === 'sellPrice' ? (
+                        <span className={col.key === 'sellPrice' ? 'text-green-600 font-medium' : ''}>
                             AED {Number(getCellValue(product, col.key)).toFixed(2)}
-                          </span>
-                        ) : col.key === 'margin' ? (
-                          <span className={`font-medium ${
-                            getCellValue(product, col.key) > 20
-                              ? 'text-green-600'
-                              : getCellValue(product, col.key) > 10
-                                ? 'text-yellow-600'
-                                : 'text-red-500'
-                          }`}>
-                            {getCellValue(product, col.key)}%
-                          </span>
-                        ) : col.key === 'productName' ? (
-                          <div>
-                            <button
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setShowSpecModal(true);
-                              }}
-                              className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
-                            >
-                              {getCellValue(product, col.key)}
-                            </button>
-                            {product.displayName || product.display_name ? (
-                              <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        </span>
+                      ) : col.key === 'margin' ? (
+                        <span className={`font-medium ${
+                          getCellValue(product, col.key) > 20
+                            ? 'text-green-600'
+                            : getCellValue(product, col.key) > 10
+                              ? 'text-yellow-600'
+                              : 'text-red-500'
+                        }`}>
+                          {getCellValue(product, col.key)}%
+                        </span>
+                      ) : col.key === 'productName' ? (
+                        <div>
+                          <button
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setShowSpecModal(true);
+                            }}
+                            className={`font-mono text-sm text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                          >
+                            {product.uniqueName || product.unique_name || 'N/A'}
+                          </button>
+                          {(product.displayName || product.display_name) &&
+                             (product.displayName || product.display_name) !== (product.uniqueName || product.unique_name) ? (
+                              <div className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                                 {product.displayName || product.display_name}
                               </div>
                             ) : null}
-                          </div>
-                        ) : (
-                          getCellValue(product, col.key)
-                        )}
-                      </td>
-                    ))}
-                    {/* Actions Column */}
-                    <td className="px-3 py-2 text-right w-[100px]">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => {
-                            const formattedProduct = {
-                              ...product,
-                              sizeInch: product.sizeInch || product.size_inch || '',
-                              od: product.od || '',
-                              length: product.length || '',
-                              thickness: product.thickness || '',
-                              finish: product.finish ? String(product.finish).trim() : '',
-                              currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || '',
-                              minStock: product.minStock !== undefined ? product.minStock : product.min_stock || '',
-                              maxStock: product.maxStock !== undefined ? product.maxStock : product.max_stock || '',
-                              costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || '',
-                              sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || '',
-                              displayName: product.displayName || product.display_name || '',
-                              uniqueName: product.uniqueName || product.unique_name || '',
-                              // UOM fields (added 2025-12-09)
-                              primaryUom: product.primaryUom || product.primary_uom || 'PCS',
-                              unitWeightKg: product.unitWeightKg || product.unit_weight_kg || '',
-                              allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
-                            };
-                            setSelectedProduct(formattedProduct);
-                            setShowEditModal(true);
-                          }}
-                          className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
-                              : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
-                          }`}
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            console.log('Copy product:', product.id);
-                            notificationService.info('Copy feature coming soon');
-                          }}
-                          className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                          }`}
-                          title="Copy"
-                        >
-                          <Copy size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
-                              : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
-                          }`}
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                        </div>
+                      ) : (
+                        getCellValue(product, col.key)
+                      )}
                     </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  ))}
+                  {/* Actions Column */}
+                  <td className="px-3 py-2 text-right w-[100px]">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => {
+                          const formattedProduct = {
+                            ...product,
+                            sizeInch: product.sizeInch || product.size_inch || '',
+                            od: product.od || '',
+                            length: product.length || '',
+                            thickness: product.thickness || '',
+                            finish: product.finish ? String(product.finish).trim() : '',
+                            currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || '',
+                            minStock: product.minStock !== undefined ? product.minStock : product.min_stock || '',
+                            maxStock: product.maxStock !== undefined ? product.maxStock : product.max_stock || '',
+                            costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || '',
+                            sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || '',
+                            displayName: product.displayName || product.display_name || '',
+                            uniqueName: product.uniqueName || product.unique_name || '',
+                            // UOM fields (added 2025-12-09)
+                            primaryUom: product.primaryUom || product.primary_uom || 'PCS',
+                            unitWeightKg: product.unitWeightKg || product.unit_weight_kg || '',
+                            allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
+                          };
+                          setSelectedProduct(formattedProduct);
+                          setShowEditModal(true);
+                        }}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                            : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
+                        }`}
+                        title="Edit"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          console.log('Copy product:', product.id);
+                          notificationService.info('Copy feature coming soon');
+                        }}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        }`}
+                        title="Copy"
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className={`p-1.5 rounded transition-colors ${
+                          isDarkMode
+                            ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
+                            : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
+                        }`}
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
 
         {/* Empty State */}
         {sortedProducts.length === 0 && (
@@ -2862,11 +2861,26 @@ const SteelProducts = () => {
               {/* Modal Content */}
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Product Identity (SSOT) - Read Only */}
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="Product Identity (SSOT)"
+                      value={selectedProduct.uniqueName || selectedProduct.unique_name || ''}
+                      readOnly
+                      className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium font-mono text-sm`}
+                      placeholder="Auto-generated from product attributes"
+                    />
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Pattern: SS-{'{Grade}'}-{'{Form}'}-{'{Finish}'}-{'{Dimensions}'} • Auto-generated, cannot be edited
+                    </p>
+                  </div>
+
+                  {/* Display Name - Editable */}
                   <div className="sm:col-span-2">
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
                         <Input
-                          label="Product Name"
+                          label="Display Name (Optional)"
                           value={selectedProduct.displayName || selectedProduct.display_name || ''}
                           onChange={(e) => setSelectedProduct(prev => ({
                             ...prev,
@@ -2874,35 +2888,30 @@ const SteelProducts = () => {
                             display_name: e.target.value,
                           }))}
                           className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} font-medium`}
-                          placeholder="Enter custom product name or use Regenerate"
+                          placeholder="Custom label for UI display (defaults to identity)"
                         />
                       </div>
                       <button
                         type="button"
-                        onClick={() => setSelectedProduct(prev => ({ ...prev, regenerateName: true }))}
+                        onClick={() => setSelectedProduct(prev => ({
+                          ...prev,
+                          displayName: prev.uniqueName || prev.unique_name || '',
+                          display_name: prev.uniqueName || prev.unique_name || '',
+                        }))}
                         className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
                           isDarkMode
                             ? 'bg-teal-700 hover:bg-teal-600 text-white'
                             : 'bg-teal-100 hover:bg-teal-200 text-teal-700'
                         }`}
-                        title="Regenerate product name from current field values"
+                        title="Reset display name to match product identity"
                       >
-                        <RefreshCw size={14} />
-                        Regenerate
+                        <RotateCcw size={14} />
+                        Reset
                       </button>
                     </div>
                     <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                      Click &quot;Regenerate&quot; to update name from current field values
+                      Friendly label for dropdowns and UI. Leave empty to use Product Identity.
                     </p>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Input
-                      label="System ID (Technical Identifier)"
-                      value={selectedProduct.uniqueName || selectedProduct.unique_name || ''}
-                      readOnly
-                      className={`${isDarkMode ? 'bg-gray-900 text-teal-400' : 'bg-gray-50 text-teal-600'} font-medium font-mono text-sm`}
-                      placeholder="Auto-generated system identifier"
-                    />
                   </div>
                   
                   {/* Divider */}
@@ -3283,10 +3292,11 @@ const SteelProducts = () => {
 
                 {/* Content */}
                 <div className={`px-4 py-3 ${isDarkMode ? 'bg-[#1e2328]' : 'bg-white'}`}>
-                  {/* Unique Name */}
-                  <p className={`text-xs font-mono mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {/* Product Identity (SSOT) */}
+                  <div className={`text-xs font-mono mb-3 px-2 py-1 rounded ${isDarkMode ? 'bg-gray-800 text-teal-400' : 'bg-gray-100 text-teal-600'}`}>
+                    <span className={`${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>ID: </span>
                     {selectedProduct.uniqueName || selectedProduct.unique_name || 'N/A'}
-                  </p>
+                  </div>
 
                   {/* Key Metrics - Compact Row */}
                   <div className={`grid grid-cols-4 gap-2 p-2 rounded-md mb-3 ${
@@ -3367,7 +3377,7 @@ const SteelProducts = () => {
                         {isPipeOrTube && selectedProduct.sizeInch && (
                           <tr className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
                             <td className={`px-3 py-1.5 font-semibold ${isDarkMode ? 'text-gray-300 bg-[#252b32]' : 'text-gray-700 bg-gray-100'}`}>Size (Inch)</td>
-                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.sizeInch}"</td>
+                            <td className={`px-3 py-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedProduct.sizeInch}&quot;</td>
                           </tr>
                         )}
                         {selectedProduct.weight && (

@@ -24,6 +24,7 @@ import {
   ChevronUp,
   ChevronDown,
   Clock,
+  Container,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -223,7 +224,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 6. TRADE (1 item) - Renamed, Transit removed (it's a tab), Countries/Exchange Rates removed (tabs)
+    // 6. TRADE (2 items) - Import/Export Dashboard + Container Management
     {
       section: 'Trade',
       items: [
@@ -232,6 +233,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
           path: '/import-export',
           icon: Ship,
           description: 'International trade, transit, shipping & customs',
+          requiredPermission: 'import_orders.read',
+        },
+        {
+          name: 'Containers',
+          path: '/containers',
+          icon: Container,
+          description: 'Manage import containers and landed costs',
           requiredPermission: 'import_orders.read',
         },
       ],
