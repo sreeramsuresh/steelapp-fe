@@ -76,16 +76,13 @@ const Login = ({ onLoginSuccess }) => {
       // Check if already logged in (has valid token)
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('🔑 Token found in localStorage, skipping auto-login');
         return;
       }
 
-      console.log('🚀 Auto-login enabled - logging in with dev credentials...');
       setLoading(true);
 
       try {
         const response = await authService.login(devEmail, devPassword);
-        console.log('✅ Auto-login successful');
 
         if (onLoginSuccess) {
           onLoginSuccess(response.user);

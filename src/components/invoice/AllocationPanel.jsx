@@ -28,11 +28,11 @@ import {
  * - disabled: Whether the panel is in view-only mode
  */
 const AllocationPanel = ({
-  productId,
-  warehouseId,
+  productId: _productId,
+  warehouseId: _warehouseId,
   requiredQty,
   allocations = [],
-  onAllocationsChange,
+  onAllocationsChange: _onAllocationsChange,
   disabled = false,
 }) => {
   const { isDarkMode } = useTheme();
@@ -172,7 +172,7 @@ const AllocationPanel = ({
                 </TableCell>
                 <TableCell>
                   {getProcurementBadge(
-                    allocation.procurementChannel || allocation.procurement_channel || 'LOCAL'
+                    allocation.procurementChannel || allocation.procurement_channel || 'LOCAL',
                   )}
                 </TableCell>
                 <TableCell className="text-right font-medium">
@@ -262,7 +262,7 @@ AllocationPanel.propTypes = {
       procurement_channel: PropTypes.oneOf(['LOCAL', 'IMPORTED']),
       availableQty: PropTypes.number,
       available_qty: PropTypes.number,
-    })
+    }),
   ),
   onAllocationsChange: PropTypes.func,
   disabled: PropTypes.bool,

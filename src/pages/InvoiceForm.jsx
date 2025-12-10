@@ -122,8 +122,9 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+const Input = ({ label, error, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
   // Determine border and background color based on validation state
   const getValidationClasses = () => {
@@ -159,6 +160,7 @@ const Input = ({ label, error, className = '', required = false, validationState
     <div className="space-y-0.5">
       {label && (
         <label
+          htmlFor={inputId}
           className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
@@ -167,7 +169,8 @@ const Input = ({ label, error, className = '', required = false, validationState
         </label>
       )}
       <input
-        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
+        id={inputId}
+        className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
             ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
             : 'text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
@@ -185,8 +188,9 @@ const Input = ({ label, error, className = '', required = false, validationState
   );
 };
 
-const Select = ({ label, children, error, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+const Select = ({ label, children, error, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
   // Determine border and background color based on validation state
   const getValidationClasses = () => {
@@ -222,6 +226,7 @@ const Select = ({ label, children, error, className = '', required = false, vali
     <div className="space-y-0.5">
       {label && (
         <label
+          htmlFor={selectId}
           className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
@@ -231,7 +236,8 @@ const Select = ({ label, children, error, className = '', required = false, vali
       )}
       <div className="relative">
         <select
-          className={`w-full pl-2 pr-8 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none ${
+          id={selectId}
+          className={`w-full pl-2 pr-8 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none h-[38px] ${
             isDarkMode
               ? 'text-white disabled:bg-gray-700 disabled:text-gray-500'
               : 'text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
@@ -257,9 +263,10 @@ const Select = ({ label, children, error, className = '', required = false, vali
   );
 };
 
-const Textarea = ({ label, error, className = '', autoGrow = false, ...props }) => {
+const Textarea = ({ label, error, className = '', autoGrow = false, id, ...props }) => {
   const { isDarkMode } = useTheme();
   const textareaRef = useRef(null);
+  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
 
   const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -286,6 +293,7 @@ const Textarea = ({ label, error, className = '', autoGrow = false, ...props }) 
     <div className="space-y-1">
       {label && (
         <label
+          htmlFor={textareaId}
           className={`block text-sm font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           }`}
@@ -294,6 +302,7 @@ const Textarea = ({ label, error, className = '', autoGrow = false, ...props }) 
         </label>
       )}
       <textarea
+        id={textareaId}
         ref={textareaRef}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 resize-none ${
           isDarkMode
@@ -1362,6 +1371,7 @@ const InvoiceForm = ({ onSave }) => {
 
   const {
     getDragHandleProps,
+    getDragItemProps,
     isDropTarget,
     isDragSource,
   } = useDragReorder({
@@ -2013,7 +2023,7 @@ const InvoiceForm = ({ onSave }) => {
               }
             })
             .catch((err) => {
-              console.debug('Volume discount price fetch failed:', err.message);
+              // Volume discount price fetch failed, using default price
             });
         }
         return prev; // No change in this callback
@@ -2643,7 +2653,7 @@ const InvoiceForm = ({ onSave }) => {
               : 'bg-white border-gray-200'
           } shadow-sm`}
         >
-          <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
+          <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
@@ -2756,7 +2766,7 @@ const InvoiceForm = ({ onSave }) => {
         </header>
 
         {/* Main Content - Single Column Layout */}
-        <main className="max-w-6xl mx-auto px-4 py-4 space-y-4">
+        <main className="max-w-7xl mx-auto px-4 py-4 space-y-4">
           {/* UAE VAT COMPLIANCE: Locked Invoice Warning Banner */}
           {isLocked && (
             <div
@@ -3023,7 +3033,7 @@ const InvoiceForm = ({ onSave }) => {
                   value={invoice.salesAgentId || ''}
                   onChange={(e) => handleSalesAgentSelect(e.target.value)}
                   disabled={loadingAgents}
-                  className="text-base min-h-[44px]"
+                  className="text-base"
                 >
                   <option value="">No sales agent</option>
                   {(salesAgentsData?.data || []).map((agent) => (
@@ -3133,8 +3143,8 @@ const InvoiceForm = ({ onSave }) => {
                 Invoice Details
               </h3>
               <div className="space-y-4">
-                {/* Invoice Number - Read Only */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {/* Invoice Number and Status - Invoice identity */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
                     label="Invoice Number"
                     value={invoice.invoiceNumber}
@@ -3142,8 +3152,35 @@ const InvoiceForm = ({ onSave }) => {
                     className="text-base bg-gray-50"
                     placeholder="Auto-generated on save"
                   />
+                  <Select
+                    label="Invoice Status"
+                    value={invoice.status}
+                    required={true}
+                    validationState={fieldValidation.status}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    error={invalidFields.has('status')}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      setInvoice((prev) => ({
+                        ...prev,
+                        status: newStatus,
+                        invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber,
+                      }));
+                      validateField('status', newStatus);
+                    }}
+                    className="text-base"
+                  >
+                    <option value="">Select status</option>
+                    <option value="draft">Draft Invoice</option>
+                    <option value="proforma">Proforma Invoice</option>
+                    <option value="issued">Final Tax Invoice</option>
+                  </Select>
+                </div>
+
+                {/* Invoice Date and Due Date - Date fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
-                    label="Date"
+                    label="Invoice Date"
                     type="date"
                     value={formatDateForInput(invoice.date)}
                     readOnly
@@ -3169,36 +3206,13 @@ const InvoiceForm = ({ onSave }) => {
                         setInvoice((prev) => ({ ...prev, dueDate: validatedValue }));
                         validateField('dueDate', validatedValue);
                       }}
-                      className="text-base min-h-[44px]"
+                      className="text-base"
                     />
                   </div>
                 </div>
 
-                {/* Status and Payment */}
+                {/* Payment Terms and Currency - Transaction settings */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Select
-                    label="Invoice Status"
-                    value={invoice.status}
-                    required={true}
-                    validationState={fieldValidation.status}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('status')}
-                    onChange={(e) => {
-                      const newStatus = e.target.value;
-                      setInvoice((prev) => ({
-                        ...prev,
-                        status: newStatus,
-                        invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber,
-                      }));
-                      validateField('status', newStatus);
-                    }}
-                    className="text-base min-h-[44px]"
-                  >
-                    <option value="">Select status</option>
-                    <option value="draft">Draft Invoice</option>
-                    <option value="proforma">Proforma Invoice</option>
-                    <option value="issued">Final Tax Invoice</option>
-                  </Select>
                   <Select
                     ref={paymentModeRef}
                     label="Payment Terms"
@@ -3219,7 +3233,7 @@ const InvoiceForm = ({ onSave }) => {
                         setTimeout(() => focusNextMandatoryField(), 100);
                       }
                     }}
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   >
                     <option value="">Select expected payment method</option>
                     {Object.values(PAYMENT_MODES).map((mode) => (
@@ -3228,11 +3242,37 @@ const InvoiceForm = ({ onSave }) => {
                       </option>
                     ))}
                   </Select>
+                  <Select
+                    label="Currency"
+                    value={invoice.currency || 'AED'}
+                    required={true}
+                    validationState={fieldValidation.currency}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setInvoice((prev) => ({
+                        ...prev,
+                        currency: value,
+                      }));
+                      validateField('currency', value);
+                    }}
+                    className="text-base"
+                  >
+                    <option value="AED">AED (UAE Dirham)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="GBP">GBP (British Pound)</option>
+                    <option value="SAR">SAR (Saudi Riyal)</option>
+                    <option value="QAR">QAR (Qatari Riyal)</option>
+                    <option value="OMR">OMR (Omani Rial)</option>
+                    <option value="BHD">BHD (Bahraini Dinar)</option>
+                    <option value="KWD">KWD (Kuwaiti Dinar)</option>
+                  </Select>
                 </div>
 
-                {/* Warehouse and Currency */}
-                <div className={`grid grid-cols-1 ${needsWarehouseSelector ? 'md:grid-cols-2' : ''} gap-2`}>
-                  {needsWarehouseSelector && (
+                {/* Warehouse - Only shown when warehouse items exist */}
+                {needsWarehouseSelector && (
+                  <div className="grid grid-cols-1 gap-2">
                     <Select
                       label="Warehouse"
                       value={invoice.warehouseId || ''}
@@ -3251,7 +3291,7 @@ const InvoiceForm = ({ onSave }) => {
                         }));
                         validateField('warehouse', warehouseId);
                       }}
-                      className="text-base min-h-[44px]"
+                      className="text-base"
                     >
                       <option value="">Select warehouse</option>
                       {warehouses.map((w) => (
@@ -3260,36 +3300,10 @@ const InvoiceForm = ({ onSave }) => {
                         </option>
                       ))}
                     </Select>
-                  )}
-                  <Select
-                    label="Currency"
-                    value={invoice.currency || 'AED'}
-                    required={true}
-                    validationState={fieldValidation.currency}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setInvoice((prev) => ({
-                        ...prev,
-                        currency: value,
-                      }));
-                      validateField('currency', value);
-                    }}
-                    className="text-base min-h-[44px]"
-                  >
-                    <option value="AED">AED (UAE Dirham)</option>
-                    <option value="USD">USD (US Dollar)</option>
-                    <option value="EUR">EUR (Euro)</option>
-                    <option value="GBP">GBP (British Pound)</option>
-                    <option value="SAR">SAR (Saudi Riyal)</option>
-                    <option value="QAR">QAR (Qatari Riyal)</option>
-                    <option value="OMR">OMR (Omani Rial)</option>
-                    <option value="BHD">BHD (Bahraini Dinar)</option>
-                    <option value="KWD">KWD (Kuwaiti Dinar)</option>
-                  </Select>
-                </div>
+                  </div>
+                )}
 
-                {/* Customer PO Fields */}
+                {/* Customer PO Fields - Customer reference info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
                     label="Customer PO Number"
@@ -3301,7 +3315,7 @@ const InvoiceForm = ({ onSave }) => {
                       }))
                     }
                     placeholder="PO number"
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   />
                   <Input
                     label="Customer PO Date"
@@ -3313,7 +3327,7 @@ const InvoiceForm = ({ onSave }) => {
                         customerPurchaseOrderDate: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   />
                 </div>
 
@@ -3340,7 +3354,7 @@ const InvoiceForm = ({ onSave }) => {
                       }));
                       validateField('placeOfSupply', e.target.value);
                     }}
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   >
                     <option value="">Select emirate</option>
                     {UAE_EMIRATES.map((emirate) => (
@@ -3371,7 +3385,7 @@ const InvoiceForm = ({ onSave }) => {
                       }));
                       validateField('supplyDate', e.target.value);
                     }}
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   />
                 </div>
 
@@ -3387,7 +3401,7 @@ const InvoiceForm = ({ onSave }) => {
                         exchangeRateDate: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[44px]"
+                    className="text-base"
                   />
                 )}
               </div>
@@ -3486,17 +3500,6 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             )}
 
-            {/* Bulk Actions Toolbar */}
-            {selectedItemCount > 0 && (
-              <BulkActionsToolbar
-                selectedCount={selectedItemCount}
-                onDelete={deleteSelectedItems}
-                onClear={clearItemSelection}
-                isDarkMode={isDarkMode}
-                className="mb-3"
-              />
-            )}
-
             {/* Items Table - Desktop & Tablet */}
             <div className="hidden md:block overflow-x-auto">
               <table
@@ -3506,66 +3509,51 @@ const InvoiceForm = ({ onSave }) => {
               >
                 <thead className={isDarkMode ? 'bg-teal-700' : 'bg-teal-600'}>
                   <tr>
-                    {/* Bulk Select & Drag Handle */}
-                    <th className="px-1 py-3 w-16">
-                      <div className="flex items-center gap-1">
-                        <BulkCheckbox
-                          checked={isAllItemsSelected}
-                          indeterminate={isSomeItemsSelected}
-                          onChange={toggleSelectAllItems}
-                          isDarkMode={isDarkMode}
-                          size="sm"
-                          aria-label="Select all items"
-                        />
-                      </div>
-                    </th>
+                    {/* Drag Handle */}
+                    <th className="py-3" style={{ width: '18px' }}></th>
                     <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '30%' }}
+                      className="pl-1 pr-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '38%' }}
                     >
-                        Product
+                      Product
                     </th>
                     <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
+                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '6%' }}
+                    >
+                      Qty
+                    </th>
+                    <th
+                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '9%' }}
+                    >
+                      Rate
+                    </th>
+                    <th
+                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '11%' }}
+                    >
+                      Source
+                    </th>
+                    <th
+                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ width: '8%' }}
                     >
-                        Qty
+                      VAT
                     </th>
                     <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '10%' }}
+                      className="px-1 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '5%' }}
                     >
-                        Rate
+                      %
                     </th>
                     <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '20%' }}
+                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '11%' }}
                     >
-                        Source Type
+                      Amount
                     </th>
-                    <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '12%' }}
-                    >
-                        Supply Type
-                    </th>
-                    <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '8%' }}
-                    >
-                        VAT %
-                    </th>
-                    <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '14%' }}
-                    >
-                        Amount
-                    </th>
-                    <th
-                      className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '8%' }}
-                    >
-                    </th>
+                    <th className="py-3 w-8"></th>
                   </tr>
                 </thead>
                 <tbody
@@ -3591,36 +3579,28 @@ const InvoiceForm = ({ onSave }) => {
                       item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                     ].filter(Boolean).join('\n');
                     return (
-                      <tr 
+                      <tr
                         key={item.id}
                         data-item-index={index}
+                        {...getDragItemProps(index)}
                         className={`
                           ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
                           ${isDragSource(index) ? 'opacity-50' : ''}
-                          ${isItemSelected(item) ? (isDarkMode ? 'bg-teal-900/20' : 'bg-teal-50/50') : ''}
                           transition-colors duration-150
                         `}
                       >
-                        {/* Checkbox & Drag Handle */}
-                        <td className="px-1 py-2 align-middle">
-                          <div className="flex items-center gap-1">
-                            <BulkCheckbox
-                              checked={isItemSelected(item)}
-                              onChange={() => toggleItemSelect(item)}
-                              isDarkMode={isDarkMode}
-                              size="sm"
-                            />
-                            <div
-                              {...getDragHandleProps(index)}
-                              className={`cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${
-                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                              }`}
-                            >
-                              <DragHandleIcon size={14} />
-                            </div>
+                        {/* Drag Handle */}
+                        <td className="py-2 px-0 align-middle" style={{ width: '18px' }}>
+                          <div
+                            {...getDragHandleProps(index)}
+                            className={`cursor-grab active:cursor-grabbing ${
+                              isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                          >
+                            <DragHandleIcon size={14} />
                           </div>
                         </td>
-                        <td className="px-2 py-2 align-middle">
+                        <td className="pl-1 pr-2 py-2 align-middle">
                           <div className="w-full">
                             <Autocomplete
                               options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
@@ -3737,7 +3717,7 @@ const InvoiceForm = ({ onSave }) => {
                             error={invalidFields.has(`item.${index}.rate`)}
                           />
                         </td>
-                        <td className="px-2 py-2 align-middle">
+                        <td className="px-1 py-2 align-middle">
                           <SourceTypeSelector
                             value={item.sourceType || 'WAREHOUSE'}
                             onChange={(sourceType) =>
@@ -3746,24 +3726,24 @@ const InvoiceForm = ({ onSave }) => {
                             disabled={false}
                           />
                         </td>
-                        <td className="px-2 py-2 align-middle">
+                        <td className="px-1 py-2 align-middle">
                           <select
                             value={item.supplyType || 'standard'}
                             onChange={(e) =>
                               handleItemChange(index, 'supplyType', e.target.value)
                             }
-                            className={`w-full px-2 py-1 border rounded text-xs ${
+                            className={`w-full px-1 py-1 border rounded text-xs ${
                               isDarkMode
                                 ? 'bg-gray-700 border-gray-600 text-white'
                                 : 'bg-white border-gray-300 text-gray-900'
                             }`}
                           >
-                            <option value="standard">Standard (5%)</option>
-                            <option value="zero_rated">Zero-Rated (0%)</option>
+                            <option value="standard">5% Std</option>
+                            <option value="zero_rated">0% Zero</option>
                             <option value="exempt">Exempt</option>
                           </select>
                         </td>
-                        <td className="px-2 py-2 align-middle">
+                        <td className="px-1 py-2 align-middle">
                           <Input
                             type="number"
                             value={item.vatRate || ''}
@@ -3779,16 +3759,16 @@ const InvoiceForm = ({ onSave }) => {
                             min="0"
                             max="15"
                             step="0.01"
-                            placeholder="5.00"
+                            placeholder="5"
                             className="w-full text-right"
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
-                          <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} text-right`}>
+                          <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} text-right whitespace-nowrap`}>
                             {formatCurrency(item.amount)}
                           </div>
                         </td>
-                        <td className="px-2 py-2 align-middle text-center">
+                        <td className="py-2 pr-1 align-middle text-center w-8">
                           <button
                             onClick={() => removeItem(index)}
                             className={`hover:text-red-300 ${
@@ -3957,10 +3937,11 @@ const InvoiceForm = ({ onSave }) => {
 
                       {/* Source Type Selector */}
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`source-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Source Type
                         </label>
                         <SourceTypeSelector
+                          id={`source-type-${index}`}
                           value={item.sourceType || 'WAREHOUSE'}
                           onChange={(sourceType) =>
                             handleItemChange(index, 'sourceType', sourceType)
@@ -3986,8 +3967,8 @@ const InvoiceForm = ({ onSave }) => {
                                 : 'bg-white border-gray-300 text-gray-900'
                             }`}
                           >
-                            <option value="standard">Standard (5%)</option>
-                            <option value="zero_rated">Zero-Rated (0%)</option>
+                            <option value="standard">5% Std</option>
+                            <option value="zero_rated">0% Zero</option>
                             <option value="exempt">Exempt</option>
                           </select>
                         </div>
@@ -4438,7 +4419,7 @@ const InvoiceForm = ({ onSave }) => {
                   }
                   placeholder="Additional notes for the customer..."
                   autoGrow={true}
-                  className="text-base min-h-[44px]"
+                  className="text-base"
                 />
               </div>
 
@@ -4463,7 +4444,7 @@ const InvoiceForm = ({ onSave }) => {
                   }
                   placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
                   autoGrow={true}
-                  className="text-base min-h-[44px]"
+                  className="text-base"
                 />
                 <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Required when items are zero-rated or exempt from VAT
@@ -4487,7 +4468,7 @@ const InvoiceForm = ({ onSave }) => {
                   placeholder="Enter payment terms and conditions..."
                   rows="2"
                   autoGrow={true}
-                  className="text-base min-h-[44px]"
+                  className="text-base"
                 />
               </div>
             </Card>

@@ -1,24 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
-import { 
-  Calculator, 
-  Ruler, 
-  Weight, 
-  DollarSign,
+import {
+  Calculator,
+  Ruler,
+  Weight,
   Settings,
   Percent,
   Plus,
-  Minus,
-  Edit,
   Save,
   X,
-  TrendingUp,
   Package,
-  AlertCircle,
   CheckCircle,
-  Info,
-  Target,
   Layers,
-  BarChart3,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 

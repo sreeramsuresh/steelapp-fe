@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
-import { Activity, Package, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Activity, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 import { safeEntries, safeKeys, safeNumber } from '../../../../utils/safeAccess';
 
 
@@ -122,7 +122,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
     }).format(amount);
   };
 
-  const getCategoryHealthColor = (health) => {
+  const _getCategoryHealthColor = (health) => {
     switch (health) {
       case 'good':
         return isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700';

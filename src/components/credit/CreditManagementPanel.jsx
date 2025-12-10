@@ -19,9 +19,6 @@ import { DarkModeContext } from '../../context/DarkModeContext';
 import {
   AlertTriangle,
   TrendingDown,
-  DollarSign,
-  Users,
-  Zap,
   Edit3,
   RefreshCw,
 } from 'lucide-react';

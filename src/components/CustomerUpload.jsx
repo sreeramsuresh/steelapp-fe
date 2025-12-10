@@ -24,7 +24,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const textSecondary = isDarkMode ? 'text-[#B0BEC5]' : 'text-[#666666]';
   const textMuted = isDarkMode ? 'text-[#78909C]' : 'text-[#BDBDBD]';
 
-  const inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 ${
+  const _inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 ${
     isDarkMode 
       ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]' 
       : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'

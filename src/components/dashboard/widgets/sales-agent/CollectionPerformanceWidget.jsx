@@ -15,7 +15,7 @@ import {
   TrendingUp,
   TrendingDown,
   Info,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 // Mock collection data for agents
 const MOCK_COLLECTION_DATA = {

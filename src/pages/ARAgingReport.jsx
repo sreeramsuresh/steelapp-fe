@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Clock, Search, RefreshCw, Download, ArrowUpDown } from 'lucide-react';
 import { apiClient } from '../services/api';
-import { formatCurrency, formatDate } from '../utils/invoiceUtils';
+import { formatCurrency } from '../utils/invoiceUtils';
 
 /**
  * AR Aging Report Page
@@ -87,8 +87,8 @@ export default function ARAgingReport() {
 
   // Sort data client-side (or pass to API if backend supports it)
   const sortedData = [...data].sort((a, b) => {
-    let aVal = a[sortBy];
-    let bVal = b[sortBy];
+    const aVal = a[sortBy];
+    const bVal = b[sortBy];
 
     if (typeof aVal === 'string') {
       return sortOrder === 'asc'
@@ -361,8 +361,8 @@ export default function ARAgingReport() {
                   page === 1
                     ? 'opacity-50 cursor-not-allowed'
                     : isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                      : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
                 }`}
               >
                 Previous
@@ -377,8 +377,8 @@ export default function ARAgingReport() {
                   page === pageInfo.totalPages
                     ? 'opacity-50 cursor-not-allowed'
                     : isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                      : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
                 }`}
               >
                 Next

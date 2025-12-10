@@ -79,7 +79,7 @@ const CustomerForm = () => {
     if (customerId) {
       fetchCustomer();
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId]); // fetchCustomer is stable
 
   const fetchCustomer = async () => {
@@ -168,7 +168,7 @@ const CustomerForm = () => {
         result = await customerService.updateCustomer(customerId, payload);
       } else {
         // Create new customer
-        result = await customerService.createCustomer(payload);
+        await customerService.createCustomer(payload);
       }
 
       notificationService.success(

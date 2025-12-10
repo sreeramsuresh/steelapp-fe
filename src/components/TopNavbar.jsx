@@ -5,7 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
 
 
-const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage = 'Dashboard' }) => {
+const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage = 'Dashboard' }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const profileDropdownRef = useRef(null);

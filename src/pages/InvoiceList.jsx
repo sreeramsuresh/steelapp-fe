@@ -78,30 +78,6 @@ const VOID_REASONS = [
  */
 const debugInvoiceRow = (invoice, permissions, deliveryNoteStatus) => {
   if (process.env.NODE_ENV === 'production') return;
-
-  console.log('INVOICE_DEBUG', {
-    id: invoice.id,
-    invoiceNumber: invoice.invoiceNumber,
-    status: invoice.status,
-    paymentStatus: invoice.paymentStatus,
-    isDeleted: invoice.deletedAt !== null,
-    balanceDue: invoice.balanceDue,
-    outstanding: invoice.outstanding,
-    promiseDate: invoice.promiseDate,
-    dueDate: invoice.dueDate,
-    salesAgentId: invoice.salesAgentId,
-    hasDeliveryNotes: deliveryNoteStatus[invoice.id]?.hasNotes || false,
-    deliveryNotesCount: deliveryNoteStatus[invoice.id]?.count || 0,
-    permissions: {
-      canUpdate: permissions.canUpdate,
-      canDelete: permissions.canDelete,
-      canRead: permissions.canRead,
-      canCreateCreditNote: permissions.canCreateCreditNote,
-      canReadCustomers: permissions.canReadCustomers,
-      canCreateDeliveryNotes: permissions.canCreateDeliveryNotes,
-      canReadDeliveryNotes: permissions.canReadDeliveryNotes,
-    },
-  });
 };
 
 /**
@@ -439,7 +415,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
   const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
     try {
-      console.log('🔄 Fetch START', { currentPage: page, pageSize: limit });
       setLoading(true);
       const queryParams = {
         page,
@@ -480,14 +455,11 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
       // Process delivery note status from invoice data
       processDeliveryNoteStatus(invoicesData);
-      
-      console.log('✅ Fetch DONE', { count: guardedInvoices.length });
     } catch (error) {
       // Ignore abort errors
       if (error.name === 'AbortError' || error.message === 'canceled') {
         return;
       }
-      console.log('❌ Fetch ERROR', error);
       setInvoices([]);
       setPagination(null);
     } finally {
@@ -502,13 +474,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   // TRIGGERS: Runs when page, filters, or search changes
   // CLEANUP: Aborts pending requests when dependencies change
   useEffect(() => {
-    console.log('⚙️ useEffect(fetchInvoices) TRIGGERED', {
-      currentPage,
-      pageSize,
-      searchTerm,
-      statusFilter,
-      showDeleted,
-    });
     const abortController = new AbortController();
 
     const timeoutId = setTimeout(() => {
@@ -1605,10 +1570,8 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       validateInvoiceForDownload,
     );
 
-    // DEV-ONLY: Log computed actions and assert icon invariants
+    // DEV-ONLY: Assert icon invariants
     if (process.env.NODE_ENV !== 'production') {
-      console.log('ACTION_CONFIG_DEBUG', invoice.id, actions);
-
       Object.entries(actions).forEach(([key, cfg]) => {
         assertIconInvariants(key, cfg.enabled, invoice);
       });
@@ -1643,8 +1606,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
 
   // SPINNER LOGIC: Show spinner ONLY when loading is true
   // Once loading is false, always show the invoice list (even if empty)
-  console.log('🌀 Spinner check', { loading, length: invoices?.length });
-  
   if (loading) {
     return (
       <div

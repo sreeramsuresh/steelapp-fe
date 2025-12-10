@@ -50,7 +50,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
   }, [enabled]);
 
   // Handle drag end
-  const handleDragEnd = useCallback((e) => {
+  const handleDragEnd = useCallback((_e) => {
     if (!enabled) return;
     
     if (dragNodeRef.current) {
@@ -87,7 +87,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
   }, [enabled]);
 
   // Handle drag leave
-  const handleDragLeave = useCallback((e) => {
+  const handleDragLeave = useCallback((_e) => {
     if (!enabled) return;
     // Only clear if leaving the container entirely
   }, [enabled]);

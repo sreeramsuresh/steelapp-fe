@@ -60,7 +60,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
       const response = await commissionService.getSalesPersonCommissions(
         salesPersonId,
         statusFilter,
-        365 // daysBack - get full year
+        365, // daysBack - get full year
       );
       
       const allCommissions = response?.commissions || [];
@@ -72,7 +72,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
         const term = searchTerm.toLowerCase();
         filtered = filtered.filter(c => 
           (c.invoiceNumber || c.invoice_number || '').toLowerCase().includes(term) ||
-          (c.customerName || c.customer_name || '').toLowerCase().includes(term)
+          (c.customerName || c.customer_name || '').toLowerCase().includes(term),
         );
       }
       

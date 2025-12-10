@@ -5,7 +5,6 @@ import {
   Package,
   Calculator,
   Building,
-  BarChart3,
 } from 'lucide-react';
 
 import CustomerManagement from '../components/CustomerManagement';

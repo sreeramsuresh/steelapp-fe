@@ -129,8 +129,8 @@ const StockBatchViewer = ({
 
   const contentClasses = isModal
     ? `w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-xl ${
-        isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-      }`
+      isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+    }`
     : `rounded-xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`;
 
   const content = (

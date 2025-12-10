@@ -13,7 +13,7 @@ import {
   MapPin,
   Users,
   Info,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 // Mock segmentation data
 const MOCK_SEGMENTS_DATA = {
@@ -95,7 +95,7 @@ const CustomerSegmentsWidget = ({
   // Generate pie chart SVG path
   const generatePieChart = (segments) => {
     let currentAngle = 0;
-    return segments.map((segment, idx) => {
+    return segments.map((segment, _idx) => {
       const startAngle = currentAngle;
       const sweepAngle = (segment.percent / 100) * 360;
       currentAngle += sweepAngle;

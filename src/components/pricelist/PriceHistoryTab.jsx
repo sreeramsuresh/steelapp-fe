@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import pricelistService from '../../services/pricelistService';
 
-const PriceHistoryTab = ({ pricelistId, products = [] }) => {
+const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);

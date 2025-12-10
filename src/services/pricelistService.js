@@ -100,7 +100,7 @@ const pricelistService = {
       params: {
         product_id: productId,
         pricelist_id: pricelistId,
-        quantity: quantity,
+        quantity,
       },
     });
     return data;

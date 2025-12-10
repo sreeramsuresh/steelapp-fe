@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
-import { formatCurrency, formatDate, formatDateForInput } from '../utils/invoiceUtils';
+import { formatDateForInput } from '../utils/invoiceUtils';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 
 const DeliveryNoteForm = () => {
@@ -16,17 +16,18 @@ const DeliveryNoteForm = () => {
   // Check if invoice was pre-selected from InvoiceList
   const preSelectedInvoiceId = location.state?.selectedInvoiceId;
 
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
-  const [invalidFields, setInvalidFields] = useState(new Set());
+  const [_invalidFields, setInvalidFields] = useState(new Set());
 
   // Preview modal state
   const [showPreview, setShowPreview] = useState(false);
+  const [_showInvoiceDialog] = useState(false);
 
   // Form data - use camelCase for state (API Gateway handles conversion)
   const [formData, setFormData] = useState({

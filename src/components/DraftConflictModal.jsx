@@ -16,7 +16,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { formatCurrency } from '../utils/invoiceUtils';
-import { getDraftStatusMessage, formatRelativeTime } from '../hooks/useCreditNoteDrafts';
+import { getDraftStatusMessage } from '../hooks/useCreditNoteDrafts';
 
 const DraftConflictModal = ({
   isOpen,

@@ -13,7 +13,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
 
   // Calculate payment status from payments array only (industry standard)
   const invoiceTotal = invoice?.total || 0;
-  const totalPaid = calculateTotalPaid(payments);
+  const _totalPaid = calculateTotalPaid(payments);
   const balanceDue = calculateBalanceDue(invoiceTotal, payments);
   const isFullyPaid = balanceDue <= 0;
 

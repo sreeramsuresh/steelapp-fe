@@ -3,13 +3,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   Users,
   Edit2,
-  Award,
   CheckCircle,
-  XCircle,
   Search,
-  Plus,
-  TrendingUp,
-  DollarSign,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';

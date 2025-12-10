@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, ClipboardCheck, Package, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, ClipboardCheck, Package, Loader2 } from 'lucide-react';
 import { creditNoteService } from '../../services/creditNoteService';
 import { notificationService } from '../../services/notificationService';
 

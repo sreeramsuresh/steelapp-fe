@@ -38,13 +38,11 @@ import {
   Copy,
   Hash,
   Flag,
-  Box,
   Clipboard,
   FileSpreadsheet,
   ArrowUpRight,
   Info,
   AlertTriangle,
-  CircleDot,
   TrendingUp,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';

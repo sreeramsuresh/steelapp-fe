@@ -92,7 +92,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoadi
     return ((current - previous) / previous) * 100;
   };
 
-  const revenueChange = calculateChange(data.revenue, data.previousPeriod?.revenue);
+  const _revenueChange = calculateChange(data.revenue, data.previousPeriod?.revenue);
   const netProfitChange = calculateChange(data.netProfit, data.previousPeriod?.netProfit);
 
   // Waterfall chart data

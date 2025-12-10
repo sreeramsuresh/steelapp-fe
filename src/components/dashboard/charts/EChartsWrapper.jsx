@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import {
@@ -363,7 +363,7 @@ export const WaterfallChartWrapper = ({
   const processedData = [];
   let cumulative = 0;
 
-  data.forEach((item, index) => {
+  data.forEach((item, _index) => {
     if (item.isTotal) {
       processedData.push({
         name: item.name,

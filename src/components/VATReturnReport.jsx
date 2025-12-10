@@ -15,6 +15,7 @@ import {
   FileSpreadsheet,
   Send,
   TrendingUp,
+  TrendingDown,
   ShoppingCart,
   Banknote,
   Ban,
@@ -560,8 +561,11 @@ const VATReturnReport = () => {
           {/* Output VAT by Emirate (Boxes 1-7) */}
           <div className={cardClass}>
             <div
+              role="button"
+              tabIndex={0}
               className={sectionHeaderClass}
               onClick={() => toggleSection('outputVat')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('outputVat'); } }}
             >
               <h3 className={`${headerClass} flex items-center`}>
                 <MapPin className="h-5 w-5 mr-2 text-green-600" />
@@ -666,8 +670,11 @@ const VATReturnReport = () => {
           {/* INPUT VAT SECTION (Form 201 Boxes 8-13) */}
           <div className={cardClass}>
             <div
+              role="button"
+              tabIndex={0}
               className={sectionHeaderClass}
               onClick={() => toggleSection('inputVat')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('inputVat'); } }}
             >
               <h3 className={`${headerClass} flex items-center`}>
                 <ShoppingCart className="h-5 w-5 mr-2 text-green-600" />
@@ -765,8 +772,11 @@ const VATReturnReport = () => {
           {vendorBillSummary.length > 0 && (
             <div className={cardClass}>
               <div
+                role="button"
+                tabIndex={0}
                 className={sectionHeaderClass}
                 onClick={() => toggleSection('vendorBills')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('vendorBills'); } }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <FileText className="h-5 w-5 mr-2 text-purple-600" />
@@ -814,8 +824,11 @@ const VATReturnReport = () => {
           {advancePayments.length > 0 && (
             <div className={cardClass}>
               <div
+                role="button"
+                tabIndex={0}
                 className={sectionHeaderClass}
                 onClick={() => toggleSection('advancePayments')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('advancePayments'); } }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <Banknote className="h-5 w-5 mr-2 text-teal-600" />
@@ -887,8 +900,11 @@ const VATReturnReport = () => {
           {blockedVatLog.length > 0 && (
             <div className={cardClass}>
               <div
+                role="button"
+                tabIndex={0}
                 className={sectionHeaderClass}
                 onClick={() => toggleSection('blockedVat')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('blockedVat'); } }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <Ban className="h-5 w-5 mr-2 text-red-600" />
@@ -989,8 +1005,11 @@ const VATReturnReport = () => {
           {amendments.length > 0 && (
             <div className={cardClass}>
               <div
+                role="button"
+                tabIndex={0}
                 className={sectionHeaderClass}
                 onClick={() => toggleSection('amendments')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('amendments'); } }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <Edit3 className="h-5 w-5 mr-2 text-orange-600" />
@@ -1050,8 +1069,11 @@ const VATReturnReport = () => {
           {vatReturn.invoices && vatReturn.invoices.length > 0 && (
             <div className={cardClass}>
               <div
+                role="button"
+                tabIndex={0}
                 className={sectionHeaderClass}
                 onClick={() => toggleSection('invoices')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('invoices'); } }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <FileText className="h-5 w-5 mr-2 text-gray-600" />

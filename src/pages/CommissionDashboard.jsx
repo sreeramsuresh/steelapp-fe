@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   DollarSign,
@@ -7,7 +7,6 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  AlertCircle,
   Award,
   FileText,
   Settings,
@@ -38,7 +37,6 @@ import CommissionTransactions from '../components/CommissionTransactions';
 import CommissionPlans from '../components/CommissionPlans';
 
 // Chart color palette
-const CHART_COLORS = ['#14B8A6', '#3B82F6', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6'];
 const STATUS_COLORS = {
   pending: '#F59E0B',
   approved: '#3B82F6',

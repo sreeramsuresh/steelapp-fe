@@ -403,7 +403,7 @@ const DashboardV2 = () => {
           } : null,
           // Grade Analysis - aggregated by steel grade
           gradeAnalysis: productAnalytics.gradeAnalysis?.length > 0 ? {
-            grades: productAnalytics.gradeAnalysis.map((grade, idx) => ({
+            grades: productAnalytics.gradeAnalysis.map((grade, _idx) => ({
               grade: grade.grade,
               fullName: `Stainless Steel ${grade.grade?.replace('SS ', '')}`,
               revenue: grade.totalRevenue || 0,
@@ -919,7 +919,7 @@ const DashboardV2 = () => {
                           diversificationScore: 68,
                           riskLevel: 'Medium',
                         },
-                        topCustomers: widgetData.customerInsights.topCustomers?.slice(0, 3).map((c, idx) => ({
+                        topCustomers: widgetData.customerInsights.topCustomers?.slice(0, 3).map((c, _idx) => ({
                           id: c.id,
                           name: c.name,
                           revenue: c.totalRevenue,

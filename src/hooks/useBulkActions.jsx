@@ -42,7 +42,7 @@ const useBulkActions = ({
   const [selectedIds, setSelectedIds] = useState(new Set());
 
   // Get all item IDs
-  const allIds = useMemo(() => {
+  const _allIds = useMemo(() => {
     return new Set(items.map(getId));
   }, [items, getId]);
 

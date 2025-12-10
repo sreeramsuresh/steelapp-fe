@@ -8,7 +8,6 @@ import {
   Clock,
   Award,
   FileText,
-  AlertCircle,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';

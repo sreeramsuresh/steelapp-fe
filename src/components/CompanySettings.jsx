@@ -45,7 +45,6 @@ import {
   Pencil,
   ThumbsUp,
   Tag,
-  Circle,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -55,7 +54,6 @@ import { notificationService } from '../services/notificationService';
 import { userAdminAPI } from '../services/userAdminApi';
 import vatRateService from '../services/vatRateService';
 import { apiClient as apiService } from '../services/api';
-import { productNamingService } from '../services/productNamingService';
 import InvoiceTemplateSettings from './InvoiceTemplateSettings';
 import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
 import ProductNamingHelpPanel from './ProductNamingHelpPanel';
@@ -590,7 +588,7 @@ const CompanySettings = () => {
     report_template: '{unique_name}',
   });
   const [savingTemplates, setSavingTemplates] = useState(false);
-  const [sampleProduct, setSampleProduct] = useState({
+  const [sampleProduct, _setSampleProduct] = useState({
     grade: '316',
     form: 'Sheet',
     finish: '2B',
@@ -600,7 +598,7 @@ const CompanySettings = () => {
     origin: 'UAE',
     mill: 'Emirates Steel',
   });
-  const [productVerificationStatus, setProductVerificationStatus] = useState({});
+  const [productVerificationStatus, _setProductVerificationStatus] = useState({});
 
   // Formatters
   const formatDateTime = (value) => {
@@ -4080,11 +4078,12 @@ const CompanySettings = () => {
                 <div className="space-y-4">
                   {/* Product Dropdown Template */}
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="productDropdownTemplate" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Product Dropdown Template
                     </label>
                     <input
                       type="text"
+                      id="productDropdownTemplate"
                       value={displayTemplates.product_dropdown_template}
                       onChange={(e) => setDisplayTemplates({...displayTemplates, product_dropdown_template: e.target.value})}
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
@@ -4105,11 +4104,12 @@ const CompanySettings = () => {
 
                   {/* Document Line Template */}
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="documentLineTemplate" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Document Line Template
                     </label>
                     <input
                       type="text"
+                      id="documentLineTemplate"
                       value={displayTemplates.document_line_template}
                       onChange={(e) => setDisplayTemplates({...displayTemplates, document_line_template: e.target.value})}
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
@@ -4130,11 +4130,12 @@ const CompanySettings = () => {
 
                   {/* Report Template */}
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="reportTemplate" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Report Template
                     </label>
                     <input
                       type="text"
+                      id="reportTemplate"
                       value={displayTemplates.report_template}
                       onChange={(e) => setDisplayTemplates({...displayTemplates, report_template: e.target.value})}
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   X,
   CircleDollarSign,
@@ -317,7 +316,6 @@ const PaymentDrawer = ({
 
                       // VAT Compliance Fields (Migration 113-114)
                       const receiptNumber = p.receiptNumber || p.receipt_number || '';
-                      const compositeReference = p.compositeReference || p.composite_reference || '';
                       const receiptStatus = p.receiptStatus || p.receipt_status || 'draft';
                       const isAdvancePayment = p.isAdvancePayment || p.is_advance_payment || false;
 

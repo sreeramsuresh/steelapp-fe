@@ -38,7 +38,6 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
-  Divider,
 } from '@mui/material';
 import {
   Inventory as InventoryIcon,
@@ -65,7 +64,6 @@ const formatQuantity = (quantity, unit = 'KG') => {
 const getReceivingStatus = (item) => {
   const ordered = parseFloat(item.quantity) || 0;
   const received = parseFloat(item.receivedQuantity) || 0;
-  const pending = parseFloat(item.pendingQuantity) || ordered - received;
 
   if (received >= ordered) {
     return { status: 'complete', label: 'Complete', color: 'success' };

@@ -109,7 +109,7 @@ export default function DeliveryVarianceDashboard() {
     ],
   };
 
-  const getRatingColor = (rating) => {
+  const _getRatingColor = (rating) => {
     switch (rating) {
       case 'CERTIFIED':
         return 'bg-green-100 text-green-800';

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  Plus, Search, Filter, Download, Eye, Edit, Trash2,
+  Plus, Search, Filter, Eye, Edit, Trash2,
   Calculator, FileText, X, Upload, AlertCircle, Check,
-  Calendar, RefreshCw, ChevronDown, ChevronUp, Info,
+  RefreshCw, ChevronDown, ChevronUp, Info,
 } from 'lucide-react';
 import { customsDocumentService } from '../services/customsDocumentService';
 import { importOrderService } from '../services/importOrderService';
@@ -363,7 +363,7 @@ const CustomsDocumentList = () => {
   };
 
   // Handle status update
-  const handleStatusUpdate = async (document, newStatus) => {
+  const _handleStatusUpdate = async (document, newStatus) => {
     try {
       await customsDocumentService.updateClearance(
         document.id,

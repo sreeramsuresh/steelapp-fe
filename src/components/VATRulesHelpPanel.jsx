@@ -158,8 +158,6 @@ const VATRulesHelpPanel = ({ onClose }) => {
       [section]: !prev[section],
     }));
   };
-  
-  console.log('VATRulesHelpPanel rendering', { onClose, isDarkMode });
 
   return (
     <div className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>

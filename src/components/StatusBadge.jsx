@@ -16,20 +16,30 @@ const StatusBadge = ({ label, icon, config, isDarkMode, onClick, title, size = '
 
   const widthClasses = fullWidth ? 'w-full justify-center' : '';
 
-  const badgeContent = (
-    <span
-      className={`inline-flex items-center ${icon ? 'gap-1' : ''} ${sizeClasses} ${widthClasses} font-semibold rounded-full border ${className} ${
-        onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
-      }`}
-      onClick={onClick}
-      title={title}
-    >
+  const sharedClasses = `inline-flex items-center ${icon ? 'gap-1' : ''} ${sizeClasses} ${widthClasses} font-semibold rounded-full border ${className}`;
+
+  // If clickable, render as button for accessibility
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={`${sharedClasses} cursor-pointer hover:opacity-80 transition-opacity`}
+        onClick={onClick}
+        title={title}
+      >
+        {icon && <span>{icon}</span>}
+        <span>{label}</span>
+      </button>
+    );
+  }
+
+  // Otherwise, render as span (non-interactive)
+  return (
+    <span className={sharedClasses} title={title}>
       {icon && <span>{icon}</span>}
       <span>{label}</span>
     </span>
   );
-
-  return badgeContent;
 };
 
 StatusBadge.propTypes = {

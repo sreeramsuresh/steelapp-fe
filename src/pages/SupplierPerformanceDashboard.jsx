@@ -17,7 +17,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 /**

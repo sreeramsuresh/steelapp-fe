@@ -35,7 +35,7 @@ const DeliveryNoteDetails = () => {
     loadDeliveryNote();
   }, [id]);
 
-  const { data: company } = useApiData(companyService.getCompany, [], true);
+  const { data: _company } = useApiData(companyService.getCompany, [], true);
 
   const loadDeliveryNote = async () => {
     try {
@@ -128,7 +128,7 @@ const DeliveryNoteDetails = () => {
     }
   };
 
-  const formatDateLocal = (dateString) => {
+  const _formatDateLocal = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-AE', {
       year: 'numeric',
       month: 'long',

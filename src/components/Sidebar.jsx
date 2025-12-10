@@ -345,20 +345,23 @@ const Sidebar = ({ isOpen, onToggle }) => {
       {/* Navigation - with hidden scrollbar and fade indicators */}
       <div className="flex-1 relative min-h-0">
         {/* Top fade indicator */}
-        <div 
+        <div
+          role="button"
+          tabIndex={0}
           onClick={handleScrollUp}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleScrollUp(e); }}
           className={`absolute top-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
             showTopFade ? 'opacity-100 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           style={{
-            background: isDarkMode 
+            background: isDarkMode
               ? 'linear-gradient(to bottom, rgba(30, 35, 40, 0.95) 0%, rgba(30, 35, 40, 0.7) 50%, rgba(30, 35, 40, 0) 100%)'
               : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%)',
           }}
         >
           <div className="absolute inset-0 flex items-center justify-center">
-            <ChevronUp 
-              size={16} 
+            <ChevronUp
+              size={16}
               className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transition-transform hover:scale-110`}
               style={{ opacity: 0.7 }}
             />
@@ -441,20 +444,23 @@ const Sidebar = ({ isOpen, onToggle }) => {
         </div>
 
         {/* Bottom fade indicator */}
-        <div 
+        <div
+          role="button"
+          tabIndex={0}
           onClick={handleScrollDown}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleScrollDown(e); }}
           className={`absolute bottom-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
             showBottomFade ? 'opacity-100 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           style={{
-            background: isDarkMode 
+            background: isDarkMode
               ? 'linear-gradient(to top, rgba(30, 35, 40, 0.95) 0%, rgba(30, 35, 40, 0.7) 50%, rgba(30, 35, 40, 0) 100%)'
               : 'linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%)',
           }}
         >
           <div className="absolute inset-0 flex items-center justify-center">
-            <ChevronDown 
-              size={16} 
+            <ChevronDown
+              size={16}
               className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transition-transform hover:scale-110`}
               style={{ opacity: 0.7 }}
             />

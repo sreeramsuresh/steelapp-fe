@@ -25,7 +25,7 @@ import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
  */
 const CommissionAuditTrail = ({
   invoiceId,
-  commissionId,
+  commissionId: _commissionId,
   isExpanded: initialExpanded = false,
   onClose,
   asModal = false,
@@ -224,7 +224,7 @@ const CommissionAuditTrail = ({
                   {/* Notes */}
                   {notes && (
                     <div className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      <span className="italic">"{notes}"</span>
+                      <span className="italic">&quot;{notes}&quot;</span>
                     </div>
                   )}
                 </div>

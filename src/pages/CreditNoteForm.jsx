@@ -5,15 +5,12 @@ import {
   Save,
   Eye,
   AlertTriangle,
-  Plus,
-  Trash2,
   Package,
   FileText,
   Search,
   Loader2,
   Filter,
   X,
-  Clock,
   Send,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -22,7 +19,7 @@ import { invoiceService } from '../services/invoiceService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
 import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
-import useCreditNoteDrafts, { getDraftStatusMessage } from '../hooks/useCreditNoteDrafts';
+import useCreditNoteDrafts from '../hooks/useCreditNoteDrafts';
 import DraftConflictModal from '../components/DraftConflictModal';
 import CreditNotePreview from '../components/credit-notes/CreditNotePreview';
 
@@ -101,6 +98,7 @@ const CreditNoteForm = () => {
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [company, setCompany] = useState(null);
+  const [_invoiceLoading] = useState(false);
 
   // Form state
   const [creditNote, setCreditNote] = useState({
@@ -150,7 +148,7 @@ const CreditNoteForm = () => {
   });
 
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [availableInvoices, setAvailableInvoices] = useState([]);
+  const [_availableInvoices, _setAvailableInvoices] = useState([]);
   const [showInvoiceSelect, setShowInvoiceSelect] = useState(!id);
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
@@ -259,14 +257,9 @@ const CreditNoteForm = () => {
   }, []);
 
   const {
-    saveDraft,
-    getDraft,
     deleteDraft,
-    hasDraftForInvoice,
     checkConflict,
-    setPendingSave,
     clearPendingSave,
-    refreshDrafts,
   } = useCreditNoteDrafts({
     currentInvoiceId: currentInvoiceId ? parseInt(currentInvoiceId) : null,
     onConflict: handleDraftConflict,
@@ -319,7 +312,7 @@ const CreditNoteForm = () => {
         ...data,
         creditNoteDate: data.creditNoteDate 
           ? formatDateForInput(new Date(data.creditNoteDate))
-          : formatDateForInput(new Date())
+          : formatDateForInput(new Date()),
       };
       
       setCreditNote(formattedData);
@@ -348,7 +341,7 @@ const CreditNoteForm = () => {
         ...draft.data,
         creditNoteDate: draft.data.creditNoteDate 
           ? formatDateForInput(new Date(draft.data.creditNoteDate))
-          : formatDateForInput(new Date())
+          : formatDateForInput(new Date()),
       };
       setCreditNote(restoredData);
       setShowInvoiceSelect(false);
@@ -732,8 +725,6 @@ const CreditNoteForm = () => {
         status: issueImmediately ? 'issued' : 'draft',
       };
 
-      console.log('Saving credit note data:', creditNoteData);
-
       if (id) {
         await creditNoteService.updateCreditNote(id, creditNoteData);
         notificationService.success('Credit note updated successfully');
@@ -962,13 +953,14 @@ const CreditNoteForm = () => {
                   Select Invoice
                 </h2>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="invoice-search-input" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Invoice Number <span className="text-red-500 font-bold">*</span>
                   </label>
                   <div className="relative">
                     <div className="relative">
                       <Search className={`absolute left-3 top-3 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                       <input
+                        id="invoice-search-input"
                         type="text"
                         placeholder="Start typing invoice number or customer name..."
                         value={searchQuery}
@@ -1250,10 +1242,11 @@ const CreditNoteForm = () => {
                           </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <label className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <label htmlFor={`original-qty-${index}`} className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Original Qty
                               </label>
                               <input
+                                id={`original-qty-${index}`}
                                 type="number"
                                 value={item.originalQuantity}
                                 disabled
@@ -1265,10 +1258,11 @@ const CreditNoteForm = () => {
                               />
                             </div>
                             <div>
-                              <label className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <label htmlFor={`return-qty-${index}`} className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Return Qty {itemsRequired && <span className="text-red-500 font-bold">*</span>}
                               </label>
                               <input
+                                id={`return-qty-${index}`}
                                 type="number"
                                 min="0"
                                 max={item.originalQuantity}
@@ -1296,10 +1290,11 @@ const CreditNoteForm = () => {
                               />
                             </div>
                             <div>
-                              <label className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <label htmlFor={`amount-${index}`} className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Amount
                               </label>
                               <input
+                                id={`amount-${index}`}
                                 type="text"
                                 value={formatCurrency(item.amount)}
                                 disabled
@@ -1329,10 +1324,11 @@ const CreditNoteForm = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="credit-note-number" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Credit Note Number
                   </label>
                   <input
+                    id="credit-note-number"
                     type="text"
                     value={creditNote.creditNoteNumber}
                     disabled
@@ -1344,10 +1340,11 @@ const CreditNoteForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="credit-note-type" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Credit Note Type <span className="text-red-500 font-bold">*</span>
                   </label>
                   <select
+                    id="credit-note-type"
                     value={creditNote.creditNoteType}
                     onChange={(e) => setCreditNote(prev => ({ ...prev, creditNoteType: e.target.value }))}
                     disabled={!isEditable}
@@ -1373,10 +1370,11 @@ const CreditNoteForm = () => {
                   </p>
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="credit-note-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Date <span className="text-red-500 font-bold">*</span>
                   </label>
                   <input
+                    id="credit-note-date"
                     type="date"
                     value={creditNote.creditNoteDate}
                     onChange={(e) => {
@@ -1413,10 +1411,10 @@ const CreditNoteForm = () => {
                 {/* Status - Read-only display, not editable by user */}
                 {id && (
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="credit-note-status" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Status
                     </label>
-                    <div className={`w-full px-4 py-2 rounded-lg border ${
+                    <div id="credit-note-status" className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
                         ? 'border-gray-600 bg-gray-800 text-gray-400'
                         : 'border-gray-300 bg-gray-100 text-gray-600'
@@ -1429,10 +1427,11 @@ const CreditNoteForm = () => {
                   </div>
                 )}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="reason-for-return" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Reason for Return <span className="text-red-500 font-bold">*</span>
                   </label>
                   <select
+                    id="reason-for-return"
                     value={creditNote.reasonForReturn}
                     onChange={(e) => handleReasonChange(e.target.value)}
                     onBlur={() => handleFieldBlur('reasonForReturn')}
@@ -1487,10 +1486,11 @@ const CreditNoteForm = () => {
                   )}
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="credit-note-notes" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Notes
                   </label>
                   <textarea
+                    id="credit-note-notes"
                     value={creditNote.notes}
                     onChange={(e) => setCreditNote(prev => ({ ...prev, notes: e.target.value }))}
                     rows={4}
@@ -1522,10 +1522,11 @@ const CreditNoteForm = () => {
                 </p>
                 <div className="space-y-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="settlement-method" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Settlement Method {creditNote.manualCreditAmount > 0 && <span className="text-red-500">*</span>}
                     </label>
                     <select
+                      id="settlement-method"
                       value={creditNote.refundMethod}
                       onChange={(e) => {
                         setCreditNote(prev => ({ ...prev, refundMethod: e.target.value }));
@@ -1558,10 +1559,11 @@ const CreditNoteForm = () => {
                     </p>
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="settlement-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Settlement Date
                     </label>
                     <input
+                      id="settlement-date"
                       type="date"
                       value={creditNote.refundDate}
                       onChange={(e) => setCreditNote(prev => ({ ...prev, refundDate: e.target.value }))}
@@ -1573,13 +1575,14 @@ const CreditNoteForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="settlement-reference" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Reference / Transaction ID
                       {creditNote.refundMethod && METHODS_REQUIRING_REFERENCE.includes(creditNote.refundMethod) && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
                     <input
+                      id="settlement-reference"
                       type="text"
                       value={creditNote.refundReference}
                       onChange={(e) => {
@@ -1595,10 +1598,10 @@ const CreditNoteForm = () => {
                       onBlur={() => handleFieldBlur('refundReference')}
                       placeholder={
                         creditNote.refundMethod === 'bank_transfer' ? 'Bank transaction ID' :
-                        creditNote.refundMethod === 'cheque' ? 'Cheque number' :
-                        creditNote.refundMethod === 'credit_card' ? 'Card transaction ID' :
-                        creditNote.refundMethod === 'offset_invoice' ? 'Invoice number to offset' :
-                        'Reference number (optional)'
+                          creditNote.refundMethod === 'cheque' ? 'Cheque number' :
+                            creditNote.refundMethod === 'credit_card' ? 'Card transaction ID' :
+                              creditNote.refundMethod === 'offset_invoice' ? 'Invoice number to offset' :
+                                'Reference number (optional)'
                       }
                       className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                         invalidFields.has('refundReference')
@@ -1623,10 +1626,10 @@ const CreditNoteForm = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <label htmlFor="qc-result" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         QC Result
                       </label>
-                      <div className={`px-4 py-2 rounded-lg border ${
+                      <div id="qc-result" className={`px-4 py-2 rounded-lg border ${
                         isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'
                       }`}>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -1642,10 +1645,10 @@ const CreditNoteForm = () => {
                     </div>
                     {creditNote.qcInspectedAt && (
                       <div className="flex-1">
-                        <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor="qc-inspected-at" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Inspected At
                         </label>
-                        <div className={`px-4 py-2 rounded-lg border text-sm ${
+                        <div id="qc-inspected-at" className={`px-4 py-2 rounded-lg border text-sm ${
                           isDarkMode ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-600'
                         }`}>
                           {new Date(creditNote.qcInspectedAt).toLocaleString()}
@@ -1655,10 +1658,10 @@ const CreditNoteForm = () => {
                   </div>
                   {creditNote.qcNotes && (
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <label htmlFor="qc-notes" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         QC Notes
                       </label>
-                      <div className={`px-4 py-3 rounded-lg border text-sm ${
+                      <div id="qc-notes" className={`px-4 py-3 rounded-lg border text-sm ${
                         isDarkMode ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-300 bg-gray-50 text-gray-600'
                       }`}>
                         {creditNote.qcNotes}
@@ -1677,10 +1680,11 @@ const CreditNoteForm = () => {
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="expected-return-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Expected Return Date <span className="text-red-500 font-bold">*</span>
                     </label>
                     <input
+                      id="expected-return-date"
                       type="date"
                       value={creditNote.expectedReturnDate}
                       onChange={(e) => {
@@ -1713,10 +1717,11 @@ const CreditNoteForm = () => {
                     )}
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="return-shipping-cost" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Return Shipping Cost (AED)
                     </label>
                     <input
+                      id="return-shipping-cost"
                       type="number"
                       min="0"
                       step="0.01"
@@ -1731,10 +1736,11 @@ const CreditNoteForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="restocking-fee" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Restocking Fee (AED)
                     </label>
                     <input
+                      id="restocking-fee"
                       type="number"
                       min="0"
                       step="0.01"
@@ -1768,10 +1774,11 @@ const CreditNoteForm = () => {
                 </p>
                 <div className="space-y-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="manual-credit-amount" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Credit Amount (AED) {!hasSelectedItems && <span className="text-red-500 font-bold">*</span>}
                     </label>
                     <input
+                      id="manual-credit-amount"
                       type="number"
                       min="0"
                       step="0.01"

@@ -127,7 +127,7 @@ const VendorBillForm = () => {
     } else {
       loadNextBillNumber();
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // loadVendorBill and loadNextBillNumber are stable
 
   // Calculate due date when bill date or payment terms change

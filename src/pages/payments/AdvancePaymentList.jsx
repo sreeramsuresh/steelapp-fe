@@ -109,7 +109,7 @@ const AdvancePaymentList = () => {
   // Load payments when filters change
   useEffect(() => {
     loadPayments();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, debouncedSearch, statusFilter, customerFilter, startDate, endDate]); // loadPayments is stable
 
   const loadPayments = async () => {

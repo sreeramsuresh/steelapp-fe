@@ -13,7 +13,7 @@ import { deliveryVarianceService } from '../../services/deliveryVarianceService'
 const DeliveryVarianceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [kpis, setKpis] = useState(null);
-  const [trend, setTrend] = useState([]);
+  const [_trend, setTrend] = useState([]);
   const [breakdown, setBreakdown] = useState([]);
   const [lateDeliveries, setLateDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);

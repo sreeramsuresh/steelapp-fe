@@ -1,68 +1,75 @@
-import { Warehouse, Truck, Ship } from 'lucide-react';
+import { Warehouse, Truck, Ship, ChevronDown } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * SourceTypeSelector Component
- * Radio button selector for invoice line item source type
+ * Dropdown selector for invoice line item source type
  * Options: Warehouse Stock, Local Drop-Ship, Import Drop-Ship
  */
-const SourceTypeSelector = ({ value = 'WAREHOUSE', onChange, disabled = false }) => {
+const SourceTypeSelector = ({ value = 'WAREHOUSE', onChange, disabled = false, id }) => {
   const { isDarkMode } = useTheme();
 
   const options = [
     {
       value: 'WAREHOUSE',
       label: 'Warehouse Stock',
+      shortLabel: 'Warehouse',
       icon: Warehouse,
-      description: 'From inventory',
     },
     {
       value: 'LOCAL_DROP_SHIP',
       label: 'Local Drop-Ship',
+      shortLabel: 'Local Drop',
       icon: Truck,
-      description: 'Direct supplier delivery',
     },
     {
       value: 'IMPORT_DROP_SHIP',
       label: 'Import Drop-Ship',
+      shortLabel: 'Import Drop',
       icon: Ship,
-      description: 'International shipment',
     },
   ];
 
-  return (
-    <div className="flex gap-2">
-      {options.map((option) => {
-        const Icon = option.icon;
-        const isSelected = value === option.value;
+  const selectedOption = options.find((opt) => opt.value === value) || options[0];
+  const Icon = selectedOption.icon;
 
-        return (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => !disabled && onChange(option.value)}
-            disabled={disabled}
-            className={`
-              flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium
-              transition-all duration-200 flex-1
-              ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-              ${
-                isSelected
-                  ? isDarkMode
-                    ? 'bg-teal-900/50 border-2 border-teal-500 text-teal-300'
-                    : 'bg-teal-50 border-2 border-teal-600 text-teal-700'
-                  : isDarkMode
-                    ? 'bg-gray-700 border-2 border-gray-600 text-gray-300 hover:bg-gray-600'
-                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
-              }
-            `}
-            title={option.description}
-          >
-            <Icon className="h-4 w-4 flex-shrink-0" />
-            <span className="whitespace-nowrap">{option.label}</span>
-          </button>
-        );
-      })}
+  return (
+    <div className="relative inline-block w-full min-w-[140px] max-w-[160px]">
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`
+          w-full appearance-none pl-8 pr-7 py-1.5 rounded-md text-xs font-medium
+          transition-all duration-200 cursor-pointer
+          ${disabled ? 'cursor-not-allowed opacity-50' : ''}
+          ${
+    isDarkMode
+      ? 'bg-gray-700 border border-gray-600 text-gray-200 hover:bg-gray-600 focus:border-teal-500'
+      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:border-teal-500'
+    }
+          focus:outline-none focus:ring-1 focus:ring-teal-500
+        `}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.shortLabel}
+          </option>
+        ))}
+      </select>
+      {/* Icon on the left */}
+      <Icon
+        className={`absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+        }`}
+      />
+      {/* Chevron on the right */}
+      <ChevronDown
+        className={`absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+        }`}
+      />
     </div>
   );
 };

@@ -130,63 +130,63 @@ export const BarChartWrapper = ({
           layout={layout}
           margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
         >
-        {showGrid && (
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={themeColors.grid}
-            vertical={false}
+          {showGrid && (
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={themeColors.grid}
+              vertical={false}
+            />
+          )}
+          <XAxis
+            dataKey={layout === 'horizontal' ? xAxisKey : undefined}
+            type={layout === 'horizontal' ? 'category' : 'number'}
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
           />
-        )}
-        <XAxis
-          dataKey={layout === 'horizontal' ? xAxisKey : undefined}
-          type={layout === 'horizontal' ? 'category' : 'number'}
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-        />
-        <YAxis
-          dataKey={layout === 'vertical' ? xAxisKey : undefined}
-          type={layout === 'vertical' ? 'category' : 'number'}
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-          tickFormatter={formatter}
-        />
-        <Tooltip
-          content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
-        />
-        {showLegend && (
-          <Legend
-            wrapperStyle={{ color: themeColors.textPrimary }}
+          <YAxis
+            dataKey={layout === 'vertical' ? xAxisKey : undefined}
+            type={layout === 'vertical' ? 'category' : 'number'}
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
+            tickFormatter={formatter}
           />
-        )}
-        {multiSeries ? (
-          multiSeries.map((series, index) => (
+          <Tooltip
+            content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
+          />
+          {showLegend && (
+            <Legend
+              wrapperStyle={{ color: themeColors.textPrimary }}
+            />
+          )}
+          {multiSeries ? (
+            multiSeries.map((series, index) => (
+              <Bar
+                key={series.dataKey}
+                dataKey={series.dataKey}
+                name={series.name}
+                fill={series.color || chartColors[index % chartColors.length]}
+                stackId={stacked ? 'stack' : undefined}
+                barSize={barSize}
+                radius={[4, 4, 0, 0]}
+              />
+            ))
+          ) : (
             <Bar
-              key={series.dataKey}
-              dataKey={series.dataKey}
-              name={series.name}
-              fill={series.color || chartColors[index % chartColors.length]}
-              stackId={stacked ? 'stack' : undefined}
+              dataKey={dataKey}
+              fill={chartColors[0]}
               barSize={barSize}
               radius={[4, 4, 0, 0]}
-            />
-          ))
-        ) : (
-          <Bar
-            dataKey={dataKey}
-            fill={chartColors[0]}
-            barSize={barSize}
-            radius={[4, 4, 0, 0]}
-          >
-            {data?.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.color || chartColors[index % chartColors.length]}
-              />
-            ))}
-          </Bar>
-        )}
+            >
+              {data?.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color || chartColors[index % chartColors.length]}
+                />
+              ))}
+            </Bar>
+          )}
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -221,58 +221,58 @@ export const LineChartWrapper = ({
           data={data}
           margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
         >
-        {showGrid && (
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={themeColors.grid}
-            vertical={false}
+          {showGrid && (
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={themeColors.grid}
+              vertical={false}
+            />
+          )}
+          <XAxis
+            dataKey={xAxisKey}
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
           />
-        )}
-        <XAxis
-          dataKey={xAxisKey}
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-        />
-        <YAxis
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-          tickFormatter={formatter}
-        />
-        <Tooltip
-          content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
-        />
-        {showLegend && (
-          <Legend
-            wrapperStyle={{ color: themeColors.textPrimary }}
+          <YAxis
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
+            tickFormatter={formatter}
           />
-        )}
-        {multiSeries ? (
-          multiSeries.map((series, index) => (
+          <Tooltip
+            content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
+          />
+          {showLegend && (
+            <Legend
+              wrapperStyle={{ color: themeColors.textPrimary }}
+            />
+          )}
+          {multiSeries ? (
+            multiSeries.map((series, index) => (
+              <Line
+                key={series.dataKey}
+                type={curved ? 'monotone' : 'linear'}
+                dataKey={series.dataKey}
+                name={series.name}
+                stroke={series.color || chartColors[index % chartColors.length]}
+                strokeWidth={2}
+                dot={showDots ? { fill: series.color || chartColors[index % chartColors.length], strokeWidth: 2 } : false}
+                activeDot={{ r: 6, strokeWidth: 2 }}
+              />
+            ))
+          ) : (
             <Line
-              key={series.dataKey}
               type={curved ? 'monotone' : 'linear'}
-              dataKey={series.dataKey}
-              name={series.name}
-              stroke={series.color || chartColors[index % chartColors.length]}
+              dataKey={dataKey}
+              stroke={chartColors[0]}
               strokeWidth={2}
-              dot={showDots ? { fill: series.color || chartColors[index % chartColors.length], strokeWidth: 2 } : false}
+              dot={showDots ? { fill: chartColors[0], strokeWidth: 2 } : false}
               activeDot={{ r: 6, strokeWidth: 2 }}
             />
-          ))
-        ) : (
-          <Line
-            type={curved ? 'monotone' : 'linear'}
-            dataKey={dataKey}
-            stroke={chartColors[0]}
-            strokeWidth={2}
-            dot={showDots ? { fill: chartColors[0], strokeWidth: 2 } : false}
-            activeDot={{ r: 6, strokeWidth: 2 }}
-          />
-        )}
-      </LineChart>
-    </ResponsiveContainer>
+          )}
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
@@ -301,87 +301,87 @@ export const AreaChartWrapper = ({
 
   return (
     <div data-testid="area-chart">
-    <ResponsiveContainer width="100%" height={height}>
-      <AreaChart
-        data={data}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-      >
-        <defs>
-          {(multiSeries || [{ dataKey, color: chartColors[0] }]).map((series, index) => (
-            <linearGradient
-              key={`gradient-${series.dataKey}`}
-              id={`gradient-${series.dataKey}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="5%"
-                stopColor={series.color || chartColors[index % chartColors.length]}
-                stopOpacity={0.3}
-              />
-              <stop
-                offset="95%"
-                stopColor={series.color || chartColors[index % chartColors.length]}
-                stopOpacity={0}
-              />
-            </linearGradient>
-          ))}
-        </defs>
-        {showGrid && (
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={themeColors.grid}
-            vertical={false}
-          />
-        )}
-        <XAxis
-          dataKey={xAxisKey}
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-        />
-        <YAxis
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-          axisLine={{ stroke: themeColors.grid }}
-          tickLine={{ stroke: themeColors.grid }}
-          tickFormatter={formatter}
-        />
-        <Tooltip
-          content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
-        />
-        {showLegend && (
-          <Legend
-            wrapperStyle={{ color: themeColors.textPrimary }}
-          />
-        )}
-        {multiSeries ? (
-          multiSeries.map((series, index) => (
-            <Area
-              key={series.dataKey}
-              type={curved ? 'monotone' : 'linear'}
-              dataKey={series.dataKey}
-              name={series.name}
-              stroke={series.color || chartColors[index % chartColors.length]}
-              strokeWidth={2}
-              fill={gradient ? `url(#gradient-${series.dataKey})` : (series.color || chartColors[index % chartColors.length])}
-              fillOpacity={gradient ? 1 : 0.3}
-              stackId={stacked ? 'stack' : undefined}
+      <ResponsiveContainer width="100%" height={height}>
+        <AreaChart
+          data={data}
+          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        >
+          <defs>
+            {(multiSeries || [{ dataKey, color: chartColors[0] }]).map((series, index) => (
+              <linearGradient
+                key={`gradient-${series.dataKey}`}
+                id={`gradient-${series.dataKey}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="5%"
+                  stopColor={series.color || chartColors[index % chartColors.length]}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={series.color || chartColors[index % chartColors.length]}
+                  stopOpacity={0}
+                />
+              </linearGradient>
+            ))}
+          </defs>
+          {showGrid && (
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={themeColors.grid}
+              vertical={false}
             />
-          ))
-        ) : (
-          <Area
-            type={curved ? 'monotone' : 'linear'}
-            dataKey={dataKey}
-            stroke={chartColors[0]}
-            strokeWidth={2}
-            fill={gradient ? `url(#gradient-${dataKey})` : chartColors[0]}
-            fillOpacity={gradient ? 1 : 0.3}
+          )}
+          <XAxis
+            dataKey={xAxisKey}
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
           />
-        )}
-      </AreaChart>
-    </ResponsiveContainer>
+          <YAxis
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
+            axisLine={{ stroke: themeColors.grid }}
+            tickLine={{ stroke: themeColors.grid }}
+            tickFormatter={formatter}
+          />
+          <Tooltip
+            content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
+          />
+          {showLegend && (
+            <Legend
+              wrapperStyle={{ color: themeColors.textPrimary }}
+            />
+          )}
+          {multiSeries ? (
+            multiSeries.map((series, index) => (
+              <Area
+                key={series.dataKey}
+                type={curved ? 'monotone' : 'linear'}
+                dataKey={series.dataKey}
+                name={series.name}
+                stroke={series.color || chartColors[index % chartColors.length]}
+                strokeWidth={2}
+                fill={gradient ? `url(#gradient-${series.dataKey})` : (series.color || chartColors[index % chartColors.length])}
+                fillOpacity={gradient ? 1 : 0.3}
+                stackId={stacked ? 'stack' : undefined}
+              />
+            ))
+          ) : (
+            <Area
+              type={curved ? 'monotone' : 'linear'}
+              dataKey={dataKey}
+              stroke={chartColors[0]}
+              strokeWidth={2}
+              fill={gradient ? `url(#gradient-${dataKey})` : chartColors[0]}
+              fillOpacity={gradient ? 1 : 0.3}
+            />
+          )}
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 };
@@ -429,40 +429,40 @@ export const PieChartWrapper = ({
 
   return (
     <div data-testid="pie-chart">
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey={dataKey}
-          nameKey={nameKey}
-          cx="50%"
-          cy="50%"
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          paddingAngle={2}
-          label={showLabels ? renderCustomizedLabel : false}
-          labelLine={false}
-        >
-          {data?.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={entry.color || chartColors[index % chartColors.length]}
-            />
-          ))}
-        </Pie>
-        <Tooltip
-          content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
-        />
-        {showLegend && (
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{ color: themeColors.textPrimary }}
+      <ResponsiveContainer width="100%" height={height}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey={dataKey}
+            nameKey={nameKey}
+            cx="50%"
+            cy="50%"
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+            paddingAngle={2}
+            label={showLabels ? renderCustomizedLabel : false}
+            labelLine={false}
+          >
+            {data?.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color || chartColors[index % chartColors.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
           />
-        )}
-      </PieChart>
-    </ResponsiveContainer>
+          {showLegend && (
+            <Legend
+              layout="horizontal"
+              verticalAlign="bottom"
+              align="center"
+              wrapperStyle={{ color: themeColors.textPrimary }}
+            />
+          )}
+        </PieChart>
+      </ResponsiveContainer>
     </div>
   );
 };
@@ -487,47 +487,47 @@ export const RadarChartWrapper = ({
 
   return (
     <div data-testid="radar-chart">
-    <ResponsiveContainer width="100%" height={height}>
-      <RadarChart data={data} cx="50%" cy="50%" outerRadius="80%">
-        <PolarGrid stroke={themeColors.grid} />
-        <PolarAngleAxis
-          dataKey={angleKey}
-          tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
-        />
-        <PolarRadiusAxis
-          tick={{ fill: themeColors.textSecondary, fontSize: 10 }}
-          tickFormatter={formatter}
-        />
-        <Tooltip
-          content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
-        />
-        {showLegend && (
-          <Legend
-            wrapperStyle={{ color: themeColors.textPrimary }}
+      <ResponsiveContainer width="100%" height={height}>
+        <RadarChart data={data} cx="50%" cy="50%" outerRadius="80%">
+          <PolarGrid stroke={themeColors.grid} />
+          <PolarAngleAxis
+            dataKey={angleKey}
+            tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
           />
-        )}
-        {multiSeries ? (
-          multiSeries.map((series, index) => (
+          <PolarRadiusAxis
+            tick={{ fill: themeColors.textSecondary, fontSize: 10 }}
+            tickFormatter={formatter}
+          />
+          <Tooltip
+            content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />}
+          />
+          {showLegend && (
+            <Legend
+              wrapperStyle={{ color: themeColors.textPrimary }}
+            />
+          )}
+          {multiSeries ? (
+            multiSeries.map((series, index) => (
+              <Radar
+                key={series.dataKey}
+                name={series.name}
+                dataKey={series.dataKey}
+                stroke={series.color || chartColors[index % chartColors.length]}
+                fill={series.color || chartColors[index % chartColors.length]}
+                fillOpacity={0.3}
+              />
+            ))
+          ) : (
             <Radar
-              key={series.dataKey}
-              name={series.name}
-              dataKey={series.dataKey}
-              stroke={series.color || chartColors[index % chartColors.length]}
-              fill={series.color || chartColors[index % chartColors.length]}
+              name={dataKey}
+              dataKey={dataKey}
+              stroke={chartColors[0]}
+              fill={chartColors[0]}
               fillOpacity={0.3}
             />
-          ))
-        ) : (
-          <Radar
-            name={dataKey}
-            dataKey={dataKey}
-            stroke={chartColors[0]}
-            fill={chartColors[0]}
-            fillOpacity={0.3}
-          />
-        )}
-      </RadarChart>
-    </ResponsiveContainer>
+          )}
+        </RadarChart>
+      </ResponsiveContainer>
     </div>
   );
 };

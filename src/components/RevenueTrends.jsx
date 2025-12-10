@@ -1,18 +1,15 @@
 import { useState, useMemo } from 'react';
-import { 
+import {
   TrendingUp,
-  TrendingDown,
   BarChart3,
   LineChart,
   Calendar,
   Target,
   Activity,
   AlertCircle,
-  CheckCircle,
   ArrowUp,
   ArrowDown,
   Minus,
-  Eye,
   Download,
   RefreshCw,
   Zap,
@@ -20,7 +17,6 @@ import {
   Snowflake,
   Leaf,
   Flower2,
-  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { format, subMonths, addMonths } from 'date-fns';

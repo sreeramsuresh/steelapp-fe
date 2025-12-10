@@ -112,7 +112,6 @@ const StockMovementPage = () => {
 
   const handleViewReservation = (reservation) => {
     setSelectedReservation(reservation);
-    console.log('View reservation:', reservation);
   };
 
   // Render tab content

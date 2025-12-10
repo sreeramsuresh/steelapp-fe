@@ -65,7 +65,7 @@ const getMovementTypeDisplay = (type) => {
   return typeInfo;
 };
 
-const POStockMovements = ({ purchaseOrderId, poNumber, defaultExpanded = true }) => {
+const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpanded = true }) => {
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

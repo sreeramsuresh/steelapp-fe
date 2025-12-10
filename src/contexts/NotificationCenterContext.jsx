@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
-import { apiClient } from '../services/api';
 import { uuid } from '../utils/uuid';
 
 const NotificationCenterContext = createContext(null);

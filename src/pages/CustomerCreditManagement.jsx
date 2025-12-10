@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, TrendingUp, Clock } from 'lucide-react';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 import { customerCreditService } from '../services/customerCreditService';
 
 export default function CustomerCreditManagement() {
-  const [customers, setCustomers] = useState([]);
+  const [_customers, _setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [creditDetails, setCreditDetails] = useState(null);
   const [agingData, setAgingData] = useState(null);

@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MarketingLayout from './MarketingLayout';
 
 const About = () => {
-  const [activeTab, setActiveTab] = useState(0);
-
   const products = [
     'Structural Steel (Beams, Channels, Angles)',
     'Steel Pipes & Tubes',
@@ -275,8 +272,7 @@ const About = () => {
               {galleryImages.map((image, index) => (
                 <div
                   key={index}
-                  className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
-                  onClick={() => setActiveTab(index)}
+                  className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
                   <img
                     src={image.src}

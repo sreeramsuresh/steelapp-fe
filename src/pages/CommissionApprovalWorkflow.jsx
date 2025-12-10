@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CheckCircle, Clock, DollarSign, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
-import { notificationService } from '../services/notificationService';
 
 export default function CommissionApprovalWorkflow() {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -90,7 +89,7 @@ export default function CommissionApprovalWorkflow() {
     }
   };
 
-  const handleRejectCommission = async (commission) => {
+  const _handleRejectCommission = async (_commission) => {
     // In a real scenario, this would be a separate action
 
   };
@@ -180,7 +179,7 @@ export default function CommissionApprovalWorkflow() {
                 const gracePeriodEndDate = commission.gracePeriodEndDate || commission.grace_period_end_date;
                 const daysUntilDeadline = commission.daysUntilDeadline || commission.days_until_deadline;
                 
-                const stats = salesPersonStats[salesPersonId] || {};
+                const _stats = salesPersonStats[salesPersonId] || {};
                 const gracePeriodEnd = gracePeriodEndDate ? new Date(gracePeriodEndDate) : new Date();
                 const daysRemaining = (daysUntilDeadline && daysUntilDeadline > 0) 
                   ? daysUntilDeadline 

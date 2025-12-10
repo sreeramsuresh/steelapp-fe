@@ -11,12 +11,8 @@ import {
   TrendingUp,
   TrendingDown,
   Crown,
-  Users,
-  DollarSign,
   Info,
   RefreshCw,
-  ChevronRight,
-  Star,
 } from 'lucide-react';
 
 // Mock CLV data

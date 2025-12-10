@@ -17,7 +17,6 @@ import { purchaseOrdersAPI } from '../services/api';
 import { purchaseOrderSyncService } from '../services/purchaseOrderSyncService';
 import { productService } from '../services/productService';
 import { createStockMovement, PRODUCT_TYPES, STEEL_GRADES, FINISHES, MOVEMENT_TYPES } from '../types';
-import { notificationService } from '../services/notificationService';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 
@@ -65,7 +64,7 @@ const StockMovement = () => {
       // Filter for in-transit purchase orders.
       // Backend doesn&apos;t expose transit_status; use stock_status === 'transit'
       // and exclude ones already received/cancelled.
-      const inTransitPOs = allPOs.filter(po =>
+      const _inTransitPOs = allPOs.filter(po =>
         (po.stockStatus === 'transit') && po.status !== 'received' && po.status !== 'cancelled',
       );
       // Use the sync service to generate transit movements

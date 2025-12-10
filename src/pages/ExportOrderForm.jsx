@@ -95,13 +95,15 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = '', required = false, helperText, ...props }) => {
+const Input = ({ label, error, className = '', required = false, helperText, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="space-y-0.5">
       {label && (
         <label
+          htmlFor={inputId}
           className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
@@ -110,6 +112,7 @@ const Input = ({ label, error, className = '', required = false, helperText, ...
         </label>
       )}
       <input
+        id={inputId}
         className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
             ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
@@ -131,13 +134,15 @@ const Input = ({ label, error, className = '', required = false, helperText, ...
   );
 };
 
-const Select = ({ label, children, error, className = '', required = false, helperText, ...props }) => {
+const Select = ({ label, children, error, className = '', required = false, helperText, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="space-y-0.5">
       {label && (
         <label
+          htmlFor={selectId}
           className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
@@ -147,6 +152,7 @@ const Select = ({ label, children, error, className = '', required = false, help
       )}
       <div className="relative">
         <select
+          id={selectId}
           className={`w-full pl-2 pr-8 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none ${
             isDarkMode
               ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500'
@@ -176,13 +182,15 @@ const Select = ({ label, children, error, className = '', required = false, help
   );
 };
 
-const Textarea = ({ label, error, className = '', required = false, ...props }) => {
+const Textarea = ({ label, error, className = '', required = false, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="space-y-1">
       {label && (
         <label
+          htmlFor={textareaId}
           className={`block text-sm font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
@@ -191,6 +199,7 @@ const Textarea = ({ label, error, className = '', required = false, ...props }) 
         </label>
       )}
       <textarea
+        id={textareaId}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
           isDarkMode
             ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500'
@@ -999,7 +1008,6 @@ const ExportOrderForm = () => {
           sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
         } catch (error) {
           // Fallback to default product price
-          console.debug('Pricelist price not found, using default:', error.message);
         }
       }
 
@@ -1393,11 +1401,12 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Customer Search/Select */}
             <div className="relative">
-              <label className={`block text-xs font-medium mb-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} after:content-["*"] after:ml-1 after:text-red-500`}>
+              <label htmlFor="customer-search" className={`block text-xs font-medium mb-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} after:content-["*"] after:ml-1 after:text-red-500`}>
                 Customer
               </label>
               <div className="relative">
                 <input
+                  id="customer-search"
                   type="text"
                   value={customerSearchTerm || order.customer_name}
                   onChange={(e) => {

@@ -31,7 +31,7 @@ const InvoicePreview = ({ invoice, company, onClose, invoiceId, onSave, isSaving
   };
 
   // Get template color reactively from company settings (handles both camelCase and snake_case)
-  const primaryColor = useMemo(() => {
+  const _primaryColor = useMemo(() => {
     return company?.settings?.invoiceTemplate?.colors?.primary
       || company?.settings?.invoice_template?.colors?.primary
       || DEFAULT_TEMPLATE_SETTINGS.colors.primary;

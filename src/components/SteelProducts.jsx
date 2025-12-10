@@ -6,7 +6,6 @@ import {
   Search,
   Edit,
   Trash2,
-  Tag,
   AlertTriangle,
   CheckCircle,
   Save,
@@ -27,7 +26,6 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
-import { format } from 'date-fns';
 import { productService } from '../services/dataService';
 import { FINISHES } from '../types';
 import { useApiData, useApi } from '../hooks/useApi';
@@ -153,7 +151,7 @@ const Textarea = ({ label, error, className = '', ...props }) => {
   );
 };
 
-const StockProgressBar = ({ value, stockStatus }) => {
+const _StockProgressBar = ({ value, stockStatus }) => {
   const { isDarkMode } = useTheme();
 
   const getColor = () => {
@@ -374,7 +372,7 @@ const ValidationMessage = ({ type = 'info', message, suggestion }) => {
 };
 
 // Accordion component for Zoho-style drawer
-const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
+const _AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
   const { isDarkMode } = useTheme();
 
   // Don't render if section is empty
@@ -407,7 +405,7 @@ const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }
 };
 
 // Row component for label-value pairs
-const SpecRow = ({ label, value, badge, className = '' }) => {
+const _SpecRow = ({ label, value, badge, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   if (!value && value !== 0) return null;
@@ -563,7 +561,7 @@ const SteelProducts = () => {
     }));
   };
 
-  const { data: productsData, loading: loadingProducts, error: productsError, refetch: refetchProducts } = useApiData(
+  const { data: productsData, loading: _loadingProducts, error: _productsError, refetch: refetchProducts } = useApiData(
     () => productService.getProducts({
       search: searchTerm,
       category: categoryFilter === 'all' ? undefined : categoryFilter,
@@ -573,7 +571,7 @@ const SteelProducts = () => {
     [searchTerm, categoryFilter, stockFilter],
   );
 
-  const { execute: createProduct, loading: creatingProduct } = useApi(productService.createProduct);
+  const { execute: createProduct, loading: _creatingProduct } = useApi(productService.createProduct);
   const { execute: updateProduct, loading: updatingProduct } = useApi(productService.updateProduct);
   const { execute: deleteProduct } = useApi(productService.deleteProduct);
 
@@ -599,20 +597,14 @@ const SteelProducts = () => {
     localStorage.setItem('steelProducts_showQuickFilters', JSON.stringify(showSpeedButtons));
   }, [showSpeedButtons]);
 
-  // Debug products data structure
-  console.log('🏗️ Products data structure:', {
-    productsData,
-    productsArray: products,
-    productsLength: products.length,
-    sampleProduct: products[0],
-  });
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSpecModal, setShowSpecModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copySearchTerm, setCopySearchTerm] = useState('');
-  const [activeTooltip, setActiveTooltip] = useState(null);
+  const [_activeTooltip, _setActiveTooltip] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Phase 2-6: Enhanced form state
@@ -622,7 +614,7 @@ const SteelProducts = () => {
   const [similarProducts, setSimilarProducts] = useState([]);
   
   // Accordion state for spec modal - MUST be at component level, not inside conditional render
-  const [accordionState, setAccordionState] = useState({
+  const [_accordionState, setAccordionState] = useState({
     classification: true,  // Default expanded
     inventory: true,        // Default expanded
     pricing: true,          // Default expanded
@@ -827,7 +819,7 @@ const SteelProducts = () => {
     return null;
   };
 
-  const validateDimensions = (category, dimensions) => {
+  const _validateDimensions = (category, dimensions) => {
     if (!dimensions) return null;
     
     const isPipeOrTube = /pipe|tube/i.test(category);
@@ -1472,8 +1464,6 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
-      console.log('🔄 Starting product edit...', selectedProduct);
-
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
       // Convert empty strings to appropriate default values
       const productData = {
@@ -1504,33 +1494,11 @@ const SteelProducts = () => {
         }),
       };
 
-      console.log('📤 Sending product data (camelCase):', productData);
-      console.log(`🔗 API URL: PUT /api/products/${selectedProduct.id}`);
-
-      const result = await updateProduct(selectedProduct.id, productData);
-      console.log('✅ Product updated successfully:', result);
+      await updateProduct(selectedProduct.id, productData);
 
       // TODO: Implement proper cache utility
 
-      console.log('🔄 Starting products refetch...');
-      console.log('📊 Current products data before refetch:', productsData);
-
-      const freshData = await refetchProducts();
-      console.log('📨 Fresh data from refetch:', freshData);
-
-      // Check if the updated product is in the fresh data
-      const updatedProductInFreshData = freshData?.products?.find(p => p.id === selectedProduct.id);
-      console.log('🔎 Updated product in fresh data:', updatedProductInFreshData);
-
-      // Small delay to ensure state has updated
-      setTimeout(() => {
-        console.log('📊 Products data after state update:', productsData);
-        console.log('🔍 Current products array after state update:', products);
-
-        // Find the specific product to see if it updated
-        const updatedProductInState = products.find(p => p.id === selectedProduct.id);
-        console.log('🎯 Updated product in state:', updatedProductInState);
-      }, 100);
+      await refetchProducts();
 
       notificationService.success('Product updated successfully!');
       setShowEditModal(false);
@@ -1563,7 +1531,7 @@ const SteelProducts = () => {
   };
 
   // Toggle accordion sections in spec modal - MUST be at component level
-  const toggleSection = (section) => {
+  const _toggleSection = (section) => {
     setAccordionState(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
@@ -1601,7 +1569,7 @@ const SteelProducts = () => {
     return 'normal';
   };
 
-  const getStockStatusColor = (status) => {
+  const _getStockStatusColor = (status) => {
     switch (status) {
       case 'out_of_stock': return '#7f1d1d'; // dark red for out of stock
       case 'low': return '#dc2626'; // red
@@ -1611,7 +1579,7 @@ const SteelProducts = () => {
   };
 
   // Helper to get display text for stock status
-  const getStockStatusLabel = (status) => {
+  const _getStockStatusLabel = (status) => {
     switch (status) {
       case 'out_of_stock': return 'OUT OF STOCK';
       case 'low': return 'LOW';
@@ -2034,7 +2002,6 @@ const SteelProducts = () => {
                       </button>
                       <button
                         onClick={() => {
-                          console.log('Copy product:', product.id);
                           notificationService.info('Copy feature coming soon');
                         }}
                         className={`p-1.5 rounded transition-colors ${
@@ -3075,7 +3042,6 @@ const SteelProducts = () => {
                       value={selectedProduct.costPrice || ''}
                       onChange={(e) => {
                         const newValue = e.target.value === '' ? '' : Number(e.target.value) || '';
-                        console.log('💰 Cost Price changed from', selectedProduct.costPrice, 'to', newValue);
                         setSelectedProduct({...selectedProduct, costPrice: newValue});
                       }}
                       className="pl-12"
@@ -3089,7 +3055,6 @@ const SteelProducts = () => {
                       value={selectedProduct.sellingPrice || ''}
                       onChange={(e) => {
                         const newValue = e.target.value === '' ? '' : Number(e.target.value) || '';
-                        console.log('💵 Selling Price changed from', selectedProduct.sellingPrice, 'to', newValue);
                         setSelectedProduct({...selectedProduct, sellingPrice: newValue});
                       }}
                       className="pl-12"
@@ -3205,7 +3170,7 @@ const SteelProducts = () => {
           };
 
           // Get stock status badge
-          const getStockBadge = () => {
+          const _getStockBadge = () => {
             const current = selectedProduct.currentStock || 0;
             const min = selectedProduct.minStock || 0;
 
@@ -3232,7 +3197,7 @@ const SteelProducts = () => {
 
           // Check if sections have data
           const specs = selectedProduct.specifications || {};
-          const hasTechnicalSpecs = specs.thickness || specs.width || specs.length || specs.diameter ||
+          const _hasTechnicalSpecs = specs.thickness || specs.width || specs.length || specs.diameter ||
                                     specs.tensileStrength || specs.yieldStrength || specs.carbonContent ||
                                     specs.coating || specs.standard;
           const hasDescription = selectedProduct.description && selectedProduct.description.trim();

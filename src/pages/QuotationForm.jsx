@@ -335,7 +335,7 @@ const QuotationForm = () => {
           const response = await pricelistService.getById(pricelistId);
           setSelectedPricelistId(pricelistId);
           setPricelistName(response.pricelist?.name || response.data?.name || 'Custom Price List');
-        } catch (error) {
+        } catch (_fetchError) {
           // Silently ignore - pricelist is optional
           setSelectedPricelistId(null);
           setPricelistName(null);
@@ -401,9 +401,8 @@ const QuotationForm = () => {
       try {
         const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
         sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
-      } catch (error) {
+      } catch (_priceError) {
         // Fallback to default product price
-        console.debug('Pricelist price not found, using default:', error.message);
       }
     }
 
@@ -494,9 +493,8 @@ const QuotationForm = () => {
           try {
             const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
             sellingPrice = priceResponse.price || priceResponse.data?.price || sellingPrice;
-          } catch (error) {
+          } catch (_priceError) {
             // Fallback to default product price
-            console.debug('Pricelist price not found, using default:', error.message);
           }
         }
 
@@ -751,7 +749,9 @@ const QuotationForm = () => {
   }
 
   // Input component with validation
-  const Input = ({ label, inputError, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+  const Input = ({ label, inputError, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
+    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
@@ -771,13 +771,14 @@ const QuotationForm = () => {
     return (
       <div className="space-y-0.5">
         {label && (
-          <label className={`block text-xs font-medium ${
+          <label htmlFor={inputId} className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}>
             {label}
           </label>
         )}
         <input
+          id={inputId}
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
             isDarkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'
           } ${getValidationClasses()} ${className}`}
@@ -788,7 +789,9 @@ const QuotationForm = () => {
     );
   };
 
-  const Select = ({ label, children, selectError, className = '', required = false, validationState = null, showValidation = true, ...props }) => {
+  const Select = ({ label, children, selectError, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
+    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white';
@@ -808,13 +811,14 @@ const QuotationForm = () => {
     return (
       <div className="space-y-0.5">
         {label && (
-          <label className={`block text-xs font-medium ${
+          <label htmlFor={selectId} className={`block text-xs font-medium ${
             isDarkMode ? 'text-gray-400' : 'text-gray-700'
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}>
             {label}
           </label>
         )}
         <select
+          id={selectId}
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
             isDarkMode ? 'text-white' : 'text-gray-900'
           } ${getValidationClasses()} ${className}`}
@@ -1516,12 +1520,13 @@ const QuotationForm = () => {
           </summary>
           <div className="space-y-3 md:space-y-4 mt-3 md:mt-4">
             <div>
-              <label className={`block text-xs font-medium mb-1 ${
+              <label htmlFor="quotation-notes" className={`block text-xs font-medium mb-1 ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-700'
               }`}>
                 Notes
               </label>
               <textarea
+                id="quotation-notes"
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={2}
@@ -1534,12 +1539,13 @@ const QuotationForm = () => {
             </div>
 
             <div>
-              <label className={`block text-xs font-medium mb-1 ${
+              <label htmlFor="quotation-terms" className={`block text-xs font-medium mb-1 ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-700'
               }`}>
                 Terms & Conditions
               </label>
               <textarea
+                id="quotation-terms"
                 value={formData.termsAndConditions}
                 onChange={(e) => setFormData(prev => ({ ...prev, termsAndConditions: e.target.value }))}
                 rows={3}

@@ -398,7 +398,7 @@ export default function PriceListForm() {
         isDefault: pricelist.isDefault,
         effectiveFrom: pricelist.effectiveFrom || '',
         effectiveTo: pricelist.effectiveTo || '',
-        items: items,
+        items,
       });
     } catch (error) {
       console.error('Error fetching pricelist:', error);
@@ -423,7 +423,7 @@ export default function PriceListForm() {
         isDefault: false,
         effectiveFrom: '',
         effectiveTo: '',
-        items: items,
+        items,
       });
     } catch (error) {
       console.error('Error copying pricelist:', error);
@@ -448,7 +448,7 @@ export default function PriceListForm() {
 
         setFormData(prev => ({
           ...prev,
-          items: items,
+          items,
         }));
       }
     } catch (error) {
@@ -796,35 +796,35 @@ export default function PriceListForm() {
                 </div>
               </div>
 
-                <div className={`pt-3 mt-3 border-t space-y-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`pt-3 mt-3 border-t space-y-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={saving}
+                >
+                  <Save size={16} />
+                  {saving ? 'Saving...' : 'Save Price List'}
+                </Button>
+                {isEdit && (
                   <Button
-                    type="submit"
+                    type="button"
+                    variant="secondary"
                     className="w-full"
+                    onClick={handleSaveAsNew}
                     disabled={saving}
                   >
-                    <Save size={16} />
-                    {saving ? 'Saving...' : 'Save Price List'}
-                  </Button>
-                  {isEdit && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="w-full"
-                      onClick={handleSaveAsNew}
-                      disabled={saving}
-                    >
-                      <Copy size={16} />
+                    <Copy size={16} />
                       Save As New
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => navigate('/pricelists')}
-                    disabled={saving}
-                  >
-                    Cancel
                   </Button>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate('/pricelists')}
+                  disabled={saving}
+                >
+                    Cancel
+                </Button>
               </div>
             </div>
           </div>

@@ -17,12 +17,6 @@ const ProtectedRoute = ({
 
   // Check if user is authenticated - use auth service as primary source of truth
   const isAuthenticated = authService.isAuthenticated();
-  console.log({
-    isAuthenticated,
-    hasUserProp: !!user,
-    userEmail: user?.email,
-    path: location.pathname,
-  });
 
   if (!isAuthenticated) {
     // Save the attempted location for redirect after login

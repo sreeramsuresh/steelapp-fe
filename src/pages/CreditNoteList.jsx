@@ -55,7 +55,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   const [creditNotes, setCreditNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -75,7 +75,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const [company, setCompany] = useState(null);
 
   // Draft management
-  const { allDrafts, hasDrafts, deleteDraft, refreshDrafts } = useCreditNoteDrafts();
+  const { allDrafts, hasDrafts, deleteDraft } = useCreditNoteDrafts();
 
   const handleResumeDraft = (draft) => {
     navigate(`/credit-notes/new?invoiceId=${draft.invoiceId}`);

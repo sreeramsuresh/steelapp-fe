@@ -60,12 +60,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
         <h3 className="text-lg font-semibold mb-4">Add Payment</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={`block text-sm font-medium mb-2 ${
+            <label htmlFor="payment-date" className={`block text-sm font-medium mb-2 ${
               isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
               Payment Date
             </label>
             <input
+              id="payment-date"
               type="date"
               value={formData.paymentDate}
               onChange={(e) => setFormData({...formData, paymentDate: e.target.value})}
@@ -79,12 +80,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
           
           <div>
-            <label className={`block text-sm font-medium mb-2 ${
+            <label htmlFor="payment-amount" className={`block text-sm font-medium mb-2 ${
               isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
               Amount (Max: {formatCurrency(maxAmount)})
             </label>
             <input
+              id="payment-amount"
               type="number"
               step="0.01"
               value={formData.amount}
@@ -100,12 +102,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
           
           <div>
-            <label className={`block text-sm font-medium mb-2 ${
+            <label htmlFor="payment-method" className={`block text-sm font-medium mb-2 ${
               isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
               Payment Method
             </label>
             <select
+              id="payment-method"
               value={formData.paymentMethod}
               onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
@@ -121,12 +124,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
           
           <div>
-            <label className={`block text-sm font-medium mb-2 ${
+            <label htmlFor="payment-reference" className={`block text-sm font-medium mb-2 ${
               isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
               Reference Number
             </label>
             <input
+              id="payment-reference"
               type="text"
               value={formData.referenceNumber}
               onChange={(e) => setFormData({...formData, referenceNumber: e.target.value})}
@@ -140,12 +144,13 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
           
           <div>
-            <label className={`block text-sm font-medium mb-2 ${
+            <label htmlFor="payment-notes" className={`block text-sm font-medium mb-2 ${
               isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
               Notes
             </label>
             <textarea
+              id="payment-notes"
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
               className={`w-full px-3 py-2 border rounded-lg ${
@@ -196,12 +201,14 @@ const Autocomplete = ({
   noOptionsText = 'No options',
   className = '',
   error = false,
+  id,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  const inputId = id || `autocomplete-${Math.random().toString(36).substr(2, 9)}`;
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
   const norm = (s) => (s || '').toString().toLowerCase().trim();
@@ -328,11 +335,12 @@ const Autocomplete = ({
   return (
     <div className={`relative ${className}`}>
       {label && (
-        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        <label htmlFor={inputId} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
           {label}
         </label>
       )}
       <input
+        id={inputId}
         ref={inputRef}
         type="text"
         value={inputValue || ''}
@@ -814,6 +822,7 @@ const PurchaseOrderForm = () => {
         notificationService.success('Warehouses initialized successfully. Please try again.');
         return;
       } catch (seedError) {
+        // Silently ignore seed failure
       }
     }
     
@@ -915,6 +924,7 @@ const PurchaseOrderForm = () => {
         if (numMatch) return `${numMatch[0]}mm`;
       }
     } catch (err) {
+      // Silently ignore parsing error
     }
     return '';
   };
@@ -1022,6 +1032,7 @@ const PurchaseOrderForm = () => {
         }
       }, 300);
     } catch (err) {
+      // Silently ignore search error
     }
   }, []);
 
@@ -1517,10 +1528,11 @@ const PurchaseOrderForm = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="po-number" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     PO Number
                   </label>
                   <input
+                    id="po-number"
                     type="text"
                     value={purchaseOrder.poNumber}
                     onChange={(e) => handleInputChange('poNumber', e.target.value)}
@@ -1533,10 +1545,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="po-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     PO Date
                   </label>
                   <input
+                    id="po-date"
                     type="date"
                     value={purchaseOrder.poDate}
                     onChange={(e) => handleInputChange('poDate', e.target.value)}
@@ -1548,10 +1561,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="expected-delivery-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Expected Delivery Date
                   </label>
                   <input
+                    id="expected-delivery-date"
                     type="date"
                     value={purchaseOrder.expectedDeliveryDate}
                     onChange={(e) => handleInputChange('expectedDeliveryDate', e.target.value)}
@@ -1563,11 +1577,12 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="grace-period-days" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Grace Period for On-Time Delivery (Days)
                     <span className="text-xs text-gray-500 ml-1">(default: 5)</span>
                   </label>
                   <input
+                    id="grace-period-days"
                     type="number"
                     min="0"
                     max="30"
@@ -1595,10 +1610,11 @@ const PurchaseOrderForm = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="select-supplier" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Select Supplier
                   </label>
                   <select
+                    id="select-supplier"
                     value={selectedSupplierId}
                     onChange={(e)=> { setSelectedSupplierId(e.target.value); handleSupplierSelect(e.target.value); }}
                     disabled={loadingSuppliers}
@@ -1657,10 +1673,11 @@ const PurchaseOrderForm = () => {
                   </div>
                 )}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="supplier-name" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Supplier Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="supplier-name"
                     type="text"
                     value={purchaseOrder.supplierName}
                     onChange={(e) => handleInputChange('supplierName', e.target.value)}
@@ -1674,10 +1691,11 @@ const PurchaseOrderForm = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="supplier-contact-name" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Contact Name
                     </label>
                     <input
+                      id="supplier-contact-name"
                       type="text"
                       value={purchaseOrder.supplierContactName}
                       onChange={(e) => handleInputChange('supplierContactName', e.target.value)}
@@ -1689,10 +1707,11 @@ const PurchaseOrderForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="supplier-contact-email" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Contact Email
                     </label>
                     <input
+                      id="supplier-contact-email"
                       type="email"
                       value={purchaseOrder.supplierContactEmail}
                       onChange={(e) => handleInputChange('supplierContactEmail', e.target.value)}
@@ -1704,10 +1723,11 @@ const PurchaseOrderForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="supplier-contact-phone" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Contact Phone
                     </label>
                     <input
+                      id="supplier-contact-phone"
                       type="tel"
                       value={purchaseOrder.supplierContactPhone}
                       onChange={(e) => handleInputChange('supplierContactPhone', e.target.value)}
@@ -1721,10 +1741,11 @@ const PurchaseOrderForm = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="payment-terms" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Payment Terms
                     </label>
                     <input
+                      id="payment-terms"
                       type="text"
                       value={purchaseOrder.terms}
                       onChange={(e) => handleInputChange('terms', e.target.value)}
@@ -1737,10 +1758,11 @@ const PurchaseOrderForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="po-currency" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Currency
                     </label>
                     <select
+                      id="po-currency"
                       value={purchaseOrder.currency}
                       onChange={(e) => handleInputChange('currency', e.target.value)}
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -1757,10 +1779,11 @@ const PurchaseOrderForm = () => {
                   </div>
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="supplier-email" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Email
                   </label>
                   <input
+                    id="supplier-email"
                     type="email"
                     value={purchaseOrder.supplierEmail}
                     onChange={(e) => handleInputChange('supplierEmail', e.target.value)}
@@ -1772,10 +1795,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="supplier-phone" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Phone
                   </label>
                   <input
+                    id="supplier-phone"
                     type="tel"
                     value={purchaseOrder.supplierPhone}
                     onChange={(e) => handleInputChange('supplierPhone', e.target.value)}
@@ -1787,10 +1811,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="supplier-address" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Address
                   </label>
                   <textarea
+                    id="supplier-address"
                     rows={3}
                     value={purchaseOrder.supplierAddress}
                     onChange={(e) => handleInputChange('supplierAddress', e.target.value)}
@@ -2340,10 +2365,11 @@ const PurchaseOrderForm = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`item-quantity-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Quantity
                         </label>
                         <input
+                          id={`item-quantity-${index}`}
                           type="number"
                           value={item.quantity || ''}
                           onChange={(e) => handleItemChange(index, 'quantity', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
@@ -2356,10 +2382,11 @@ const PurchaseOrderForm = () => {
                         />
                       </div>
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`item-rate-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Rate
                         </label>
                         <input
+                          id={`item-rate-${index}`}
                           type="number"
                           value={item.rate || ''}
                           onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
@@ -2377,10 +2404,11 @@ const PurchaseOrderForm = () => {
                     {/* Procurement Channel - Mobile */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`item-procurement-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Procurement
                         </label>
                         <select
+                          id={`item-procurement-${index}`}
                           value={item.procurementChannel || 'LOCAL'}
                           onChange={(e) => handleItemChange(index, 'procurementChannel', e.target.value)}
                           className={`w-full px-3 py-2 border rounded-md ${
@@ -2398,10 +2426,11 @@ const PurchaseOrderForm = () => {
                       </div>
                       {item.procurementChannel === 'IMPORTED' && (
                         <div>
-                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <label htmlFor={`item-container-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             Container
                           </label>
                           <select
+                            id={`item-container-${index}`}
                             value={item.importContainerId || ''}
                             onChange={(e) => handleItemChange(index, 'importContainerId', e.target.value || null)}
                             className={`w-full px-3 py-2 border rounded-md ${
@@ -2423,10 +2452,11 @@ const PurchaseOrderForm = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`item-supply-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Supply Type
                         </label>
                         <select
+                          id={`item-supply-type-${index}`}
                           value={item.supplyType || 'standard'}
                           onChange={(e) => handleItemChange(index, 'supplyType', e.target.value)}
                           className={`w-full px-3 py-2 border rounded-md ${
@@ -2441,10 +2471,11 @@ const PurchaseOrderForm = () => {
                         </select>
                       </div>
                       <div>
-                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label htmlFor={`item-vat-rate-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           VAT %
                         </label>
                         <input
+                          id={`item-vat-rate-${index}`}
                           type="number"
                           value={item.vatRate || ''}
                           onChange={(e) => handleItemChange(index, 'vatRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
@@ -2482,10 +2513,11 @@ const PurchaseOrderForm = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="freight-charges" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Freight Charges
                   </label>
                   <input
+                    id="freight-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.freightCharges}
@@ -2499,10 +2531,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="shipping-charges" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Shipping Charges
                   </label>
                   <input
+                    id="shipping-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.shippingCharges}
@@ -2516,10 +2549,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="handling-charges" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Handling Charges
                   </label>
                   <input
+                    id="handling-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.handlingCharges}
@@ -2533,10 +2567,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="other-charges" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Other Charges
                   </label>
                   <input
+                    id="other-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.otherCharges}
@@ -2561,11 +2596,12 @@ const PurchaseOrderForm = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="discount-type" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Discount Type
                   </label>
                   <div className="relative">
                     <select
+                      id="discount-type"
                       value={purchaseOrder.discountType}
                       onChange={(e) => handleInputChange('discountType', e.target.value)}
                       className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -2584,10 +2620,11 @@ const PurchaseOrderForm = () => {
                 </div>
                 {purchaseOrder.discountType === 'percentage' ? (
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="discount-percentage" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Discount Percentage (%)
                     </label>
                     <input
+                      id="discount-percentage"
                       type="number"
                       step="0.01"
                       min="0"
@@ -2604,10 +2641,11 @@ const PurchaseOrderForm = () => {
                   </div>
                 ) : (
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="discount-amount" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Discount Amount ({purchaseOrder.currency})
                     </label>
                     <input
+                      id="discount-amount"
                       type="number"
                       step="0.01"
                       value={purchaseOrder.discountAmount}
@@ -2679,10 +2717,11 @@ const PurchaseOrderForm = () => {
             {/* Payment Terms and Due Date */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="payment-terms-select" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Payment Terms
                 </label>
                 <select
+                  id="payment-terms-select"
                   value={purchaseOrder.paymentTerms}
                   onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -2703,10 +2742,11 @@ const PurchaseOrderForm = () => {
                 </select>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="due-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Due Date
                 </label>
                 <input
+                  id="due-date"
                   type="date"
                   value={purchaseOrder.dueDate}
                   onChange={(e) => handleInputChange('dueDate', e.target.value)}
@@ -2831,6 +2871,7 @@ const PurchaseOrderForm = () => {
                 Notes
               </h2>
               <textarea
+                id="po-notes"
                 rows={4}
                 value={purchaseOrder.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
@@ -2850,6 +2891,7 @@ const PurchaseOrderForm = () => {
                 Payment as per payment terms
               </h2>
               <textarea
+                id="po-terms"
                 rows={4}
                 value={purchaseOrder.terms}
                 onChange={(e) => handleInputChange('terms', e.target.value)}
@@ -2872,11 +2914,12 @@ const PurchaseOrderForm = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="approval-status" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Approval Status
                 </label>
                 <div className="relative">
                   <select
+                    id="approval-status"
                     value={purchaseOrder.approvalStatus}
                     onChange={(e) => handleInputChange('approvalStatus', e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -2895,10 +2938,11 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="approved-by" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Approved By
                 </label>
                 <input
+                  id="approved-by"
                   type="text"
                   value={purchaseOrder.approvedBy}
                   onChange={(e) => handleInputChange('approvedBy', e.target.value)}
@@ -2911,10 +2955,11 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="approval-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Approval Date
                 </label>
                 <input
+                  id="approval-date"
                   type="date"
                   value={purchaseOrder.approvalDate}
                   onChange={(e) => handleInputChange('approvalDate', e.target.value)}
