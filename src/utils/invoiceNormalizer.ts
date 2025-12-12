@@ -268,7 +268,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       // Note: 'balanceAmount' may be stale/zero while 'outstanding' is correct
       balanceDue: parseNumber(
         rawInvoice.balanceDue ?? rawInvoice.balance_due ?? rawInvoice.outstanding ?? rawInvoice.balanceAmount ?? rawInvoice.balance_amount,
-        0
+        0,
       ),
       
       // Discounts & Currency
