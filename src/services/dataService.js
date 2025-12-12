@@ -1,76 +1,53 @@
 /**
  * Data Service Abstraction Layer
- * Automatically switches between mock data and real API based on configuration
- * 
+ * Exports real API services for production use
+ *
  * Usage in components:
  *   import { invoiceService, customerService, productService } from '../services/dataService';
  */
 
-import { USE_MOCK_DATA } from '../mock/config/mockConfig';
-
-// Import real services (using named imports because they export objects)
+// Import real services
 import { invoiceService as realInvoiceService } from './invoiceService';
 import { customerService as realCustomerService } from './customerService';
 import { productService as realProductService } from './productService';
 import { companyService as realCompanyService } from './companyService';
 import { payablesService as realPayablesService, PAYMENT_MODES as realPaymentModes } from './payablesService';
-
-// Import mock services (using namespace imports because they export individual functions)
-import * as mockInvoiceService from '../mock/services/mockInvoiceService';
-import * as mockCustomerService from '../mock/services/mockCustomerService';
-import * as mockProductService from '../mock/services/mockProductService';
-import * as mockCompanyService from '../mock/services/mockCompanyService';
-import * as mockQuotationService from '../mock/services/mockQuotationService';
-import * as mockPayablesService from '../mock/services/mockPayablesService';
+import { quotationsAPI } from './api';
 
 /**
  * Invoice Service
  */
-export const invoiceService = USE_MOCK_DATA 
-  ? mockInvoiceService 
-  : realInvoiceService;
+export const invoiceService = realInvoiceService;
 
 /**
  * Customer Service
  */
-export const customerService = USE_MOCK_DATA
-  ? mockCustomerService
-  : realCustomerService;
+export const customerService = realCustomerService;
 
 /**
  * Product Service
  */
-export const productService = USE_MOCK_DATA
-  ? mockProductService
-  : realProductService;
+export const productService = realProductService;
 
 /**
  * Company Service
  */
-export const companyService = USE_MOCK_DATA
-  ? mockCompanyService.companyService
-  : realCompanyService.companyService;
+export const companyService = realCompanyService.companyService;
 
 /**
  * Quotation Service
  */
-export const quotationService = USE_MOCK_DATA
-  ? mockQuotationService
-  : null; // Add real quotation service when available
+export const quotationService = quotationsAPI;
 
 /**
  * Payables Service
  */
-export const payablesService = USE_MOCK_DATA
-  ? mockPayablesService
-  : realPayablesService;
+export const payablesService = realPayablesService;
 
 /**
  * Payment Modes constant
  */
-export const PAYMENT_MODES = USE_MOCK_DATA
-  ? mockPayablesService.PAYMENT_MODES
-  : realPaymentModes;
+export const PAYMENT_MODES = realPaymentModes;
 
 /**
  * Payment Service helpers

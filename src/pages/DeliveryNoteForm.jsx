@@ -3,7 +3,7 @@ import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loa
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
-import { formatDateForInput } from '../utils/invoiceUtils';
+import { formatDateForInput, validateWeightTolerance, calculateWeightVariance } from '../utils/invoiceUtils';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
 import AllocationPanel from '../components/invoice/AllocationPanel';
 
@@ -84,17 +84,36 @@ const DeliveryNoteForm = () => {
           city: invoiceAddress.city || prev.deliveryAddress.city,
           poBox: invoiceAddress.poBox || invoiceAddress.po_box || prev.deliveryAddress.poBox,
         },
-        items: invoice.items?.map(item => ({
-          invoiceItemId: item.id,
-          productId: item.productId || item.product_id,
-          name: item.name,
-          specification: item.specification,
-          hsnCode: item.hsnCode || item.hsn_code,
-          unit: item.unit,
-          orderedQuantity: item.quantity,
-          deliveredQuantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity
-          remainingQuantity: isEdit ? item.quantity : 0,
-        })) || [],
+        items: invoice.items?.map(item => {
+          // Calculate theoretical weight based on unit and quantity
+          const qty = item.quantity || 0;
+          const unitWeight = item.unitWeightKg || item.unit_weight_kg || 0;
+          let theoreticalWeightKg = 0;
+          if (item.unit === 'KG') {
+            theoreticalWeightKg = qty;
+          } else if (item.unit === 'MT') {
+            theoreticalWeightKg = qty * 1000;
+          } else if (item.unit === 'PCS' && unitWeight > 0) {
+            theoreticalWeightKg = qty * unitWeight;
+          }
+
+          return {
+            invoiceItemId: item.id,
+            productId: item.productId || item.product_id,
+            name: item.name,
+            specification: item.specification,
+            hsnCode: item.hsnCode || item.hsn_code,
+            unit: item.unit,
+            orderedQuantity: item.quantity,
+            deliveredQuantity: isEdit ? 0 : item.quantity, // For new delivery notes, default to full quantity
+            remainingQuantity: isEdit ? item.quantity : 0,
+            // Weight tracking fields
+            unitWeightKg: unitWeight,
+            theoreticalWeightKg,
+            actualWeightKg: isEdit ? null : theoreticalWeightKg, // Default to theoretical for new
+            productCategory: item.productCategory || item.product_category || 'DEFAULT',
+          };
+        }) || [],
       }));
       setShowInvoiceDialog(false);
     } catch (err) {
@@ -159,6 +178,13 @@ const DeliveryNoteForm = () => {
         warehouseId: item.warehouseId || item.warehouse_id,
         warehouseName: item.warehouseName || item.warehouse_name,
         allocationStatus: item.allocationStatus || item.allocation_status,
+        // Weight tracking fields
+        unitWeightKg: item.unitWeightKg || item.unit_weight_kg || 0,
+        theoreticalWeightKg: item.theoreticalWeightKg || item.theoretical_weight_kg || 0,
+        actualWeightKg: item.actualWeightKg || item.actual_weight_kg || null,
+        weightVarianceKg: item.weightVarianceKg || item.weight_variance_kg || null,
+        weightVariancePct: item.weightVariancePct || item.weight_variance_pct || null,
+        productCategory: item.productCategory || item.product_category || 'DEFAULT',
       }));
 
       setFormData({
@@ -209,7 +235,7 @@ const DeliveryNoteForm = () => {
       });
       // Filter to only show issued or paid invoices
       const eligibleInvoices = (response.invoices || []).filter(
-        inv => inv.status === 'issued' || inv.status === 'paid'
+        inv => inv.status === 'issued' || inv.status === 'paid',
       );
       setInvoices(eligibleInvoices);
     } catch (err) {
@@ -271,6 +297,36 @@ const DeliveryNoteForm = () => {
       ...prev,
       items: updatedItems,
     }));
+  };
+
+  // Handle actual weight change with variance calculation
+  const handleActualWeightChange = (index, value) => {
+    const updatedItems = [...formData.items];
+    const actualWeight = parseFloat(value) || 0;
+    const item = updatedItems[index];
+
+    // Calculate variance
+    const variance = calculateWeightVariance(actualWeight, item.theoreticalWeightKg);
+
+    updatedItems[index] = {
+      ...item,
+      actualWeightKg: actualWeight,
+      weightVarianceKg: variance.varianceKg,
+      weightVariancePct: variance.variancePct,
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems,
+    }));
+  };
+
+  // Get weight variance status for UI
+  const getWeightVarianceStatus = (item) => {
+    if (!item.actualWeightKg || !item.theoreticalWeightKg) {
+      return { severity: 'none', message: 'Enter actual weight' };
+    }
+    return validateWeightTolerance(item.actualWeightKg, item.theoreticalWeightKg, item.productCategory);
   };
 
   const toggleItemExpansion = (index) => {
@@ -372,6 +428,14 @@ const DeliveryNoteForm = () => {
           errors.push(`Item ${index + 1}: Delivered quantity cannot exceed ordered quantity (${item.orderedQuantity})`);
           invalidFieldsSet.add(`item.${index}.deliveredQuantity`);
         }
+        // Weight tolerance validation - block if variance exceeds 2x tolerance
+        if (item.theoreticalWeightKg > 0 && item.actualWeightKg > 0) {
+          const weightStatus = validateWeightTolerance(item.actualWeightKg, item.theoreticalWeightKg, item.productCategory);
+          if (weightStatus.severity === 'error') {
+            errors.push(`Item ${index + 1}: ${weightStatus.message}. Supervisor override required.`);
+            invalidFieldsSet.add(`item.${index}.actualWeightKg`);
+          }
+        }
       });
     }
 
@@ -425,6 +489,11 @@ const DeliveryNoteForm = () => {
           deliveredQuantity: item.deliveredQuantity,
           remainingQuantity: item.remainingQuantity,
           isFullyDelivered: item.deliveredQuantity >= item.orderedQuantity,
+          // Weight tracking fields
+          theoreticalWeightKg: item.theoreticalWeightKg || null,
+          actualWeightKg: item.actualWeightKg || null,
+          weightVarianceKg: item.weightVarianceKg || null,
+          weightVariancePct: item.weightVariancePct || null,
         })),
       };
 
@@ -767,7 +836,78 @@ const DeliveryNoteForm = () => {
 
                     {/* Allocation Details - Expandable */}
                     {expandedItems.has(index) && (
-                      <div className="p-4">
+                      <div className="p-4 space-y-4">
+                        {/* Weight Tracking Section */}
+                        {item.theoreticalWeightKg > 0 && (
+                          <div className={`p-4 rounded-lg border ${
+                            isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'
+                          }`}>
+                            <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}>
+                              Weight Verification
+                            </h4>
+                            <div className="grid grid-cols-4 gap-4">
+                              <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Theoretical</p>
+                                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {item.theoreticalWeightKg?.toFixed(2)} kg
+                                </p>
+                              </div>
+                              <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Actual Weight</p>
+                                <input
+                                  type="number"
+                                  value={item.actualWeightKg || ''}
+                                  onChange={(e) => handleActualWeightChange(index, e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  min={0}
+                                  step={0.01}
+                                  placeholder="Enter actual"
+                                  className={`w-full px-2 py-1 border rounded text-right text-sm ${
+                                    isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Variance</p>
+                                {item.actualWeightKg ? (
+                                  <p className={`font-medium ${
+                                    Math.abs(item.weightVariancePct || 0) > 10 ? 'text-red-600' :
+                                      Math.abs(item.weightVariancePct || 0) > 5 ? 'text-orange-600' :
+                                        'text-green-600'
+                                  }`}>
+                                    {item.weightVarianceKg > 0 ? '+' : ''}{item.weightVarianceKg?.toFixed(2)} kg
+                                    <span className="text-xs ml-1">({item.weightVariancePct > 0 ? '+' : ''}{item.weightVariancePct?.toFixed(1)}%)</span>
+                                  </p>
+                                ) : (
+                                  <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>—</p>
+                                )}
+                              </div>
+                              <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Status</p>
+                                {(() => {
+                                  const status = getWeightVarianceStatus(item);
+                                  const colorMap = {
+                                    success: 'text-green-600 dark:text-green-400',
+                                    caution: 'text-yellow-600 dark:text-yellow-400',
+                                    warning: 'text-orange-600 dark:text-orange-400',
+                                    error: 'text-red-600 dark:text-red-400',
+                                    none: isDarkMode ? 'text-gray-500' : 'text-gray-400',
+                                  };
+                                  return (
+                                    <p className={`text-xs font-medium ${colorMap[status.severity]}`}>
+                                      {status.severity === 'error' && <AlertTriangle size={12} className="inline mr-1" />}
+                                      {status.severity === 'warning' && <AlertCircle size={12} className="inline mr-1" />}
+                                      {status.severity === 'success' && <CheckCircle size={12} className="inline mr-1" />}
+                                      {status.message}
+                                    </p>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Allocation Panel */}
                         {item.allocations && item.allocations.length > 0 ? (
                           <AllocationPanel
                             productId={item.productId}

@@ -143,6 +143,285 @@ export const calculateTheoreticalWeight = (quantity, unitWeightKg, quantityUom =
 };
 
 /**
+ * Validate quantity precision based on UOM rules.
+ * Matches backend uomConversionService.validateQuantityPrecision
+ *
+ * RULES:
+ * - PCS, BUNDLE: Must be whole numbers (no decimals)
+ * - KG, MT: Up to 3 decimal places allowed
+ * - METER: Up to 2 decimal places allowed
+ *
+ * @param {number} quantity - Quantity to validate
+ * @param {string} unit - Unit of measure (PCS, KG, MT, BUNDLE, METER)
+ * @returns {Object} { valid: boolean, message?: string }
+ */
+export const validateQuantityPrecision = (quantity, unit) => {
+  const qty = parseFloat(quantity);
+  const uom = (unit || 'PCS').toUpperCase();
+
+  // Check for valid number
+  if (isNaN(qty) || qty < 0) {
+    return { valid: false, message: 'Quantity must be a positive number' };
+  }
+
+  // Units requiring whole numbers
+  const wholeNumberUnits = ['PCS', 'BUNDLE', 'PIECE', 'PIECES', 'SET', 'SETS'];
+
+  if (wholeNumberUnits.includes(uom)) {
+    if (!Number.isInteger(qty)) {
+      return {
+        valid: false,
+        message: `${uom} quantities must be whole numbers. Got: ${qty}`,
+      };
+    }
+  }
+
+  // Check decimal precision for weight units
+  if (uom === 'KG' || uom === 'MT') {
+    const decimalPlaces = (qty.toString().split('.')[1] || '').length;
+    if (decimalPlaces > 3) {
+      return {
+        valid: false,
+        message: `${uom} quantities allow max 3 decimal places. Got: ${decimalPlaces}`,
+      };
+    }
+  }
+
+  if (uom === 'METER' || uom === 'M') {
+    const decimalPlaces = (qty.toString().split('.')[1] || '').length;
+    if (decimalPlaces > 2) {
+      return {
+        valid: false,
+        message: `METER quantities allow max 2 decimal places. Got: ${decimalPlaces}`,
+      };
+    }
+  }
+
+  return { valid: true };
+};
+
+/**
+ * Convert quantity between units of measure.
+ * Matches backend uomConversionService.convertQuantity
+ *
+ * SUPPORTED CONVERSIONS:
+ * - KG ↔ MT (factor: 1000)
+ * - PCS ↔ KG (requires unitWeightKg)
+ * - PCS ↔ MT (requires unitWeightKg)
+ *
+ * @param {number} quantity - Quantity to convert
+ * @param {string} fromUnit - Source UOM (PCS, KG, MT)
+ * @param {string} toUnit - Target UOM (PCS, KG, MT)
+ * @param {number} unitWeightKg - Weight per piece in kg (required for PCS conversions)
+ * @returns {number} Converted quantity
+ * @throws {Error} If conversion results in fractional pieces
+ */
+export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null) => {
+  const qty = parseFloat(quantity);
+  const from = (fromUnit || 'PCS').toUpperCase();
+  const to = (toUnit || 'PCS').toUpperCase();
+  const unitWt = parseFloat(unitWeightKg) || 0;
+
+  // Validate input
+  if (isNaN(qty) || qty < 0) {
+    throw new Error('Invalid quantity: must be a non-negative number');
+  }
+
+  // Same unit - no conversion needed
+  if (from === to) return qty;
+
+  // Zero quantity - no conversion needed
+  if (qty === 0) return 0;
+
+  let converted;
+
+  // KG ↔ MT conversions
+  if (from === 'KG' && to === 'MT') {
+    converted = qty / 1000;
+  } else if (from === 'MT' && to === 'KG') {
+    converted = qty * 1000;
+  }
+  // PCS → KG
+  else if (from === 'PCS' && to === 'KG') {
+    if (!unitWt || unitWt <= 0) {
+      throw new Error('Unit weight required for PCS to KG conversion');
+    }
+    converted = qty * unitWt;
+  }
+  // KG → PCS
+  else if (from === 'KG' && to === 'PCS') {
+    if (!unitWt || unitWt <= 0) {
+      throw new Error('Unit weight required for KG to PCS conversion');
+    }
+    converted = qty / unitWt;
+    // Validate whole pieces
+    if (!Number.isInteger(converted)) {
+      const rounded = Math.round(converted * 100) / 100;
+      throw new Error(
+        `Conversion results in fractional pieces (${rounded}). ` +
+          `${qty} KG ÷ ${unitWt} kg/piece = ${rounded} pieces`,
+      );
+    }
+  }
+  // PCS → MT
+  else if (from === 'PCS' && to === 'MT') {
+    if (!unitWt || unitWt <= 0) {
+      throw new Error('Unit weight required for PCS to MT conversion');
+    }
+    converted = (qty * unitWt) / 1000;
+  }
+  // MT → PCS
+  else if (from === 'MT' && to === 'PCS') {
+    if (!unitWt || unitWt <= 0) {
+      throw new Error('Unit weight required for MT to PCS conversion');
+    }
+    const kgQty = qty * 1000;
+    converted = kgQty / unitWt;
+    // Validate whole pieces
+    if (!Number.isInteger(converted)) {
+      const rounded = Math.round(converted * 100) / 100;
+      throw new Error(
+        `Conversion results in fractional pieces (${rounded}). ` +
+          `${qty} MT = ${kgQty} KG ÷ ${unitWt} kg/piece = ${rounded} pieces`,
+      );
+    }
+  }
+  // Unsupported conversion
+  else {
+    throw new Error(`Unsupported conversion: ${from} to ${to}`);
+  }
+
+  return converted;
+};
+
+/**
+ * Check if conversion between two units is possible.
+ *
+ * @param {string} fromUnit - Source UOM
+ * @param {string} toUnit - Target UOM
+ * @param {number} unitWeightKg - Weight per piece (for PCS conversions)
+ * @returns {boolean} True if conversion is possible
+ */
+export const canConvertQuantity = (fromUnit, toUnit, unitWeightKg = null) => {
+  const from = (fromUnit || 'PCS').toUpperCase();
+  const to = (toUnit || 'PCS').toUpperCase();
+
+  // Same unit always works
+  if (from === to) return true;
+
+  // KG ↔ MT always works
+  if ((from === 'KG' && to === 'MT') || (from === 'MT' && to === 'KG')) {
+    return true;
+  }
+
+  // PCS conversions require unit weight
+  const pcsConversions = ['PCS', 'KG', 'MT'];
+  if (pcsConversions.includes(from) && pcsConversions.includes(to)) {
+    return unitWeightKg && parseFloat(unitWeightKg) > 0;
+  }
+
+  return false;
+};
+
+/**
+ * Validate actual weight against theoretical weight with tolerance.
+ * Industry standard tolerances for stainless steel products.
+ *
+ * @param {number} actualWeightKg - Actual weighed weight
+ * @param {number} theoreticalWeightKg - Calculated theoretical weight
+ * @param {string} productCategory - Product category (PLATES, COILS, PIPES, FITTINGS, etc.)
+ * @returns {Object} { valid, varianceKg, variancePct, tolerancePct, message, severity }
+ */
+export const validateWeightTolerance = (actualWeightKg, theoreticalWeightKg, productCategory = 'PLATES') => {
+  const actual = parseFloat(actualWeightKg) || 0;
+  const theoretical = parseFloat(theoreticalWeightKg) || 0;
+
+  // Tolerance by product category (industry standard)
+  const tolerances = {
+    PLATES: 3,
+    SHEETS: 3,
+    COILS: 5,
+    PIPES: 10,
+    TUBES: 10,
+    FITTINGS: 2,
+    FLANGES: 2,
+    BARS: 3,
+    DEFAULT: 5,
+  };
+
+  const category = (productCategory || 'DEFAULT').toUpperCase();
+  const tolerancePct = tolerances[category] || tolerances.DEFAULT;
+
+  // Handle edge cases
+  if (theoretical === 0) {
+    if (actual === 0) {
+      return { valid: true, varianceKg: 0, variancePct: 0, tolerancePct, message: 'No weight data', severity: 'none' };
+    }
+    return {
+      valid: false,
+      varianceKg: actual,
+      variancePct: 100,
+      tolerancePct,
+      message: 'Theoretical weight is zero but actual weight provided',
+      severity: 'error',
+    };
+  }
+
+  // Calculate variance
+  const varianceKg = actual - theoretical;
+  const variancePct = (varianceKg / theoretical) * 100;
+  const absVariancePct = Math.abs(variancePct);
+
+  // Check if within tolerance
+  const valid = absVariancePct <= tolerancePct;
+
+  // Determine severity for UI display
+  let severity = 'success';
+  if (absVariancePct > tolerancePct * 2) {
+    severity = 'error'; // Exceeds 2x tolerance - block
+  } else if (absVariancePct > tolerancePct) {
+    severity = 'warning'; // Exceeds tolerance - warn
+  } else if (absVariancePct > tolerancePct * 0.5) {
+    severity = 'caution'; // Over 50% of tolerance
+  }
+
+  return {
+    valid,
+    varianceKg: parseFloat(varianceKg.toFixed(3)),
+    variancePct: parseFloat(variancePct.toFixed(2)),
+    tolerancePct,
+    message: valid
+      ? `Within tolerance (${absVariancePct.toFixed(1)}% vs ±${tolerancePct}% allowed)`
+      : `Exceeds tolerance: ${absVariancePct.toFixed(1)}% variance (±${tolerancePct}% allowed for ${category})`,
+    severity,
+  };
+};
+
+/**
+ * Calculate weight variance fields (simpler version for display)
+ *
+ * @param {number} actualWeightKg - Actual weighed weight
+ * @param {number} theoreticalWeightKg - Calculated theoretical weight
+ * @returns {Object} { varianceKg, variancePct }
+ */
+export const calculateWeightVariance = (actualWeightKg, theoreticalWeightKg) => {
+  const actual = parseFloat(actualWeightKg) || 0;
+  const theoretical = parseFloat(theoreticalWeightKg) || 0;
+
+  if (theoretical === 0) {
+    return { varianceKg: actual, variancePct: actual === 0 ? 0 : 100 };
+  }
+
+  const varianceKg = actual - theoretical;
+  const variancePct = (varianceKg / theoretical) * 100;
+
+  return {
+    varianceKg: parseFloat(varianceKg.toFixed(3)),
+    variancePct: parseFloat(variancePct.toFixed(2)),
+  };
+};
+
+/**
  * Calculate VAT/TRN amount with proper UAE FTA rounding
  * Uses toFixed(2) for standard rounding to 2 decimal places
  * @param {number} amount - Base amount before VAT

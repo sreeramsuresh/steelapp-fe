@@ -7,3 +7,4 @@ export { companyService } from './companyService';
 export { stockMovementService } from './stockMovementService';
 export { inventoryService } from './inventoryService';
 export { commissionService } from './commissionService';
+export { uomValidationService } from './uomValidationService';

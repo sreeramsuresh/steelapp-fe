@@ -51,6 +51,8 @@ const transformInvoiceForServer = (invoiceData) => {
       rate: item.rate,
       vat_rate: item.vatRate,
       amount: item.amount,
+      // Phase 2: UOM tracking for audit trail
+      quantity_uom: item.quantityUom || item.unit || 'PCS',
     })) || [],
   };
 };

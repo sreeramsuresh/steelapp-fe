@@ -18,7 +18,7 @@ import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
-import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
+import { formatCurrency, formatDateForInput, validateQuantityPrecision } from '../utils/invoiceUtils';
 import useCreditNoteDrafts from '../hooks/useCreditNoteDrafts';
 import DraftConflictModal from '../components/DraftConflictModal';
 import CreditNotePreview from '../components/credit-notes/CreditNotePreview';
@@ -153,6 +153,7 @@ const CreditNoteForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
   const [touchedFields, setTouchedFields] = useState(new Set());
+  const [itemQuantityErrors, setItemQuantityErrors] = useState({}); // Track per-item quantity precision errors
 
   // Determine if credit note is editable (only draft status is editable per finance/VAT compliance)
   const isEditable = !id || creditNote.status === 'draft';
@@ -508,6 +509,7 @@ const CreditNoteForm = () => {
           description: item.description || '',
           originalQuantity: item.quantity,
           quantityReturned: 0,
+          unit: item.unit || 'PCS', // Unit for quantity precision validation
           rate: item.rate,
           amount: 0,
           vatRate: item.vatRate || 5,
@@ -553,6 +555,16 @@ const CreditNoteForm = () => {
     if (qty < 0) {
       return;
     }
+
+    // Validate quantity precision for PCS/BUNDLE units
+    const precisionResult = validateQuantityPrecision(qty, item.unit);
+    setItemQuantityErrors(prevErrors => {
+      if (!precisionResult.valid) {
+        return { ...prevErrors, [index]: precisionResult.message };
+      }
+      const { [index]: _removed, ...rest } = prevErrors;
+      return rest;
+    });
 
     item.quantityReturned = qty;
     item.amount = qty * item.rate;
@@ -661,11 +673,20 @@ const CreditNoteForm = () => {
     }
 
     // Validate item quantities (if any items selected)
-    returnedItems.forEach((item) => {
+    returnedItems.forEach((item, idx) => {
       if (item.quantityReturned > item.originalQuantity) {
         errors.push(`Item "${item.productName}": Cannot return more than original quantity`);
       }
+      // Validate quantity precision for PCS/BUNDLE units
+      const precisionResult = validateQuantityPrecision(item.quantityReturned, item.unit);
+      if (!precisionResult.valid) {
+        errors.push(`Item "${item.productName}": ${precisionResult.message}`);
+        invalidFieldsSet.add(`item.${idx}.quantity`);
+      }
     });
+
+    // Clear item quantity errors state to sync with form validation
+    setItemQuantityErrors({});
 
     setValidationErrors(errors);
     setInvalidFields(invalidFieldsSet);
@@ -1291,13 +1312,17 @@ const CreditNoteForm = () => {
                                 disabled={!isEditable || !item.selected}
                                 aria-required="true"
                                 className={`w-full px-3 py-2 rounded border text-sm transition-colors ${
-                                  item.selected && item.quantityReturned === 0 && invalidFields.has('items')
+                                  (item.selected && item.quantityReturned === 0 && invalidFields.has('items')) || itemQuantityErrors[index]
                                     ? 'border-red-500 ring-1 ring-red-500'
                                     : isDarkMode
                                       ? 'border-gray-600 bg-gray-700 text-white disabled:bg-gray-800 disabled:text-gray-500 focus:ring-teal-500 focus:border-teal-500'
                                       : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-teal-500 focus:border-teal-500'
                                 } focus:outline-none focus:ring-2`}
                               />
+                              {/* Inline quantity precision error */}
+                              {itemQuantityErrors[index] && (
+                                <p className="text-red-500 text-xs mt-1">{itemQuantityErrors[index]}</p>
+                              )}
                             </div>
                             <div>
                               <label htmlFor={`amount-${index}`} className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>

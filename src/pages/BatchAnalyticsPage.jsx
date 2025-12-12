@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Filter,
+  Download,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { apiClient } from '../services/api';
@@ -486,6 +487,42 @@ const ModificationLogTab = ({ isDarkMode }) => {
     });
   };
 
+  // Export to Excel (CSV format for universal compatibility)
+  const exportToExcel = () => {
+    if (logData.length === 0) return;
+
+    // Define headers
+    const headers = ['Date & Time', 'User', 'Invoice', 'Product', 'Old Batch', 'New Batch', 'Reason'];
+
+    // Build CSV content
+    const csvRows = [
+      headers.join(','),
+      ...logData.map(log => [
+        `"${(log.timestamp || 'N/A').replace(/"/g, '""')}"`,
+        `"${(log.userName || log.user || 'System').replace(/"/g, '""')}"`,
+        `"${(log.invoiceNumber || 'N/A').replace(/"/g, '""')}"`,
+        `"${(log.productName || 'N/A').replace(/"/g, '""')}"`,
+        `"${(log.oldBatch || 'N/A').replace(/"/g, '""')}"`,
+        `"${(log.newBatch || 'N/A').replace(/"/g, '""')}"`,
+        `"${(log.reason || 'Not specified').replace(/"/g, '""')}"`,
+      ].join(','))
+    ];
+
+    const csvContent = csvRows.join('\n');
+
+    // Create blob and download
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const filename = `batch-modification-log-${new Date().toISOString().split('T')[0]}.csv`;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -618,10 +655,25 @@ const ModificationLogTab = ({ isDarkMode }) => {
         />
       ) : (
         <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
               Modification History ({logData.length})
             </CardTitle>
+            <button
+              onClick={exportToExcel}
+              disabled={logData.length === 0}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
+                logData.length === 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : isDarkMode
+                    ? 'bg-teal-600 text-white hover:bg-teal-700'
+                    : 'bg-teal-600 text-white hover:bg-teal-700'
+              }`}
+              title="Export to Excel (CSV)"
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </button>
           </CardHeader>
           <CardContent>
             <Table>

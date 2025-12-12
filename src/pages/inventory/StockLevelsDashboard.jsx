@@ -26,6 +26,7 @@ import {
 import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency } from '../../utils/invoiceUtils';
+import BatchAllocationKPIs from '../../components/dashboard/BatchAllocationKPIs';
 
 /**
  * Stock Levels Dashboard
@@ -293,6 +294,14 @@ const StockLevelsDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Batch Allocation KPIs Section */}
+      <div className="mb-6 px-4 sm:px-0">
+        <h2 className={`text-lg font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Batch Allocation Health
+        </h2>
+        <BatchAllocationKPIs />
+      </div>
 
       <div className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
         isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
