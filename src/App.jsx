@@ -45,6 +45,8 @@ const AppContent = ({ user, sidebarOpen, setSidebarOpen, handleLogout, handleSav
         return 'Revenue Trends';
       case '/settings':
         return 'Company Settings';
+      case '/batch-analytics':
+        return 'Batch Analytics';
       default:
         if (path.includes('/edit/')) {
           return 'Edit Invoice';

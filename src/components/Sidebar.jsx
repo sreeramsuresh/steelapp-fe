@@ -25,6 +25,7 @@ import {
   ChevronDown,
   Clock,
   Container,
+  PieChart,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -199,7 +200,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 5. INVENTORY (3 items) - Keep as is
+    // 5. INVENTORY (4 items)
     {
       section: 'Inventory',
       items: [
@@ -220,6 +221,23 @@ const Sidebar = ({ isOpen, onToggle }) => {
           path: '/stock-movements',
           icon: Move,
           description: 'Transfers, reservations & reconciliation',
+        },
+        {
+          name: 'Batch Analytics',
+          path: '/batch-analytics',
+          icon: PieChart,
+          description: 'Track and analyze inventory batch performance',
+          requiredRoles: [
+            'warehouse_manager',
+            'inventory_controller',
+            'supervisor',
+            'manager',
+            'admin',
+            'super_admin',
+            'finance_manager',
+            'accountant',
+            'director',
+          ],
         },
       ],
     },

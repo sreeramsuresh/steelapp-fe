@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Download, Edit, Truck, Plus, CheckCircle, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Download, Edit, Truck, Plus, CheckCircle, X, AlertCircle, Package } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI } from '../services/api';
 import { formatDate } from '../utils/invoiceUtils';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
+import { useStockValidation } from '../hooks/useStockValidation';
 
 const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isDarkMode } = useTheme();
+  const { checkAvailability } = useStockValidation();
 
   const [deliveryNote, setDeliveryNote] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -143,6 +145,56 @@ const DeliveryNoteDetails = () => {
     const totalDelivered = deliveryNote.items.reduce((sum, item) => sum + item.deliveredQuantity, 0);
     
     return totalOrdered > 0 ? Math.round((totalDelivered / totalOrdered) * 100) : 0;
+  };
+
+  /**
+   * Render stock status badge for an item
+   */
+  const renderStockStatusBadge = (item) => {
+    // Check if item has stock deduction information
+    if (item.stockDeducted) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+            isDarkMode ? 'bg-green-900/30 text-green-300 border border-green-600' : 'bg-green-100 text-green-800 border border-green-300'
+          }`}>
+            <CheckCircle size={12} />
+            Stock Deducted ✓
+          </span>
+          {item.stockDeductedAt && (
+            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {formatDate(item.stockDeductedAt)}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    // Check allocation status
+    if (item.allocationStatus === 'failed') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+          isDarkMode ? 'bg-red-900/30 text-red-300 border border-red-600' : 'bg-red-100 text-red-800 border border-red-300'
+        }`}>
+          <X size={12} />
+          Deduction Failed
+        </span>
+      );
+    }
+
+    // Pending deduction (default state)
+    if (deliveryNote.status === 'pending' || deliveryNote.status === 'partial') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+          isDarkMode ? 'bg-orange-900/30 text-orange-300 border border-orange-600' : 'bg-orange-100 text-orange-800 border border-orange-300'
+        }`}>
+          <AlertCircle size={12} />
+          Pending Deduction
+        </span>
+      );
+    }
+
+    return null;
   };
 
   if (loading) {
@@ -361,6 +413,9 @@ const DeliveryNoteDetails = () => {
                       Status
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Stock Status
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Action
                     </th>
                   </tr>
@@ -410,6 +465,14 @@ const DeliveryNoteDetails = () => {
                         }`}>
                           {item.isFullyDelivered ? 'Complete' : 'Partial'}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {renderStockStatusBadge(item)}
+                        {item.stockDeductedBy && (
+                          <div className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            by {item.stockDeductedBy}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         {!item.isFullyDelivered && deliveryNote.status !== 'completed' && deliveryNote.status !== 'cancelled' && (
@@ -540,6 +603,58 @@ const DeliveryNoteDetails = () => {
                   {deliveryNote.isPartial ? 'Yes' : 'No'}
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Stock Deduction Summary */}
+          <div className={`p-6 mb-6 rounded-xl border ${
+            isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+          }`}>
+            <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              <Package size={20} className="text-teal-600" />
+              Stock Status
+            </h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Stock Deducted</span>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {deliveryNote.items?.filter(item => item.stockDeducted).length || 0} / {deliveryNote.items?.length || 0}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pending Deduction</span>
+                <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {deliveryNote.items?.filter(item => !item.stockDeducted && item.allocationStatus !== 'failed').length || 0}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Failed Deductions</span>
+                <span className={`text-sm font-medium ${
+                  deliveryNote.items?.filter(item => item.allocationStatus === 'failed').length > 0
+                    ? (isDarkMode ? 'text-red-400' : 'text-red-600')
+                    : (isDarkMode ? 'text-white' : 'text-gray-900')
+                }`}>
+                  {deliveryNote.items?.filter(item => item.allocationStatus === 'failed').length || 0}
+                </span>
+              </div>
+
+              {deliveryNote.items?.some(item => item.stockDeducted && item.stockDeductedAt) && (
+                <>
+                  <hr className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                  <div>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Last Deduction</span>
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {formatDate(
+                        deliveryNote.items
+                          .filter(item => item.stockDeductedAt)
+                          .sort((a, b) => new Date(b.stockDeductedAt) - new Date(a.stockDeductedAt))[0]?.stockDeductedAt
+                      )}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

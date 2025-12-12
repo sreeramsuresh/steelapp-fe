@@ -60,6 +60,9 @@ import StockMovementPage from '../pages/StockMovementPage';
 import WarehouseList from '../pages/warehouses/WarehouseList';
 import WarehouseDetail from '../pages/warehouses/WarehouseDetail';
 
+// Batch Analytics
+import BatchAnalyticsPage from '../pages/BatchAnalyticsPage';
+
 // Reports Components
 import ReportsDashboard from '../pages/ReportsDashboard';
 import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
@@ -493,6 +496,29 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user}>
               <WarehouseDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Batch Analytics Route */}
+        <Route
+          path="/batch-analytics"
+          element={
+            <ProtectedRoute
+              user={user}
+              requiredRoles={[
+                'warehouse_manager',
+                'inventory_controller',
+                'supervisor',
+                'manager',
+                'admin',
+                'super_admin',
+                'finance_manager',
+                'accountant',
+                'director',
+              ]}
+            >
+              <BatchAnalyticsPage />
             </ProtectedRoute>
           }
         />

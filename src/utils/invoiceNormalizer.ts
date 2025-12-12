@@ -264,7 +264,12 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       totalAmount: parseNumber(rawInvoice.totalAmount || rawInvoice.totalAmount || rawInvoice.total, 0),
       received: parseNumber(rawInvoice.received, 0),
       outstanding: parseNumber(rawInvoice.outstanding, 0),
-      balanceDue: parseNumber(rawInvoice.balanceDue || rawInvoice.balance_due || rawInvoice.balanceAmount || rawInvoice.balance_amount, undefined),
+      // balanceDue: prefer 'outstanding' (primary) over legacy 'balanceAmount' fields
+      // Note: 'balanceAmount' may be stale/zero while 'outstanding' is correct
+      balanceDue: parseNumber(
+        rawInvoice.balanceDue ?? rawInvoice.balance_due ?? rawInvoice.outstanding ?? rawInvoice.balanceAmount ?? rawInvoice.balance_amount,
+        0
+      ),
       
       // Discounts & Currency
       discountPercentage: parseNumber(rawInvoice.discountPercentage || rawInvoice.discount_percentage, undefined),

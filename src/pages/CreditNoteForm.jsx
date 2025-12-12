@@ -121,7 +121,7 @@ const CreditNoteForm = () => {
     },
     creditNoteDate: formatDateForInput(new Date()),
     status: 'draft',
-    creditNoteType: 'ACCOUNTING_ONLY',
+    creditNoteType: '',
     reasonForReturn: '',
     items: [],
     subtotal: 0,
@@ -581,7 +581,7 @@ const CreditNoteForm = () => {
   const validateForm = () => {
     const errors = [];
     const invalidFieldsSet = new Set();
-    const touchedFieldsSet = new Set(['invoiceId', 'creditNoteDate', 'reasonForReturn']);
+    const touchedFieldsSet = new Set(['invoiceId', 'creditNoteDate', 'reasonForReturn', 'creditNoteType']);
 
     // Always required
     if (!creditNote.invoiceId) {
@@ -602,6 +602,11 @@ const CreditNoteForm = () => {
     if (!creditNote.reasonForReturn) {
       errors.push('Reason for return is required');
       invalidFieldsSet.add('reasonForReturn');
+    }
+
+    if (!creditNote.creditNoteType) {
+      errors.push('Please select a credit note type');
+      invalidFieldsSet.add('creditNoteType');
     }
 
     const returnedItems = creditNote.items.filter(item => item.selected && item.quantityReturned > 0);
@@ -724,6 +729,11 @@ const CreditNoteForm = () => {
         // Set status based on user action
         status: issueImmediately ? 'issued' : 'draft',
       };
+
+      // [DEBUG-CN-TYPE] Log credit note type before sending
+      console.log('[DEBUG-CN-TYPE] Frontend - creditNote.creditNoteType:', creditNote.creditNoteType);
+      console.log('[DEBUG-CN-TYPE] Frontend - creditNoteData.creditNoteType:', creditNoteData.creditNoteType);
+      console.log('[DEBUG-CN-TYPE] Frontend - Full payload:', JSON.stringify(creditNoteData, null, 2));
 
       if (id) {
         await creditNoteService.updateCreditNote(id, creditNoteData);
@@ -1346,7 +1356,17 @@ const CreditNoteForm = () => {
                   <select
                     id="credit-note-type"
                     value={creditNote.creditNoteType}
-                    onChange={(e) => setCreditNote(prev => ({ ...prev, creditNoteType: e.target.value }))}
+                    onChange={(e) => {
+                      setCreditNote(prev => ({ ...prev, creditNoteType: e.target.value }));
+                      // Clear error when type is selected
+                      if (e.target.value) {
+                        setInvalidFields(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete('creditNoteType');
+                          return newSet;
+                        });
+                      }
+                    }}
                     disabled={!isEditable}
                     aria-required="true"
                     className={`w-full px-4 py-2 rounded-lg border transition-colors ${
@@ -1354,20 +1374,27 @@ const CreditNoteForm = () => {
                         ? isDarkMode
                           ? 'border-gray-600 bg-gray-700 text-gray-500 cursor-not-allowed'
                           : 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
-                        : isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
-                          : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
+                        : invalidFields.has('creditNoteType')
+                          ? 'border-red-500 ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
+                            : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
                     } focus:outline-none focus:ring-2`}
                   >
+                    <option value="">-- Select Credit Note Type --</option>
                     {CREDIT_NOTE_TYPES.map(type => (
                       <option key={type.value} value={type.value}>
                         {type.label}
                       </option>
                     ))}
                   </select>
-                  <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {CREDIT_NOTE_TYPES.find(t => t.value === creditNote.creditNoteType)?.description}
-                  </p>
+                  {invalidFields.has('creditNoteType') ? (
+                    <p className="mt-1 text-xs text-red-500">Please select a credit note type</p>
+                  ) : (
+                    <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {creditNote.creditNoteType ? CREDIT_NOTE_TYPES.find(t => t.value === creditNote.creditNoteType)?.description : 'Choose whether this is a financial adjustment only or involves physical return'}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="credit-note-date" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>

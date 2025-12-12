@@ -17,6 +17,7 @@ import {
   Clock,
   RefreshCw,
   XCircle,
+  FileText as DetailsIcon,
 } from 'lucide-react';
 import { deliveryNotesAPI } from '../services/api';
 import { authService } from '../services/axiosAuthService';
@@ -443,10 +444,21 @@ const DeliveryNoteList = () => {
                         {authService.hasPermission('delivery_notes','read') && (
                           <button
                             className={`p-2 rounded transition-colors bg-transparent ${
+                              isDarkMode ? 'text-purple-400 hover:text-purple-300' : 'hover:bg-gray-100 text-purple-600'
+                            }`}
+                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
+                            title="View Details & Confirm Delivery"
+                          >
+                            <DetailsIcon size={16} />
+                          </button>
+                        )}
+                        {authService.hasPermission('delivery_notes','read') && (
+                          <button
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'hover:bg-gray-100 text-blue-600'
                             }`}
                             onClick={() => setPreviewDeliveryNote(deliveryNote)}
-                            title="Preview"
+                            title="Quick Preview"
                           >
                             <ViewIcon size={16} />
                           </button>

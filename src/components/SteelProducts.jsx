@@ -651,6 +651,9 @@ const SteelProducts = () => {
     primaryUom: 'PCS',  // Primary unit: PCS, KG, MT, METER
     unitWeightKg: '',   // Weight of one piece in kg
     allowDecimalQuantity: false,  // Whether fractional quantities allowed
+    // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+    pricingBasis: 'PER_MT',  // Basis for cost_price/selling_price: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
+    weightTolerancePercent: 2.5,  // Acceptable weight variance % (Sheets: 2.5%, Pipes: 5%, Bars: 3%)
     specifications: {
       length: '',
       width: '',
@@ -892,6 +895,13 @@ const SteelProducts = () => {
       millCountry: '',
       millName: '',
       productCategory: '',
+      // Unit of Measure (reset to defaults)
+      primaryUom: 'PCS',
+      unitWeightKg: '',
+      allowDecimalQuantity: false,
+      // Pricing & Commercial Fields (reset to defaults)
+      pricingBasis: 'PER_MT',
+      weightTolerancePercent: 2.5,
       specifications: {
         length: '', width: '', thickness: '', diameter: '',
         tensileStrength: '', yieldStrength: '', carbonContent: '',
@@ -1239,6 +1249,13 @@ const SteelProducts = () => {
         millCountry: newProduct.millCountry || undefined,  // API Gateway converts to mill_country
         millName: newProduct.millName || undefined,  // API Gateway converts to mill_name
         productCategory: newProduct.productCategory || undefined,  // API Gateway converts to product_category
+        // Unit of Measure fields (added 2025-12-09)
+        primaryUom: newProduct.primaryUom || 'PCS',
+        unitWeightKg: newProduct.unitWeightKg || undefined,
+        allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
+        // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+        pricingBasis: newProduct.pricingBasis || 'PER_MT',  // API Gateway converts to pricing_basis
+        weightTolerancePercent: newProduct.weightTolerancePercent || 2.5,  // API Gateway converts to weight_tolerance_percent
         specifications: newProduct.specifications,
       };
       const createdProduct = await createProduct(productData);
@@ -1274,6 +1291,13 @@ const SteelProducts = () => {
         countryOfOrigin: '',
         millName: '',
         productCategory: '',
+        // Unit of Measure (reset to defaults)
+        primaryUom: 'PCS',
+        unitWeightKg: '',
+        allowDecimalQuantity: false,
+        // Pricing & Commercial Fields (reset to defaults)
+        pricingBasis: 'PER_MT',
+        weightTolerancePercent: 2.5,
         specifications: {
           length: '', width: '', thickness: '', diameter: '',
           tensileStrength: '', yieldStrength: '', carbonContent: '',
@@ -1488,6 +1512,15 @@ const SteelProducts = () => {
         supplier: selectedProduct.supplier,
         location: selectedProduct.location,
         millCountry: selectedProduct.millCountry || undefined,  // API Gateway converts to mill_country
+        // Unit of Measure fields (added 2025-12-09)
+        primaryUom: selectedProduct.primaryUom || 'PCS',
+        unitWeightKg: selectedProduct.unitWeightKg || undefined,
+        allowDecimalQuantity: selectedProduct.allowDecimalQuantity || false,
+        // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+        pricingBasis: selectedProduct.pricingBasis || 'PER_MT',  // API Gateway converts to pricing_basis
+        weightTolerancePercent: selectedProduct.weightTolerancePercent !== undefined
+          ? Number(selectedProduct.weightTolerancePercent)
+          : 2.5,  // API Gateway converts to weight_tolerance_percent
         specifications: JSON.stringify({
           ...(selectedProduct.specifications || {}),
           thickness: selectedProduct.thickness || (selectedProduct.specifications && selectedProduct.specifications.thickness) || '',
@@ -1987,6 +2020,9 @@ const SteelProducts = () => {
                             primaryUom: product.primaryUom || product.primary_uom || 'PCS',
                             unitWeightKg: product.unitWeightKg || product.unit_weight_kg || '',
                             allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
+                            // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+                            pricingBasis: product.pricingBasis || product.pricing_basis || 'PER_MT',
+                            weightTolerancePercent: product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
                           };
                           setSelectedProduct(formattedProduct);
                           setShowEditModal(true);
@@ -2522,7 +2558,7 @@ const SteelProducts = () => {
                 {/* Pricing Information */}
                 <div>
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Pricing Information</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="relative">
                       <Input
                         label="Cost Price"
@@ -2544,6 +2580,31 @@ const SteelProducts = () => {
                         className="pl-12"
                       />
                       <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
+                    </div>
+                    <Select
+                      label="Pricing Basis"
+                      value={newProduct.pricingBasis || 'PER_MT'}
+                      onChange={(e) => setNewProduct({...newProduct, pricingBasis: e.target.value})}
+                      options={[
+                        { value: 'PER_MT', label: 'Per MT (Metric Ton)' },
+                        { value: 'PER_KG', label: 'Per KG' },
+                        { value: 'PER_PCS', label: 'Per Piece' },
+                        { value: 'PER_METER', label: 'Per Meter' },
+                        { value: 'PER_LOT', label: 'Per Lot' },
+                      ]}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <Input
+                      label="Weight Tolerance %"
+                      type="number"
+                      step="0.1"
+                      value={newProduct.weightTolerancePercent ?? 2.5}
+                      onChange={(e) => setNewProduct({...newProduct, weightTolerancePercent: e.target.value === '' ? '' : Number(e.target.value)})}
+                      placeholder="e.g., 2.5 for sheets"
+                    />
+                    <div className={`text-xs mt-6 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Typical tolerances: Sheets ±2.5%, Pipes ±5%, Bars ±3%, Coils ±2%
                     </div>
                   </div>
                 </div>
@@ -3061,6 +3122,29 @@ const SteelProducts = () => {
                     />
                     <span className={`absolute left-3 top-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>د.إ</span>
                   </div>
+                  <Select
+                    label="Pricing Basis"
+                    value={selectedProduct.pricingBasis || selectedProduct.pricing_basis || 'PER_MT'}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, pricingBasis: e.target.value})}
+                    options={[
+                      { value: 'PER_MT', label: 'Per MT (Metric Ton)' },
+                      { value: 'PER_KG', label: 'Per KG' },
+                      { value: 'PER_PCS', label: 'Per Piece' },
+                      { value: 'PER_METER', label: 'Per Meter' },
+                      { value: 'PER_LOT', label: 'Per Lot' },
+                    ]}
+                  />
+                  <Input
+                    label="Weight Tolerance %"
+                    type="number"
+                    step="0.1"
+                    value={selectedProduct.weightTolerancePercent ?? selectedProduct.weight_tolerance_percent ?? 2.5}
+                    onChange={(e) => setSelectedProduct({
+                      ...selectedProduct,
+                      weightTolerancePercent: e.target.value === '' ? '' : Number(e.target.value)
+                    })}
+                    placeholder="e.g., 2.5"
+                  />
                   <Input
                     label="Supplier"
                     value={selectedProduct.supplier}

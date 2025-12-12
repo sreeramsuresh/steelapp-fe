@@ -46,6 +46,21 @@ export const createSteelItem = () => ({
   netAmount: 0,
   serialNumber: '',
   sourceType: 'WAREHOUSE', // Default to warehouse stock
+  // Allocation tracking
+  allocations: [], // FIFO batch allocations from backend
+  allocationStatus: 'pending', // pending, allocated, partial, failed
+  primaryUom: 'KG', // Product's primary unit of measure
+  itemUom: 'KG', // Invoice line item UOM (may differ from primaryUom)
+  conversionFactor: 1, // Factor to convert itemUom to primaryUom
+  unitWeight: null, // Weight per piece (for PCS to KG conversion)
+  // Manual batch allocation (Phase 2)
+  allocationMode: 'AUTO_FIFO', // AUTO_FIFO or MANUAL
+  manualAllocations: [], // User-selected batch allocations [{batch_id, quantity}]
+  // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+  pricingBasis: 'PER_MT', // Basis for rate: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
+  unitWeightKg: null, // Weight of a single unit/piece in kg
+  quantityUom: 'PCS', // Unit of measure for quantity: PCS (pieces), KG, MT
+  theoreticalWeightKg: null, // Calculated: quantity × unitWeightKg (for audit trail)
 });
 
 export const createInvoice = () => ({

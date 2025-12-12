@@ -9,10 +9,137 @@ import {
   TIMEZONE_LABEL,
 } from './timezone';
 
-export const calculateItemAmount = (quantity, rate) => {
+/**
+ * Calculate invoice line item amount based on UAE stainless steel trading conventions.
+ *
+ * PRICING BASIS RULES:
+ * - PER_PCS: qty (pieces) × rate = amount
+ * - PER_KG: qty (pieces) × unitWeightKg × rate = amount
+ * - PER_MT: qty (pieces) × (unitWeightKg / 1000) × rate = amount
+ * - PER_METER: qty (meters) × rate = amount
+ * - PER_LOT: rate (qty is informational only)
+ *
+ * SPECIAL CASE - COILS:
+ * When quantityUom is 'MT' or 'KG', quantity IS the weight (not pieces).
+ * - quantityUom='MT': qty × rate = amount
+ * - quantityUom='KG': (qty / 1000) × rate = amount (for PER_MT pricing)
+ *
+ * @param {number} quantity - Quantity (pieces for discrete items, weight for coils)
+ * @param {number} rate - Rate per unit of pricing basis
+ * @param {string} pricingBasis - PER_PCS, PER_KG, PER_MT, PER_METER, PER_LOT
+ * @param {number} unitWeightKg - Weight per piece in kg (for discrete items)
+ * @param {string} quantityUom - Unit of measure for quantity: PCS, KG, MT
+ * @returns {number} Calculated amount rounded to 2 decimal places
+ */
+export const calculateItemAmount = (quantity, rate, pricingBasis = 'PER_MT', unitWeightKg = null, quantityUom = 'PCS') => {
   const qty = parseFloat(quantity) || 0;
   const rt = parseFloat(rate) || 0;
-  return qty * rt;
+  const unitWt = parseFloat(unitWeightKg) || 0;
+
+  if (qty === 0 || rt === 0) return 0;
+
+  // Normalize inputs
+  const basis = (pricingBasis || 'PER_MT').toUpperCase();
+  const uom = (quantityUom || 'PCS').toUpperCase();
+
+  let amount = 0;
+
+  // CASE 1: Quantity is already in weight (coils, bulk material)
+  if (uom === 'MT') {
+    // Quantity is in metric tons
+    if (basis === 'PER_MT') {
+      amount = qty * rt;
+    } else if (basis === 'PER_KG') {
+      amount = (qty * 1000) * rt; // Convert MT to KG
+    } else {
+      // Fallback for unexpected basis with MT quantity
+      amount = qty * rt;
+    }
+  } else if (uom === 'KG') {
+    // Quantity is in kilograms
+    if (basis === 'PER_MT') {
+      amount = (qty / 1000) * rt; // Convert KG to MT
+    } else if (basis === 'PER_KG') {
+      amount = qty * rt;
+    } else {
+      // Fallback
+      amount = qty * rt;
+    }
+  }
+  // CASE 2: Quantity is in pieces (discrete items: sheets, pipes, bars, fittings)
+  else {
+    switch (basis) {
+      case 'PER_PCS':
+        // Simple: pieces × rate per piece
+        amount = qty * rt;
+        break;
+
+      case 'PER_KG':
+        // pieces × weight per piece (kg) × rate per kg
+        if (unitWt > 0) {
+          amount = qty * unitWt * rt;
+        } else {
+          // Fallback if no unit weight (treat as per piece)
+          console.warn('calculateItemAmount: PER_KG pricing but no unitWeightKg provided');
+          amount = qty * rt;
+        }
+        break;
+
+      case 'PER_MT':
+        // pieces × weight per piece (kg) / 1000 × rate per MT
+        if (unitWt > 0) {
+          const totalWeightMT = (qty * unitWt) / 1000;
+          amount = totalWeightMT * rt;
+        } else {
+          // Fallback if no unit weight (treat as per piece) - LOG WARNING
+          console.warn('calculateItemAmount: PER_MT pricing but no unitWeightKg provided');
+          amount = qty * rt;
+        }
+        break;
+
+      case 'PER_METER':
+        // qty (in meters) × rate per meter
+        amount = qty * rt;
+        break;
+
+      case 'PER_LOT':
+        // Rate is for the entire lot, quantity is informational
+        amount = rt;
+        break;
+
+      default:
+        // Unknown basis - fallback to simple multiplication
+        console.warn(`calculateItemAmount: Unknown pricing basis "${basis}", using qty × rate`);
+        amount = qty * rt;
+    }
+  }
+
+  // Round to 2 decimal places for currency
+  return parseFloat(amount.toFixed(2));
+};
+
+/**
+ * Calculate theoretical weight for an invoice line item.
+ * Used for display and audit trail.
+ *
+ * @param {number} quantity - Quantity (pieces or weight depending on UOM)
+ * @param {number} unitWeightKg - Weight per piece in kg
+ * @param {string} quantityUom - PCS, KG, or MT
+ * @returns {number} Total weight in kg
+ */
+export const calculateTheoreticalWeight = (quantity, unitWeightKg, quantityUom = 'PCS') => {
+  const qty = parseFloat(quantity) || 0;
+  const unitWt = parseFloat(unitWeightKg) || 0;
+  const uom = (quantityUom || 'PCS').toUpperCase();
+
+  if (uom === 'MT') {
+    return qty * 1000; // Convert MT to KG
+  } else if (uom === 'KG') {
+    return qty; // Already in KG
+  } else {
+    // PCS - calculate from unit weight
+    return qty * unitWt;
+  }
 };
 
 /**

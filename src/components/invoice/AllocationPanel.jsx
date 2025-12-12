@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Package, Ship, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Package, Ship, AlertTriangle, CheckCircle, Lock, Unlock, RefreshCw } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
 import {
   Table,
   TableBody,
@@ -12,6 +13,8 @@ import {
   TableRow,
   TableFooter,
 } from '../ui/table';
+import { authService } from '../../services/axiosAuthService';
+import ReallocationModal from './ReallocationModal';
 
 /**
  * AllocationPanel Component
@@ -28,15 +31,26 @@ import {
  * - disabled: Whether the panel is in view-only mode
  */
 const AllocationPanel = ({
-  productId: _productId,
-  warehouseId: _warehouseId,
+  productId,
+  warehouseId,
   requiredQty,
   allocations = [],
-  onAllocationsChange: _onAllocationsChange,
+  onAllocationsChange,
   disabled = false,
+  isNewInvoice = false, // Hide FIFO banner for new invoices
+  isLocked = false, // True if allocations are locked (consumed by delivery note)
+  deliveryNoteNumber = null, // Delivery note number that consumed the allocations
+  invoiceItemId = null, // Required for reallocation (existing invoices only)
+  onReallocationComplete, // Callback after successful reallocation
 }) => {
   const { isDarkMode } = useTheme();
   const [totalAllocated, setTotalAllocated] = useState(0);
+  const [isReallocationModalOpen, setIsReallocationModalOpen] = useState(false);
+
+  // Check if user has supervisor-level permissions for reallocation
+  const SUPERVISOR_ROLES = ['supervisor', 'manager', 'admin', 'super_admin', 'director'];
+  const userRole = authService.getUserRole();
+  const canReallocate = SUPERVISOR_ROLES.includes(userRole) && !isLocked && !isNewInvoice && invoiceItemId;
 
   // Calculate total allocated quantity
   useEffect(() => {
@@ -103,8 +117,14 @@ const AllocationPanel = ({
     }).format(qty || 0);
   };
 
-  // If no allocations, show empty state
+  // If no allocations, show empty state (but hide for new invoices - it's just noise)
   if (allocations.length === 0) {
+    // For new invoices, don't show the FIFO banner - it's confusing and not actionable
+    if (isNewInvoice) {
+      return null;
+    }
+
+    // For existing invoices with no allocations, show a helpful message
     return (
       <div
         className={`p-4 rounded-lg border ${
@@ -114,7 +134,7 @@ const AllocationPanel = ({
         }`}
       >
         <p className="text-sm text-center">
-          No batch allocations available. FIFO allocation will be computed on save.
+          No batch allocations found. Contact warehouse team if this is unexpected.
         </p>
       </div>
     );
@@ -122,15 +142,59 @@ const AllocationPanel = ({
 
   return (
     <div className="space-y-3">
-      {/* Header with status */}
-      <div className="flex items-center justify-between">
-        <h4
-          className={`text-sm font-semibold ${
-            isDarkMode ? 'text-gray-200' : 'text-gray-800'
+      {/* Lock Status Banner */}
+      {isLocked && (
+        <div
+          className={`flex items-center gap-2 p-2 rounded-lg border ${
+            isDarkMode
+              ? 'bg-amber-900/20 border-amber-700 text-amber-300'
+              : 'bg-amber-50 border-amber-200 text-amber-700'
           }`}
         >
-          Batch Allocations (FIFO)
-        </h4>
+          <Lock size={16} className="flex-shrink-0" />
+          <span className="text-sm">
+            Batches locked — consumed by delivery note{' '}
+            {deliveryNoteNumber && (
+              <span className="font-semibold">{deliveryNoteNumber}</span>
+            )}
+          </span>
+        </div>
+      )}
+
+      {/* Header with status */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h4
+            className={`text-sm font-semibold ${
+              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}
+          >
+            Batch Allocations (FIFO)
+          </h4>
+          {!isNewInvoice && !isLocked && allocations.length > 0 && (
+            <span
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs ${
+                isDarkMode
+                  ? 'bg-green-900/30 text-green-400'
+                  : 'bg-green-50 text-green-600'
+              }`}
+            >
+              <Unlock size={12} />
+              Editable
+            </span>
+          )}
+          {canReallocate && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsReallocationModalOpen(true)}
+              className="ml-2 h-6 text-xs"
+            >
+              <RefreshCw size={12} className="mr-1" />
+              Change Batches
+            </Button>
+          )}
+        </div>
 
         {isComplete && (
           <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm">
@@ -241,6 +305,30 @@ const AllocationPanel = ({
           {!disabled && ' Changes will be applied when the invoice is saved.'}
         </p>
       </div>
+
+      {/* Reallocation Modal - Supervisor only */}
+      {canReallocate && (
+        <ReallocationModal
+          isOpen={isReallocationModalOpen}
+          onClose={() => setIsReallocationModalOpen(false)}
+          invoiceItemId={invoiceItemId}
+          productId={productId}
+          warehouseId={warehouseId}
+          currentAllocations={allocations}
+          requiredQty={requiredQty}
+          onReallocationComplete={(newAllocations) => {
+            setIsReallocationModalOpen(false);
+            // Update allocations in parent if callback provided
+            if (onAllocationsChange) {
+              onAllocationsChange(newAllocations);
+            }
+            // Notify parent component to refresh
+            if (onReallocationComplete) {
+              onReallocationComplete(newAllocations);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -266,6 +354,11 @@ AllocationPanel.propTypes = {
   ),
   onAllocationsChange: PropTypes.func,
   disabled: PropTypes.bool,
+  isNewInvoice: PropTypes.bool,
+  isLocked: PropTypes.bool,
+  deliveryNoteNumber: PropTypes.string,
+  invoiceItemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  onReallocationComplete: PropTypes.func,
 };
 
 export default AllocationPanel;

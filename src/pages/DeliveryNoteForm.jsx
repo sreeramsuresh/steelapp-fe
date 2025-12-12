@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loader2, Eye } from 'lucide-react';
+import { Save, ArrowLeft, Truck, X, AlertCircle, CheckCircle, AlertTriangle, Loader2, Eye, Package } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { deliveryNotesAPI, invoicesAPI } from '../services/api';
 import { formatDateForInput } from '../utils/invoiceUtils';
 import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
+import AllocationPanel from '../components/invoice/AllocationPanel';
 
 const DeliveryNoteForm = () => {
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ const DeliveryNoteForm = () => {
 
   // Preview modal state
   const [showPreview, setShowPreview] = useState(false);
-  const [_showInvoiceDialog] = useState(false);
 
   // Form data - use camelCase for state (API Gateway handles conversion)
   const [formData, setFormData] = useState({
@@ -47,130 +47,19 @@ const DeliveryNoteForm = () => {
     driverPhone: '',
     notes: '',
     items: [],
+    stockDeducted: false,
+    stockDeductedAt: null,
   });
+
+  // Expanded item state for showing allocation details
+  const [expandedItems, setExpandedItems] = useState(new Set());
 
   // Invoice selection
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
 
-  // Load delivery note for editing
-  useEffect(() => {
-    if (isEdit) {
-      loadDeliveryNote();
-    } else {
-      generateDeliveryNoteNumber();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isEdit]);
-
-  // Load invoices for selection
-  useEffect(() => {
-    loadInvoices();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally run once on mount
-
-  // Auto-select invoice if pre-selected
-  useEffect(() => {
-    if (preSelectedInvoiceId && !isEdit && invoices.length > 0) {
-      const invoice = invoices.find(inv => inv.id === preSelectedInvoiceId);
-      if (invoice) {
-        handleInvoiceSelect(invoice);
-      }
-    }
-  }, [preSelectedInvoiceId, invoices, isEdit, handleInvoiceSelect]);
-
-  const loadDeliveryNote = useCallback(async () => {
-    try {
-      setLoading(true);
-      const deliveryNote = await deliveryNotesAPI.getById(id);
-
-      // Parse delivery address if it's a string
-      let parsedAddress = deliveryNote.deliveryAddress || deliveryNote.delivery_address || {};
-      if (typeof parsedAddress === 'string') {
-        try {
-          parsedAddress = JSON.parse(parsedAddress);
-        } catch {
-          parsedAddress = { street: parsedAddress };
-        }
-      }
-
-      // Map items to camelCase
-      const mappedItems = (deliveryNote.items || []).map(item => ({
-        invoiceItemId: item.invoiceItemId || item.invoice_item_id,
-        productId: item.productId || item.product_id,
-        name: item.name,
-        specification: item.specification,
-        hsnCode: item.hsnCode || item.hsn_code,
-        unit: item.unit,
-        orderedQuantity: item.orderedQuantity || item.ordered_quantity || 0,
-        deliveredQuantity: item.deliveredQuantity || item.delivered_quantity || 0,
-        remainingQuantity: item.remainingQuantity || item.remaining_quantity || 0,
-        isFullyDelivered: item.isFullyDelivered || item.is_fully_delivered || false,
-      }));
-
-      setFormData({
-        deliveryNoteNumber: deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || '',
-        invoiceId: deliveryNote.invoiceId || deliveryNote.invoice_id || '',
-        deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date 
-          ? formatDateForInput(new Date(deliveryNote.deliveryDate || deliveryNote.delivery_date))
-          : '',
-        // Phase 4: GRN date fields
-        goodsReceiptDate: deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date 
-          ? formatDateForInput(new Date(deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date))
-          : formatDateForInput(new Date()),
-        inspectionDate: deliveryNote.inspectionDate || deliveryNote.inspection_date 
-          ? formatDateForInput(new Date(deliveryNote.inspectionDate || deliveryNote.inspection_date))
-          : formatDateForInput(new Date()),
-        deliveryAddress: {
-          street: parsedAddress.street || '',
-          city: parsedAddress.city || '',
-          poBox: parsedAddress.poBox || parsedAddress.po_box || '',
-        },
-        vehicleNumber: deliveryNote.vehicleNumber || deliveryNote.vehicle_number || '',
-        driverName: deliveryNote.driverName || deliveryNote.driver_name || '',
-        driverPhone: deliveryNote.driverPhone || deliveryNote.driver_phone || '',
-        notes: deliveryNote.notes || '',
-        items: mappedItems,
-      });
-
-      // Load the related invoice
-      const invoiceId = deliveryNote.invoiceId || deliveryNote.invoice_id;
-      if (invoiceId) {
-        const invoice = await invoicesAPI.getById(invoiceId);
-        setSelectedInvoice(invoice);
-      }
-    } catch (err) {
-      setError(`Failed to load delivery note: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  const loadInvoices = async () => {
-    try {
-      const response = await invoicesAPI.getAll({ 
-        status: 'paid',
-        limit: 100, 
-      });
-      setInvoices(response.invoices || []);
-    } catch (err) {
-      console.error('Failed to load invoices:', err);
-    }
-  };
-
-  const generateDeliveryNoteNumber = async () => {
-    try {
-      const response = await deliveryNotesAPI.getNextNumber();
-      setFormData(prev => ({
-        ...prev,
-        deliveryNoteNumber: response.nextDeliveryNoteNumber || response.deliveryNoteNumber,
-      }));
-    } catch (err) {
-      console.error('Failed to generate delivery note number:', err);
-    }
-  };
-
+  // Define handleInvoiceSelect BEFORE the useEffect that uses it
   const handleInvoiceSelect = useCallback(async (invoice) => {
     if (!invoice) return;
 
@@ -213,6 +102,135 @@ const DeliveryNoteForm = () => {
     }
   }, [isEdit]);
 
+  // Load delivery note for editing
+  useEffect(() => {
+    if (isEdit) {
+      loadDeliveryNote();
+    } else {
+      generateDeliveryNoteNumber();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, isEdit]);
+
+  // Load invoices for selection
+  useEffect(() => {
+    loadInvoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally run once on mount
+
+  // Auto-select invoice if pre-selected
+  useEffect(() => {
+    if (preSelectedInvoiceId && !isEdit && invoices.length > 0) {
+      const invoice = invoices.find(inv => inv.id === preSelectedInvoiceId);
+      if (invoice) {
+        handleInvoiceSelect(invoice);
+      }
+    }
+  }, [preSelectedInvoiceId, invoices, isEdit, handleInvoiceSelect]);
+
+  const loadDeliveryNote = useCallback(async () => {
+    try {
+      setLoading(true);
+      const deliveryNote = await deliveryNotesAPI.getById(id);
+
+      // Parse delivery address if it's a string
+      let parsedAddress = deliveryNote.deliveryAddress || deliveryNote.delivery_address || {};
+      if (typeof parsedAddress === 'string') {
+        try {
+          parsedAddress = JSON.parse(parsedAddress);
+        } catch {
+          parsedAddress = { street: parsedAddress };
+        }
+      }
+
+      // Map items to camelCase and include allocation/warehouse data
+      const mappedItems = (deliveryNote.items || []).map(item => ({
+        invoiceItemId: item.invoiceItemId || item.invoice_item_id,
+        productId: item.productId || item.product_id,
+        name: item.name,
+        specification: item.specification,
+        hsnCode: item.hsnCode || item.hsn_code,
+        unit: item.unit,
+        orderedQuantity: item.orderedQuantity || item.ordered_quantity || 0,
+        deliveredQuantity: item.deliveredQuantity || item.delivered_quantity || 0,
+        remainingQuantity: item.remainingQuantity || item.remaining_quantity || 0,
+        isFullyDelivered: item.isFullyDelivered || item.is_fully_delivered || false,
+        allocations: item.allocations || [],
+        warehouseId: item.warehouseId || item.warehouse_id,
+        warehouseName: item.warehouseName || item.warehouse_name,
+        allocationStatus: item.allocationStatus || item.allocation_status,
+      }));
+
+      setFormData({
+        deliveryNoteNumber: deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || '',
+        invoiceId: deliveryNote.invoiceId || deliveryNote.invoice_id || '',
+        deliveryDate: deliveryNote.deliveryDate || deliveryNote.delivery_date 
+          ? formatDateForInput(new Date(deliveryNote.deliveryDate || deliveryNote.delivery_date))
+          : '',
+        // Phase 4: GRN date fields
+        goodsReceiptDate: deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date 
+          ? formatDateForInput(new Date(deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date))
+          : formatDateForInput(new Date()),
+        inspectionDate: deliveryNote.inspectionDate || deliveryNote.inspection_date 
+          ? formatDateForInput(new Date(deliveryNote.inspectionDate || deliveryNote.inspection_date))
+          : formatDateForInput(new Date()),
+        deliveryAddress: {
+          street: parsedAddress.street || '',
+          city: parsedAddress.city || '',
+          poBox: parsedAddress.poBox || parsedAddress.po_box || '',
+        },
+        vehicleNumber: deliveryNote.vehicleNumber || deliveryNote.vehicle_number || '',
+        driverName: deliveryNote.driverName || deliveryNote.driver_name || '',
+        driverPhone: deliveryNote.driverPhone || deliveryNote.driver_phone || '',
+        notes: deliveryNote.notes || '',
+        items: mappedItems,
+        stockDeducted: deliveryNote.stockDeducted || deliveryNote.stock_deducted || false,
+        stockDeductedAt: deliveryNote.stockDeductedAt || deliveryNote.stock_deducted_at || null,
+      });
+
+      // Load the related invoice
+      const invoiceId = deliveryNote.invoiceId || deliveryNote.invoice_id;
+      if (invoiceId) {
+        const invoice = await invoicesAPI.getById(invoiceId);
+        setSelectedInvoice(invoice);
+      }
+    } catch (err) {
+      setError(`Failed to load delivery note: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  const loadInvoices = async () => {
+    try {
+      // Load invoices that can have delivery notes created (issued or paid)
+      const response = await invoicesAPI.getAll({
+        limit: 100,
+      });
+      // Filter to only show issued or paid invoices
+      const eligibleInvoices = (response.invoices || []).filter(
+        inv => inv.status === 'issued' || inv.status === 'paid'
+      );
+      setInvoices(eligibleInvoices);
+    } catch (err) {
+      console.error('Failed to load invoices:', err);
+    }
+  };
+
+  const generateDeliveryNoteNumber = async () => {
+    try {
+      const response = await deliveryNotesAPI.getNextNumber();
+      setFormData(prev => ({
+        ...prev,
+        deliveryNoteNumber: response.nextDeliveryNoteNumber || response.deliveryNoteNumber,
+      }));
+    } catch (err) {
+      console.error('Failed to generate delivery note number:', err);
+    }
+  };
+
+  // NOTE: handleInvoiceSelect is defined at the top of the component (before the useEffects that use it)
+
   const handleInputChange = (field, value) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -253,6 +271,57 @@ const DeliveryNoteForm = () => {
       ...prev,
       items: updatedItems,
     }));
+  };
+
+  const toggleItemExpansion = (index) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedItems(newExpanded);
+  };
+
+  /**
+   * Get stock deduction status badge
+   */
+  const getStockStatusBadge = () => {
+    if (formData.stockDeducted) {
+      return (
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
+          <CheckCircle size={16} className="text-green-600 dark:text-green-400" />
+          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+            Stock Deducted
+          </span>
+          {formData.stockDeductedAt && (
+            <span className="text-xs text-green-600 dark:text-green-400">
+              {new Date(formData.stockDeductedAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    if (formData.deliveryDate && new Date(formData.deliveryDate) <= new Date()) {
+      return (
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700">
+          <AlertTriangle size={16} className="text-orange-600 dark:text-orange-400" />
+          <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
+            Pending Stock Deduction
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+        <AlertCircle size={16} className="text-gray-600 dark:text-gray-400" />
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Not Yet Delivered
+        </span>
+      </div>
+    );
   };
 
   const handleSubmit = async () => {
@@ -603,53 +672,129 @@ const DeliveryNoteForm = () => {
             </div>
           </div>
 
-          {/* Items - temporarily commented out to fix syntax error */}
+          {/* Items with Stock Allocation Visibility */}
           {formData.items.length > 0 && (
             <div className={`p-6 mb-6 rounded-xl border ${
               isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
             }`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Items for Delivery
-              </h2>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
-                    <tr>
-                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Item</th>
-                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Specification</th>
-                      <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Unit</th>
-                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ordered Qty</th>
-                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Deliver Qty</th>
-                      <th className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Remaining</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.items.map((item, index) => (
-                      <tr key={index} className={isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
-                        <td className="px-4 py-3">
-                          <span className="font-medium">{item.name}</span>
-                        </td>
-                        <td className="px-4 py-3">{item.specification || '-'}</td>
-                        <td className="px-4 py-3">{item.unit}</td>
-                        <td className="px-4 py-3 text-right">{item.orderedQuantity}</td>
-                        <td className="px-4 py-3 text-right">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Items for Delivery
+                </h2>
+                {getStockStatusBadge()}
+              </div>
+
+              <div className="space-y-4">
+                {formData.items.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`rounded-lg border ${
+                      isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    {/* Item Header - Clickable to expand */}
+                    <div
+                      className={`p-4 cursor-pointer hover:bg-opacity-80 transition-colors ${
+                        expandedItems.has(index) ? 'border-b border-gray-300 dark:border-gray-600' : ''
+                      }`}
+                      onClick={() => toggleItemExpansion(index)}
+                    >
+                      <div className="grid grid-cols-12 gap-4 items-center">
+                        <div className="col-span-4">
+                          <div className="flex items-start gap-2">
+                            <Package size={18} className="text-teal-600 mt-1 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className={`font-medium truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {item.name}
+                              </p>
+                              <p className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {item.specification || 'No specification'}
+                              </p>
+                              {item.warehouseName && (
+                                <p className={`text-xs mt-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                                  📍 {item.warehouseName}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-span-2 text-center">
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Unit</p>
+                          <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {item.unit}
+                          </p>
+                        </div>
+
+                        <div className="col-span-2 text-right">
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Ordered</p>
+                          <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {item.orderedQuantity}
+                          </p>
+                        </div>
+
+                        <div className="col-span-2 text-right">
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Deliver</p>
                           <input
                             type="number"
                             value={item.deliveredQuantity || ''}
-                            onChange={(e) => handleItemQuantityChange(index, 'delivered_quantity', e.target.value)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleItemQuantityChange(index, 'delivered_quantity', e.target.value);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
                             min={0}
                             max={item.orderedQuantity}
                             step={0.01}
-                            className={`w-24 px-2 py-1 border rounded ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                            className={`w-full px-2 py-1 border rounded text-right ${
+                              isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                            }`}
                           />
-                        </td>
-                        <td className={`px-4 py-3 text-right ${item.remainingQuantity === 0 ? 'text-green-600' : 'text-orange-600'}`}>
-                          {item.remainingQuantity}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+
+                        <div className="col-span-2 text-right">
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Remaining</p>
+                          <p className={`font-semibold ${
+                            item.remainingQuantity === 0 
+                              ? 'text-green-600 dark:text-green-400' 
+                              : 'text-orange-600 dark:text-orange-400'
+                          }`}>
+                            {item.remainingQuantity}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Allocation Details - Expandable */}
+                    {expandedItems.has(index) && (
+                      <div className="p-4">
+                        {item.allocations && item.allocations.length > 0 ? (
+                          <AllocationPanel
+                            productId={item.productId}
+                            warehouseId={item.warehouseId}
+                            requiredQty={item.deliveredQuantity || 0}
+                            allocations={item.allocations}
+                            disabled={true}
+                          />
+                        ) : (
+                          <div
+                            className={`p-4 rounded-lg border text-center ${
+                              isDarkMode
+                                ? 'bg-gray-800/50 border-gray-700 text-gray-400'
+                                : 'bg-gray-50 border-gray-200 text-gray-600'
+                            }`}
+                          >
+                            <p className="text-sm">
+                              {formData.stockDeducted 
+                                ? 'Stock has been deducted but allocation details are not available.'
+                                : 'Batch allocations will be computed when the delivery note is processed.'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -807,7 +952,54 @@ const DeliveryNoteForm = () => {
         </div>
       </div>
 
-      {/* Invoice Selection Dialog removed during UI de-MUI cleanup */}
+      {/* Invoice Selection Dialog */}
+      {showInvoiceDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Select Invoice</h3>
+              <button
+                type="button"
+                onClick={() => setShowInvoiceDialog(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {invoices.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No invoices available for delivery</p>
+              ) : (
+                <div className="space-y-2">
+                  {invoices.map((invoice) => (
+                    <button
+                      key={invoice.id}
+                      type="button"
+                      onClick={() => handleInvoiceSelect(invoice)}
+                      className="w-full p-3 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{invoice.invoiceNumber || invoice.invoice_number}</p>
+                          <p className="text-sm text-gray-500">
+                            {invoice.customerDetails?.name || invoice.customer_name || 'Unknown Customer'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">
+                            {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(invoice.grandTotal || invoice.grand_total || 0)}
+                          </p>
+                          <p className="text-sm text-gray-500">{invoice.status}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Preview Modal */}
       {showPreview && (

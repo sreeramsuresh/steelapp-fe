@@ -4,6 +4,7 @@ import {
   useMemo,
   useCallback,
   useRef,
+  Fragment,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -13,6 +14,7 @@ import {
   Eye,
   Download,
   ChevronDown,
+  ChevronRight,
   X,
   AlertTriangle,
   Info,
@@ -22,6 +24,7 @@ import {
   Loader2,
   Banknote,
   List,
+  CheckCircle,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
@@ -57,6 +60,9 @@ import { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
 import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
+import AllocationPanel from '../components/invoice/AllocationPanel';
+import BatchPicker from '../components/invoice/BatchPicker';
+import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
 
 // Custom Tailwind Components
 const Button = ({
@@ -1033,6 +1039,9 @@ const InvoiceForm = ({ onSave }) => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
 
+  // Item allocations state (for reallocation modal updates)
+  const [itemAllocations, setItemAllocations] = useState({});
+
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
 
@@ -1185,17 +1194,18 @@ const InvoiceForm = ({ onSave }) => {
   }, [createdInvoiceId]);
 
   // Warn before browser close/refresh if there are unsaved changes
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (formDirty) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        return e.returnValue;
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formDirty]);
+  // DISABLED FOR TESTING - Re-enable before deployment
+  // useEffect(() => {
+  //   const handleBeforeUnload = (e) => {
+  //     if (formDirty) {
+  //       e.preventDefault();
+  //       e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+  //       return e.returnValue;
+  //     }
+  //   };
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  // }, [formDirty]);
 
   // UAE VAT COMPLIANCE: Check if invoice is locked
   // Issued invoices can be edited within 24 hours of issuance (creates revision)
@@ -1760,6 +1770,99 @@ const InvoiceForm = ({ onSave }) => {
   // Speed button quantity increment animation
   const [blinkingRowIndex, setBlinkingRowIndex] = useState(null);
 
+  // Allocation panel expansion state
+  const [expandedAllocations, setExpandedAllocations] = useState(new Set());
+
+  // Toggle allocation panel for a specific row
+  const toggleAllocationPanel = useCallback((index) => {
+    setExpandedAllocations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
+
+  // Get allocation status badge for a line item
+  // Only show status badges for saved invoices (when id exists)
+  // For new invoices, hide the "Pending" status as it's just noise
+  const getAllocationStatusBadge = useCallback((item) => {
+    const status = item.allocationStatus || 'pending';
+
+    // Don't show "Pending" badge on new/unsaved invoices - it's confusing
+    // Only show meaningful statuses (allocated, partial, failed) on saved invoices
+    if (!id && status === 'pending') {
+      return null;
+    }
+
+    if (status === 'allocated') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDarkMode
+            ? 'bg-green-900/40 text-green-300 border border-green-700'
+            : 'bg-green-50 text-green-700 border border-green-200'
+        }`}>
+          <CheckCircle size={12} />
+          Allocated
+        </span>
+      );
+    } else if (status === 'partial') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDarkMode
+            ? 'bg-amber-900/40 text-amber-300 border border-amber-700'
+            : 'bg-amber-50 text-amber-700 border border-amber-200'
+        }`}>
+          <AlertTriangle size={12} />
+          Partial
+        </span>
+      );
+    } else if (status === 'failed') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDarkMode
+            ? 'bg-red-900/40 text-red-300 border border-red-700'
+            : 'bg-red-50 text-red-700 border border-red-200'
+        }`}>
+          <X size={12} />
+          Failed
+        </span>
+      );
+    } else {
+      // pending or no status
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDarkMode
+            ? 'bg-gray-700 text-gray-300 border border-gray-600'
+            : 'bg-gray-100 text-gray-600 border border-gray-300'
+        }`}>
+          <Info size={12} />
+          Pending
+        </span>
+      );
+    }
+  }, [isDarkMode, id]);
+
+  // Get UOM conversion display text
+  const getUomConversionText = useCallback((item) => {
+    if (!item.itemUom || !item.primaryUom || item.itemUom === item.primaryUom) {
+      return null;
+    }
+    
+    const qty = item.quantity || 0;
+    const factor = item.conversionFactor || 1;
+    const convertedQty = qty * factor;
+    
+    if (item.unitWeight && item.itemUom === 'PCS' && item.primaryUom === 'KG') {
+      return `${qty} PCS = ${convertedQty.toFixed(2)} KG (unit weight: ${item.unitWeight} kg)`;
+    }
+    
+    return `${qty} ${item.itemUom} = ${convertedQty.toFixed(2)} ${item.primaryUom}`;
+  }, []);
+
   // Check if product already exists in items (excluding current index)
   const findDuplicateProduct = useCallback((productId, excludeIndex) => {
     if (!productId) return null;
@@ -1829,6 +1932,49 @@ const InvoiceForm = ({ onSave }) => {
 
       setInvoice((prev) => {
         const newItems = [...prev.items];
+
+        // Determine quantityUom from product's primary_uom (preferred) or fallback to category detection
+        // primary_uom: 'PCS' for discrete items (sheets, pipes, bars), 'MT' or 'KG' for bulk (coils)
+        const primaryUom = (product.primaryUom || product.primary_uom || '').toUpperCase();
+        let quantityUom;
+        if (primaryUom === 'MT' || primaryUom === 'KG') {
+          quantityUom = primaryUom; // Use product's declared UOM for coils/bulk
+        } else {
+          // Fallback: category-based detection for legacy products without primary_uom
+          const category = (product.category || '').toLowerCase();
+          const isCoil = category.includes('coil');
+          quantityUom = isCoil ? 'MT' : 'PCS';
+        }
+
+        // Get pricing basis and unit weight from product
+        const pricingBasis = product.pricingBasis || product.pricing_basis || 'PER_MT';
+        const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
+        const quantity = newItems[index].quantity || 1;
+
+        // Flag if weight is missing for weight-based pricing (for UI warning)
+        const missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
+          && quantityUom === 'PCS'
+          && !unitWeightKg;
+
+        // Calculate theoretical weight (for audit trail)
+        let theoreticalWeightKg = null;
+        if (quantityUom === 'MT') {
+          theoreticalWeightKg = quantity * 1000; // MT to KG
+        } else if (quantityUom === 'KG') {
+          theoreticalWeightKg = quantity;
+        } else if (unitWeightKg) {
+          theoreticalWeightKg = quantity * unitWeightKg;
+        }
+
+        // Calculate amount using new pricing-aware function
+        const amount = calculateItemAmount(
+          quantity,
+          sellingPrice,
+          pricingBasis,
+          unitWeightKg,
+          quantityUom,
+        );
+
         newItems[index] = {
           ...newItems[index],
           productId: product.id,
@@ -1846,10 +1992,14 @@ const InvoiceForm = ({ onSave }) => {
           // unit removed from invoice UI
           rate: sellingPrice,
           vatRate: newItems[index].vatRate || 5, // Preserve existing VAT rate or default to 5%
-          amount: calculateItemAmount(
-            newItems[index].quantity,
-            sellingPrice,
-          ),
+          amount,
+          // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+          pricingBasis,
+          unitWeightKg,
+          quantityUom,
+          theoreticalWeightKg,
+          // Warning flag for missing unit weight on weight-based pricing
+          missingWeightWarning,
         };
 
         return {
@@ -1885,10 +2035,26 @@ const InvoiceForm = ({ onSave }) => {
         const newItems = [...prev.items];
         const existingItem = newItems[existingIndex];
         const newQuantity = (existingItem.quantity || 0) + 1;
+        // Recalculate theoretical weight
+        let theoreticalWeightKg = existingItem.theoreticalWeightKg;
+        if (existingItem.unitWeightKg && existingItem.quantityUom === 'PCS') {
+          theoreticalWeightKg = newQuantity * existingItem.unitWeightKg;
+        } else if (existingItem.quantityUom === 'MT') {
+          theoreticalWeightKg = newQuantity * 1000;
+        } else if (existingItem.quantityUom === 'KG') {
+          theoreticalWeightKg = newQuantity;
+        }
         newItems[existingIndex] = {
           ...existingItem,
           quantity: newQuantity,
-          amount: calculateItemAmount(newQuantity, existingItem.rate),
+          theoreticalWeightKg,
+          amount: calculateItemAmount(
+            newQuantity,
+            existingItem.rate,
+            existingItem.pricingBasis,
+            existingItem.unitWeightKg,
+            existingItem.quantityUom,
+          ),
         };
         return { ...prev, items: newItems };
       });
@@ -1980,10 +2146,22 @@ const InvoiceForm = ({ onSave }) => {
       }
 
       if (field === 'quantity' || field === 'rate') {
+        const item = newItems[index];
         newItems[index].amount = calculateItemAmount(
-          newItems[index].quantity,
-          newItems[index].rate,
+          item.quantity,
+          item.rate,
+          item.pricingBasis,
+          item.unitWeightKg,
+          item.quantityUom,
         );
+        // Update theoretical weight when quantity changes
+        if (field === 'quantity' && item.unitWeightKg && item.quantityUom === 'PCS') {
+          newItems[index].theoreticalWeightKg = item.quantity * item.unitWeightKg;
+        } else if (field === 'quantity' && item.quantityUom === 'MT') {
+          newItems[index].theoreticalWeightKg = item.quantity * 1000;
+        } else if (field === 'quantity' && item.quantityUom === 'KG') {
+          newItems[index].theoreticalWeightKg = item.quantity;
+        }
       }
 
       // Check if item is now complete (has product, quantity > 0, rate > 0)
@@ -2013,10 +2191,17 @@ const InvoiceForm = ({ onSave }) => {
               if (newPrice && newPrice !== item.rate) {
                 setInvoice((prevInv) => {
                   const newItems = [...prevInv.items];
+                  const currentItem = newItems[index];
                   newItems[index] = {
-                    ...newItems[index],
+                    ...currentItem,
                     rate: newPrice,
-                    amount: calculateItemAmount(newItems[index].quantity, newPrice),
+                    amount: calculateItemAmount(
+                      currentItem.quantity,
+                      newPrice,
+                      currentItem.pricingBasis,
+                      currentItem.unitWeightKg,
+                      currentItem.quantityUom,
+                    ),
                   };
                   return { ...prevInv, items: newItems };
                 });
@@ -2138,6 +2323,12 @@ const InvoiceForm = ({ onSave }) => {
         if (!item.rate || item.rate <= 0) {
           errors.push(`Item ${index + 1}: Rate must be greater than 0`);
           invalidFieldsSet.add(`item.${index}.rate`);
+        }
+        // CRITICAL: Block save when unit weight is missing for weight-based pricing
+        // This prevents incorrect pricing calculations (e.g., 30x overcharge)
+        if (item.missingWeightWarning) {
+          errors.push(`Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`);
+          invalidFieldsSet.add(`item.${index}.unitWeight`);
         }
       });
     }
@@ -2342,6 +2533,14 @@ const InvoiceForm = ({ onSave }) => {
           rate: item.rate === '' ? 0 : Number(item.rate),
           discount: item.discount === '' ? 0 : Number(item.discount),
           vatRate: item.vatRate === '' ? 0 : Number(item.vatRate),
+          // Phase 2: Manual batch allocation
+          allocation_mode: item.allocationMode || 'AUTO_FIFO',
+          manual_allocations: item.allocationMode === 'MANUAL' && item.manualAllocations?.length > 0
+            ? item.manualAllocations.map(a => ({
+              batch_id: a.batch_id || a.batchId,
+              quantity: a.quantity,
+            }))
+            : [],
         })),
       };
 
@@ -3439,10 +3638,26 @@ const InvoiceForm = ({ onSave }) => {
                                 const newItems = [...prev.items];
                                 const existingItem = newItems[existingIndex];
                                 const newQuantity = (existingItem.quantity || 0) + 1;
+                                // Recalculate theoretical weight
+                                let theoreticalWeightKg = existingItem.theoreticalWeightKg;
+                                if (existingItem.unitWeightKg && existingItem.quantityUom === 'PCS') {
+                                  theoreticalWeightKg = newQuantity * existingItem.unitWeightKg;
+                                } else if (existingItem.quantityUom === 'MT') {
+                                  theoreticalWeightKg = newQuantity * 1000;
+                                } else if (existingItem.quantityUom === 'KG') {
+                                  theoreticalWeightKg = newQuantity;
+                                }
                                 newItems[existingIndex] = {
                                   ...existingItem,
                                   quantity: newQuantity,
-                                  amount: calculateItemAmount(newQuantity, existingItem.rate),
+                                  theoreticalWeightKg,
+                                  amount: calculateItemAmount(
+                                    newQuantity,
+                                    existingItem.rate,
+                                    existingItem.pricingBasis,
+                                    existingItem.unitWeightKg,
+                                    existingItem.quantityUom,
+                                  ),
                                 };
                                 return { ...prev, items: newItems };
                               });
@@ -3509,11 +3724,13 @@ const InvoiceForm = ({ onSave }) => {
               >
                 <thead className={isDarkMode ? 'bg-teal-700' : 'bg-teal-600'}>
                   <tr>
+                    {/* Expand/Collapse */}
+                    <th className="py-3" style={{ width: '28px' }}></th>
                     {/* Drag Handle */}
                     <th className="py-3" style={{ width: '18px' }}></th>
                     <th
                       className="pl-1 pr-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '38%' }}
+                      style={{ width: '30%' }}
                     >
                       Product
                     </th>
@@ -3531,25 +3748,32 @@ const InvoiceForm = ({ onSave }) => {
                     </th>
                     <th
                       className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '11%' }}
+                      style={{ width: '8%' }}
                     >
                       Source
                     </th>
                     <th
                       className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '8%' }}
+                      style={{ width: '10%' }}
+                      title="Warehouse for stock allocation"
+                    >
+                      WH
+                    </th>
+                    <th
+                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ width: '7%' }}
                     >
                       VAT
                     </th>
                     <th
                       className="px-1 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '5%' }}
+                      style={{ width: '4%' }}
                     >
                       %
                     </th>
                     <th
                       className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '11%' }}
+                      style={{ width: '10%' }}
                     >
                       Amount
                     </th>
@@ -3578,209 +3802,476 @@ const InvoiceForm = ({ onSave }) => {
                       item.unit ? `Unit: ${item.unit}` : '',
                       item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                     ].filter(Boolean).join('\n');
+                    const isExpanded = expandedAllocations.has(index);
+                    const hasAllocations = item.allocations && item.allocations.length > 0;
+                    const uomConversionText = getUomConversionText(item);
+                    
                     return (
-                      <tr
-                        key={item.id}
-                        data-item-index={index}
-                        {...getDragItemProps(index)}
-                        className={`
-                          ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
-                          ${isDragSource(index) ? 'opacity-50' : ''}
-                          transition-colors duration-150
-                        `}
-                      >
-                        {/* Drag Handle */}
-                        <td className="py-2 px-0 align-middle" style={{ width: '18px' }}>
-                          <div
-                            {...getDragHandleProps(index)}
-                            className={`cursor-grab active:cursor-grabbing ${
-                              isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                            }`}
-                          >
-                            <DragHandleIcon size={14} />
-                          </div>
-                        </td>
-                        <td className="pl-1 pr-2 py-2 align-middle">
-                          <div className="w-full">
-                            <Autocomplete
-                              options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
-                              value={
-                                item.productId
-                                  ? productOptions.find(
-                                    (p) => p.id === item.productId,
-                                  )
-                                  : null
-                              }
-                              inputValue={
-                                searchInputs[index] || item.name || ''
-                              }
-                              onInputChange={(event, newInputValue) => {
-                                handleSearchInputChange(index, newInputValue);
-                              }}
-                              onChange={(event, newValue) => {
-                                if (newValue) {
-                                  handleProductSelect(index, newValue);
+                      <Fragment key={item.id || `item-${index}`}>
+                        <tr
+                          data-item-index={index}
+                          {...getDragItemProps(index)}
+                          className={`
+                            ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
+                            ${isDragSource(index) ? 'opacity-50' : ''}
+                            transition-colors duration-150
+                          `}
+                        >
+                          {/* Expand/Collapse Button */}
+                          <td className="py-2 px-1 align-middle text-center" style={{ width: '28px' }}>
+                            {item.productId && item.sourceType === 'WAREHOUSE' && (
+                              <button
+                                type="button"
+                                onClick={() => toggleAllocationPanel(index)}
+                                className={`p-0.5 rounded hover:bg-opacity-20 transition-colors ${
+                                  isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+                                }`}
+                                title={isExpanded ? 'Hide allocation details' : 'Show allocation details'}
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                                ) : (
+                                  <ChevronRight size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
+                                )}
+                              </button>
+                            )}
+                          </td>
+                          {/* Drag Handle */}
+                          <td className="py-2 px-0 align-middle" style={{ width: '18px' }}>
+                            <div
+                              {...getDragHandleProps(index)}
+                              className={`cursor-grab active:cursor-grabbing ${
+                                isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                              }`}
+                            >
+                              <DragHandleIcon size={14} />
+                            </div>
+                          </td>
+                          <td className="pl-1 pr-2 py-2 align-middle">
+                            <div className="w-full">
+                              <Autocomplete
+                                options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
+                                value={
+                                  item.productId
+                                    ? productOptions.find(
+                                      (p) => p.id === item.productId,
+                                    )
+                                    : null
                                 }
-                              }}
-                              placeholder="Search products..."
-                              disabled={loadingProducts}
-                              title={tooltip}
-                              error={invalidFields.has(`item.${index}.name`)}
-                              renderOption={(option) => (
-                                <div>
-                                  <div className="font-medium">
-                                    {option.uniqueName || option.unique_name || option.displayName || option.display_name}
+                                inputValue={
+                                  searchInputs[index] || item.name || ''
+                                }
+                                onInputChange={(event, newInputValue) => {
+                                  handleSearchInputChange(index, newInputValue);
+                                }}
+                                onChange={(event, newValue) => {
+                                  if (newValue) {
+                                    handleProductSelect(index, newValue);
+                                  }
+                                }}
+                                placeholder="Search products..."
+                                disabled={loadingProducts}
+                                title={tooltip}
+                                error={invalidFields.has(`item.${index}.name`)}
+                                renderOption={(option) => (
+                                  <div>
+                                    <div className="font-medium">
+                                      {option.uniqueName || option.unique_name || option.displayName || option.display_name}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
+                                    </div>
                                   </div>
-                                  <div className="text-sm text-gray-500">
-                                    {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
+                                )}
+                                noOptionsText="No products found"
+                              />
+                            </div>
+                          </td>
+                          <td className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 ring-inset rounded animate-pulse' : ''}`}>
+                            <div className="flex flex-col">
+                              <Input
+                                type="number"
+                                value={item.quantity || ''}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    'quantity',
+                                    e.target.value === ''
+                                      ? ''
+                                      : Number.isNaN(Number(e.target.value))
+                                        ? ''
+                                        : item.quantityUom === 'MT' || item.quantityUom === 'KG'
+                                          ? parseFloat(e.target.value) // Allow decimals for weight
+                                          : parseInt(e.target.value, 10),
+                                  )
+                                }
+                                min="0"
+                                step={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '0.001' : '1'}
+                                inputMode={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? 'decimal' : 'numeric'}
+                                pattern={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '[0-9]*\\.?[0-9]*' : '[0-9]*'}
+                                error={invalidFields.has(`item.${index}.quantity`)}
+                                onKeyDown={(e) => {
+                                  const allow = [
+                                    'Backspace',
+                                    'Delete',
+                                    'Tab',
+                                    'Escape',
+                                    'Enter',
+                                    'ArrowLeft',
+                                    'ArrowRight',
+                                    'Home',
+                                    'End',
+                                  ];
+                                  if (
+                                    allow.includes(e.key) ||
+                                  (e.ctrlKey || e.metaKey)
+                                  ) {
+                                    return;
+                                  }
+                                  // Allow decimal point for weight-based quantities
+                                  const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                                  if (!/^[0-9]$/.test(e.key) && !(allowDecimal && e.key === '.')) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                onPaste={(e) => {
+                                  e.preventDefault();
+                                  const t = (e.clipboardData || window.clipboardData).getData(
+                                    'text',
+                                  );
+                                  const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                                  const cleaned = allowDecimal
+                                    ? (t || '').replace(/[^\d.]/g, '')
+                                    : (t || '').replace(/\D/g, '');
+                                  handleItemChange(
+                                    index,
+                                    'quantity',
+                                    cleaned ? (allowDecimal ? parseFloat(cleaned) : parseInt(cleaned, 10)) : '',
+                                  );
+                                }}
+                                onWheel={(e) => e.currentTarget.blur()}
+                                className="w-full text-right"
+                              />
+                              {/* Quantity UOM indicator */}
+                              <span className={`text-[10px] text-right mt-0.5 font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                                {item.quantityUom === 'MT' ? 'MT'
+                                  : item.quantityUom === 'KG' ? 'kg'
+                                    : 'pcs'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-2 align-middle">
+                            <div className="flex flex-col">
+                              <Input
+                                type="number"
+                                value={item.rate || ''}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    'rate',
+                                    e.target.value === ''
+                                      ? ''
+                                      : parseFloat(e.target.value),
+                                  )
+                                }
+                                min="0"
+                                step="0.01"
+                                className="w-full text-right"
+                                error={invalidFields.has(`item.${index}.rate`)}
+                              />
+                              {/* Pricing basis and weight indicator */}
+                              <div className="flex flex-col items-end mt-0.5">
+                                <span className={`text-[10px] font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                                  {item.pricingBasis === 'PER_KG' ? '/kg'
+                                    : item.pricingBasis === 'PER_PCS' ? '/pc'
+                                      : item.pricingBasis === 'PER_METER' ? '/m'
+                                        : item.pricingBasis === 'PER_LOT' ? '/lot'
+                                          : '/MT'}
+                                </span>
+                                {/* Show calculated weight for PER_MT/PER_KG products with pieces */}
+                                {item.quantityUom === 'PCS' && item.theoreticalWeightKg > 0 && (item.pricingBasis === 'PER_MT' || item.pricingBasis === 'PER_KG') && (
+                                  <span className={`text-[9px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                    {item.theoreticalWeightKg >= 1000
+                                      ? `${(item.theoreticalWeightKg / 1000).toFixed(3)} MT`
+                                      : `${item.theoreticalWeightKg.toFixed(2)} kg`}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-1 py-2 align-middle">
+                            <SourceTypeSelector
+                              value={item.sourceType || 'WAREHOUSE'}
+                              onChange={(sourceType) =>
+                                handleItemChange(index, 'sourceType', sourceType)
+                              }
+                              disabled={false}
+                            />
+                          </td>
+                          {/* Per-line-item Warehouse Selection with inline stock indicator */}
+                          <td className="px-1 py-2 align-middle">
+                            {(item.sourceType === 'WAREHOUSE' || !item.sourceType) ? (
+                              <div className="flex items-center gap-1">
+                                <select
+                                  value={item.warehouseId || invoice.warehouseId || ''}
+                                  onChange={(e) => {
+                                    const whId = e.target.value;
+                                    const wh = warehouses.find((w) => w.id.toString() === whId);
+                                    handleItemChange(index, 'warehouseId', whId);
+                                    handleItemChange(index, 'warehouseName', wh?.name || '');
+                                  }}
+                                  className={`flex-1 min-w-0 px-1 py-1.5 border rounded text-xs ${
+                                    isDarkMode
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                  }`}
+                                  title="Select warehouse for this item"
+                                >
+                                  {warehouses.map((wh) => (
+                                    <option key={wh.id} value={wh.id.toString()}>
+                                      {wh.code || wh.name?.substring(0, 8) || `WH${wh.id}`}
+                                    </option>
+                                  ))}
+                                </select>
+                                {/* Inline stock indicator - icon only */}
+                                {item.productId && (
+                                  <StockAvailabilityIndicator
+                                    productId={item.productId}
+                                    warehouseId={item.warehouseId || invoice.warehouseId}
+                                    requiredQty={item.quantity || 0}
+                                    compact={true}
+                                    iconOnly={true}
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                N/A
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-1 py-2 align-middle">
+                            <select
+                              value={item.supplyType || 'standard'}
+                              onChange={(e) =>
+                                handleItemChange(index, 'supplyType', e.target.value)
+                              }
+                              className={`w-full px-1 py-1 border rounded text-xs ${
+                                isDarkMode
+                                  ? 'bg-gray-700 border-gray-600 text-white'
+                                  : 'bg-white border-gray-300 text-gray-900'
+                              }`}
+                            >
+                              <option value="standard">5% Std</option>
+                              <option value="zero_rated">0% Zero</option>
+                              <option value="exempt">Exempt</option>
+                            </select>
+                          </td>
+                          <td className="px-1 py-2 align-middle">
+                            <Input
+                              type="number"
+                              value={item.vatRate || ''}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  'vatRate',
+                                  e.target.value === ''
+                                    ? ''
+                                    : parseFloat(e.target.value),
+                                )
+                              }
+                              min="0"
+                              max="15"
+                              step="0.01"
+                              placeholder="5"
+                              className="w-full text-right"
+                            />
+                          </td>
+                          <td className="px-2 py-2 align-middle">
+                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} text-right whitespace-nowrap`}>
+                              {formatCurrency(item.amount)}
+                            </div>
+                            {/* Critical warning for missing unit weight */}
+                            {item.missingWeightWarning && (
+                              <div className="flex items-center justify-end gap-1 mt-1" title="Unit weight is missing - amount may be incorrect">
+                                <AlertTriangle className="h-3 w-3 text-red-500" />
+                                <span className="text-[9px] text-red-500 font-medium">
+                                  Missing weight!
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2 pr-1 align-middle text-center w-8">
+                            <button
+                              onClick={() => removeItem(index)}
+                              className={`hover:text-red-300 ${
+                                isDarkMode
+                                  ? 'text-red-400'
+                                  : 'text-red-500'
+                              }`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      
+                        {/* Expandable Allocation Panel Row */}
+                        {isExpanded && item.productId && item.sourceType === 'WAREHOUSE' && (
+                          <tr key={`${item.id}-allocation`}>
+                            <td colSpan={11} className={`px-4 py-3 ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                              <div className="space-y-3">
+                                {/* Header: Title + Status Badge */}
+                                <div className="flex items-center justify-between">
+                                  <h4 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                    Stock Allocation Details
+                                  </h4>
+                                  {/* Allocation Status Badge */}
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                      Status:
+                                    </span>
+                                    {getAllocationStatusBadge(item)}
                                   </div>
                                 </div>
-                              )}
-                              noOptionsText="No products found"
-                            />
-                          </div>
-                        </td>
-                        <td className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 ring-inset rounded animate-pulse' : ''}`}>
-                          <Input
-                            type="number"
-                            value={item.quantity || ''}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'quantity',
-                                e.target.value === ''
-                                  ? ''
-                                  : Number.isNaN(Number(e.target.value))
-                                    ? ''
-                                    : parseInt(e.target.value, 10),
-                              )
-                            }
-                            min="0"
-                            step="1"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            error={invalidFields.has(`item.${index}.quantity`)}
-                            onKeyDown={(e) => {
-                              const allow = [
-                                'Backspace',
-                                'Delete',
-                                'Tab',
-                                'Escape',
-                                'Enter',
-                                'ArrowLeft',
-                                'ArrowRight',
-                                'Home',
-                                'End',
-                              ];
-                              if (
-                                allow.includes(e.key) ||
-                                (e.ctrlKey || e.metaKey)
-                              ) {
-                                return;
-                              }
-                              if (!/^[0-9]$/.test(e.key)) {
-                                e.preventDefault();
-                              }
-                            }}
-                            onPaste={(e) => {
-                              e.preventDefault();
-                              const t = (e.clipboardData || window.clipboardData).getData(
-                                'text',
-                              );
-                              const digits = (t || '').replace(/\D/g, '');
-                              handleItemChange(
-                                index,
-                                'quantity',
-                                digits ? parseInt(digits, 10) : '',
-                              );
-                            }}
-                            onWheel={(e) => e.currentTarget.blur()}
-                            className="w-full text-right"
-                          />
-                        </td>
-                        <td className="px-2 py-2 align-middle">
-                          <Input
-                            type="number"
-                            value={item.rate || ''}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'rate',
-                                e.target.value === ''
-                                  ? ''
-                                  : parseFloat(e.target.value),
-                              )
-                            }
-                            min="0"
-                            step="0.01"
-                            className="w-full text-right"
-                            error={invalidFields.has(`item.${index}.rate`)}
-                          />
-                        </td>
-                        <td className="px-1 py-2 align-middle">
-                          <SourceTypeSelector
-                            value={item.sourceType || 'WAREHOUSE'}
-                            onChange={(sourceType) =>
-                              handleItemChange(index, 'sourceType', sourceType)
-                            }
-                            disabled={false}
-                          />
-                        </td>
-                        <td className="px-1 py-2 align-middle">
-                          <select
-                            value={item.supplyType || 'standard'}
-                            onChange={(e) =>
-                              handleItemChange(index, 'supplyType', e.target.value)
-                            }
-                            className={`w-full px-1 py-1 border rounded text-xs ${
-                              isDarkMode
-                                ? 'bg-gray-700 border-gray-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-900'
-                            }`}
-                          >
-                            <option value="standard">5% Std</option>
-                            <option value="zero_rated">0% Zero</option>
-                            <option value="exempt">Exempt</option>
-                          </select>
-                        </td>
-                        <td className="px-1 py-2 align-middle">
-                          <Input
-                            type="number"
-                            value={item.vatRate || ''}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'vatRate',
-                                e.target.value === ''
-                                  ? ''
-                                  : parseFloat(e.target.value),
-                              )
-                            }
-                            min="0"
-                            max="15"
-                            step="0.01"
-                            placeholder="5"
-                            className="w-full text-right"
-                          />
-                        </td>
-                        <td className="px-2 py-2 align-middle">
-                          <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} text-right whitespace-nowrap`}>
-                            {formatCurrency(item.amount)}
-                          </div>
-                        </td>
-                        <td className="py-2 pr-1 align-middle text-center w-8">
-                          <button
-                            onClick={() => removeItem(index)}
-                            className={`hover:text-red-300 ${
-                              isDarkMode
-                                ? 'text-red-400'
-                                : 'text-red-500'
-                            }`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
+
+                                {/* UOM Conversion Info */}
+                                {uomConversionText && (
+                                  <div className={`text-xs p-2 rounded border ${
+                                    isDarkMode
+                                      ? 'bg-blue-900/20 border-blue-700 text-blue-300'
+                                      : 'bg-blue-50 border-blue-200 text-blue-700'
+                                  }`}>
+                                    <Info size={14} className="inline mr-1" />
+                                    <strong>UOM Conversion:</strong> {uomConversionText}
+                                  </div>
+                                )}
+
+                                {/* Stock Availability Indicator - Always show at top */}
+                                <StockAvailabilityIndicator
+                                  productId={item.productId}
+                                  warehouseId={item.warehouseId || invoice.warehouseId}
+                                  requiredQty={item.quantity || 0}
+                                  compact={false}
+                                />
+
+                                {/* Allocation Mode Toggle + Panel */}
+                                {(() => {
+                                  const allocationsData = hasAllocations ? item.allocations : [];
+                                  const lockedAllocation = allocationsData.find(
+                                    a => a.consumed_by_delivery_note_id || a.consumedByDeliveryNoteId,
+                                  );
+                                  const isBatchLocked = !!lockedAllocation;
+                                  const dnNumber = lockedAllocation?.delivery_note_number ||
+                                                          lockedAllocation?.deliveryNoteNumber ||
+                                                          null;
+                                  const currentMode = item.allocationMode || 'AUTO_FIFO';
+
+                                  // For new invoices: show mode toggle + appropriate panel
+                                  // For existing invoices: show read-only AllocationPanel
+                                  if (!id && !isBatchLocked) {
+                                    return (
+                                      <div className="space-y-3">
+                                        {/* Allocation Mode Toggle */}
+                                        <div className={`p-3 rounded-lg border ${
+                                          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                                        }`}>
+                                          <div className="flex items-center gap-4">
+                                            <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                              Allocation Mode:
+                                            </span>
+                                            <div className="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+                                              <button
+                                                type="button"
+                                                onClick={() => handleItemChange(index, 'allocationMode', 'AUTO_FIFO')}
+                                                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                  currentMode === 'AUTO_FIFO'
+                                                    ? isDarkMode
+                                                      ? 'bg-teal-600 text-white'
+                                                      : 'bg-teal-500 text-white'
+                                                    : isDarkMode
+                                                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                              >
+                                                Auto (FIFO)
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => handleItemChange(index, 'allocationMode', 'MANUAL')}
+                                                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                  currentMode === 'MANUAL'
+                                                    ? isDarkMode
+                                                      ? 'bg-teal-600 text-white'
+                                                      : 'bg-teal-500 text-white'
+                                                    : isDarkMode
+                                                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                              >
+                                                Manual
+                                              </button>
+                                            </div>
+                                            <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                              {currentMode === 'AUTO_FIFO'
+                                                ? 'System will auto-allocate oldest batches when invoice is issued'
+                                                : 'Select specific batches below'}
+                                            </span>
+                                          </div>
+                                        </div>
+
+                                        {/* Show BatchPicker for Manual mode */}
+                                        {currentMode === 'MANUAL' && (
+                                          <>
+                                            {console.log('[InvoiceForm] Rendering BatchPicker with:', {
+                                              itemProductId: item.productId,
+                                              itemName: item.name,
+                                              itemId: item.id,
+                                              invoiceWarehouseId: invoice.warehouseId,
+                                              index,
+                                            })}
+                                            <BatchPicker
+                                              productId={item.productId}
+                                              warehouseId={item.warehouseId || invoice.warehouseId || null}
+                                              requiredQty={item.quantity || 0}
+                                              onSelectAllocations={(allocations) => {
+                                                handleItemChange(index, 'manualAllocations', allocations);
+                                              }}
+                                              initialAllocations={item.manualAllocations || []}
+                                              disabled={false}
+                                            />
+                                          </>
+                                        )}
+                                      </div>
+                                    );
+                                  }
+
+                                  // For existing/locked invoices: show read-only AllocationPanel
+                                  return (
+                                    <AllocationPanel
+                                      productId={item.productId}
+                                      warehouseId={item.warehouseId || invoice.warehouseId || null}
+                                      requiredQty={item.quantity || 0}
+                                      allocations={allocationsData}
+                                      disabled={true}
+                                      isNewInvoice={!id}
+                                      isLocked={isBatchLocked}
+                                      deliveryNoteNumber={dnNumber}
+                                      invoiceItemId={item.id}
+                                      onReallocationComplete={(newAllocations) => {
+                                        // Update local allocations state after reallocation
+                                        setItemAllocations(prev => ({
+                                          ...prev,
+                                          [item.id]: newAllocations,
+                                        }));
+                                      }}
+                                    />
+                                  );
+                                })()}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     );})}
                 </tbody>
               </table>
@@ -3804,7 +4295,7 @@ const InvoiceForm = ({ onSave }) => {
                   item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                 ].filter(Boolean).join('\n');
                 return (
-                  <Card key={item.id} className="p-4" data-item-index={index}>
+                  <Card key={item.id || `mobile-item-${index}`} className="p-4" data-item-index={index}>
                     <div className="flex justify-between items-start mb-4">
                       <h4
                         className={`font-medium ${
@@ -3917,7 +4408,7 @@ const InvoiceForm = ({ onSave }) => {
                           />
                         </div>
                         <Input
-                          label="Rate"
+                          label={`Rate${item.pricingBasis && item.pricingBasis !== 'PER_MT' ? ` (${item.pricingBasis.replace('PER_', 'per ').replace('_', ' ')})` : ' (per MT)'}`}
                           type="number"
                           value={item.rate || ''}
                           onChange={(e) =>
