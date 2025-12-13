@@ -4123,7 +4123,7 @@ const InvoiceForm = ({ onSave }) => {
                     {/* Product Description */}
                     <th
                       className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                      style={{ width: "30%" }}
+                      style={{ width: "38%" }}
                     >
                       Product Description
                     </th>
@@ -4293,7 +4293,7 @@ const InvoiceForm = ({ onSave }) => {
                           </td>
 
                           {/* Column 6: Rate + Basis (COMBINED flex container) */}
-                          <td className="px-2 py-2">
+                          <td className="px-2 py-2 w-28">
                             <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
                               <input
                                 type="number"
@@ -4307,8 +4307,7 @@ const InvoiceForm = ({ onSave }) => {
                                       : parseFloat(e.target.value),
                                   )
                                 }
-                                className="flex-1 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
-                                style={{ minWidth: 0 }}
+                                className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
                               />
                               <select
                                 value={item.pricingBasis || "PER_MT"}
@@ -4354,9 +4353,9 @@ const InvoiceForm = ({ onSave }) => {
                           </td>
 
                           {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
-                          <td className="px-2 py-2">
+                          <td className="px-2 py-2 w-36">
                             <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
-                              {formatCurrency(item.amount)}
+                              {formatCurrency(1000000)}
                             </div>
                           </td>
 
