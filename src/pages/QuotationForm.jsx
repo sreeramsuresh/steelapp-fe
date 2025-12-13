@@ -1869,11 +1869,13 @@ const QuotationForm = () => {
 
                     <div>
                       <label
+                        htmlFor={`item-quantity-${index}`}
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Quantity ({item.quantityUom || 'PCS'})
                       </label>
                       <input
+                        id={`item-quantity-${index}`}
                         type="number"
                         value={item.quantity}
                         onChange={(e) => {
@@ -1902,11 +1904,13 @@ const QuotationForm = () => {
 
                     <div>
                       <label
+                        htmlFor={`item-unit-weight-${index}`}
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Unit Wt (kg)
                       </label>
                       <input
+                        id={`item-unit-weight-${index}`}
                         type="number"
                         value={item.unitWeightKg || ''}
                         onChange={(e) =>
@@ -1930,11 +1934,11 @@ const QuotationForm = () => {
                     </div>
 
                     <div>
-                      <label
+                      <div
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Total Wt (kg)
-                      </label>
+                      </div>
                       <div
                         className={`px-3 py-2 text-sm border rounded-md ${
                           isDarkMode
@@ -1953,6 +1957,7 @@ const QuotationForm = () => {
 
                     <div>
                       <label
+                        htmlFor={`item-rate-${index}`}
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Rate ({formData.currency})
@@ -1961,6 +1966,7 @@ const QuotationForm = () => {
                         className={`flex rounded-md overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                       >
                         <input
+                          id={`item-rate-${index}`}
                           type="number"
                           value={item.rate}
                           onChange={(e) =>
@@ -2013,13 +2019,13 @@ const QuotationForm = () => {
 
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
-                        <label
+                        <div
                           className={`block text-xs font-medium mb-1 ${
                             isDarkMode ? 'text-gray-400' : 'text-gray-700'
                           }`}
                         >
                           Total
-                        </label>
+                        </div>
                         <div
                           className={`px-2 py-1.5 text-sm border rounded-md ${
                             isDarkMode

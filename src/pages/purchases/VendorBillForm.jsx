@@ -1380,11 +1380,13 @@ const VendorBillForm = () => {
                 {/* Vendor Selection */}
                 <div>
                   <label
+                    htmlFor="vendor-select"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Vendor <span className="text-red-500">*</span>
                   </label>
                   <select
+                    id="vendor-select"
                     value={bill.vendorId || ''}
                     onChange={(e) => handleVendorChange(e.target.value)}
                     className={`w-full px-4 py-2 rounded-lg border ${
@@ -1405,11 +1407,13 @@ const VendorBillForm = () => {
                 {/* Bill Number */}
                 <div>
                   <label
+                    htmlFor="bill-number"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Bill Number <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="bill-number"
                     type="text"
                     value={bill.billNumber}
                     onChange={(e) =>
@@ -1429,11 +1433,13 @@ const VendorBillForm = () => {
                 {/* Vendor Invoice Number */}
                 <div>
                   <label
+                    htmlFor="vendor-invoice-number"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Vendor Invoice # (Reference)
                   </label>
                   <input
+                    id="vendor-invoice-number"
                     type="text"
                     value={bill.vendorInvoiceNumber}
                     onChange={(e) =>
@@ -1454,11 +1460,13 @@ const VendorBillForm = () => {
                 {/* Bill Date */}
                 <div>
                   <label
+                    htmlFor="bill-date"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Bill Date <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="bill-date"
                     type="date"
                     value={bill.billDate}
                     onChange={(e) =>
@@ -1475,11 +1483,13 @@ const VendorBillForm = () => {
                 {/* Payment Terms */}
                 <div>
                   <label
+                    htmlFor="payment-terms"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Payment Terms
                   </label>
                   <select
+                    id="payment-terms"
                     value={bill.paymentTerms}
                     onChange={(e) =>
                       setBill((prev) => ({
@@ -1504,11 +1514,13 @@ const VendorBillForm = () => {
                 {/* Due Date */}
                 <div>
                   <label
+                    htmlFor="due-date"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Due Date
                   </label>
                   <input
+                    id="due-date"
                     type="date"
                     value={bill.dueDate}
                     onChange={(e) =>
@@ -1525,11 +1537,13 @@ const VendorBillForm = () => {
                 {/* Procurement Channel */}
                 <div>
                   <label
+                    htmlFor="procurement-channel"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Procurement Channel
                   </label>
                   <select
+                    id="procurement-channel"
                     value={bill.procurementChannel}
                     onChange={(e) =>
                       handleProcurementChannelChange(e.target.value)
@@ -1559,11 +1573,13 @@ const VendorBillForm = () => {
                 {bill.procurementChannel === 'IMPORTED' && (
                   <div>
                     <label
+                      htmlFor="import-container"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Import Container
                     </label>
                     <select
+                      id="import-container"
                       value={bill.importContainerId || ''}
                       onChange={(e) => {
                         const container = availableContainers.find(
@@ -1610,11 +1626,13 @@ const VendorBillForm = () => {
                 {/* VAT Category */}
                 <div>
                   <label
+                    htmlFor="vat-category"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     VAT Category <span className="text-red-500">*</span>
                   </label>
                   <select
+                    id="vat-category"
                     value={bill.vatCategory}
                     onChange={(e) => handleVatCategoryChange(e.target.value)}
                     className={`w-full px-4 py-2 rounded-lg border ${
@@ -1634,11 +1652,13 @@ const VendorBillForm = () => {
                 {/* Place of Supply */}
                 <div>
                   <label
+                    htmlFor="place-of-supply"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Place of Supply
                   </label>
                   <select
+                    id="place-of-supply"
                     value={bill.placeOfSupply}
                     onChange={(e) =>
                       setBill((prev) => ({
@@ -1664,11 +1684,13 @@ const VendorBillForm = () => {
                 {bill.vatCategory === 'BLOCKED' && (
                   <div className="md:col-span-2">
                     <label
+                      htmlFor="blocked-vat-reason"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Blocked VAT Reason <span className="text-red-500">*</span>
                     </label>
                     <select
+                      id="blocked-vat-reason"
                       value={bill.blockedVatReason}
                       onChange={(e) =>
                         setBill((prev) => ({
@@ -1808,11 +1830,13 @@ const VendorBillForm = () => {
                       {/* Product/Description */}
                       <div className="col-span-12 md:col-span-4">
                         <label
+                          htmlFor={`item-product-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Product / Description
                         </label>
                         <select
+                          id={`item-product-${index}`}
                           value={item.productId || ''}
                           onChange={(e) =>
                             handleItemChange(index, 'productId', e.target.value)
@@ -1858,11 +1882,13 @@ const VendorBillForm = () => {
                       {/* Quantity */}
                       <div className="col-span-3 md:col-span-1">
                         <label
+                          htmlFor={`item-quantity-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Qty ({item.quantityUom || 'PCS'})
                         </label>
                         <input
+                          id={`item-quantity-${index}`}
                           type="number"
                           min="0"
                           step={
@@ -1896,11 +1922,13 @@ const VendorBillForm = () => {
                       {/* Unit Weight */}
                       <div className="col-span-3 md:col-span-1">
                         <label
+                          htmlFor={`item-unit-weight-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Unit Wt (kg)
                         </label>
                         <input
+                          id={`item-unit-weight-${index}`}
                           type="number"
                           min="0"
                           step="0.01"
@@ -1925,11 +1953,11 @@ const VendorBillForm = () => {
 
                       {/* Total Weight */}
                       <div className="col-span-3 md:col-span-1">
-                        <label
+                        <div
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Total Wt
-                        </label>
+                        </div>
                         <div
                           className={`px-3 py-2 rounded border text-sm ${
                             isDarkMode
@@ -1949,6 +1977,7 @@ const VendorBillForm = () => {
                       {/* Unit Price with Pricing Basis */}
                       <div className="col-span-3 md:col-span-2">
                         <label
+                          htmlFor={`item-unit-price-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Unit Price
@@ -1957,6 +1986,7 @@ const VendorBillForm = () => {
                           className={`flex rounded overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                         >
                           <input
+                            id={`item-unit-price-${index}`}
                             type="number"
                             min="0"
                             step="0.01"
@@ -2001,11 +2031,13 @@ const VendorBillForm = () => {
                       {/* VAT Rate */}
                       <div className="col-span-4 md:col-span-1">
                         <label
+                          htmlFor={`item-vat-rate-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           VAT %
                         </label>
                         <input
+                          id={`item-vat-rate-${index}`}
                           type="number"
                           value={item.vatRate}
                           disabled
@@ -2020,11 +2052,13 @@ const VendorBillForm = () => {
                       {/* VAT Amount */}
                       <div className="col-span-6 md:col-span-1">
                         <label
+                          htmlFor={`item-vat-amount-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           VAT
                         </label>
                         <input
+                          id={`item-vat-amount-${index}`}
                           type="text"
                           value={formatCurrency(item.vatAmount)}
                           disabled
@@ -2039,11 +2073,13 @@ const VendorBillForm = () => {
                       {/* Amount */}
                       <div className="col-span-6 md:col-span-1">
                         <label
+                          htmlFor={`item-amount-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Amount
                         </label>
                         <input
+                          id={`item-amount-${index}`}
                           type="text"
                           value={formatCurrency(item.amount)}
                           disabled
@@ -2090,12 +2126,14 @@ const VendorBillForm = () => {
                           {/* Line Procurement Channel */}
                           <div className="col-span-6 md:col-span-2">
                             <label
+                              htmlFor={`item-procurement-channel-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               <Ship className="inline h-3 w-3 mr-1" />
                               Source
                             </label>
                             <select
+                              id={`item-procurement-channel-${index}`}
                               value={
                                 item.procurementChannel ||
                                 bill.procurementChannel ||
@@ -2122,12 +2160,14 @@ const VendorBillForm = () => {
                           {/* PO Weight */}
                           <div className="col-span-6 md:col-span-2">
                             <label
+                              htmlFor={`item-po-weight-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               <Scale className="inline h-3 w-3 mr-1" />
                               PO Wt (kg)
                             </label>
                             <input
+                              id={`item-po-weight-${index}`}
                               type="number"
                               min="0"
                               step="0.01"
@@ -2170,11 +2210,13 @@ const VendorBillForm = () => {
                           {/* Received Weight */}
                           <div className="col-span-6 md:col-span-2">
                             <label
+                              htmlFor={`item-received-weight-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               Recv Wt (kg)
                             </label>
                             <input
+                              id={`item-received-weight-${index}`}
                               type="number"
                               min="0"
                               step="0.01"
@@ -2220,11 +2262,11 @@ const VendorBillForm = () => {
 
                           {/* Weight Variance */}
                           <div className="col-span-6 md:col-span-2">
-                            <label
+                            <div
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               Variance
-                            </label>
+                            </div>
                             <div
                               className={`px-2 py-1.5 rounded border text-xs ${
                                 item.weightVarianceKg
@@ -2253,12 +2295,14 @@ const VendorBillForm = () => {
                           {/* Batch Number */}
                           <div className="col-span-6 md:col-span-2">
                             <label
+                              htmlFor={`item-batch-number-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               <Layers className="inline h-3 w-3 mr-1" />
                               Batch #
                             </label>
                             <input
+                              id={`item-batch-number-${index}`}
                               type="text"
                               placeholder="Auto"
                               value={item.batchNumber || ''}
@@ -2392,11 +2436,13 @@ const VendorBillForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <Card className="p-3 md:p-4">
                 <label
+                  htmlFor="bill-notes"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Bill Notes
                 </label>
                 <textarea
+                  id="bill-notes"
                   value={bill.notes || ''}
                   onChange={(e) =>
                     setBill((prev) => ({ ...prev, notes: e.target.value }))
@@ -2413,11 +2459,13 @@ const VendorBillForm = () => {
 
               <Card className="p-3 md:p-4">
                 <label
+                  htmlFor="payment-terms-textarea"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Payment Terms
                 </label>
                 <textarea
+                  id="payment-terms-textarea"
                   value={bill.terms || ''}
                   onChange={(e) =>
                     setBill((prev) => ({ ...prev, terms: e.target.value }))

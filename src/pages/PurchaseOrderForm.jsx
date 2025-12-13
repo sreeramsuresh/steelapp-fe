@@ -2538,11 +2538,13 @@ const PurchaseOrderForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label
+                  htmlFor="buyer-name"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Buyer Name
                 </label>
                 <input
+                  id="buyer-name"
                   type="text"
                   value={purchaseOrder.buyerName}
                   onChange={(e) =>
@@ -2558,11 +2560,13 @@ const PurchaseOrderForm = () => {
               </div>
               <div>
                 <label
+                  htmlFor="buyer-email"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Buyer Email
                 </label>
                 <input
+                  id="buyer-email"
                   type="email"
                   value={purchaseOrder.buyerEmail}
                   onChange={(e) =>
@@ -2578,11 +2582,13 @@ const PurchaseOrderForm = () => {
               </div>
               <div>
                 <label
+                  htmlFor="buyer-phone"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Buyer Phone
                 </label>
                 <input
+                  id="buyer-phone"
                   type="tel"
                   value={purchaseOrder.buyerPhone}
                   onChange={(e) =>
@@ -2598,11 +2604,13 @@ const PurchaseOrderForm = () => {
               </div>
               <div>
                 <label
+                  htmlFor="buyer-department"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Department
                 </label>
                 <input
+                  id="buyer-department"
                   type="text"
                   value={purchaseOrder.buyerDepartment}
                   onChange={(e) =>
@@ -2635,12 +2643,14 @@ const PurchaseOrderForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label
+                  htmlFor="incoterms"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Incoterms
                 </label>
                 <div className="relative">
                   <select
+                    id="incoterms"
                     value={purchaseOrder.incoterms}
                     onChange={(e) =>
                       handleInputChange('incoterms', e.target.value)
@@ -2695,12 +2705,14 @@ const PurchaseOrderForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
+                  htmlFor="select-warehouse"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Select Warehouse *
                 </label>
                 <div className="relative">
                   <select
+                    id="select-warehouse"
                     value={selectedWarehouse}
                     onChange={(e) => setSelectedWarehouse(e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -2731,12 +2743,14 @@ const PurchaseOrderForm = () => {
               </div>
               <div>
                 <label
+                  htmlFor="stock-status"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Stock Status
                 </label>
                 <div className="relative">
                   <select
+                    id="stock-status"
                     value={purchaseOrder.stockStatus}
                     onChange={(e) =>
                       handleInputChange('stockStatus', e.target.value)
@@ -3551,11 +3565,11 @@ const PurchaseOrderForm = () => {
                         />
                       </div>
                       <div>
-                        <label
+                        <div
                           className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           Total Wt (kg)
-                        </label>
+                        </div>
                         <div
                           className={`px-3 py-2 border rounded-md ${
                             isDarkMode
@@ -4178,11 +4192,11 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label
+                <div
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Payment Actions
-                </label>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowPaymentForm(true)}
@@ -4487,11 +4501,13 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="md:col-span-2">
                 <label
+                  htmlFor="approval-comments"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Approval Comments
                 </label>
                 <textarea
+                  id="approval-comments"
                   rows={3}
                   value={purchaseOrder.approvalComments}
                   onChange={(e) =>
