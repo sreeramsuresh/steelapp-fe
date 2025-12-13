@@ -4358,8 +4358,7 @@ const InvoiceForm = ({ onSave }) => {
                         <tr className="hover:bg-gray-50">
                           {/* Column 1: Expand button */}
                           <td className="py-2 px-2 text-center">
-                            {item.productId &&
-                              item.sourceType === 'WAREHOUSE' && (
+                            {item.productId && (
                               <button
                                 type="button"
                                 onClick={() => toggleAllocationPanel(index)}
@@ -4543,9 +4542,7 @@ const InvoiceForm = ({ onSave }) => {
                         </tr>
 
                         {/* Expandable Allocation Panel Row */}
-                        {isExpanded &&
-                          item.productId &&
-                          item.sourceType === 'WAREHOUSE' && (
+                        {isExpanded && item.productId && (
                           <tr key={`${item.id}-allocation`}>
                             <td
                               colSpan="9"
@@ -4769,7 +4766,6 @@ const InvoiceForm = ({ onSave }) => {
                         {/* Keep existing AllocationPanel for locked/existing invoices */}
                         {isExpanded &&
                           item.productId &&
-                          item.sourceType === 'WAREHOUSE' &&
                           id && // Only show for existing invoices
                           (() => {
                             const allocationsData = hasAllocations
