@@ -34,12 +34,25 @@
  * Valid invoice status values
  * Note: 'unspecified' is the proto enum default (STATUS_UNSPECIFIED = 0), treated as 'draft'
  */
-export const VALID_INVOICE_STATUSES = ['draft', 'pending', 'proforma', 'issued', 'sent', 'cancelled', 'unspecified'];
+export const VALID_INVOICE_STATUSES = [
+  "draft",
+  "pending",
+  "proforma",
+  "issued",
+  "sent",
+  "cancelled",
+  "unspecified",
+];
 
 /**
  * Valid payment status values
  */
-export const VALID_PAYMENT_STATUSES = ['unpaid', 'partially_paid', 'paid', 'fully_paid'];
+export const VALID_PAYMENT_STATUSES = [
+  "unpaid",
+  "partially_paid",
+  "paid",
+  "fully_paid",
+];
 
 /**
  * Validate invoice status matches allowed enum
@@ -66,16 +79,19 @@ export function isValidPaymentStatus(paymentStatus) {
  * @param {string} status - Invoice status
  * @param {string} context - Where this check is called from (for debugging)
  */
-export function assertValidInvoiceStatus(status, context = 'unknown') {
-  if (process.env.NODE_ENV === 'production') return;
+export function assertValidInvoiceStatus(status, context = "unknown") {
+  if (process.env.NODE_ENV === "production") return;
 
   if (!isValidInvoiceStatus(status)) {
-    console.error(`SCHEMA_MISMATCH[INVOICE_STATUS]: Unknown invoice status '${status}' in ${context}`, {
-      receivedStatus: status,
-      allowedStatuses: VALID_INVOICE_STATUSES,
-      context,
-      timestamp: new Date().toISOString(),
-    });
+    console.error(
+      `SCHEMA_MISMATCH[INVOICE_STATUS]: Unknown invoice status '${status}' in ${context}`,
+      {
+        receivedStatus: status,
+        allowedStatuses: VALID_INVOICE_STATUSES,
+        context,
+        timestamp: new Date().toISOString(),
+      },
+    );
   }
 }
 
@@ -86,16 +102,19 @@ export function assertValidInvoiceStatus(status, context = 'unknown') {
  * @param {string} paymentStatus - Payment status
  * @param {string} context - Where this check is called from (for debugging)
  */
-export function assertValidPaymentStatus(paymentStatus, context = 'unknown') {
-  if (process.env.NODE_ENV === 'production') return;
+export function assertValidPaymentStatus(paymentStatus, context = "unknown") {
+  if (process.env.NODE_ENV === "production") return;
 
   if (!isValidPaymentStatus(paymentStatus)) {
-    console.error(`SCHEMA_MISMATCH[PAYMENT_STATUS]: Unknown payment status '${paymentStatus}' in ${context}`, {
-      receivedStatus: paymentStatus,
-      allowedStatuses: VALID_PAYMENT_STATUSES,
-      context,
-      timestamp: new Date().toISOString(),
-    });
+    console.error(
+      `SCHEMA_MISMATCH[PAYMENT_STATUS]: Unknown payment status '${paymentStatus}' in ${context}`,
+      {
+        receivedStatus: paymentStatus,
+        allowedStatuses: VALID_PAYMENT_STATUSES,
+        context,
+        timestamp: new Date().toISOString(),
+      },
+    );
   }
 }
 
@@ -106,21 +125,23 @@ export function assertValidPaymentStatus(paymentStatus, context = 'unknown') {
  */
 export function getInvoiceStatusLabel(status) {
   switch (status) {
-    case 'draft':
-      return 'Draft';
-    case 'pending':
-      return 'Pending';
-    case 'proforma':
-      return 'Proforma';
-    case 'sent':
-      return 'Sent';
-    case 'issued':
-      return 'Issued';
-    case 'cancelled':
-      return 'Cancelled';
+    case "draft":
+      return "Draft";
+    case "pending":
+      return "Pending";
+    case "proforma":
+      return "Proforma";
+    case "sent":
+      return "Sent";
+    case "issued":
+      return "Issued";
+    case "cancelled":
+      return "Cancelled";
     default:
-      console.error(`SCHEMA_MISMATCH[INVOICE_STATUS]: Unhandled status in getInvoiceStatusLabel: '${status}'`);
-      return 'Unknown';
+      console.error(
+        `SCHEMA_MISMATCH[INVOICE_STATUS]: Unhandled status in getInvoiceStatusLabel: '${status}'`,
+      );
+      return "Unknown";
   }
 }
 
@@ -131,15 +152,17 @@ export function getInvoiceStatusLabel(status) {
  */
 export function getPaymentStatusLabel(paymentStatus) {
   switch (paymentStatus) {
-    case 'unpaid':
-      return 'Unpaid';
-    case 'partially_paid':
-      return 'Partially Paid';
-    case 'paid':
-    case 'fully_paid':
-      return 'Paid';
+    case "unpaid":
+      return "Unpaid";
+    case "partially_paid":
+      return "Partially Paid";
+    case "paid":
+    case "fully_paid":
+      return "Paid";
     default:
-      console.error(`SCHEMA_MISMATCH[PAYMENT_STATUS]: Unhandled status in getPaymentStatusLabel: '${paymentStatus}'`);
-      return 'Unknown';
+      console.error(
+        `SCHEMA_MISMATCH[PAYMENT_STATUS]: Unhandled status in getPaymentStatusLabel: '${paymentStatus}'`,
+      );
+      return "Unknown";
   }
 }

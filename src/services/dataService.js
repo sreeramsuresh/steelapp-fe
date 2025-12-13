@@ -7,12 +7,15 @@
  */
 
 // Import real services
-import { invoiceService as realInvoiceService } from './invoiceService';
-import { customerService as realCustomerService } from './customerService';
-import { productService as realProductService } from './productService';
-import { companyService as realCompanyService } from './companyService';
-import { payablesService as realPayablesService, PAYMENT_MODES as realPaymentModes } from './payablesService';
-import { quotationsAPI } from './api';
+import { invoiceService as realInvoiceService } from "./invoiceService";
+import { customerService as realCustomerService } from "./customerService";
+import { productService as realProductService } from "./productService";
+import { companyService as realCompanyService } from "./companyService";
+import {
+  payablesService as realPayablesService,
+  PAYMENT_MODES as realPaymentModes,
+} from "./payablesService";
+import { quotationsAPI } from "./api";
 
 /**
  * Invoice Service
@@ -52,7 +55,12 @@ export const PAYMENT_MODES = realPaymentModes;
 /**
  * Payment Service helpers
  */
-export { createPaymentPayload, validatePayment as validatePaymentPayload, normalizePayment, PAYMENT_METHOD_OPTIONS } from './paymentService';
+export {
+  createPaymentPayload,
+  validatePayment as validatePaymentPayload,
+  normalizePayment,
+  PAYMENT_METHOD_OPTIONS,
+} from "./paymentService";
 
 /**
  * Export all services as default

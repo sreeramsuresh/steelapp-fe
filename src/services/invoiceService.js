@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -12,7 +12,7 @@ const transformInvoiceForServer = (invoiceData) => {
     invoice_date: invoiceData.date,
     due_date: invoiceData.dueDate,
     // Invoice-level discount (for backend recomputation)
-    discount_type: invoiceData.discountType || 'amount',
+    discount_type: invoiceData.discountType || "amount",
     discount_percentage: invoiceData.discountPercentage || 0,
     discount_amount: invoiceData.discountAmount || 0,
     // Charges
@@ -25,13 +25,13 @@ const transformInvoiceForServer = (invoiceData) => {
     cheque_number: invoiceData.chequeNumber || null,
     // Warehouse data
     warehouse_id: invoiceData.warehouseId || null,
-    warehouse_name: invoiceData.warehouseName || '',
-    warehouse_code: invoiceData.warehouseCode || '',
-    warehouse_city: invoiceData.warehouseCity || '',
+    warehouse_name: invoiceData.warehouseName || "",
+    warehouse_code: invoiceData.warehouseCode || "",
+    warehouse_city: invoiceData.warehouseCity || "",
     subtotal: invoiceData.subtotal,
     vat_amount: invoiceData.vatAmount,
     total: invoiceData.total,
-    status: invoiceData.status || 'draft',
+    status: invoiceData.status || "draft",
     notes: invoiceData.notes,
     terms: invoiceData.terms,
     // UAE VAT Compliance Fields
@@ -40,30 +40,35 @@ const transformInvoiceForServer = (invoiceData) => {
     is_reverse_charge: invoiceData.isReverseCharge || false,
     reverse_charge_amount: invoiceData.reverseChargeAmount || 0,
     exchange_rate_date: invoiceData.exchangeRateDate || null,
-    items: invoiceData.items?.map(item => ({
-      product_id: item.productId || null,
-      name: item.name,
-      finish: item.finish,
-      size: item.size,
-      thickness: item.thickness,
-      unit: item.unit,
-      quantity: item.quantity,
-      rate: item.rate,
-      vat_rate: item.vatRate,
-      amount: item.amount,
-      // Source type and warehouse for batch allocation
-      source_type: item.source_type || item.sourceType || 'WAREHOUSE',
-      warehouse_id: item.warehouse_id || item.warehouseId || null,
-      // Batch allocation mode
-      allocation_mode: item.allocation_mode || item.allocationMode || 'AUTO_FIFO',
-      manual_allocations: item.manual_allocations || item.manualAllocations || [],
-      // Pricing & Commercial Fields
-      pricing_basis: item.pricing_basis || item.pricingBasis || 'PER_MT',
-      unit_weight_kg: item.unit_weight_kg || item.unitWeightKg || null,
-      theoretical_weight_kg: item.theoretical_weight_kg || item.theoreticalWeightKg || null,
-      // Phase 2: UOM tracking for audit trail
-      quantity_uom: item.quantity_uom || item.quantityUom || item.unit || 'PCS',
-    })) || [],
+    items:
+      invoiceData.items?.map((item) => ({
+        product_id: item.productId || null,
+        name: item.name,
+        finish: item.finish,
+        size: item.size,
+        thickness: item.thickness,
+        unit: item.unit,
+        quantity: item.quantity,
+        rate: item.rate,
+        vat_rate: item.vatRate,
+        amount: item.amount,
+        // Source type and warehouse for batch allocation
+        source_type: item.source_type || item.sourceType || "WAREHOUSE",
+        warehouse_id: item.warehouse_id || item.warehouseId || null,
+        // Batch allocation mode
+        allocation_mode:
+          item.allocation_mode || item.allocationMode || "AUTO_FIFO",
+        manual_allocations:
+          item.manual_allocations || item.manualAllocations || [],
+        // Pricing & Commercial Fields
+        pricing_basis: item.pricing_basis || item.pricingBasis || "PER_MT",
+        unit_weight_kg: item.unit_weight_kg || item.unitWeightKg || null,
+        theoretical_weight_kg:
+          item.theoretical_weight_kg || item.theoreticalWeightKg || null,
+        // Phase 2: UOM tracking for audit trail
+        quantity_uom:
+          item.quantity_uom || item.quantityUom || item.unit || "PCS",
+      })) || [],
   };
 };
 
@@ -74,28 +79,41 @@ const transformInvoiceFromServer = (serverData) => {
     // Date field mapping: invoiceDate -> date (legacy alias used by form)
     date: serverData.invoiceDate || serverData.date || null,
     // Ensure customer_details is parsed if it's a string
-    customer: typeof serverData.customerDetails === 'string'
-      ? JSON.parse(serverData.customerDetails)
-      : serverData.customerDetails || serverData.customer || {},
+    customer:
+      typeof serverData.customerDetails === "string"
+        ? JSON.parse(serverData.customerDetails)
+        : serverData.customerDetails || serverData.customer || {},
     // Payment mode mapping
-    modeOfPayment: serverData.modeOfPayment || serverData.mode_of_payment || null,
+    modeOfPayment:
+      serverData.modeOfPayment || serverData.mode_of_payment || null,
     // Warehouse mapping
     warehouseId: serverData.warehouseId || serverData.warehouse_id || null,
-    warehouseName: serverData.warehouseName || serverData.warehouse_name || '',
+    warehouseName: serverData.warehouseName || serverData.warehouse_name || "",
     // Ensure numeric fields are numbers
-    received: serverData.received !== undefined ? Number(serverData.received) : 0,
-    outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
-    subtotal: serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
-    vatAmount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
+    received:
+      serverData.received !== undefined ? Number(serverData.received) : 0,
+    outstanding:
+      serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
+    subtotal:
+      serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
+    vatAmount:
+      serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
     // Ensure items is an array
     items: Array.isArray(serverData.items) ? serverData.items : [],
     // UAE VAT Compliance Fields
-    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || '',
-    supplyDate: serverData.supplyDate || serverData.supply_date || '',
-    isReverseCharge: serverData.isReverseCharge || serverData.is_reverse_charge || false,
-    reverseChargeAmount: serverData.reverseChargeAmount !== undefined ? Number(serverData.reverseChargeAmount) : (serverData.reverse_charge_amount !== undefined ? Number(serverData.reverse_charge_amount) : 0),
-    exchangeRateDate: serverData.exchangeRateDate || serverData.exchange_rate_date || '',
+    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || "",
+    supplyDate: serverData.supplyDate || serverData.supply_date || "",
+    isReverseCharge:
+      serverData.isReverseCharge || serverData.is_reverse_charge || false,
+    reverseChargeAmount:
+      serverData.reverseChargeAmount !== undefined
+        ? Number(serverData.reverseChargeAmount)
+        : serverData.reverse_charge_amount !== undefined
+          ? Number(serverData.reverse_charge_amount)
+          : 0,
+    exchangeRateDate:
+      serverData.exchangeRateDate || serverData.exchange_rate_date || "",
   };
 };
 
@@ -111,7 +129,7 @@ export const invoiceService = {
       axiosConfig.signal = signal;
     }
 
-    const response = await apiClient.get('/invoices', axiosConfig);
+    const response = await apiClient.get("/invoices", axiosConfig);
 
     // Handle paginated response
     if (response.invoices && response.pagination) {
@@ -139,7 +157,7 @@ export const invoiceService = {
   async createInvoice(invoiceData) {
     const transformedData = transformInvoiceForServer(invoiceData);
 
-    const response = await apiClient.post('/invoices', transformedData);
+    const response = await apiClient.post("/invoices", transformedData);
     return transformInvoiceFromServer(response);
   },
 
@@ -152,7 +170,9 @@ export const invoiceService = {
   async deleteInvoice(id, deletionData = {}) {
     // Soft delete with reason for audit trail
     // Axios DELETE requires data to be wrapped in config.data
-    const response = await apiClient.delete(`/invoices/${id}`, { data: deletionData });
+    const response = await apiClient.delete(`/invoices/${id}`, {
+      data: deletionData,
+    });
     return response;
   },
 
@@ -163,19 +183,21 @@ export const invoiceService = {
   },
 
   async updateInvoiceStatus(id, status) {
-    const response = await apiClient.patch(`/invoices/${id}/status`, { status });
+    const response = await apiClient.patch(`/invoices/${id}/status`, {
+      status,
+    });
     return response;
   },
 
   /**
    * Issue Final Tax Invoice - locks invoice permanently
-   * 
+   *
    * UAE VAT COMPLIANCE (Rules 3, 4, 8):
    * - Once issued, invoice becomes a legal tax document
    * - Cannot be modified after issuing
    * - Corrections must be made via Credit Note
    * - This action is IRREVERSIBLE
-   * 
+   *
    * @param {number} invoiceId - ID of invoice to issue
    * @returns {Promise<Object>} Issued invoice with isLocked flag
    */
@@ -185,15 +207,15 @@ export const invoiceService = {
   },
 
   async getNextInvoiceNumber() {
-    return apiClient.get('/invoices/number/next');
+    return apiClient.get("/invoices/number/next");
   },
 
   async getInvoiceAnalytics(params = {}) {
-    return apiClient.get('/invoices/analytics', params);
+    return apiClient.get("/invoices/analytics", params);
   },
 
   async searchInvoices(searchTerm, filters = {}) {
-    return apiClient.get('/invoices', {
+    return apiClient.get("/invoices", {
       search: searchTerm,
       ...filters,
     });
@@ -201,23 +223,25 @@ export const invoiceService = {
 
   async searchForCreditNote(query) {
     // Fast autocomplete search for invoices eligible for credit notes
-    const response = await apiClient.get('/invoices/search-for-credit-note', { q: query });
+    const response = await apiClient.get("/invoices/search-for-credit-note", {
+      q: query,
+    });
     return response;
   },
 
   async getInvoicesByCustomer(customerId) {
-    return apiClient.get('/invoices', { customer_id: customerId });
+    return apiClient.get("/invoices", { customer_id: customerId });
   },
 
   async getInvoicesByDateRange(startDate, endDate) {
-    return apiClient.get('/invoices', {
+    return apiClient.get("/invoices", {
       start_date: startDate,
       end_date: endDate,
     });
   },
 
   async getInvoicesByStatus(status) {
-    return apiClient.get('/invoices', { status });
+    return apiClient.get("/invoices", { status });
   },
 
   async addInvoicePayment(id, payload) {
@@ -228,12 +252,18 @@ export const invoiceService = {
 
   async addInvoicePaymentsBatch(id, payload) {
     // payload: { payments: [{ payment_date, amount, method, reference_no, notes }], idempotency_key? }
-    const response = await apiClient.post(`/invoices/${id}/payments/batch`, payload);
+    const response = await apiClient.post(
+      `/invoices/${id}/payments/batch`,
+      payload,
+    );
     return response;
   },
 
   async voidInvoicePayment(invoiceId, paymentId, reason) {
-    const response = await apiClient.post(`/invoices/${invoiceId}/payments/${paymentId}/void`, { reason });
+    const response = await apiClient.post(
+      `/invoices/${invoiceId}/payments/${paymentId}/void`,
+      { reason },
+    );
     return response;
   },
 
@@ -247,7 +277,9 @@ export const invoiceService = {
    * @returns {Promise<Array>} Array of stock movements (OUT for deductions, IN for returns)
    */
   async getInvoiceStockMovements(invoiceId) {
-    const response = await apiClient.get(`/stock-movements/by-reference/INVOICE/${invoiceId}`);
+    const response = await apiClient.get(
+      `/stock-movements/by-reference/INVOICE/${invoiceId}`,
+    );
     // Response format: { data: [...movements] }
     return response.data || response || [];
   },
@@ -265,7 +297,7 @@ export const invoiceService = {
     if (warehouseId) {
       payload.warehouse_id = warehouseId;
     }
-    return apiClient.post('/stock-movements/from-invoice', payload);
+    return apiClient.post("/stock-movements/from-invoice", payload);
   },
 
   /**
@@ -277,7 +309,11 @@ export const invoiceService = {
    * @param {number} creditNoteId - Optional: Link to credit note if applicable
    * @returns {Promise<Object>} Response with created reversal movements
    */
-  async reverseStockMovements(invoiceId, reason = 'Invoice cancelled', creditNoteId = null) {
+  async reverseStockMovements(
+    invoiceId,
+    reason = "Invoice cancelled",
+    creditNoteId = null,
+  ) {
     const payload = {
       invoice_id: invoiceId,
       reason,
@@ -285,7 +321,7 @@ export const invoiceService = {
     if (creditNoteId) {
       payload.credit_note_id = creditNoteId;
     }
-    return apiClient.post('/stock-movements/reverse-invoice', payload);
+    return apiClient.post("/stock-movements/reverse-invoice", payload);
   },
 
   /**

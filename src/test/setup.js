@@ -1,6 +1,6 @@
-import '@testing-library/jest-dom';
-import { afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import "@testing-library/jest-dom";
+import { afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
 
 // Cleanup after each test
 afterEach(() => {
@@ -12,5 +12,5 @@ global.vi = vi;
 
 // Polyfill for scrollIntoView (JSDOM doesn't implement this)
 if (!Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = function() {};
+  Element.prototype.scrollIntoView = function () {};
 }

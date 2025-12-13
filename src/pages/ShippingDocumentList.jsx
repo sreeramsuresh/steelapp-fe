@@ -1,82 +1,164 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
-  Plus, Search, Filter, Eye, Edit, Trash2,
-  Ship, Plane, Package, FileText, Truck,
-  MapPin, Calendar, Clock, ArrowRight,
-  X, Check, AlertCircle, RefreshCw,
-} from 'lucide-react';
-import { shippingDocumentService } from '../services/shippingDocumentService';
-import { importOrderService } from '../services/importOrderService';
-import { useTheme } from '../contexts/ThemeContext';
-import ConfirmDialog from '../components/ConfirmDialog';
-import { useConfirm } from '../hooks/useConfirm';
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  Ship,
+  Plane,
+  Package,
+  FileText,
+  Truck,
+  MapPin,
+  Calendar,
+  Clock,
+  ArrowRight,
+  X,
+  Check,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
+import { shippingDocumentService } from "../services/shippingDocumentService";
+import { importOrderService } from "../services/importOrderService";
+import { useTheme } from "../contexts/ThemeContext";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 // Document Type Configuration
 const DOCUMENT_TYPES = [
-  { value: 'bill_of_lading', label: 'Bill of Lading (BOL)', icon: Ship, color: 'blue' },
-  { value: 'airway_bill', label: 'Airway Bill (AWB)', icon: Plane, color: 'purple' },
-  { value: 'packing_list', label: 'Packing List', icon: Package, color: 'green' },
-  { value: 'shipping_instruction', label: 'Shipping Instruction', icon: FileText, color: 'yellow' },
-  { value: 'delivery_order', label: 'Delivery Order', icon: Truck, color: 'orange' },
+  {
+    value: "bill_of_lading",
+    label: "Bill of Lading (BOL)",
+    icon: Ship,
+    color: "blue",
+  },
+  {
+    value: "airway_bill",
+    label: "Airway Bill (AWB)",
+    icon: Plane,
+    color: "purple",
+  },
+  {
+    value: "packing_list",
+    label: "Packing List",
+    icon: Package,
+    color: "green",
+  },
+  {
+    value: "shipping_instruction",
+    label: "Shipping Instruction",
+    icon: FileText,
+    color: "yellow",
+  },
+  {
+    value: "delivery_order",
+    label: "Delivery Order",
+    icon: Truck,
+    color: "orange",
+  },
 ];
 
 // Status Configuration
 const STATUS_CONFIG = {
-  pending: { label: 'Pending', color: 'gray', bgLight: 'bg-gray-100', bgDark: 'bg-gray-700', textLight: 'text-gray-700', textDark: 'text-gray-300' },
-  shipped: { label: 'Shipped', color: 'blue', bgLight: 'bg-blue-100', bgDark: 'bg-blue-900/30', textLight: 'text-blue-700', textDark: 'text-blue-300' },
-  in_transit: { label: 'In Transit', color: 'yellow', bgLight: 'bg-yellow-100', bgDark: 'bg-yellow-900/30', textLight: 'text-yellow-700', textDark: 'text-yellow-300' },
-  arrived: { label: 'Arrived', color: 'orange', bgLight: 'bg-orange-100', bgDark: 'bg-orange-900/30', textLight: 'text-orange-700', textDark: 'text-orange-300' },
-  delivered: { label: 'Delivered', color: 'green', bgLight: 'bg-green-100', bgDark: 'bg-green-900/30', textLight: 'text-green-700', textDark: 'text-green-300' },
-  cancelled: { label: 'Cancelled', color: 'red', bgLight: 'bg-red-100', bgDark: 'bg-red-900/30', textLight: 'text-red-700', textDark: 'text-red-300' },
+  pending: {
+    label: "Pending",
+    color: "gray",
+    bgLight: "bg-gray-100",
+    bgDark: "bg-gray-700",
+    textLight: "text-gray-700",
+    textDark: "text-gray-300",
+  },
+  shipped: {
+    label: "Shipped",
+    color: "blue",
+    bgLight: "bg-blue-100",
+    bgDark: "bg-blue-900/30",
+    textLight: "text-blue-700",
+    textDark: "text-blue-300",
+  },
+  in_transit: {
+    label: "In Transit",
+    color: "yellow",
+    bgLight: "bg-yellow-100",
+    bgDark: "bg-yellow-900/30",
+    textLight: "text-yellow-700",
+    textDark: "text-yellow-300",
+  },
+  arrived: {
+    label: "Arrived",
+    color: "orange",
+    bgLight: "bg-orange-100",
+    bgDark: "bg-orange-900/30",
+    textLight: "text-orange-700",
+    textDark: "text-orange-300",
+  },
+  delivered: {
+    label: "Delivered",
+    color: "green",
+    bgLight: "bg-green-100",
+    bgDark: "bg-green-900/30",
+    textLight: "text-green-700",
+    textDark: "text-green-300",
+  },
+  cancelled: {
+    label: "Cancelled",
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "bg-red-900/30",
+    textLight: "text-red-700",
+    textDark: "text-red-300",
+  },
 };
 
 // Tracking Milestones
 const TRACKING_MILESTONES = [
-  { key: 'pending', label: 'Document Created', icon: FileText },
-  { key: 'shipped', label: 'Departed', icon: Ship },
-  { key: 'in_transit', label: 'In Transit', icon: Truck },
-  { key: 'arrived', label: 'Arrived', icon: MapPin },
-  { key: 'delivered', label: 'Delivered', icon: Check },
+  { key: "pending", label: "Document Created", icon: FileText },
+  { key: "shipped", label: "Departed", icon: Ship },
+  { key: "in_transit", label: "In Transit", icon: Truck },
+  { key: "arrived", label: "Arrived", icon: MapPin },
+  { key: "delivered", label: "Delivered", icon: Check },
 ];
 
 // Empty form state
 // Freight VAT treatment options (UAE VAT Law Article 45)
 const FREIGHT_VAT_TREATMENT_OPTIONS = [
-  { value: 'zero_rated', label: 'Zero-Rated (0%) - International Transport' },
-  { value: 'standard', label: 'Standard (5%) - Domestic Transport' },
-  { value: 'exempt', label: 'Exempt - Certain Passenger Transport' },
+  { value: "zero_rated", label: "Zero-Rated (0%) - International Transport" },
+  { value: "standard", label: "Standard (5%) - Domestic Transport" },
+  { value: "exempt", label: "Exempt - Certain Passenger Transport" },
 ];
 
 const EMPTY_FORM = {
-  document_type: 'bill_of_lading',
-  document_number: '',
-  import_order_id: '',
-  export_order_id: '',
-  vessel_name: '',
-  voyage_number: '',
-  container_numbers: '',
-  seal_numbers: '',
-  origin_port: '',
-  destination_port: '',
-  etd: '',
-  eta: '',
-  actual_departure: '',
-  actual_arrival: '',
-  carrier_name: '',
-  shipper_name: '',
-  consignee_name: '',
-  notify_party: '',
-  freight_terms: 'prepaid',
+  document_type: "bill_of_lading",
+  document_number: "",
+  import_order_id: "",
+  export_order_id: "",
+  vessel_name: "",
+  voyage_number: "",
+  container_numbers: "",
+  seal_numbers: "",
+  origin_port: "",
+  destination_port: "",
+  etd: "",
+  eta: "",
+  actual_departure: "",
+  actual_arrival: "",
+  carrier_name: "",
+  shipper_name: "",
+  consignee_name: "",
+  notify_party: "",
+  freight_terms: "prepaid",
   // UAE VAT Compliance - Freight VAT Treatment (Article 45)
-  freight_vat_treatment: 'zero_rated', // zero_rated (international), standard (domestic), exempt
-  freight_value: '',
+  freight_vat_treatment: "zero_rated", // zero_rated (international), standard (domestic), exempt
+  freight_value: "",
   freight_vat_amount: 0,
-  weight_kg: '',
-  volume_cbm: '',
-  number_of_packages: '',
-  goods_description: '',
-  notes: '',
-  status: 'pending',
+  weight_kg: "",
+  volume_cbm: "",
+  number_of_packages: "",
+  goods_description: "",
+  notes: "",
+  status: "pending",
 };
 
 const ShippingDocumentList = () => {
@@ -87,7 +169,7 @@ const ShippingDocumentList = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 25,
@@ -97,17 +179,17 @@ const ShippingDocumentList = () => {
 
   // Filter State
   const [filters, setFilters] = useState({
-    search: '',
-    document_type: '',
-    status: '',
-    start_date: '',
-    end_date: '',
+    search: "",
+    document_type: "",
+    status: "",
+    start_date: "",
+    end_date: "",
   });
   const [showFilters, setShowFilters] = useState(false);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState('create'); // 'create', 'edit', 'view'
+  const [modalMode, setModalMode] = useState("create"); // 'create', 'edit', 'view'
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [formData, setFormData] = useState({ ...EMPTY_FORM });
   const [formErrors, setFormErrors] = useState({});
@@ -123,31 +205,35 @@ const ShippingDocumentList = () => {
   const [exportOrders, setExportOrders] = useState([]);
 
   // Load documents
-  const loadDocuments = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadDocuments = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const params = {
-        page,
-        limit: pagination.per_page,
-        ...Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== ''),
-        ),
-      };
+        const params = {
+          page,
+          limit: pagination.per_page,
+          ...Object.fromEntries(
+            Object.entries(filters).filter(([_, v]) => v !== ""),
+          ),
+        };
 
-      const response = await shippingDocumentService.getShippingDocuments(params);
-      setDocuments(response.documents || response.data || []);
-      if (response.pagination) {
-        setPagination(response.pagination);
+        const response =
+          await shippingDocumentService.getShippingDocuments(params);
+        setDocuments(response.documents || response.data || []);
+        if (response.pagination) {
+          setPagination(response.pagination);
+        }
+      } catch (err) {
+        console.error("Error loading documents:", err);
+        setError(err.message || "Failed to load shipping documents");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error loading documents:', err);
-      setError(err.message || 'Failed to load shipping documents');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, pagination.per_page]);
+    },
+    [filters, pagination.per_page],
+  );
 
   // Load orders for linking
   const loadOrders = async () => {
@@ -159,7 +245,7 @@ const ShippingDocumentList = () => {
       // Export orders would be loaded similarly when available
       setExportOrders([]);
     } catch (err) {
-      console.error('Error loading orders:', err);
+      console.error("Error loading orders:", err);
     }
   };
 
@@ -174,14 +260,14 @@ const ShippingDocumentList = () => {
   // Clear messages after timeout
   useEffect(() => {
     if (successMessage) {
-      const timer = setTimeout(() => setSuccessMessage(''), 5000);
+      const timer = setTimeout(() => setSuccessMessage(""), 5000);
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
 
   // Handle filter change
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   // Apply filters
@@ -192,11 +278,11 @@ const ShippingDocumentList = () => {
   // Clear filters
   const handleClearFilters = () => {
     setFilters({
-      search: '',
-      document_type: '',
-      status: '',
-      start_date: '',
-      end_date: '',
+      search: "",
+      document_type: "",
+      status: "",
+      start_date: "",
+      end_date: "",
     });
     setTimeout(() => loadDocuments(1), 0);
   };
@@ -206,49 +292,53 @@ const ShippingDocumentList = () => {
     setFormData({ ...EMPTY_FORM });
     setFormErrors({});
     setSelectedDocument(null);
-    setModalMode('create');
+    setModalMode("create");
     setShowModal(true);
   };
 
   // Open modal for edit
   const handleEdit = (doc) => {
     setFormData({
-      document_type: doc.document_type || 'bill_of_lading',
-      document_number: doc.document_number || '',
-      import_order_id: doc.import_order_id || '',
-      export_order_id: doc.export_order_id || '',
-      vessel_name: doc.vessel_name || '',
-      voyage_number: doc.voyage_number || '',
-      container_numbers: doc.container_numbers || '',
-      seal_numbers: doc.seal_numbers || '',
-      origin_port: doc.origin_port || '',
-      destination_port: doc.destination_port || '',
-      etd: doc.etd ? doc.etd.split('T')[0] : '',
-      eta: doc.eta ? doc.eta.split('T')[0] : '',
-      actual_departure: doc.actual_departure ? doc.actual_departure.split('T')[0] : '',
-      actual_arrival: doc.actual_arrival ? doc.actual_arrival.split('T')[0] : '',
-      carrier_name: doc.carrier_name || '',
-      shipper_name: doc.shipper_name || '',
-      consignee_name: doc.consignee_name || '',
-      notify_party: doc.notify_party || '',
-      freight_terms: doc.freight_terms || 'prepaid',
-      weight_kg: doc.weight_kg || '',
-      volume_cbm: doc.volume_cbm || '',
-      number_of_packages: doc.number_of_packages || '',
-      goods_description: doc.goods_description || '',
-      notes: doc.notes || '',
-      status: doc.status || 'pending',
+      document_type: doc.document_type || "bill_of_lading",
+      document_number: doc.document_number || "",
+      import_order_id: doc.import_order_id || "",
+      export_order_id: doc.export_order_id || "",
+      vessel_name: doc.vessel_name || "",
+      voyage_number: doc.voyage_number || "",
+      container_numbers: doc.container_numbers || "",
+      seal_numbers: doc.seal_numbers || "",
+      origin_port: doc.origin_port || "",
+      destination_port: doc.destination_port || "",
+      etd: doc.etd ? doc.etd.split("T")[0] : "",
+      eta: doc.eta ? doc.eta.split("T")[0] : "",
+      actual_departure: doc.actual_departure
+        ? doc.actual_departure.split("T")[0]
+        : "",
+      actual_arrival: doc.actual_arrival
+        ? doc.actual_arrival.split("T")[0]
+        : "",
+      carrier_name: doc.carrier_name || "",
+      shipper_name: doc.shipper_name || "",
+      consignee_name: doc.consignee_name || "",
+      notify_party: doc.notify_party || "",
+      freight_terms: doc.freight_terms || "prepaid",
+      weight_kg: doc.weight_kg || "",
+      volume_cbm: doc.volume_cbm || "",
+      number_of_packages: doc.number_of_packages || "",
+      goods_description: doc.goods_description || "",
+      notes: doc.notes || "",
+      status: doc.status || "pending",
     });
     setFormErrors({});
     setSelectedDocument(doc);
-    setModalMode('edit');
+    setModalMode("edit");
     setShowModal(true);
   };
 
   // Open modal for view
   const handleView = (doc) => {
     setSelectedDocument(doc);
-    setModalMode('view');
+    setModalMode("view");
     setShowModal(true);
   };
 
@@ -265,16 +355,16 @@ const ShippingDocumentList = () => {
     const errors = {};
 
     if (!formData.document_number.trim()) {
-      errors.document_number = 'Document number is required';
+      errors.document_number = "Document number is required";
     }
     if (!formData.document_type) {
-      errors.document_type = 'Document type is required';
+      errors.document_type = "Document type is required";
     }
     if (!formData.origin_port.trim()) {
-      errors.origin_port = 'Origin port is required';
+      errors.origin_port = "Origin port is required";
     }
     if (!formData.destination_port.trim()) {
-      errors.destination_port = 'Destination port is required';
+      errors.destination_port = "Destination port is required";
     }
 
     setFormErrors(errors);
@@ -283,9 +373,9 @@ const ShippingDocumentList = () => {
 
   // Handle form input change
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: null }));
+      setFormErrors((prev) => ({ ...prev, [field]: null }));
     }
   };
 
@@ -298,23 +388,30 @@ const ShippingDocumentList = () => {
       const dataToSend = {
         ...formData,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
-        volume_cbm: formData.volume_cbm ? parseFloat(formData.volume_cbm) : null,
-        number_of_packages: formData.number_of_packages ? parseInt(formData.number_of_packages) : null,
+        volume_cbm: formData.volume_cbm
+          ? parseFloat(formData.volume_cbm)
+          : null,
+        number_of_packages: formData.number_of_packages
+          ? parseInt(formData.number_of_packages)
+          : null,
       };
 
-      if (modalMode === 'create') {
+      if (modalMode === "create") {
         await shippingDocumentService.createShippingDocument(dataToSend);
-        setSuccessMessage('Shipping document created successfully');
-      } else if (modalMode === 'edit') {
-        await shippingDocumentService.updateShippingDocument(selectedDocument.id, dataToSend);
-        setSuccessMessage('Shipping document updated successfully');
+        setSuccessMessage("Shipping document created successfully");
+      } else if (modalMode === "edit") {
+        await shippingDocumentService.updateShippingDocument(
+          selectedDocument.id,
+          dataToSend,
+        );
+        setSuccessMessage("Shipping document updated successfully");
       }
 
       handleCloseModal();
       loadDocuments(pagination.current_page);
     } catch (err) {
-      console.error('Error saving document:', err);
-      setError(err.message || 'Failed to save shipping document');
+      console.error("Error saving document:", err);
+      setError(err.message || "Failed to save shipping document");
     } finally {
       setSaving(false);
     }
@@ -323,21 +420,21 @@ const ShippingDocumentList = () => {
   // Handle delete
   const handleDelete = async (doc) => {
     const confirmed = await confirm({
-      title: 'Delete Shipping Document?',
+      title: "Delete Shipping Document?",
       message: `Are you sure you want to delete document "${doc.document_number}"? This action cannot be undone.`,
-      confirmText: 'Delete',
-      variant: 'danger',
+      confirmText: "Delete",
+      variant: "danger",
     });
 
     if (!confirmed) return;
 
     try {
       await shippingDocumentService.deleteShippingDocument(doc.id);
-      setSuccessMessage('Shipping document deleted successfully');
+      setSuccessMessage("Shipping document deleted successfully");
       loadDocuments(pagination.current_page);
     } catch (err) {
-      console.error('Error deleting document:', err);
-      setError(err.message || 'Failed to delete shipping document');
+      console.error("Error deleting document:", err);
+      setError(err.message || "Failed to delete shipping document");
     }
   };
 
@@ -351,7 +448,7 @@ const ShippingDocumentList = () => {
       const tracking = await shippingDocumentService.trackShipment(doc.id);
       setTrackingData(tracking);
     } catch (err) {
-      console.error('Error fetching tracking:', err);
+      console.error("Error fetching tracking:", err);
       // Use document status as fallback
       setTrackingData({
         status: doc.status,
@@ -365,22 +462,22 @@ const ShippingDocumentList = () => {
 
   // Get status milestone index
   const getStatusIndex = (status) => {
-    const index = TRACKING_MILESTONES.findIndex(m => m.key === status);
+    const index = TRACKING_MILESTONES.findIndex((m) => m.key === status);
     return index >= 0 ? index : 0;
   };
 
   // Get document type config
   const getDocTypeConfig = (type) => {
-    return DOCUMENT_TYPES.find(t => t.value === type) || DOCUMENT_TYPES[0];
+    return DOCUMENT_TYPES.find((t) => t.value === type) || DOCUMENT_TYPES[0];
   };
 
   // Format date
   const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -388,9 +485,13 @@ const ShippingDocumentList = () => {
   const StatusBadge = ({ status }) => {
     const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
     return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-        isDarkMode ? `${config.bgDark} ${config.textDark}` : `${config.bgLight} ${config.textLight}`
-      }`}>
+      <span
+        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+          isDarkMode
+            ? `${config.bgDark} ${config.textDark}`
+            : `${config.bgLight} ${config.textLight}`
+        }`}
+      >
         {config.label}
       </span>
     );
@@ -404,7 +505,9 @@ const ShippingDocumentList = () => {
   };
 
   return (
-    <div className={`p-6 min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div
+      className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+    >
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
@@ -445,22 +548,27 @@ const ShippingDocumentList = () => {
       )}
 
       {/* Filters */}
-      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}
+      >
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="Search by document number, vessel name..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 placeholder-gray-500'
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 placeholder-gray-500"
                 } focus:ring-2 focus:ring-teal-500 focus:border-transparent`}
               />
             </div>
@@ -471,13 +579,16 @@ const ShippingDocumentList = () => {
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? 'border-gray-600 hover:bg-gray-700'
-                : 'border-gray-300 hover:bg-gray-50'
-            } ${showFilters ? 'bg-teal-50 border-teal-500 text-teal-600' : ''}`}
+                ? "border-gray-600 hover:bg-gray-700"
+                : "border-gray-300 hover:bg-gray-50"
+            } ${showFilters ? "bg-teal-50 border-teal-500 text-teal-600" : ""}`}
           >
             <Filter size={20} />
             Filters
-            {(filters.document_type || filters.status || filters.start_date || filters.end_date) && (
+            {(filters.document_type ||
+              filters.status ||
+              filters.start_date ||
+              filters.end_date) && (
               <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
             )}
           </button>
@@ -487,11 +598,11 @@ const ShippingDocumentList = () => {
             onClick={() => loadDocuments(pagination.current_page)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? 'border-gray-600 hover:bg-gray-700'
-                : 'border-gray-300 hover:bg-gray-50'
+                ? "border-gray-600 hover:bg-gray-700"
+                : "border-gray-300 hover:bg-gray-50"
             }`}
           >
-            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
 
@@ -501,19 +612,25 @@ const ShippingDocumentList = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Document Type */}
               <div>
-                <label className="block text-sm font-medium mb-1">Document Type</label>
+                <label className="block text-sm font-medium mb-1">
+                  Document Type
+                </label>
                 <select
                   value={filters.document_type}
-                  onChange={(e) => handleFilterChange('document_type', e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("document_type", e.target.value)
+                  }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
                   }`}
                 >
                   <option value="">All Types</option>
-                  {DOCUMENT_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
+                  {DOCUMENT_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -523,44 +640,54 @@ const ShippingDocumentList = () => {
                 <label className="block text-sm font-medium mb-1">Status</label>
                 <select
                   value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  onChange={(e) => handleFilterChange("status", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
                   }`}
                 >
                   <option value="">All Statuses</option>
                   {Object.entries(STATUS_CONFIG).map(([value, config]) => (
-                    <option key={value} value={value}>{config.label}</option>
+                    <option key={value} value={value}>
+                      {config.label}
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* Date Range */}
               <div>
-                <label className="block text-sm font-medium mb-1">From Date</label>
+                <label className="block text-sm font-medium mb-1">
+                  From Date
+                </label>
                 <input
                   type="date"
                   value={filters.start_date}
-                  onChange={(e) => handleFilterChange('start_date', e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("start_date", e.target.value)
+                  }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
                   }`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">To Date</label>
+                <label className="block text-sm font-medium mb-1">
+                  To Date
+                </label>
                 <input
                   type="date"
                   value={filters.end_date}
-                  onChange={(e) => handleFilterChange('end_date', e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("end_date", e.target.value)
+                  }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
                   }`}
                 />
               </div>
@@ -578,8 +705,8 @@ const ShippingDocumentList = () => {
                 onClick={handleClearFilters}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? 'border-gray-600 hover:bg-gray-700'
-                    : 'border-gray-300 hover:bg-gray-50'
+                    ? "border-gray-600 hover:bg-gray-700"
+                    : "border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 Clear
@@ -590,7 +717,9 @@ const ShippingDocumentList = () => {
       </div>
 
       {/* Documents Table */}
-      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}>
+      <div
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}
+      >
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
@@ -610,7 +739,7 @@ const ShippingDocumentList = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Document
@@ -635,17 +764,21 @@ const ShippingDocumentList = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              <tbody
+                className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+              >
                 {documents.map((doc) => (
                   <tr
                     key={doc.id}
-                    className={`hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`}
+                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <DocTypeIcon type={doc.document_type} size={20} />
                         <div>
-                          <div className="font-medium">{doc.document_number}</div>
+                          <div className="font-medium">
+                            {doc.document_number}
+                          </div>
                           {doc.import_order_number && (
                             <div className="text-xs text-gray-500">
                               Order: {doc.import_order_number}
@@ -660,24 +793,31 @@ const ShippingDocumentList = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm">{doc.vessel_name || '-'}</div>
+                      <div className="text-sm">{doc.vessel_name || "-"}</div>
                       {doc.voyage_number && (
                         <div className="text-xs text-gray-500">
                           Voyage: {doc.voyage_number}
                         </div>
                       )}
                       {doc.container_numbers && (
-                        <div className="text-xs text-gray-500 truncate max-w-[150px]" title={doc.container_numbers}>
-                          Container: {doc.container_numbers.split('\n')[0]}
-                          {doc.container_numbers.includes('\n') && '...'}
+                        <div
+                          className="text-xs text-gray-500 truncate max-w-[150px]"
+                          title={doc.container_numbers}
+                        >
+                          Container: {doc.container_numbers.split("\n")[0]}
+                          {doc.container_numbers.includes("\n") && "..."}
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1 text-sm">
-                        <span className="font-medium">{doc.origin_port || '-'}</span>
+                        <span className="font-medium">
+                          {doc.origin_port || "-"}
+                        </span>
                         <ArrowRight size={14} className="text-gray-400" />
-                        <span className="font-medium">{doc.destination_port || '-'}</span>
+                        <span className="font-medium">
+                          {doc.destination_port || "-"}
+                        </span>
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -736,20 +876,26 @@ const ShippingDocumentList = () => {
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (
-          <div className={`px-6 py-3 flex items-center justify-between border-t ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
-          }`}>
+          <div
+            className={`px-6 py-3 flex items-center justify-between border-t ${
+              isDarkMode ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
             <div className="text-sm text-gray-500">
-              Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to{' '}
-              {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of{' '}
-              {pagination.total} results
+              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{" "}
+              to{" "}
+              {Math.min(
+                pagination.current_page * pagination.per_page,
+                pagination.total,
+              )}{" "}
+              of {pagination.total} results
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={() => loadDocuments(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
-                  isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                  isDarkMode ? "border-gray-600" : "border-gray-300"
                 }`}
               >
                 Previous
@@ -758,7 +904,7 @@ const ShippingDocumentList = () => {
                 onClick={() => loadDocuments(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
-                  isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                  isDarkMode ? "border-gray-600" : "border-gray-300"
                 }`}
               >
                 Next
@@ -769,32 +915,44 @@ const ShippingDocumentList = () => {
       </div>
 
       {/* Create/Edit Modal */}
-      {showModal && (modalMode === 'create' || modalMode === 'edit') && (
+      {showModal && (modalMode === "create" || modalMode === "edit") && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-          }`}>
+          <div
+            className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
             {/* Modal Header */}
-            <div className={`sticky top-0 flex items-center justify-between p-6 border-b ${
-              isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
-            }`}>
+            <div
+              className={`sticky top-0 flex items-center justify-between p-6 border-b ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
                   <Ship className="h-6 w-6 text-teal-600" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">
-                    {modalMode === 'create' ? 'New Shipping Document' : 'Edit Shipping Document'}
+                    {modalMode === "create"
+                      ? "New Shipping Document"
+                      : "Edit Shipping Document"}
                   </h2>
                   <p className="text-sm text-gray-500">
-                    {modalMode === 'create' ? 'Create a new BOL, AWB or shipping document' : `Editing ${selectedDocument?.document_number}`}
+                    {modalMode === "create"
+                      ? "Create a new BOL, AWB or shipping document"
+                      : `Editing ${selectedDocument?.document_number}`}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleCloseModal}
                 className={`p-1 rounded-lg transition-colors ${
-                  isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
+                  isDarkMode
+                    ? "hover:bg-gray-700 text-gray-400"
+                    : "hover:bg-gray-100 text-gray-500"
                 }`}
               >
                 <X className="h-5 w-5" />
@@ -811,19 +969,25 @@ const ShippingDocumentList = () => {
                   </label>
                   <select
                     value={formData.document_type}
-                    onChange={(e) => handleInputChange('document_type', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("document_type", e.target.value)
+                    }
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300'
-                    } ${formErrors.document_type ? 'border-red-500' : ''}`}
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300"
+                    } ${formErrors.document_type ? "border-red-500" : ""}`}
                   >
-                    {DOCUMENT_TYPES.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
+                    {DOCUMENT_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
                     ))}
                   </select>
                   {formErrors.document_type && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors.document_type}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {formErrors.document_type}
+                    </p>
                   )}
                 </div>
 
@@ -834,16 +998,20 @@ const ShippingDocumentList = () => {
                   <input
                     type="text"
                     value={formData.document_number}
-                    onChange={(e) => handleInputChange('document_number', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("document_number", e.target.value)
+                    }
                     placeholder="e.g., BOL-2024-001"
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-300 placeholder-gray-500'
-                    } ${formErrors.document_number ? 'border-red-500' : ''}`}
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 placeholder-gray-500"
+                    } ${formErrors.document_number ? "border-red-500" : ""}`}
                   />
                   {formErrors.document_number && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors.document_number}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {formErrors.document_number}
+                    </p>
                   )}
                 </div>
               </div>
@@ -851,89 +1019,114 @@ const ShippingDocumentList = () => {
               {/* Linked Order & Status */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Link to Import Order</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Link to Import Order
+                  </label>
                   <select
                     value={formData.import_order_id}
-                    onChange={(e) => handleInputChange('import_order_id', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("import_order_id", e.target.value)
+                    }
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300'
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300"
                     }`}
                   >
                     <option value="">No linked order</option>
-                    {importOrders.map(order => (
+                    {importOrders.map((order) => (
                       <option key={order.id} value={order.id}>
-                        {order.import_order_number || order.importOrderNumber} - {order.supplier_name || order.supplierName}
+                        {order.import_order_number || order.importOrderNumber} -{" "}
+                        {order.supplier_name || order.supplierName}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Status
+                  </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300'
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300"
                     }`}
                   >
                     {Object.entries(STATUS_CONFIG).map(([value, config]) => (
-                      <option key={value} value={value}>{config.label}</option>
+                      <option key={value} value={value}>
+                        {config.label}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               {/* Vessel / Flight Details */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Ship size={18} />
                   Vessel / Flight Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Vessel / Flight Name</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Vessel / Flight Name
+                    </label>
                     <input
                       type="text"
                       value={formData.vessel_name}
-                      onChange={(e) => handleInputChange('vessel_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("vessel_name", e.target.value)
+                      }
                       placeholder="e.g., MSC OSCAR"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Voyage / Flight Number</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Voyage / Flight Number
+                    </label>
                     <input
                       type="text"
                       value={formData.voyage_number}
-                      onChange={(e) => handleInputChange('voyage_number', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("voyage_number", e.target.value)
+                      }
                       placeholder="e.g., 2024-V001"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Carrier Name</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Carrier Name
+                    </label>
                     <input
                       type="text"
                       value={formData.carrier_name}
-                      onChange={(e) => handleInputChange('carrier_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("carrier_name", e.target.value)
+                      }
                       placeholder="e.g., Maersk Line"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
@@ -943,37 +1136,47 @@ const ShippingDocumentList = () => {
               {/* Container & Seal Numbers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Container Numbers</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Container Numbers
+                  </label>
                   <textarea
                     value={formData.container_numbers}
-                    onChange={(e) => handleInputChange('container_numbers', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("container_numbers", e.target.value)
+                    }
                     placeholder="One container number per line"
                     rows={3}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-300 placeholder-gray-500'
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 placeholder-gray-500"
                     }`}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Seal Numbers</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Seal Numbers
+                  </label>
                   <textarea
                     value={formData.seal_numbers}
-                    onChange={(e) => handleInputChange('seal_numbers', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("seal_numbers", e.target.value)
+                    }
                     placeholder="One seal number per line"
                     rows={3}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-300 placeholder-gray-500'
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 placeholder-gray-500"
                     }`}
                   />
                 </div>
               </div>
 
               {/* Route */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <MapPin size={18} />
                   Route Details
@@ -986,16 +1189,20 @@ const ShippingDocumentList = () => {
                     <input
                       type="text"
                       value={formData.origin_port}
-                      onChange={(e) => handleInputChange('origin_port', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("origin_port", e.target.value)
+                      }
                       placeholder="e.g., Shanghai, China"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
-                      } ${formErrors.origin_port ? 'border-red-500' : ''}`}
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
+                      } ${formErrors.origin_port ? "border-red-500" : ""}`}
                     />
                     {formErrors.origin_port && (
-                      <p className="text-red-500 text-xs mt-1">{formErrors.origin_port}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {formErrors.origin_port}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -1005,77 +1212,95 @@ const ShippingDocumentList = () => {
                     <input
                       type="text"
                       value={formData.destination_port}
-                      onChange={(e) => handleInputChange('destination_port', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("destination_port", e.target.value)
+                      }
                       placeholder="e.g., Mombasa, Kenya"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
-                      } ${formErrors.destination_port ? 'border-red-500' : ''}`}
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
+                      } ${formErrors.destination_port ? "border-red-500" : ""}`}
                     />
                     {formErrors.destination_port && (
-                      <p className="text-red-500 text-xs mt-1">{formErrors.destination_port}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {formErrors.destination_port}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Dates */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Calendar size={18} />
                   Schedule
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">ETD</label>
+                    <label className="block text-sm font-medium mb-1">
+                      ETD
+                    </label>
                     <input
                       type="date"
                       value={formData.etd}
-                      onChange={(e) => handleInputChange('etd', e.target.value)}
+                      onChange={(e) => handleInputChange("etd", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white'
-                          : 'bg-white border-gray-300'
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">ETA</label>
+                    <label className="block text-sm font-medium mb-1">
+                      ETA
+                    </label>
                     <input
                       type="date"
                       value={formData.eta}
-                      onChange={(e) => handleInputChange('eta', e.target.value)}
+                      onChange={(e) => handleInputChange("eta", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white'
-                          : 'bg-white border-gray-300'
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Actual Departure</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Actual Departure
+                    </label>
                     <input
                       type="date"
                       value={formData.actual_departure}
-                      onChange={(e) => handleInputChange('actual_departure', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("actual_departure", e.target.value)
+                      }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white'
-                          : 'bg-white border-gray-300'
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Actual Arrival</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Actual Arrival
+                    </label>
                     <input
                       type="date"
                       value={formData.actual_arrival}
-                      onChange={(e) => handleInputChange('actual_arrival', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("actual_arrival", e.target.value)
+                      }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white'
-                          : 'bg-white border-gray-300'
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300"
                       }`}
                     />
                   </div>
@@ -1083,63 +1308,81 @@ const ShippingDocumentList = () => {
               </div>
 
               {/* Parties */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <FileText size={18} />
                   Parties
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Shipper</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Shipper
+                    </label>
                     <input
                       type="text"
                       value={formData.shipper_name}
-                      onChange={(e) => handleInputChange('shipper_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("shipper_name", e.target.value)
+                      }
                       placeholder="Shipper name"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Consignee</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Consignee
+                    </label>
                     <input
                       type="text"
                       value={formData.consignee_name}
-                      onChange={(e) => handleInputChange('consignee_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("consignee_name", e.target.value)
+                      }
                       placeholder="Consignee name"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Notify Party</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Notify Party
+                    </label>
                     <input
                       type="text"
                       value={formData.notify_party}
-                      onChange={(e) => handleInputChange('notify_party', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("notify_party", e.target.value)
+                      }
                       placeholder="Notify party"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Freight Terms</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Freight Terms
+                    </label>
                     <select
                       value={formData.freight_terms}
-                      onChange={(e) => handleInputChange('freight_terms', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("freight_terms", e.target.value)
+                      }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white'
-                          : 'bg-white border-gray-300'
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300"
                       }`}
                     >
                       <option value="prepaid">Prepaid</option>
@@ -1150,53 +1393,76 @@ const ShippingDocumentList = () => {
                 </div>
 
                 {/* UAE VAT Treatment for Freight - Article 45 */}
-                <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-indigo-900/30 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}>
-                  <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}>
+                <div
+                  className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-indigo-900/30 border border-indigo-700" : "bg-indigo-50 border border-indigo-200"}`}
+                >
+                  <h4
+                    className={`text-sm font-medium mb-3 ${isDarkMode ? "text-indigo-300" : "text-indigo-800"}`}
+                  >
                     UAE VAT Treatment (Article 45)
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                      <label
+                        className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-indigo-200" : "text-indigo-700"}`}
+                      >
                         Freight VAT Treatment
                       </label>
                       <select
-                        value={formData.freight_vat_treatment || 'zero_rated'}
-                        onChange={(e) => handleInputChange('freight_vat_treatment', e.target.value)}
+                        value={formData.freight_vat_treatment || "zero_rated"}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "freight_vat_treatment",
+                            e.target.value,
+                          )
+                        }
                         className={`w-full px-3 py-2 border rounded-lg text-sm ${
                           isDarkMode
-                            ? 'bg-gray-700 border-indigo-600 text-white'
-                            : 'bg-white border-indigo-300'
+                            ? "bg-gray-700 border-indigo-600 text-white"
+                            : "bg-white border-indigo-300"
                         }`}
                       >
-                        {FREIGHT_VAT_TREATMENT_OPTIONS.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        {FREIGHT_VAT_TREATMENT_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                      <label
+                        className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-indigo-200" : "text-indigo-700"}`}
+                      >
                         Freight Value (AED)
                       </label>
                       <input
                         type="number"
-                        value={formData.freight_value || ''}
+                        value={formData.freight_value || ""}
                         onChange={(e) => {
                           const value = parseFloat(e.target.value) || 0;
-                          const vatRate = formData.freight_vat_treatment === 'standard' ? 0.05 : 0;
-                          handleInputChange('freight_value', e.target.value);
-                          handleInputChange('freight_vat_amount', value * vatRate);
+                          const vatRate =
+                            formData.freight_vat_treatment === "standard"
+                              ? 0.05
+                              : 0;
+                          handleInputChange("freight_value", e.target.value);
+                          handleInputChange(
+                            "freight_vat_amount",
+                            value * vatRate,
+                          );
                         }}
                         placeholder="0.00"
                         step="0.01"
                         className={`w-full px-3 py-2 border rounded-lg text-sm ${
                           isDarkMode
-                            ? 'bg-gray-700 border-indigo-600 text-white placeholder-gray-400'
-                            : 'bg-white border-indigo-300 placeholder-gray-500'
+                            ? "bg-gray-700 border-indigo-600 text-white placeholder-gray-400"
+                            : "bg-white border-indigo-300 placeholder-gray-500"
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                      <label
+                        className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-indigo-200" : "text-indigo-700"}`}
+                      >
                         VAT Amount (AED)
                       </label>
                       <input
@@ -1205,81 +1471,103 @@ const ShippingDocumentList = () => {
                         disabled
                         className={`w-full px-3 py-2 border rounded-lg text-sm ${
                           isDarkMode
-                            ? 'bg-gray-600 border-indigo-600 text-gray-300'
-                            : 'bg-gray-100 border-indigo-200 text-gray-600'
+                            ? "bg-gray-600 border-indigo-600 text-gray-300"
+                            : "bg-gray-100 border-indigo-200 text-gray-600"
                         }`}
                       />
                     </div>
                   </div>
-                  <p className={`mt-2 text-xs ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`}>
-                    International transport of goods is zero-rated under UAE VAT Law Article 45. Domestic transport within UAE is standard-rated at 5%.
+                  <p
+                    className={`mt-2 text-xs ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}`}
+                  >
+                    International transport of goods is zero-rated under UAE VAT
+                    Law Article 45. Domestic transport within UAE is
+                    standard-rated at 5%.
                   </p>
                 </div>
               </div>
 
               {/* Cargo Details */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Package size={18} />
                   Cargo Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Weight (KG)</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Weight (KG)
+                    </label>
                     <input
                       type="number"
                       value={formData.weight_kg}
-                      onChange={(e) => handleInputChange('weight_kg', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("weight_kg", e.target.value)
+                      }
                       placeholder="0.00"
                       step="0.01"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Volume (CBM)</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Volume (CBM)
+                    </label>
                     <input
                       type="number"
                       value={formData.volume_cbm}
-                      onChange={(e) => handleInputChange('volume_cbm', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("volume_cbm", e.target.value)
+                      }
                       placeholder="0.00"
                       step="0.01"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Number of Packages</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Number of Packages
+                    </label>
                     <input
                       type="number"
                       value={formData.number_of_packages}
-                      onChange={(e) => handleInputChange('number_of_packages', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("number_of_packages", e.target.value)
+                      }
                       placeholder="0"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
                       }`}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Goods Description</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Goods Description
+                  </label>
                   <textarea
                     value={formData.goods_description}
-                    onChange={(e) => handleInputChange('goods_description', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("goods_description", e.target.value)
+                    }
                     placeholder="Describe the goods being shipped"
                     rows={2}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-300 placeholder-gray-500'
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 placeholder-gray-500"
                     }`}
                   />
                 </div>
@@ -1290,30 +1578,34 @@ const ShippingDocumentList = () => {
                 <label className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
                   value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
                   placeholder="Additional notes or remarks"
                   rows={3}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 placeholder-gray-500'
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 placeholder-gray-500"
                   }`}
                 />
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className={`sticky bottom-0 flex gap-3 p-6 border-t ${
-              isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
-            }`}>
+            <div
+              className={`sticky bottom-0 flex gap-3 p-6 border-t ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
               <button
                 onClick={handleCloseModal}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 text-white hover:bg-gray-600'
-                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    ? "bg-gray-700 text-white hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Cancel
               </button>
@@ -1321,10 +1613,14 @@ const ShippingDocumentList = () => {
                 onClick={handleSubmit}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-teal-600 text-white hover:bg-teal-700 ${
-                  saving ? 'opacity-50 cursor-not-allowed' : ''
+                  saving ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {saving ? 'Saving...' : modalMode === 'create' ? 'Create Document' : 'Save Changes'}
+                {saving
+                  ? "Saving..."
+                  : modalMode === "create"
+                    ? "Create Document"
+                    : "Save Changes"}
               </button>
             </div>
           </div>
@@ -1332,19 +1628,27 @@ const ShippingDocumentList = () => {
       )}
 
       {/* View Modal */}
-      {showModal && modalMode === 'view' && selectedDocument && (
+      {showModal && modalMode === "view" && selectedDocument && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className={`relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-          }`}>
+          <div
+            className={`relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
             {/* Header */}
-            <div className={`sticky top-0 flex items-center justify-between p-6 border-b ${
-              isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
-            }`}>
+            <div
+              className={`sticky top-0 flex items-center justify-between p-6 border-b ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <DocTypeIcon type={selectedDocument.document_type} size={28} />
                 <div>
-                  <h2 className="text-xl font-semibold">{selectedDocument.document_number}</h2>
+                  <h2 className="text-xl font-semibold">
+                    {selectedDocument.document_number}
+                  </h2>
                   <p className="text-sm text-gray-500">
                     {getDocTypeConfig(selectedDocument.document_type).label}
                   </p>
@@ -1355,7 +1659,9 @@ const ShippingDocumentList = () => {
                 <button
                   onClick={handleCloseModal}
                   className={`p-1 rounded-lg transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
+                    isDarkMode
+                      ? "hover:bg-gray-700 text-gray-400"
+                      : "hover:bg-gray-100 text-gray-500"
                   }`}
                 >
                   <X className="h-5 w-5" />
@@ -1366,15 +1672,21 @@ const ShippingDocumentList = () => {
             {/* Body */}
             <div className="p-6 space-y-6">
               {/* Route Summary */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-teal-50'}`}>
+              <div
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-teal-50"}`}
+              >
                 <div className="flex items-center justify-center gap-4 text-lg">
                   <div className="text-center">
-                    <div className="font-bold">{selectedDocument.origin_port || '-'}</div>
+                    <div className="font-bold">
+                      {selectedDocument.origin_port || "-"}
+                    </div>
                     <div className="text-sm text-gray-500">Origin</div>
                   </div>
                   <ArrowRight size={24} className="text-teal-600" />
                   <div className="text-center">
-                    <div className="font-bold">{selectedDocument.destination_port || '-'}</div>
+                    <div className="font-bold">
+                      {selectedDocument.destination_port || "-"}
+                    </div>
                     <div className="text-sm text-gray-500">Destination</div>
                   </div>
                 </div>
@@ -1383,7 +1695,9 @@ const ShippingDocumentList = () => {
               {/* Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Vessel Info */}
-                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                >
                   <h3 className="font-medium mb-3 flex items-center gap-2">
                     <Ship size={16} />
                     Vessel Details
@@ -1391,21 +1705,29 @@ const ShippingDocumentList = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Vessel Name:</span>
-                      <span className="font-medium">{selectedDocument.vessel_name || '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.vessel_name || "-"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Voyage Number:</span>
-                      <span className="font-medium">{selectedDocument.voyage_number || '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.voyage_number || "-"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Carrier:</span>
-                      <span className="font-medium">{selectedDocument.carrier_name || '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.carrier_name || "-"}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Schedule */}
-                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                >
                   <h3 className="font-medium mb-3 flex items-center gap-2">
                     <Calendar size={16} />
                     Schedule
@@ -1413,26 +1735,36 @@ const ShippingDocumentList = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">ETD:</span>
-                      <span className="font-medium">{formatDate(selectedDocument.etd)}</span>
+                      <span className="font-medium">
+                        {formatDate(selectedDocument.etd)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">ETA:</span>
-                      <span className="font-medium">{formatDate(selectedDocument.eta)}</span>
+                      <span className="font-medium">
+                        {formatDate(selectedDocument.eta)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Actual Departure:</span>
-                      <span className="font-medium">{formatDate(selectedDocument.actual_departure)}</span>
+                      <span className="font-medium">
+                        {formatDate(selectedDocument.actual_departure)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Actual Arrival:</span>
-                      <span className="font-medium">{formatDate(selectedDocument.actual_arrival)}</span>
+                      <span className="font-medium">
+                        {formatDate(selectedDocument.actual_arrival)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Container Info */}
                 {selectedDocument.container_numbers && (
-                  <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                  <div
+                    className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                  >
                     <h3 className="font-medium mb-3 flex items-center gap-2">
                       <Package size={16} />
                       Container Info
@@ -1440,12 +1772,16 @@ const ShippingDocumentList = () => {
                     <div className="space-y-2 text-sm">
                       <div>
                         <span className="text-gray-500">Containers:</span>
-                        <pre className="mt-1 font-mono text-xs">{selectedDocument.container_numbers}</pre>
+                        <pre className="mt-1 font-mono text-xs">
+                          {selectedDocument.container_numbers}
+                        </pre>
                       </div>
                       {selectedDocument.seal_numbers && (
                         <div>
                           <span className="text-gray-500">Seals:</span>
-                          <pre className="mt-1 font-mono text-xs">{selectedDocument.seal_numbers}</pre>
+                          <pre className="mt-1 font-mono text-xs">
+                            {selectedDocument.seal_numbers}
+                          </pre>
                         </div>
                       )}
                     </div>
@@ -1453,7 +1789,9 @@ const ShippingDocumentList = () => {
                 )}
 
                 {/* Cargo */}
-                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                >
                   <h3 className="font-medium mb-3 flex items-center gap-2">
                     <Truck size={16} />
                     Cargo Details
@@ -1461,15 +1799,25 @@ const ShippingDocumentList = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Weight:</span>
-                      <span className="font-medium">{selectedDocument.weight_kg ? `${selectedDocument.weight_kg} KG` : '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.weight_kg
+                          ? `${selectedDocument.weight_kg} KG`
+                          : "-"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Volume:</span>
-                      <span className="font-medium">{selectedDocument.volume_cbm ? `${selectedDocument.volume_cbm} CBM` : '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.volume_cbm
+                          ? `${selectedDocument.volume_cbm} CBM`
+                          : "-"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Packages:</span>
-                      <span className="font-medium">{selectedDocument.number_of_packages || '-'}</span>
+                      <span className="font-medium">
+                        {selectedDocument.number_of_packages || "-"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1477,15 +1825,21 @@ const ShippingDocumentList = () => {
 
               {/* Goods Description */}
               {selectedDocument.goods_description && (
-                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                >
                   <h3 className="font-medium mb-2">Goods Description</h3>
-                  <p className="text-sm">{selectedDocument.goods_description}</p>
+                  <p className="text-sm">
+                    {selectedDocument.goods_description}
+                  </p>
                 </div>
               )}
 
               {/* Notes */}
               {selectedDocument.notes && (
-                <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                >
                   <h3 className="font-medium mb-2">Notes</h3>
                   <p className="text-sm">{selectedDocument.notes}</p>
                 </div>
@@ -1493,15 +1847,19 @@ const ShippingDocumentList = () => {
             </div>
 
             {/* Footer */}
-            <div className={`sticky bottom-0 flex gap-3 p-6 border-t ${
-              isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
-            }`}>
+            <div
+              className={`sticky bottom-0 flex gap-3 p-6 border-t ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
               <button
                 onClick={handleCloseModal}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 text-white hover:bg-gray-600'
-                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    ? "bg-gray-700 text-white hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
                 }`}
               >
                 Close
@@ -1532,20 +1890,26 @@ const ShippingDocumentList = () => {
       {/* Tracking Modal */}
       {showTrackingModal && selectedDocument && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className={`relative w-full max-w-2xl rounded-lg shadow-xl ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-          }`}>
+          <div
+            className={`relative w-full max-w-2xl rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
             {/* Header */}
-            <div className={`flex items-center justify-between p-6 border-b ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
+            <div
+              className={`flex items-center justify-between p-6 border-b ${
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                   <MapPin className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">Shipment Tracking</h2>
-                  <p className="text-sm text-gray-500">{selectedDocument.document_number}</p>
+                  <p className="text-sm text-gray-500">
+                    {selectedDocument.document_number}
+                  </p>
                 </div>
               </div>
               <button
@@ -1554,7 +1918,9 @@ const ShippingDocumentList = () => {
                   setTrackingData(null);
                 }}
                 className={`p-1 rounded-lg transition-colors ${
-                  isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
+                  isDarkMode
+                    ? "hover:bg-gray-700 text-gray-400"
+                    : "hover:bg-gray-100 text-gray-500"
                 }`}
               >
                 <X className="h-5 w-5" />
@@ -1566,21 +1932,29 @@ const ShippingDocumentList = () => {
               {trackingLoading ? (
                 <div className="py-8 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-                  <p className="mt-2 text-gray-500">Loading tracking information...</p>
+                  <p className="mt-2 text-gray-500">
+                    Loading tracking information...
+                  </p>
                 </div>
               ) : (
                 <>
                   {/* Route Summary */}
-                  <div className={`p-4 mb-6 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-purple-50'}`}>
+                  <div
+                    className={`p-4 mb-6 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-purple-50"}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-sm text-gray-500">From</div>
-                        <div className="font-bold">{selectedDocument.origin_port || '-'}</div>
+                        <div className="font-bold">
+                          {selectedDocument.origin_port || "-"}
+                        </div>
                       </div>
                       <div className="flex-1 mx-4 border-t-2 border-dashed border-purple-300"></div>
                       <div className="text-right">
                         <div className="text-sm text-gray-500">To</div>
-                        <div className="font-bold">{selectedDocument.destination_port || '-'}</div>
+                        <div className="font-bold">
+                          {selectedDocument.destination_port || "-"}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1598,30 +1972,43 @@ const ShippingDocumentList = () => {
                   {/* Milestones Timeline */}
                   <div className="relative">
                     {TRACKING_MILESTONES.map((milestone, index) => {
-                      const currentIndex = getStatusIndex(selectedDocument.status);
+                      const currentIndex = getStatusIndex(
+                        selectedDocument.status,
+                      );
                       const isCompleted = index <= currentIndex;
                       const isCurrent = index === currentIndex;
                       const Icon = milestone.icon;
 
                       return (
-                        <div key={milestone.key} className="flex items-start mb-6 last:mb-0">
+                        <div
+                          key={milestone.key}
+                          className="flex items-start mb-6 last:mb-0"
+                        >
                           {/* Timeline Line */}
                           {index < TRACKING_MILESTONES.length - 1 && (
-                            <div className={`absolute left-5 mt-10 w-0.5 h-12 ${
-                              isCompleted && index < currentIndex
-                                ? 'bg-green-500'
-                                : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
-                            }`}></div>
+                            <div
+                              className={`absolute left-5 mt-10 w-0.5 h-12 ${
+                                isCompleted && index < currentIndex
+                                  ? "bg-green-500"
+                                  : isDarkMode
+                                    ? "bg-gray-600"
+                                    : "bg-gray-300"
+                              }`}
+                            ></div>
                           )}
 
                           {/* Icon */}
-                          <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                            isCompleted
-                              ? isCurrent
-                                ? 'bg-purple-500 text-white'
-                                : 'bg-green-500 text-white'
-                              : isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-200 text-gray-400'
-                          }`}>
+                          <div
+                            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                              isCompleted
+                                ? isCurrent
+                                  ? "bg-purple-500 text-white"
+                                  : "bg-green-500 text-white"
+                                : isDarkMode
+                                  ? "bg-gray-700 text-gray-500"
+                                  : "bg-gray-200 text-gray-400"
+                            }`}
+                          >
                             {isCompleted && !isCurrent ? (
                               <Check size={18} />
                             ) : (
@@ -1631,23 +2018,32 @@ const ShippingDocumentList = () => {
 
                           {/* Content */}
                           <div className="ml-4 flex-1">
-                            <div className={`font-medium ${
-                              isCompleted
-                                ? isCurrent
-                                  ? 'text-purple-600 dark:text-purple-400'
-                                  : ''
-                                : 'text-gray-400'
-                            }`}>
+                            <div
+                              className={`font-medium ${
+                                isCompleted
+                                  ? isCurrent
+                                    ? "text-purple-600 dark:text-purple-400"
+                                    : ""
+                                  : "text-gray-400"
+                              }`}
+                            >
                               {milestone.label}
                             </div>
-                            {isCompleted && trackingData?.milestones?.[index] && (
-                              <div className="text-sm text-gray-500">
-                                {formatDate(trackingData.milestones[index].date)}
-                                {trackingData.milestones[index].location && (
-                                  <span> - {trackingData.milestones[index].location}</span>
-                                )}
-                              </div>
-                            )}
+                            {isCompleted &&
+                              trackingData?.milestones?.[index] && (
+                                <div className="text-sm text-gray-500">
+                                  {formatDate(
+                                    trackingData.milestones[index].date,
+                                  )}
+                                  {trackingData.milestones[index].location && (
+                                    <span>
+                                      {" "}
+                                      -{" "}
+                                      {trackingData.milestones[index].location}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                           </div>
                         </div>
                       );
@@ -1658,9 +2054,11 @@ const ShippingDocumentList = () => {
             </div>
 
             {/* Footer */}
-            <div className={`flex gap-3 p-6 border-t ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
+            <div
+              className={`flex gap-3 p-6 border-t ${
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+              }`}
+            >
               <button
                 onClick={() => {
                   setShowTrackingModal(false);
@@ -1668,8 +2066,8 @@ const ShippingDocumentList = () => {
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 text-white hover:bg-gray-600'
-                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    ? "bg-gray-700 text-white hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
                 }`}
               >
                 Close
@@ -1678,7 +2076,10 @@ const ShippingDocumentList = () => {
                 onClick={() => handleTrack(selectedDocument)}
                 className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700 flex items-center justify-center gap-2"
               >
-                <RefreshCw size={16} className={trackingLoading ? 'animate-spin' : ''} />
+                <RefreshCw
+                  size={16}
+                  className={trackingLoading ? "animate-spin" : ""}
+                />
                 Refresh
               </button>
             </div>

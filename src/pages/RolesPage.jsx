@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -21,15 +21,15 @@ import {
   Switch,
   CircularProgress,
   Alert,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   People as PeopleIcon,
   Security as SecurityIcon,
-} from '@mui/icons-material';
-import { roleService } from '../services/roleService';
+} from "@mui/icons-material";
+import { roleService } from "../services/roleService";
 
 export default function RolesPage() {
   const [roles, setRoles] = useState([]);
@@ -38,9 +38,9 @@ export default function RolesPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    displayName: '',
-    description: '',
+    name: "",
+    displayName: "",
+    description: "",
     isDirector: false,
   });
 
@@ -55,7 +55,7 @@ export default function RolesPage() {
       setRoles(data || []);
       setError(null);
     } catch (err) {
-      setError(`Failed to load roles: ${  err.message}`);
+      setError(`Failed to load roles: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -65,14 +65,19 @@ export default function RolesPage() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        name: role.name || '',
-        displayName: role.display_name || '',
-        description: role.description || '',
+        name: role.name || "",
+        displayName: role.display_name || "",
+        description: role.description || "",
         isDirector: role.is_director || false,
       });
     } else {
       setEditingRole(null);
-      setFormData({ name: '', displayName: '', description: '', isDirector: false });
+      setFormData({
+        name: "",
+        displayName: "",
+        description: "",
+        isDirector: false,
+      });
     }
     setOpenDialog(true);
   };
@@ -80,7 +85,12 @@ export default function RolesPage() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingRole(null);
-    setFormData({ name: '', displayName: '', description: '', isDirector: false });
+    setFormData({
+      name: "",
+      displayName: "",
+      description: "",
+      isDirector: false,
+    });
   };
 
   const handleSave = async () => {
@@ -101,24 +111,29 @@ export default function RolesPage() {
       handleCloseDialog();
       loadRoles();
     } catch (err) {
-      setError(`Failed to save role: ${  err.message}`);
+      setError(`Failed to save role: ${err.message}`);
     }
   };
 
   const handleDelete = async (roleId) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) return;
-    
+    if (!window.confirm("Are you sure you want to delete this role?")) return;
+
     try {
       await roleService.deleteRole(roleId);
       loadRoles();
     } catch (err) {
-      setError(`Failed to delete role: ${  err.message}`);
+      setError(`Failed to delete role: ${err.message}`);
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -126,7 +141,12 @@ export default function RolesPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
         <Typography variant="h4" display="flex" alignItems="center" gap={1}>
           <SecurityIcon /> Roles & Permissions
         </Typography>
@@ -139,7 +159,11 @@ export default function RolesPage() {
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         <Table>
@@ -164,28 +188,48 @@ export default function RolesPage() {
               roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>
-                    <Typography variant="subtitle2">{role.display_name}</Typography>
+                    <Typography variant="subtitle2">
+                      {role.display_name}
+                    </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {role.name}
                     </Typography>
                   </TableCell>
-                  <TableCell>{role.description || '-'}</TableCell>
+                  <TableCell>{role.description || "-"}</TableCell>
                   <TableCell>
-                    <Chip icon={<PeopleIcon />} label={role.user_count || 0} size="small" />
+                    <Chip
+                      icon={<PeopleIcon />}
+                      label={role.user_count || 0}
+                      size="small"
+                    />
                   </TableCell>
                   <TableCell>
-                    <Chip icon={<SecurityIcon />} label={role.permission_count || 0} size="small" />
+                    <Chip
+                      icon={<SecurityIcon />}
+                      label={role.permission_count || 0}
+                      size="small"
+                    />
                   </TableCell>
                   <TableCell>
-                    {role.is_director && <Chip label="Director" color="error" size="small" />}
-                    {role.is_system && <Chip label="System" color="primary" size="small" />}
+                    {role.is_director && (
+                      <Chip label="Director" color="error" size="small" />
+                    )}
+                    {role.is_system && (
+                      <Chip label="System" color="primary" size="small" />
+                    )}
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleOpenDialog(role)}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenDialog(role)}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     {!role.is_system && (
-                      <IconButton size="small" onClick={() => handleDelete(role.id)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(role.id)}
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     )}
@@ -198,14 +242,23 @@ export default function RolesPage() {
       </TableContainer>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingRole ? 'Edit Role' : 'Create New Role'}</DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {editingRole ? "Edit Role" : "Create New Role"}
+        </DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               label="Role Name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               fullWidth
               required
               helperText="Unique identifier (e.g., sales_manager)"
@@ -213,7 +266,9 @@ export default function RolesPage() {
             <TextField
               label="Display Name"
               value={formData.displayName}
-              onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, displayName: e.target.value })
+              }
               fullWidth
               required
               helperText="Friendly name (e.g., Sales Manager)"
@@ -221,7 +276,9 @@ export default function RolesPage() {
             <TextField
               label="Description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               fullWidth
               multiline
               rows={3}
@@ -231,7 +288,9 @@ export default function RolesPage() {
               control={
                 <Switch
                   checked={formData.isDirector}
-                  onChange={(e) => setFormData({ ...formData, isDirector: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isDirector: e.target.checked })
+                  }
                 />
               }
               label="Director Role (elevated privileges)"
@@ -241,7 +300,7 @@ export default function RolesPage() {
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSave} variant="contained">
-            {editingRole ? 'Update' : 'Create'}
+            {editingRole ? "Update" : "Create"}
           </Button>
         </DialogActions>
       </Dialog>

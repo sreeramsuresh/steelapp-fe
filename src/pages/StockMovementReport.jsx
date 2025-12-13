@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -25,22 +25,25 @@ import {
   OutlinedInput,
   Pagination,
   TableFooter,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   FileDownload as DownloadIcon,
   PictureAsPdf as PdfIcon,
-} from '@mui/icons-material';
-import { stockMovementService, MOVEMENT_TYPES } from '../services/stockMovementService';
-import { warehouseService } from '../services/warehouseService';
-import { productService } from '../services/dataService';
-import { toast } from 'react-toastify';
-import { toUAETime } from '../utils/timezone';
+} from "@mui/icons-material";
+import {
+  stockMovementService,
+  MOVEMENT_TYPES,
+} from "../services/stockMovementService";
+import { warehouseService } from "../services/warehouseService";
+import { productService } from "../services/dataService";
+import { toast } from "react-toastify";
+import { toUAETime } from "../utils/timezone";
 
 const PROCUREMENT_CHANNELS = [
-  { value: 'ALL', label: 'All Channels' },
-  { value: 'LOCAL', label: 'Local' },
-  { value: 'IMPORTED', label: 'Imported' },
+  { value: "ALL", label: "All Channels" },
+  { value: "LOCAL", label: "Local" },
+  { value: "IMPORTED", label: "Imported" },
 ];
 
 export default function StockMovementReport() {
@@ -48,15 +51,15 @@ export default function StockMovementReport() {
   const [movements, setMovements] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
-  
+
   // Filters
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [selectedWarehouse, setSelectedWarehouse] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedMovementTypes, setSelectedMovementTypes] = useState([]);
-  const [procurementChannel, setProcurementChannel] = useState('ALL');
-  
+  const [procurementChannel, setProcurementChannel] = useState("ALL");
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -81,8 +84,8 @@ export default function StockMovementReport() {
       const response = await warehouseService.getAll();
       setWarehouses(response.data || []);
     } catch (error) {
-      console.error('Error fetching warehouses:', error);
-      toast.error('Failed to load warehouses');
+      console.error("Error fetching warehouses:", error);
+      toast.error("Failed to load warehouses");
     }
   };
 
@@ -91,20 +94,20 @@ export default function StockMovementReport() {
       const response = await productService.getAll();
       setProducts(response.data || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to load products');
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
     }
   };
 
   const fetchMovements = async (pageNum = 1) => {
     if (!dateFrom || !dateTo) {
-      toast.error('Please select both start and end dates');
+      toast.error("Please select both start and end dates");
       return;
     }
 
     try {
       setLoading(true);
-      
+
       const filters = {
         page: pageNum,
         limit,
@@ -112,16 +115,19 @@ export default function StockMovementReport() {
         dateTo,
         warehouseId: selectedWarehouse || undefined,
         productId: selectedProduct || undefined,
-        movementType: selectedMovementTypes.length > 0 ? selectedMovementTypes.join(',') : undefined,
+        movementType:
+          selectedMovementTypes.length > 0
+            ? selectedMovementTypes.join(",")
+            : undefined,
       };
 
       const response = await stockMovementService.getAll(filters);
-      
+
       let filteredMovements = response.data || [];
-      
+
       // Apply procurement channel filter if needed (client-side for now)
-      if (procurementChannel !== 'ALL') {
-        filteredMovements = filteredMovements.filter(m => {
+      if (procurementChannel !== "ALL") {
+        filteredMovements = filteredMovements.filter((m) => {
           // This would require product procurement info - placeholder logic
           // In reality, you'd add this to the backend filter
           return true;
@@ -132,13 +138,12 @@ export default function StockMovementReport() {
       setPage(pageNum);
       setTotalPages(response.pagination?.totalPages || 1);
       setTotalRecords(response.pagination?.totalRecords || 0);
-      
+
       // Calculate summary
       calculateSummary(filteredMovements);
-      
     } catch (error) {
-      console.error('Error fetching stock movements:', error);
-      toast.error('Failed to load stock movements');
+      console.error("Error fetching stock movements:", error);
+      toast.error("Failed to load stock movements");
     } finally {
       setLoading(false);
     }
@@ -149,16 +154,22 @@ export default function StockMovementReport() {
     let totalOut = 0;
     let totalValue = 0;
 
-    data.forEach(movement => {
+    data.forEach((movement) => {
       const qty = movement.quantity || 0;
       const cost = movement.totalCost || 0;
-      
-      if (movement.movementType === 'IN' || movement.movementType === 'TRANSFER_IN') {
+
+      if (
+        movement.movementType === "IN" ||
+        movement.movementType === "TRANSFER_IN"
+      ) {
         totalIn += qty;
-      } else if (movement.movementType === 'OUT' || movement.movementType === 'TRANSFER_OUT') {
+      } else if (
+        movement.movementType === "OUT" ||
+        movement.movementType === "TRANSFER_OUT"
+      ) {
         totalOut += qty;
       }
-      
+
       totalValue += cost;
     });
 
@@ -181,74 +192,77 @@ export default function StockMovementReport() {
 
   const handleExportCSV = () => {
     if (movements.length === 0) {
-      toast.warning('No data to export');
+      toast.warning("No data to export");
       return;
     }
 
     try {
       // CSV Headers
       const headers = [
-        'Date',
-        'Product',
-        'SKU',
-        'Batch #',
-        'Type',
-        'Quantity',
-        'UOM',
-        'Unit Cost',
-        'Total Cost',
-        'Reference',
-        'Warehouse',
-        'Notes'
+        "Date",
+        "Product",
+        "SKU",
+        "Batch #",
+        "Type",
+        "Quantity",
+        "UOM",
+        "Unit Cost",
+        "Total Cost",
+        "Reference",
+        "Warehouse",
+        "Notes",
       ];
 
       // CSV Rows
-      const rows = movements.map(m => [
-        toUAETime(m.movementDate || m.createdAt, { format: 'datetime' }),
-        m.productName || m.productDisplayName || '',
-        m.productSku || '',
-        m.batchNumber || '',
+      const rows = movements.map((m) => [
+        toUAETime(m.movementDate || m.createdAt, { format: "datetime" }),
+        m.productName || m.productDisplayName || "",
+        m.productSku || "",
+        m.batchNumber || "",
         MOVEMENT_TYPES[m.movementType]?.label || m.movementType,
-        m.quantity?.toFixed(2) || '0.00',
-        m.unit || 'KG',
-        m.unitCost?.toFixed(2) || '0.00',
-        m.totalCost?.toFixed(2) || '0.00',
-        m.referenceNumber || '',
-        m.warehouseName || '',
-        m.notes || '',
+        m.quantity?.toFixed(2) || "0.00",
+        m.unit || "KG",
+        m.unitCost?.toFixed(2) || "0.00",
+        m.totalCost?.toFixed(2) || "0.00",
+        m.referenceNumber || "",
+        m.warehouseName || "",
+        m.notes || "",
       ]);
 
       // Build CSV content
       const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-      ].join('\n');
+        headers.join(","),
+        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ].join("\n");
 
       // Download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `stock-movements-${dateFrom}-to-${dateTo}.csv`);
-      link.style.visibility = 'hidden';
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `stock-movements-${dateFrom}-to-${dateTo}.csv`,
+      );
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success('CSV exported successfully');
+      toast.success("CSV exported successfully");
     } catch (error) {
-      console.error('Error exporting CSV:', error);
-      toast.error('Failed to export CSV');
+      console.error("Error exporting CSV:", error);
+      toast.error("Failed to export CSV");
     }
   };
 
   const handleExportPDF = () => {
-    toast.info('PDF export coming soon');
+    toast.info("PDF export coming soon");
     // Placeholder for PDF export functionality
   };
 
   const getMovementTypeColor = (type) => {
-    return MOVEMENT_TYPES[type]?.color || 'default';
+    return MOVEMENT_TYPES[type]?.color || "default";
   };
 
   const getMovementTypeLabel = (type) => {
@@ -314,7 +328,10 @@ export default function StockMovementReport() {
                 <MenuItem value="">All Products</MenuItem>
                 {products.map((product) => (
                   <MenuItem key={product.id} value={product.id}>
-                    {product.uniqueName || product.displayName || product.name || 'N/A'}
+                    {product.uniqueName ||
+                      product.displayName ||
+                      product.name ||
+                      "N/A"}
                   </MenuItem>
                 ))}
               </TextField>
@@ -328,9 +345,13 @@ export default function StockMovementReport() {
                   onChange={(e) => setSelectedMovementTypes(e.target.value)}
                   input={<OutlinedInput label="Movement Type" />}
                   renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                       {selected.map((value) => (
-                        <Chip key={value} label={getMovementTypeLabel(value)} size="small" />
+                        <Chip
+                          key={value}
+                          label={getMovementTypeLabel(value)}
+                          size="small"
+                        />
                       ))}
                     </Box>
                   )}
@@ -359,7 +380,11 @@ export default function StockMovementReport() {
               </TextField>
             </Grid>
             <Grid item xs={12} sm={12} md={4}>
-              <Stack direction="row" spacing={1} sx={{ height: '100%', alignItems: 'center' }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ height: "100%", alignItems: "center" }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<SearchIcon />}
@@ -424,12 +449,15 @@ export default function StockMovementReport() {
                 <Typography variant="caption" color="textSecondary">
                   Net Movement
                 </Typography>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   fontWeight="bold"
-                  color={summary.netMovement >= 0 ? 'success.main' : 'error.main'}
+                  color={
+                    summary.netMovement >= 0 ? "success.main" : "error.main"
+                  }
                 >
-                  {summary.netMovement >= 0 ? '+' : ''}{summary.netMovement.toFixed(2)} KG
+                  {summary.netMovement >= 0 ? "+" : ""}
+                  {summary.netMovement.toFixed(2)} KG
                 </Typography>
               </CardContent>
             </Card>
@@ -454,7 +482,7 @@ export default function StockMovementReport() {
         <Box display="flex" justifyContent="center" p={4}>
           <CircularProgress />
         </Box>
-      ) : movements.length === 0 && (dateFrom && dateTo) ? (
+      ) : movements.length === 0 && dateFrom && dateTo ? (
         <Alert severity="info">
           No stock movements found for the selected criteria.
         </Alert>
@@ -462,15 +490,18 @@ export default function StockMovementReport() {
         <>
           <Card>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
-                  Stock Movements
-                </Typography>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={2}
+              >
+                <Typography variant="h6">Stock Movements</Typography>
                 <Typography variant="body2" color="textSecondary">
                   Showing {movements.length} of {totalRecords} records
                 </Typography>
               </Stack>
-              
+
               <TableContainer component={Paper} variant="outlined">
                 <Table size="small">
                   <TableHead>
@@ -490,19 +521,27 @@ export default function StockMovementReport() {
                       <TableRow key={movement.id} hover>
                         <TableCell>
                           <Typography variant="body2">
-                            {toUAETime(movement.movementDate || movement.createdAt, { 
-                              format: 'date' 
-                            })}
+                            {toUAETime(
+                              movement.movementDate || movement.createdAt,
+                              {
+                                format: "date",
+                              },
+                            )}
                           </Typography>
                           <Typography variant="caption" color="textSecondary">
-                            {toUAETime(movement.movementDate || movement.createdAt, { 
-                              format: 'time' 
-                            })}
+                            {toUAETime(
+                              movement.movementDate || movement.createdAt,
+                              {
+                                format: "time",
+                              },
+                            )}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" fontWeight="medium">
-                            {movement.productName || movement.productDisplayName || 'N/A'}
+                            {movement.productName ||
+                              movement.productDisplayName ||
+                              "N/A"}
                           </Typography>
                           {movement.productSku && (
                             <Typography variant="caption" color="textSecondary">
@@ -512,7 +551,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.batchNumber || '-'}
+                            {movement.batchNumber || "-"}
                           </Typography>
                           {movement.coilNumber && (
                             <Typography variant="caption" color="textSecondary">
@@ -530,12 +569,15 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="body2" fontWeight="medium">
-                            {movement.quantity?.toFixed(2) || '0.00'} {movement.unit || 'KG'}
+                            {movement.quantity?.toFixed(2) || "0.00"}{" "}
+                            {movement.unit || "KG"}
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="body2">
-                            {movement.unitCost ? `AED ${movement.unitCost.toFixed(2)}` : '-'}
+                            {movement.unitCost
+                              ? `AED ${movement.unitCost.toFixed(2)}`
+                              : "-"}
                           </Typography>
                           {movement.totalCost && movement.totalCost > 0 && (
                             <Typography variant="caption" color="textSecondary">
@@ -545,7 +587,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.referenceNumber || '-'}
+                            {movement.referenceNumber || "-"}
                           </Typography>
                           {movement.referenceType && (
                             <Typography variant="caption" color="textSecondary">
@@ -555,7 +597,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.warehouseName || 'N/A'}
+                            {movement.warehouseName || "N/A"}
                           </Typography>
                           {movement.destinationWarehouseName && (
                             <Typography variant="caption" color="textSecondary">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -17,16 +17,16 @@ import {
   Stack,
   Chip,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Download as DownloadIcon,
   TrendingUp as ProfitIcon,
   AttachMoney as RevenueIcon,
   ShoppingCart as SalesIcon,
-} from '@mui/icons-material';
-import api from '../services/api';
-import { toast } from 'react-toastify';
-import { toUAEDateForInput, nowUAE } from '../utils/timezone';
+} from "@mui/icons-material";
+import api from "../services/api";
+import { toast } from "react-toastify";
+import { toUAEDateForInput, nowUAE } from "../utils/timezone";
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -78,7 +78,7 @@ export default function ProfitAnalysisReport() {
         ORDER BY total_profit DESC
       `;
 
-      const response = await api.post('/query', {
+      const response = await api.post("/query", {
         query,
         params: [dateRange.startDate, dateRange.endDate],
       });
@@ -87,33 +87,45 @@ export default function ProfitAnalysisReport() {
       setData(results);
 
       // Calculate summary
-      const totals = results.reduce((acc, row) => ({
-        totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || 0),
-        totalCost: acc.totalCost + parseFloat(row.totalCost || 0),
-        totalProfit: acc.totalProfit + parseFloat(row.totalProfit || 0),
-        totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0),
-      }), { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 });
+      const totals = results.reduce(
+        (acc, row) => ({
+          totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || 0),
+          totalCost: acc.totalCost + parseFloat(row.totalCost || 0),
+          totalProfit: acc.totalProfit + parseFloat(row.totalProfit || 0),
+          totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0),
+        }),
+        { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 },
+      );
 
-      const averageMargin = totals.totalRevenue > 0
-        ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2)
-        : 0;
+      const averageMargin =
+        totals.totalRevenue > 0
+          ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2)
+          : 0;
 
       setSummary({
         ...totals,
         averageMargin: parseFloat(averageMargin),
       });
-
     } catch (error) {
-      console.error('Error fetching report:', error);
-      toast.error('Failed to load profit analysis');
+      console.error("Error fetching report:", error);
+      toast.error("Failed to load profit analysis");
     } finally {
       setLoading(false);
     }
   };
 
   const exportToCSV = () => {
-    const headers = ['Product', 'Category', 'Grade', 'Quantity', 'Revenue', 'Cost', 'Profit', 'Margin %'];
-    const rows = data.map(row => [
+    const headers = [
+      "Product",
+      "Category",
+      "Grade",
+      "Quantity",
+      "Revenue",
+      "Cost",
+      "Profit",
+      "Margin %",
+    ];
+    const rows = data.map((row) => [
       row.name,
       row.category,
       row.grade,
@@ -124,14 +136,13 @@ export default function ProfitAnalysisReport() {
       row.avgMargin,
     ]);
 
-    const csv = [
-      headers.join(','),
-      ...rows.map(row => row.join(',')),
-    ].join('\n');
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
+      "\n",
+    );
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `profit-analysis-${dateRange.startDate}-to-${dateRange.endDate}.csv`;
     a.click();
@@ -150,17 +161,25 @@ export default function ProfitAnalysisReport() {
               label="Start Date"
               type="date"
               value={dateRange.startDate}
-              onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+              onChange={(e) =>
+                setDateRange({ ...dateRange, startDate: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
             />
             <TextField
               label="End Date"
               type="date"
               value={dateRange.endDate}
-              onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+              onChange={(e) =>
+                setDateRange({ ...dateRange, endDate: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
             />
-            <Button variant="contained" onClick={fetchReport} disabled={loading}>
+            <Button
+              variant="contained"
+              onClick={fetchReport}
+              disabled={loading}
+            >
               Generate Report
             </Button>
             <Button
@@ -277,7 +296,9 @@ export default function ProfitAnalysisReport() {
                       </Typography>
                     </TableCell>
                     <TableCell>{row.category}</TableCell>
-                    <TableCell align="right">{parseFloat(row.totalQuantity).toLocaleString()}</TableCell>
+                    <TableCell align="right">
+                      {parseFloat(row.totalQuantity).toLocaleString()}
+                    </TableCell>
                     <TableCell align="right">
                       AED {parseFloat(row.totalRevenue).toLocaleString()}
                     </TableCell>
@@ -293,7 +314,13 @@ export default function ProfitAnalysisReport() {
                       <Chip
                         label={`${parseFloat(row.avgMargin).toFixed(1)}%`}
                         size="small"
-                        color={parseFloat(row.avgMargin) > 30 ? 'success' : parseFloat(row.avgMargin) > 20 ? 'warning' : 'default'}
+                        color={
+                          parseFloat(row.avgMargin) > 30
+                            ? "success"
+                            : parseFloat(row.avgMargin) > 20
+                              ? "warning"
+                              : "default"
+                        }
                       />
                     </TableCell>
                   </TableRow>

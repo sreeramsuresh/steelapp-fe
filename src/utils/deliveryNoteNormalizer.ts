@@ -11,9 +11,15 @@
  * @param source - Source of the data for debugging
  * @returns Normalized DeliveryNote with camelCase fields
  */
-export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | null {
-  if (!rawDN || typeof rawDN !== 'object') {
-    console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
+export function normalizeDeliveryNote(
+  rawDN: any,
+  source = "unknown",
+): any | null {
+  if (!rawDN || typeof rawDN !== "object") {
+    console.error(
+      `❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`,
+      rawDN,
+    );
     return null;
   }
 
@@ -21,20 +27,20 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
     // Helper to safely parse dates
     const parseDate = (value: any): string | undefined => {
       if (!value) return undefined;
-      
+
       // Handle Timestamp objects
       if (value?.seconds) {
         return new Date(parseInt(value.seconds) * 1000).toISOString();
       }
-      
+
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
         }
       }
-      
+
       return undefined;
     };
 
@@ -43,39 +49,43 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
       // Core identifiers
       id: rawDN.id || 0,
       companyId: rawDN.company_id || rawDN.companyId,
-      deliveryNoteNumber: rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
+      deliveryNoteNumber:
+        rawDN.deliveryNoteNumber || rawDN.delivery_note_number || "",
       deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
-      
+
       // Related documents
       invoiceId: rawDN.invoiceId || rawDN.invoice_id || undefined,
       invoiceNumber: rawDN.invoiceNumber || rawDN.invoice_number || undefined,
-      purchaseOrderId: rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
-      
+      purchaseOrderId:
+        rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
+
       // Customer linkage
       customerId: rawDN.customer_id || rawDN.customerId || undefined,
-      
+
       // Customer & Delivery
-      customerDetails: rawDN.customerDetails || rawDN.customer_details || undefined,
-      deliveryAddress: rawDN.deliveryAddress || rawDN.delivery_address || undefined,
-      
+      customerDetails:
+        rawDN.customerDetails || rawDN.customer_details || undefined,
+      deliveryAddress:
+        rawDN.deliveryAddress || rawDN.delivery_address || undefined,
+
       // Driver & Vehicle
       driverName: rawDN.driverName || rawDN.driver_name || undefined,
       driverPhone: rawDN.driverPhone || rawDN.driver_phone || undefined,
       vehicleNumber: rawDN.vehicleNumber || rawDN.vehicle_number || undefined,
-      
+
       // Items & Status
       items: rawDN.items || [],
       status: rawDN.status || undefined,
       isPartial: Boolean(rawDN.isPartial || rawDN.is_partial),
-      
+
       // PDF generation (2 fields)
       pdfUrl: rawDN.pdf_url || rawDN.pdfUrl || undefined,
       pdfGeneratedAt: parseDate(rawDN.pdf_generated_at || rawDN.pdfGeneratedAt),
-      
+
       // Notes & Metadata
       notes: rawDN.notes || undefined,
       hasNotes: Boolean(rawDN.hasNotes || rawDN.has_notes),
-      
+
       // Audit trail
       createdAt: parseDate(rawDN.created_at || rawDN.createdAt),
       updatedAt: parseDate(rawDN.updated_at || rawDN.updatedAt),
@@ -86,10 +96,12 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
     };
 
     return normalized;
-    
   } catch (error) {
-    console.error(`❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`, error);
-    console.error('   Raw data:', rawDN);
+    console.error(
+      `❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`,
+      error,
+    );
+    console.error("   Raw data:", rawDN);
     return null;
   }
 }
@@ -100,9 +112,11 @@ export function normalizeDeliveryNote(rawDN: any, source = 'unknown'): any | nul
  * @param source - Source identifier for debugging
  * @returns Array of normalized DeliveryNote objects
  */
-export function normalizeDeliveryNotes(rawDNs: any[], source = 'list'): any[] {
+export function normalizeDeliveryNotes(rawDNs: any[], source = "list"): any[] {
   if (!Array.isArray(rawDNs)) {
-    console.error(`❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`);
+    console.error(
+      `❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`,
+    );
     return [];
   }
 

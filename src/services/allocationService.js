@@ -1,8 +1,8 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Allocation Service
- * 
+ *
  * API service for managing FIFO batch allocations for invoice line items.
  * Handles fetching available batches and triggering FIFO allocation on the backend.
  */
@@ -24,7 +24,10 @@ export const allocationService = {
       hasStock: true, // Only batches with remaining stock
     };
 
-    const response = await apiClient.get('/stock-batches/available', queryParams);
+    const response = await apiClient.get(
+      "/stock-batches/available",
+      queryParams,
+    );
     return response.data || response;
   },
 
@@ -45,7 +48,7 @@ export const allocationService = {
       companyId: params.companyId,
     };
 
-    const response = await apiClient.post('/allocations/fifo', payload);
+    const response = await apiClient.post("/allocations/fifo", payload);
     return response.data || response;
   },
 
@@ -66,7 +69,10 @@ export const allocationService = {
       companyId: params.companyId,
     };
 
-    const response = await apiClient.get('/allocations/fifo/preview', queryParams);
+    const response = await apiClient.get(
+      "/allocations/fifo/preview",
+      queryParams,
+    );
     return response.data || response;
   },
 };

@@ -6,7 +6,7 @@
  * Lists all stock reservations with filtering and actions
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -35,7 +35,7 @@ import {
   DialogActions,
   LinearProgress,
   InputAdornment,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -44,37 +44,44 @@ import {
   BookmarkBorder as ReservationIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
-} from '@mui/icons-material';
-import { stockMovementService, RESERVATION_STATUSES } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
+} from "@mui/icons-material";
+import {
+  stockMovementService,
+  RESERVATION_STATUSES,
+} from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return '-';
-  const date = typeof dateValue === 'object' && dateValue.seconds
-    ? new Date(dateValue.seconds * 1000)
-    : new Date(dateValue);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  if (!dateValue) return "-";
+  const date =
+    typeof dateValue === "object" && dateValue.seconds
+      ? new Date(dateValue.seconds * 1000)
+      : new Date(dateValue);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = 'KG') => {
-  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = "KG") => {
+  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
  * Get status chip props
  */
 const getStatusChip = (status) => {
-  const statusInfo = RESERVATION_STATUSES[status] || { label: status, color: 'default' };
+  const statusInfo = RESERVATION_STATUSES[status] || {
+    label: status,
+    color: "default",
+  };
   return statusInfo;
 };
 
@@ -90,16 +97,22 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [warehouseFilter, setWarehouseFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [warehouseFilter, setWarehouseFilter] = useState("");
   const [includeExpired, setIncludeExpired] = useState(false);
 
   // Action dialogs
-  const [fulfillDialog, setFulfillDialog] = useState({ open: false, reservation: null });
-  const [cancelDialog, setCancelDialog] = useState({ open: false, reservation: null });
-  const [fulfillQuantity, setFulfillQuantity] = useState('');
-  const [cancelReason, setCancelReason] = useState('');
+  const [fulfillDialog, setFulfillDialog] = useState({
+    open: false,
+    reservation: null,
+  });
+  const [cancelDialog, setCancelDialog] = useState({
+    open: false,
+    reservation: null,
+  });
+  const [fulfillQuantity, setFulfillQuantity] = useState("");
+  const [cancelReason, setCancelReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
   // Load warehouses for filter dropdown
@@ -109,7 +122,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error('Error loading warehouses:', err);
+        console.error("Error loading warehouses:", err);
       }
     };
     loadWarehouses();
@@ -134,24 +147,34 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       let filteredData = result.data || [];
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        filteredData = filteredData.filter(r =>
-          (r.reservationNumber && r.reservationNumber.toLowerCase().includes(query)) ||
-          (r.productName && r.productName.toLowerCase().includes(query)) ||
-          (r.productSku && r.productSku.toLowerCase().includes(query)) ||
-          (r.warehouseName && r.warehouseName.toLowerCase().includes(query)) ||
-          (r.notes && r.notes.toLowerCase().includes(query)),
+        filteredData = filteredData.filter(
+          (r) =>
+            (r.reservationNumber &&
+              r.reservationNumber.toLowerCase().includes(query)) ||
+            (r.productName && r.productName.toLowerCase().includes(query)) ||
+            (r.productSku && r.productSku.toLowerCase().includes(query)) ||
+            (r.warehouseName &&
+              r.warehouseName.toLowerCase().includes(query)) ||
+            (r.notes && r.notes.toLowerCase().includes(query)),
         );
       }
 
       setReservations(filteredData);
       setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
-      console.error('Error loading reservations:', err);
-      setError('Failed to load reservations');
+      console.error("Error loading reservations:", err);
+      setError("Failed to load reservations");
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, statusFilter, warehouseFilter, includeExpired, searchQuery]);
+  }, [
+    page,
+    rowsPerPage,
+    statusFilter,
+    warehouseFilter,
+    includeExpired,
+    searchQuery,
+  ]);
 
   useEffect(() => {
     loadReservations();
@@ -180,15 +203,18 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
     try {
       setActionLoading(true);
-      await stockMovementService.fulfillReservation(fulfillDialog.reservation.id, {
-        quantity: parseFloat(fulfillQuantity),
-      });
+      await stockMovementService.fulfillReservation(
+        fulfillDialog.reservation.id,
+        {
+          quantity: parseFloat(fulfillQuantity),
+        },
+      );
       setFulfillDialog({ open: false, reservation: null });
-      setFulfillQuantity('');
+      setFulfillQuantity("");
       loadReservations();
     } catch (err) {
-      console.error('Error fulfilling reservation:', err);
-      setError(err.message || 'Failed to fulfill reservation');
+      console.error("Error fulfilling reservation:", err);
+      setError(err.message || "Failed to fulfill reservation");
     } finally {
       setActionLoading(false);
     }
@@ -196,7 +222,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
   // Open cancel dialog
   const handleOpenCancelDialog = (reservation) => {
-    setCancelReason('');
+    setCancelReason("");
     setCancelDialog({ open: true, reservation });
   };
 
@@ -206,13 +232,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
     try {
       setActionLoading(true);
-      await stockMovementService.cancelReservation(cancelDialog.reservation.id, cancelReason);
+      await stockMovementService.cancelReservation(
+        cancelDialog.reservation.id,
+        cancelReason,
+      );
       setCancelDialog({ open: false, reservation: null });
-      setCancelReason('');
+      setCancelReason("");
       loadReservations();
     } catch (err) {
-      console.error('Error cancelling reservation:', err);
-      setError(err.message || 'Failed to cancel reservation');
+      console.error("Error cancelling reservation:", err);
+      setError(err.message || "Failed to cancel reservation");
     } finally {
       setActionLoading(false);
     }
@@ -237,13 +266,23 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
           {/* Search Input */}
           <TextField
             size="small"
             placeholder="Search reservations..."
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(0);
+            }}
             sx={{ minWidth: 220 }}
             InputProps={{
               startAdornment: (
@@ -259,11 +298,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <Select
               value={statusFilter}
               label="Status"
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="">All</MenuItem>
-              {Object.values(RESERVATION_STATUSES).map(status => (
-                <MenuItem key={status.value} value={status.value}>{status.label}</MenuItem>
+              {Object.values(RESERVATION_STATUSES).map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -273,11 +317,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <Select
               value={warehouseFilter}
               label="Warehouse"
-              onChange={(e) => { setWarehouseFilter(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setWarehouseFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="">All</MenuItem>
-              {warehouses.map(wh => (
-                <MenuItem key={wh.id} value={wh.id}>{wh.name}</MenuItem>
+              {warehouses.map((wh) => (
+                <MenuItem key={wh.id} value={wh.id}>
+                  {wh.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -285,9 +334,12 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <FormControl size="small" sx={{ minWidth: 130 }}>
             <InputLabel>Show Expired</InputLabel>
             <Select
-              value={includeExpired ? 'yes' : 'no'}
+              value={includeExpired ? "yes" : "no"}
               label="Show Expired"
-              onChange={(e) => { setIncludeExpired(e.target.value === 'yes'); setPage(0); }}
+              onChange={(e) => {
+                setIncludeExpired(e.target.value === "yes");
+                setPage(0);
+              }}
             >
               <MenuItem value="no">No</MenuItem>
               <MenuItem value="yes">Yes</MenuItem>
@@ -303,7 +355,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               onClick={loadReservations}
               disabled={loading}
               size="small"
-              sx={{ border: 1, borderColor: 'divider' }}
+              sx={{ border: 1, borderColor: "divider" }}
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
@@ -314,9 +366,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             startIcon={<AddIcon />}
             onClick={onCreateNew}
             sx={{
-              bgcolor: '#0d9488',
-              '&:hover': { bgcolor: '#0f766e' },
-              textTransform: 'none',
+              bgcolor: "#0d9488",
+              "&:hover": { bgcolor: "#0f766e" },
+              textTransform: "none",
             }}
           >
             New Reservation
@@ -328,7 +380,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'grey.100' }}>
+            <TableRow sx={{ backgroundColor: "grey.100" }}>
               <TableCell>Reservation #</TableCell>
               <TableCell>Product</TableCell>
               <TableCell>Warehouse</TableCell>
@@ -350,15 +402,21 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             ) : reservations.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No reservations found</Typography>
+                  <Typography color="text.secondary">
+                    No reservations found
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
               reservations.map((reservation) => {
                 const statusInfo = getStatusChip(reservation.status);
                 const progress = getFulfillmentProgress(reservation);
-                const canFulfill = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(reservation.status);
-                const canCancel = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(reservation.status);
+                const canFulfill = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                  reservation.status,
+                );
+                const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                  reservation.status,
+                );
 
                 return (
                   <TableRow key={reservation.id} hover>
@@ -368,31 +426,46 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">{reservation.productName}</Typography>
+                      <Typography variant="body2">
+                        {reservation.productName}
+                      </Typography>
                       {reservation.productSku && (
                         <Typography variant="caption" color="text.secondary">
                           {reservation.productSku}
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell>{reservation.warehouseName || '-'}</TableCell>
+                    <TableCell>{reservation.warehouseName || "-"}</TableCell>
                     <TableCell align="right">
-                      {formatQuantity(reservation.quantityReserved, reservation.unit)}
+                      {formatQuantity(
+                        reservation.quantityReserved,
+                        reservation.unit,
+                      )}
                     </TableCell>
                     <TableCell align="center" sx={{ minWidth: 150 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <LinearProgress
                           variant="determinate"
                           value={progress}
                           sx={{ flex: 1, height: 8, borderRadius: 4 }}
-                          color={progress === 100 ? 'success' : 'primary'}
+                          color={progress === 100 ? "success" : "primary"}
                         />
                         <Typography variant="caption" sx={{ minWidth: 35 }}>
                           {progress}%
                         </Typography>
                       </Box>
                       <Typography variant="caption" color="text.secondary">
-                        {formatQuantity(reservation.quantityFulfilled, reservation.unit)} / {formatQuantity(reservation.quantityReserved, reservation.unit)}
+                        {formatQuantity(
+                          reservation.quantityFulfilled,
+                          reservation.unit,
+                        )}{" "}
+                        /{" "}
+                        {formatQuantity(
+                          reservation.quantityReserved,
+                          reservation.unit,
+                        )}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -465,13 +538,20 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         <DialogTitle>Fulfill Reservation</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Reservation: <strong>{fulfillDialog.reservation?.reservationNumber}</strong>
+            Reservation:{" "}
+            <strong>{fulfillDialog.reservation?.reservationNumber}</strong>
           </Typography>
           <Typography gutterBottom>
             Product: <strong>{fulfillDialog.reservation?.productName}</strong>
           </Typography>
           <Typography gutterBottom>
-            Remaining: <strong>{formatQuantity(fulfillDialog.reservation?.quantityRemaining, fulfillDialog.reservation?.unit)}</strong>
+            Remaining:{" "}
+            <strong>
+              {formatQuantity(
+                fulfillDialog.reservation?.quantityRemaining,
+                fulfillDialog.reservation?.unit,
+              )}
+            </strong>
           </Typography>
           <TextField
             fullWidth
@@ -479,9 +559,13 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             label="Quantity to Fulfill"
             value={fulfillQuantity}
             onChange={(e) => setFulfillQuantity(e.target.value)}
-            inputProps={{ min: 0, max: fulfillDialog.reservation?.quantityRemaining, step: 0.01 }}
+            inputProps={{
+              min: 0,
+              max: fulfillDialog.reservation?.quantityRemaining,
+              step: 0.01,
+            }}
             sx={{ mt: 2 }}
-            helperText={`Max: ${fulfillDialog.reservation?.quantityRemaining || 0} ${fulfillDialog.reservation?.unit || 'KG'}`}
+            helperText={`Max: ${fulfillDialog.reservation?.quantityRemaining || 0} ${fulfillDialog.reservation?.unit || "KG"}`}
           />
         </DialogContent>
         <DialogActions>
@@ -495,7 +579,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             variant="contained"
             color="success"
             onClick={handleFulfill}
-            disabled={actionLoading || !fulfillQuantity || parseFloat(fulfillQuantity) <= 0}
+            disabled={
+              actionLoading ||
+              !fulfillQuantity ||
+              parseFloat(fulfillQuantity) <= 0
+            }
             startIcon={actionLoading && <CircularProgress size={16} />}
           >
             Fulfill
@@ -513,10 +601,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         <DialogTitle>Cancel Reservation</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Are you sure you want to cancel reservation <strong>{cancelDialog.reservation?.reservationNumber}</strong>?
+            Are you sure you want to cancel reservation{" "}
+            <strong>{cancelDialog.reservation?.reservationNumber}</strong>?
           </Typography>
           <Typography gutterBottom color="text.secondary">
-            This will release {formatQuantity(cancelDialog.reservation?.quantityRemaining, cancelDialog.reservation?.unit)} of reserved stock.
+            This will release{" "}
+            {formatQuantity(
+              cancelDialog.reservation?.quantityRemaining,
+              cancelDialog.reservation?.unit,
+            )}{" "}
+            of reserved stock.
           </Typography>
           <TextField
             fullWidth

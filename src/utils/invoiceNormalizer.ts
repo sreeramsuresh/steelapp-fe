@@ -4,7 +4,13 @@
  * FAIL-SAFE: Validates and normalizes invoice data from API
  */
 
-import type { Invoice, CustomerDetails, InvoiceItem, PaymentRecord, DeliveryStatus } from '../types/invoice';
+import type {
+  Invoice,
+  CustomerDetails,
+  InvoiceItem,
+  PaymentRecord,
+  DeliveryStatus,
+} from "../types/invoice";
 
 /**
  * Normalize invoice status from gRPC enum to frontend string
@@ -15,11 +21,13 @@ import type { Invoice, CustomerDetails, InvoiceItem, PaymentRecord, DeliveryStat
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeInvoiceStatus(rawStatus: any): string {
   // Handle null/undefined/empty
-  if (!rawStatus || rawStatus === '') {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('INVOICE_NORMALIZER: Received null/empty status, defaulting to "draft"');
+  if (!rawStatus || rawStatus === "") {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        'INVOICE_NORMALIZER: Received null/empty status, defaulting to "draft"',
+      );
     }
-    return 'draft';
+    return "draft";
   }
 
   // If already normalized (lowercase), return as-is
@@ -29,27 +37,30 @@ function normalizeInvoiceStatus(rawStatus: any): string {
 
   // Map gRPC enum constants to frontend strings
   const statusMap: Record<string, string> = {
-    'STATUS_DRAFT': 'draft',
-    'STATUS_UNSPECIFIED': 'draft', // Treat unspecified as draft
-    'STATUS_PROFORMA': 'proforma',
-    'STATUS_ISSUED': 'issued',
-    'STATUS_SENT': 'sent',
-    'STATUS_CANCELLED': 'cancelled',
+    STATUS_DRAFT: "draft",
+    STATUS_UNSPECIFIED: "draft", // Treat unspecified as draft
+    STATUS_PROFORMA: "proforma",
+    STATUS_ISSUED: "issued",
+    STATUS_SENT: "sent",
+    STATUS_CANCELLED: "cancelled",
   };
 
   const normalized = statusMap[rawStatus];
 
   if (!normalized) {
     // Unknown enum - log SCHEMA_MISMATCH and return safe default
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status', {
-        receivedStatus: rawStatus,
-        knownGrpcEnums: Object.keys(statusMap),
-        defaultingTo: 'draft',
-        timestamp: new Date().toISOString(),
-      });
+    if (process.env.NODE_ENV !== "production") {
+      console.error(
+        "SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status",
+        {
+          receivedStatus: rawStatus,
+          knownGrpcEnums: Object.keys(statusMap),
+          defaultingTo: "draft",
+          timestamp: new Date().toISOString(),
+        },
+      );
     }
-    return 'draft'; // Safe default
+    return "draft"; // Safe default
   }
 
   return normalized;
@@ -64,11 +75,13 @@ function normalizeInvoiceStatus(rawStatus: any): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizePaymentStatus(rawStatus: any): string {
   // Handle null/undefined/empty
-  if (!rawStatus || rawStatus === '') {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('INVOICE_NORMALIZER: Received null/empty payment status, defaulting to "unpaid"');
+  if (!rawStatus || rawStatus === "") {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        'INVOICE_NORMALIZER: Received null/empty payment status, defaulting to "unpaid"',
+      );
     }
-    return 'unpaid';
+    return "unpaid";
   }
 
   // If already normalized (lowercase with underscores), return as-is
@@ -78,26 +91,29 @@ function normalizePaymentStatus(rawStatus: any): string {
 
   // Map gRPC enum constants to frontend strings
   const paymentStatusMap: Record<string, string> = {
-    'PAYMENT_STATUS_UNPAID': 'unpaid',
-    'PAYMENT_STATUS_UNSPECIFIED': 'unpaid', // Treat unspecified as unpaid
-    'PAYMENT_STATUS_PARTIALLY_PAID': 'partially_paid',
-    'PAYMENT_STATUS_PAID': 'paid',
-    'PAYMENT_STATUS_FULLY_PAID': 'fully_paid',
+    PAYMENT_STATUS_UNPAID: "unpaid",
+    PAYMENT_STATUS_UNSPECIFIED: "unpaid", // Treat unspecified as unpaid
+    PAYMENT_STATUS_PARTIALLY_PAID: "partially_paid",
+    PAYMENT_STATUS_PAID: "paid",
+    PAYMENT_STATUS_FULLY_PAID: "fully_paid",
   };
 
   const normalized = paymentStatusMap[rawStatus];
 
   if (!normalized) {
     // Unknown enum - log SCHEMA_MISMATCH and return safe default
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status', {
-        receivedStatus: rawStatus,
-        knownGrpcEnums: Object.keys(paymentStatusMap),
-        defaultingTo: 'unpaid',
-        timestamp: new Date().toISOString(),
-      });
+    if (process.env.NODE_ENV !== "production") {
+      console.error(
+        "SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status",
+        {
+          receivedStatus: rawStatus,
+          knownGrpcEnums: Object.keys(paymentStatusMap),
+          defaultingTo: "unpaid",
+          timestamp: new Date().toISOString(),
+        },
+      );
     }
-    return 'unpaid'; // Safe default
+    return "unpaid"; // Safe default
   }
 
   return normalized;
@@ -110,9 +126,15 @@ function normalizePaymentStatus(rawStatus: any): string {
  * @returns Normalized Invoice with camelCase fields
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice | null {
-  if (!rawInvoice || typeof rawInvoice !== 'object') {
-    console.error(`❌ [Invoice Normalizer] Invalid invoice data from ${source}:`, rawInvoice);
+export function normalizeInvoice(
+  rawInvoice: any,
+  source = "unknown",
+): Invoice | null {
+  if (!rawInvoice || typeof rawInvoice !== "object") {
+    console.error(
+      `❌ [Invoice Normalizer] Invalid invoice data from ${source}:`,
+      rawInvoice,
+    );
     return null;
   }
 
@@ -123,14 +145,14 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parseDate = (value: any, fieldName: string): string => {
       if (!value) return new Date().toISOString();
-      
+
       // Handle Timestamp objects from Firestore/backend
       if (value?.seconds) {
         return new Date(parseInt(value.seconds) * 1000).toISOString();
       }
-      
+
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -138,7 +160,7 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
         errors.push(`${fieldName} is not a valid date: ${value}`);
         return new Date().toISOString();
       }
-      
+
       errors.push(`${fieldName} has unexpected type: ${typeof value}`);
       return new Date().toISOString();
     };
@@ -157,13 +179,13 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
       if (!raw) {
         return {
           id: 0,
-          name: 'Unknown Customer',
+          name: "Unknown Customer",
         };
       }
 
       return {
         id: raw.id || raw.customerId || 0,
-        name: raw.name || raw.customerName || 'Unknown',
+        name: raw.name || raw.customerName || "Unknown",
         email: raw.email || undefined,
         phone: raw.phone || undefined,
         address: raw.address || undefined,
@@ -175,11 +197,11 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeItems = (items: any[]): InvoiceItem[] => {
       if (!Array.isArray(items)) return [];
-      
-      return items.map(item => ({
+
+      return items.map((item) => ({
         id: item.id,
         productId: item.productId || item.productId || 0,
-        productName: item.productName || item.productName || '',
+        productName: item.productName || item.productName || "",
         description: item.description || undefined,
         quantity: parseNumber(item.quantity, 0),
         rate: parseNumber(item.rate, 0),
@@ -192,14 +214,20 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
 
     // Normalize payments
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const normalizePayments = (payments: any[]): PaymentRecord[] | undefined => {
+    const normalizePayments = (
+      payments: any[],
+    ): PaymentRecord[] | undefined => {
       if (!Array.isArray(payments)) return undefined;
-      
-      return payments.map(payment => ({
+
+      return payments.map((payment) => ({
         id: payment.id || 0,
         amount: parseNumber(payment.amount, 0),
-        paymentDate: parseDate(payment.paymentDate || payment.paymentDate, 'paymentDate'),
-        paymentMethod: payment.paymentMethod || payment.paymentMethod || undefined,
+        paymentDate: parseDate(
+          payment.paymentDate || payment.paymentDate,
+          "paymentDate",
+        ),
+        paymentMethod:
+          payment.paymentMethod || payment.paymentMethod || undefined,
         notes: payment.notes || undefined,
         createdAt: payment.createdAt || payment.createdAt || undefined,
       }));
@@ -207,158 +235,301 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
 
     // Normalize delivery status
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const normalizeDeliveryStatus = (status: any): DeliveryStatus | undefined => {
+    const normalizeDeliveryStatus = (
+      status: any,
+    ): DeliveryStatus | undefined => {
       if (!status) return undefined;
-      
+
       return {
         hasNotes: Boolean(status.hasNotes || status.hasNotes),
         count: parseNumber(status.count, 0),
-        lastDeliveryDate: status.lastDeliveryDate || status.lastDeliveryDate || undefined,
+        lastDeliveryDate:
+          status.lastDeliveryDate || status.lastDeliveryDate || undefined,
       };
     };
 
     // Build the normalized Invoice object (EXPLICIT snake_case → camelCase conversion)
     const customerDetailsNormalized = normalizeCustomerDetails(
-      rawInvoice.customerDetails || rawInvoice.customerDetails || rawInvoice.customer,
+      rawInvoice.customerDetails ||
+        rawInvoice.customerDetails ||
+        rawInvoice.customer,
     );
-    const invoiceDateParsed = parseDate(rawInvoice.invoiceDate || rawInvoice.invoiceDate, 'invoiceDate');
-    
+    const invoiceDateParsed = parseDate(
+      rawInvoice.invoiceDate || rawInvoice.invoiceDate,
+      "invoiceDate",
+    );
+
     const normalized: Invoice = {
       // Core identifiers
       id: rawInvoice.id || 0,
-      invoiceNumber: rawInvoice.invoiceNumber || rawInvoice.invoiceNumber || '',
-      
+      invoiceNumber: rawInvoice.invoiceNumber || rawInvoice.invoiceNumber || "",
+
       // Dates
       invoiceDate: invoiceDateParsed,
-      dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, 'dueDate'),
-      date: invoiceDateParsed,  // Legacy alias for invoiceDate
-      promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null,  // Promise/delivery date
-      createdAt: rawInvoice.audit?.createdAt ?? rawInvoice.audit?.created_at ?? rawInvoice.createdAt ?? rawInvoice.created_at ?? undefined,
-      updatedAt: rawInvoice.audit?.updatedAt ?? rawInvoice.audit?.updated_at ?? rawInvoice.updatedAt ?? rawInvoice.updated_at ?? undefined,
-      deletedAt: rawInvoice.audit?.deletedAt ?? rawInvoice.audit?.deleted_at ?? rawInvoice.deletedAt ?? rawInvoice.deleted_at ?? null,
-      
+      dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, "dueDate"),
+      date: invoiceDateParsed, // Legacy alias for invoiceDate
+      promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null, // Promise/delivery date
+      createdAt:
+        rawInvoice.audit?.createdAt ??
+        rawInvoice.audit?.created_at ??
+        rawInvoice.createdAt ??
+        rawInvoice.created_at ??
+        undefined,
+      updatedAt:
+        rawInvoice.audit?.updatedAt ??
+        rawInvoice.audit?.updated_at ??
+        rawInvoice.updatedAt ??
+        rawInvoice.updated_at ??
+        undefined,
+      deletedAt:
+        rawInvoice.audit?.deletedAt ??
+        rawInvoice.audit?.deleted_at ??
+        rawInvoice.deletedAt ??
+        rawInvoice.deleted_at ??
+        null,
+
       // Invoice Revision Tracking (24-hour edit grace period)
-      issuedAt: rawInvoice.issuedAt ? parseDate(rawInvoice.issuedAt, 'issuedAt') : null,
+      issuedAt: rawInvoice.issuedAt
+        ? parseDate(rawInvoice.issuedAt, "issuedAt")
+        : null,
       revisionNumber: parseNumber(rawInvoice.revisionNumber, 1),
-      revisedAt: rawInvoice.revisedAt ? parseDate(rawInvoice.revisedAt, 'revisedAt') : null,
+      revisedAt: rawInvoice.revisedAt
+        ? parseDate(rawInvoice.revisedAt, "revisedAt")
+        : null,
       originalInvoiceId: rawInvoice.originalInvoiceId || null,
-      supersededAt: rawInvoice.supersededAt ? parseDate(rawInvoice.supersededAt, 'supersededAt') : null,
+      supersededAt: rawInvoice.supersededAt
+        ? parseDate(rawInvoice.supersededAt, "supersededAt")
+        : null,
       supersededBy: rawInvoice.supersededBy || null,
       supersededReason: rawInvoice.supersededReason || null,
-      
+
       // Customer information
       customerId: rawInvoice.customerId || rawInvoice.customerId || 0,
       customerDetails: customerDetailsNormalized,
-      customer: customerDetailsNormalized,  // Legacy alias for customerDetails
-      customerName: rawInvoice.customerName || rawInvoice.customerName || undefined,
-      customerEmail: rawInvoice.customerEmail || rawInvoice.customer_email || undefined,
-      
+      customer: customerDetailsNormalized, // Legacy alias for customerDetails
+      customerName:
+        rawInvoice.customerName || rawInvoice.customerName || undefined,
+      customerEmail:
+        rawInvoice.customerEmail || rawInvoice.customer_email || undefined,
+
       // Customer Purchase Order
-      customerPurchaseOrderNumber: rawInvoice.customerPurchaseOrderNumber || rawInvoice.customer_purchase_order_number || undefined,
-      customerPurchaseOrderDate: rawInvoice.customerPurchaseOrderDate || rawInvoice.customer_purchase_order_date || undefined,
-      
+      customerPurchaseOrderNumber:
+        rawInvoice.customerPurchaseOrderNumber ||
+        rawInvoice.customer_purchase_order_number ||
+        undefined,
+      customerPurchaseOrderDate:
+        rawInvoice.customerPurchaseOrderDate ||
+        rawInvoice.customer_purchase_order_date ||
+        undefined,
+
       // Financial
       subtotal: parseNumber(rawInvoice.subtotal, 0),
       vatAmount: parseNumber(rawInvoice.vatAmount || rawInvoice.vatAmount, 0),
       total: parseNumber(rawInvoice.total || rawInvoice.totalAmount, 0),
-      totalAmount: parseNumber(rawInvoice.totalAmount || rawInvoice.totalAmount || rawInvoice.total, 0),
+      totalAmount: parseNumber(
+        rawInvoice.totalAmount || rawInvoice.totalAmount || rawInvoice.total,
+        0,
+      ),
       received: parseNumber(rawInvoice.received, 0),
       outstanding: parseNumber(rawInvoice.outstanding, 0),
       // balanceDue: prefer 'outstanding' (primary) over legacy 'balanceAmount' fields
       // Note: 'balanceAmount' may be stale/zero while 'outstanding' is correct
       balanceDue: parseNumber(
-        rawInvoice.balanceDue ?? rawInvoice.balance_due ?? rawInvoice.outstanding ?? rawInvoice.balanceAmount ?? rawInvoice.balance_amount,
+        rawInvoice.balanceDue ??
+          rawInvoice.balance_due ??
+          rawInvoice.outstanding ??
+          rawInvoice.balanceAmount ??
+          rawInvoice.balance_amount,
         0,
       ),
-      
+
       // Discounts & Currency
-      discountPercentage: parseNumber(rawInvoice.discountPercentage || rawInvoice.discount_percentage, undefined),
-      discountAmount: parseNumber(rawInvoice.discountAmount || rawInvoice.discount_amount, undefined),
-      discountType: rawInvoice.discountType || rawInvoice.discount_type || undefined,
-      currency: rawInvoice.currency || 'INR',
-      exchangeRate: parseNumber(rawInvoice.exchangeRate || rawInvoice.exchange_rate, 1),
-      
+      discountPercentage: parseNumber(
+        rawInvoice.discountPercentage || rawInvoice.discount_percentage,
+        undefined,
+      ),
+      discountAmount: parseNumber(
+        rawInvoice.discountAmount || rawInvoice.discount_amount,
+        undefined,
+      ),
+      discountType:
+        rawInvoice.discountType || rawInvoice.discount_type || undefined,
+      currency: rawInvoice.currency || "INR",
+      exchangeRate: parseNumber(
+        rawInvoice.exchangeRate || rawInvoice.exchange_rate,
+        1,
+      ),
+
       // Additional Charges
-      packingCharges: parseNumber(rawInvoice.packingCharges || rawInvoice.packing_charges, undefined),
-      loadingCharges: parseNumber(rawInvoice.loadingCharges || rawInvoice.loading_charges, undefined),
-      freightCharges: parseNumber(rawInvoice.freightCharges || rawInvoice.freight_charges, undefined),
-      insuranceCharges: parseNumber(rawInvoice.insuranceCharges || rawInvoice.insurance_charges, undefined),
-      otherCharges: parseNumber(rawInvoice.otherCharges || rawInvoice.other_charges, undefined),
+      packingCharges: parseNumber(
+        rawInvoice.packingCharges || rawInvoice.packing_charges,
+        undefined,
+      ),
+      loadingCharges: parseNumber(
+        rawInvoice.loadingCharges || rawInvoice.loading_charges,
+        undefined,
+      ),
+      freightCharges: parseNumber(
+        rawInvoice.freightCharges || rawInvoice.freight_charges,
+        undefined,
+      ),
+      insuranceCharges: parseNumber(
+        rawInvoice.insuranceCharges || rawInvoice.insurance_charges,
+        undefined,
+      ),
+      otherCharges: parseNumber(
+        rawInvoice.otherCharges || rawInvoice.other_charges,
+        undefined,
+      ),
       taxNotes: rawInvoice.taxNotes || rawInvoice.tax_notes || undefined,
 
       // Phase 1: Charge VAT Fields (Migration 100) - UAE VAT on individual charges
-      packingChargesVat: parseNumber(rawInvoice.packingChargesVat || rawInvoice.packing_charges_vat, 0),
-      freightChargesVat: parseNumber(rawInvoice.freightChargesVat || rawInvoice.freight_charges_vat, 0),
-      insuranceChargesVat: parseNumber(rawInvoice.insuranceChargesVat || rawInvoice.insurance_charges_vat, 0),
-      loadingChargesVat: parseNumber(rawInvoice.loadingChargesVat || rawInvoice.loading_charges_vat, 0),
-      otherChargesVat: parseNumber(rawInvoice.otherChargesVat || rawInvoice.other_charges_vat, 0),
+      packingChargesVat: parseNumber(
+        rawInvoice.packingChargesVat || rawInvoice.packing_charges_vat,
+        0,
+      ),
+      freightChargesVat: parseNumber(
+        rawInvoice.freightChargesVat || rawInvoice.freight_charges_vat,
+        0,
+      ),
+      insuranceChargesVat: parseNumber(
+        rawInvoice.insuranceChargesVat || rawInvoice.insurance_charges_vat,
+        0,
+      ),
+      loadingChargesVat: parseNumber(
+        rawInvoice.loadingChargesVat || rawInvoice.loading_charges_vat,
+        0,
+      ),
+      otherChargesVat: parseNumber(
+        rawInvoice.otherChargesVat || rawInvoice.other_charges_vat,
+        0,
+      ),
       isExport: Boolean(rawInvoice.isExport || rawInvoice.is_export),
 
       // Phase 1: Advance Payment Integration (Migration 102) - UAE FTA Article 26
-      advancePaymentId: rawInvoice.advancePaymentId || rawInvoice.advance_payment_id || undefined,
-      advanceTaxInvoiceNumber: rawInvoice.advanceTaxInvoiceNumber || rawInvoice.advance_tax_invoice_number || undefined,
-      
+      advancePaymentId:
+        rawInvoice.advancePaymentId ||
+        rawInvoice.advance_payment_id ||
+        undefined,
+      advanceTaxInvoiceNumber:
+        rawInvoice.advanceTaxInvoiceNumber ||
+        rawInvoice.advance_tax_invoice_number ||
+        undefined,
+
       // Status (normalized from gRPC enums)
       status: normalizeInvoiceStatus(rawInvoice.status),
-      paymentStatus: normalizePaymentStatus(rawInvoice.paymentStatus || rawInvoice.paymentStatus),
-      
+      paymentStatus: normalizePaymentStatus(
+        rawInvoice.paymentStatus || rawInvoice.paymentStatus,
+      ),
+
       // Items
       items: normalizeItems(rawInvoice.items || []),
-      
+
       // Sales & Commission
       salesAgentId: rawInvoice.salesAgentId || rawInvoice.salesAgentId || null,
-      salesAgentName: rawInvoice.salesAgentName || rawInvoice.salesAgentName || undefined,
-      commissionAmount: parseNumber(rawInvoice.commissionAmount || rawInvoice.commissionAmount, undefined),
-      commissionCalculated: Boolean(rawInvoice.commissionCalculated || rawInvoice.commissionCalculated),
-      
+      salesAgentName:
+        rawInvoice.salesAgentName || rawInvoice.salesAgentName || undefined,
+      commissionAmount: parseNumber(
+        rawInvoice.commissionAmount || rawInvoice.commissionAmount,
+        undefined,
+      ),
+      commissionCalculated: Boolean(
+        rawInvoice.commissionCalculated || rawInvoice.commissionCalculated,
+      ),
+
       // Payments
       payments: normalizePayments(rawInvoice.payments || []),
-      lastPaymentDate: rawInvoice.lastPaymentDate || rawInvoice.lastPaymentDate || null,
-      advanceReceived: parseNumber(rawInvoice.advanceReceived || rawInvoice.advance_received, undefined),
-      modeOfPayment: rawInvoice.modeOfPayment || rawInvoice.mode_of_payment || undefined,
-      chequeNumber: rawInvoice.chequeNumber || rawInvoice.cheque_number || undefined,
-      
+      lastPaymentDate:
+        rawInvoice.lastPaymentDate || rawInvoice.lastPaymentDate || null,
+      advanceReceived: parseNumber(
+        rawInvoice.advanceReceived || rawInvoice.advance_received,
+        undefined,
+      ),
+      modeOfPayment:
+        rawInvoice.modeOfPayment || rawInvoice.mode_of_payment || undefined,
+      chequeNumber:
+        rawInvoice.chequeNumber || rawInvoice.cheque_number || undefined,
+
       // Warehouse
-      warehouseId: rawInvoice.warehouseId || rawInvoice.warehouse_id || undefined,
-      warehouseName: rawInvoice.warehouseName || rawInvoice.warehouse_name || undefined,
-      warehouseCode: rawInvoice.warehouseCode || rawInvoice.warehouse_code || undefined,
-      warehouseCity: rawInvoice.warehouseCity || rawInvoice.warehouse_city || undefined,
-      
+      warehouseId:
+        rawInvoice.warehouseId || rawInvoice.warehouse_id || undefined,
+      warehouseName:
+        rawInvoice.warehouseName || rawInvoice.warehouse_name || undefined,
+      warehouseCode:
+        rawInvoice.warehouseCode || rawInvoice.warehouse_code || undefined,
+      warehouseCity:
+        rawInvoice.warehouseCity || rawInvoice.warehouse_city || undefined,
+
       // UAE VAT Compliance Fields
-      placeOfSupply: rawInvoice.placeOfSupply || rawInvoice.place_of_supply || undefined,
+      placeOfSupply:
+        rawInvoice.placeOfSupply || rawInvoice.place_of_supply || undefined,
       supplyDate: rawInvoice.supplyDate || rawInvoice.supply_date || undefined,
-      isReverseCharge: Boolean(rawInvoice.isReverseCharge || rawInvoice.is_reverse_charge),
-      reverseChargeAmount: parseNumber(rawInvoice.reverseChargeAmount || rawInvoice.reverse_charge_amount, 0),
-      exchangeRateDate: rawInvoice.exchangeRateDate || rawInvoice.exchange_rate_date || undefined,
-      
+      isReverseCharge: Boolean(
+        rawInvoice.isReverseCharge || rawInvoice.is_reverse_charge,
+      ),
+      reverseChargeAmount: parseNumber(
+        rawInvoice.reverseChargeAmount || rawInvoice.reverse_charge_amount,
+        0,
+      ),
+      exchangeRateDate:
+        rawInvoice.exchangeRateDate ||
+        rawInvoice.exchange_rate_date ||
+        undefined,
+
       // Delivery
-      deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
-      
+      deliveryStatus: normalizeDeliveryStatus(
+        rawInvoice.deliveryStatus || rawInvoice.deliveryStatus,
+      ),
+
       // Soft delete & recreation
-      deletionReason: rawInvoice.audit?.deletionReason ?? rawInvoice.audit?.deletion_reason ?? rawInvoice.deletionReason ?? rawInvoice.deletion_reason ?? null,
-      deletedBy: rawInvoice.audit?.deletedBy ?? rawInvoice.audit?.deleted_by ?? rawInvoice.deletedBy ?? rawInvoice.deleted_by ?? null,
-      recreatedFrom: rawInvoice.recreatedFrom || rawInvoice.recreatedFrom || null,
-      
+      deletionReason:
+        rawInvoice.audit?.deletionReason ??
+        rawInvoice.audit?.deletion_reason ??
+        rawInvoice.deletionReason ??
+        rawInvoice.deletion_reason ??
+        null,
+      deletedBy:
+        rawInvoice.audit?.deletedBy ??
+        rawInvoice.audit?.deleted_by ??
+        rawInvoice.deletedBy ??
+        rawInvoice.deleted_by ??
+        null,
+      recreatedFrom:
+        rawInvoice.recreatedFrom || rawInvoice.recreatedFrom || null,
+
       // Notes & Terms
       notes: rawInvoice.notes || undefined,
-      terms: rawInvoice.terms || rawInvoice.termsAndConditions || rawInvoice.terms_and_conditions || undefined,  // Canonical UI field
-      termsAndConditions: rawInvoice.termsAndConditions || rawInvoice.terms_and_conditions || rawInvoice.terms || undefined,  // Backend/legacy alias
-      
+      terms:
+        rawInvoice.terms ||
+        rawInvoice.termsAndConditions ||
+        rawInvoice.terms_and_conditions ||
+        undefined, // Canonical UI field
+      termsAndConditions:
+        rawInvoice.termsAndConditions ||
+        rawInvoice.terms_and_conditions ||
+        rawInvoice.terms ||
+        undefined, // Backend/legacy alias
+
       // Company details
-      companyDetails: rawInvoice.companyDetails || rawInvoice.companyDetails || undefined,
+      companyDetails:
+        rawInvoice.companyDetails || rawInvoice.companyDetails || undefined,
     };
 
     // Log validation errors if any
     if (errors.length > 0) {
-      console.warn(`⚠️ [Invoice Normalizer] Validation warnings from ${source}:`);
-      errors.forEach(error => console.warn(`   - ${error}`));
+      console.warn(
+        `⚠️ [Invoice Normalizer] Validation warnings from ${source}:`,
+      );
+      errors.forEach((error) => console.warn(`   - ${error}`));
     }
 
     return normalized;
-    
   } catch (error) {
-    console.error(`❌ [Invoice Normalizer] Failed to normalize invoice from ${source}:`, error);
-    console.error('   Raw data:', rawInvoice);
+    console.error(
+      `❌ [Invoice Normalizer] Failed to normalize invoice from ${source}:`,
+      error,
+    );
+    console.error("   Raw data:", rawInvoice);
     return null;
   }
 }
@@ -370,9 +541,14 @@ export function normalizeInvoice(rawInvoice: any, source = 'unknown'): Invoice |
  * @returns Array of normalized Invoice objects
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeInvoices(rawInvoices: any[], source = 'list'): Invoice[] {
+export function normalizeInvoices(
+  rawInvoices: any[],
+  source = "list",
+): Invoice[] {
   if (!Array.isArray(rawInvoices)) {
-    console.error(`❌ [Invoice Normalizer] Expected array, got ${typeof rawInvoices}`);
+    console.error(
+      `❌ [Invoice Normalizer] Expected array, got ${typeof rawInvoices}`,
+    );
     return [];
   }
 

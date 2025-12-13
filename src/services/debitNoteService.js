@@ -9,7 +9,7 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -22,22 +22,22 @@ const transformDebitNoteForServer = (debitNoteData) => {
   return {
     vendorBillId: debitNoteData.vendorBillId || null,
     debitNoteDate: debitNoteData.debitNoteDate || null,
-    reason: debitNoteData.reason || '',
+    reason: debitNoteData.reason || "",
     // VAT fields
-    vatCategory: debitNoteData.vatCategory || 'STANDARD',
+    vatCategory: debitNoteData.vatCategory || "STANDARD",
     // Metadata
-    notes: debitNoteData.notes || '',
+    notes: debitNoteData.notes || "",
     // Items - backend calculates totals from items
-    items: (debitNoteData.items || []).map(item => ({
+    items: (debitNoteData.items || []).map((item) => ({
       vendorBillItemId: item.vendorBillItemId || null,
       productId: item.productId || null,
-      productName: item.productName || item.name || '',
-      description: item.description || '',
+      productName: item.productName || item.name || "",
+      description: item.description || "",
       quantity: parseFloat(item.quantity || 0),
       unitPrice: parseFloat(item.unitPrice || item.rate || 0),
       vatRate: parseFloat(item.vatRate || 5),
-      vatCategory: item.vatCategory || 'STANDARD',
-      reason: item.reason || '',
+      vatCategory: item.vatCategory || "STANDARD",
+      reason: item.reason || "",
     })),
   };
 };
@@ -52,18 +52,26 @@ const transformDebitNoteFromServer = (serverData) => {
     id: serverData.id,
     companyId: serverData.companyId,
     vendorBillId: serverData.vendorBillId,
-    vendorBillNumber: serverData.vendorBillNumber || '',
+    vendorBillNumber: serverData.vendorBillNumber || "",
     // Handle both vendorId and supplierId naming from backend
     vendorId: serverData.vendorId || serverData.supplierId || null,
     vendorDetails: serverData.vendorDetails || serverData.supplierDetails || {},
-    vendorName: serverData.vendorName || serverData.supplierName || serverData.vendorDetails?.name || '',
-    vendorTrn: serverData.vendorTrn || serverData.supplierTrn || serverData.vendorDetails?.trn || '',
-    debitNoteNumber: serverData.debitNoteNumber || '',
+    vendorName:
+      serverData.vendorName ||
+      serverData.supplierName ||
+      serverData.vendorDetails?.name ||
+      "",
+    vendorTrn:
+      serverData.vendorTrn ||
+      serverData.supplierTrn ||
+      serverData.vendorDetails?.trn ||
+      "",
+    debitNoteNumber: serverData.debitNoteNumber || "",
     debitNoteDate: serverData.debitNoteDate || null,
-    reason: serverData.reason || '',
-    reasonCategory: serverData.reasonCategory || 'PRICE_ADJUSTMENT',
+    reason: serverData.reason || "",
+    reasonCategory: serverData.reasonCategory || "PRICE_ADJUSTMENT",
     // VAT fields
-    vatCategory: serverData.vatCategory || 'STANDARD',
+    vatCategory: serverData.vatCategory || "STANDARD",
     isReverseCharge: serverData.isReverseCharge || false,
     // Amounts
     subtotal: parseFloat(serverData.subtotal || 0),
@@ -71,25 +79,25 @@ const transformDebitNoteFromServer = (serverData) => {
     totalDebit: parseFloat(serverData.totalDebit || 0),
     vatAdjustment: parseFloat(serverData.vatAdjustment || 0),
     // Status - normalize to lowercase
-    status: (serverData.status || 'draft').toLowerCase(),
+    status: (serverData.status || "draft").toLowerCase(),
     // Metadata
-    notes: serverData.notes || '',
+    notes: serverData.notes || "",
     attachmentUrls: serverData.attachmentUrls || [],
     // Items
-    items: (serverData.items || []).map(item => ({
+    items: (serverData.items || []).map((item) => ({
       id: item.id,
       debitNoteId: item.debitNoteId,
       vendorBillItemId: item.vendorBillItemId,
       productId: item.productId,
-      productName: item.productName || '',
-      description: item.description || '',
+      productName: item.productName || "",
+      description: item.description || "",
       quantity: parseFloat(item.quantity || 0),
       unitPrice: parseFloat(item.unitPrice || 0),
       amount: parseFloat(item.amount || 0),
       vatRate: parseFloat(item.vatRate || 5),
       vatAmount: parseFloat(item.vatAmount || 0),
-      vatCategory: item.vatCategory || 'STANDARD',
-      reason: item.reason || '',
+      vatCategory: item.vatCategory || "STANDARD",
+      reason: item.reason || "",
     })),
     // Timestamps - handle audit object structure from gRPC
     createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
@@ -99,7 +107,7 @@ const transformDebitNoteFromServer = (serverData) => {
     approvedAt: serverData.approvedAt || null,
     approvedBy: serverData.approvedBy || null,
     cancelledAt: serverData.cancelledAt || null,
-    cancellationReason: serverData.cancellationReason || '',
+    cancellationReason: serverData.cancellationReason || "",
   };
 };
 
@@ -143,7 +151,7 @@ const debitNoteService = {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get('/debit-notes', axiosConfig);
+      const response = await apiClient.get("/debit-notes", axiosConfig);
 
       // Handle paginated response
       if (response.data && Array.isArray(response.data)) {
@@ -171,7 +179,7 @@ const debitNoteService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error('[DebitNoteService] getAll failed:', error);
+      console.error("[DebitNoteService] getAll failed:", error);
       throw error;
     }
   },
@@ -186,7 +194,7 @@ const debitNoteService = {
       const response = await apiClient.get(`/debit-notes/${id}`);
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] getById failed:', error);
+      console.error("[DebitNoteService] getById failed:", error);
       throw error;
     }
   },
@@ -198,11 +206,15 @@ const debitNoteService = {
    */
   async getByVendorBill(vendorBillId) {
     try {
-      const response = await apiClient.get(`/debit-notes/by-vendor-bill/${vendorBillId}`);
-      const debitNotes = Array.isArray(response) ? response : (response.data || []);
+      const response = await apiClient.get(
+        `/debit-notes/by-vendor-bill/${vendorBillId}`,
+      );
+      const debitNotes = Array.isArray(response)
+        ? response
+        : response.data || [];
       return debitNotes.map(transformDebitNoteFromServer);
     } catch (error) {
-      console.error('[DebitNoteService] getByVendorBill failed:', error);
+      console.error("[DebitNoteService] getByVendorBill failed:", error);
       throw error;
     }
   },
@@ -214,11 +226,15 @@ const debitNoteService = {
    */
   async getByVendor(vendorId) {
     try {
-      const response = await apiClient.get(`/debit-notes/by-vendor/${vendorId}`);
-      const debitNotes = Array.isArray(response) ? response : (response.data || []);
+      const response = await apiClient.get(
+        `/debit-notes/by-vendor/${vendorId}`,
+      );
+      const debitNotes = Array.isArray(response)
+        ? response
+        : response.data || [];
       return debitNotes.map(transformDebitNoteFromServer);
     } catch (error) {
-      console.error('[DebitNoteService] getByVendor failed:', error);
+      console.error("[DebitNoteService] getByVendor failed:", error);
       throw error;
     }
   },
@@ -231,10 +247,10 @@ const debitNoteService = {
   async create(debitNoteData) {
     try {
       const transformedData = transformDebitNoteForServer(debitNoteData);
-      const response = await apiClient.post('/debit-notes', transformedData);
+      const response = await apiClient.post("/debit-notes", transformedData);
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] create failed:', error);
+      console.error("[DebitNoteService] create failed:", error);
       throw error;
     }
   },
@@ -248,10 +264,13 @@ const debitNoteService = {
   async update(id, debitNoteData) {
     try {
       const transformedData = transformDebitNoteForServer(debitNoteData);
-      const response = await apiClient.put(`/debit-notes/${id}`, transformedData);
+      const response = await apiClient.put(
+        `/debit-notes/${id}`,
+        transformedData,
+      );
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] update failed:', error);
+      console.error("[DebitNoteService] update failed:", error);
       throw error;
     }
   },
@@ -266,7 +285,7 @@ const debitNoteService = {
       const response = await apiClient.delete(`/debit-notes/${id}`);
       return response;
     } catch (error) {
-      console.error('[DebitNoteService] delete failed:', error);
+      console.error("[DebitNoteService] delete failed:", error);
       throw error;
     }
   },
@@ -278,12 +297,14 @@ const debitNoteService = {
    * @param {string} notes - Approval notes
    * @returns {Promise<Object>}
    */
-  async approve(id, notes = '') {
+  async approve(id, notes = "") {
     try {
-      const response = await apiClient.post(`/debit-notes/${id}/approve`, { notes });
+      const response = await apiClient.post(`/debit-notes/${id}/approve`, {
+        notes,
+      });
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] approve failed:', error);
+      console.error("[DebitNoteService] approve failed:", error);
       throw error;
     }
   },
@@ -299,7 +320,7 @@ const debitNoteService = {
       const response = await apiClient.post(`/debit-notes/${id}/issue`);
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] issue failed:', error);
+      console.error("[DebitNoteService] issue failed:", error);
       throw error;
     }
   },
@@ -310,14 +331,14 @@ const debitNoteService = {
    * @param {string} reason - Cancellation reason
    * @returns {Promise<Object>}
    */
-  async cancel(id, reason = '') {
+  async cancel(id, reason = "") {
     try {
       const response = await apiClient.post(`/debit-notes/${id}/cancel`, {
         cancellationReason: reason,
       });
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] cancel failed:', error);
+      console.error("[DebitNoteService] cancel failed:", error);
       throw error;
     }
   },
@@ -328,12 +349,14 @@ const debitNoteService = {
    * @param {string} notes - Application notes
    * @returns {Promise<Object>}
    */
-  async apply(id, notes = '') {
+  async apply(id, notes = "") {
     try {
-      const response = await apiClient.post(`/debit-notes/${id}/apply`, { notes });
+      const response = await apiClient.post(`/debit-notes/${id}/apply`, {
+        notes,
+      });
       return transformDebitNoteFromServer(response);
     } catch (error) {
-      console.error('[DebitNoteService] apply failed:', error);
+      console.error("[DebitNoteService] apply failed:", error);
       throw error;
     }
   },
@@ -344,10 +367,10 @@ const debitNoteService = {
    */
   async getNextNumber() {
     try {
-      const response = await apiClient.get('/debit-notes/number/next');
+      const response = await apiClient.get("/debit-notes/number/next");
       return response;
     } catch (error) {
-      console.error('[DebitNoteService] getNextNumber failed:', error);
+      console.error("[DebitNoteService] getNextNumber failed:", error);
       throw error;
     }
   },
@@ -359,10 +382,10 @@ const debitNoteService = {
    */
   async getAnalytics(params = {}) {
     try {
-      const response = await apiClient.get('/debit-notes/analytics', params);
+      const response = await apiClient.get("/debit-notes/analytics", params);
       return response;
     } catch (error) {
-      console.error('[DebitNoteService] getAnalytics failed:', error);
+      console.error("[DebitNoteService] getAnalytics failed:", error);
       throw error;
     }
   },
@@ -375,14 +398,16 @@ const debitNoteService = {
    */
   async search(searchTerm, filters = {}) {
     try {
-      const response = await apiClient.get('/debit-notes', {
+      const response = await apiClient.get("/debit-notes", {
         search: searchTerm,
         ...filters,
       });
       const notes = response.data || response.items || response;
-      return Array.isArray(notes) ? notes.map(transformDebitNoteFromServer) : [];
+      return Array.isArray(notes)
+        ? notes.map(transformDebitNoteFromServer)
+        : [];
     } catch (error) {
-      console.error('[DebitNoteService] search failed:', error);
+      console.error("[DebitNoteService] search failed:", error);
       throw error;
     }
   },
@@ -396,12 +421,12 @@ const debitNoteService = {
   async downloadPDF(id, debitNoteNumber = null) {
     try {
       const response = await apiClient.get(`/debit-notes/${id}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `debit-note-${debitNoteNumber || id}.pdf`;
       document.body.appendChild(link);
@@ -411,7 +436,7 @@ const debitNoteService = {
 
       return true;
     } catch (error) {
-      console.error('[DebitNoteService] downloadPDF failed:', error);
+      console.error("[DebitNoteService] downloadPDF failed:", error);
       throw error;
     }
   },
@@ -424,17 +449,17 @@ const debitNoteService = {
   async previewPDF(id) {
     try {
       const response = await apiClient.get(`/debit-notes/${id}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
+      window.open(url, "_blank");
       setTimeout(() => window.URL.revokeObjectURL(url), 30000);
 
       return true;
     } catch (error) {
-      console.error('[DebitNoteService] previewPDF failed:', error);
+      console.error("[DebitNoteService] previewPDF failed:", error);
       throw error;
     }
   },
@@ -446,10 +471,12 @@ const debitNoteService = {
    */
   async getAllowedTransitions(id) {
     try {
-      const response = await apiClient.get(`/debit-notes/${id}/allowed-transitions`);
+      const response = await apiClient.get(
+        `/debit-notes/${id}/allowed-transitions`,
+      );
       return response.transitions || response || [];
     } catch (error) {
-      console.error('[DebitNoteService] getAllowedTransitions failed:', error);
+      console.error("[DebitNoteService] getAllowedTransitions failed:", error);
       throw error;
     }
   },

@@ -10,7 +10,7 @@
  * - Notes and batch/coil/heat tracking
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -38,7 +38,7 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Inventory as InventoryIcon,
   LocalShipping as ShippingIcon,
@@ -46,16 +46,16 @@ import {
   CheckCircle as CheckCircleIcon,
   Close as CloseIcon,
   Warehouse as WarehouseIcon,
-} from '@mui/icons-material';
-import { stockMovementService } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
+} from "@mui/icons-material";
+import { stockMovementService } from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (quantity, unit = 'KG') => {
+const formatQuantity = (quantity, unit = "KG") => {
   const num = parseFloat(quantity) || 0;
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -66,11 +66,11 @@ const getReceivingStatus = (item) => {
   const received = parseFloat(item.receivedQuantity) || 0;
 
   if (received >= ordered) {
-    return { status: 'complete', label: 'Complete', color: 'success' };
+    return { status: "complete", label: "Complete", color: "success" };
   } else if (received > 0) {
-    return { status: 'partial', label: 'Partial', color: 'warning' };
+    return { status: "partial", label: "Partial", color: "warning" };
   }
-  return { status: 'pending', label: 'Pending', color: 'default' };
+  return { status: "pending", label: "Pending", color: "default" };
 };
 
 const StockReceiptForm = ({
@@ -84,10 +84,12 @@ const StockReceiptForm = ({
 }) => {
   // State
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState(defaultWarehouseId || '');
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState(
+    defaultWarehouseId || "",
+  );
   const [selectedItems, setSelectedItems] = useState({});
   const [quantities, setQuantities] = useState({});
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [error, setError] = useState(null);
@@ -103,11 +105,12 @@ const StockReceiptForm = ({
 
         // Set default warehouse
         if (!selectedWarehouseId && result.data?.length > 0) {
-          const defaultWh = result.data.find(w => w.isDefault) || result.data[0];
+          const defaultWh =
+            result.data.find((w) => w.isDefault) || result.data[0];
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error('Error fetching warehouses:', err);
+        console.error("Error fetching warehouses:", err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -125,9 +128,10 @@ const StockReceiptForm = ({
       const initialSelected = {};
       const initialQuantities = {};
 
-      poItems.forEach(item => {
-        const pending = parseFloat(item.pendingQuantity) ||
-                       (parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0));
+      poItems.forEach((item) => {
+        const pending =
+          parseFloat(item.pendingQuantity) ||
+          parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0);
 
         // Only select items with pending quantities
         if (pending > 0) {
@@ -143,7 +147,7 @@ const StockReceiptForm = ({
 
   // Filter items to only those with products (can create stock movements)
   const receivableItems = useMemo(() => {
-    return poItems.filter(item => item.productId || item.product_id);
+    return poItems.filter((item) => item.productId || item.product_id);
   }, [poItems]);
 
   // Calculate totals
@@ -153,7 +157,7 @@ const StockReceiptForm = ({
     let totalPending = 0;
     let totalToReceive = 0;
 
-    receivableItems.forEach(item => {
+    receivableItems.forEach((item) => {
       const ordered = parseFloat(item.quantity) || 0;
       const received = parseFloat(item.receivedQuantity) || 0;
       const pending = parseFloat(item.pendingQuantity) || ordered - received;
@@ -174,9 +178,10 @@ const StockReceiptForm = ({
   const handleSelectAll = (checked) => {
     const newSelected = {};
     if (checked) {
-      receivableItems.forEach(item => {
-        const pending = parseFloat(item.pendingQuantity) ||
-                       (parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0));
+      receivableItems.forEach((item) => {
+        const pending =
+          parseFloat(item.pendingQuantity) ||
+          parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0);
         if (pending > 0) {
           newSelected[item.id] = true;
         }
@@ -187,7 +192,7 @@ const StockReceiptForm = ({
 
   // Handle individual item selection
   const handleSelectItem = (itemId, checked) => {
-    setSelectedItems(prev => ({
+    setSelectedItems((prev) => ({
       ...prev,
       [itemId]: checked,
     }));
@@ -195,14 +200,15 @@ const StockReceiptForm = ({
 
   // Handle quantity change
   const handleQuantityChange = (itemId, value) => {
-    const item = receivableItems.find(i => i.id === itemId);
+    const item = receivableItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    const maxQty = parseFloat(item.pendingQuantity) ||
-                  (parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0));
+    const maxQty =
+      parseFloat(item.pendingQuantity) ||
+      parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0);
     const newValue = Math.min(Math.max(0, parseFloat(value) || 0), maxQty);
 
-    setQuantities(prev => ({
+    setQuantities((prev) => ({
       ...prev,
       [itemId]: newValue,
     }));
@@ -210,13 +216,14 @@ const StockReceiptForm = ({
 
   // Set quantity to max (pending)
   const handleSetMaxQuantity = (itemId) => {
-    const item = receivableItems.find(i => i.id === itemId);
+    const item = receivableItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    const maxQty = parseFloat(item.pendingQuantity) ||
-                  (parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0));
+    const maxQty =
+      parseFloat(item.pendingQuantity) ||
+      parseFloat(item.quantity) - parseFloat(item.receivedQuantity || 0);
 
-    setQuantities(prev => ({
+    setQuantities((prev) => ({
       ...prev,
       [itemId]: maxQty,
     }));
@@ -231,7 +238,7 @@ const StockReceiptForm = ({
 
       // Validate
       if (!selectedWarehouseId) {
-        setError('Please select a warehouse');
+        setError("Please select a warehouse");
         return;
       }
 
@@ -241,7 +248,7 @@ const StockReceiptForm = ({
         if (isSelected) {
           const qty = parseFloat(quantities[itemId]) || 0;
           if (qty > 0) {
-            const item = receivableItems.find(i => i.id === parseInt(itemId));
+            const item = receivableItems.find((i) => i.id === parseInt(itemId));
             if (item) {
               itemsToReceive.push({
                 itemId: parseInt(itemId),
@@ -254,7 +261,7 @@ const StockReceiptForm = ({
       });
 
       if (itemsToReceive.length === 0) {
-        setError('No items selected for receiving');
+        setError("No items selected for receiving");
         return;
       }
 
@@ -267,7 +274,9 @@ const StockReceiptForm = ({
       );
 
       if (result.success || result.totalCreated > 0) {
-        setSuccess(`Successfully received ${result.totalCreated} item(s) into stock`);
+        setSuccess(
+          `Successfully received ${result.totalCreated} item(s) into stock`,
+        );
 
         // Call success callback after short delay
         setTimeout(() => {
@@ -277,24 +286,28 @@ const StockReceiptForm = ({
           onClose();
         }, 1500);
       } else if (result.errors && result.errors.length > 0) {
-        setError(result.errors.join(', '));
+        setError(result.errors.join(", "));
       }
     } catch (err) {
-      console.error('Error receiving stock:', err);
-      setError(err.message || 'Failed to receive stock');
+      console.error("Error receiving stock:", err);
+      setError(err.message || "Failed to receive stock");
     } finally {
       setLoading(false);
     }
   };
 
   // Check if any items are selected
-  const hasSelectedItems = Object.values(selectedItems).some(v => v);
-  const allSelected = receivableItems.length > 0 &&
-    receivableItems.filter(i => {
-      const pending = parseFloat(i.pendingQuantity) ||
-                     (parseFloat(i.quantity) - parseFloat(i.receivedQuantity || 0));
-      return pending > 0;
-    }).every(i => selectedItems[i.id]);
+  const hasSelectedItems = Object.values(selectedItems).some((v) => v);
+  const allSelected =
+    receivableItems.length > 0 &&
+    receivableItems
+      .filter((i) => {
+        const pending =
+          parseFloat(i.pendingQuantity) ||
+          parseFloat(i.quantity) - parseFloat(i.receivedQuantity || 0);
+        return pending > 0;
+      })
+      .every((i) => selectedItems[i.id]);
 
   return (
     <Dialog
@@ -303,16 +316,20 @@ const StockReceiptForm = ({
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { maxHeight: '90vh' },
+        sx: { maxHeight: "90vh" },
       }}
     >
       <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <ShippingIcon color="primary" />
-            <Typography variant="h6">
-              Receive Stock - {poNumber}
-            </Typography>
+            <Typography variant="h6">Receive Stock - {poNumber}</Typography>
           </Box>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
@@ -337,7 +354,7 @@ const StockReceiptForm = ({
         <Box sx={{ mb: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel id="warehouse-select-label">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <WarehouseIcon fontSize="small" />
                 Destination Warehouse
               </Box>
@@ -349,9 +366,10 @@ const StockReceiptForm = ({
               label="Destination Warehouse"
               disabled={loadingWarehouses}
             >
-              {warehouses.map(wh => (
+              {warehouses.map((wh) => (
                 <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ''} {wh.isDefault && '(Default)'}
+                  {wh.name} {wh.code ? `(${wh.code})` : ""}{" "}
+                  {wh.isDefault && "(Default)"}
                 </MenuItem>
               ))}
             </Select>
@@ -361,32 +379,50 @@ const StockReceiptForm = ({
         {/* No receivable items warning */}
         {receivableItems.length === 0 ? (
           <Alert severity="warning" icon={<WarningIcon />}>
-            No items with linked products found. Stock movements can only be created for items
-            that are linked to products in inventory.
+            No items with linked products found. Stock movements can only be
+            created for items that are linked to products in inventory.
           </Alert>
         ) : (
           <>
             {/* Summary Cards */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">Total Ordered</Typography>
-                <Typography variant="h6">{formatQuantity(totals.totalOrdered)}</Typography>
+            <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+                <Typography variant="caption" color="text.secondary">
+                  Total Ordered
+                </Typography>
+                <Typography variant="h6">
+                  {formatQuantity(totals.totalOrdered)}
+                </Typography>
               </Paper>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">Already Received</Typography>
+              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+                <Typography variant="caption" color="text.secondary">
+                  Already Received
+                </Typography>
                 <Typography variant="h6" color="success.main">
                   {formatQuantity(totals.totalReceived)}
                 </Typography>
               </Paper>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">Pending</Typography>
+              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+                <Typography variant="caption" color="text.secondary">
+                  Pending
+                </Typography>
                 <Typography variant="h6" color="warning.main">
                   {formatQuantity(totals.totalPending)}
                 </Typography>
               </Paper>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
+              <Paper
+                sx={{
+                  p: 2,
+                  flex: "1 1 150px",
+                  textAlign: "center",
+                  bgcolor: "primary.main",
+                  color: "white",
+                }}
+              >
                 <Typography variant="caption">To Receive Now</Typography>
-                <Typography variant="h6">{formatQuantity(totals.totalToReceive)}</Typography>
+                <Typography variant="h6">
+                  {formatQuantity(totals.totalToReceive)}
+                </Typography>
               </Paper>
             </Box>
 
@@ -394,7 +430,7 @@ const StockReceiptForm = ({
             <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                  <TableRow sx={{ backgroundColor: "grey.50" }}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={allSelected}
@@ -407,14 +443,17 @@ const StockReceiptForm = ({
                     <TableCell align="right">Received</TableCell>
                     <TableCell align="right">Pending</TableCell>
                     <TableCell align="center">Status</TableCell>
-                    <TableCell align="right" sx={{ minWidth: 150 }}>Qty to Receive</TableCell>
+                    <TableCell align="right" sx={{ minWidth: 150 }}>
+                      Qty to Receive
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {receivableItems.map((item) => {
                     const ordered = parseFloat(item.quantity) || 0;
                     const received = parseFloat(item.receivedQuantity) || 0;
-                    const pending = parseFloat(item.pendingQuantity) || ordered - received;
+                    const pending =
+                      parseFloat(item.pendingQuantity) || ordered - received;
                     const status = getReceivingStatus(item);
                     const isComplete = pending <= 0;
 
@@ -424,22 +463,31 @@ const StockReceiptForm = ({
                         hover
                         sx={{
                           opacity: isComplete ? 0.5 : 1,
-                          bgcolor: selectedItems[item.id] ? 'action.selected' : 'inherit',
+                          bgcolor: selectedItems[item.id]
+                            ? "action.selected"
+                            : "inherit",
                         }}
                       >
                         <TableCell padding="checkbox">
                           <Checkbox
                             checked={!!selectedItems[item.id]}
-                            onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                            onChange={(e) =>
+                              handleSelectItem(item.id, e.target.checked)
+                            }
                             disabled={isComplete}
                           />
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" fontWeight="medium">
-                            {item.name || item.productName || `Product #${item.productId}`}
+                            {item.name ||
+                              item.productName ||
+                              `Product #${item.productId}`}
                           </Typography>
                           {item.productSku && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               SKU: {item.productSku}
                             </Typography>
                           )}
@@ -453,7 +501,11 @@ const StockReceiptForm = ({
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
-                          <Typography color={pending > 0 ? 'warning.main' : 'text.secondary'}>
+                          <Typography
+                            color={
+                              pending > 0 ? "warning.main" : "text.secondary"
+                            }
+                          >
                             {formatQuantity(pending, item.unit)}
                           </Typography>
                         </TableCell>
@@ -470,8 +522,10 @@ const StockReceiptForm = ({
                             <TextField
                               type="number"
                               size="small"
-                              value={quantities[item.id] || ''}
-                              onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                              value={quantities[item.id] || ""}
+                              onChange={(e) =>
+                                handleQuantityChange(item.id, e.target.value)
+                              }
                               disabled={!selectedItems[item.id]}
                               sx={{ width: 120 }}
                               inputProps={{
@@ -485,7 +539,9 @@ const StockReceiptForm = ({
                                     <Tooltip title="Set max quantity">
                                       <IconButton
                                         size="small"
-                                        onClick={() => handleSetMaxQuantity(item.id)}
+                                        onClick={() =>
+                                          handleSetMaxQuantity(item.id)
+                                        }
                                         disabled={!selectedItems[item.id]}
                                       >
                                         <InventoryIcon fontSize="small" />
@@ -533,9 +589,13 @@ const StockReceiptForm = ({
           variant="contained"
           onClick={handleSubmit}
           disabled={loading || !hasSelectedItems || totals.totalToReceive <= 0}
-          startIcon={loading ? <CircularProgress size={16} /> : <CheckCircleIcon />}
+          startIcon={
+            loading ? <CircularProgress size={16} /> : <CheckCircleIcon />
+          }
         >
-          {loading ? 'Receiving...' : `Receive ${formatQuantity(totals.totalToReceive)}`}
+          {loading
+            ? "Receiving..."
+            : `Receive ${formatQuantity(totals.totalToReceive)}`}
         </Button>
       </DialogActions>
     </Dialog>

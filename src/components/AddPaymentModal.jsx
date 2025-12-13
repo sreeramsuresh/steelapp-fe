@@ -1,24 +1,31 @@
-import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Loader2 } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
+import { useState, useEffect } from "react";
+import { X, AlertTriangle, Loader2 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { formatCurrency, formatDateForInput } from "../utils/invoiceUtils";
 import {
   PAYMENT_MODES,
   generatePaymentId,
   validatePayment,
   calculateBalanceDue,
-} from '../utils/paymentUtils';
+} from "../utils/paymentUtils";
 
-const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPayments = [], editingPayment = null }) => {
+const AddPaymentModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  invoiceTotal,
+  existingPayments = [],
+  editingPayment = null,
+}) => {
   const { isDarkMode } = useTheme();
 
   const [payment, setPayment] = useState({
-    id: '',
+    id: "",
     date: formatDateForInput(new Date()),
-    amount: '',
-    paymentMethod: 'cash',      // camelCase - standardized
-    referenceNumber: '',        // camelCase - standardized
-    notes: '',
+    amount: "",
+    paymentMethod: "cash", // camelCase - standardized
+    referenceNumber: "", // camelCase - standardized
+    notes: "",
   });
 
   const [errors, setErrors] = useState([]);
@@ -36,10 +43,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
       setPayment({
         id: generatePaymentId(),
         date: formatDateForInput(new Date()),
-        amount: '',
-        paymentMethod: 'cash',      // camelCase - standardized
-        referenceNumber: '',        // camelCase - standardized
-        notes: '',
+        amount: "",
+        paymentMethod: "cash", // camelCase - standardized
+        referenceNumber: "", // camelCase - standardized
+        notes: "",
       });
     }
     setErrors([]);
@@ -47,7 +54,11 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
   }, [editingPayment, isOpen]);
 
   const handleSave = () => {
-    const validationErrors = validatePayment(payment, invoiceTotal, existingPayments);
+    const validationErrors = validatePayment(
+      payment,
+      invoiceTotal,
+      existingPayments,
+    );
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
@@ -81,20 +92,20 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`max-w-lg w-full mx-4 p-6 rounded-lg shadow-xl ${
-          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {editingPayment ? 'Edit Payment' : 'Add Payment'}
+            {editingPayment ? "Edit Payment" : "Add Payment"}
           </h2>
           <button
             onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-gray-700 text-gray-400'
-                : 'hover:bg-gray-100 text-gray-600'
+                ? "hover:bg-gray-700 text-gray-400"
+                : "hover:bg-gray-100 text-gray-600"
             }`}
           >
             <X size={20} />
@@ -104,7 +115,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
         {/* Balance Due Info */}
         <div
           className={`mb-4 p-3 rounded-lg ${
-            isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'
+            isDarkMode ? "bg-blue-900/30" : "bg-blue-50"
           }`}
         >
           <div className="space-y-2">
@@ -112,14 +123,21 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               <span className="text-sm font-medium">Balance Due:</span>
               <button
                 type="button"
-                onClick={() => setPayment((prev) => ({ ...prev, amount: balanceDue.toString() }))}
+                onClick={() =>
+                  setPayment((prev) => ({
+                    ...prev,
+                    amount: balanceDue.toString(),
+                  }))
+                }
                 disabled={editingPayment}
                 className={`text-lg font-bold transition-all group ${
                   !editingPayment
-                    ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer hover:scale-105'
-                    : 'text-blue-600 dark:text-blue-400 cursor-default'
+                    ? "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer hover:scale-105"
+                    : "text-blue-600 dark:text-blue-400 cursor-default"
                 }`}
-                title={!editingPayment ? 'Click to apply this amount to payment' : ''}
+                title={
+                  !editingPayment ? "Click to apply this amount to payment" : ""
+                }
               >
                 {formatCurrency(balanceDue)}
                 {!editingPayment && (
@@ -131,7 +149,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             </div>
             {!editingPayment && (
               <div className="text-xs text-gray-600 dark:text-gray-400">
-                💡 <strong>Tip:</strong> Click the balance amount above to auto-fill the payment field
+                💡 <strong>Tip:</strong> Click the balance amount above to
+                auto-fill the payment field
               </div>
             )}
           </div>
@@ -142,8 +161,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           <div
             className={`mb-4 p-3 rounded-lg border ${
               isDarkMode
-                ? 'bg-red-900/30 border-red-600'
-                : 'bg-red-50 border-red-300'
+                ? "bg-red-900/30 border-red-600"
+                : "bg-red-50 border-red-300"
             }`}
           >
             <div className="flex items-start">
@@ -169,7 +188,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             <label
               htmlFor="payment-date"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Payment Date <span className="text-red-500">*</span>
@@ -183,8 +202,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               }
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             />
           </div>
@@ -194,7 +213,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             <label
               htmlFor="payment-amount"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Amount (AED) <span className="text-red-500">*</span>
@@ -212,8 +231,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               step="0.01"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             />
             {!editingPayment && parseFloat(payment.amount) > balanceDue && (
@@ -228,7 +247,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             <label
               htmlFor="payment-mode"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Payment Mode <span className="text-red-500">*</span>
@@ -240,13 +259,13 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                 setPayment((prev) => ({
                   ...prev,
                   paymentMethod: e.target.value,
-                  referenceNumber: '', // Clear reference when mode changes
+                  referenceNumber: "", // Clear reference when mode changes
                 }))
               }
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             >
               {Object.values(PAYMENT_MODES).map((mode) => (
@@ -262,10 +281,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             <label
               htmlFor="payment-reference"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              {modeConfig.refLabel || 'Reference Number'}
+              {modeConfig.refLabel || "Reference Number"}
               {modeConfig.requiresRef && (
                 <span className="text-red-500"> *</span>
               )}
@@ -282,14 +301,14 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               }
               placeholder={
                 modeConfig.requiresRef
-                  ? `Enter ${modeConfig.refLabel || 'reference number'}`
-                  : 'Optional'
+                  ? `Enter ${modeConfig.refLabel || "reference number"}`
+                  : "Optional"
               }
               required={modeConfig.requiresRef}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             />
           </div>
@@ -299,7 +318,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             <label
               htmlFor="payment-notes"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Notes
@@ -314,8 +333,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               rows="3"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             />
           </div>
@@ -328,9 +347,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-            } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ? "bg-gray-700 hover:bg-gray-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+            } ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Cancel
           </button>
@@ -338,7 +357,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             onClick={handleSave}
             disabled={isSaving}
             className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
-              isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+              isSaving
+                ? "opacity-60 cursor-not-allowed pointer-events-none"
+                : ""
             }`}
           >
             {isSaving ? (
@@ -346,8 +367,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                 <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 Saving...
               </>
+            ) : editingPayment ? (
+              "Update Payment"
             ) : (
-              editingPayment ? 'Update Payment' : 'Add Payment'
+              "Add Payment"
             )}
           </button>
         </div>

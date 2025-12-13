@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { Loader2, Package } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import api from '../../services/api';
+import { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { Loader2, Package } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import api from "../../services/api";
 
 /**
  * WarehouseStockSummary Component
@@ -10,13 +10,18 @@ import api from '../../services/api';
  * Shows stock availability across ALL warehouses in a horizontal inline format.
  * Example: "Main Warehouse 5    Abu Dhabi Warehouse 10    Dubai Warehouse 8"
  */
-const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => {
+const WarehouseStockSummary = ({
+  productId,
+  warehouses,
+  onWarehouseSelect,
+}) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [stockByWarehouse, setStockByWarehouse] = useState({});
 
   const fetchAllWarehouseStock = useCallback(async () => {
-    const numericProductId = typeof productId === 'number' ? productId : parseInt(productId);
+    const numericProductId =
+      typeof productId === "number" ? productId : parseInt(productId);
     if (!numericProductId || numericProductId <= 0 || !warehouses?.length) {
       setStockByWarehouse({});
       return;
@@ -27,7 +32,7 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
       // Fetch stock for all warehouses in parallel
       const stockPromises = warehouses.map(async (wh) => {
         try {
-          const response = await api.get('/stock-batches/available', {
+          const response = await api.get("/stock-batches/available", {
             params: { productId: numericProductId, warehouseId: wh.id },
           });
           const batches = response.batches || [];
@@ -47,7 +52,7 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
       });
       setStockByWarehouse(stockMap);
     } catch (err) {
-      console.error('Failed to fetch warehouse stock:', err);
+      console.error("Failed to fetch warehouse stock:", err);
       setStockByWarehouse({});
     } finally {
       setLoading(false);
@@ -59,7 +64,7 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
   }, [fetchAllWarehouseStock]);
 
   const formatQty = (qty) => {
-    return new Intl.NumberFormat('en-AE', {
+    return new Intl.NumberFormat("en-AE", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(qty || 0);
@@ -67,7 +72,9 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
 
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+      <div
+        className={`flex items-center gap-2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+      >
         <Loader2 size={14} className="animate-spin" />
         <span>Loading stock...</span>
       </div>
@@ -80,8 +87,13 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      <Package size={14} className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} />
-      <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+      <Package
+        size={14}
+        className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+      />
+      <span
+        className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+      >
         Stock:
       </span>
       <div className="flex items-center gap-4 flex-wrap">
@@ -93,25 +105,37 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
             <button
               key={wh.id}
               type="button"
-              onClick={() => onWarehouseSelect && onWarehouseSelect(wh.id, wh.name)}
+              onClick={() =>
+                onWarehouseSelect && onWarehouseSelect(wh.id, wh.name)
+              }
               className={`text-xs px-2 py-0.5 rounded transition-colors ${
                 hasStock
                   ? isDarkMode
-                    ? 'bg-green-900/30 text-green-300 hover:bg-green-900/50'
-                    : 'bg-green-50 text-green-700 hover:bg-green-100'
+                    ? "bg-green-900/30 text-green-300 hover:bg-green-900/50"
+                    : "bg-green-50 text-green-700 hover:bg-green-100"
                   : isDarkMode
-                    ? 'bg-gray-700/50 text-gray-500'
-                    : 'bg-gray-100 text-gray-400'
-              } ${onWarehouseSelect ? 'cursor-pointer' : 'cursor-default'}`}
-              title={hasStock ? `Click to select ${wh.name}` : 'No stock available'}
+                    ? "bg-gray-700/50 text-gray-500"
+                    : "bg-gray-100 text-gray-400"
+              } ${onWarehouseSelect ? "cursor-pointer" : "cursor-default"}`}
+              title={
+                hasStock ? `Click to select ${wh.name}` : "No stock available"
+              }
               disabled={!onWarehouseSelect}
             >
-              <span className="font-medium">{wh.name || wh.code || `WH${wh.id}`}</span>
-              <span className={`ml-1.5 font-bold ${
-                hasStock
-                  ? isDarkMode ? 'text-green-200' : 'text-green-800'
-                  : isDarkMode ? 'text-gray-600' : 'text-gray-500'
-              }`}>
+              <span className="font-medium">
+                {wh.name || wh.code || `WH${wh.id}`}
+              </span>
+              <span
+                className={`ml-1.5 font-bold ${
+                  hasStock
+                    ? isDarkMode
+                      ? "text-green-200"
+                      : "text-green-800"
+                    : isDarkMode
+                      ? "text-gray-600"
+                      : "text-gray-500"
+                }`}
+              >
                 {formatQty(stock)}
               </span>
             </button>
@@ -124,11 +148,13 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
 
 WarehouseStockSummary.propTypes = {
   productId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  warehouses: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-    name: PropTypes.string,
-    code: PropTypes.string,
-  })),
+  warehouses: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+      name: PropTypes.string,
+      code: PropTypes.string,
+    }),
+  ),
   onWarehouseSelect: PropTypes.func,
 };
 

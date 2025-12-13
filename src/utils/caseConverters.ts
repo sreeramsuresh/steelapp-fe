@@ -10,12 +10,12 @@
  * @returns snake_case string
  */
 export function toSnakeCase(str: string): string {
-  if (!str || typeof str !== 'string') return str;
-  
+  if (!str || typeof str !== "string") return str;
+
   return str
-    .replace(/([A-Z])/g, '_$1')
+    .replace(/([A-Z])/g, "_$1")
     .toLowerCase()
-    .replace(/^_/, ''); // Remove leading underscore if first char was uppercase
+    .replace(/^_/, ""); // Remove leading underscore if first char was uppercase
 }
 
 /**
@@ -24,8 +24,8 @@ export function toSnakeCase(str: string): string {
  * @returns camelCase string
  */
 export function toCamelCase(str: string): string {
-  if (!str || typeof str !== 'string') return str;
-  
+  if (!str || typeof str !== "string") return str;
+
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 }
 
@@ -35,7 +35,7 @@ export function toCamelCase(str: string): string {
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     value !== null &&
-    typeof value === 'object' &&
+    typeof value === "object" &&
     !Array.isArray(value) &&
     !(value instanceof Date) &&
     !(value instanceof RegExp) &&
@@ -55,17 +55,17 @@ export function toSnakeCaseDeep<T = unknown>(obj: T): T {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => toSnakeCaseDeep(item)) as T;
+    return obj.map((item) => toSnakeCaseDeep(item)) as T;
   }
 
   if (isPlainObject(obj)) {
     const result: Record<string, unknown> = {};
-    
+
     for (const [key, value] of Object.entries(obj)) {
       const snakeKey = toSnakeCase(key);
       result[snakeKey] = toSnakeCaseDeep(value);
     }
-    
+
     return result as T;
   }
 
@@ -84,17 +84,17 @@ export function toCamelCaseDeep<T = unknown>(obj: T): T {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => toCamelCaseDeep(item)) as T;
+    return obj.map((item) => toCamelCaseDeep(item)) as T;
   }
 
   if (isPlainObject(obj)) {
     const result: Record<string, unknown> = {};
-    
+
     for (const [key, value] of Object.entries(obj)) {
       const camelKey = toCamelCase(key);
       result[camelKey] = toCamelCaseDeep(value);
     }
-    
+
     return result as T;
   }
 
@@ -108,27 +108,33 @@ export function toCamelCaseDeep<T = unknown>(obj: T): T {
  * @param entityName - Name for error messages
  * @returns Array of snake_case keys found (empty if valid)
  */
-export function findSnakeCaseKeys(obj: unknown, entityName = 'object'): string[] {
+export function findSnakeCaseKeys(
+  obj: unknown,
+  entityName = "object",
+): string[] {
   const snakeCaseKeys: string[] = [];
-  
+
   if (!isPlainObject(obj)) {
     return snakeCaseKeys;
   }
 
   for (const key of Object.keys(obj)) {
-    if (key.includes('_')) {
+    if (key.includes("_")) {
       snakeCaseKeys.push(key);
     }
-    
+
     const value = (obj as Record<string, unknown>)[key];
     if (isPlainObject(value)) {
       const nested = findSnakeCaseKeys(value, `${entityName}.${key}`);
-      snakeCaseKeys.push(...nested.map(k => `${key}.${k}`));
+      snakeCaseKeys.push(...nested.map((k) => `${key}.${k}`));
     } else if (Array.isArray(value)) {
       value.forEach((item, index) => {
         if (isPlainObject(item)) {
-          const nested = findSnakeCaseKeys(item, `${entityName}.${key}[${index}]`);
-          snakeCaseKeys.push(...nested.map(k => `${key}[${index}].${k}`));
+          const nested = findSnakeCaseKeys(
+            item,
+            `${entityName}.${key}[${index}]`,
+          );
+          snakeCaseKeys.push(...nested.map((k) => `${key}[${index}].${k}`));
         }
       });
     }

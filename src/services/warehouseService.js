@@ -1,4 +1,4 @@
-import { apiClient } from './api.js';
+import { apiClient } from "./api.js";
 
 /**
  * Warehouse Service
@@ -13,22 +13,22 @@ import { apiClient } from './api.js';
 const fromServer = (warehouse = {}) => ({
   id: warehouse.id,
   companyId: warehouse.companyId,
-  name: warehouse.name || '',
-  code: warehouse.code || '',
-  description: warehouse.description || '',
-  address: warehouse.address || '',
-  city: warehouse.city || '',
-  state: warehouse.state || '',
-  country: warehouse.country || '',
-  postalCode: warehouse.postalCode || '',
-  phone: warehouse.phone || '',
-  email: warehouse.email || '',
-  contactPerson: warehouse.contactPerson || '',
+  name: warehouse.name || "",
+  code: warehouse.code || "",
+  description: warehouse.description || "",
+  address: warehouse.address || "",
+  city: warehouse.city || "",
+  state: warehouse.state || "",
+  country: warehouse.country || "",
+  postalCode: warehouse.postalCode || "",
+  phone: warehouse.phone || "",
+  email: warehouse.email || "",
+  contactPerson: warehouse.contactPerson || "",
   isDefault: warehouse.isDefault || false,
   isActive: warehouse.isActive !== false,
-  type: warehouse.type || 'WAREHOUSE',
+  type: warehouse.type || "WAREHOUSE",
   capacity: parseFloat(warehouse.capacity) || 0,
-  capacityUnit: warehouse.capacityUnit || 'MT',
+  capacityUnit: warehouse.capacityUnit || "MT",
   inventoryCount: warehouse.inventoryCount || 0,
   utilizationPercent: warehouse.utilizationPercent || 0,
   createdAt: warehouse.createdAt,
@@ -57,7 +57,7 @@ const toServer = (warehouse = {}) => ({
 
 class WarehouseService {
   constructor() {
-    this.endpoint = '/warehouses';
+    this.endpoint = "/warehouses";
   }
 
   /**
@@ -72,7 +72,9 @@ class WarehouseService {
     };
 
     // Remove undefined params
-    Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach(
+      (key) => params[key] === undefined && delete params[key],
+    );
 
     const response = await apiClient.get(this.endpoint, params);
     const rows = response?.data || response?.warehouses || response || [];
@@ -156,13 +158,16 @@ class WarehouseService {
       return summary;
     } catch (error) {
       // Fallback to calculating from list if summary endpoint not available
-      console.warn('Summary endpoint not available, calculating from list');
+      console.warn("Summary endpoint not available, calculating from list");
       const result = await this.getAll();
       const warehouses = result.data || [];
       const summary = {
         totalWarehouses: warehouses.length,
-        activeWarehouses: warehouses.filter(w => w.isActive).length,
-        totalInventoryItems: warehouses.reduce((sum, w) => sum + (w.inventoryCount || 0), 0),
+        activeWarehouses: warehouses.filter((w) => w.isActive).length,
+        totalInventoryItems: warehouses.reduce(
+          (sum, w) => sum + (w.inventoryCount || 0),
+          0,
+        ),
         totalStockValue: 0,
         lowStockItems: 0,
       };
@@ -176,11 +181,13 @@ class WarehouseService {
    */
   async getDashboard(warehouseId) {
     try {
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/dashboard`);
+      const response = await apiClient.get(
+        `${this.endpoint}/${warehouseId}/dashboard`,
+      );
       return response;
     } catch (error) {
       // Return mock data if endpoint not available
-      console.warn('Dashboard endpoint not available');
+      console.warn("Dashboard endpoint not available");
       return {
         totalQuantity: 0,
         reservedQuantity: 0,
@@ -209,16 +216,21 @@ class WarehouseService {
       };
 
       // Remove undefined params
-      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+      Object.keys(params).forEach(
+        (key) => params[key] === undefined && delete params[key],
+      );
 
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
+      const response = await apiClient.get(
+        `${this.endpoint}/${warehouseId}/stock`,
+        params,
+      );
       return {
         data: response?.items || response?.data || [],
         pagination: response?.pageInfo || response?.pagination || {},
         summary: response?.summary || {},
       };
     } catch (error) {
-      console.warn('Stock endpoint not available');
+      console.warn("Stock endpoint not available");
       return {
         data: [],
         pagination: {},
@@ -232,14 +244,17 @@ class WarehouseService {
    */
   async getAnalytics(warehouseId, filters = {}) {
     try {
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/analytics`, {
-        period: filters.period || 'MONTHLY',
-        start_date: filters.startDate,
-        end_date: filters.endDate,
-      });
+      const response = await apiClient.get(
+        `${this.endpoint}/${warehouseId}/analytics`,
+        {
+          period: filters.period || "MONTHLY",
+          start_date: filters.startDate,
+          end_date: filters.endDate,
+        },
+      );
       return response;
     } catch (error) {
-      console.warn('Analytics endpoint not available');
+      console.warn("Analytics endpoint not available");
       return {
         inboundTrend: [],
         outboundTrend: [],

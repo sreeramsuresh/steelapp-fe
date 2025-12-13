@@ -11,23 +11,25 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import { useState, useEffect } from 'react';
-import { apiClient } from '../../services/api';
+import { useState, useEffect } from "react";
+import { apiClient } from "../../services/api";
 
 export default function StockDeductionPreview({
   items = [],
   warehouseId = null,
-  warehouseName = '',
+  warehouseName = "",
   onClose,
   onConfirm,
-  className = '',
+  className = "",
 }) {
   const [stockLevels, setStockLevels] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Filter items that have product_id (inventory-tracked)
-  const inventoryItems = items.filter((item) => item.productId || item.product_id);
+  const inventoryItems = items.filter(
+    (item) => item.productId || item.product_id,
+  );
 
   useEffect(() => {
     if (inventoryItems.length > 0) {
@@ -52,20 +54,27 @@ export default function StockDeductionPreview({
           if (warehouseId) {
             params.warehouse_id = warehouseId;
           }
-          const response = await apiClient.get('/stock-movements/current-stock', { params });
+          const response = await apiClient.get(
+            "/stock-movements/current-stock",
+            { params },
+          );
           levels[productId] = {
-            currentStock: parseFloat(response.totalQuantity || response.total_quantity || 0),
-            available: parseFloat(response.totalAvailable || response.total_available || 0),
-            unit: response.unit || 'KG',
+            currentStock: parseFloat(
+              response.totalQuantity || response.total_quantity || 0,
+            ),
+            available: parseFloat(
+              response.totalAvailable || response.total_available || 0,
+            ),
+            unit: response.unit || "KG",
           };
         } catch {
-          levels[productId] = { currentStock: 0, available: 0, unit: 'KG' };
+          levels[productId] = { currentStock: 0, available: 0, unit: "KG" };
         }
       }
       setStockLevels(levels);
     } catch (err) {
-      console.error('Failed to fetch stock levels:', err);
-      setError('Failed to load current stock levels');
+      console.error("Failed to fetch stock levels:", err);
+      setError("Failed to load current stock levels");
     } finally {
       setLoading(false);
     }
@@ -73,27 +82,27 @@ export default function StockDeductionPreview({
 
   const getStockStatus = (productId, quantity) => {
     const stock = stockLevels[productId];
-    if (!stock) return { status: 'unknown', message: 'Stock data unavailable' };
+    if (!stock) return { status: "unknown", message: "Stock data unavailable" };
 
     const afterDeduction = stock.currentStock - parseFloat(quantity);
 
     if (afterDeduction < 0) {
       return {
-        status: 'negative',
+        status: "negative",
         message: `Will go negative (${afterDeduction.toFixed(2)})`,
-        color: 'text-red-600 bg-red-50',
+        color: "text-red-600 bg-red-50",
       };
     } else if (afterDeduction < stock.currentStock * 0.1) {
       return {
-        status: 'low',
+        status: "low",
         message: `Low stock warning`,
-        color: 'text-yellow-600 bg-yellow-50',
+        color: "text-yellow-600 bg-yellow-50",
       };
     } else {
       return {
-        status: 'ok',
-        message: 'Sufficient stock',
-        color: 'text-green-600 bg-green-50',
+        status: "ok",
+        message: "Sufficient stock",
+        color: "text-green-600 bg-green-50",
       };
     }
   };
@@ -132,8 +141,18 @@ export default function StockDeductionPreview({
               onClick={onClose}
               className="text-gray-400 hover:text-gray-500"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           )}
@@ -181,15 +200,24 @@ export default function StockDeductionPreview({
             {hasNegativeStock && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                 <div className="flex">
-                  <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-red-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-red-800">
                       Insufficient Stock Warning
                     </h3>
                     <p className="mt-1 text-sm text-red-700">
-                      Some items will result in negative stock. You can still proceed (backorder), but please verify.
+                      Some items will result in negative stock. You can still
+                      proceed (backorder), but please verify.
                     </p>
                   </div>
                 </div>
@@ -221,7 +249,10 @@ export default function StockDeductionPreview({
                 <tbody className="bg-white divide-y divide-gray-200">
                   {inventoryItems.map((item, index) => {
                     const productId = item.productId || item.product_id;
-                    const stock = stockLevels[productId] || { currentStock: 0, unit: 'KG' };
+                    const stock = stockLevels[productId] || {
+                      currentStock: 0,
+                      unit: "KG",
+                    };
                     const quantity = parseFloat(item.quantity) || 0;
                     const afterDeduction = stock.currentStock - quantity;
                     const status = getStockStatus(productId, quantity);
@@ -232,7 +263,8 @@ export default function StockDeductionPreview({
                           <div className="font-medium">{item.name}</div>
                           {item.size && (
                             <div className="text-xs text-gray-500">
-                              {item.size} {item.thickness ? `x ${item.thickness}mm` : ''}
+                              {item.size}{" "}
+                              {item.thickness ? `x ${item.thickness}mm` : ""}
                             </div>
                           )}
                         </td>
@@ -242,19 +274,39 @@ export default function StockDeductionPreview({
                         <td className="px-4 py-3 text-sm text-right text-red-600 font-medium">
                           -{quantity.toFixed(2)} {item.unit || stock.unit}
                         </td>
-                        <td className={`px-4 py-3 text-sm text-right font-medium ${afterDeduction < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                        <td
+                          className={`px-4 py-3 text-sm text-right font-medium ${afterDeduction < 0 ? "text-red-600" : "text-gray-900"}`}
+                        >
                           {afterDeduction.toFixed(2)} {stock.unit}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${status.color}`}>
-                            {status.status === 'negative' && (
-                              <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${status.color}`}
+                          >
+                            {status.status === "negative" && (
+                              <svg
+                                className="mr-1 h-3 w-3"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             )}
-                            {status.status === 'ok' && (
-                              <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            {status.status === "ok" && (
+                              <svg
+                                className="mr-1 h-3 w-3"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             )}
                             {status.message}
@@ -271,12 +323,20 @@ export default function StockDeductionPreview({
             <div className="mt-4 p-3 bg-gray-50 rounded-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Total items to deduct:</span>
-                <span className="font-medium text-gray-900">{inventoryItems.length}</span>
+                <span className="font-medium text-gray-900">
+                  {inventoryItems.length}
+                </span>
               </div>
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-gray-600">Total quantity:</span>
                 <span className="font-medium text-red-600">
-                  -{inventoryItems.reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0).toFixed(2)}
+                  -
+                  {inventoryItems
+                    .reduce(
+                      (sum, item) => sum + (parseFloat(item.quantity) || 0),
+                      0,
+                    )
+                    .toFixed(2)}
                 </span>
               </div>
             </div>
@@ -299,11 +359,11 @@ export default function StockDeductionPreview({
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
               hasNegativeStock
-                ? 'bg-yellow-600 hover:bg-yellow-700'
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? "bg-yellow-600 hover:bg-yellow-700"
+                : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {hasNegativeStock ? 'Proceed Anyway' : 'Confirm & Issue'}
+            {hasNegativeStock ? "Proceed Anyway" : "Confirm & Issue"}
           </button>
         </div>
       )}

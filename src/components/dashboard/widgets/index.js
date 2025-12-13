@@ -1,9 +1,9 @@
 /**
  * Dashboard Widgets - Central Export
- * 
+ *
  * A comprehensive collection of dashboard widgets for the Steel Trading ERP.
  * All widgets support dark mode via ThemeContext and include mock data.
- * 
+ *
  * Usage:
  * import { TopProductsWidget, InventoryHealthWidget, ... } from './components/dashboard/widgets';
  */
@@ -17,7 +17,7 @@ export {
   GradeAnalysisWidget,
   ProductMarginWidget,
   PriceTrendWidget,
-} from './product';
+} from "./product";
 
 // ============================================================================
 // INVENTORY MANAGEMENT WIDGETS
@@ -29,7 +29,7 @@ export {
   ReorderAlertsWidget,
   StockTurnoverWidget,
   WarehouseUtilizationWidget,
-} from './inventory';
+} from "./inventory";
 
 // ============================================================================
 // FINANCIAL WIDGETS
@@ -46,7 +46,7 @@ export {
   FinancialKPICards,
   RevenueAnalyticsWidget,
   CreditManagementWidget,
-} from './financial';
+} from "./financial";
 
 // ============================================================================
 // CUSTOMER WIDGETS
@@ -56,7 +56,7 @@ export {
   CustomerSegmentsWidget,
   CustomerCLVWidget,
   AtRiskCustomersWidget,
-} from './customer';
+} from "./customer";
 
 // ============================================================================
 // SALES AGENT WIDGETS
@@ -68,7 +68,7 @@ export {
   CustomerPortfolioWidget,
   AgentScorecardWidget,
   CollectionPerformanceWidget,
-} from './sales-agent';
+} from "./sales-agent";
 
 // ============================================================================
 // VAT WIDGETS
@@ -82,9 +82,9 @@ export {
   ZeroRatedExportsWidget,
   ReverseChargeWidget,
   DesignatedZoneWidget,
-} from './vat';
+} from "./vat";
 
 // ============================================================================
 // BASE WIDGET
 // ============================================================================
-export { default as BaseWidget } from './BaseWidget';
+export { default as BaseWidget } from "./BaseWidget";

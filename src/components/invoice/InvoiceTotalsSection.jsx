@@ -3,8 +3,8 @@ import {
   calculateTotal,
   calculateDiscountedTRN,
   formatNumber,
-} from '../../utils/invoiceUtils';
-import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
+} from "../../utils/invoiceUtils";
+import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
 
 /**
  * Invoice Totals Section Component
@@ -32,7 +32,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const discountPercent = parseFloat(invoice.discountPercentage) || 0;
   const discountFlat = parseFloat(invoice.discountAmount) || 0;
   const computedDiscount =
-    (invoice.discountType === 'percentage'
+    (invoice.discountType === "percentage"
       ? (computedSubtotal * discountPercent) / 100
       : discountFlat) || 0;
   const computedTotal = calculateTotal(
@@ -44,95 +44,133 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
   const balanceDue = Math.max(0, computedTotal - advanceAmount);
 
-  const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
+  const fontFamily = fonts.body || "Inter, system-ui, sans-serif";
 
   return (
     <div className="invoice-totals-section" style={{ fontFamily }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-        <div style={{
-          width: '300px',
-          padding: '15px',
-          backgroundColor: '#f9fafb',
-          borderRadius: '4px',
-        }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          style={{
+            width: "300px",
+            padding: "15px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "4px",
+          }}
+        >
           {/* SubTotal */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '12px',
-            fontSize: '10.5pt',
-            padding: '5px 0',
-          }}>
-            <span style={{ color: '#555', fontWeight: 500 }}>SubTotal</span>
-            <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>AED {formatNumber(computedSubtotal)}</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "12px",
+              fontSize: "10.5pt",
+              padding: "5px 0",
+            }}
+          >
+            <span style={{ color: "#555", fontWeight: 500 }}>SubTotal</span>
+            <span
+              style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+            >
+              AED {formatNumber(computedSubtotal)}
+            </span>
           </div>
 
           {/* Discount */}
           {computedDiscount > 0 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '12px',
-              fontSize: '10.5pt',
-              padding: '5px 0',
-            }}>
-              <span style={{ color: '#555', fontWeight: 500 }}>Discount</span>
-              <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>- AED {formatNumber(computedDiscount)}</span>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "12px",
+                fontSize: "10.5pt",
+                padding: "5px 0",
+              }}
+            >
+              <span style={{ color: "#555", fontWeight: 500 }}>Discount</span>
+              <span
+                style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+              >
+                - AED {formatNumber(computedDiscount)}
+              </span>
             </div>
           )}
 
           {/* VAT */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '12px',
-            fontSize: '10.5pt',
-            padding: '5px 0',
-          }}>
-            <span style={{ color: '#555', fontWeight: 500 }}>VAT</span>
-            <span style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}>AED {formatNumber(computedVatAmount)}</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "12px",
+              fontSize: "10.5pt",
+              padding: "5px 0",
+            }}
+          >
+            <span style={{ color: "#555", fontWeight: 500 }}>VAT</span>
+            <span
+              style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+            >
+              AED {formatNumber(computedVatAmount)}
+            </span>
           </div>
 
           {/* TOTAL */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            borderTop: `2px solid ${colors.primary || color}`,
-            paddingTop: '12px',
-            marginTop: '10px',
-            fontSize: '13pt',
-            fontWeight: 'bold',
-          }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              borderTop: `2px solid ${colors.primary || color}`,
+              paddingTop: "12px",
+              marginTop: "10px",
+              fontSize: "13pt",
+              fontWeight: "bold",
+            }}
+          >
             <span>TOTAL</span>
-            <span style={{ textAlign: 'right' }}>AED {formatNumber(computedTotal)}</span>
+            <span style={{ textAlign: "right" }}>
+              AED {formatNumber(computedTotal)}
+            </span>
           </div>
 
           {/* Advance and Balance Due */}
           {advanceAmount > 0 && (
             <>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                borderTop: '2px solid #d1d5db',
-                paddingTop: '10px',
-                marginTop: '10px',
-                fontSize: '11pt',
-                color: colors.primary || color,
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  borderTop: "2px solid #d1d5db",
+                  paddingTop: "10px",
+                  marginTop: "10px",
+                  fontSize: "11pt",
+                  color: colors.primary || color,
+                }}
+              >
                 <span>Less: Advance Received</span>
-                <span style={{ textAlign: 'right' }}>- AED {formatNumber(advanceAmount)}</span>
+                <span style={{ textAlign: "right" }}>
+                  - AED {formatNumber(advanceAmount)}
+                </span>
               </div>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: '8px',
-                fontSize: '12pt',
-                fontWeight: 'bold',
-                color: balanceDue > 0 ? '#dc2626' : '#059669',
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "8px",
+                  fontSize: "12pt",
+                  fontWeight: "bold",
+                  color: balanceDue > 0 ? "#dc2626" : "#059669",
+                }}
+              >
                 <span>Balance Due</span>
-                <span style={{ textAlign: 'right' }}>AED {formatNumber(balanceDue)}</span>
+                <span style={{ textAlign: "right" }}>
+                  AED {formatNumber(balanceDue)}
+                </span>
               </div>
             </>
           )}

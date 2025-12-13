@@ -7,7 +7,7 @@ import {
   toUAEPaymentDateTime,
   TIMEZONE_DISCLAIMER,
   TIMEZONE_LABEL,
-} from './timezone';
+} from "./timezone";
 
 /**
  * Calculate invoice line item amount based on UAE stainless steel trading conventions.
@@ -31,7 +31,13 @@ import {
  * @param {string} quantityUom - Unit of measure for quantity: PCS, KG, MT
  * @returns {number} Calculated amount rounded to 2 decimal places
  */
-export const calculateItemAmount = (quantity, rate, pricingBasis = 'PER_MT', unitWeightKg = null, quantityUom = 'PCS') => {
+export const calculateItemAmount = (
+  quantity,
+  rate,
+  pricingBasis = "PER_MT",
+  unitWeightKg = null,
+  quantityUom = "PCS",
+) => {
   const qty = parseFloat(quantity) || 0;
   const rt = parseFloat(rate) || 0;
   const unitWt = parseFloat(unitWeightKg) || 0;
@@ -39,27 +45,27 @@ export const calculateItemAmount = (quantity, rate, pricingBasis = 'PER_MT', uni
   if (qty === 0 || rt === 0) return 0;
 
   // Normalize inputs
-  const basis = (pricingBasis || 'PER_MT').toUpperCase();
-  const uom = (quantityUom || 'PCS').toUpperCase();
+  const basis = (pricingBasis || "PER_MT").toUpperCase();
+  const uom = (quantityUom || "PCS").toUpperCase();
 
   let amount = 0;
 
   // CASE 1: Quantity is already in weight (coils, bulk material)
-  if (uom === 'MT') {
+  if (uom === "MT") {
     // Quantity is in metric tons
-    if (basis === 'PER_MT') {
+    if (basis === "PER_MT") {
       amount = qty * rt;
-    } else if (basis === 'PER_KG') {
-      amount = (qty * 1000) * rt; // Convert MT to KG
+    } else if (basis === "PER_KG") {
+      amount = qty * 1000 * rt; // Convert MT to KG
     } else {
       // Fallback for unexpected basis with MT quantity
       amount = qty * rt;
     }
-  } else if (uom === 'KG') {
+  } else if (uom === "KG") {
     // Quantity is in kilograms
-    if (basis === 'PER_MT') {
+    if (basis === "PER_MT") {
       amount = (qty / 1000) * rt; // Convert KG to MT
-    } else if (basis === 'PER_KG') {
+    } else if (basis === "PER_KG") {
       amount = qty * rt;
     } else {
       // Fallback
@@ -69,47 +75,53 @@ export const calculateItemAmount = (quantity, rate, pricingBasis = 'PER_MT', uni
   // CASE 2: Quantity is in pieces (discrete items: sheets, pipes, bars, fittings)
   else {
     switch (basis) {
-      case 'PER_PCS':
+      case "PER_PCS":
         // Simple: pieces × rate per piece
         amount = qty * rt;
         break;
 
-      case 'PER_KG':
+      case "PER_KG":
         // pieces × weight per piece (kg) × rate per kg
         if (unitWt > 0) {
           amount = qty * unitWt * rt;
         } else {
           // Fallback if no unit weight (treat as per piece)
-          console.warn('calculateItemAmount: PER_KG pricing but no unitWeightKg provided');
+          console.warn(
+            "calculateItemAmount: PER_KG pricing but no unitWeightKg provided",
+          );
           amount = qty * rt;
         }
         break;
 
-      case 'PER_MT':
+      case "PER_MT":
         // pieces × weight per piece (kg) / 1000 × rate per MT
         if (unitWt > 0) {
           const totalWeightMT = (qty * unitWt) / 1000;
           amount = totalWeightMT * rt;
         } else {
           // Fallback if no unit weight (treat as per piece) - LOG WARNING
-          console.warn('calculateItemAmount: PER_MT pricing but no unitWeightKg provided');
+          console.warn(
+            "calculateItemAmount: PER_MT pricing but no unitWeightKg provided",
+          );
           amount = qty * rt;
         }
         break;
 
-      case 'PER_METER':
+      case "PER_METER":
         // qty (in meters) × rate per meter
         amount = qty * rt;
         break;
 
-      case 'PER_LOT':
+      case "PER_LOT":
         // Rate is for the entire lot, quantity is informational
         amount = rt;
         break;
 
       default:
         // Unknown basis - fallback to simple multiplication
-        console.warn(`calculateItemAmount: Unknown pricing basis "${basis}", using qty × rate`);
+        console.warn(
+          `calculateItemAmount: Unknown pricing basis "${basis}", using qty × rate`,
+        );
         amount = qty * rt;
     }
   }
@@ -127,14 +139,18 @@ export const calculateItemAmount = (quantity, rate, pricingBasis = 'PER_MT', uni
  * @param {string} quantityUom - PCS, KG, or MT
  * @returns {number} Total weight in kg
  */
-export const calculateTheoreticalWeight = (quantity, unitWeightKg, quantityUom = 'PCS') => {
+export const calculateTheoreticalWeight = (
+  quantity,
+  unitWeightKg,
+  quantityUom = "PCS",
+) => {
   const qty = parseFloat(quantity) || 0;
   const unitWt = parseFloat(unitWeightKg) || 0;
-  const uom = (quantityUom || 'PCS').toUpperCase();
+  const uom = (quantityUom || "PCS").toUpperCase();
 
-  if (uom === 'MT') {
+  if (uom === "MT") {
     return qty * 1000; // Convert MT to KG
-  } else if (uom === 'KG') {
+  } else if (uom === "KG") {
     return qty; // Already in KG
   } else {
     // PCS - calculate from unit weight
@@ -157,15 +173,15 @@ export const calculateTheoreticalWeight = (quantity, unitWeightKg, quantityUom =
  */
 export const validateQuantityPrecision = (quantity, unit) => {
   const qty = parseFloat(quantity);
-  const uom = (unit || 'PCS').toUpperCase();
+  const uom = (unit || "PCS").toUpperCase();
 
   // Check for valid number
   if (isNaN(qty) || qty < 0) {
-    return { valid: false, message: 'Quantity must be a positive number' };
+    return { valid: false, message: "Quantity must be a positive number" };
   }
 
   // Units requiring whole numbers
-  const wholeNumberUnits = ['PCS', 'BUNDLE', 'PIECE', 'PIECES', 'SET', 'SETS'];
+  const wholeNumberUnits = ["PCS", "BUNDLE", "PIECE", "PIECES", "SET", "SETS"];
 
   if (wholeNumberUnits.includes(uom)) {
     if (!Number.isInteger(qty)) {
@@ -177,8 +193,8 @@ export const validateQuantityPrecision = (quantity, unit) => {
   }
 
   // Check decimal precision for weight units
-  if (uom === 'KG' || uom === 'MT') {
-    const decimalPlaces = (qty.toString().split('.')[1] || '').length;
+  if (uom === "KG" || uom === "MT") {
+    const decimalPlaces = (qty.toString().split(".")[1] || "").length;
     if (decimalPlaces > 3) {
       return {
         valid: false,
@@ -187,8 +203,8 @@ export const validateQuantityPrecision = (quantity, unit) => {
     }
   }
 
-  if (uom === 'METER' || uom === 'M') {
-    const decimalPlaces = (qty.toString().split('.')[1] || '').length;
+  if (uom === "METER" || uom === "M") {
+    const decimalPlaces = (qty.toString().split(".")[1] || "").length;
     if (decimalPlaces > 2) {
       return {
         valid: false,
@@ -216,15 +232,20 @@ export const validateQuantityPrecision = (quantity, unit) => {
  * @returns {number} Converted quantity
  * @throws {Error} If conversion results in fractional pieces
  */
-export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null) => {
+export const convertQuantity = (
+  quantity,
+  fromUnit,
+  toUnit,
+  unitWeightKg = null,
+) => {
   const qty = parseFloat(quantity);
-  const from = (fromUnit || 'PCS').toUpperCase();
-  const to = (toUnit || 'PCS').toUpperCase();
+  const from = (fromUnit || "PCS").toUpperCase();
+  const to = (toUnit || "PCS").toUpperCase();
   const unitWt = parseFloat(unitWeightKg) || 0;
 
   // Validate input
   if (isNaN(qty) || qty < 0) {
-    throw new Error('Invalid quantity: must be a non-negative number');
+    throw new Error("Invalid quantity: must be a non-negative number");
   }
 
   // Same unit - no conversion needed
@@ -236,22 +257,22 @@ export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null)
   let converted;
 
   // KG ↔ MT conversions
-  if (from === 'KG' && to === 'MT') {
+  if (from === "KG" && to === "MT") {
     converted = qty / 1000;
-  } else if (from === 'MT' && to === 'KG') {
+  } else if (from === "MT" && to === "KG") {
     converted = qty * 1000;
   }
   // PCS → KG
-  else if (from === 'PCS' && to === 'KG') {
+  else if (from === "PCS" && to === "KG") {
     if (!unitWt || unitWt <= 0) {
-      throw new Error('Unit weight required for PCS to KG conversion');
+      throw new Error("Unit weight required for PCS to KG conversion");
     }
     converted = qty * unitWt;
   }
   // KG → PCS
-  else if (from === 'KG' && to === 'PCS') {
+  else if (from === "KG" && to === "PCS") {
     if (!unitWt || unitWt <= 0) {
-      throw new Error('Unit weight required for KG to PCS conversion');
+      throw new Error("Unit weight required for KG to PCS conversion");
     }
     converted = qty / unitWt;
     // Validate whole pieces
@@ -264,16 +285,16 @@ export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null)
     }
   }
   // PCS → MT
-  else if (from === 'PCS' && to === 'MT') {
+  else if (from === "PCS" && to === "MT") {
     if (!unitWt || unitWt <= 0) {
-      throw new Error('Unit weight required for PCS to MT conversion');
+      throw new Error("Unit weight required for PCS to MT conversion");
     }
     converted = (qty * unitWt) / 1000;
   }
   // MT → PCS
-  else if (from === 'MT' && to === 'PCS') {
+  else if (from === "MT" && to === "PCS") {
     if (!unitWt || unitWt <= 0) {
-      throw new Error('Unit weight required for MT to PCS conversion');
+      throw new Error("Unit weight required for MT to PCS conversion");
     }
     const kgQty = qty * 1000;
     converted = kgQty / unitWt;
@@ -303,19 +324,19 @@ export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null)
  * @returns {boolean} True if conversion is possible
  */
 export const canConvertQuantity = (fromUnit, toUnit, unitWeightKg = null) => {
-  const from = (fromUnit || 'PCS').toUpperCase();
-  const to = (toUnit || 'PCS').toUpperCase();
+  const from = (fromUnit || "PCS").toUpperCase();
+  const to = (toUnit || "PCS").toUpperCase();
 
   // Same unit always works
   if (from === to) return true;
 
   // KG ↔ MT always works
-  if ((from === 'KG' && to === 'MT') || (from === 'MT' && to === 'KG')) {
+  if ((from === "KG" && to === "MT") || (from === "MT" && to === "KG")) {
     return true;
   }
 
   // PCS conversions require unit weight
-  const pcsConversions = ['PCS', 'KG', 'MT'];
+  const pcsConversions = ["PCS", "KG", "MT"];
   if (pcsConversions.includes(from) && pcsConversions.includes(to)) {
     return unitWeightKg && parseFloat(unitWeightKg) > 0;
   }
@@ -332,7 +353,11 @@ export const canConvertQuantity = (fromUnit, toUnit, unitWeightKg = null) => {
  * @param {string} productCategory - Product category (PLATES, COILS, PIPES, FITTINGS, etc.)
  * @returns {Object} { valid, varianceKg, variancePct, tolerancePct, message, severity }
  */
-export const validateWeightTolerance = (actualWeightKg, theoreticalWeightKg, productCategory = 'PLATES') => {
+export const validateWeightTolerance = (
+  actualWeightKg,
+  theoreticalWeightKg,
+  productCategory = "PLATES",
+) => {
   const actual = parseFloat(actualWeightKg) || 0;
   const theoretical = parseFloat(theoreticalWeightKg) || 0;
 
@@ -349,21 +374,28 @@ export const validateWeightTolerance = (actualWeightKg, theoreticalWeightKg, pro
     DEFAULT: 5,
   };
 
-  const category = (productCategory || 'DEFAULT').toUpperCase();
+  const category = (productCategory || "DEFAULT").toUpperCase();
   const tolerancePct = tolerances[category] || tolerances.DEFAULT;
 
   // Handle edge cases
   if (theoretical === 0) {
     if (actual === 0) {
-      return { valid: true, varianceKg: 0, variancePct: 0, tolerancePct, message: 'No weight data', severity: 'none' };
+      return {
+        valid: true,
+        varianceKg: 0,
+        variancePct: 0,
+        tolerancePct,
+        message: "No weight data",
+        severity: "none",
+      };
     }
     return {
       valid: false,
       varianceKg: actual,
       variancePct: 100,
       tolerancePct,
-      message: 'Theoretical weight is zero but actual weight provided',
-      severity: 'error',
+      message: "Theoretical weight is zero but actual weight provided",
+      severity: "error",
     };
   }
 
@@ -376,13 +408,13 @@ export const validateWeightTolerance = (actualWeightKg, theoreticalWeightKg, pro
   const valid = absVariancePct <= tolerancePct;
 
   // Determine severity for UI display
-  let severity = 'success';
+  let severity = "success";
   if (absVariancePct > tolerancePct * 2) {
-    severity = 'error'; // Exceeds 2x tolerance - block
+    severity = "error"; // Exceeds 2x tolerance - block
   } else if (absVariancePct > tolerancePct) {
-    severity = 'warning'; // Exceeds tolerance - warn
+    severity = "warning"; // Exceeds tolerance - warn
   } else if (absVariancePct > tolerancePct * 0.5) {
-    severity = 'caution'; // Over 50% of tolerance
+    severity = "caution"; // Over 50% of tolerance
   }
 
   return {
@@ -404,7 +436,10 @@ export const validateWeightTolerance = (actualWeightKg, theoreticalWeightKg, pro
  * @param {number} theoreticalWeightKg - Calculated theoretical weight
  * @returns {Object} { varianceKg, variancePct }
  */
-export const calculateWeightVariance = (actualWeightKg, theoreticalWeightKg) => {
+export const calculateWeightVariance = (
+  actualWeightKg,
+  theoreticalWeightKg,
+) => {
   const actual = parseFloat(actualWeightKg) || 0;
   const theoretical = parseFloat(theoreticalWeightKg) || 0;
 
@@ -472,7 +507,12 @@ export const calculateTotalTRN = (items) => {
  * @param {number} discountAmount - Discount amount (if type is amount)
  * @returns {number} Total VAT after discount (rounded to 2 decimal places)
  */
-export const calculateDiscountedTRN = (items, discountType, discountPercent, discountAmount) => {
+export const calculateDiscountedTRN = (
+  items,
+  discountType,
+  discountPercent,
+  discountAmount,
+) => {
   if (!Array.isArray(items) || items.length === 0) return 0;
   const total = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
   if (total <= 0) return 0;
@@ -481,10 +521,12 @@ export const calculateDiscountedTRN = (items, discountType, discountPercent, dis
   const amt = parseFloat(discountAmount) || 0;
 
   let vatSum = 0;
-  if (discountType === 'percentage' && pct > 0) {
+  if (discountType === "percentage" && pct > 0) {
     const factor = Math.max(0, 1 - pct / 100);
     for (const it of items) {
-      const lineAmt = parseFloat(((parseFloat(it.amount) || 0) * factor).toFixed(2));
+      const lineAmt = parseFloat(
+        ((parseFloat(it.amount) || 0) * factor).toFixed(2),
+      );
       const rate = parseFloat(it.vatRate) || 0;
       vatSum += calculateTRN(lineAmt, rate);
     }
@@ -535,7 +577,7 @@ export const calculateTotal = (subtotal, vatAmount) => {
 export const generateInvoiceNumber = () => {
   const date = new Date();
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const yearMonth = `${year}${month}`;
   // Placeholder counter - real number comes from backend API
   return `INV-${yearMonth}-0001`;
@@ -544,7 +586,7 @@ export const generateInvoiceNumber = () => {
 export const generatePONumber = () => {
   const date = new Date();
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const yearMonth = `${year}${month}`;
   // Placeholder counter - real number comes from backend API
   return `PO-${yearMonth}-0001`;
@@ -553,7 +595,7 @@ export const generatePONumber = () => {
 export const generateQuotationNumber = () => {
   const date = new Date();
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const yearMonth = `${year}${month}`;
   // Placeholder counter - real number comes from backend API
   return `QT-${yearMonth}-0001`;
@@ -562,7 +604,7 @@ export const generateQuotationNumber = () => {
 export const generateDeliveryNoteNumber = () => {
   const date = new Date();
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const yearMonth = `${year}${month}`;
   // Placeholder counter - real number comes from backend API
   return `DN-${yearMonth}-0001`;
@@ -573,9 +615,9 @@ export const formatCurrency = (amount) => {
   const numericAmount = parseFloat(amount);
   const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
 
-  return new Intl.NumberFormat('en-AE', {
-    style: 'currency',
-    currency: 'AED',
+  return new Intl.NumberFormat("en-AE", {
+    style: "currency",
+    currency: "AED",
   }).format(safeAmount);
 };
 
@@ -586,7 +628,7 @@ export const formatCurrency = (amount) => {
  * @returns {string} Formatted date in UAE timezone (e.g., "January 15, 2025")
  */
 export const formatDate = (date) => {
-  return toUAETime(date, { format: 'long' });
+  return toUAETime(date, { format: "long" });
 };
 
 /**
@@ -595,7 +637,7 @@ export const formatDate = (date) => {
  * @returns {string} Formatted datetime in UAE timezone (e.g., "Jan 15, 2025, 02:30 PM")
  */
 export const formatDateTime = (date) => {
-  return toUAETime(date, { format: 'datetime' });
+  return toUAETime(date, { format: "datetime" });
 };
 
 /**
@@ -604,7 +646,7 @@ export const formatDateTime = (date) => {
  * @returns {string} Date in DD/MM/YYYY format (UAE timezone)
  */
 export const formatDateDMY = (date) => {
-  return toUAETime(date, { format: 'short' });
+  return toUAETime(date, { format: "short" });
 };
 
 /**
@@ -619,18 +661,18 @@ export const formatDateForInput = (date) => {
 
 // Normalize LLC formatting function
 export const normalizeLLC = (companyName) => {
-  if (!companyName) return '';
-  
+  if (!companyName) return "";
+
   // Regex to match any variation of LLC with optional periods, spaces, and case variations
   const llcPattern = /\b[Ll]\.?\s*[Ll]\.?\s*[Cc]\.?\b/g;
-  
+
   // Replace all variations with standardized "LLC"
-  return companyName.replace(llcPattern, 'LLC');
+  return companyName.replace(llcPattern, "LLC");
 };
 
 // Title-case each word: capitalize first letter, lowercase the rest
 export const titleCase = (value) => {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) return "";
   const s = String(value).trim().toLowerCase();
   // Capitalize first alpha after a word boundary
   return s.replace(/\b([a-z])/g, (m, p1) => p1.toUpperCase());
@@ -640,7 +682,7 @@ export const titleCase = (value) => {
 export const formatNumber = (value, fractionDigits = 2) => {
   const num = Number(value);
   const safe = isNaN(num) ? 0 : num;
-  return new Intl.NumberFormat('en-AE', {
+  return new Intl.NumberFormat("en-AE", {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   }).format(safe);
@@ -653,28 +695,30 @@ export const formatNumber = (value, fractionDigits = 2) => {
  * @returns {Object} { logoUrl, sealUrl }
  */
 export const getCompanyImages = (company) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
-  
+  const baseUrl =
+    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") ||
+    "http://localhost:3000";
+
   // Get logo URL - prioritize pdf_logo_url, fallback to logo_url
   let logoUrl = null;
   if (company?.pdfLogoUrl) {
-    logoUrl = company.pdfLogoUrl.startsWith('/') 
-      ? `${baseUrl}${company.pdfLogoUrl}` 
+    logoUrl = company.pdfLogoUrl.startsWith("/")
+      ? `${baseUrl}${company.pdfLogoUrl}`
       : company.pdfLogoUrl;
   } else if (company?.logoUrl) {
-    logoUrl = company.logoUrl.startsWith('/') 
-      ? `${baseUrl}${company.logoUrl}` 
+    logoUrl = company.logoUrl.startsWith("/")
+      ? `${baseUrl}${company.logoUrl}`
       : company.logoUrl;
   }
-  
+
   // Get seal URL - use pdf_seal_url only
   let sealUrl = null;
   if (company?.pdfSealUrl) {
-    sealUrl = company.pdfSealUrl.startsWith('/') 
-      ? `${baseUrl}${company.pdfSealUrl}` 
+    sealUrl = company.pdfSealUrl.startsWith("/")
+      ? `${baseUrl}${company.pdfSealUrl}`
       : company.pdfSealUrl;
   }
-  
+
   return { logoUrl, sealUrl };
 };
 
@@ -684,35 +728,37 @@ export const getCompanyImages = (company) => {
  * @returns {Object} { line1, line2, full }
  */
 export const formatAddress = (address) => {
-  if (!address) return { line1: '', line2: '', full: '' };
+  if (!address) return { line1: "", line2: "", full: "" };
 
   // If string, check if it's JSON and try to parse it
-  if (typeof address === 'string') {
+  if (typeof address === "string") {
     // Try to parse as JSON if it looks like JSON
-    if (address.startsWith('{') || address.startsWith('[')) {
+    if (address.startsWith("{") || address.startsWith("[")) {
       try {
         const parsed = JSON.parse(address);
         // Recursively call with parsed object
         return formatAddress(parsed);
       } catch {
         // Not valid JSON, treat as plain string
-        return { line1: address, line2: '', full: address };
+        return { line1: address, line2: "", full: address };
       }
     }
     // Plain string address
-    return { line1: address, line2: '', full: address };
+    return { line1: address, line2: "", full: address };
   }
 
-  const line1 = address.street || '';
-  const cityParts = [address.city, address.state, address.postal_code].filter(Boolean);
+  const line1 = address.street || "";
+  const cityParts = [address.city, address.state, address.postal_code].filter(
+    Boolean,
+  );
   const line2Parts = [...cityParts];
   if (address.country) line2Parts.push(address.country);
-  const line2 = line2Parts.join(', ');
+  const line2 = line2Parts.join(", ");
 
   return {
     line1,
     line2,
-    full: [line1, line2].filter(Boolean).join(', '),
+    full: [line1, line2].filter(Boolean).join(", "),
   };
 };
 

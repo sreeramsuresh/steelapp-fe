@@ -1,12 +1,20 @@
-import { useState, useEffect } from 'react';
-import { X, Lock, Plus, Edit2, Trash2, Shield, AlertCircle } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { roleService } from '../services/roleService';
-import { notificationService } from '../services/notificationService';
+import { useState, useEffect } from "react";
+import {
+  X,
+  Lock,
+  Plus,
+  Edit2,
+  Trash2,
+  Shield,
+  AlertCircle,
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { roleService } from "../services/roleService";
+import { notificationService } from "../services/notificationService";
 
 /**
  * RoleManagementModal - Manage system and custom roles
- * 
+ *
  * Features:
  * - List all roles (system + custom)
  * - Visual indicator for system roles (cannot be deleted)
@@ -23,9 +31,9 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    displayName: '',
-    description: '',
+    name: "",
+    displayName: "",
+    description: "",
     isDirector: false,
   });
   const [validationErrors, setValidationErrors] = useState({});
@@ -44,8 +52,8 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
       const data = await roleService.getRoles();
       setRoles(data || []);
     } catch (error) {
-      console.error('Error loading roles:', error);
-      notificationService.error('Failed to load roles');
+      console.error("Error loading roles:", error);
+      notificationService.error("Failed to load roles");
     } finally {
       setLoading(false);
     }
@@ -57,40 +65,44 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
     if (!editingRole) {
       // Creating new role
       if (!formData.displayName || formData.displayName.trim().length < 3) {
-        errors.displayName = 'Display name must be at least 3 characters';
+        errors.displayName = "Display name must be at least 3 characters";
       } else if (formData.displayName.trim().length > 50) {
-        errors.displayName = 'Display name must be less than 50 characters';
+        errors.displayName = "Display name must be less than 50 characters";
       }
 
       // Check for reserved names
-      const reservedNames = ['admin', 'superuser', 'root'];
-      const normalized = formData.displayName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      const reservedNames = ["admin", "superuser", "root"];
+      const normalized = formData.displayName
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, "_");
       if (reservedNames.includes(normalized)) {
         errors.displayName = `"${formData.displayName}" is a reserved name and cannot be used`;
       }
 
       // Check for duplicate names
       const exists = roles.some(
-        r => r.name?.toLowerCase() === formData.displayName.toLowerCase(),
+        (r) => r.name?.toLowerCase() === formData.displayName.toLowerCase(),
       );
       if (exists) {
-        errors.displayName = 'A role with this name already exists';
+        errors.displayName = "A role with this name already exists";
       }
     } else {
       // Editing existing role
       if (!formData.displayName || formData.displayName.trim().length < 3) {
-        errors.displayName = 'Display name must be at least 3 characters';
+        errors.displayName = "Display name must be at least 3 characters";
       } else if (formData.displayName.trim().length > 50) {
-        errors.displayName = 'Display name must be less than 50 characters';
+        errors.displayName = "Display name must be less than 50 characters";
       }
 
       // For custom roles, check for duplicates (excluding current role)
       if (!editingRole.isSystemRole) {
         const exists = roles.some(
-          r => r.id !== editingRole.id && r.name?.toLowerCase() === formData.displayName.toLowerCase(),
+          (r) =>
+            r.id !== editingRole.id &&
+            r.name?.toLowerCase() === formData.displayName.toLowerCase(),
         );
         if (exists) {
-          errors.displayName = 'A role with this name already exists';
+          errors.displayName = "A role with this name already exists";
         }
       }
     }
@@ -111,13 +123,16 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
         permissionKeys: [],
       });
 
-      notificationService.success('Role created successfully');
+      notificationService.success("Role created successfully");
       loadRoles();
       resetForm();
       if (onRoleUpdated) onRoleUpdated();
     } catch (error) {
-      console.error('Error creating role:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to create role';
+      console.error("Error creating role:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create role";
       notificationService.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -127,9 +142,9 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
   const handleEdit = (role) => {
     setEditingRole(role);
     setFormData({
-      name: role.name || '',
-      displayName: role.name || '',
-      description: role.description || '',
+      name: role.name || "",
+      displayName: role.name || "",
+      description: role.description || "",
       isDirector: role.isDirector || false,
     });
     setShowCreateForm(true);
@@ -148,13 +163,16 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
         permissionKeys: editingRole.permissionKeys || [],
       });
 
-      notificationService.success('Role updated successfully');
+      notificationService.success("Role updated successfully");
       loadRoles();
       resetForm();
       if (onRoleUpdated) onRoleUpdated();
     } catch (error) {
-      console.error('Error updating role:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to update role';
+      console.error("Error updating role:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update role";
       notificationService.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -163,31 +181,40 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
 
   const handleDelete = async (role) => {
     if (role.isSystemRole || role.isSystem) {
-      notificationService.warning(`System role "${role.name}" cannot be deleted`);
+      notificationService.warning(
+        `System role "${role.name}" cannot be deleted`,
+      );
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       await roleService.deleteRole(role.id);
-      notificationService.success('Role deleted successfully');
+      notificationService.success("Role deleted successfully");
       loadRoles();
       if (onRoleUpdated) onRoleUpdated();
     } catch (error) {
-      console.error('Error deleting role:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to delete role';
+      console.error("Error deleting role:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to delete role";
       notificationService.error(errorMsg);
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      displayName: '',
-      description: '',
+      name: "",
+      displayName: "",
+      description: "",
       isDirector: false,
     });
     setEditingRole(null);
@@ -202,11 +229,13 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
       <div
         data-testid="role-management-modal"
         className={`w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-lg shadow-xl ${
-          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div
+          className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        >
           <div className="flex items-center gap-3">
             <Shield className="text-teal-500" size={24} />
             <h2 className="text-2xl font-semibold">Manage Roles</h2>
@@ -216,7 +245,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
             aria-label="Close"
             data-testid="close-modal-x"
             className={`p-2 rounded-lg transition-colors ${
-              isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
             }`}
           >
             <X size={20} />
@@ -227,16 +256,21 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {/* Create/Edit Form */}
           {showCreateForm ? (
-            <div className={`mb-6 p-4 rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
+            <div
+              className={`mb-6 p-4 rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-750" : "border-gray-200 bg-gray-50"}`}
+            >
               <h3 className="text-lg font-medium mb-4">
-                {editingRole ? 'Edit Role' : 'Create New Role'}
+                {editingRole ? "Edit Role" : "Create New Role"}
               </h3>
 
               {editingRole?.isSystemRole && (
-                <div className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${isDarkMode ? 'bg-blue-900/20 text-blue-300' : 'bg-blue-50 text-blue-800'}`}>
+                <div
+                  className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${isDarkMode ? "bg-blue-900/20 text-blue-300" : "bg-blue-50 text-blue-800"}`}
+                >
                   <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <strong>System Role:</strong> You can edit the description and director status, but cannot change the role name.
+                    <strong>System Role:</strong> You can edit the description
+                    and director status, but cannot change the role name.
                   </div>
                 </div>
               )}
@@ -244,7 +278,10 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
               <div className="space-y-4">
                 {/* Display Name */}
                 <div>
-                  <label htmlFor="displayName" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label
+                    htmlFor="displayName"
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
                     Display Name *
                   </label>
                   <input
@@ -253,39 +290,60 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                     value={formData.displayName}
                     onChange={(e) => {
                       setFormData({ ...formData, displayName: e.target.value });
-                      setValidationErrors({ ...validationErrors, displayName: '' });
+                      setValidationErrors({
+                        ...validationErrors,
+                        displayName: "",
+                      });
                     }}
                     disabled={editingRole?.isSystemRole}
                     placeholder="e.g., Sales Manager"
                     className={`w-full px-3 py-2 border rounded-lg transition-colors ${
-                      validationErrors.displayName ? 'border-red-500' : isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                      validationErrors.displayName
+                        ? "border-red-500"
+                        : isDarkMode
+                          ? "border-gray-600"
+                          : "border-gray-300"
                     } ${
-                      isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-                    } ${editingRole?.isSystemRole ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      isDarkMode
+                        ? "bg-gray-800 text-white"
+                        : "bg-white text-gray-900"
+                    } ${editingRole?.isSystemRole ? "opacity-50 cursor-not-allowed" : ""} focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                   {validationErrors.displayName && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.displayName}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {validationErrors.displayName}
+                    </p>
                   )}
                   {!editingRole && (
-                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      3-50 characters. Will be converted to lowercase with underscores.
+                    <p
+                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    >
+                      3-50 characters. Will be converted to lowercase with
+                      underscores.
                     </p>
                   )}
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label htmlFor="description" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label
+                    htmlFor="description"
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
                     Description
                   </label>
                   <textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder="Brief description of this role's responsibilities"
                     rows={3}
                     className={`w-full px-3 py-2 border rounded-lg transition-colors ${
-                      isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-800 text-white"
+                        : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none`}
                   />
                 </div>
@@ -296,10 +354,15 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                     type="checkbox"
                     id="isDirector"
                     checked={formData.isDirector}
-                    onChange={(e) => setFormData({ ...formData, isDirector: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isDirector: e.target.checked })
+                    }
                     className="w-4 h-4 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
                   />
-                  <label htmlFor="isDirector" className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label
+                    htmlFor="isDirector"
+                    className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
                     Director Role (elevated privileges)
                   </label>
                 </div>
@@ -310,17 +373,25 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                 <button
                   onClick={editingRole ? handleUpdate : handleCreate}
                   disabled={submitting}
-                  data-testid={editingRole ? 'update-role-btn' : 'create-role-btn'}
+                  data-testid={
+                    editingRole ? "update-role-btn" : "create-role-btn"
+                  }
                   className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitting ? 'Saving...' : editingRole ? 'Update Role' : 'Create Role'}
+                  {submitting
+                    ? "Saving..."
+                    : editingRole
+                      ? "Update Role"
+                      : "Create Role"}
                 </button>
                 <button
                   onClick={resetForm}
                   disabled={submitting}
                   data-testid="cancel-form-btn"
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
+                    isDarkMode
+                      ? "bg-gray-700 hover:bg-gray-600"
+                      : "bg-gray-200 hover:bg-gray-300"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   Cancel
@@ -342,12 +413,25 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
           {loading ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-teal-500 border-t-transparent"></div>
-              <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading roles...</p>
+              <p
+                className={`mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              >
+                Loading roles...
+              </p>
             </div>
           ) : roles.length === 0 ? (
             <div className="text-center py-8">
-              <Shield size={48} className={isDarkMode ? 'text-gray-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
-              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>No roles found</p>
+              <Shield
+                size={48}
+                className={
+                  isDarkMode
+                    ? "text-gray-600 mx-auto mb-2"
+                    : "text-gray-400 mx-auto mb-2"
+                }
+              />
+              <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                No roles found
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -356,7 +440,9 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                   key={role.id}
                   data-testid={`role-item-${role.id}`}
                   className={`p-4 rounded-lg border transition-all ${
-                    isDarkMode ? 'border-gray-700 bg-gray-750 hover:bg-gray-700' : 'border-gray-200 bg-white hover:bg-gray-50'
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-750 hover:bg-gray-700"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -375,15 +461,17 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {role.description || 'No description'}
+                      <p
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
+                        {role.description || "No description"}
                       </p>
                     </div>
                     <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => handleEdit(role)}
                         className={`p-2 rounded-lg transition-colors ${
-                          isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+                          isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"
                         }`}
                         title="Edit role"
                       >
@@ -407,12 +495,16 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
         </div>
 
         {/* Footer */}
-        <div className={`flex justify-end gap-2 p-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div
+          className={`flex justify-end gap-2 p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        >
           <button
             onClick={onClose}
             data-testid="close-modal-btn"
             className={`px-4 py-2 rounded-lg transition-colors ${
-              isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
+              isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600"
+                : "bg-gray-200 hover:bg-gray-300"
             }`}
           >
             Close

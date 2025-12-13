@@ -1,9 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { X, AlertTriangle, Package, Ship, ArrowRight, Loader2 } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import {
+  X,
+  AlertTriangle,
+  Package,
+  Ship,
+  ArrowRight,
+  Loader2,
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import {
   Table,
   TableBody,
@@ -11,8 +18,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import api from '../../services/api';
+} from "../ui/table";
+import api from "../../services/api";
 
 /**
  * ReallocationModal Component
@@ -46,24 +53,48 @@ const ReallocationModal = ({
 
   // Form state
   const [newAllocations, setNewAllocations] = useState({}); // { batchId: quantity }
-  const [reasonCode, setReasonCode] = useState('');
-  const [reasonText, setReasonText] = useState('');
+  const [reasonCode, setReasonCode] = useState("");
+  const [reasonText, setReasonText] = useState("");
 
   // Valid reason codes (must match backend)
   const REASON_CODES = [
-    { value: 'CUSTOMER_REQUEST', label: 'Customer Request', desc: 'Customer asked for specific batch/heat number' },
-    { value: 'QUALITY_ISSUE', label: 'Quality Issue', desc: 'Original batch has quality concerns' },
-    { value: 'CERTIFICATE_MISMATCH', label: 'Certificate Mismatch', desc: 'Mill cert does not match requirements' },
-    { value: 'ENTRY_ERROR', label: 'Entry Error', desc: 'Operator made a mistake' },
-    { value: 'STOCK_ADJUSTMENT', label: 'Stock Adjustment', desc: 'Inventory count correction' },
-    { value: 'SUPERVISOR_OVERRIDE', label: 'Supervisor Override', desc: 'Manager decision' },
+    {
+      value: "CUSTOMER_REQUEST",
+      label: "Customer Request",
+      desc: "Customer asked for specific batch/heat number",
+    },
+    {
+      value: "QUALITY_ISSUE",
+      label: "Quality Issue",
+      desc: "Original batch has quality concerns",
+    },
+    {
+      value: "CERTIFICATE_MISMATCH",
+      label: "Certificate Mismatch",
+      desc: "Mill cert does not match requirements",
+    },
+    {
+      value: "ENTRY_ERROR",
+      label: "Entry Error",
+      desc: "Operator made a mistake",
+    },
+    {
+      value: "STOCK_ADJUSTMENT",
+      label: "Stock Adjustment",
+      desc: "Inventory count correction",
+    },
+    {
+      value: "SUPERVISOR_OVERRIDE",
+      label: "Supervisor Override",
+      desc: "Manager decision",
+    },
   ];
 
   // Initialize from current allocations when modal opens
   useEffect(() => {
     if (isOpen && currentAllocations.length > 0) {
       const initial = {};
-      currentAllocations.forEach(alloc => {
+      currentAllocations.forEach((alloc) => {
         const batchId = alloc.batchId || alloc.batch_id;
         initial[batchId] = alloc.quantity || 0;
       });
@@ -72,8 +103,8 @@ const ReallocationModal = ({
       setNewAllocations({});
     }
     // Reset form state
-    setReasonCode('');
-    setReasonText('');
+    setReasonCode("");
+    setReasonText("");
     setError(null);
   }, [isOpen, currentAllocations]);
 
@@ -87,15 +118,19 @@ const ReallocationModal = ({
     try {
       const params = { productId };
       // Only add warehouseId if it's a valid value (not undefined, null, empty string, or string "undefined")
-      if (warehouseId && warehouseId !== 'undefined' && warehouseId !== 'null') {
+      if (
+        warehouseId &&
+        warehouseId !== "undefined" &&
+        warehouseId !== "null"
+      ) {
         params.warehouseId = warehouseId;
       }
 
-      const response = await api.get('/stock-batches/available', { params });
+      const response = await api.get("/stock-batches/available", { params });
       setAvailableBatches(response.batches || []);
     } catch (err) {
-      console.error('Failed to fetch batches:', err);
-      setError(err.response?.data?.error || 'Failed to load available batches');
+      console.error("Failed to fetch batches:", err);
+      setError(err.response?.data?.error || "Failed to load available batches");
     } finally {
       setLoading(false);
     }
@@ -123,11 +158,14 @@ const ReallocationModal = ({
     }, 0);
 
     // Get new cost
-    const newCost = Object.entries(newAllocations).reduce((sum, [batchId, qty]) => {
-      const batch = availableBatches.find(b => b.id === parseInt(batchId));
-      const unitCost = batch?.unitCost || 0;
-      return sum + (parseFloat(qty) || 0) * unitCost;
-    }, 0);
+    const newCost = Object.entries(newAllocations).reduce(
+      (sum, [batchId, qty]) => {
+        const batch = availableBatches.find((b) => b.id === parseInt(batchId));
+        const unitCost = batch?.unitCost || 0;
+        return sum + (parseFloat(qty) || 0) * unitCost;
+      },
+      0,
+    );
 
     return newCost - currentCost;
   };
@@ -136,8 +174,8 @@ const ReallocationModal = ({
 
   // Handle quantity change
   const handleQuantityChange = (batchId, value) => {
-    const qty = value === '' ? '' : parseFloat(value) || 0;
-    setNewAllocations(prev => ({
+    const qty = value === "" ? "" : parseFloat(value) || 0;
+    setNewAllocations((prev) => ({
       ...prev,
       [batchId]: qty,
     }));
@@ -146,12 +184,12 @@ const ReallocationModal = ({
   // Handle submit
   const handleSubmit = async () => {
     if (!reasonCode) {
-      setError('Please select a reason code');
+      setError("Please select a reason code");
       return;
     }
 
     if (!isComplete) {
-      setError('Total allocated must equal required quantity');
+      setError("Total allocated must equal required quantity");
       return;
     }
 
@@ -163,7 +201,7 @@ const ReallocationModal = ({
       const changes = [];
 
       // Find deallocations (old batches not in new or reduced quantity)
-      currentAllocations.forEach(alloc => {
+      currentAllocations.forEach((alloc) => {
         const batchId = alloc.batchId || alloc.batch_id;
         const oldQty = alloc.quantity || 0;
         const newQty = parseFloat(newAllocations[batchId]) || 0;
@@ -185,7 +223,9 @@ const ReallocationModal = ({
         const qty = parseFloat(newQty) || 0;
         if (qty <= 0) return;
 
-        const oldAlloc = currentAllocations.find(a => (a.batchId || a.batch_id) === batchId);
+        const oldAlloc = currentAllocations.find(
+          (a) => (a.batchId || a.batch_id) === batchId,
+        );
         const oldQty = oldAlloc?.quantity || 0;
 
         if (qty > oldQty) {
@@ -200,26 +240,33 @@ const ReallocationModal = ({
       });
 
       if (changes.length === 0) {
-        setError('No changes detected');
+        setError("No changes detected");
         setSubmitting(false);
         return;
       }
 
-      const response = await api.post(`/invoices/items/${invoiceItemId}/reallocate`, {
-        changes,
-        reasonCode,
-        reasonText,
-      });
+      const response = await api.post(
+        `/invoices/items/${invoiceItemId}/reallocate`,
+        {
+          changes,
+          reasonCode,
+          reasonText,
+        },
+      );
 
       if (response.success) {
         onReallocationComplete?.(response.newAllocations || []);
         onClose();
       } else {
-        setError(response.message || 'Reallocation failed');
+        setError(response.message || "Reallocation failed");
       }
     } catch (err) {
-      console.error('Reallocation failed:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to reallocate batches');
+      console.error("Reallocation failed:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to reallocate batches",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -252,40 +299,44 @@ const ReallocationModal = ({
 
   // Format helpers
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
       minimumFractionDigits: 2,
       maximumFractionDigits: 4,
     }).format(value || 0);
   };
 
   const formatQty = (qty) => {
-    return new Intl.NumberFormat('en-AE', {
+    return new Intl.NumberFormat("en-AE", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(qty || 0);
   };
 
   const getProcurementBadge = (channel) => {
-    if (channel === 'IMPORTED') {
+    if (channel === "IMPORTED") {
       return (
-        <Badge className={`inline-flex items-center gap-1 ${
-          isDarkMode
-            ? 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
-            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-        }`}>
+        <Badge
+          className={`inline-flex items-center gap-1 ${
+            isDarkMode
+              ? "bg-emerald-900/40 text-emerald-300 border-emerald-700"
+              : "bg-emerald-50 text-emerald-700 border-emerald-200"
+          }`}
+        >
           <Ship size={12} />
           IMP
         </Badge>
       );
     }
     return (
-      <Badge className={`inline-flex items-center gap-1 ${
-        isDarkMode
-          ? 'bg-blue-900/40 text-blue-300 border-blue-700'
-          : 'bg-blue-50 text-blue-700 border-blue-200'
-      }`}>
+      <Badge
+        className={`inline-flex items-center gap-1 ${
+          isDarkMode
+            ? "bg-blue-900/40 text-blue-300 border-blue-700"
+            : "bg-blue-50 text-blue-700 border-blue-200"
+        }`}
+      >
         <Package size={12} />
         LOCAL
       </Badge>
@@ -300,7 +351,7 @@ const ReallocationModal = ({
       <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
-        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
         role="button"
         tabIndex={-1}
         aria-label="Close modal"
@@ -309,13 +360,17 @@ const ReallocationModal = ({
       {/* Modal */}
       <div
         className={`relative w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-xl ${
-          isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
-        <div className={`sticky top-0 z-10 flex items-center justify-between p-4 border-b ${
-          isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
+        <div
+          className={`sticky top-0 z-10 flex items-center justify-between p-4 border-b ${
+            isDarkMode
+              ? "bg-gray-900 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
           <h2 className="text-lg font-semibold">Reallocate Batches</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X size={20} />
@@ -326,31 +381,50 @@ const ReallocationModal = ({
         <div className="p-4 space-y-4">
           {/* Error display */}
           {error && (
-            <div className={`flex items-center gap-2 p-3 rounded-lg ${
-              isDarkMode
-                ? 'bg-red-900/20 border border-red-700 text-red-300'
-                : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
+            <div
+              className={`flex items-center gap-2 p-3 rounded-lg ${
+                isDarkMode
+                  ? "bg-red-900/20 border border-red-700 text-red-300"
+                  : "bg-red-50 border border-red-200 text-red-700"
+              }`}
+            >
               <AlertTriangle size={16} />
               <span className="text-sm">{error}</span>
             </div>
           )}
 
           {/* Summary row */}
-          <div className={`flex items-center justify-between p-3 rounded-lg ${
-            isComplete
-              ? isDarkMode ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'
-              : isOverAllocated
-                ? isDarkMode ? 'bg-red-900/20 border border-red-700' : 'bg-red-50 border border-red-200'
-                : isDarkMode ? 'bg-amber-900/20 border border-amber-700' : 'bg-amber-50 border border-amber-200'
-          }`}>
+          <div
+            className={`flex items-center justify-between p-3 rounded-lg ${
+              isComplete
+                ? isDarkMode
+                  ? "bg-green-900/20 border border-green-700"
+                  : "bg-green-50 border border-green-200"
+                : isOverAllocated
+                  ? isDarkMode
+                    ? "bg-red-900/20 border border-red-700"
+                    : "bg-red-50 border border-red-200"
+                  : isDarkMode
+                    ? "bg-amber-900/20 border border-amber-700"
+                    : "bg-amber-50 border border-amber-200"
+            }`}
+          >
             <div className="flex items-center gap-4 text-sm">
-              <span>Required: <strong>{formatQty(requiredQty)}</strong></span>
+              <span>
+                Required: <strong>{formatQty(requiredQty)}</strong>
+              </span>
               <ArrowRight size={16} />
-              <span>Allocated: <strong>{formatQty(totalNewAllocated)}</strong></span>
+              <span>
+                Allocated: <strong>{formatQty(totalNewAllocated)}</strong>
+              </span>
               {costVariance !== 0 && (
-                <span className={costVariance > 0 ? 'text-red-500' : 'text-green-500'}>
-                  Cost Variance: {costVariance > 0 ? '+' : ''}{formatCurrency(costVariance)}
+                <span
+                  className={
+                    costVariance > 0 ? "text-red-500" : "text-green-500"
+                  }
+                >
+                  Cost Variance: {costVariance > 0 ? "+" : ""}
+                  {formatCurrency(costVariance)}
                 </span>
               )}
             </div>
@@ -371,23 +445,33 @@ const ReallocationModal = ({
               <span className="ml-2">Loading batches...</span>
             </div>
           ) : (
-            <div className={`rounded-lg border ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
+            <div
+              className={`rounded-lg border ${
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+              }`}
+            >
               <Table>
                 <TableHeader>
-                  <TableRow className={isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}>
+                  <TableRow
+                    className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}
+                  >
                     <TableHead className="w-[130px]">Batch #</TableHead>
                     <TableHead className="w-[80px]">Source</TableHead>
-                    <TableHead className="text-right w-[100px]">Available</TableHead>
-                    <TableHead className="text-right w-[100px]">Unit Cost</TableHead>
-                    <TableHead className="text-right w-[120px]">Allocate Qty</TableHead>
+                    <TableHead className="text-right w-[100px]">
+                      Available
+                    </TableHead>
+                    <TableHead className="text-right w-[100px]">
+                      Unit Cost
+                    </TableHead>
+                    <TableHead className="text-right w-[120px]">
+                      Allocate Qty
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {availableBatches.map((batch) => {
                     const currentAlloc = currentAllocations.find(
-                      a => (a.batchId || a.batch_id) === batch.id,
+                      (a) => (a.batchId || a.batch_id) === batch.id,
                     );
                     const isCurrentlyAllocated = !!currentAlloc;
                     const selectedQty = newAllocations[batch.id] || 0;
@@ -397,16 +481,22 @@ const ReallocationModal = ({
                         key={batch.id}
                         className={`${
                           selectedQty > 0
-                            ? isDarkMode ? 'bg-teal-900/20' : 'bg-teal-50'
+                            ? isDarkMode
+                              ? "bg-teal-900/20"
+                              : "bg-teal-50"
                             : isCurrentlyAllocated
-                              ? isDarkMode ? 'bg-blue-900/10' : 'bg-blue-50/50'
-                              : ''
+                              ? isDarkMode
+                                ? "bg-blue-900/10"
+                                : "bg-blue-50/50"
+                              : ""
                         }`}
                       >
                         <TableCell className="font-mono text-sm">
-                          {batch.batchNumber || '-'}
+                          {batch.batchNumber || "-"}
                           {isCurrentlyAllocated && (
-                            <span className="ml-2 text-xs text-blue-500">(current)</span>
+                            <span className="ml-2 text-xs text-blue-500">
+                              (current)
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -422,18 +512,23 @@ const ReallocationModal = ({
                           <input
                             type="number"
                             min="0"
-                            max={batch.quantityAvailable + (currentAlloc?.quantity || 0)}
+                            max={
+                              batch.quantityAvailable +
+                              (currentAlloc?.quantity || 0)
+                            }
                             step="0.01"
                             value={selectedQty}
-                            onChange={(e) => handleQuantityChange(batch.id, e.target.value)}
+                            onChange={(e) =>
+                              handleQuantityChange(batch.id, e.target.value)
+                            }
                             className={`w-20 px-2 py-1 text-right text-sm rounded border ${
                               selectedQty > 0
                                 ? isDarkMode
-                                  ? 'bg-teal-900/30 border-teal-600 text-teal-200'
-                                  : 'bg-teal-50 border-teal-400 text-teal-700'
+                                  ? "bg-teal-900/30 border-teal-600 text-teal-200"
+                                  : "bg-teal-50 border-teal-400 text-teal-700"
                                 : isDarkMode
-                                  ? 'bg-gray-700 border-gray-600 text-gray-200'
-                                  : 'bg-white border-gray-300 text-gray-700'
+                                  ? "bg-gray-700 border-gray-600 text-gray-200"
+                                  : "bg-white border-gray-300 text-gray-700"
                             } focus:outline-none focus:ring-1 focus:ring-teal-500`}
                           />
                         </TableCell>
@@ -447,9 +542,11 @@ const ReallocationModal = ({
 
           {/* Reason code selection */}
           <div className="space-y-3">
-            <h4 className={`text-sm font-semibold ${
-              isDarkMode ? 'text-gray-200' : 'text-gray-800'
-            }`}>
+            <h4
+              className={`text-sm font-semibold ${
+                isDarkMode ? "text-gray-200" : "text-gray-800"
+              }`}
+            >
               Reason for Reallocation <span className="text-red-500">*</span>
             </h4>
 
@@ -458,8 +555,8 @@ const ReallocationModal = ({
               onChange={(e) => setReasonCode(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-gray-200'
-                  : 'bg-white border-gray-300 text-gray-700'
+                  ? "bg-gray-800 border-gray-600 text-gray-200"
+                  : "bg-white border-gray-300 text-gray-700"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
             >
               <option value="">Select a reason...</option>
@@ -477,17 +574,21 @@ const ReallocationModal = ({
               rows={2}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-gray-200 placeholder-gray-500'
-                  : 'bg-white border-gray-300 text-gray-700 placeholder-gray-400'
+                  ? "bg-gray-800 border-gray-600 text-gray-200 placeholder-gray-500"
+                  : "bg-white border-gray-300 text-gray-700 placeholder-gray-400"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className={`sticky bottom-0 flex items-center justify-end gap-3 p-4 border-t ${
-          isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
+        <div
+          className={`sticky bottom-0 flex items-center justify-end gap-3 p-4 border-t ${
+            isDarkMode
+              ? "bg-gray-900 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
           <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
@@ -502,7 +603,7 @@ const ReallocationModal = ({
                 Saving...
               </>
             ) : (
-              'Apply Changes'
+              "Apply Changes"
             )}
           </Button>
         </div>
@@ -514,8 +615,10 @@ const ReallocationModal = ({
 ReallocationModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  invoiceItemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  productId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  invoiceItemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    .isRequired,
+  productId: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    .isRequired,
   warehouseId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   currentAllocations: PropTypes.array,
   requiredQty: PropTypes.number.isRequired,

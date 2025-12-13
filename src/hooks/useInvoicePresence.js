@@ -1,18 +1,18 @@
 /**
  * useInvoicePresence - Hook for tracking invoice edit sessions
- * 
+ *
  * Provides soft presence tracking: shows who else is viewing/editing an invoice.
  * Advisory only - does not block any actions.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { apiClient } from '../services/api';
-import { tokenUtils } from '../services/axiosApi';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { apiClient } from "../services/api";
+import { tokenUtils } from "../services/axiosApi";
 
 const HEARTBEAT_INTERVAL = 45000; // 45 seconds
 const FETCH_INTERVAL = 30000; // 30 seconds
 
-export function useInvoicePresence(invoiceId, mode = 'view') {
+export function useInvoicePresence(invoiceId, mode = "view") {
   const [activeSessions, setActiveSessions] = useState([]);
   const [sessionId] = useState(() => crypto.randomUUID());
   const heartbeatRef = useRef(null);
@@ -28,7 +28,7 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
         session_id: sessionId,
       });
     } catch (err) {
-      console.warn('[Presence] Failed to start session:', err.message);
+      console.warn("[Presence] Failed to start session:", err.message);
     }
   }, [invoiceId, mode, sessionId]);
 
@@ -40,7 +40,7 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
         session_id: sessionId,
       });
     } catch (err) {
-      console.warn('[Presence] Heartbeat failed:', err.message);
+      console.warn("[Presence] Heartbeat failed:", err.message);
     }
   }, [invoiceId, sessionId]);
 
@@ -52,7 +52,7 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
         session_id: sessionId,
       });
     } catch (err) {
-      console.warn('[Presence] Failed to end session:', err.message);
+      console.warn("[Presence] Failed to end session:", err.message);
     }
   }, [invoiceId, sessionId]);
 
@@ -60,10 +60,12 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
   const fetchSessions = useCallback(async () => {
     if (!invoiceId) return;
     try {
-      const response = await apiClient.get(`/invoices/${invoiceId}/edit-sessions`);
+      const response = await apiClient.get(
+        `/invoices/${invoiceId}/edit-sessions`,
+      );
       setActiveSessions(response || []);
     } catch (err) {
-      console.warn('[Presence] Failed to fetch sessions:', err.message);
+      console.warn("[Presence] Failed to fetch sessions:", err.message);
     }
   }, [invoiceId]);
 
@@ -95,17 +97,20 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
   }, [invoiceId, startSession, sendHeartbeat, endSession, fetchSessions]);
 
   // Update mode if it changes
-  const updateMode = useCallback(async (newMode) => {
-    if (!invoiceId) return;
-    try {
-      await apiClient.post(`/invoices/${invoiceId}/edit-sessions/start`, {
-        mode: newMode,
-        session_id: sessionId,
-      });
-    } catch (err) {
-      console.warn('[Presence] Failed to update mode:', err.message);
-    }
-  }, [invoiceId, sessionId]);
+  const updateMode = useCallback(
+    async (newMode) => {
+      if (!invoiceId) return;
+      try {
+        await apiClient.post(`/invoices/${invoiceId}/edit-sessions/start`, {
+          mode: newMode,
+          session_id: sessionId,
+        });
+      } catch (err) {
+        console.warn("[Presence] Failed to update mode:", err.message);
+      }
+    },
+    [invoiceId, sessionId],
+  );
 
   return {
     activeSessions,

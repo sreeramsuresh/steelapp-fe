@@ -8,77 +8,77 @@
  * 4. Save Draft button functionality
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import CreditNoteForm from '../CreditNoteForm';
-import { ThemeProvider } from '../../contexts/ThemeContext';
-import * as creditNoteService from '../../services/creditNoteService';
-import * as invoiceService from '../../services/invoiceService';
-import * as companyService from '../../services/companyService';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
+import CreditNoteForm from "../CreditNoteForm";
+import { ThemeProvider } from "../../contexts/ThemeContext";
+import * as creditNoteService from "../../services/creditNoteService";
+import * as invoiceService from "../../services/invoiceService";
+import * as companyService from "../../services/companyService";
 
 // Mock data
 const mockCreditNote = {
   id: 107,
-  creditNoteNumber: 'CN-2025-0007',
+  creditNoteNumber: "CN-2025-0007",
   invoiceId: 337,
-  invoiceNumber: 'INV-202512-0042',
+  invoiceNumber: "INV-202512-0042",
   customerId: 8,
-  customerName: 'Emirates Fabrication',
-  creditNoteDate: '2025-12-04T20:00:00.000Z', // ISO timestamp from backend
-  status: 'draft',
-  reasonForReturn: 'overcharge',
-  creditNoteType: 'ACCOUNTING_ONLY',
+  customerName: "Emirates Fabrication",
+  creditNoteDate: "2025-12-04T20:00:00.000Z", // ISO timestamp from backend
+  status: "draft",
+  reasonForReturn: "overcharge",
+  creditNoteType: "ACCOUNTING_ONLY",
   manualCreditAmount: 0,
   items: [],
   subtotal: 0,
   vatAmount: 0,
   totalCredit: 0,
-  notes: '',
+  notes: "",
   customer: {
     id: 8,
-    name: 'Emirates Fabrication',
+    name: "Emirates Fabrication",
     address: {
-      street: '123 Business Bay',
-      city: 'Dubai',
-      state: 'Dubai',
-      postal_code: '12345',
-      country: 'UAE',
+      street: "123 Business Bay",
+      city: "Dubai",
+      state: "Dubai",
+      postal_code: "12345",
+      country: "UAE",
     },
-    phone: '+971501234567',
-    email: 'contact@emiratesfab.ae',
-    trn: '123456789012345',
+    phone: "+971501234567",
+    email: "contact@emiratesfab.ae",
+    trn: "123456789012345",
   },
 };
 
 const mockInvoice = {
   id: 337,
-  invoiceNumber: 'INV-202512-0042',
-  date: '2025-12-02T20:00:00.000Z', // ISO timestamp
-  status: 'issued',
+  invoiceNumber: "INV-202512-0042",
+  date: "2025-12-02T20:00:00.000Z", // ISO timestamp
+  status: "issued",
   customerId: 8,
-  customerName: 'Emirates Fabrication',
+  customerName: "Emirates Fabrication",
   customer: {
     id: 8,
-    name: 'Emirates Fabrication',
+    name: "Emirates Fabrication",
     address: {
-      street: '123 Business Bay',
-      city: 'Dubai',
-      state: 'Dubai',
-      postal_code: '12345',
-      country: 'UAE',
+      street: "123 Business Bay",
+      city: "Dubai",
+      state: "Dubai",
+      postal_code: "12345",
+      country: "UAE",
     },
-    phone: '+971501234567',
-    email: 'contact@emiratesfab.ae',
-    trn: '123456789012345',
+    phone: "+971501234567",
+    email: "contact@emiratesfab.ae",
+    trn: "123456789012345",
   },
   items: [
     {
       id: 1,
       productId: 10,
-      name: 'Stainless Steel Sheet',
-      description: '304 Grade',
+      name: "Stainless Steel Sheet",
+      description: "304 Grade",
       quantity: 11,
       rate: 222,
       amount: 2442,
@@ -88,8 +88,8 @@ const mockInvoice = {
     {
       id: 2,
       productId: 20,
-      name: 'Stainless Steel Pipe',
-      description: '316 Grade',
+      name: "Stainless Steel Pipe",
+      description: "316 Grade",
       quantity: 11,
       rate: 222,
       amount: 2442,
@@ -104,13 +104,13 @@ const mockInvoice = {
 
 const mockCompany = {
   id: 1,
-  name: 'Ultimate Steel Trading LLC',
-  trn: '100123456789012',
-  logoUrl: '/uploads/logo.png',
+  name: "Ultimate Steel Trading LLC",
+  trn: "100123456789012",
+  logoUrl: "/uploads/logo.png",
 };
 
 // Mock services
-vi.mock('../../services/creditNoteService', () => ({
+vi.mock("../../services/creditNoteService", () => ({
   creditNoteService: {
     getCreditNote: vi.fn(),
     getNextCreditNoteNumber: vi.fn(),
@@ -119,20 +119,20 @@ vi.mock('../../services/creditNoteService', () => ({
   },
 }));
 
-vi.mock('../../services/invoiceService', () => ({
+vi.mock("../../services/invoiceService", () => ({
   invoiceService: {
     getInvoice: vi.fn(),
     searchForCreditNote: vi.fn(),
   },
 }));
 
-vi.mock('../../services/companyService', () => ({
+vi.mock("../../services/companyService", () => ({
   companyService: {
     getCompany: vi.fn(),
   },
 }));
 
-vi.mock('../../services/notificationService', () => ({
+vi.mock("../../services/notificationService", () => ({
   notificationService: {
     success: vi.fn(),
     error: vi.fn(),
@@ -152,8 +152,8 @@ const { mockNavigate, mockUseParams, mockUseSearchParams } = vi.hoisted(() => ({
   mockUseSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
 }));
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -165,13 +165,11 @@ vi.mock('react-router-dom', async () => {
 // Test wrapper component
 const TestWrapper = ({ children }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      {children}
-    </ThemeProvider>
+    <ThemeProvider>{children}</ThemeProvider>
   </BrowserRouter>
 );
 
-describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
+describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
   let localStorageMock;
 
   beforeEach(() => {
@@ -197,12 +195,14 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
     // No need to reset useCreditNoteDrafts mocks - we're using the real implementation
 
     // Setup service mocks with default implementations
-    creditNoteService.creditNoteService.getNextCreditNoteNumber.mockResolvedValue({
-      nextNumber: 'CN-2025-0008',
-    });
+    creditNoteService.creditNoteService.getNextCreditNoteNumber.mockResolvedValue(
+      {
+        nextNumber: "CN-2025-0008",
+      },
+    );
 
     companyService.companyService.getCompany.mockResolvedValue(mockCompany);
-    
+
     // Mock searchForCreditNote to return empty array by default
     invoiceService.invoiceService.searchForCreditNote.mockResolvedValue([]);
   });
@@ -216,35 +216,35 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
   // Test Suite 1: Date Format Handling
   // ============================================
 
-  describe('Suite 1: Date Format Handling', () => {
-    it('Test 2: Resume draft with ISO timestamp and verify formatted date', async () => {
+  describe("Suite 1: Date Format Handling", () => {
+    it("Test 2: Resume draft with ISO timestamp and verify formatted date", async () => {
       // Setup draft in localStorage with ISO timestamp
       const draftData = {
         337: {
           data: {
             invoiceId: 337,
-            invoiceNumber: 'INV-202512-0042',
-            creditNoteNumber: 'CN-2025-0008',
-            creditNoteDate: '2025-12-03T20:00:00.000Z', // ISO timestamp
-            reasonForReturn: 'goodwill_credit',
-            creditNoteType: 'ACCOUNTING_ONLY',
+            invoiceNumber: "INV-202512-0042",
+            creditNoteNumber: "CN-2025-0008",
+            creditNoteDate: "2025-12-03T20:00:00.000Z", // ISO timestamp
+            reasonForReturn: "goodwill_credit",
+            creditNoteType: "ACCOUNTING_ONLY",
             manualCreditAmount: 750,
             items: [],
             customer: mockInvoice.customer,
           },
           invoiceId: 337,
-          invoiceNumber: 'INV-202512-0042',
-          customerName: 'Emirates Fabrication',
+          invoiceNumber: "INV-202512-0042",
+          customerName: "Emirates Fabrication",
           timestamp: Date.now(),
           expiresAt: Date.now() + 86400000, // 24 hours
         },
       };
 
-      localStorageMock['credit_note_drafts'] = JSON.stringify(draftData);
+      localStorageMock["credit_note_drafts"] = JSON.stringify(draftData);
 
       // Mock search params to load invoice
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('?invoiceId=337'),
+        new URLSearchParams("?invoiceId=337"),
         vi.fn(),
       ]);
 
@@ -257,12 +257,19 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
       );
 
       // Wait for conflict modal or resume banner
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /resume draft/i })).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getByRole("button", { name: /resume draft/i }),
+          ).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Click resume draft button
-      const resumeButton = screen.getByRole('button', { name: /resume draft/i });
+      const resumeButton = screen.getByRole("button", {
+        name: /resume draft/i,
+      });
       await userEvent.click(resumeButton);
 
       // Wait for draft to be loaded
@@ -270,7 +277,7 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
         const dateInput = container.querySelector('input[type="date"]');
         expect(dateInput).toBeInTheDocument();
         // ISO: 2025-12-03T20:00:00.000Z should become 2025-12-04 in UAE timezone
-        expect(dateInput.value).toBe('2025-12-04');
+        expect(dateInput.value).toBe("2025-12-04");
       });
     });
   });
@@ -279,34 +286,34 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
   // Test Suite 2: Draft Persistence
   // ============================================
 
-  describe('Suite 2: Draft Persistence', () => {
-    it('Test 5: Draft persistence across reload', async () => {
+  describe("Suite 2: Draft Persistence", () => {
+    it("Test 5: Draft persistence across reload", async () => {
       // Setup existing draft
       const existingDraft = {
         337: {
           data: {
             invoiceId: 337,
-            invoiceNumber: 'INV-202512-0042',
-            creditNoteNumber: 'CN-2025-0008',
-            creditNoteDate: '2025-12-05',
-            reasonForReturn: 'goodwill_credit',
-            creditNoteType: 'ACCOUNTING_ONLY',
+            invoiceNumber: "INV-202512-0042",
+            creditNoteNumber: "CN-2025-0008",
+            creditNoteDate: "2025-12-05",
+            reasonForReturn: "goodwill_credit",
+            creditNoteType: "ACCOUNTING_ONLY",
             manualCreditAmount: 500,
             items: [],
             customer: mockInvoice.customer,
           },
           invoiceId: 337,
-          invoiceNumber: 'INV-202512-0042',
-          customerName: 'Emirates Fabrication',
+          invoiceNumber: "INV-202512-0042",
+          customerName: "Emirates Fabrication",
           timestamp: Date.now(),
           expiresAt: Date.now() + 86400000,
         },
       };
 
-      localStorageMock['credit_note_drafts'] = JSON.stringify(existingDraft);
+      localStorageMock["credit_note_drafts"] = JSON.stringify(existingDraft);
 
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('?invoiceId=337'),
+        new URLSearchParams("?invoiceId=337"),
         vi.fn(),
       ]);
 
@@ -320,17 +327,21 @@ describe('Credit Note Form - Date Format & Auto-Save Tests', () => {
 
       // Check that "Resume Draft" banner appears
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /resume draft/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /resume draft/i }),
+        ).toBeInTheDocument();
       });
 
       // Click Resume Draft
-      const resumeButton = screen.getByRole('button', { name: /resume draft/i });
+      const resumeButton = screen.getByRole("button", {
+        name: /resume draft/i,
+      });
       await userEvent.click(resumeButton);
 
       // Verify manual amount is restored
       await waitFor(() => {
-        const manualCreditInput = screen.getByTestId('manual-credit-amount');
-        expect(manualCreditInput.value).toBe('500');
+        const manualCreditInput = screen.getByTestId("manual-credit-amount");
+        expect(manualCreditInput.value).toBe("500");
       });
     });
   });

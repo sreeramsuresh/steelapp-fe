@@ -1,13 +1,13 @@
-import { useRef } from 'react';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
-import * as echarts from 'echarts/core';
+import { useRef } from "react";
+import ReactEChartsCore from "echarts-for-react/lib/core";
+import * as echarts from "echarts/core";
 import {
   GaugeChart,
   TreemapChart,
   FunnelChart,
   HeatmapChart,
   BarChart,
-} from 'echarts/charts';
+} from "echarts/charts";
 import {
   GridComponent,
   TooltipComponent,
@@ -15,8 +15,8 @@ import {
   TitleComponent,
   ToolboxComponent,
   VisualMapComponent,
-} from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
 
 // Register ECharts components
 echarts.use([
@@ -40,45 +40,45 @@ echarts.use([
 
 const getThemeColors = (isDarkMode) => ({
   // Background colors
-  background: isDarkMode ? '#1E2328' : '#FFFFFF',
-  cardBackground: isDarkMode ? '#2E3B4E' : '#F5F5F5',
+  background: isDarkMode ? "#1E2328" : "#FFFFFF",
+  cardBackground: isDarkMode ? "#2E3B4E" : "#F5F5F5",
 
   // Text colors
-  textPrimary: isDarkMode ? '#FFFFFF' : '#212121',
-  textSecondary: isDarkMode ? '#B0BEC5' : '#757575',
-  textMuted: isDarkMode ? '#78909C' : '#BDBDBD',
+  textPrimary: isDarkMode ? "#FFFFFF" : "#212121",
+  textSecondary: isDarkMode ? "#B0BEC5" : "#757575",
+  textMuted: isDarkMode ? "#78909C" : "#BDBDBD",
 
   // Grid and axis colors
-  grid: isDarkMode ? '#37474F' : '#E0E0E0',
-  axis: isDarkMode ? '#78909C' : '#9E9E9E',
+  grid: isDarkMode ? "#37474F" : "#E0E0E0",
+  axis: isDarkMode ? "#78909C" : "#9E9E9E",
 
   // Chart colors
-  primary: '#14B8A6',
-  secondary: '#3B82F6',
-  success: '#22C55E',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  purple: '#8B5CF6',
+  primary: "#14B8A6",
+  secondary: "#3B82F6",
+  success: "#22C55E",
+  warning: "#F59E0B",
+  error: "#EF4444",
+  purple: "#8B5CF6",
 
   // Gradient colors for gauges
   gaugeGradient: [
-    [0.3, '#22C55E'],
-    [0.7, '#F59E0B'],
-    [1, '#EF4444'],
+    [0.3, "#22C55E"],
+    [0.7, "#F59E0B"],
+    [1, "#EF4444"],
   ],
 
   // Color palette
   palette: [
-    '#14B8A6',
-    '#3B82F6',
-    '#22C55E',
-    '#F59E0B',
-    '#EF4444',
-    '#8B5CF6',
-    '#EC4899',
-    '#6366F1',
-    '#06B6D4',
-    '#84CC16',
+    "#14B8A6",
+    "#3B82F6",
+    "#22C55E",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#EC4899",
+    "#6366F1",
+    "#06B6D4",
+    "#84CC16",
   ],
 });
 
@@ -100,28 +100,28 @@ export const EChartsWrapper = ({
   // Merge theme into option
   const themedOption = {
     ...option,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     textStyle: {
       color: colors.textPrimary,
-      fontFamily: 'Inter, system-ui, sans-serif',
+      fontFamily: "Inter, system-ui, sans-serif",
       ...option.textStyle,
     },
     ...(showToolbox && {
       toolbox: {
         show: true,
-        orient: 'horizontal',
+        orient: "horizontal",
         right: 10,
         top: 10,
         feature: {
           saveAsImage: {
-            title: 'Save',
+            title: "Save",
             pixelRatio: 2,
           },
           dataView: {
             show: true,
-            title: 'Data',
+            title: "Data",
             readOnly: true,
-            lang: ['Data View', 'Close', 'Refresh'],
+            lang: ["Data View", "Close", "Refresh"],
           },
         },
         iconStyle: {
@@ -143,8 +143,8 @@ export const EChartsWrapper = ({
         ref={chartRef}
         echarts={echarts}
         option={themedOption}
-        style={{ height, width: '100%', ...style }}
-        opts={{ renderer: 'canvas' }}
+        style={{ height, width: "100%", ...style }}
+        opts={{ renderer: "canvas" }}
         onEvents={onEvents}
         notMerge={true}
       />
@@ -160,7 +160,7 @@ export const GaugeChartWrapper = ({
   value,
   min = 0,
   max = 100,
-  title = '',
+  title = "",
   isDarkMode = false,
   height = 250,
   showProgress = true,
@@ -181,7 +181,7 @@ export const GaugeChartWrapper = ({
   const option = {
     series: [
       {
-        type: 'gauge',
+        type: "gauge",
         startAngle: 180,
         endAngle: 0,
         min,
@@ -194,7 +194,7 @@ export const GaugeChartWrapper = ({
         },
         pointer: {
           show: true,
-          length: '60%',
+          length: "60%",
           width: 4,
           itemStyle: {
             color: colors.textSecondary,
@@ -230,19 +230,19 @@ export const GaugeChartWrapper = ({
         },
         title: {
           show: !!title,
-          offsetCenter: [0, '70%'],
+          offsetCenter: [0, "70%"],
           color: colors.textSecondary,
           fontSize: 12,
         },
         detail: {
           valueAnimation: true,
-          width: '60%',
+          width: "60%",
           lineHeight: 40,
           borderRadius: 8,
-          offsetCenter: [0, '35%'],
+          offsetCenter: [0, "35%"],
           fontSize: 24,
-          fontWeight: 'bold',
-          formatter: formatValue || '{value}',
+          fontWeight: "bold",
+          formatter: formatValue || "{value}",
           color: getGaugeColor(),
         },
         data: [
@@ -255,7 +255,9 @@ export const GaugeChartWrapper = ({
     ],
   };
 
-  return <EChartsWrapper option={option} isDarkMode={isDarkMode} height={height} />;
+  return (
+    <EChartsWrapper option={option} isDarkMode={isDarkMode} height={height} />
+  );
 };
 
 // ============================================================================
@@ -274,10 +276,12 @@ export const TreemapChartWrapper = ({
 
   const option = {
     tooltip: {
-      formatter: formatter || ((info) => {
-        const { name, value } = info;
-        return `${name}: ${typeof value === 'number' ? value.toLocaleString() : value}`;
-      }),
+      formatter:
+        formatter ||
+        ((info) => {
+          const { name, value } = info;
+          return `${name}: ${typeof value === "number" ? value.toLocaleString() : value}`;
+        }),
       backgroundColor: colors.background,
       borderColor: colors.grid,
       textStyle: {
@@ -286,13 +290,13 @@ export const TreemapChartWrapper = ({
     },
     series: [
       {
-        type: 'treemap',
+        type: "treemap",
         data,
         roam: false,
-        nodeClick: 'zoomToNode',
+        nodeClick: "zoomToNode",
         breadcrumb: {
           show: showBreadcrumb,
-          left: 'center',
+          left: "center",
           itemStyle: {
             color: colors.cardBackground,
             borderColor: colors.grid,
@@ -303,11 +307,11 @@ export const TreemapChartWrapper = ({
         },
         label: {
           show: true,
-          formatter: '{b}',
-          color: '#FFFFFF',
+          formatter: "{b}",
+          color: "#FFFFFF",
           fontSize: 12,
-          fontWeight: 'bold',
-          textShadowColor: 'rgba(0,0,0,0.5)',
+          fontWeight: "bold",
+          textShadowColor: "rgba(0,0,0,0.5)",
           textShadowBlur: 2,
         },
         itemStyle: {
@@ -385,64 +389,68 @@ export const WaterfallChartWrapper = ({
 
   const option = {
     tooltip: {
-      trigger: 'axis',
+      trigger: "axis",
       axisPointer: {
-        type: 'shadow',
+        type: "shadow",
       },
       backgroundColor: colors.background,
       borderColor: colors.grid,
       textStyle: {
         color: colors.textPrimary,
       },
-      formatter: formatter || ((params) => {
-        const param = params[0];
-        const value = Array.isArray(param.value)
-          ? param.value[1] - param.value[0]
-          : param.value;
-        return `${param.name}: ${value >= 0 ? '+' : ''}${value.toLocaleString()}`;
-      }),
+      formatter:
+        formatter ||
+        ((params) => {
+          const param = params[0];
+          const value = Array.isArray(param.value)
+            ? param.value[1] - param.value[0]
+            : param.value;
+          return `${param.name}: ${value >= 0 ? "+" : ""}${value.toLocaleString()}`;
+        }),
     },
     grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
       containLabel: true,
     },
     xAxis: {
-      type: 'category',
+      type: "category",
       data: data.map((d) => d.name),
       axisLine: { lineStyle: { color: colors.grid } },
       axisLabel: { color: colors.textSecondary, fontSize: 11 },
     },
     yAxis: {
-      type: 'value',
+      type: "value",
       axisLine: { lineStyle: { color: colors.grid } },
       axisLabel: {
         color: colors.textSecondary,
         formatter: formatter || ((val) => val.toLocaleString()),
       },
-      splitLine: { lineStyle: { color: colors.grid, type: 'dashed' } },
+      splitLine: { lineStyle: { color: colors.grid, type: "dashed" } },
     },
     series: [
       {
-        type: 'bar',
-        stack: 'total',
+        type: "bar",
+        stack: "total",
         silent: true,
         itemStyle: {
-          color: 'transparent',
+          color: "transparent",
         },
-        data: processedData.map((d) => (Array.isArray(d.value) ? d.value[0] : 0)),
+        data: processedData.map((d) =>
+          Array.isArray(d.value) ? d.value[0] : 0,
+        ),
       },
       {
-        type: 'bar',
-        stack: 'total',
+        type: "bar",
+        stack: "total",
         data: processedData.map((d) => ({
           value: Array.isArray(d.value) ? d.value[1] - d.value[0] : d.value,
           itemStyle: d.itemStyle,
         })),
         label: {
           show: true,
-          position: 'top',
+          position: "top",
           color: colors.textPrimary,
           fontSize: 11,
           formatter: (params) => {
@@ -474,21 +482,23 @@ export const FunnelChartWrapper = ({
   height = 400,
   showToolbox = false,
   formatter,
-  sort = 'descending', // 'ascending', 'descending', 'none'
+  sort = "descending", // 'ascending', 'descending', 'none'
 }) => {
   const colors = getThemeColors(isDarkMode);
 
   const option = {
     tooltip: {
-      trigger: 'item',
+      trigger: "item",
       backgroundColor: colors.background,
       borderColor: colors.grid,
       textStyle: {
         color: colors.textPrimary,
       },
-      formatter: formatter || ((params) => {
-        return `${params.name}: ${params.value.toLocaleString()} (${params.percent}%)`;
-      }),
+      formatter:
+        formatter ||
+        ((params) => {
+          return `${params.name}: ${params.value.toLocaleString()} (${params.percent}%)`;
+        }),
     },
     legend: {
       show: true,
@@ -499,24 +509,24 @@ export const FunnelChartWrapper = ({
     },
     series: [
       {
-        type: 'funnel',
-        left: '10%',
+        type: "funnel",
+        left: "10%",
         top: 20,
         bottom: 60,
-        width: '80%',
+        width: "80%",
         min: 0,
         max: Math.max(...data.map((d) => d.value)),
-        minSize: '0%',
-        maxSize: '100%',
+        minSize: "0%",
+        maxSize: "100%",
         sort,
         gap: 2,
         label: {
           show: true,
-          position: 'inside',
-          color: '#FFFFFF',
+          position: "inside",
+          color: "#FFFFFF",
           fontSize: 12,
-          fontWeight: 'bold',
-          formatter: '{b}',
+          fontWeight: "bold",
+          formatter: "{b}",
         },
         labelLine: {
           show: false,
@@ -568,37 +578,41 @@ export const HeatmapChartWrapper = ({
   const colors = getThemeColors(isDarkMode);
 
   // Calculate min/max if not provided
-  const values = data.map((d) => d[2]).filter((v) => v !== null && v !== undefined);
+  const values = data
+    .map((d) => d[2])
+    .filter((v) => v !== null && v !== undefined);
   const minValue = min !== undefined ? min : Math.min(...values);
   const maxValue = max !== undefined ? max : Math.max(...values);
 
   const option = {
     tooltip: {
-      position: 'top',
+      position: "top",
       backgroundColor: colors.background,
       borderColor: colors.grid,
       textStyle: {
         color: colors.textPrimary,
       },
-      formatter: formatter || ((params) => {
-        return `${xAxisData[params.value[0]]}, ${yAxisData[params.value[1]]}: ${params.value[2]}`;
-      }),
+      formatter:
+        formatter ||
+        ((params) => {
+          return `${xAxisData[params.value[0]]}, ${yAxisData[params.value[1]]}: ${params.value[2]}`;
+        }),
     },
     grid: {
-      left: '15%',
-      right: '10%',
-      top: '10%',
-      bottom: '15%',
+      left: "15%",
+      right: "10%",
+      top: "10%",
+      bottom: "15%",
     },
     xAxis: {
-      type: 'category',
+      type: "category",
       data: xAxisData,
       splitArea: { show: true },
       axisLine: { lineStyle: { color: colors.grid } },
       axisLabel: { color: colors.textSecondary, fontSize: 11 },
     },
     yAxis: {
-      type: 'category',
+      type: "category",
       data: yAxisData,
       splitArea: { show: true },
       axisLine: { lineStyle: { color: colors.grid } },
@@ -608,13 +622,13 @@ export const HeatmapChartWrapper = ({
       min: minValue,
       max: maxValue,
       calculable: true,
-      orient: 'horizontal',
-      left: 'center',
-      bottom: '0%',
+      orient: "horizontal",
+      left: "center",
+      bottom: "0%",
       inRange: {
         color: isDarkMode
-          ? ['#1E3A5F', '#14B8A6', '#F59E0B', '#EF4444']
-          : ['#E0F2FE', '#14B8A6', '#F59E0B', '#EF4444'],
+          ? ["#1E3A5F", "#14B8A6", "#F59E0B", "#EF4444"]
+          : ["#E0F2FE", "#14B8A6", "#F59E0B", "#EF4444"],
       },
       textStyle: {
         color: colors.textSecondary,
@@ -622,7 +636,7 @@ export const HeatmapChartWrapper = ({
     },
     series: [
       {
-        type: 'heatmap',
+        type: "heatmap",
         data,
         label: {
           show: true,
@@ -632,7 +646,7 @@ export const HeatmapChartWrapper = ({
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
-            shadowColor: 'rgba(0, 0, 0, 0.5)',
+            shadowColor: "rgba(0, 0, 0, 0.5)",
           },
         },
       },

@@ -4,7 +4,7 @@
  * Manage third-party API integrations (FTA, Central Bank, etc.)
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 export const integrationService = {
   /**
@@ -12,10 +12,10 @@ export const integrationService = {
    */
   async getAll() {
     try {
-      const response = await apiClient.get('/integrations');
+      const response = await apiClient.get("/integrations");
       return response;
     } catch (error) {
-      console.error('Error fetching integrations:', error);
+      console.error("Error fetching integrations:", error);
       throw error;
     }
   },
@@ -112,7 +112,10 @@ export const integrationService = {
    */
   async getAuditLog(type, params = {}) {
     try {
-      const response = await apiClient.get(`/integrations/${type}/audit`, params);
+      const response = await apiClient.get(
+        `/integrations/${type}/audit`,
+        params,
+      );
       return response;
     } catch (error) {
       console.error(`Error fetching audit log for ${type}:`, error);

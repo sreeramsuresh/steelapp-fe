@@ -1,8 +1,8 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Stock Batch Service
- * 
+ *
  * API service for managing stock batches with procurement channel tracking.
  * Supports the v2 procurement system where procurement channel (LOCAL/IMPORTED)
  * lives at the BATCH level, not the product level.
@@ -28,11 +28,12 @@ export const stockBatchService = {
     };
 
     if (params.productId) queryParams.productId = params.productId;
-    if (params.procurementChannel) queryParams.procurementChannel = params.procurementChannel;
+    if (params.procurementChannel)
+      queryParams.procurementChannel = params.procurementChannel;
     if (params.warehouseId) queryParams.warehouseId = params.warehouseId;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
 
-    return apiClient.get('/stock-batches', queryParams);
+    return apiClient.get("/stock-batches", queryParams);
   },
 
   /**
@@ -47,7 +48,8 @@ export const stockBatchService = {
       companyId: params.companyId,
     };
 
-    if (params.procurementChannel) queryParams.procurementChannel = params.procurementChannel;
+    if (params.procurementChannel)
+      queryParams.procurementChannel = params.procurementChannel;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
 
     return apiClient.get(`/stock-batches/product/${productId}`, queryParams);
@@ -66,7 +68,10 @@ export const stockBatchService = {
       companyId: params.companyId,
     };
 
-    return apiClient.get(`/stock-batches/product/${productId}/summary`, queryParams);
+    return apiClient.get(
+      `/stock-batches/product/${productId}/summary`,
+      queryParams,
+    );
   },
 
   /**
@@ -92,7 +97,7 @@ export const stockBatchService = {
    * @param {string} data.millName - Mill/manufacturer name for imports
    */
   async createBatch(data) {
-    return apiClient.post('/stock-batches', data);
+    return apiClient.post("/stock-batches", data);
   },
 
   /**

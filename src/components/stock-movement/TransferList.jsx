@@ -6,7 +6,7 @@
  * Lists all stock transfers with filtering and actions
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -34,7 +34,7 @@ import {
   DialogContent,
   DialogActions,
   InputAdornment,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -44,22 +44,26 @@ import {
   SwapHoriz as TransferIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
-} from '@mui/icons-material';
-import { stockMovementService, TRANSFER_STATUSES } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
+} from "@mui/icons-material";
+import {
+  stockMovementService,
+  TRANSFER_STATUSES,
+} from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return '-';
-  const date = typeof dateValue === 'object' && dateValue.seconds
-    ? new Date(dateValue.seconds * 1000)
-    : new Date(dateValue);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  if (!dateValue) return "-";
+  const date =
+    typeof dateValue === "object" && dateValue.seconds
+      ? new Date(dateValue.seconds * 1000)
+      : new Date(dateValue);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
 
@@ -67,7 +71,10 @@ const formatDate = (dateValue) => {
  * Get status chip props
  */
 const getStatusChip = (status) => {
-  const statusInfo = TRANSFER_STATUSES[status] || { label: status, color: 'default' };
+  const statusInfo = TRANSFER_STATUSES[status] || {
+    label: status,
+    color: "default",
+  };
   return statusInfo;
 };
 
@@ -83,13 +90,17 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState('');
-  const [destWarehouseFilter, setDestWarehouseFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState("");
+  const [destWarehouseFilter, setDestWarehouseFilter] = useState("");
 
   // Action dialogs
-  const [actionDialog, setActionDialog] = useState({ open: false, type: null, transfer: null });
+  const [actionDialog, setActionDialog] = useState({
+    open: false,
+    type: null,
+    transfer: null,
+  });
   const [actionLoading, setActionLoading] = useState(false);
 
   // Load warehouses for filter dropdowns
@@ -99,7 +110,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error('Error loading warehouses:', err);
+        console.error("Error loading warehouses:", err);
       }
     };
     loadWarehouses();
@@ -124,23 +135,34 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       let filteredData = result.data || [];
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        filteredData = filteredData.filter(t =>
-          (t.transferNumber && t.transferNumber.toLowerCase().includes(query)) ||
-          (t.sourceWarehouseName && t.sourceWarehouseName.toLowerCase().includes(query)) ||
-          (t.destinationWarehouseName && t.destinationWarehouseName.toLowerCase().includes(query)) ||
-          (t.notes && t.notes.toLowerCase().includes(query)),
+        filteredData = filteredData.filter(
+          (t) =>
+            (t.transferNumber &&
+              t.transferNumber.toLowerCase().includes(query)) ||
+            (t.sourceWarehouseName &&
+              t.sourceWarehouseName.toLowerCase().includes(query)) ||
+            (t.destinationWarehouseName &&
+              t.destinationWarehouseName.toLowerCase().includes(query)) ||
+            (t.notes && t.notes.toLowerCase().includes(query)),
         );
       }
 
       setTransfers(filteredData);
       setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
-      console.error('Error loading transfers:', err);
-      setError('Failed to load transfers');
+      console.error("Error loading transfers:", err);
+      setError("Failed to load transfers");
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, statusFilter, sourceWarehouseFilter, destWarehouseFilter, searchQuery]);
+  }, [
+    page,
+    rowsPerPage,
+    statusFilter,
+    sourceWarehouseFilter,
+    destWarehouseFilter,
+    searchQuery,
+  ]);
 
   useEffect(() => {
     loadTransfers();
@@ -167,8 +189,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error('Error shipping transfer:', err);
-      setError(err.message || 'Failed to ship transfer');
+      console.error("Error shipping transfer:", err);
+      setError(err.message || "Failed to ship transfer");
     } finally {
       setActionLoading(false);
     }
@@ -184,8 +206,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error('Error receiving transfer:', err);
-      setError(err.message || 'Failed to receive transfer');
+      console.error("Error receiving transfer:", err);
+      setError(err.message || "Failed to receive transfer");
     } finally {
       setActionLoading(false);
     }
@@ -201,8 +223,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error('Error cancelling transfer:', err);
-      setError(err.message || 'Failed to cancel transfer');
+      console.error("Error cancelling transfer:", err);
+      setError(err.message || "Failed to cancel transfer");
     } finally {
       setActionLoading(false);
     }
@@ -212,16 +234,20 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const getAvailableActions = (transfer) => {
     const actions = [];
 
-    actions.push({ type: 'view', label: 'View', icon: <ViewIcon /> });
+    actions.push({ type: "view", label: "View", icon: <ViewIcon /> });
 
-    if (transfer.status === 'DRAFT' || transfer.status === 'PENDING') {
-      actions.push({ type: 'ship', label: 'Ship', icon: <ShipIcon /> });
-      actions.push({ type: 'cancel', label: 'Cancel', icon: <CancelIcon /> });
+    if (transfer.status === "DRAFT" || transfer.status === "PENDING") {
+      actions.push({ type: "ship", label: "Ship", icon: <ShipIcon /> });
+      actions.push({ type: "cancel", label: "Cancel", icon: <CancelIcon /> });
     }
 
-    if (transfer.status === 'SHIPPED' || transfer.status === 'IN_TRANSIT') {
-      actions.push({ type: 'receive', label: 'Receive', icon: <ReceiveIcon /> });
-      actions.push({ type: 'cancel', label: 'Cancel', icon: <CancelIcon /> });
+    if (transfer.status === "SHIPPED" || transfer.status === "IN_TRANSIT") {
+      actions.push({
+        type: "receive",
+        label: "Receive",
+        icon: <ReceiveIcon />,
+      });
+      actions.push({ type: "cancel", label: "Cancel", icon: <CancelIcon /> });
     }
 
     return actions;
@@ -229,7 +255,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
   // Handle action click
   const handleActionClick = (type, transfer) => {
-    if (type === 'view') {
+    if (type === "view") {
       onViewTransfer?.(transfer);
       return;
     }
@@ -248,13 +274,23 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
           {/* Search Input */}
           <TextField
             size="small"
             placeholder="Search transfers..."
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(0);
+            }}
             sx={{ minWidth: 220 }}
             InputProps={{
               startAdornment: (
@@ -270,11 +306,16 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             <Select
               value={statusFilter}
               label="Status"
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="">All</MenuItem>
-              {Object.values(TRANSFER_STATUSES).map(status => (
-                <MenuItem key={status.value} value={status.value}>{status.label}</MenuItem>
+              {Object.values(TRANSFER_STATUSES).map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -284,11 +325,16 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             <Select
               value={sourceWarehouseFilter}
               label="Source"
-              onChange={(e) => { setSourceWarehouseFilter(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setSourceWarehouseFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="">All</MenuItem>
-              {warehouses.map(wh => (
-                <MenuItem key={wh.id} value={wh.id}>{wh.name}</MenuItem>
+              {warehouses.map((wh) => (
+                <MenuItem key={wh.id} value={wh.id}>
+                  {wh.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -298,11 +344,16 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             <Select
               value={destWarehouseFilter}
               label="Destination"
-              onChange={(e) => { setDestWarehouseFilter(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setDestWarehouseFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="">All</MenuItem>
-              {warehouses.map(wh => (
-                <MenuItem key={wh.id} value={wh.id}>{wh.name}</MenuItem>
+              {warehouses.map((wh) => (
+                <MenuItem key={wh.id} value={wh.id}>
+                  {wh.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -316,7 +367,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               onClick={loadTransfers}
               disabled={loading}
               size="small"
-              sx={{ border: 1, borderColor: 'divider' }}
+              sx={{ border: 1, borderColor: "divider" }}
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
@@ -327,9 +378,9 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             startIcon={<AddIcon />}
             onClick={onCreateNew}
             sx={{
-              bgcolor: '#0d9488',
-              '&:hover': { bgcolor: '#0f766e' },
-              textTransform: 'none',
+              bgcolor: "#0d9488",
+              "&:hover": { bgcolor: "#0f766e" },
+              textTransform: "none",
             }}
           >
             New Transfer
@@ -341,7 +392,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'grey.100' }}>
+            <TableRow sx={{ backgroundColor: "grey.100" }}>
               <TableCell>Transfer #</TableCell>
               <TableCell>From</TableCell>
               <TableCell>To</TableCell>
@@ -363,7 +414,9 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             ) : transfers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No transfers found</Typography>
+                  <Typography color="text.secondary">
+                    No transfers found
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
@@ -378,8 +431,10 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                         {transfer.transferNumber}
                       </Typography>
                     </TableCell>
-                    <TableCell>{transfer.sourceWarehouseName || '-'}</TableCell>
-                    <TableCell>{transfer.destinationWarehouseName || '-'}</TableCell>
+                    <TableCell>{transfer.sourceWarehouseName || "-"}</TableCell>
+                    <TableCell>
+                      {transfer.destinationWarehouseName || "-"}
+                    </TableCell>
                     <TableCell>{transfer.items?.length || 0} items</TableCell>
                     <TableCell>
                       <Chip
@@ -397,7 +452,9 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                         <Tooltip key={action.type} title={action.label}>
                           <IconButton
                             size="small"
-                            onClick={() => handleActionClick(action.type, transfer)}
+                            onClick={() =>
+                              handleActionClick(action.type, transfer)
+                            }
                           >
                             {action.icon}
                           </IconButton>
@@ -425,56 +482,64 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       {/* Action Confirmation Dialog */}
       <Dialog
         open={actionDialog.open}
-        onClose={() => setActionDialog({ open: false, type: null, transfer: null })}
+        onClose={() =>
+          setActionDialog({ open: false, type: null, transfer: null })
+        }
         maxWidth="sm"
         fullWidth
       >
         <DialogTitle>
-          {actionDialog.type === 'ship' && 'Ship Transfer'}
-          {actionDialog.type === 'receive' && 'Receive Transfer'}
-          {actionDialog.type === 'cancel' && 'Cancel Transfer'}
+          {actionDialog.type === "ship" && "Ship Transfer"}
+          {actionDialog.type === "receive" && "Receive Transfer"}
+          {actionDialog.type === "cancel" && "Cancel Transfer"}
         </DialogTitle>
         <DialogContent>
-          {actionDialog.type === 'ship' && (
+          {actionDialog.type === "ship" && (
             <Typography>
-              Are you sure you want to ship transfer <strong>{actionDialog.transfer?.transferNumber}</strong>?
-              This will deduct stock from the source warehouse.
+              Are you sure you want to ship transfer{" "}
+              <strong>{actionDialog.transfer?.transferNumber}</strong>? This
+              will deduct stock from the source warehouse.
             </Typography>
           )}
-          {actionDialog.type === 'receive' && (
+          {actionDialog.type === "receive" && (
             <Typography>
-              Are you sure you want to receive transfer <strong>{actionDialog.transfer?.transferNumber}</strong>?
-              This will add stock to the destination warehouse.
+              Are you sure you want to receive transfer{" "}
+              <strong>{actionDialog.transfer?.transferNumber}</strong>? This
+              will add stock to the destination warehouse.
             </Typography>
           )}
-          {actionDialog.type === 'cancel' && (
+          {actionDialog.type === "cancel" && (
             <Typography>
-              Are you sure you want to cancel transfer <strong>{actionDialog.transfer?.transferNumber}</strong>?
-              {actionDialog.transfer?.status === 'SHIPPED' && ' Stock will be restored to the source warehouse.'}
+              Are you sure you want to cancel transfer{" "}
+              <strong>{actionDialog.transfer?.transferNumber}</strong>?
+              {actionDialog.transfer?.status === "SHIPPED" &&
+                " Stock will be restored to the source warehouse."}
             </Typography>
           )}
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setActionDialog({ open: false, type: null, transfer: null })}
+            onClick={() =>
+              setActionDialog({ open: false, type: null, transfer: null })
+            }
             disabled={actionLoading}
           >
             No, Go Back
           </Button>
           <Button
             variant="contained"
-            color={actionDialog.type === 'cancel' ? 'error' : 'primary'}
+            color={actionDialog.type === "cancel" ? "error" : "primary"}
             onClick={() => {
-              if (actionDialog.type === 'ship') handleShip();
-              else if (actionDialog.type === 'receive') handleReceive();
-              else if (actionDialog.type === 'cancel') handleCancel();
+              if (actionDialog.type === "ship") handleShip();
+              else if (actionDialog.type === "receive") handleReceive();
+              else if (actionDialog.type === "cancel") handleCancel();
             }}
             disabled={actionLoading}
             startIcon={actionLoading && <CircularProgress size={16} />}
           >
-            {actionDialog.type === 'ship' && 'Yes, Ship'}
-            {actionDialog.type === 'receive' && 'Yes, Receive'}
-            {actionDialog.type === 'cancel' && 'Yes, Cancel'}
+            {actionDialog.type === "ship" && "Yes, Ship"}
+            {actionDialog.type === "receive" && "Yes, Receive"}
+            {actionDialog.type === "cancel" && "Yes, Cancel"}
           </Button>
         </DialogActions>
       </Dialog>

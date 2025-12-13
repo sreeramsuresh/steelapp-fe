@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   LineChart,
   Line,
@@ -18,8 +18,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { AlertCircle, TrendingUp } from 'lucide-react';
+} from "recharts";
+import { AlertCircle, TrendingUp } from "lucide-react";
 /**
  * SupplierPerformanceDashboard - Phase 6 Analytics
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers
@@ -33,7 +33,7 @@ export function SupplierPerformanceDashboard() {
     otdPercent: 0,
     avgVariance: 0,
     consistencyScore: 0,
-    overallRating: 'N/A',
+    overallRating: "N/A",
   });
 
   useEffect(() => {
@@ -47,46 +47,46 @@ export function SupplierPerformanceDashboard() {
       const mockSuppliers = [
         {
           id: 1,
-          name: 'Premium Steel Inc',
+          name: "Premium Steel Inc",
           onTimeDeliveryPct: 96.5,
           avgVarianceDays: 1.2,
           lateDeliveryCount: 2,
           score: 94,
-          rating: 'CERTIFIED',
+          rating: "CERTIFIED",
         },
         {
           id: 2,
-          name: 'Global Trading Co',
+          name: "Global Trading Co",
           onTimeDeliveryPct: 87.3,
           avgVarianceDays: 3.8,
           lateDeliveryCount: 8,
           score: 82,
-          rating: 'PREFERRED',
+          rating: "PREFERRED",
         },
         {
           id: 3,
-          name: 'Standard Metals Ltd',
+          name: "Standard Metals Ltd",
           onTimeDeliveryPct: 75.2,
           avgVarianceDays: 5.6,
           lateDeliveryCount: 15,
           score: 72,
-          rating: 'ACCEPTABLE',
+          rating: "ACCEPTABLE",
         },
       ];
 
       const mockTrends = [
-        { week: 'Week 1', otd: 92, variance: 2.1 },
-        { week: 'Week 2', otd: 93, variance: 2.0 },
-        { week: 'Week 3', otd: 94, variance: 1.8 },
-        { week: 'Week 4', otd: 95, variance: 1.5 },
+        { week: "Week 1", otd: 92, variance: 2.1 },
+        { week: "Week 2", otd: 93, variance: 2.0 },
+        { week: "Week 3", otd: 94, variance: 1.8 },
+        { week: "Week 4", otd: 95, variance: 1.5 },
       ];
 
       const mockAtRisk = [
         {
           id: 4,
-          name: 'Budget Supplier LLC',
+          name: "Budget Supplier LLC",
           score: 58,
-          reason: 'Low OTD% and high variance',
+          reason: "Low OTD% and high variance",
         },
       ];
 
@@ -107,10 +107,10 @@ export function SupplierPerformanceDashboard() {
           mockSuppliers.length
         ).toFixed(1),
         consistencyScore: Math.round(avgScore),
-        overallRating: 'GOOD',
+        overallRating: "GOOD",
       });
     } catch (error) {
-      console.error('Error loading dashboard:', error);
+      console.error("Error loading dashboard:", error);
     } finally {
       setLoading(false);
     }
@@ -118,12 +118,12 @@ export function SupplierPerformanceDashboard() {
 
   const getRatingColor = (rating) => {
     const colors = {
-      CERTIFIED: 'bg-green-100 text-green-800',
-      PREFERRED: 'bg-emerald-100 text-emerald-800',
-      ACCEPTABLE: 'bg-yellow-100 text-yellow-800',
-      AT_RISK: 'bg-red-100 text-red-800',
+      CERTIFIED: "bg-green-100 text-green-800",
+      PREFERRED: "bg-emerald-100 text-emerald-800",
+      ACCEPTABLE: "bg-yellow-100 text-yellow-800",
+      AT_RISK: "bg-red-100 text-red-800",
     };
-    return colors[rating] || 'bg-gray-100 text-gray-800';
+    return colors[rating] || "bg-gray-100 text-gray-800";
   };
 
   return (
@@ -161,7 +161,9 @@ export function SupplierPerformanceDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpis.consistencyScore}/100</div>
+            <div className="text-2xl font-bold">
+              {kpis.consistencyScore}/100
+            </div>
             <p className="text-xs text-gray-500">Supplier reliability</p>
           </CardContent>
         </Card>
@@ -176,7 +178,9 @@ export function SupplierPerformanceDashboard() {
             <Badge className="bg-blue-100 text-blue-800">
               {kpis.overallRating}
             </Badge>
-            <p className="text-xs text-gray-500 mt-2">Supplier portfolio health</p>
+            <p className="text-xs text-gray-500 mt-2">
+              Supplier portfolio health
+            </p>
           </CardContent>
         </Card>
       </div>

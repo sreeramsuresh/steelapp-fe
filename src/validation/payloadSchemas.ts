@@ -2,7 +2,7 @@
  * Frontend Payload Validation
  * Lightweight validation before sending requests to API
  * Catches obvious mistakes early with clear error messages
- * 
+ *
  * NOTE: Field names are in camelCase (frontend convention)
  */
 
@@ -24,52 +24,66 @@ const payloadSchemas: Record<string, PayloadSchema> = {
   // INVOICE PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createInvoice: {
-    required: ['customerId', 'items'],
-    positiveNumbers: ['customerId', 'subtotal', 'total'],
-    arrays: ['items'],
+    required: ["customerId", "items"],
+    positiveNumbers: ["customerId", "subtotal", "total"],
+    arrays: ["items"],
   },
-  
+
   updateInvoice: {
-    positiveNumbers: ['customerId', 'subtotal', 'total'],
+    positiveNumbers: ["customerId", "subtotal", "total"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PAYMENT PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   recordPayment: {
-    required: ['amount', 'paymentDate', 'method'],
-    positiveNumbers: ['amount'],
+    required: ["amount", "paymentDate", "method"],
+    positiveNumbers: ["amount"],
   },
-  
+
   createPayment: {
-    required: ['invoiceId', 'amount', 'paymentDate', 'method'],
-    positiveNumbers: ['invoiceId', 'amount'],
+    required: ["invoiceId", "amount", "paymentDate", "method"],
+    positiveNumbers: ["invoiceId", "amount"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PRODUCT PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createProduct: {
-    required: ['name'],
-    positiveNumbers: ['price', 'sellingPrice', 'costPrice', 'currentStock', 'minStock', 'gstRate'],
+    required: ["name"],
+    positiveNumbers: [
+      "price",
+      "sellingPrice",
+      "costPrice",
+      "currentStock",
+      "minStock",
+      "gstRate",
+    ],
   },
-  
+
   updateProduct: {
-    positiveNumbers: ['price', 'sellingPrice', 'costPrice', 'currentStock', 'minStock', 'gstRate'],
+    positiveNumbers: [
+      "price",
+      "sellingPrice",
+      "costPrice",
+      "currentStock",
+      "minStock",
+      "gstRate",
+    ],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CUSTOMER PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createCustomer: {
-    required: ['name'],
-    positiveNumbers: ['creditLimit'],
-    emails: ['email'],
+    required: ["name"],
+    positiveNumbers: ["creditLimit"],
+    emails: ["email"],
   },
-  
+
   updateCustomer: {
-    positiveNumbers: ['creditLimit'],
-    emails: ['email'],
+    positiveNumbers: ["creditLimit"],
+    emails: ["email"],
   },
 };
 
@@ -84,7 +98,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * @param payload - Payload object to validate
  * @returns Array of error messages (empty if valid)
  */
-export function validatePayload(name: string, payload: Record<string, unknown>): string[] {
+export function validatePayload(
+  name: string,
+  payload: Record<string, unknown>,
+): string[] {
   const schema = payloadSchemas[name];
   const errors: string[] = [];
 
@@ -100,7 +117,7 @@ export function validatePayload(name: string, payload: Record<string, unknown>):
   if (schema.required) {
     for (const field of schema.required) {
       const value = payload[field];
-      if (value === undefined || value === null || value === '') {
+      if (value === undefined || value === null || value === "") {
         errors.push(`${field} is required`);
       }
     }
@@ -110,7 +127,7 @@ export function validatePayload(name: string, payload: Record<string, unknown>):
   if (schema.positiveNumbers) {
     for (const field of schema.positiveNumbers) {
       const value = payload[field];
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null && value !== "") {
         const num = Number(value);
         if (isNaN(num)) {
           errors.push(`${field} must be a number`);
@@ -139,7 +156,7 @@ export function validatePayload(name: string, payload: Record<string, unknown>):
   if (schema.emails) {
     for (const field of schema.emails) {
       const value = payload[field];
-      if (value && typeof value === 'string' && !EMAIL_REGEX.test(value)) {
+      if (value && typeof value === "string" && !EMAIL_REGEX.test(value)) {
         errors.push(`${field} must be a valid email address`);
       }
     }
@@ -154,10 +171,13 @@ export function validatePayload(name: string, payload: Record<string, unknown>):
  * @param payload - Payload to validate
  * @throws Error with validation details
  */
-export function assertValidPayload(name: string, payload: Record<string, unknown>): void {
+export function assertValidPayload(
+  name: string,
+  payload: Record<string, unknown>,
+): void {
   const errors = validatePayload(name, payload);
   if (errors.length > 0) {
-    throw new Error(`Validation failed: ${errors.join(', ')}`);
+    throw new Error(`Validation failed: ${errors.join(", ")}`);
   }
 }
 
@@ -167,7 +187,10 @@ export function assertValidPayload(name: string, payload: Record<string, unknown
  * @param payload - Payload to validate
  * @returns true if valid, false otherwise
  */
-export function isValidPayload(name: string, payload: Record<string, unknown>): boolean {
+export function isValidPayload(
+  name: string,
+  payload: Record<string, unknown>,
+): boolean {
   return validatePayload(name, payload).length === 0;
 }
 

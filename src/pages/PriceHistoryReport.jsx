@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -19,18 +19,18 @@ import {
   CircularProgress,
   Alert,
   Grid,
-} from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
-import pricelistService from '../services/pricelistService';
-import { productService } from '../services/dataService';
-import { toast } from 'react-toastify';
-import { toUAETime } from '../utils/timezone';
+} from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
+import pricelistService from "../services/pricelistService";
+import { productService } from "../services/dataService";
+import { toast } from "react-toastify";
+import { toUAETime } from "../utils/timezone";
 
 export default function PriceHistoryReport() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [pricelists, setPricelists] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [priceHistory, setPriceHistory] = useState([]);
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export default function PriceHistoryReport() {
       const response = await productService.getAll();
       setProducts(response.data || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to load products');
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
     }
   };
 
@@ -53,14 +53,14 @@ export default function PriceHistoryReport() {
       const response = await pricelistService.getAll();
       setPricelists(response.data || []);
     } catch (error) {
-      console.error('Error fetching pricelists:', error);
-      toast.error('Failed to load price lists');
+      console.error("Error fetching pricelists:", error);
+      toast.error("Failed to load price lists");
     }
   };
 
   const fetchPriceHistory = async () => {
     if (!selectedProduct) {
-      toast.error('Please select a product');
+      toast.error("Please select a product");
       return;
     }
 
@@ -71,7 +71,9 @@ export default function PriceHistoryReport() {
       // Get price from each pricelist
       for (const pricelist of pricelists) {
         const items = await pricelistService.getItems(pricelist.id);
-        const item = items.data?.find(i => i.productId === parseInt(selectedProduct));
+        const item = items.data?.find(
+          (i) => i.productId === parseInt(selectedProduct),
+        );
 
         if (item) {
           history.push({
@@ -94,10 +96,9 @@ export default function PriceHistoryReport() {
       });
 
       setPriceHistory(history);
-
     } catch (error) {
-      console.error('Error fetching price history:', error);
-      toast.error('Failed to load price history');
+      console.error("Error fetching price history:", error);
+      toast.error("Failed to load price history");
     } finally {
       setLoading(false);
     }
@@ -115,7 +116,9 @@ export default function PriceHistoryReport() {
     return { diff, diffPercent };
   };
 
-  const selectedProductData = products.find(p => p.id === parseInt(selectedProduct));
+  const selectedProductData = products.find(
+    (p) => p.id === parseInt(selectedProduct),
+  );
 
   return (
     <Box>
@@ -136,7 +139,7 @@ export default function PriceHistoryReport() {
               <MenuItem value="">-- Select Product --</MenuItem>
               {products.map((product) => (
                 <MenuItem key={product.id} value={product.id}>
-                  {product.uniqueName || product.unique_name || 'N/A'}
+                  {product.uniqueName || product.unique_name || "N/A"}
                 </MenuItem>
               ))}
             </TextField>
@@ -221,7 +224,9 @@ export default function PriceHistoryReport() {
                   <TableRow key={row.pricelistId}>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="body2">{row.pricelistName}</Typography>
+                        <Typography variant="body2">
+                          {row.pricelistName}
+                        </Typography>
                         {row.isDefault && (
                           <Chip label="Default" size="small" color="primary" />
                         )}
@@ -229,9 +234,10 @@ export default function PriceHistoryReport() {
                     </TableCell>
                     <TableCell>
                       {row.effectiveFrom
-                        ? toUAETime(row.effectiveFrom, { format: 'date' })
-                        : 'No date'}
-                      {row.effectiveTo && ` - ${toUAETime(row.effectiveTo, { format: 'date' })}`}
+                        ? toUAETime(row.effectiveFrom, { format: "date" })
+                        : "No date"}
+                      {row.effectiveTo &&
+                        ` - ${toUAETime(row.effectiveTo, { format: "date" })}`}
                     </TableCell>
                     <TableCell align="right">
                       <Typography fontWeight="bold">
@@ -241,9 +247,9 @@ export default function PriceHistoryReport() {
                     <TableCell align="right">
                       {priceDiff ? (
                         <Chip
-                          label={`${priceDiff.diff >= 0 ? '+' : ''}${priceDiff.diffPercent}%`}
+                          label={`${priceDiff.diff >= 0 ? "+" : ""}${priceDiff.diffPercent}%`}
                           size="small"
-                          color={priceDiff.diff >= 0 ? 'success' : 'error'}
+                          color={priceDiff.diff >= 0 ? "success" : "error"}
                         />
                       ) : (
                         <Typography variant="body2" color="textSecondary">
@@ -253,9 +259,18 @@ export default function PriceHistoryReport() {
                     </TableCell>
                     <TableCell>
                       {row.isActive ? (
-                        <Chip label="Active" size="small" color="success" variant="outlined" />
+                        <Chip
+                          label="Active"
+                          size="small"
+                          color="success"
+                          variant="outlined"
+                        />
                       ) : (
-                        <Chip label="Inactive" size="small" variant="outlined" />
+                        <Chip
+                          label="Inactive"
+                          size="small"
+                          variant="outlined"
+                        />
                       )}
                     </TableCell>
                   </TableRow>

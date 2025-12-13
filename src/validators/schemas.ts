@@ -11,7 +11,7 @@
  *   }
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // ============================================
 // Pagination Schema (CRITICAL - prevents NaN bugs)
@@ -23,20 +23,20 @@ import { z } from 'zod';
  */
 export const PageInfoSchema = z.object({
   totalItems: z.number({
-    required_error: 'totalItems is required',
-    invalid_type_error: 'totalItems must be a number',
+    required_error: "totalItems is required",
+    invalid_type_error: "totalItems must be a number",
   }),
   totalPages: z.number({
-    required_error: 'totalPages is required',
-    invalid_type_error: 'totalPages must be a number',
+    required_error: "totalPages is required",
+    invalid_type_error: "totalPages must be a number",
   }),
   currentPage: z.number({
-    required_error: 'currentPage is required',
-    invalid_type_error: 'currentPage must be a number',
+    required_error: "currentPage is required",
+    invalid_type_error: "currentPage must be a number",
   }),
   perPage: z.number({
-    required_error: 'perPage is required',
-    invalid_type_error: 'perPage must be a number',
+    required_error: "perPage is required",
+    invalid_type_error: "perPage must be a number",
   }),
   hasNext: z.boolean().optional(),
   hasPrev: z.boolean().optional(),
@@ -45,7 +45,9 @@ export const PageInfoSchema = z.object({
 /**
  * Generic paginated response schema factory
  */
-export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(
+  itemSchema: T,
+) =>
   z.object({
     items: z.array(itemSchema),
     pagination: PageInfoSchema,
@@ -82,14 +84,16 @@ export const ProductListResponseSchema = z.object({
 // Validation Helper Functions
 // ============================================
 
-export type ValidationResult<T> = {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: z.ZodError;
-  data: null;
-};
+export type ValidationResult<T> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: z.ZodError;
+      data: null;
+    };
 
 /**
  * Validate pagination response and log warnings for mismatches
@@ -102,8 +106,10 @@ export function validatePagination(
 
   if (!result.success) {
     console.warn(
-      `[API Contract Violation] Pagination schema mismatch${context ? ` in ${context}` : ''}:`,
-      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', '),
+      `[API Contract Violation] Pagination schema mismatch${context ? ` in ${context}` : ""}:`,
+      result.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join(", "),
     );
     return { success: false, error: result.error, data: null };
   }
@@ -121,8 +127,10 @@ export function validateInvoiceListResponse(
 
   if (!result.success) {
     console.warn(
-      '[API Contract Violation] Invoice list response schema mismatch:',
-      result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', '),
+      "[API Contract Violation] Invoice list response schema mismatch:",
+      result.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join(", "),
     );
     return { success: false, error: result.error, data: null };
   }
@@ -156,7 +164,7 @@ export function safePagination(pagination: unknown): {
   }
 
   // Return safe defaults to prevent NaN
-  console.warn('[safePagination] Invalid pagination, using defaults');
+  console.warn("[safePagination] Invalid pagination, using defaults");
   return {
     totalItems: 0,
     totalPages: 1,

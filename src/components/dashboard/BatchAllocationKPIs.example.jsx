@@ -5,8 +5,8 @@
  * into your Stock Dashboard or any other dashboard page.
  */
 
-import { useState } from 'react';
-import BatchAllocationKPIs from './BatchAllocationKPIs';
+import { useState } from "react";
+import BatchAllocationKPIs from "./BatchAllocationKPIs";
 
 // Example 1: Basic usage
 function StockDashboard() {
@@ -18,9 +18,7 @@ function StockDashboard() {
       <BatchAllocationKPIs />
 
       {/* Other dashboard content */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Other widgets */}
-      </div>
+      <div className="grid grid-cols-2 gap-4">{/* Other widgets */}</div>
     </div>
   );
 }
@@ -31,7 +29,7 @@ function StockDashboardWithRefresh() {
 
   const handleRefreshAll = () => {
     // Increment trigger to force refresh
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (

@@ -3,8 +3,7 @@
  * Wrapper component for permission-based widget rendering
  */
 
-
-import { useDashboardPermissions } from '../../hooks/useDashboardPermissions';
+import { useDashboardPermissions } from "../../hooks/useDashboardPermissions";
 
 export const PermissibleWidget = ({ widgetId, children, fallback = null }) => {
   const { canViewWidget, isLoading } = useDashboardPermissions();
@@ -15,7 +14,11 @@ export const PermissibleWidget = ({ widgetId, children, fallback = null }) => {
   return <>{children}</>;
 };
 
-export const withWidgetPermission = (WrappedComponent, widgetId, fallback = null) => {
+export const withWidgetPermission = (
+  WrappedComponent,
+  widgetId,
+  fallback = null,
+) => {
   const WithPermission = (props) => {
     const { canViewWidget, isLoading } = useDashboardPermissions();
 
@@ -25,7 +28,8 @@ export const withWidgetPermission = (WrappedComponent, widgetId, fallback = null
     return <WrappedComponent {...props} />;
   };
 
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
   WithPermission.displayName = `WithPermission(${displayName})`;
 
   return WithPermission;

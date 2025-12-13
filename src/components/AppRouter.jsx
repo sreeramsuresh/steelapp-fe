@@ -1,108 +1,114 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import { lazy } from 'react';
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
+import { lazy } from "react";
 
 // Lazy loaded components
-const CustomerDetail = lazy(() => import('../pages/CustomerDetail'));
+const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
 
 // Components
-import Dashboard from './DashboardV2';
-import InvoiceForm from '../pages/InvoiceForm';
-import InvoiceList from '../pages/InvoiceList';
-import CustomerManagement from './CustomerManagement';
-import SteelProducts from './SteelProducts';
-import CompanySettings from './CompanySettings';
-import SearchResults from './SearchResults';
-import InventoryList from './InventoryList';
-import DeliveryNoteList from '../pages/DeliveryNoteList';
-import DeliveryNoteForm from '../pages/DeliveryNoteForm';
-import DeliveryNoteDetails from '../pages/DeliveryNoteDetails';
-import PurchaseOrderForm from '../pages/PurchaseOrderForm';
-import Login from './Login';
-import MarketingHome from '../marketing/MarketingHome';
-import MarketingProducts from '../marketing/MarketingProducts';
-import MarketingAbout from '../marketing/MarketingAbout';
-import MarketingContact from '../marketing/MarketingContact';
-import AccountStatementList from '../pages/AccountStatementList';
-import AccountStatementForm from '../pages/AccountStatementForm';
-import AccountStatementDetails from '../pages/AccountStatementDetails';
-import QuotationList from '../pages/QuotationList';
-import QuotationForm from '../pages/QuotationForm';
-import CreditNoteList from '../pages/CreditNoteList';
-import CreditNoteForm from '../pages/CreditNoteForm';
-import CustomerPerspective from '../pages/CustomerPerspective';
-import ProtectedRoute from './ProtectedRoute';
+import Dashboard from "./DashboardV2";
+import InvoiceForm from "../pages/InvoiceForm";
+import InvoiceList from "../pages/InvoiceList";
+import CustomerManagement from "./CustomerManagement";
+import SteelProducts from "./SteelProducts";
+import CompanySettings from "./CompanySettings";
+import SearchResults from "./SearchResults";
+import InventoryList from "./InventoryList";
+import DeliveryNoteList from "../pages/DeliveryNoteList";
+import DeliveryNoteForm from "../pages/DeliveryNoteForm";
+import DeliveryNoteDetails from "../pages/DeliveryNoteDetails";
+import PurchaseOrderForm from "../pages/PurchaseOrderForm";
+import Login from "./Login";
+import MarketingHome from "../marketing/MarketingHome";
+import MarketingProducts from "../marketing/MarketingProducts";
+import MarketingAbout from "../marketing/MarketingAbout";
+import MarketingContact from "../marketing/MarketingContact";
+import AccountStatementList from "../pages/AccountStatementList";
+import AccountStatementForm from "../pages/AccountStatementForm";
+import AccountStatementDetails from "../pages/AccountStatementDetails";
+import QuotationList from "../pages/QuotationList";
+import QuotationForm from "../pages/QuotationForm";
+import CreditNoteList from "../pages/CreditNoteList";
+import CreditNoteForm from "../pages/CreditNoteForm";
+import CustomerPerspective from "../pages/CustomerPerspective";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Import/Export Components
-import ImportExportDashboard from '../pages/ImportExportDashboard';
-import ImportOrderForm from '../pages/ImportOrderForm';
-import ImportOrderDetails from '../pages/ImportOrderDetails';
-import ExportOrderForm from '../pages/ExportOrderForm';
-import ExportOrderDetails from '../pages/ExportOrderDetails';
-import TransitList from '../pages/TransitList';
+import ImportExportDashboard from "../pages/ImportExportDashboard";
+import ImportOrderForm from "../pages/ImportOrderForm";
+import ImportOrderDetails from "../pages/ImportOrderDetails";
+import ExportOrderForm from "../pages/ExportOrderForm";
+import ExportOrderDetails from "../pages/ExportOrderDetails";
+import TransitList from "../pages/TransitList";
 
 // Container Management Components
-import { ContainerList } from '../pages/containers';
+import { ContainerList } from "../pages/containers";
 
 // Finance Components
-import FinanceDashboard from '../pages/FinanceDashboard';
+import FinanceDashboard from "../pages/FinanceDashboard";
 
 // Purchases Dashboard
-import PurchasesDashboard from '../pages/PurchasesDashboard';
+import PurchasesDashboard from "../pages/PurchasesDashboard";
 
 // Admin Components
-import AuditLogs from '../pages/AuditLogs';
+import AuditLogs from "../pages/AuditLogs";
 
 // Stock Movement Components
-import StockMovementPage from '../pages/StockMovementPage';
+import StockMovementPage from "../pages/StockMovementPage";
 
 // Warehouse Components
-import WarehouseList from '../pages/warehouses/WarehouseList';
-import WarehouseDetail from '../pages/warehouses/WarehouseDetail';
+import WarehouseList from "../pages/warehouses/WarehouseList";
+import WarehouseDetail from "../pages/warehouses/WarehouseDetail";
 
 // Batch Analytics
-import BatchAnalyticsPage from '../pages/BatchAnalyticsPage';
+import BatchAnalyticsPage from "../pages/BatchAnalyticsPage";
 
 // Reports Components
-import ReportsDashboard from '../pages/ReportsDashboard';
-import ProfitAnalysisReport from '../pages/ProfitAnalysisReport';
-import PriceHistoryReport from '../pages/PriceHistoryReport';
-import VATReturnReport from './VATReturnReport';
+import ReportsDashboard from "../pages/ReportsDashboard";
+import ProfitAnalysisReport from "../pages/ProfitAnalysisReport";
+import PriceHistoryReport from "../pages/PriceHistoryReport";
+import VATReturnReport from "./VATReturnReport";
 
 // Purchases Components
-import { VendorBillList, VendorBillForm, DebitNoteList, DebitNoteForm } from '../pages/purchases';
+import {
+  VendorBillList,
+  VendorBillForm,
+  DebitNoteList,
+  DebitNoteForm,
+} from "../pages/purchases";
 
 // Payments Components
-import { AdvancePaymentList, AdvancePaymentForm } from '../pages/payments';
+import { AdvancePaymentList, AdvancePaymentForm } from "../pages/payments";
 
 // Price List Components
-import PriceListList from '../pages/PriceListList';
-import PriceListForm from '../pages/PriceListForm';
+import PriceListList from "../pages/PriceListList";
+import PriceListForm from "../pages/PriceListForm";
 
 // Commission Components
-import AgentCommissionDashboard from '../pages/AgentCommissionDashboard';
-import CommissionApprovalWorkflow from '../pages/CommissionApprovalWorkflow';
+import AgentCommissionDashboard from "../pages/AgentCommissionDashboard";
+import CommissionApprovalWorkflow from "../pages/CommissionApprovalWorkflow";
 
 // Phase 4 & 5 Dashboard Components
-import DeliveryVarianceDashboard from '../pages/DeliveryVarianceDashboard';
-import CustomerCreditManagement from '../pages/CustomerCreditManagement';
-import ARAgingReport from '../pages/ARAgingReport';
+import DeliveryVarianceDashboard from "../pages/DeliveryVarianceDashboard";
+import CustomerCreditManagement from "../pages/CustomerCreditManagement";
+import ARAgingReport from "../pages/ARAgingReport";
 
 // Masters Components
-import CountriesList from '../pages/CountriesList';
-import ExchangeRateList from '../pages/ExchangeRateList';
+import CountriesList from "../pages/CountriesList";
+import ExchangeRateList from "../pages/ExchangeRateList";
 
 // Supplier Components (Phase 4 Procurement)
-import { SupplierList } from '../pages/SupplierList';
-import { SupplierForm } from '../pages/SupplierForm';
+import { SupplierList } from "../pages/SupplierList";
+import { SupplierForm } from "../pages/SupplierForm";
 
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
 
   // Allow public marketing pages and login without auth
-  const isMarketing = location.pathname === '/' || location.pathname.startsWith('/marketing');
-  const isLoginPage = location.pathname === '/login';
+  const isMarketing =
+    location.pathname === "/" || location.pathname.startsWith("/marketing");
+  const isLoginPage = location.pathname === "/login";
 
   // Check if we need to redirect to login
   const needsAuth = !user && !isLoginPage && !isMarketing;
@@ -119,10 +125,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   }
 
   return (
-    <div className={`w-full ${isMarketing ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+    <div
+      className={`w-full ${isMarketing ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+    >
       <Routes>
         {/* Default route - redirect to login if not authenticated, invoices if authenticated */}
-        <Route path="/" element={<Navigate to={user ? '/invoices' : '/login'} replace />} />
+        <Route
+          path="/"
+          element={<Navigate to={user ? "/invoices" : "/login"} replace />}
+        />
 
         {/* Public Routes: Marketing + Login */}
         <Route path="/marketing" element={<MarketingHome />} />
@@ -209,8 +220,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             </ProtectedRoute>
           }
         />
-
-
 
         <Route
           path="/reports"
@@ -409,7 +418,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/dashboards/commission-approvals"
           element={
-            <ProtectedRoute user={user} requiredPermission="commissions.approve">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="commissions.approve"
+            >
               <CommissionApprovalWorkflow />
             </ProtectedRoute>
           }
@@ -423,8 +435,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             </ProtectedRoute>
           }
         />
-
-
 
         <Route
           path="/audit-logs"
@@ -507,15 +517,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <ProtectedRoute
               user={user}
               requiredRoles={[
-                'warehouse_manager',
-                'inventory_controller',
-                'supervisor',
-                'manager',
-                'admin',
-                'super_admin',
-                'finance_manager',
-                'accountant',
-                'director',
+                "warehouse_manager",
+                "inventory_controller",
+                "supervisor",
+                "manager",
+                "admin",
+                "super_admin",
+                "finance_manager",
+                "accountant",
+                "director",
               ]}
             >
               <BatchAnalyticsPage />
@@ -672,7 +682,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/account-statements"
           element={
-            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="account_statements.read"
+            >
               <AccountStatementList />
             </ProtectedRoute>
           }
@@ -681,7 +694,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/account-statements/new"
           element={
-            <ProtectedRoute user={user} requiredPermission="account_statements.create">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="account_statements.create"
+            >
               <AccountStatementForm />
             </ProtectedRoute>
           }
@@ -690,7 +706,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/account-statements/:id"
           element={
-            <ProtectedRoute user={user} requiredPermission="account_statements.read">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="account_statements.read"
+            >
               <AccountStatementDetails />
             </ProtectedRoute>
           }
@@ -733,7 +752,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         {/* Import/Export Routes */}
-        
+
         {/* Main Import/Export Dashboard with Tabs */}
         <Route
           path="/import-export"
@@ -748,7 +767,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/import-orders/new"
           element={
-            <ProtectedRoute user={user} requiredPermission="import_orders.create">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="import_orders.create"
+            >
               <ImportOrderForm />
             </ProtectedRoute>
           }
@@ -766,7 +788,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/import-orders/:id/edit"
           element={
-            <ProtectedRoute user={user} requiredPermission="import_orders.update">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="import_orders.update"
+            >
               <ImportOrderForm />
             </ProtectedRoute>
           }
@@ -776,7 +801,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/export-orders/new"
           element={
-            <ProtectedRoute user={user} requiredPermission="export_orders.create">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="export_orders.create"
+            >
               <ExportOrderForm />
             </ProtectedRoute>
           }
@@ -794,7 +822,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/export-orders/:id/edit"
           element={
-            <ProtectedRoute user={user} requiredPermission="export_orders.update">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="export_orders.update"
+            >
               <ExportOrderForm />
             </ProtectedRoute>
           }
@@ -863,10 +894,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         />
 
         {/* Catch all route - DEVELOPMENT: redirect to invoices */}
-        <Route
-          path="*"
-          element={<Navigate to="/invoices" replace />}
-        />
+        <Route path="*" element={<Navigate to="/invoices" replace />} />
       </Routes>
     </div>
   );

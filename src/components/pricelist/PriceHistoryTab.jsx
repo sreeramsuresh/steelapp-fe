@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { format } from 'date-fns';
+import { useState, useEffect, useCallback } from "react";
+import { format } from "date-fns";
 import {
   Search,
   Download,
@@ -11,8 +11,8 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
-import pricelistService from '../../services/pricelistService';
+} from "lucide-react";
+import pricelistService from "../../services/pricelistService";
 
 const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
   const [history, setHistory] = useState([]);
@@ -22,10 +22,10 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
   const [pageSize] = useState(20);
 
   // Filters
-  const [productSearch, setProductSearch] = useState('');
-  const [selectedChangeType, setSelectedChangeType] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedChangeType, setSelectedChangeType] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   const fetchHistory = useCallback(async () => {
@@ -43,7 +43,7 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
       setHistory(response.history || []);
       setTotal(response.total || 0);
     } catch (error) {
-      console.error('Error fetching price history:', error);
+      console.error("Error fetching price history:", error);
     } finally {
       setLoading(false);
     }
@@ -54,20 +54,22 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
   }, [fetchHistory]);
 
   // Filter history by product name (client-side)
-  const filteredHistory = history.filter(item => {
+  const filteredHistory = history.filter((item) => {
     if (!productSearch) return true;
-    return item.productName?.toLowerCase().includes(productSearch.toLowerCase());
+    return item.productName
+      ?.toLowerCase()
+      .includes(productSearch.toLowerCase());
   });
 
   const totalPages = Math.ceil(total / pageSize);
 
   const getChangeIcon = (changeType) => {
     switch (changeType) {
-      case 'INSERT':
+      case "INSERT":
         return <Plus className="h-4 w-4 text-green-500" />;
-      case 'DELETE':
+      case "DELETE":
         return <Minus className="h-4 w-4 text-red-500" />;
-      case 'UPDATE':
+      case "UPDATE":
         return <RefreshCw className="h-4 w-4 text-blue-500" />;
       default:
         return null;
@@ -76,14 +78,14 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
 
   const getChangeTypeLabel = (changeType) => {
     switch (changeType) {
-      case 'INSERT':
-        return { label: 'Added', color: 'bg-green-100 text-green-800' };
-      case 'DELETE':
-        return { label: 'Removed', color: 'bg-red-100 text-red-800' };
-      case 'UPDATE':
-        return { label: 'Modified', color: 'bg-blue-100 text-blue-800' };
+      case "INSERT":
+        return { label: "Added", color: "bg-green-100 text-green-800" };
+      case "DELETE":
+        return { label: "Removed", color: "bg-red-100 text-red-800" };
+      case "UPDATE":
+        return { label: "Modified", color: "bg-blue-100 text-blue-800" };
       default:
-        return { label: changeType, color: 'bg-gray-100 text-gray-800' };
+        return { label: changeType, color: "bg-gray-100 text-gray-800" };
     }
   };
 
@@ -99,8 +101,7 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
     if (change > 0) {
       return (
         <span className="inline-flex items-center text-green-600 text-sm">
-          <ArrowUpRight className="h-3 w-3 mr-1" />
-          +{change.toFixed(1)}%
+          <ArrowUpRight className="h-3 w-3 mr-1" />+{change.toFixed(1)}%
         </span>
       );
     } else if (change < 0) {
@@ -115,47 +116,54 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     try {
-      return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+      return format(new Date(dateString), "MMM d, yyyy h:mm a");
     } catch {
       return dateString;
     }
   };
 
   const formatPrice = (price) => {
-    if (price === null || price === undefined) return '-';
-    return `AED ${parseFloat(price).toLocaleString('en-AE', { minimumFractionDigits: 2 })}`;
+    if (price === null || price === undefined) return "-";
+    return `AED ${parseFloat(price).toLocaleString("en-AE", { minimumFractionDigits: 2 })}`;
   };
 
   const handleExportCSV = () => {
-    const headers = ['Date', 'Product', 'Change Type', 'Old Price', 'New Price', 'Changed By'];
-    const rows = filteredHistory.map(item => [
+    const headers = [
+      "Date",
+      "Product",
+      "Change Type",
+      "Old Price",
+      "New Price",
+      "Changed By",
+    ];
+    const rows = filteredHistory.map((item) => [
       formatDate(item.changedAt),
       item.productName,
       item.changeType,
-      item.oldSellingPrice || '',
-      item.newSellingPrice || '',
-      item.changedBy || 'System',
+      item.oldSellingPrice || "",
+      item.newSellingPrice || "",
+      item.changedBy || "System",
     ]);
 
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
-    ].join('\n');
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `pricelist_history_${pricelistId}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.download = `pricelist_history_${pricelistId}_${format(new Date(), "yyyy-MM-dd")}.csv`;
     link.click();
   };
 
   const handleClearFilters = () => {
-    setProductSearch('');
-    setSelectedChangeType('');
-    setFromDate('');
-    setToDate('');
+    setProductSearch("");
+    setSelectedChangeType("");
+    setFromDate("");
+    setToDate("");
     setPage(0);
   };
 
@@ -185,7 +193,7 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className={`p-2 rounded-lg border ${showFilters ? 'bg-emerald-50 border-emerald-300 text-emerald-600' : 'border-gray-300 text-gray-600'}`}
+            className={`p-2 rounded-lg border ${showFilters ? "bg-emerald-50 border-emerald-300 text-emerald-600" : "border-gray-300 text-gray-600"}`}
           >
             <Filter className="h-5 w-5" />
           </button>
@@ -197,7 +205,7 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
             className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
             title="Refresh"
           >
-            <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             type="button"
@@ -221,7 +229,10 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
               </label>
               <select
                 value={selectedChangeType}
-                onChange={(e) => { setSelectedChangeType(e.target.value); setPage(0); }}
+                onChange={(e) => {
+                  setSelectedChangeType(e.target.value);
+                  setPage(0);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">All Changes</option>
@@ -237,7 +248,10 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
               <input
                 type="date"
                 value={fromDate}
-                onChange={(e) => { setFromDate(e.target.value); setPage(0); }}
+                onChange={(e) => {
+                  setFromDate(e.target.value);
+                  setPage(0);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -248,7 +262,10 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
               <input
                 type="date"
                 value={toDate}
-                onChange={(e) => { setToDate(e.target.value); setPage(0); }}
+                onChange={(e) => {
+                  setToDate(e.target.value);
+                  setPage(0);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -297,14 +314,20 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
                     <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
                     Loading history...
                   </td>
                 </tr>
               ) : filteredHistory.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
                     No price changes recorded yet
                   </td>
                 </tr>
@@ -320,22 +343,32 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
                         {item.productName || `Product #${item.productId}`}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${changeType.color}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${changeType.color}`}
+                        >
                           {getChangeIcon(item.changeType)}
                           {changeType.label}
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">
-                        {item.changeType === 'INSERT' ? '-' : formatPrice(item.oldSellingPrice)}
+                        {item.changeType === "INSERT"
+                          ? "-"
+                          : formatPrice(item.oldSellingPrice)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                        {item.changeType === 'DELETE' ? '-' : formatPrice(item.newSellingPrice)}
+                        {item.changeType === "DELETE"
+                          ? "-"
+                          : formatPrice(item.newSellingPrice)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
-                        {item.changeType === 'UPDATE' && getPriceChangeIndicator(item.oldSellingPrice, item.newSellingPrice)}
+                        {item.changeType === "UPDATE" &&
+                          getPriceChangeIndicator(
+                            item.oldSellingPrice,
+                            item.newSellingPrice,
+                          )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                        {item.changedBy || 'System'}
+                        {item.changedBy || "System"}
                       </td>
                     </tr>
                   );
@@ -349,7 +382,8 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
         {totalPages > 1 && (
           <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between bg-gray-50">
             <div className="text-sm text-gray-500">
-              Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, total)} of {total} entries
+              Showing {page * pageSize + 1} to{" "}
+              {Math.min((page + 1) * pageSize, total)} of {total} entries
             </div>
             <div className="flex items-center gap-2">
               <button

@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const isDev = import.meta.env.DEV;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const REFRESH_ENDPOINT =
-  import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh';
+  import.meta.env.VITE_REFRESH_ENDPOINT || "/auth/refresh";
 
 // Create axios instance
 const axiosApi = axios.create({
@@ -13,7 +13,7 @@ const axiosApi = axios.create({
   timeout: 10000,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -23,34 +23,32 @@ let refreshInFlight = null;
 // Simple cookie helper (avoid adding deps)
 const cookie = {
   get(name) {
-    if (typeof document === 'undefined') return null;
+    if (typeof document === "undefined") return null;
     const match = document.cookie.match(
       new RegExp(
-        `(?:^|; )${ 
-          name.replace(/([.$?*|{}()[\]/+^])/g, '\\$1') 
-        }=([^;]*)`,
+        `(?:^|; )${name.replace(/([.$?*|{}()[\]/+^])/g, "\\$1")}=([^;]*)`,
       ),
     );
     return match ? decodeURIComponent(match[1]) : null;
   },
-  set(name, value, { days = 7, path = '/' } = {}) {
-    if (typeof document === 'undefined') return;
+  set(name, value, { days = 7, path = "/" } = {}) {
+    if (typeof document === "undefined") return;
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(
       value,
     )}; expires=${expires}; path=${path}`;
   },
-  remove(name, { path = '/' } = {}) {
-    if (typeof document === 'undefined') return;
+  remove(name, { path = "/" } = {}) {
+    if (typeof document === "undefined") return;
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`;
   },
 };
 
 // Token management
-const TOKEN_KEY = 'steel-app-token';
-const REFRESH_TOKEN_KEY = 'steel-app-refresh-token';
-const COOKIE_ACCESS = 'accessToken';
-const COOKIE_REFRESH = 'refreshToken';
+const TOKEN_KEY = "steel-app-token";
+const REFRESH_TOKEN_KEY = "steel-app-refresh-token";
+const COOKIE_ACCESS = "accessToken";
+const COOKIE_REFRESH = "refreshToken";
 
 // Token utilities
 export const tokenUtils = {
@@ -75,7 +73,7 @@ export const tokenUtils = {
       const currentTime = Date.now() / 1000;
       return decoded.exp < currentTime;
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error("Error decoding token:", error);
       return true;
     }
   },
@@ -86,7 +84,7 @@ export const tokenUtils = {
       const decoded = jwtDecode(token);
       return decoded.exp * 1000; // Convert to milliseconds
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error("Error decoding token:", error);
       return null;
     }
   },
@@ -103,7 +101,7 @@ export const tokenUtils = {
         permissions: decoded.permissions,
       };
     } catch (error) {
-      console.error('Error decoding user from token:', error);
+      console.error("Error decoding user from token:", error);
       return null;
     }
   },
@@ -123,7 +121,7 @@ axiosApi.interceptors.request.use(async (config) => {
     const oneMinuteFromNow = currentTime + 60 * 1000; // 1 minute buffer
 
     if (expirationTime && expirationTime < oneMinuteFromNow) {
-      console.log('[Interceptor] Token expires soon, refreshing proactively');
+      console.log("[Interceptor] Token expires soon, refreshing proactively");
 
       const refreshToken = tokenUtils.getRefreshToken();
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
@@ -153,10 +151,10 @@ axiosApi.interceptors.request.use(async (config) => {
           const newAccess = await refreshInFlight;
           if (newAccess) {
             config.headers.Authorization = `Bearer ${newAccess}`;
-            console.log('[Interceptor] Token refreshed proactively');
+            console.log("[Interceptor] Token refreshed proactively");
           }
         } catch (error) {
-          console.error('[Interceptor] Proactive refresh failed:', error);
+          console.error("[Interceptor] Proactive refresh failed:", error);
           // Keep existing Authorization header; response interceptor may handle
         }
       }
@@ -180,7 +178,7 @@ axiosApi.interceptors.response.use(
 
       if (refreshToken && !tokenUtils.isTokenExpired(refreshToken)) {
         try {
-          console.log('[Interceptor] Attempting token refresh');
+          console.log("[Interceptor] Attempting token refresh");
           // Reuse in-flight refresh if one is running
           if (!refreshInFlight) {
             refreshInFlight = axios
@@ -197,7 +195,7 @@ axiosApi.interceptors.response.use(
 
           const { data } = await refreshInFlight;
           const newAccess = data.accessToken || data.token;
-          if (!newAccess) throw new Error('No accessToken in refresh response');
+          if (!newAccess) throw new Error("No accessToken in refresh response");
 
           tokenUtils.setToken(newAccess);
           const newRefresh = data.refreshToken || data.refreshToken;
@@ -207,7 +205,7 @@ axiosApi.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccess}`;
           return axiosApi(originalRequest);
         } catch (refreshError) {
-          console.error('[Interceptor] Token refresh failed:', refreshError);
+          console.error("[Interceptor] Token refresh failed:", refreshError);
           // Clear tokens only (GigLabz behavior)
           tokenUtils.removeTokens();
           return Promise.reject(refreshError);
@@ -250,7 +248,9 @@ export const apiService = {
   cleanParams: (params = {}) => {
     try {
       return Object.fromEntries(
-        Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+        Object.entries(params).filter(
+          ([, v]) => v !== undefined && v !== null && v !== "",
+        ),
       );
     } catch {
       return params || {};
@@ -263,7 +263,7 @@ export const apiService = {
       const response = await axiosApi.request(config);
       return response.data;
     } catch (error) {
-      const label = `${config.method || 'GET'} ${config.url}`;
+      const label = `${config.method || "GET"} ${config.url}`;
       console.error(`${label} error:`, error.response?.data || error.message);
       throw error;
     }
@@ -275,7 +275,7 @@ export const apiService = {
       return response.data;
     } catch (error) {
       // Reduce noise for frequent auth refresh failures during offline/slow backend
-      if (typeof url === 'string' && url.includes('/auth/refresh')) {
+      if (typeof url === "string" && url.includes("/auth/refresh")) {
         console.warn(
           `POST ${url} warn:`,
           error.response?.data || error.message,
@@ -332,7 +332,7 @@ export const apiService = {
         ...config,
         headers: {
           ...config.headers,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;

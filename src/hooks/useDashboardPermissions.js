@@ -3,15 +3,15 @@
  * Integrates auth system with dashboard widget permissions
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { authService } from '../services/authService';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { authService } from "../services/authService";
 import {
   canViewWidget,
   getVisibleWidgets,
   getWidgetsByCategory,
   getDefaultLayout,
   DASHBOARD_ROLES,
-} from '../components/dashboard/config/DashboardConfig';
+} from "../components/dashboard/config/DashboardConfig";
 
 // Alias for cleaner code
 const ROLES = DASHBOARD_ROLES;
@@ -22,7 +22,9 @@ const ROLES = DASHBOARD_ROLES;
 const mapAuthRoleToDashboardRole = (authRole) => {
   if (!authRole) return ROLES.SALES_AGENT;
 
-  const normalizedRole = String(authRole).toLowerCase().replace(/[-_\s]/g, '');
+  const normalizedRole = String(authRole)
+    .toLowerCase()
+    .replace(/[-_\s]/g, "");
 
   const roleMap = {
     admin: ROLES.ADMIN,
@@ -49,14 +51,14 @@ const mapAuthRoleToDashboardRole = (authRole) => {
   const mappedRole = roleMap[normalizedRole];
   if (mappedRole) return mappedRole;
 
-  if (normalizedRole.includes('admin')) return ROLES.ADMIN;
-  if (normalizedRole.includes('ceo')) return ROLES.CEO;
-  if (normalizedRole.includes('cfo')) return ROLES.CFO;
-  if (normalizedRole.includes('salesmanager')) return ROLES.SALES_MANAGER;
-  if (normalizedRole.includes('operations')) return ROLES.OPERATIONS_MANAGER;
-  if (normalizedRole.includes('warehouse')) return ROLES.WAREHOUSE_MANAGER;
-  if (normalizedRole.includes('accountant')) return ROLES.ACCOUNTANT;
-  if (normalizedRole.includes('sales')) return ROLES.SALES_AGENT;
+  if (normalizedRole.includes("admin")) return ROLES.ADMIN;
+  if (normalizedRole.includes("ceo")) return ROLES.CEO;
+  if (normalizedRole.includes("cfo")) return ROLES.CFO;
+  if (normalizedRole.includes("salesmanager")) return ROLES.SALES_MANAGER;
+  if (normalizedRole.includes("operations")) return ROLES.OPERATIONS_MANAGER;
+  if (normalizedRole.includes("warehouse")) return ROLES.WAREHOUSE_MANAGER;
+  if (normalizedRole.includes("accountant")) return ROLES.ACCOUNTANT;
+  if (normalizedRole.includes("sales")) return ROLES.SALES_AGENT;
 
   return ROLES.SALES_AGENT;
 };
@@ -71,7 +73,7 @@ export const useDashboardPermissions = () => {
         const currentUser = authService.getUser();
         setUser(currentUser);
       } catch (error) {
-        console.error('[useDashboardPermissions] Error loading user:', error);
+        console.error("[useDashboardPermissions] Error loading user:", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -81,13 +83,13 @@ export const useDashboardPermissions = () => {
     loadUser();
 
     const handleStorageChange = (e) => {
-      if (e.key === 'steel-app-user' || e.key === 'steel-app-token') {
+      if (e.key === "steel-app-user" || e.key === "steel-app-token") {
         loadUser();
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const role = useMemo(() => {
@@ -109,7 +111,10 @@ export const useDashboardPermissions = () => {
 
   const defaultLayout = useMemo(() => getDefaultLayout(role), [role]);
 
-  const isAuthenticated = useMemo(() => !!(user && authService.getToken()), [user]);
+  const isAuthenticated = useMemo(
+    () => !!(user && authService.getToken()),
+    [user],
+  );
 
   return {
     user,

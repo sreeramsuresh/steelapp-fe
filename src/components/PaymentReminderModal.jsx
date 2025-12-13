@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { X, Phone, Calendar, Trash2, Edit2, Plus, Loader2 } from 'lucide-react';
-import { formatDateTime, formatCurrency } from '../utils/invoiceUtils';
-import { apiService, tokenUtils } from '../services/axiosApi';
-import ConfirmDialog from './ConfirmDialog';
-import { notificationService } from '../services/notificationService';
+import React, { useState, useEffect } from "react";
+import { X, Phone, Calendar, Trash2, Edit2, Plus, Loader2 } from "lucide-react";
+import { formatDateTime, formatCurrency } from "../utils/invoiceUtils";
+import { apiService, tokenUtils } from "../services/axiosApi";
+import ConfirmDialog from "./ConfirmDialog";
+import { notificationService } from "../services/notificationService";
 
 // Helper function to get first name from full name
 const getFirstName = (name) => {
-  if (!name) return 'N/A';
+  if (!name) return "N/A";
 
-  const parts = name.trim().split(' ').filter(p => p.length > 0);
+  const parts = name
+    .trim()
+    .split(" ")
+    .filter((p) => p.length > 0);
 
-  if (parts.length === 0) return 'N/A';
+  if (parts.length === 0) return "N/A";
 
   // Return first name only, capitalized
   return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
@@ -20,19 +23,25 @@ const getFirstName = (name) => {
 // Helper function to safely format a date string
 const formatPromisedDate = (dateString) => {
   if (!dateString) return null;
-  
+
   const date = new Date(dateString);
   // Check if date is valid
   if (isNaN(date.getTime())) return null;
-  
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
-const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = false }) => {
+const PaymentReminderModal = ({
+  isOpen,
+  onClose,
+  invoice,
+  onSave,
+  isViewOnly = false,
+}) => {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,15 +50,17 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
   const [formData, setFormData] = useState({
     contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
-    notes: '',
-    promised_amount: '',
-    promised_date: '',
+    notes: "",
+    promised_amount: "",
+    promised_date: "",
   });
   const notesTextareaRef = React.useRef(null);
 
   // Get current user info
   useEffect(() => {
-    const user = tokenUtils.getUser() || JSON.parse(localStorage.getItem('steel-app-user') || 'null');
+    const user =
+      tokenUtils.getUser() ||
+      JSON.parse(localStorage.getItem("steel-app-user") || "null");
     setCurrentUser(user);
   }, []);
 
@@ -64,7 +75,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   // Auto-resize textarea as user types
   useEffect(() => {
     if (notesTextareaRef.current) {
-      notesTextareaRef.current.style.height = 'auto';
+      notesTextareaRef.current.style.height = "auto";
       notesTextareaRef.current.style.height = `${notesTextareaRef.current.scrollHeight}px`;
     }
   }, [formData.notes]);
@@ -72,11 +83,13 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   const fetchReminders = async () => {
     try {
       setLoading(true);
-      const data = await apiService.get(`/invoices/${invoice.id}/payment-reminders`);
+      const data = await apiService.get(
+        `/invoices/${invoice.id}/payment-reminders`,
+      );
       setReminders(data);
     } catch (err) {
       // Silently fail - just show empty list
-      console.error('Failed to fetch reminders:', err);
+      console.error("Failed to fetch reminders:", err);
     } finally {
       setLoading(false);
     }
@@ -94,22 +107,30 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
     try {
       if (editingId) {
         // Update existing reminder
-        const updatedReminder = await apiService.put(`/invoices/payment-reminders/${editingId}`, formData);
+        const updatedReminder = await apiService.put(
+          `/invoices/payment-reminders/${editingId}`,
+          formData,
+        );
 
-        setReminders(reminders.map(r => r.id === editingId ? updatedReminder : r));
+        setReminders(
+          reminders.map((r) => (r.id === editingId ? updatedReminder : r)),
+        );
 
         // Reset form
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
-          notes: '',
-          promised_amount: '',
-          promised_date: '',
+          notes: "",
+          promised_amount: "",
+          promised_date: "",
         });
         setEditingId(null);
-        notificationService.success('Note updated successfully');
+        notificationService.success("Note updated successfully");
       } else {
         // Create new reminder
-        const newReminder = await apiService.post(`/invoices/${invoice.id}/payment-reminders`, formData);
+        const newReminder = await apiService.post(
+          `/invoices/${invoice.id}/payment-reminders`,
+          formData,
+        );
 
         // Add new reminder to the TOP of the list
         setReminders([newReminder, ...reminders]);
@@ -117,9 +138,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
         // Reset form
         setFormData({
           contact_date: new Date().toISOString().slice(0, 16),
-          notes: '',
-          promised_amount: '',
-          promised_date: '',
+          notes: "",
+          promised_amount: "",
+          promised_date: "",
         });
         setEditingId(null);
 
@@ -131,10 +152,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
         if (onSave) {
           onSave(newReminder);
         }
-        notificationService.success('Note saved successfully');
+        notificationService.success("Note saved successfully");
       }
     } catch (err) {
-      console.error('Error saving reminder:', err);
+      console.error("Error saving reminder:", err);
       notificationService.error(`Error saving note: ${err.message}`);
     } finally {
       setIsSaving(false);
@@ -146,8 +167,8 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
     setFormData({
       contact_date: new Date(reminder.contactDate).toISOString().slice(0, 16),
       notes: reminder.notes,
-      promised_amount: reminder.promisedAmount || '',
-      promised_date: reminder.promisedDate || '',
+      promised_amount: reminder.promisedAmount || "",
+      promised_date: reminder.promisedDate || "",
     });
   };
 
@@ -161,12 +182,12 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
     try {
       await apiService.delete(`/invoices/payment-reminders/${deleteConfirmId}`);
-      setReminders(reminders.filter(r => r.id !== deleteConfirmId));
-      notificationService.success('Note deleted successfully');
+      setReminders(reminders.filter((r) => r.id !== deleteConfirmId));
+      notificationService.success("Note deleted successfully");
       // console.log('Note deleted successfully');
       setDeleteConfirmId(null); // Close confirmation dialog
     } catch (err) {
-      console.error('Failed to delete note:', err);
+      console.error("Failed to delete note:", err);
       notificationService.error(`Error deleting note: ${err.message}`);
       setDeleteConfirmId(null);
     }
@@ -180,9 +201,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
     setEditingId(null);
     setFormData({
       contact_date: new Date().toISOString().slice(0, 16),
-      notes: '',
-      promised_amount: '',
-      promised_date: '',
+      notes: "",
+      promised_amount: "",
+      promised_date: "",
     });
   };
 
@@ -200,7 +221,10 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2">
-                <Phone className="text-orange-700 dark:text-orange-400" size={24} />
+                <Phone
+                  className="text-orange-700 dark:text-orange-400"
+                  size={24}
+                />
                 <h2 className="text-xl font-bold text-orange-900 dark:text-orange-100">
                   Payment Reminder Calls
                 </h2>
@@ -211,7 +235,8 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 )}
               </div>
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                Invoice: {invoice?.invoiceNumber} | Customer: {invoice?.customer?.name || 'N/A'}
+                Invoice: {invoice?.invoiceNumber} | Customer:{" "}
+                {invoice?.customer?.name || "N/A"}
               </p>
             </div>
             <button
@@ -244,27 +269,37 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Total Amount</div>
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
+                  Total Amount
+                </div>
                 <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
-                  {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
+                  {formatCurrency(
+                    invoice?.invoiceAmount || invoice?.total || 0,
+                  )}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Paid Amount</div>
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
+                  Paid Amount
+                </div>
                 <div className="font-bold text-lg text-green-600 dark:text-green-400">
                   {formatCurrency(invoice?.received || 0)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Balance Due</div>
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
+                  Balance Due
+                </div>
                 <div className="font-bold text-lg text-red-600 dark:text-red-400">
-                  {formatCurrency(invoice?.outstanding || invoice?.balanceDue || 0)}
+                  {formatCurrency(
+                    invoice?.outstanding || invoice?.balanceDue || 0,
+                  )}
                 </div>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-orange-300 dark:border-orange-700">
               <div className="text-xs text-orange-700 dark:text-orange-300">
-                <strong>Customer:</strong> {invoice?.customer?.name || 'N/A'}
+                <strong>Customer:</strong> {invoice?.customer?.name || "N/A"}
               </div>
             </div>
           </div>
@@ -274,82 +309,102 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
             <div className="text-center py-4 text-orange-700 dark:text-orange-300">
               Loading...
             </div>
-          ) : reminders.length > 0 && (
-            <div className="space-y-3">
-              {reminders.map((reminder) => (
-                <div
-                  key={reminder.id}
-                  className="p-4 bg-white dark:bg-gray-800/50 rounded-lg shadow-md border-l-4 border-orange-400 dark:border-orange-600 hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <Calendar size={14} />
-                      <span className="font-medium">
-                        {formatDateTime(reminder.contactDate)}
-                      </span>
-                      {/* User First Name */}
-                      <span className="ml-2 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded text-xs font-semibold">
-                        {getFirstName(currentUser?.name)}
-                      </span>
+          ) : (
+            reminders.length > 0 && (
+              <div className="space-y-3">
+                {reminders.map((reminder) => (
+                  <div
+                    key={reminder.id}
+                    className="p-4 bg-white dark:bg-gray-800/50 rounded-lg shadow-md border-l-4 border-orange-400 dark:border-orange-600 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Calendar size={14} />
+                        <span className="font-medium">
+                          {formatDateTime(reminder.contactDate)}
+                        </span>
+                        {/* User First Name */}
+                        <span className="ml-2 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded text-xs font-semibold">
+                          {getFirstName(currentUser?.name)}
+                        </span>
+                      </div>
+                      {!isViewOnly && (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleEdit(reminder)}
+                            className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
+                            title="Edit"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(reminder.id)}
+                            className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    {!isViewOnly && (
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => handleEdit(reminder)}
-                          className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-                          title="Edit"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(reminder.id)}
-                          className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+
+                    <p className="text-gray-800 dark:text-gray-200 text-sm">
+                      {reminder.notes}
+                    </p>
+
+                    {/* Show promised payment info if available */}
+                    {(reminder.promisedAmount || reminder.promisedDate) && (
+                      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
+                        {reminder.promisedAmount && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <span>💰</span>
+                            <span className="font-semibold">
+                              Promised Amount:
+                            </span>
+                            <span className="text-green-600 dark:text-green-400 font-bold">
+                              AED{" "}
+                              {parseFloat(reminder.promisedAmount).toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                        {formatPromisedDate(reminder.promisedDate) && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <span>📅</span>
+                            <span className="font-semibold">
+                              Promised Date:
+                            </span>
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">
+                              {formatPromisedDate(reminder.promisedDate)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-
-                  <p className="text-gray-800 dark:text-gray-200 text-sm">
-                    {reminder.notes}
-                  </p>
-
-                  {/* Show promised payment info if available */}
-                  {(reminder.promisedAmount || reminder.promisedDate) && (
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
-                      {reminder.promisedAmount && (
-                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                          <span>💰</span>
-                          <span className="font-semibold">Promised Amount:</span>
-                          <span className="text-green-600 dark:text-green-400 font-bold">
-                            AED {parseFloat(reminder.promisedAmount).toFixed(2)}
-                          </span>
-                        </div>
-                      )}
-                      {formatPromisedDate(reminder.promisedDate) && (
-                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                          <span>📅</span>
-                          <span className="font-semibold">Promised Date:</span>
-                          <span className="text-blue-600 dark:text-blue-400 font-bold">
-                            {formatPromisedDate(reminder.promisedDate)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
 
           {/* Form - Hidden in View Only mode */}
           {!isViewOnly && (
-            <form onSubmit={handleSubmit} className="p-5 bg-white dark:bg-gray-800/50 rounded-lg shadow-lg border-2 border-orange-400 dark:border-orange-600">
+            <form
+              onSubmit={handleSubmit}
+              className="p-5 bg-white dark:bg-gray-800/50 rounded-lg shadow-lg border-2 border-orange-400 dark:border-orange-600"
+            >
               <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-4 flex items-center gap-2">
-                {editingId ? <Edit2 size={18} className="text-orange-600 dark:text-orange-400" /> : <Plus size={18} className="text-orange-600 dark:text-orange-400" />}
-                {editingId ? 'Edit Call Note' : 'New Call Note'}
+                {editingId ? (
+                  <Edit2
+                    size={18}
+                    className="text-orange-600 dark:text-orange-400"
+                  />
+                ) : (
+                  <Plus
+                    size={18}
+                    className="text-orange-600 dark:text-orange-400"
+                  />
+                )}
+                {editingId ? "Edit Call Note" : "New Call Note"}
               </h3>
 
               <div className="space-y-4">
@@ -362,7 +417,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                   <input
                     type="datetime-local"
                     value={formData.contact_date}
-                    onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, contact_date: e.target.value })
+                    }
                     onClick={(e) => e.target.showPicker?.()}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent cursor-pointer"
                     required
@@ -377,7 +434,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                   <textarea
                     ref={notesTextareaRef}
                     value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, notes: e.target.value })
+                    }
                     placeholder="Enter call notes - what was discussed, customer response, concerns, etc..."
                     rows={3}
                     maxLength={200}
@@ -388,7 +447,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                     <span className="text-gray-500 dark:text-gray-400">
                       Auto-expands as you type
                     </span>
-                    <span className={`font-medium ${formData.notes.length > 180 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <span
+                      className={`font-medium ${formData.notes.length > 180 ? "text-orange-600 dark:text-orange-400" : "text-gray-500 dark:text-gray-400"}`}
+                    >
                       {formData.notes.length}/200
                     </span>
                   </div>
@@ -398,14 +459,20 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
                     <span>💰</span>
-                    Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
+                    Promised Amount{" "}
+                    <span className="text-gray-500 text-xs">(Optional)</span>
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     value={formData.promised_amount}
-                    onChange={(e) => setFormData({ ...formData, promised_amount: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        promised_amount: e.target.value,
+                      })
+                    }
                     placeholder="e.g., 5000"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent"
                   />
@@ -415,12 +482,20 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
                     <span>📅</span>
-                    When Will Customer Pay? <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
+                    When Will Customer Pay?{" "}
+                    <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                      (Important)
+                    </span>
                   </label>
                   <input
                     type="date"
                     value={formData.promised_date}
-                    onChange={(e) => setFormData({ ...formData, promised_date: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        promised_date: e.target.value,
+                      })
+                    }
                     onClick={(e) => e.target.showPicker?.()}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent cursor-pointer"
                   />
@@ -436,7 +511,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                   type="submit"
                   disabled={isSaving}
                   className={`flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
-                    isSaving ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''
+                    isSaving
+                      ? "opacity-60 cursor-not-allowed pointer-events-none"
+                      : ""
                   }`}
                 >
                   {isSaving ? (
@@ -445,7 +522,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                       Saving...
                     </>
                   ) : (
-                    `${editingId ? 'Update' : 'Save'} Note`
+                    `${editingId ? "Update" : "Save"} Note`
                   )}
                 </button>
                 {editingId && (
@@ -454,7 +531,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                     onClick={handleCancel}
                     disabled={isSaving}
                     className={`flex-1 px-4 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
-                      isSaving ? 'opacity-50 cursor-not-allowed' : ''
+                      isSaving ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     Cancel

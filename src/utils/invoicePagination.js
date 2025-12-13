@@ -11,21 +11,21 @@ export const PAGE_CONFIG = {
   A4_WIDTH: 210,
 
   // Fixed section heights (approximate in mm)
-  HEADER_HEIGHT: 45,           // Company logo, name, address
+  HEADER_HEIGHT: 45, // Company logo, name, address
   CUSTOMER_SECTION_HEIGHT: 55, // Invoice to + Invoice info box (first page only)
-  FOOTER_HEIGHT: 30,           // Contact info + page numbers
+  FOOTER_HEIGHT: 30, // Contact info + page numbers
   SIGNATURE_SECTION_HEIGHT: 70, // Seal + authorized signatory (last page only)
-  TOTALS_SECTION_HEIGHT: 60,   // Subtotal, VAT, Total, Advance, Balance
-  FOOTER_NOTES_HEIGHT: 25,     // Payment terms, notes (last page only)
+  TOTALS_SECTION_HEIGHT: 60, // Subtotal, VAT, Total, Advance, Balance
+  FOOTER_NOTES_HEIGHT: 25, // Payment terms, notes (last page only)
 
   // Line item heights
-  TABLE_HEADER_HEIGHT: 10,     // Description, Qty, Rate, etc.
-  LINE_ITEM_HEIGHT: 8,         // Each product row
+  TABLE_HEADER_HEIGHT: 10, // Description, Qty, Rate, etc.
+  LINE_ITEM_HEIGHT: 8, // Each product row
 
   // Margins and spacing
   TOP_MARGIN: 15,
   BOTTOM_MARGIN: 15,
-  SPACING_BUFFER: 10,          // Extra buffer for safety
+  SPACING_BUFFER: 10, // Extra buffer for safety
 };
 
 /**
@@ -106,9 +106,15 @@ export function calculatePagination(invoice) {
   const otherPageHeight = getOtherPageItemsHeight();
   const lastPageHeight = getLastPageItemsHeight();
 
-  const maxItemsFirstPage = Math.floor(firstPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
-  const maxItemsOtherPage = Math.floor(otherPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
-  const maxItemsLastPage = Math.floor(lastPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
+  const maxItemsFirstPage = Math.floor(
+    firstPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
+  );
+  const maxItemsOtherPage = Math.floor(
+    otherPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
+  );
+  const maxItemsLastPage = Math.floor(
+    lastPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
+  );
 
   // Single page case
   if (itemCount <= maxItemsFirstPage) {
@@ -174,7 +180,8 @@ export function calculatePagination(invoice) {
     distribution: {
       firstPage: itemsOnFirstPage,
       middlePages,
-      lastPage: remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1],
+      lastPage:
+        remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1],
     },
     limits: {
       maxItemsFirstPage,
@@ -230,7 +237,7 @@ export function getPaginationSummary(pagination) {
   summary += `- Page 1: ${firstPage} items (with customer info)\n`;
 
   if (middlePageCount > 0) {
-    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(', ')} items (continued)\n`;
+    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(", ")} items (continued)\n`;
   }
 
   summary += `- Page ${pagination.pages}: ${lastPage} items (with totals & signature)`;

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { suppliersAPI } from '../services/api';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { suppliersAPI } from "../services/api";
 import {
   Table,
   TableBody,
@@ -8,11 +8,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Plus, Edit, Building2, Factory, Globe } from 'lucide-react';
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Plus, Edit, Building2, Factory, Globe } from "lucide-react";
 
 /**
  * SupplierList Component - Phase 4 Procurement
@@ -25,8 +25,8 @@ export function SupplierList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [filterLocation, setFilterLocation] = useState('ALL');
-  const [filterMill, setFilterMill] = useState('ALL');
+  const [filterLocation, setFilterLocation] = useState("ALL");
+  const [filterMill, setFilterMill] = useState("ALL");
   const itemsPerPage = 20;
 
   useEffect(() => {
@@ -40,8 +40,8 @@ export function SupplierList() {
       const response = await suppliersAPI.getAll();
       setSuppliers(response || []);
     } catch (err) {
-      console.error('Failed to load suppliers:', err);
-      setError(err.message || 'Failed to load suppliers');
+      console.error("Failed to load suppliers:", err);
+      setError(err.message || "Failed to load suppliers");
     } finally {
       setLoading(false);
     }
@@ -49,30 +49,30 @@ export function SupplierList() {
 
   const getRatingColor = (rating) => {
     switch (rating) {
-      case 'CERTIFIED':
-        return 'bg-green-100 text-green-800';
-      case 'PREFERRED':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'ACCEPTABLE':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'AT_RISK':
-        return 'bg-red-100 text-red-800';
+      case "CERTIFIED":
+        return "bg-green-100 text-green-800";
+      case "PREFERRED":
+        return "bg-emerald-100 text-emerald-800";
+      case "ACCEPTABLE":
+        return "bg-yellow-100 text-yellow-800";
+      case "AT_RISK":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getScoreColor = (score) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-emerald-600';
-    if (score >= 70) return 'text-yellow-600';
-    if (score >= 60) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 90) return "text-green-600";
+    if (score >= 80) return "text-emerald-600";
+    if (score >= 70) return "text-yellow-600";
+    if (score >= 60) return "text-orange-600";
+    return "text-red-600";
   };
 
   const getLocationBadge = (location) => {
-    const loc = location || 'UAE_LOCAL';
-    if (loc === 'OVERSEAS') {
+    const loc = location || "UAE_LOCAL";
+    if (loc === "OVERSEAS") {
       return (
         <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
           <Globe size={12} className="mr-1" />
@@ -90,16 +90,17 @@ export function SupplierList() {
 
   // Filter suppliers based on selected filters
   const filteredSuppliers = suppliers.filter((supplier) => {
-    const location = supplier.supplierLocation || supplier.supplier_location || 'UAE_LOCAL';
+    const location =
+      supplier.supplierLocation || supplier.supplier_location || "UAE_LOCAL";
     const isMill = supplier.isMill ?? supplier.is_mill ?? false;
 
-    if (filterLocation !== 'ALL' && location !== filterLocation) {
+    if (filterLocation !== "ALL" && location !== filterLocation) {
       return false;
     }
-    if (filterMill === 'MILL' && !isMill) {
+    if (filterMill === "MILL" && !isMill) {
       return false;
     }
-    if (filterMill === 'TRADER' && isMill) {
+    if (filterMill === "TRADER" && isMill) {
       return false;
     }
     return true;
@@ -116,7 +117,7 @@ export function SupplierList() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Suppliers</CardTitle>
           <Button
-            onClick={() => navigate('/suppliers/new')}
+            onClick={() => navigate("/suppliers/new")}
             className="flex items-center gap-2"
           >
             <Plus size={16} />
@@ -127,7 +128,9 @@ export function SupplierList() {
           {/* Filters */}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Location:</span>
+              <span className="text-sm font-medium text-gray-600">
+                Location:
+              </span>
               <select
                 value={filterLocation}
                 onChange={(e) => {
@@ -157,7 +160,8 @@ export function SupplierList() {
               </select>
             </div>
             <div className="text-sm text-gray-500 ml-auto">
-              {filteredSuppliers.length} supplier{filteredSuppliers.length !== 1 ? 's' : ''} found
+              {filteredSuppliers.length} supplier
+              {filteredSuppliers.length !== 1 ? "s" : ""} found
             </div>
           </div>
 
@@ -196,22 +200,31 @@ export function SupplierList() {
                 </TableHeader>
                 <TableBody>
                   {paginatedSuppliers.map((supplier) => {
-                    const location = supplier.supplierLocation || supplier.supplier_location || 'UAE_LOCAL';
+                    const location =
+                      supplier.supplierLocation ||
+                      supplier.supplier_location ||
+                      "UAE_LOCAL";
                     const isMill = supplier.isMill ?? supplier.is_mill ?? false;
-                    const primaryCountry = supplier.primaryCountry || supplier.primary_country || 'UAE';
-                    const leadTime = supplier.typicalLeadTimeDays ?? supplier.typical_lead_time_days ?? '-';
+                    const primaryCountry =
+                      supplier.primaryCountry ||
+                      supplier.primary_country ||
+                      "UAE";
+                    const leadTime =
+                      supplier.typicalLeadTimeDays ??
+                      supplier.typical_lead_time_days ??
+                      "-";
 
                     return (
                       <TableRow key={supplier.id}>
                         <TableCell>
                           <div>
                             <div className="font-medium">{supplier.name}</div>
-                            <div className="text-sm text-gray-500">{supplier.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {supplier.email}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          {getLocationBadge(location)}
-                        </TableCell>
+                        <TableCell>{getLocationBadge(location)}</TableCell>
                         <TableCell>
                           {isMill ? (
                             <Badge className="bg-purple-100 text-purple-800 border-purple-200">
@@ -225,22 +238,28 @@ export function SupplierList() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm font-mono">{primaryCountry}</span>
+                          <span className="text-sm font-mono">
+                            {primaryCountry}
+                          </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          {leadTime !== '-' ? `${leadTime} days` : '-'}
+                          {leadTime !== "-" ? `${leadTime} days` : "-"}
                         </TableCell>
                         <TableCell className="text-right">
-                          {supplier.on_time_delivery_pct?.toFixed(1) || 'N/A'}%
+                          {supplier.on_time_delivery_pct?.toFixed(1) || "N/A"}%
                         </TableCell>
                         <TableCell className="text-right">
-                          <span className={getScoreColor(supplier.supplier_score)}>
+                          <span
+                            className={getScoreColor(supplier.supplier_score)}
+                          >
                             {supplier.supplier_score || 0}/100
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getRatingColor(supplier.supplier_rating)}>
-                            {supplier.supplier_rating || 'UNRATED'}
+                          <Badge
+                            className={getRatingColor(supplier.supplier_rating)}
+                          >
+                            {supplier.supplier_rating || "UNRATED"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -248,7 +267,9 @@ export function SupplierList() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/suppliers/${supplier.id}/edit`)}
+                              onClick={() =>
+                                navigate(`/suppliers/${supplier.id}/edit`)
+                              }
                               title="Edit supplier"
                             >
                               <Edit size={16} />
@@ -256,7 +277,9 @@ export function SupplierList() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/suppliers/${supplier.id}/scorecard`)}
+                              onClick={() =>
+                                navigate(`/suppliers/${supplier.id}/scorecard`)
+                              }
                             >
                               Scorecard
                             </Button>
@@ -280,8 +303,8 @@ export function SupplierList() {
           {filteredSuppliers.length > itemsPerPage && (
             <div className="flex justify-between items-center mt-4">
               <span className="text-sm text-gray-600">
-                Showing {(page - 1) * itemsPerPage + 1} to{' '}
-                {Math.min(page * itemsPerPage, filteredSuppliers.length)} of{' '}
+                Showing {(page - 1) * itemsPerPage + 1} to{" "}
+                {Math.min(page * itemsPerPage, filteredSuppliers.length)} of{" "}
                 {filteredSuppliers.length}
               </span>
               <div className="space-x-2">

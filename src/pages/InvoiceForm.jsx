@@ -5,8 +5,8 @@ import {
   useCallback,
   useRef,
   Fragment,
-} from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+} from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Plus,
   Trash2,
@@ -25,14 +25,10 @@ import {
   Banknote,
   List,
   CheckCircle,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import {
-  createInvoice,
-  createSteelItem,
-  UAE_EMIRATES,
-} from '../types';
-import { PAYMENT_MODES } from '../utils/paymentUtils';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
+import { PAYMENT_MODES } from "../utils/paymentUtils";
 import {
   calculateItemAmount,
   calculateSubtotal,
@@ -42,82 +38,88 @@ import {
   titleCase,
   normalizeLLC,
   calculateDiscountedTRN,
-} from '../utils/invoiceUtils';
-import InvoicePreview from '../components/InvoicePreview';
-import { invoiceService, companyService, commissionService } from '../services';
-import { customerService } from '../services/customerService';
-import { productService } from '../services/productService';
-import { pinnedProductsService } from '../services/pinnedProductsService';
-import pricelistService from '../services/pricelistService';
-import { invoicesAPI } from '../services/api';
-import { useApiData, useApi } from '../hooks/useApi';
-import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from '../hooks/useKeyboardShortcuts';
+} from "../utils/invoiceUtils";
+import InvoicePreview from "../components/InvoicePreview";
+import { invoiceService, companyService, commissionService } from "../services";
+import { customerService } from "../services/customerService";
+import { productService } from "../services/productService";
+import { pinnedProductsService } from "../services/pinnedProductsService";
+import pricelistService from "../services/pricelistService";
+import { invoicesAPI } from "../services/api";
+import { useApiData, useApi } from "../hooks/useApi";
+import useKeyboardShortcuts, {
+  getShortcutDisplayString,
+  INVOICE_SHORTCUTS,
+} from "../hooks/useKeyboardShortcuts";
 // AutoSave removed - was causing status bug on new invoices
-import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
-import useBulkActions, { BulkCheckbox, BulkActionsToolbar } from '../hooks/useBulkActions';
-import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
-import { useReducedMotion } from '../hooks/useAccessibility';
-import { notificationService } from '../services/notificationService';
-import LoadingOverlay from '../components/LoadingOverlay';
-import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
-import AllocationPanel from '../components/invoice/AllocationPanel';
-import BatchPicker from '../components/invoice/BatchPicker';
-import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
+import useDragReorder, { DragHandleIcon } from "../hooks/useDragReorder";
+import useBulkActions, {
+  BulkCheckbox,
+  BulkActionsToolbar,
+} from "../hooks/useBulkActions";
+import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
+import { useReducedMotion } from "../hooks/useAccessibility";
+import { notificationService } from "../services/notificationService";
+import LoadingOverlay from "../components/LoadingOverlay";
+import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
+import AllocationPanel from "../components/invoice/AllocationPanel";
+import BatchPicker from "../components/invoice/BatchPicker";
+import StockAvailabilityIndicator from "../components/invoice/StockAvailabilityIndicator";
 
 // Custom Tailwind Components
 const Button = ({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   disabled = false,
   onClick,
-  className = '',
+  className = "",
   ...props
 }) => {
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
-    if (variant === 'primary') {
+    if (variant === "primary") {
       return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${
-        isDarkMode ? 'bg-gray-600' : 'bg-gray-400'
+        isDarkMode ? "bg-gray-600" : "bg-gray-400"
       } disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${
-        isDarkMode ? 'gray-800' : 'white'
+        isDarkMode ? "gray-800" : "white"
       }`;
-    } else if (variant === 'secondary') {
+    } else if (variant === "secondary") {
       return `${
         isDarkMode
-          ? 'bg-gray-700 hover:bg-gray-600'
-          : 'bg-gray-200 hover:bg-gray-300'
-      } ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${
-        isDarkMode ? 'gray-500' : 'gray-400'
+          ? "bg-gray-700 hover:bg-gray-600"
+          : "bg-gray-200 hover:bg-gray-300"
+      } ${isDarkMode ? "text-white" : "text-gray-800"} focus:ring-${
+        isDarkMode ? "gray-500" : "gray-400"
       } disabled:${
-        isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
-      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+        isDarkMode ? "bg-gray-800" : "bg-gray-100"
+      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
     } else {
       // outline
       return `border ${
         isDarkMode
-          ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-          : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
       } focus:ring-teal-500 disabled:${
-        isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+        isDarkMode ? "bg-gray-800" : "bg-gray-50"
+      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
     }
   };
 
   const sizes = {
-    sm: 'px-2.5 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-sm',
+    sm: "px-2.5 py-1 text-xs",
+    md: "px-3 py-1.5 text-sm",
+    lg: "px-4 py-2 text-sm",
   };
 
   return (
     <button
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
-        disabled ? 'cursor-not-allowed' : ''
+        disabled ? "cursor-not-allowed" : ""
       } ${className}`}
       disabled={disabled}
       onClick={onClick}
@@ -128,7 +130,16 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
+const Input = ({
+  label,
+  error,
+  className = "",
+  required = false,
+  validationState = null,
+  showValidation = true,
+  id,
+  ...props
+}) => {
   const { isDarkMode } = useTheme();
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -137,29 +148,29 @@ const Input = ({ label, error, className = '', required = false, validationState
     // If validation highlighting is disabled, show default styles
     if (!showValidation) {
       return isDarkMode
-        ? 'border-gray-600 bg-gray-800'
-        : 'border-gray-300 bg-white';
+        ? "border-gray-600 bg-gray-800"
+        : "border-gray-300 bg-white";
     }
 
-    if (error || validationState === 'invalid') {
+    if (error || validationState === "invalid") {
       return isDarkMode
-        ? 'border-red-500 bg-red-900/10'
-        : 'border-red-500 bg-red-50';
+        ? "border-red-500 bg-red-900/10"
+        : "border-red-500 bg-red-50";
     }
-    if (validationState === 'valid') {
+    if (validationState === "valid") {
       return isDarkMode
-        ? 'border-green-500 bg-green-900/10'
-        : 'border-green-500 bg-green-50';
+        ? "border-green-500 bg-green-900/10"
+        : "border-green-500 bg-green-50";
     }
     if (required && validationState === null) {
       // Untouched required field - show subtle indication
       return isDarkMode
-        ? 'border-yellow-600/50 bg-yellow-900/5'
-        : 'border-yellow-400/50 bg-yellow-50/30';
+        ? "border-yellow-600/50 bg-yellow-900/5"
+        : "border-yellow-400/50 bg-yellow-50/30";
     }
     return isDarkMode
-      ? 'border-gray-600 bg-gray-800'
-      : 'border-gray-300 bg-white';
+      ? "border-gray-600 bg-gray-800"
+      : "border-gray-300 bg-white";
   };
 
   return (
@@ -168,8 +179,8 @@ const Input = ({ label, error, className = '', required = false, validationState
         <label
           htmlFor={inputId}
           className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
+            isDarkMode ? "text-gray-400" : "text-gray-700"
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -178,14 +189,14 @@ const Input = ({ label, error, className = '', required = false, validationState
         id={inputId}
         className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
-            ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
-            : 'text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+            ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
+            : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
         } ${getValidationClasses()} ${className}`}
         {...props}
       />
       {error && (
         <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -194,7 +205,17 @@ const Input = ({ label, error, className = '', required = false, validationState
   );
 };
 
-const Select = ({ label, children, error, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
+const Select = ({
+  label,
+  children,
+  error,
+  className = "",
+  required = false,
+  validationState = null,
+  showValidation = true,
+  id,
+  ...props
+}) => {
   const { isDarkMode } = useTheme();
   const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -203,29 +224,29 @@ const Select = ({ label, children, error, className = '', required = false, vali
     // If validation highlighting is disabled, show default styles
     if (!showValidation) {
       return isDarkMode
-        ? 'border-gray-600 bg-gray-800'
-        : 'border-gray-300 bg-white';
+        ? "border-gray-600 bg-gray-800"
+        : "border-gray-300 bg-white";
     }
 
-    if (error || validationState === 'invalid') {
+    if (error || validationState === "invalid") {
       return isDarkMode
-        ? 'border-red-500 bg-red-900/10'
-        : 'border-red-500 bg-red-50';
+        ? "border-red-500 bg-red-900/10"
+        : "border-red-500 bg-red-50";
     }
-    if (validationState === 'valid') {
+    if (validationState === "valid") {
       return isDarkMode
-        ? 'border-green-500 bg-green-900/10'
-        : 'border-green-500 bg-green-50';
+        ? "border-green-500 bg-green-900/10"
+        : "border-green-500 bg-green-50";
     }
     if (required && validationState === null) {
       // Untouched required field - show subtle indication
       return isDarkMode
-        ? 'border-yellow-600/50 bg-yellow-900/5'
-        : 'border-yellow-400/50 bg-yellow-50/30';
+        ? "border-yellow-600/50 bg-yellow-900/5"
+        : "border-yellow-400/50 bg-yellow-50/30";
     }
     return isDarkMode
-      ? 'border-gray-600 bg-gray-800'
-      : 'border-gray-300 bg-white';
+      ? "border-gray-600 bg-gray-800"
+      : "border-gray-300 bg-white";
   };
 
   return (
@@ -234,8 +255,8 @@ const Select = ({ label, children, error, className = '', required = false, vali
         <label
           htmlFor={selectId}
           className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
+            isDarkMode ? "text-gray-400" : "text-gray-700"
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -245,8 +266,8 @@ const Select = ({ label, children, error, className = '', required = false, vali
           id={selectId}
           className={`w-full pl-2 pr-8 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none h-[38px] ${
             isDarkMode
-              ? 'text-white disabled:bg-gray-700 disabled:text-gray-500'
-              : 'text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
+              ? "text-white disabled:bg-gray-700 disabled:text-gray-500"
+              : "text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
           } ${getValidationClasses()} ${className}`}
           {...props}
         >
@@ -254,13 +275,13 @@ const Select = ({ label, children, error, className = '', required = false, vali
         </select>
         <ChevronDown
           className={`absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            isDarkMode ? "text-gray-400" : "text-gray-500"
           }`}
         />
       </div>
       {error && (
         <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -269,16 +290,24 @@ const Select = ({ label, children, error, className = '', required = false, vali
   );
 };
 
-const Textarea = ({ label, error, className = '', autoGrow = false, id, ...props }) => {
+const Textarea = ({
+  label,
+  error,
+  className = "",
+  autoGrow = false,
+  id,
+  ...props
+}) => {
   const { isDarkMode } = useTheme();
   const textareaRef = useRef(null);
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const textareaId =
+    id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
 
   const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea && autoGrow) {
       // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = 'auto';
+      textarea.style.height = "auto";
       // Set the height to match content, with a minimum of one line
       textarea.style.height = `${Math.max(textarea.scrollHeight, 44)}px`;
     }
@@ -301,7 +330,7 @@ const Textarea = ({ label, error, className = '', autoGrow = false, id, ...props
         <label
           htmlFor={textareaId}
           className={`block text-sm font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
+            isDarkMode ? "text-gray-400" : "text-gray-700"
           }`}
         >
           {label}
@@ -312,16 +341,16 @@ const Textarea = ({ label, error, className = '', autoGrow = false, id, ...props
         ref={textareaRef}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 resize-none ${
           isDarkMode
-            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
-            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
-        } ${error ? 'border-red-500' : ''} ${autoGrow ? 'overflow-hidden' : ''} ${className}`}
+            ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
+            : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
+        } ${error ? "border-red-500" : ""} ${autoGrow ? "overflow-hidden" : ""} ${className}`}
         {...props}
         onChange={handleChange}
         rows={autoGrow ? 1 : props.rows}
       />
       {error && (
         <p
-          className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+          className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -330,15 +359,15 @@ const Textarea = ({ label, error, className = '', autoGrow = false, id, ...props
   );
 };
 
-const Card = ({ children, className = '' }) => {
+const Card = ({ children, className = "" }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
         isDarkMode
-          ? 'bg-gray-800 border border-gray-600'
-          : 'bg-white border border-gray-200'
+          ? "bg-gray-800 border border-gray-600"
+          : "bg-white border border-gray-200"
       } ${className}`}
     >
       {children}
@@ -346,22 +375,22 @@ const Card = ({ children, className = '' }) => {
   );
 };
 
-const Alert = ({ variant = 'info', children, onClose, className = '' }) => {
+const Alert = ({ variant = "info", children, onClose, className = "" }) => {
   const { isDarkMode } = useTheme();
 
   const getVariantClasses = () => {
     const darkVariants = {
-      info: 'bg-blue-900/20 border-blue-500/30 text-blue-300',
-      warning: 'bg-yellow-900/20 border-yellow-500/30 text-yellow-300',
-      error: 'bg-red-900/20 border-red-500/30 text-red-300',
-      success: 'bg-green-900/20 border-green-500/30 text-green-300',
+      info: "bg-blue-900/20 border-blue-500/30 text-blue-300",
+      warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-300",
+      error: "bg-red-900/20 border-red-500/30 text-red-300",
+      success: "bg-green-900/20 border-green-500/30 text-green-300",
     };
 
     const lightVariants = {
-      info: 'bg-blue-50 border-blue-200 text-blue-800',
-      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-      error: 'bg-red-50 border-red-200 text-red-800',
-      success: 'bg-green-50 border-green-200 text-green-800',
+      info: "bg-blue-50 border-blue-200 text-blue-800",
+      warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+      error: "bg-red-50 border-red-200 text-red-800",
+      success: "bg-green-50 border-green-200 text-green-800",
     };
 
     return isDarkMode ? darkVariants[variant] : lightVariants[variant];
@@ -373,8 +402,8 @@ const Alert = ({ variant = 'info', children, onClose, className = '' }) => {
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          {variant === 'warning' && <AlertTriangle className="h-5 w-5" />}
-          {variant === 'info' && <Info className="h-5 w-5" />}
+          {variant === "warning" && <AlertTriangle className="h-5 w-5" />}
+          {variant === "info" && <Info className="h-5 w-5" />}
         </div>
         <div className="ml-3 flex-1">{children}</div>
         {onClose && (
@@ -382,8 +411,8 @@ const Alert = ({ variant = 'info', children, onClose, className = '' }) => {
             onClick={onClose}
             className={`ml-3 flex-shrink-0 ${
               isDarkMode
-                ? 'text-gray-400 hover:text-white'
-                : 'text-gray-500 hover:text-gray-700'
+                ? "text-gray-400 hover:text-white"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             <X className="h-4 w-4" />
@@ -422,11 +451,11 @@ const VatHelpIcon = ({ content, heading }) => {
           onClick={handleCloseModal}
           role="button"
           tabIndex={-1}
-          onKeyDown={(e) => e.key === 'Escape' && handleCloseModal()}
+          onKeyDown={(e) => e.key === "Escape" && handleCloseModal()}
         >
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
-            className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
+            className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
             role="dialog"
@@ -435,19 +464,26 @@ const VatHelpIcon = ({ content, heading }) => {
             <button
               type="button"
               onClick={handleCloseModal}
-              className={`absolute top-4 right-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`absolute top-4 right-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               <X className="w-4 h-4" />
             </button>
             {heading && (
-              <h2 className={`text-sm font-bold mb-4 pr-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+              <h2
+                className={`text-sm font-bold mb-4 pr-4 ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}
+              >
                 {heading}
               </h2>
             )}
-            <div className={`space-y-4 pr-4 normal-case ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <div
+              className={`space-y-4 pr-4 normal-case ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               {Array.isArray(content) ? (
                 content.map((paragraph, idx) => (
-                  <p key={idx} className={`text-xs leading-relaxed normal-case ${idx === 0 ? 'font-semibold' : ''}`}>
+                  <p
+                    key={idx}
+                    className={`text-xs leading-relaxed normal-case ${idx === 0 ? "font-semibold" : ""}`}
+                  >
                     {paragraph}
                   </p>
                 ))
@@ -472,8 +508,8 @@ const Autocomplete = ({
   label,
   disabled = false,
   renderOption,
-  noOptionsText = 'No options',
-  className = '',
+  noOptionsText = "No options",
+  className = "",
   title,
   error,
   required = false,
@@ -493,11 +529,12 @@ const Autocomplete = ({
   }, [filteredOptions]);
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
-  const norm = (s) => (s || '').toString().toLowerCase().trim();
+  const norm = (s) => (s || "").toString().toLowerCase().trim();
   const ed1 = (a, b) => {
     // Early exits
     if (a === b) return 0;
-    const la = a.length, lb = b.length;
+    const la = a.length,
+      lb = b.length;
     if (Math.abs(la - lb) > 1) return 2; // too far
     // DP edit distance capped at 1 for speed
     let dpPrev = new Array(lb + 1);
@@ -509,14 +546,16 @@ const Autocomplete = ({
       for (let j = 1; j <= lb; j++) {
         const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
         dpCurr[j] = Math.min(
-          dpPrev[j] + 1,            // deletion
-          dpCurr[j - 1] + 1,        // insertion
-          dpPrev[j - 1] + cost,      // substitution
+          dpPrev[j] + 1, // deletion
+          dpCurr[j - 1] + 1, // insertion
+          dpPrev[j - 1] + cost, // substitution
         );
         // Early cut: if all >1 can break (skip for simplicity)
       }
       // swap
-      const tmp = dpPrev; dpPrev = dpCurr; dpCurr = tmp;
+      const tmp = dpPrev;
+      dpPrev = dpCurr;
+      dpCurr = tmp;
     }
     return dpPrev[lb];
   };
@@ -534,27 +573,33 @@ const Autocomplete = ({
     return false;
   }, []);
 
-  const fuzzyFilter = useCallback((opts, query) => {
-    const q = norm(query);
-    if (!q) return opts;
-    const tokens = q.split(/\s+/).filter(Boolean);
-    const scored = [];
-    for (const o of opts) {
-      const optLabel = norm(o.label || o.name || '');
-      if (!optLabel) continue;
-      let ok = true;
-      let score = 0;
-      for (const t of tokens) {
-        if (!tokenMatch(t, optLabel)) { ok = false; break; }
-        // basic score: shorter distance preferred
-        const idx = optLabel.indexOf(norm(t));
-        score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
+  const fuzzyFilter = useCallback(
+    (opts, query) => {
+      const q = norm(query);
+      if (!q) return opts;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const scored = [];
+      for (const o of opts) {
+        const optLabel = norm(o.label || o.name || "");
+        if (!optLabel) continue;
+        let ok = true;
+        let score = 0;
+        for (const t of tokens) {
+          if (!tokenMatch(t, optLabel)) {
+            ok = false;
+            break;
+          }
+          // basic score: shorter distance preferred
+          const idx = optLabel.indexOf(norm(t));
+          score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
+        }
+        if (ok) scored.push({ o, score });
       }
-      if (ok) scored.push({ o, score });
-    }
-    scored.sort((a, b) => a.score - b.score);
-    return scored.map(s => s.o);
-  }, [tokenMatch]);
+      scored.sort((a, b) => a.score - b.score);
+      return scored.map((s) => s.o);
+    },
+    [tokenMatch],
+  );
 
   useEffect(() => {
     if (inputValue) {
@@ -579,7 +624,7 @@ const Autocomplete = ({
 
   const handleKeyDown = (e) => {
     if (!isOpen) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         setIsOpen(true);
         return;
       }
@@ -587,25 +632,28 @@ const Autocomplete = ({
     }
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex((prev) =>
           prev < filteredOptions.length - 1 ? prev + 1 : 0,
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex((prev) =>
           prev > 0 ? prev - 1 : filteredOptions.length - 1,
         );
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
-        if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+        if (
+          highlightedIndex >= 0 &&
+          highlightedIndex < filteredOptions.length
+        ) {
           handleOptionSelect(filteredOptions[highlightedIndex]);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsOpen(false);
         setHighlightedIndex(-1);
         break;
@@ -619,14 +667,14 @@ const Autocomplete = ({
       const inputRect = inputRef.current.getBoundingClientRect();
       const dropdown = dropdownRef.current;
 
-      dropdown.style.position = 'fixed';
+      dropdown.style.position = "fixed";
       dropdown.style.top = `${inputRect.bottom + 4}px`;
       dropdown.style.left = `${inputRect.left}px`;
       // Make dropdown at least as wide as the input, but allow it to grow to fit contents
       dropdown.style.minWidth = `${inputRect.width}px`;
-      dropdown.style.width = 'auto';
-      dropdown.style.maxWidth = '90vw';
-      dropdown.style.zIndex = '9999';
+      dropdown.style.width = "auto";
+      dropdown.style.maxWidth = "90vw";
+      dropdown.style.zIndex = "9999";
     }
   }, [isOpen]);
 
@@ -636,12 +684,12 @@ const Autocomplete = ({
       const handleScroll = () => updateDropdownPosition();
       const handleResize = () => updateDropdownPosition();
 
-      window.addEventListener('scroll', handleScroll, true);
-      window.addEventListener('resize', handleResize);
+      window.addEventListener("scroll", handleScroll, true);
+      window.addEventListener("resize", handleResize);
 
       return () => {
-        window.removeEventListener('scroll', handleScroll, true);
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener("scroll", handleScroll, true);
+        window.removeEventListener("resize", handleResize);
       };
     }
   }, [isOpen, updateDropdownPosition]);
@@ -651,7 +699,7 @@ const Autocomplete = ({
       <div ref={inputRef}>
         <Input
           label={label}
-          value={inputValue || ''}
+          value={inputValue || ""}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
@@ -672,8 +720,8 @@ const Autocomplete = ({
           ref={dropdownRef}
           className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
             isDarkMode
-              ? 'bg-gray-800 border-gray-600'
-              : 'bg-white border-gray-200'
+              ? "bg-gray-800 border-gray-600"
+              : "bg-white border-gray-200"
           }`}
         >
           {filteredOptions.length > 0 ? (
@@ -683,11 +731,11 @@ const Autocomplete = ({
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   index === highlightedIndex
                     ? isDarkMode
-                      ? 'bg-teal-700 text-white border-gray-700'
-                      : 'bg-teal-100 text-gray-900 border-gray-100'
+                      ? "bg-teal-700 text-white border-gray-700"
+                      : "bg-teal-100 text-gray-900 border-gray-100"
                     : isDarkMode
-                      ? 'hover:bg-gray-700 text-white border-gray-700'
-                      : 'hover:bg-gray-50 text-gray-900 border-gray-100'
+                      ? "hover:bg-gray-700 text-white border-gray-700"
+                      : "hover:bg-gray-50 text-gray-900 border-gray-100"
                 }`}
                 role="option"
                 aria-selected={index === highlightedIndex}
@@ -703,7 +751,7 @@ const Autocomplete = ({
                     {option.subtitle && (
                       <div
                         className={`text-sm ${
-                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
                         {option.subtitle}
@@ -716,7 +764,7 @@ const Autocomplete = ({
           ) : (
             <div
               className={`px-3 py-2 text-sm ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
               {noOptionsText}
@@ -728,16 +776,16 @@ const Autocomplete = ({
   );
 };
 
-const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
+const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
   const { isDarkMode } = useTheme();
 
   if (!isOpen) return null;
 
   const sizes = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
   };
 
   return (
@@ -748,11 +796,11 @@ const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
           onClick={onClose}
           role="button"
           tabIndex={-1}
-          onKeyDown={(e) => e.key === 'Escape' && onClose()}
+          onKeyDown={(e) => e.key === "Escape" && onClose()}
         >
           <div
             className={`absolute inset-0 ${
-              isDarkMode ? 'bg-gray-900' : 'bg-black'
+              isDarkMode ? "bg-gray-900" : "bg-black"
             } opacity-75`}
           ></div>
         </div>
@@ -762,14 +810,14 @@ const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
             sizes[size]
           } sm:w-full sm:p-6 ${
             isDarkMode
-              ? 'bg-gray-800 border-gray-600'
-              : 'bg-white border-gray-200'
+              ? "bg-gray-800 border-gray-600"
+              : "bg-white border-gray-200"
           }`}
         >
           <div className="flex items-center justify-between mb-4">
             <h3
               className={`text-lg font-medium ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               {title}
@@ -778,8 +826,8 @@ const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
               onClick={onClose}
               className={
                 isDarkMode
-                  ? 'text-gray-400 hover:text-white'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? "text-gray-400 hover:text-white"
+                  : "text-gray-500 hover:text-gray-700"
               }
             >
               <X className="h-5 w-5" />
@@ -792,25 +840,30 @@ const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   );
 };
 
-const LoadingSpinner = ({ size = 'md' }) => {
+const LoadingSpinner = ({ size = "md" }) => {
   const { isDarkMode } = useTheme();
   const sizes = {
-    sm: 'h-4 w-4',
-    md: 'h-6 w-6',
-    lg: 'h-8 w-8',
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-8 w-8",
   };
 
   return (
     <div
       className={`animate-spin rounded-full border-2 border-t-blue-600 ${
         sizes[size]
-      } ${isDarkMode ? 'border-gray-300' : 'border-gray-200'}`}
+      } ${isDarkMode ? "border-gray-300" : "border-gray-200"}`}
     ></div>
   );
 };
 
 // Form Settings Panel Component
-const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
+const FormSettingsPanel = ({
+  isOpen,
+  onClose,
+  preferences,
+  onPreferenceChange,
+}) => {
   const { isDarkMode } = useTheme();
   const panelRef = useRef(null);
 
@@ -823,8 +876,9 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen, onClose]);
 
@@ -833,24 +887,26 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
   const ToggleSwitch = ({ enabled, onChange, label, description }) => (
     <div className="flex items-start justify-between py-3">
       <div className="flex-1 pr-4">
-        <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+        <p
+          className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+        >
           {label}
         </p>
-        <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+        <p
+          className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+        >
           {description}
         </p>
       </div>
       <button
         onClick={onChange}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled
-            ? 'bg-teal-600'
-            : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+          enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
         }`}
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? 'translate-x-5' : 'translate-x-0'
+            enabled ? "translate-x-5" : "translate-x-0"
           }`}
         />
       </button>
@@ -861,21 +917,23 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode
-          ? 'bg-gray-800 border-gray-600'
-          : 'bg-white border-gray-200'
+        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
       }`}
     >
       {/* Header */}
-      <div className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+      <div
+        className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+      >
         <div className="flex items-center justify-between">
-          <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+          <h3
+            className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+          >
             Form Settings
           </h3>
           <button
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
             <X className="h-4 w-4" />
@@ -887,20 +945,32 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
       <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
         <ToggleSwitch
           enabled={preferences.showValidationHighlighting}
-          onChange={() => onPreferenceChange('showValidationHighlighting', !preferences.showValidationHighlighting)}
+          onChange={() =>
+            onPreferenceChange(
+              "showValidationHighlighting",
+              !preferences.showValidationHighlighting,
+            )
+          }
           label="Field Validation Highlighting"
           description="Show red/green borders for invalid/valid fields"
         />
         <ToggleSwitch
           enabled={preferences.showSpeedButtons}
-          onChange={() => onPreferenceChange('showSpeedButtons', !preferences.showSpeedButtons)}
+          onChange={() =>
+            onPreferenceChange(
+              "showSpeedButtons",
+              !preferences.showSpeedButtons,
+            )
+          }
           label="Quick Add Speed Buttons"
           description="Show pinned & top products for quick adding"
         />
       </div>
 
       {/* Footer note */}
-      <div className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+      <div
+        className={`px-4 py-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
+      >
         Settings are saved automatically
       </div>
     </div>
@@ -920,19 +990,22 @@ const InvoiceForm = ({ onSave }) => {
     if (item.productType) parts.push(item.productType);
     // Grade (clean, no prefix)
     if (item.grade) {
-      const g = String(item.grade).trim().replace(/^(gr|ss)\s*/i, '').toUpperCase();
+      const g = String(item.grade)
+        .trim()
+        .replace(/^(gr|ss)\s*/i, "")
+        .toUpperCase();
       parts.push(g);
     }
     // Finish
     if (item.finish) parts.push(item.finish);
     // Size (add " for pipes/tubes)
-    const isPipeOrTube = /pipe|tube/i.test(item.productType || '');
+    const isPipeOrTube = /pipe|tube/i.test(item.productType || "");
     if (item.size) {
       parts.push(isPipeOrTube ? `${item.size}"` : item.size);
     }
     // Thickness
     if (item.thickness) parts.push(item.thickness);
-    return parts.join(' ');
+    return parts.join(" ");
   }, []);
 
   // Debounce timeout refs for charges fields
@@ -943,7 +1016,7 @@ const InvoiceForm = ({ onSave }) => {
   const dateRef = useRef(null);
   const dueDateRef = useRef(null);
   const itemsRef = useRef(null);
-  
+
   // Additional refs for auto-focus navigation through mandatory fields
   const paymentModeRef = useRef(null);
   const addItemButtonRef = useRef(null);
@@ -955,19 +1028,21 @@ const InvoiceForm = ({ onSave }) => {
     let targetElement = null;
 
     // Map field names to refs
-    if (fieldName === 'customer.name' || fieldName === 'customer') {
+    if (fieldName === "customer.name" || fieldName === "customer") {
       targetRef = customerRef;
-    } else if (fieldName === 'date') {
+    } else if (fieldName === "date") {
       targetRef = dateRef;
-    } else if (fieldName === 'dueDate') {
+    } else if (fieldName === "dueDate") {
       targetRef = dueDateRef;
-    } else if (fieldName.startsWith('item.')) {
+    } else if (fieldName.startsWith("item.")) {
       // Extract item index: 'item.0.rate' -> 0
       const match = fieldName.match(/item\.(\d+)\./);
       if (match) {
         const itemIndex = parseInt(match[1], 10);
         // Try to find the line item element by index
-        targetElement = document.querySelector(`[data-item-index="${itemIndex}"]`);
+        targetElement = document.querySelector(
+          `[data-item-index="${itemIndex}"]`,
+        );
       }
       if (!targetElement) {
         targetRef = itemsRef; // Fallback to items section
@@ -976,18 +1051,30 @@ const InvoiceForm = ({ onSave }) => {
 
     // Scroll to the target
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
       // Highlight the element briefly
-      targetElement.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+      targetElement.classList.add("ring-2", "ring-red-500", "ring-offset-2");
       setTimeout(() => {
-        targetElement.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+        targetElement.classList.remove(
+          "ring-2",
+          "ring-red-500",
+          "ring-offset-2",
+        );
       }, 2000);
     } else if (targetRef?.current) {
-      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       // Highlight the element briefly
-      targetRef.current.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+      targetRef.current.classList.add(
+        "ring-2",
+        "ring-red-500",
+        "ring-offset-2",
+      );
       setTimeout(() => {
-        targetRef.current.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+        targetRef.current.classList.remove(
+          "ring-2",
+          "ring-red-500",
+          "ring-offset-2",
+        );
       }, 2000);
     }
 
@@ -1002,7 +1089,7 @@ const InvoiceForm = ({ onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
   // Removed unused state: selectedProductForRow, setSelectedProductForRow
   const [searchInputs, setSearchInputs] = useState({});
-  const [customerSearchInput, setCustomerSearchInput] = useState('');
+  const [customerSearchInput, setCustomerSearchInput] = useState("");
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
 
@@ -1017,22 +1104,27 @@ const InvoiceForm = ({ onSave }) => {
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [showFreightCharges, setShowFreightCharges] = useState(false);
   const [formPreferences, setFormPreferences] = useState(() => {
-    const saved = localStorage.getItem('invoiceFormPreferences');
-    return saved ? JSON.parse(saved) : {
-      showValidationHighlighting: true,
-      showSpeedButtons: true,
-    };
+    const saved = localStorage.getItem("invoiceFormPreferences");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          showValidationHighlighting: true,
+          showSpeedButtons: true,
+        };
   });
 
   // Save preferences to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('invoiceFormPreferences', JSON.stringify(formPreferences));
+    localStorage.setItem(
+      "invoiceFormPreferences",
+      JSON.stringify(formPreferences),
+    );
   }, [formPreferences]);
 
   // ============================================================
   // PHASE 1 UI IMPROVEMENTS: Keyboard Shortcuts & Auto-Save
   // ============================================================
-  
+
   // Draft recovery removed - autosave was causing status bug
 
   // Form validation state
@@ -1048,25 +1140,25 @@ const InvoiceForm = ({ onSave }) => {
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
     const desired =
-      status === 'draft' ? 'DFT' : status === 'proforma' ? 'PFM' : 'INV';
-    
-    if (!num || typeof num !== 'string') {
+      status === "draft" ? "DFT" : status === "proforma" ? "PFM" : "INV";
+
+    if (!num || typeof num !== "string") {
       // Generate the base number format YYYYMM-NNNN from backend API
       const now = new Date();
       const year = now.getFullYear();
-      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const month = (now.getMonth() + 1).toString().padStart(2, "0");
       return `${desired}-${year}${month}-0001`;
     }
-    
+
     // Handle numbers that already have the correct format: PREFIX-YYYYMM-NNNN
     const formatMatch = num.match(/^(DFT|PFM|INV)-(\d{6}-\d{4})$/);
     if (formatMatch) {
       // Replace the prefix but keep the YYYYMM-NNNN part
       return `${desired}-${formatMatch[2]}`;
     }
-    
+
     // Handle legacy format or partial numbers - try to extract meaningful parts
-    const parts = num.split('-');
+    const parts = num.split("-");
     if (parts.length >= 2) {
       // If it looks like YYYYMM-NNNN format, use it
       const datePart = parts[parts.length - 2];
@@ -1075,11 +1167,11 @@ const InvoiceForm = ({ onSave }) => {
         return `${desired}-${datePart}-${numberPart}`;
       }
     }
-    
+
     // Fallback: generate new format
     const now = new Date();
     const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, "0");
     return `${desired}-${year}${month}-0001`;
   };
 
@@ -1106,64 +1198,70 @@ const InvoiceForm = ({ onSave }) => {
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
     // Invoice number will be auto-generated by the database on save
-    newInvoice.invoiceNumber = '(Auto-assigned on save)';
+    newInvoice.invoiceNumber = "(Auto-assigned on save)";
     // Start with one empty item row
     newInvoice.items = [createSteelItem()];
     return newInvoice;
   });
 
   // Validate individual field in real-time
-  const validateField = useCallback((fieldName, value) => {
-    let isValid = false;
+  const validateField = useCallback(
+    (fieldName, value) => {
+      let isValid = false;
 
-    switch(fieldName) {
-      case 'customer':
-        isValid = value && value.id && value.name;
-        break;
-      case 'dueDate':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'status':
-        isValid = value && ['draft', 'proforma', 'issued'].includes(value);
-        break;
-      case 'paymentMode':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'warehouse': {
-        // Warehouse is optional for drafts, required for issued/proforma
-        const invoiceStatus = invoice?.status || 'draft';
-        if (invoiceStatus === 'draft') {
-          isValid = true; // Optional for drafts
-        } else {
-          isValid = value && String(value).trim() !== '';
+      switch (fieldName) {
+        case "customer":
+          isValid = value && value.id && value.name;
+          break;
+        case "dueDate":
+          isValid = value && value.trim() !== "";
+          break;
+        case "status":
+          isValid = value && ["draft", "proforma", "issued"].includes(value);
+          break;
+        case "paymentMode":
+          isValid = value && value.trim() !== "";
+          break;
+        case "warehouse": {
+          // Warehouse is optional for drafts, required for issued/proforma
+          const invoiceStatus = invoice?.status || "draft";
+          if (invoiceStatus === "draft") {
+            isValid = true; // Optional for drafts
+          } else {
+            isValid = value && String(value).trim() !== "";
+          }
+          break;
         }
-        break;
+        case "currency":
+          isValid = value && value.trim() !== "";
+          break;
+        case "placeOfSupply":
+          isValid = value && value.trim() !== "";
+          break;
+        case "supplyDate":
+          isValid = value && value.trim() !== "";
+          break;
+        case "items":
+          isValid =
+            Array.isArray(value) &&
+            value.length > 0 &&
+            value.every(
+              (item) => item.name && item.quantity > 0 && item.rate > 0,
+            );
+          break;
+        default:
+          isValid = true;
       }
-      case 'currency':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'placeOfSupply':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'supplyDate':
-        isValid = value && value.trim() !== '';
-        break;
-      case 'items':
-        isValid = Array.isArray(value) && value.length > 0 && value.every(item =>
-          item.name && item.quantity > 0 && item.rate > 0,
-        );
-        break;
-      default:
-        isValid = true;
-    }
 
-    setFieldValidation(prev => ({
-      ...prev,
-      [fieldName]: isValid ? 'valid' : 'invalid',
-    }));
+      setFieldValidation((prev) => ({
+        ...prev,
+        [fieldName]: isValid ? "valid" : "invalid",
+      }));
 
-    return isValid;
-  }, [invoice?.status]);
+      return isValid;
+    },
+    [invoice?.status],
+  );
 
   // Track if form has unsaved changes (for navigation warning)
   const [formDirty, setFormDirty] = useState(false);
@@ -1221,7 +1319,7 @@ const InvoiceForm = ({ onSave }) => {
     // Use the ORIGINAL saved status, not the current form state
     // This prevents locked banner from appearing when converting draft to final
     // The banner should only show for invoices that were ALREADY saved as 'issued'
-    if (originalSavedStatus !== 'issued') return false;
+    if (originalSavedStatus !== "issued") return false;
 
     // Check 24-hour edit window
     const issuedAt = invoice?.issuedAt;
@@ -1237,7 +1335,7 @@ const InvoiceForm = ({ onSave }) => {
 
     return hoursSinceIssued >= 24; // Locked if 24+ hours since issued
   }, [id, originalSavedStatus, invoice?.issuedAt]);
-  
+
   // Calculate if we're in revision mode (editing issued invoice within 24h)
   // Use originalSavedStatus to ensure this only applies to invoices that were
   // ALREADY saved as 'issued', not invoices being converted to 'issued'
@@ -1246,7 +1344,7 @@ const InvoiceForm = ({ onSave }) => {
     if (!id) return false;
 
     // Use original saved status - only in revision mode if invoice was SAVED as issued
-    if (originalSavedStatus !== 'issued') return false;
+    if (originalSavedStatus !== "issued") return false;
 
     const issuedAt = invoice?.issuedAt;
     if (!issuedAt) return false;
@@ -1257,15 +1355,15 @@ const InvoiceForm = ({ onSave }) => {
 
     return hoursSinceIssued < 24; // In revision mode if within 24 hours
   }, [id, originalSavedStatus, invoice?.issuedAt]);
-  
+
   // Calculate hours remaining in edit window
   const hoursRemainingInEditWindow = useMemo(() => {
     if (!isRevisionMode || !invoice?.issuedAt) return 0;
-    
+
     const issuedDate = new Date(invoice.issuedAt);
     const now = new Date();
     const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-    
+
     return Math.max(0, Math.ceil(24 - hoursSinceIssued));
   }, [isRevisionMode, invoice?.issuedAt]);
 
@@ -1274,30 +1372,36 @@ const InvoiceForm = ({ onSave }) => {
     // Check mandatory fields in order and focus the first unfilled one
     // 1. Customer (mandatory)
     if (!invoice.customer?.id) {
-      customerRef.current?.querySelector('input')?.focus();
+      customerRef.current?.querySelector("input")?.focus();
       return;
     }
-    
+
     // 2. Payment Mode (mandatory)
     if (!invoice.modeOfPayment) {
       paymentModeRef.current?.focus();
       return;
     }
-    
+
     // 3. At least one item with valid product, quantity, and rate (mandatory)
-    const hasValidItem = invoice.items?.some(item => 
-      item.productId && item.quantity > 0 && item.rate > 0,
+    const hasValidItem = invoice.items?.some(
+      (item) => item.productId && item.quantity > 0 && item.rate > 0,
     );
     if (!hasValidItem) {
       // Focus Add Item button if no items, or focus the items section
       addItemButtonRef.current?.focus();
-      addItemButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      addItemButtonRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
-    
+
     // All mandatory fields filled - focus Save button
     saveButtonRef.current?.focus();
-    saveButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    saveButtonRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   }, [invoice.customer?.id, invoice.modeOfPayment, invoice.items]);
 
   // No extra payment terms fields; Due Date remains directly editable
@@ -1311,14 +1415,16 @@ const InvoiceForm = ({ onSave }) => {
     if (!invoice.items || invoice.items.length === 0) {
       return true;
     }
-    return invoice.items.some(item => !item.sourceType || item.sourceType === 'WAREHOUSE');
+    return invoice.items.some(
+      (item) => !item.sourceType || item.sourceType === "WAREHOUSE",
+    );
   }, [invoice.items]);
 
-  const { data: company, loading: loadingCompany, refetch: refetchCompany } = useApiData(
-    companyService.getCompany,
-    [],
-    true,
-  );
+  const {
+    data: company,
+    loading: loadingCompany,
+    refetch: refetchCompany,
+  } = useApiData(companyService.getCompany, [], true);
   const { execute: saveInvoice, loading: savingInvoice } = useApi(
     invoiceService.createInvoice,
   );
@@ -1336,7 +1442,7 @@ const InvoiceForm = ({ onSave }) => {
     !id,
   );
   const { data: customersData, loading: loadingCustomers } = useApiData(
-    () => customerService.getCustomers({ status: 'active' }),
+    () => customerService.getCustomers({ status: "active" }),
     [],
   );
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(
@@ -1376,19 +1482,15 @@ const InvoiceForm = ({ onSave }) => {
 
   // Drag reorder for line items
   const handleItemsReorder = useCallback((newItems) => {
-    setInvoice(prev => ({ ...prev, items: newItems }));
+    setInvoice((prev) => ({ ...prev, items: newItems }));
   }, []);
 
-  const {
-    getDragHandleProps,
-    getDragItemProps,
-    isDropTarget,
-    isDragSource,
-  } = useDragReorder({
-    items: invoice.items,
-    onReorder: handleItemsReorder,
-    enabled: true,
-  });
+  const { getDragHandleProps, getDragItemProps, isDropTarget, isDragSource } =
+    useDragReorder({
+      items: invoice.items,
+      onReorder: handleItemsReorder,
+      enabled: true,
+    });
 
   // Bulk selection for line items
   const {
@@ -1409,7 +1511,7 @@ const InvoiceForm = ({ onSave }) => {
   });
 
   // Invoice templates - read from company settings (edit in Company Settings page)
-  const { currentTemplate } = useInvoiceTemplates('standard', company);
+  const { currentTemplate } = useInvoiceTemplates("standard", company);
 
   // Template settings now managed in Company Settings only
 
@@ -1426,17 +1528,19 @@ const InvoiceForm = ({ onSave }) => {
     try {
       if (pinnedProductIds.includes(productId)) {
         await pinnedProductsService.unpinProduct(productId);
-        setPinnedProductIds(prev => prev.filter(pinnedId => pinnedId !== productId));
+        setPinnedProductIds((prev) =>
+          prev.filter((pinnedId) => pinnedId !== productId),
+        );
       } else {
         if (pinnedProductIds.length >= 10) {
-          notificationService.error('Maximum 10 products can be pinned');
+          notificationService.error("Maximum 10 products can be pinned");
           return;
         }
         await pinnedProductsService.pinProduct(productId);
-        setPinnedProductIds(prev => [...prev, productId]);
+        setPinnedProductIds((prev) => [...prev, productId]);
       }
     } catch (error) {
-      notificationService.error(error.message || 'Failed to update pin');
+      notificationService.error(error.message || "Failed to update pin");
     }
   };
 
@@ -1451,8 +1555,8 @@ const InvoiceForm = ({ onSave }) => {
     const handleFocus = () => {
       refetchProducts();
     };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refetchProducts is stable enough for event handlers
 
@@ -1461,16 +1565,18 @@ const InvoiceForm = ({ onSave }) => {
     const handleFocus = () => {
       refetchCompany();
     };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refetchCompany is stable enough for event handlers
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {
     const allProducts = productsData?.products || [];
-    const pinned = allProducts.filter(p => pinnedProductIds.includes(p.id));
-    const unpinned = allProducts.filter(p => !pinnedProductIds.includes(p.id));
+    const pinned = allProducts.filter((p) => pinnedProductIds.includes(p.id));
+    const unpinned = allProducts.filter(
+      (p) => !pinnedProductIds.includes(p.id),
+    );
     return [...pinned, ...unpinned].slice(0, 10);
   }, [productsData, pinnedProductIds]);
 
@@ -1483,7 +1589,10 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [invoice.date]);
 
-  const dueMinStr = useMemo(() => formatDateForInput(invoiceDateObj), [invoiceDateObj]);
+  const dueMinStr = useMemo(
+    () => formatDateForInput(invoiceDateObj),
+    [invoiceDateObj],
+  );
   const dueMaxStr = useMemo(() => {
     const d = new Date(invoiceDateObj.getTime());
     d.setMonth(d.getMonth() + 6);
@@ -1497,9 +1606,9 @@ const InvoiceForm = ({ onSave }) => {
   useEffect(() => {
     const fetchWarehouses = async () => {
       try {
-        const res = await (await import('../services/api')).apiClient.get(
-          '/warehouses',
-        );
+        const res = await (
+          await import("../services/api")
+        ).apiClient.get("/warehouses");
         const list = res?.warehouses || res?.data?.warehouses || [];
         const active = list.filter((w) => w.isActive !== false);
         setWarehouses(active);
@@ -1507,22 +1616,23 @@ const InvoiceForm = ({ onSave }) => {
         // Set default warehouse (Sharjah or first warehouse) for new invoices
         if (!id && active.length > 0 && !invoice.warehouseId) {
           // Try to find Sharjah warehouse, otherwise use first one
-          const sharjahWarehouse = active.find(w =>
-            w.city?.toLowerCase().includes('sharjah') ||
-            w.name?.toLowerCase().includes('sharjah'),
+          const sharjahWarehouse = active.find(
+            (w) =>
+              w.city?.toLowerCase().includes("sharjah") ||
+              w.name?.toLowerCase().includes("sharjah"),
           );
           const defaultWarehouse = sharjahWarehouse || active[0];
 
           setInvoice((prev) => ({
             ...prev,
             warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || '',
-            warehouseCode: defaultWarehouse.code || '',
-            warehouseCity: defaultWarehouse.city || '',
+            warehouseName: defaultWarehouse.name || "",
+            warehouseCode: defaultWarehouse.code || "",
+            warehouseCity: defaultWarehouse.city || "",
           }));
         }
       } catch (err) {
-        console.warn('Failed to fetch warehouses:', err);
+        console.warn("Failed to fetch warehouses:", err);
         setWarehouses([]);
       }
     };
@@ -1553,7 +1663,7 @@ const InvoiceForm = ({ onSave }) => {
     const discountAmount = parseFloat(invoice.discountAmount) || 0;
     const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
 
-    if (invoice.discountType === 'percentage') {
+    if (invoice.discountType === "percentage") {
       return (computedSubtotal * discountPercentage) / 100;
     } else {
       return discountAmount;
@@ -1571,7 +1681,7 @@ const InvoiceForm = ({ onSave }) => {
     const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
 
     let totalDiscount = 0;
-    if (invoice.discountType === 'percentage') {
+    if (invoice.discountType === "percentage") {
       totalDiscount = (computedSubtotal * discountPercentage) / 100;
     } else {
       totalDiscount = discountAmount;
@@ -1605,15 +1715,15 @@ const InvoiceForm = ({ onSave }) => {
       // Check if invoice is deleted - prevent editing
       if (existingInvoice.deletedAt) {
         notificationService.error(
-          `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || 'No reason provided'}`,
+          `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || "No reason provided"}`,
         );
-        navigate('/invoices');
+        navigate("/invoices");
         return;
       }
       // Auto-populate date to today if empty (common in Odoo/Zoho)
       const invoiceWithDate = {
         ...existingInvoice,
-        date: existingInvoice.date 
+        date: existingInvoice.date
           ? formatDateForInput(new Date(existingInvoice.date))
           : formatDateForInput(new Date()),
       };
@@ -1621,7 +1731,9 @@ const InvoiceForm = ({ onSave }) => {
 
       // Capture the original saved status for isLocked calculation
       // This prevents the locked banner from showing when just changing the dropdown
-      const savedStatus = (existingInvoice.status || '').toLowerCase().replace('status_', '');
+      const savedStatus = (existingInvoice.status || "")
+        .toLowerCase()
+        .replace("status_", "");
       setOriginalSavedStatus(savedStatus);
     }
   }, [existingInvoice, id, navigate]);
@@ -1629,24 +1741,35 @@ const InvoiceForm = ({ onSave }) => {
   // Validate fields on load and when invoice changes
   useEffect(() => {
     if (invoice) {
-      validateField('customer', invoice.customer);
-      validateField('dueDate', invoice.dueDate);
-      validateField('status', invoice.status);
-      validateField('paymentMode', invoice.modeOfPayment);
-      validateField('warehouse', invoice.warehouseId);
-      validateField('currency', invoice.currency);
-      validateField('placeOfSupply', invoice.placeOfSupply);
-      validateField('supplyDate', invoice.supplyDate);
-      validateField('items', invoice.items);
+      validateField("customer", invoice.customer);
+      validateField("dueDate", invoice.dueDate);
+      validateField("status", invoice.status);
+      validateField("paymentMode", invoice.modeOfPayment);
+      validateField("warehouse", invoice.warehouseId);
+      validateField("currency", invoice.currency);
+      validateField("placeOfSupply", invoice.placeOfSupply);
+      validateField("supplyDate", invoice.supplyDate);
+      validateField("items", invoice.items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice.customer.id, invoice.dueDate, invoice.status, invoice.modeOfPayment, invoice.warehouseId, invoice.currency, invoice.placeOfSupply || '', invoice.supplyDate || '', invoice.items.length, validateField]);
+  }, [
+    invoice.customer.id,
+    invoice.dueDate,
+    invoice.status,
+    invoice.modeOfPayment,
+    invoice.warehouseId,
+    invoice.currency,
+    invoice.placeOfSupply || "",
+    invoice.supplyDate || "",
+    invoice.items.length,
+    validateField,
+  ]);
   // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
   const checkTradeLicenseStatus = async (customerId) => {
     try {
       // Use axios-based client to benefit from auth + baseURL
-      const { apiClient } = await import('../services/api');
+      const { apiClient } = await import("../services/api");
       const licenseStatus = await apiClient.get(
         `/customers/${customerId}/trade-license-status`,
       );
@@ -1655,8 +1778,8 @@ const InvoiceForm = ({ onSave }) => {
         // Show alert for expired or expiring licenses
         if (
           licenseStatus.hasLicense &&
-          (licenseStatus.status === 'expired' ||
-            licenseStatus.status === 'expiring_soon')
+          (licenseStatus.status === "expired" ||
+            licenseStatus.status === "expiring_soon")
         ) {
           setShowTradeLicenseAlert(true);
         } else {
@@ -1669,12 +1792,12 @@ const InvoiceForm = ({ onSave }) => {
         const resp = await fetch(
           `/api/customers/${customerId}/trade-license-status`,
         );
-        const ct = resp.headers.get('content-type') || '';
+        const ct = resp.headers.get("content-type") || "";
         if (!resp.ok) {
           const txt = await resp.text();
           throw new Error(`HTTP ${resp.status}: ${txt.slice(0, 200)}`);
         }
-        if (!ct.includes('application/json')) {
+        if (!ct.includes("application/json")) {
           const txt = await resp.text();
           throw new SyntaxError(
             `Unexpected content-type: ${ct}. Body starts: ${txt.slice(0, 80)}`,
@@ -1700,15 +1823,16 @@ const InvoiceForm = ({ onSave }) => {
           customer: {
             id: selectedCustomer.id,
             name: selectedCustomer.name,
-            email: selectedCustomer.email || '',
-            phone: selectedCustomer.phone || '',
+            email: selectedCustomer.email || "",
+            phone: selectedCustomer.phone || "",
             // Use TRN number from customer data
-            vatNumber: selectedCustomer.trnNumber || selectedCustomer.vatNumber || '',
+            vatNumber:
+              selectedCustomer.trnNumber || selectedCustomer.vatNumber || "",
             address: {
-              street: selectedCustomer.address?.street || '',
-              city: selectedCustomer.address?.city || '',
-              emirate: selectedCustomer.address?.emirate || '',
-              poBox: selectedCustomer.address?.poBox || '',
+              street: selectedCustomer.address?.street || "",
+              city: selectedCustomer.address?.city || "",
+              emirate: selectedCustomer.address?.emirate || "",
+              poBox: selectedCustomer.address?.poBox || "",
             },
           },
         }));
@@ -1716,7 +1840,9 @@ const InvoiceForm = ({ onSave }) => {
         // Fetch customer's pricelist
         if (selectedCustomer.pricelistId) {
           try {
-            const response = await pricelistService.getById(selectedCustomer.pricelistId);
+            const response = await pricelistService.getById(
+              selectedCustomer.pricelistId,
+            );
             setSelectedPricelistId(selectedCustomer.pricelistId);
             setPricelistName(response.data.name);
           } catch (error) {
@@ -1728,21 +1854,26 @@ const InvoiceForm = ({ onSave }) => {
         } else {
           // Use default pricelist
           setSelectedPricelistId(null);
-          setPricelistName('Default Price List');
+          setPricelistName("Default Price List");
         }
 
         // Check trade license status
         checkTradeLicenseStatus(customerId);
 
         // Validate customer field
-        validateField('customer', { id: selectedCustomer.id, name: selectedCustomer.name });
+        validateField("customer", {
+          id: selectedCustomer.id,
+          name: selectedCustomer.name,
+        });
 
         // Clear customer-related validation errors since user has now selected a customer
-        setValidationErrors(prev => prev.filter(err => !err.toLowerCase().includes('customer')));
-        setInvalidFields(prev => {
+        setValidationErrors((prev) =>
+          prev.filter((err) => !err.toLowerCase().includes("customer")),
+        );
+        setInvalidFields((prev) => {
           const newSet = new Set(prev);
-          newSet.delete('customer');
-          newSet.delete('customer.name');
+          newSet.delete("customer");
+          newSet.delete("customer.name");
           return newSet;
         });
 
@@ -1753,15 +1884,12 @@ const InvoiceForm = ({ onSave }) => {
     [customersData, validateField, focusNextMandatoryField],
   );
 
-  const handleSalesAgentSelect = useCallback(
-    (agentId) => {
-      setInvoice((prev) => ({
-        ...prev,
-        sales_agent_id: agentId ? parseInt(agentId) : null,
-      }));
-    },
-    [],
-  );
+  const handleSalesAgentSelect = useCallback((agentId) => {
+    setInvoice((prev) => ({
+      ...prev,
+      sales_agent_id: agentId ? parseInt(agentId) : null,
+    }));
+  }, []);
 
   // Duplicate product detection state
   const [duplicateWarning, setDuplicateWarning] = useState(null);
@@ -1775,7 +1903,7 @@ const InvoiceForm = ({ onSave }) => {
 
   // Toggle allocation panel for a specific row
   const toggleAllocationPanel = useCallback((index) => {
-    setExpandedAllocations(prev => {
+    setExpandedAllocations((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(index)) {
         newSet.delete(index);
@@ -1789,229 +1917,272 @@ const InvoiceForm = ({ onSave }) => {
   // Get allocation status badge for a line item
   // Only show status badges for saved invoices (when id exists)
   // For new invoices, hide the "Pending" status as it's just noise
-  const getAllocationStatusBadge = useCallback((item) => {
-    const status = item.allocationStatus || 'pending';
+  const getAllocationStatusBadge = useCallback(
+    (item) => {
+      const status = item.allocationStatus || "pending";
 
-    // Don't show "Pending" badge on new/unsaved invoices - it's confusing
-    // Only show meaningful statuses (allocated, partial, failed) on saved invoices
-    if (!id && status === 'pending') {
-      return null;
-    }
+      // Don't show "Pending" badge on new/unsaved invoices - it's confusing
+      // Only show meaningful statuses (allocated, partial, failed) on saved invoices
+      if (!id && status === "pending") {
+        return null;
+      }
 
-    if (status === 'allocated') {
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-          isDarkMode
-            ? 'bg-green-900/40 text-green-300 border border-green-700'
-            : 'bg-green-50 text-green-700 border border-green-200'
-        }`}>
-          <CheckCircle size={12} />
-          Allocated
-        </span>
-      );
-    } else if (status === 'partial') {
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-          isDarkMode
-            ? 'bg-amber-900/40 text-amber-300 border border-amber-700'
-            : 'bg-amber-50 text-amber-700 border border-amber-200'
-        }`}>
-          <AlertTriangle size={12} />
-          Partial
-        </span>
-      );
-    } else if (status === 'failed') {
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-          isDarkMode
-            ? 'bg-red-900/40 text-red-300 border border-red-700'
-            : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
-          <X size={12} />
-          Failed
-        </span>
-      );
-    } else {
-      // pending or no status
-      return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-          isDarkMode
-            ? 'bg-gray-700 text-gray-300 border border-gray-600'
-            : 'bg-gray-100 text-gray-600 border border-gray-300'
-        }`}>
-          <Info size={12} />
-          Pending
-        </span>
-      );
-    }
-  }, [isDarkMode, id]);
+      if (status === "allocated") {
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              isDarkMode
+                ? "bg-green-900/40 text-green-300 border border-green-700"
+                : "bg-green-50 text-green-700 border border-green-200"
+            }`}
+          >
+            <CheckCircle size={12} />
+            Allocated
+          </span>
+        );
+      } else if (status === "partial") {
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              isDarkMode
+                ? "bg-amber-900/40 text-amber-300 border border-amber-700"
+                : "bg-amber-50 text-amber-700 border border-amber-200"
+            }`}
+          >
+            <AlertTriangle size={12} />
+            Partial
+          </span>
+        );
+      } else if (status === "failed") {
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              isDarkMode
+                ? "bg-red-900/40 text-red-300 border border-red-700"
+                : "bg-red-50 text-red-700 border border-red-200"
+            }`}
+          >
+            <X size={12} />
+            Failed
+          </span>
+        );
+      } else {
+        // pending or no status
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              isDarkMode
+                ? "bg-gray-700 text-gray-300 border border-gray-600"
+                : "bg-gray-100 text-gray-600 border border-gray-300"
+            }`}
+          >
+            <Info size={12} />
+            Pending
+          </span>
+        );
+      }
+    },
+    [isDarkMode, id],
+  );
 
   // Get UOM conversion display text
   const getUomConversionText = useCallback((item) => {
     if (!item.itemUom || !item.primaryUom || item.itemUom === item.primaryUom) {
       return null;
     }
-    
+
     const qty = item.quantity || 0;
     const factor = item.conversionFactor || 1;
     const convertedQty = qty * factor;
-    
-    if (item.unitWeight && item.itemUom === 'PCS' && item.primaryUom === 'KG') {
+
+    if (item.unitWeight && item.itemUom === "PCS" && item.primaryUom === "KG") {
       return `${qty} PCS = ${convertedQty.toFixed(2)} KG (unit weight: ${item.unitWeight} kg)`;
     }
-    
+
     return `${qty} ${item.itemUom} = ${convertedQty.toFixed(2)} ${item.primaryUom}`;
   }, []);
 
   // Check if product already exists in items (excluding current index)
-  const findDuplicateProduct = useCallback((productId, excludeIndex) => {
-    if (!productId) return null;
-    return invoice.items.findIndex((item, idx) =>
-      idx !== excludeIndex && item.productId === productId,
-    );
-  }, [invoice.items]);
+  const findDuplicateProduct = useCallback(
+    (productId, excludeIndex) => {
+      if (!productId) return null;
+      return invoice.items.findIndex(
+        (item, idx) => idx !== excludeIndex && item.productId === productId,
+      );
+    },
+    [invoice.items],
+  );
 
   // Find the first empty item row (no product selected, no name entered)
   const findEmptyItemIndex = useCallback(() => {
-    return invoice.items.findIndex((item) => !item.productId && !item.name?.trim());
+    return invoice.items.findIndex(
+      (item) => !item.productId && !item.name?.trim(),
+    );
   }, [invoice.items]);
 
-  const handleProductSelectInternal = useCallback(async (index, product, skipDuplicateCheck = false) => {
-    if (product && typeof product === 'object') {
-      // Check for duplicate product (unless skipping)
-      if (!skipDuplicateCheck) {
-        const existingIndex = findDuplicateProduct(product.id, index);
-        if (existingIndex !== -1) {
-          // Store pending selection and show warning
-          pendingProductRef.current = { index, product };
-          setDuplicateWarning({
-            productName: product.displayName || product.display_name || 'N/A',
-            existingIndex,
-            existingQuantity: invoice.items[existingIndex]?.quantity || 0,
-          });
-          return; // Don't proceed until user confirms
-        }
-      }
-
-      // Helper: extract thickness from product specs or size string
-      const getThickness = (p) => {
-        try {
-          const cat = (p?.category || '').toString().toLowerCase();
-          const isPipe = /pipe/.test(cat);
-          const specThk = p?.specifications?.thickness || p?.specifications?.Thickness;
-          if (specThk && String(specThk).trim()) return String(specThk).trim();
-          if (isPipe) return ''; // avoid deriving thickness from pipe size
-          const sizeStr = p?.size ? String(p.size) : '';
-          const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
-          if (mmMatch) return `${mmMatch[1]}mm`;
-          const xParts = sizeStr.split(/x|X|\*/).map((s) => s.trim()).filter(Boolean);
-          if (xParts.length >= 2) {
-            const last = xParts[xParts.length - 1];
-            const numMatch = last.match(/\d+(?:\.\d+)?/);
-            if (numMatch) return `${numMatch[0]}mm`;
+  const handleProductSelectInternal = useCallback(
+    async (index, product, skipDuplicateCheck = false) => {
+      if (product && typeof product === "object") {
+        // Check for duplicate product (unless skipping)
+        if (!skipDuplicateCheck) {
+          const existingIndex = findDuplicateProduct(product.id, index);
+          if (existingIndex !== -1) {
+            // Store pending selection and show warning
+            pendingProductRef.current = { index, product };
+            setDuplicateWarning({
+              productName: product.displayName || product.display_name || "N/A",
+              existingIndex,
+              existingQuantity: invoice.items[existingIndex]?.quantity || 0,
+            });
+            return; // Don't proceed until user confirms
           }
-        } catch (err) {
-          console.warn('Error extracting thickness from product:', err);
         }
-        return '';
-      };
 
-      // Fetch price from pricelist if available (with volume discount support)
-      let sellingPrice = product.sellingPrice || 0;
-      if (selectedPricelistId) {
-        try {
-          // Use getPriceForQuantity for volume discount support
-          const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
-          sellingPrice = priceResponse.price || priceResponse.data?.price || product.sellingPrice || 0;
-        } catch (error) {
-          console.error('Error fetching pricelist price:', error);
-          // Fallback to default product price
-          sellingPrice = product.sellingPrice || 0;
+        // Helper: extract thickness from product specs or size string
+        const getThickness = (p) => {
+          try {
+            const cat = (p?.category || "").toString().toLowerCase();
+            const isPipe = /pipe/.test(cat);
+            const specThk =
+              p?.specifications?.thickness || p?.specifications?.Thickness;
+            if (specThk && String(specThk).trim())
+              return String(specThk).trim();
+            if (isPipe) return ""; // avoid deriving thickness from pipe size
+            const sizeStr = p?.size ? String(p.size) : "";
+            const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
+            if (mmMatch) return `${mmMatch[1]}mm`;
+            const xParts = sizeStr
+              .split(/x|X|\*/)
+              .map((s) => s.trim())
+              .filter(Boolean);
+            if (xParts.length >= 2) {
+              const last = xParts[xParts.length - 1];
+              const numMatch = last.match(/\d+(?:\.\d+)?/);
+              if (numMatch) return `${numMatch[0]}mm`;
+            }
+          } catch (err) {
+            console.warn("Error extracting thickness from product:", err);
+          }
+          return "";
+        };
+
+        // Fetch price from pricelist if available (with volume discount support)
+        let sellingPrice = product.sellingPrice || 0;
+        if (selectedPricelistId) {
+          try {
+            // Use getPriceForQuantity for volume discount support
+            const priceResponse = await pricelistService.getPriceForQuantity(
+              product.id,
+              selectedPricelistId,
+              1,
+            );
+            sellingPrice =
+              priceResponse.price ||
+              priceResponse.data?.price ||
+              product.sellingPrice ||
+              0;
+          } catch (error) {
+            console.error("Error fetching pricelist price:", error);
+            // Fallback to default product price
+            sellingPrice = product.sellingPrice || 0;
+          }
         }
+
+        setInvoice((prev) => {
+          const newItems = [...prev.items];
+
+          // Determine quantityUom from product's primary_uom (preferred) or fallback to category detection
+          // primary_uom: 'PCS' for discrete items (sheets, pipes, bars), 'MT' or 'KG' for bulk (coils)
+          const primaryUom = (
+            product.primaryUom ||
+            product.primary_uom ||
+            ""
+          ).toUpperCase();
+          let quantityUom;
+          if (primaryUom === "MT" || primaryUom === "KG") {
+            quantityUom = primaryUom; // Use product's declared UOM for coils/bulk
+          } else {
+            // Fallback: category-based detection for legacy products without primary_uom
+            const category = (product.category || "").toLowerCase();
+            const isCoil = category.includes("coil");
+            quantityUom = isCoil ? "MT" : "PCS";
+          }
+
+          // Get pricing basis and unit weight from product
+          const pricingBasis =
+            product.pricingBasis || product.pricing_basis || "PER_MT";
+          const unitWeightKg =
+            product.unitWeightKg || product.unit_weight_kg || null;
+          const quantity = newItems[index].quantity || 1;
+
+          // Flag if weight is missing for weight-based pricing (for UI warning)
+          const missingWeightWarning =
+            (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
+            quantityUom === "PCS" &&
+            !unitWeightKg;
+
+          // Calculate theoretical weight (for audit trail)
+          let theoreticalWeightKg = null;
+          if (quantityUom === "MT") {
+            theoreticalWeightKg = quantity * 1000; // MT to KG
+          } else if (quantityUom === "KG") {
+            theoreticalWeightKg = quantity;
+          } else if (unitWeightKg) {
+            theoreticalWeightKg = quantity * unitWeightKg;
+          }
+
+          // Calculate amount using new pricing-aware function
+          const amount = calculateItemAmount(
+            quantity,
+            sellingPrice,
+            pricingBasis,
+            unitWeightKg,
+            quantityUom,
+          );
+
+          newItems[index] = {
+            ...newItems[index],
+            productId: product.id,
+            // Use displayName (without origin) for invoice line items
+            name:
+              product.displayName ||
+              product.display_name ||
+              product.uniqueName ||
+              product.unique_name,
+            category: product.category || "",
+            commodity: product.commodity || "SS",
+            grade: product.grade || "",
+            finish: product.finish || "",
+            size: product.size || "",
+            sizeInch: product.sizeInch || "",
+            od: product.od || "",
+            length: product.length || "",
+            thickness: getThickness(product),
+            // unit removed from invoice UI
+            rate: sellingPrice,
+            vatRate: newItems[index].vatRate || 5, // Preserve existing VAT rate or default to 5%
+            amount,
+            // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+            pricingBasis,
+            unitWeightKg,
+            quantityUom,
+            theoreticalWeightKg,
+            // Warning flag for missing unit weight on weight-based pricing
+            missingWeightWarning,
+          };
+
+          return {
+            ...prev,
+            items: newItems,
+          };
+        });
+
+        // Clear search input for this row
+        setSearchInputs((prev) => ({ ...prev, [index]: "" }));
       }
-
-      setInvoice((prev) => {
-        const newItems = [...prev.items];
-
-        // Determine quantityUom from product's primary_uom (preferred) or fallback to category detection
-        // primary_uom: 'PCS' for discrete items (sheets, pipes, bars), 'MT' or 'KG' for bulk (coils)
-        const primaryUom = (product.primaryUom || product.primary_uom || '').toUpperCase();
-        let quantityUom;
-        if (primaryUom === 'MT' || primaryUom === 'KG') {
-          quantityUom = primaryUom; // Use product's declared UOM for coils/bulk
-        } else {
-          // Fallback: category-based detection for legacy products without primary_uom
-          const category = (product.category || '').toLowerCase();
-          const isCoil = category.includes('coil');
-          quantityUom = isCoil ? 'MT' : 'PCS';
-        }
-
-        // Get pricing basis and unit weight from product
-        const pricingBasis = product.pricingBasis || product.pricing_basis || 'PER_MT';
-        const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
-        const quantity = newItems[index].quantity || 1;
-
-        // Flag if weight is missing for weight-based pricing (for UI warning)
-        const missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
-          && quantityUom === 'PCS'
-          && !unitWeightKg;
-
-        // Calculate theoretical weight (for audit trail)
-        let theoreticalWeightKg = null;
-        if (quantityUom === 'MT') {
-          theoreticalWeightKg = quantity * 1000; // MT to KG
-        } else if (quantityUom === 'KG') {
-          theoreticalWeightKg = quantity;
-        } else if (unitWeightKg) {
-          theoreticalWeightKg = quantity * unitWeightKg;
-        }
-
-        // Calculate amount using new pricing-aware function
-        const amount = calculateItemAmount(
-          quantity,
-          sellingPrice,
-          pricingBasis,
-          unitWeightKg,
-          quantityUom,
-        );
-
-        newItems[index] = {
-          ...newItems[index],
-          productId: product.id,
-          // Use displayName (without origin) for invoice line items
-          name: product.displayName || product.display_name || product.uniqueName || product.unique_name,
-          category: product.category || '',
-          commodity: product.commodity || 'SS',
-          grade: product.grade || '',
-          finish: product.finish || '',
-          size: product.size || '',
-          sizeInch: product.sizeInch || '',
-          od: product.od || '',
-          length: product.length || '',
-          thickness: getThickness(product),
-          // unit removed from invoice UI
-          rate: sellingPrice,
-          vatRate: newItems[index].vatRate || 5, // Preserve existing VAT rate or default to 5%
-          amount,
-          // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
-          pricingBasis,
-          unitWeightKg,
-          quantityUom,
-          theoreticalWeightKg,
-          // Warning flag for missing unit weight on weight-based pricing
-          missingWeightWarning,
-        };
-
-        return {
-          ...prev,
-          items: newItems,
-        };
-      });
-
-      // Clear search input for this row
-      setSearchInputs((prev) => ({ ...prev, [index]: '' }));
-    }
-  }, [selectedPricelistId, findDuplicateProduct, invoice.items]);
+    },
+    [selectedPricelistId, findDuplicateProduct, invoice.items],
+  );
 
   // Handle duplicate confirmation - add anyway
   const handleDuplicateAddAnyway = useCallback(() => {
@@ -2029,7 +2200,7 @@ const InvoiceForm = ({ onSave }) => {
     if (pendingProductRef.current && duplicateWarning) {
       const { product } = pendingProductRef.current;
       const existingIndex = duplicateWarning.existingIndex;
-      
+
       // Update existing item's quantity by adding 1
       setInvoice((prev) => {
         const newItems = [...prev.items];
@@ -2037,11 +2208,11 @@ const InvoiceForm = ({ onSave }) => {
         const newQuantity = (existingItem.quantity || 0) + 1;
         // Recalculate theoretical weight
         let theoreticalWeightKg = existingItem.theoreticalWeightKg;
-        if (existingItem.unitWeightKg && existingItem.quantityUom === 'PCS') {
+        if (existingItem.unitWeightKg && existingItem.quantityUom === "PCS") {
           theoreticalWeightKg = newQuantity * existingItem.unitWeightKg;
-        } else if (existingItem.quantityUom === 'MT') {
+        } else if (existingItem.quantityUom === "MT") {
           theoreticalWeightKg = newQuantity * 1000;
-        } else if (existingItem.quantityUom === 'KG') {
+        } else if (existingItem.quantityUom === "KG") {
           theoreticalWeightKg = newQuantity;
         }
         newItems[existingIndex] = {
@@ -2070,7 +2241,9 @@ const InvoiceForm = ({ onSave }) => {
 
       pendingProductRef.current = null;
       setDuplicateWarning(null);
-      notificationService.success(`Quantity updated for ${product.displayName || product.display_name || 'N/A'}`);
+      notificationService.success(
+        `Quantity updated for ${product.displayName || product.display_name || "N/A"}`,
+      );
     }
   }, [duplicateWarning, invoice.items]);
 
@@ -2081,9 +2254,12 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   // Public handler that includes duplicate checking
-  const handleProductSelect = useCallback((index, product) => {
-    handleProductSelectInternal(index, product, false);
-  }, [handleProductSelectInternal]);
+  const handleProductSelect = useCallback(
+    (index, product) => {
+      handleProductSelectInternal(index, product, false);
+    },
+    [handleProductSelectInternal],
+  );
 
   // No automatic coupling; due date is independently editable by the user
 
@@ -2109,112 +2285,134 @@ const InvoiceForm = ({ onSave }) => {
     try {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
       searchTimerRef.current = setTimeout(async () => {
-        const term = (value || '').trim();
+        const term = (value || "").trim();
         if (!term) return;
         try {
-          const resp = await productService.getProducts({ search: term, limit: 20 });
+          const resp = await productService.getProducts({
+            search: term,
+            limit: 20,
+          });
           // Overwrite the shared productsData with the fetched subset is complex;
           // instead we keep a local map of options for active row via Autocomplete filtering.
           // Here we attach the fetched results to a special key for the row.
-          setSearchInputs((prev) => ({ ...prev, __results: resp?.products || [] }));
+          setSearchInputs((prev) => ({
+            ...prev,
+            __results: resp?.products || [],
+          }));
         } catch (err) {
-          console.warn('Product search failed:', err);
+          console.warn("Product search failed:", err);
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
     } catch (err) {
-      console.error('Error setting up product search timer:', err);
+      console.error("Error setting up product search timer:", err);
     }
   }, []);
 
-  const handleItemChange = useCallback(async (index, field, value) => {
-    // First, update the item immediately
-    setInvoice((prev) => {
-      const newItems = [...prev.items];
-      newItems[index] = {
-        ...newItems[index],
-        [field]: value,
-      };
-
-      // Auto-update VAT rate based on supply type
-      if (field === 'supplyType') {
-        if (value === 'standard') {
-          newItems[index].vatRate = 5;
-        } else if (value === 'zero_rated' || value === 'exempt') {
-          newItems[index].vatRate = 0;
-        }
-      }
-
-      if (field === 'quantity' || field === 'rate') {
-        const item = newItems[index];
-        newItems[index].amount = calculateItemAmount(
-          item.quantity,
-          item.rate,
-          item.pricingBasis,
-          item.unitWeightKg,
-          item.quantityUom,
-        );
-        // Update theoretical weight when quantity changes
-        if (field === 'quantity' && item.unitWeightKg && item.quantityUom === 'PCS') {
-          newItems[index].theoreticalWeightKg = item.quantity * item.unitWeightKg;
-        } else if (field === 'quantity' && item.quantityUom === 'MT') {
-          newItems[index].theoreticalWeightKg = item.quantity * 1000;
-        } else if (field === 'quantity' && item.quantityUom === 'KG') {
-          newItems[index].theoreticalWeightKg = item.quantity;
-        }
-      }
-
-      // Check if item is now complete (has product, quantity > 0, rate > 0)
-      const updatedItem = newItems[index];
-      if (updatedItem.productId && updatedItem.quantity > 0 && updatedItem.rate > 0) {
-        // Clear item-related validation errors
-        setValidationErrors(errors => errors.filter(err => !err.toLowerCase().includes('item')));
-        // Note: Don't auto-focus away - user may want to add more items
-      }
-
-      return {
-        ...prev,
-        items: newItems,
-      };
-    });
-
-    // If quantity changed and we have a pricelist, re-fetch price for volume discount
-    if (field === 'quantity' && selectedPricelistId) {
-      // Get current item to check if it has a product
+  const handleItemChange = useCallback(
+    async (index, field, value) => {
+      // First, update the item immediately
       setInvoice((prev) => {
-        const item = prev.items[index];
-        if (item?.productId && value > 0) {
-          // Fetch volume-based price asynchronously
-          pricelistService.getPriceForQuantity(item.productId, selectedPricelistId, value)
-            .then((priceResponse) => {
-              const newPrice = priceResponse.price || priceResponse.data?.price;
-              if (newPrice && newPrice !== item.rate) {
-                setInvoice((prevInv) => {
-                  const newItems = [...prevInv.items];
-                  const currentItem = newItems[index];
-                  newItems[index] = {
-                    ...currentItem,
-                    rate: newPrice,
-                    amount: calculateItemAmount(
-                      currentItem.quantity,
-                      newPrice,
-                      currentItem.pricingBasis,
-                      currentItem.unitWeightKg,
-                      currentItem.quantityUom,
-                    ),
-                  };
-                  return { ...prevInv, items: newItems };
-                });
-              }
-            })
-            .catch((err) => {
-              // Volume discount price fetch failed, using default price
-            });
+        const newItems = [...prev.items];
+        newItems[index] = {
+          ...newItems[index],
+          [field]: value,
+        };
+
+        // Auto-update VAT rate based on supply type
+        if (field === "supplyType") {
+          if (value === "standard") {
+            newItems[index].vatRate = 5;
+          } else if (value === "zero_rated" || value === "exempt") {
+            newItems[index].vatRate = 0;
+          }
         }
-        return prev; // No change in this callback
+
+        if (field === "quantity" || field === "rate") {
+          const item = newItems[index];
+          newItems[index].amount = calculateItemAmount(
+            item.quantity,
+            item.rate,
+            item.pricingBasis,
+            item.unitWeightKg,
+            item.quantityUom,
+          );
+          // Update theoretical weight when quantity changes
+          if (
+            field === "quantity" &&
+            item.unitWeightKg &&
+            item.quantityUom === "PCS"
+          ) {
+            newItems[index].theoreticalWeightKg =
+              item.quantity * item.unitWeightKg;
+          } else if (field === "quantity" && item.quantityUom === "MT") {
+            newItems[index].theoreticalWeightKg = item.quantity * 1000;
+          } else if (field === "quantity" && item.quantityUom === "KG") {
+            newItems[index].theoreticalWeightKg = item.quantity;
+          }
+        }
+
+        // Check if item is now complete (has product, quantity > 0, rate > 0)
+        const updatedItem = newItems[index];
+        if (
+          updatedItem.productId &&
+          updatedItem.quantity > 0 &&
+          updatedItem.rate > 0
+        ) {
+          // Clear item-related validation errors
+          setValidationErrors((errors) =>
+            errors.filter((err) => !err.toLowerCase().includes("item")),
+          );
+          // Note: Don't auto-focus away - user may want to add more items
+        }
+
+        return {
+          ...prev,
+          items: newItems,
+        };
       });
-    }
-  }, [selectedPricelistId]);
+
+      // If quantity changed and we have a pricelist, re-fetch price for volume discount
+      if (field === "quantity" && selectedPricelistId) {
+        // Get current item to check if it has a product
+        setInvoice((prev) => {
+          const item = prev.items[index];
+          if (item?.productId && value > 0) {
+            // Fetch volume-based price asynchronously
+            pricelistService
+              .getPriceForQuantity(item.productId, selectedPricelistId, value)
+              .then((priceResponse) => {
+                const newPrice =
+                  priceResponse.price || priceResponse.data?.price;
+                if (newPrice && newPrice !== item.rate) {
+                  setInvoice((prevInv) => {
+                    const newItems = [...prevInv.items];
+                    const currentItem = newItems[index];
+                    newItems[index] = {
+                      ...currentItem,
+                      rate: newPrice,
+                      amount: calculateItemAmount(
+                        currentItem.quantity,
+                        newPrice,
+                        currentItem.pricingBasis,
+                        currentItem.unitWeightKg,
+                        currentItem.quantityUom,
+                      ),
+                    };
+                    return { ...prevInv, items: newItems };
+                  });
+                }
+              })
+              .catch((err) => {
+                // Volume discount price fetch failed, using default price
+              });
+          }
+          return prev; // No change in this callback
+        });
+      }
+    },
+    [selectedPricelistId],
+  );
 
   const productOptions = useMemo(() => {
     const list = productsData?.products || [];
@@ -2224,15 +2422,15 @@ const InvoiceForm = ({ onSave }) => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || 'N/A';
+      const label = uniqueName || displayName || "N/A";
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        uniqueName: uniqueName || '',
-        displayName: displayName || '',
-        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || "",
+        displayName: displayName || "",
+        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
       };
     });
   }, [productsData]);
@@ -2245,15 +2443,15 @@ const InvoiceForm = ({ onSave }) => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || 'N/A';
+      const label = uniqueName || displayName || "N/A";
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        uniqueName: uniqueName || '',
-        displayName: displayName || '',
-        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || "",
+        displayName: displayName || "",
+        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
       };
     });
   }, [searchInputs.__results]);
@@ -2264,7 +2462,9 @@ const InvoiceForm = ({ onSave }) => {
       items: [...prev.items, createSteelItem()],
     }));
     // Clear item-related validation errors since user is adding an item
-    setValidationErrors(prev => prev.filter(err => !err.toLowerCase().includes('item is required')));
+    setValidationErrors((prev) =>
+      prev.filter((err) => !err.toLowerCase().includes("item is required")),
+    );
   }, []);
 
   const removeItem = useCallback((index) => {
@@ -2279,14 +2479,13 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   const handleSave = async () => {
-
     // Prevent double-click / rapid clicks at entry point
     if (isSaving) {
       return;
     }
 
     // For new invoices with Final Tax Invoice status, show confirmation first
-    if (!id && invoice.status === 'issued') {
+    if (!id && invoice.status === "issued") {
       setShowSaveConfirmDialog(true);
       return;
     }
@@ -2301,18 +2500,18 @@ const InvoiceForm = ({ onSave }) => {
     const invalidFieldsSet = new Set();
 
     // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
-      errors.push('Customer name is required');
-      invalidFieldsSet.add('customer.name');
+    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
+      errors.push("Customer name is required");
+      invalidFieldsSet.add("customer.name");
     }
 
     // Check if there are any items
     if (!invoice.items || invoice.items.length === 0) {
-      errors.push('At least one item is required');
+      errors.push("At least one item is required");
     } else {
       // Validate each item
       invoice.items.forEach((item, index) => {
-        if (!item.name || item.name.trim() === '') {
+        if (!item.name || item.name.trim() === "") {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
         }
@@ -2327,7 +2526,9 @@ const InvoiceForm = ({ onSave }) => {
         // CRITICAL: Block save when unit weight is missing for weight-based pricing
         // This prevents incorrect pricing calculations (e.g., 30x overcharge)
         if (item.missingWeightWarning) {
-          errors.push(`Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`);
+          errors.push(
+            `Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`,
+          );
           invalidFieldsSet.add(`item.${index}.unitWeight`);
         }
       });
@@ -2335,43 +2536,52 @@ const InvoiceForm = ({ onSave }) => {
 
     // Check dates
     if (!invoice.date) {
-      errors.push('Invoice date is required');
-      invalidFieldsSet.add('date');
+      errors.push("Invoice date is required");
+      invalidFieldsSet.add("date");
     }
     if (!invoice.dueDate) {
-      errors.push('Due date is required');
-      invalidFieldsSet.add('dueDate');
+      errors.push("Due date is required");
+      invalidFieldsSet.add("dueDate");
     }
 
     // Check status (required field)
-    if (!invoice.status || !['draft', 'proforma', 'issued'].includes(invoice.status)) {
-      errors.push('Invoice status is required');
-      invalidFieldsSet.add('status');
+    if (
+      !invoice.status ||
+      !["draft", "proforma", "issued"].includes(invoice.status)
+    ) {
+      errors.push("Invoice status is required");
+      invalidFieldsSet.add("status");
     }
 
-    return { isValid: errors.length === 0, errors, invalidFields: invalidFieldsSet };
+    return {
+      isValid: errors.length === 0,
+      errors,
+      invalidFields: invalidFieldsSet,
+    };
   };
 
   // UAE VAT COMPLIANCE: Issue Final Tax Invoice
   // This action is IRREVERSIBLE - invoice becomes a legal tax document
   const handleIssueInvoice = async () => {
     if (!invoice?.id) {
-      notificationService.error('Please save the invoice first before issuing.');
+      notificationService.error(
+        "Please save the invoice first before issuing.",
+      );
       return;
     }
 
     if (isLocked) {
-      notificationService.warning('This invoice has already been issued.');
+      notificationService.warning("This invoice has already been issued.");
       return;
     }
 
     // Confirm with user - this is irreversible
     const confirmed = window.confirm(
-      'Issue Final Tax Invoice?\n\n' +
-      'WARNING: Once issued, this invoice cannot be modified.\n' +
-      'Any corrections must be made via Credit Note.\n\n' +
-      'This action cannot be undone.\n\n' +
-      'Are you sure you want to proceed?',
+      "Issue Final Tax Invoice?\n\n" +
+        "WARNING: Once issued, this invoice cannot be modified.\n" +
+        "Any corrections must be made via Credit Note.\n\n" +
+        "This action cannot be undone.\n\n" +
+        "Are you sure you want to proceed?",
     );
 
     if (!confirmed) return;
@@ -2379,21 +2589,21 @@ const InvoiceForm = ({ onSave }) => {
     try {
       setIsSaving(true);
       const issuedInvoice = await invoiceService.issueInvoice(invoice.id);
-      
+
       // Update local state with the issued invoice
-      setInvoice(prev => ({
+      setInvoice((prev) => ({
         ...prev,
         ...issuedInvoice,
-        status: 'issued',
+        status: "issued",
       }));
-      
+
       notificationService.success(
-        'Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.',
+        "Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.",
       );
     } catch (error) {
-      console.error('Failed to issue invoice:', error);
+      console.error("Failed to issue invoice:", error);
       notificationService.error(
-        `Failed to issue invoice: ${  error.response?.data?.message || error.message}`,
+        `Failed to issue invoice: ${error.response?.data?.message || error.message}`,
       );
     } finally {
       setIsSaving(false);
@@ -2403,7 +2613,9 @@ const InvoiceForm = ({ onSave }) => {
   // Handler for preview button - validates before opening preview
   const handlePreviewClick = async () => {
     if (!company) {
-      notificationService.warning('Company data is still loading. Please wait...');
+      notificationService.warning(
+        "Company data is still loading. Please wait...",
+      );
       return;
     }
 
@@ -2411,7 +2623,7 @@ const InvoiceForm = ({ onSave }) => {
     try {
       await refetchCompany();
     } catch (error) {
-      console.warn('Failed to refresh company data:', error);
+      console.warn("Failed to refresh company data:", error);
       // Continue with cached data rather than blocking preview
     }
 
@@ -2436,9 +2648,9 @@ const InvoiceForm = ({ onSave }) => {
     // DEBUG: Log status at start of performSave
 
     // Filter out blank items before validation
-    const nonBlankItems = (invoice.items || []).filter(item => {
+    const nonBlankItems = (invoice.items || []).filter((item) => {
       // An item is considered blank if name is empty AND either quantity or rate is 0/empty
-      const hasName = item.name && item.name.trim() !== '';
+      const hasName = item.name && item.name.trim() !== "";
       const hasQuantity = item.quantity && Number(item.quantity) > 0;
       const hasRate = item.rate && Number(item.rate) > 0;
 
@@ -2451,18 +2663,18 @@ const InvoiceForm = ({ onSave }) => {
     const invalidFieldsSet = new Set();
 
     // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
-      errors.push('Customer name is required');
-      invalidFieldsSet.add('customer.name');
+    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
+      errors.push("Customer name is required");
+      invalidFieldsSet.add("customer.name");
     }
 
     // Check if there are any items after filtering blanks
     if (!nonBlankItems || nonBlankItems.length === 0) {
-      errors.push('At least one item is required');
+      errors.push("At least one item is required");
     } else {
       // Validate each non-blank item
       nonBlankItems.forEach((item, index) => {
-        if (!item.name || item.name.trim() === '') {
+        if (!item.name || item.name.trim() === "") {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
         }
@@ -2479,18 +2691,21 @@ const InvoiceForm = ({ onSave }) => {
 
     // Check dates
     if (!invoice.date) {
-      errors.push('Invoice date is required');
-      invalidFieldsSet.add('date');
+      errors.push("Invoice date is required");
+      invalidFieldsSet.add("date");
     }
     if (!invoice.dueDate) {
-      errors.push('Due date is required');
-      invalidFieldsSet.add('dueDate');
+      errors.push("Due date is required");
+      invalidFieldsSet.add("dueDate");
     }
 
     // Check status (required field) - use effectiveStatus for Final Tax Invoice flow
-    if (!effectiveStatus || !['draft', 'proforma', 'issued'].includes(effectiveStatus)) {
-      errors.push('Invoice status is required');
-      invalidFieldsSet.add('status');
+    if (
+      !effectiveStatus ||
+      !["draft", "proforma", "issued"].includes(effectiveStatus)
+    ) {
+      errors.push("Invoice status is required");
+      invalidFieldsSet.add("status");
     }
 
     // If there are validation errors, show them and stop
@@ -2500,9 +2715,9 @@ const InvoiceForm = ({ onSave }) => {
 
       // Scroll to the first error (save button area) - instant to prevent layout shift
       setTimeout(() => {
-        const errorAlert = document.getElementById('validation-errors-alert');
+        const errorAlert = document.getElementById("validation-errors-alert");
         if (errorAlert) {
-          errorAlert.scrollIntoView({ behavior: 'instant', block: 'center' });
+          errorAlert.scrollIntoView({ behavior: "instant", block: "center" });
         }
       }, 100);
 
@@ -2520,27 +2735,29 @@ const InvoiceForm = ({ onSave }) => {
       // IMPORTANT: Use effectiveStatus to ensure correct status for Final Tax Invoice flow
       const processedInvoice = {
         ...invoice,
-        status: effectiveStatus,  // Use effectiveStatus, not invoice.status (fixes DFT- prefix bug)
+        status: effectiveStatus, // Use effectiveStatus, not invoice.status (fixes DFT- prefix bug)
         discountAmount:
-          invoice.discountAmount === '' ? 0 : Number(invoice.discountAmount),
+          invoice.discountAmount === "" ? 0 : Number(invoice.discountAmount),
         discountPercentage:
-          invoice.discountPercentage === ''
+          invoice.discountPercentage === ""
             ? 0
             : Number(invoice.discountPercentage),
         items: nonBlankItems.map((item) => ({
           ...item,
-          quantity: item.quantity === '' ? 0 : Number(item.quantity),
-          rate: item.rate === '' ? 0 : Number(item.rate),
-          discount: item.discount === '' ? 0 : Number(item.discount),
-          vatRate: item.vatRate === '' ? 0 : Number(item.vatRate),
+          quantity: item.quantity === "" ? 0 : Number(item.quantity),
+          rate: item.rate === "" ? 0 : Number(item.rate),
+          discount: item.discount === "" ? 0 : Number(item.discount),
+          vatRate: item.vatRate === "" ? 0 : Number(item.vatRate),
           // Phase 2: Manual batch allocation
-          allocation_mode: item.allocationMode || 'AUTO_FIFO',
-          manual_allocations: item.allocationMode === 'MANUAL' && item.manualAllocations?.length > 0
-            ? item.manualAllocations.map(a => ({
-              batch_id: a.batch_id || a.batchId,
-              quantity: a.quantity,
-            }))
-            : [],
+          allocation_mode: item.allocationMode || "AUTO_FIFO",
+          manual_allocations:
+            item.allocationMode === "MANUAL" &&
+            item.manualAllocations?.length > 0
+              ? item.manualAllocations.map((a) => ({
+                  batch_id: a.batch_id || a.batchId,
+                  quantity: a.quantity,
+                }))
+              : [],
         })),
       };
 
@@ -2555,9 +2772,12 @@ const InvoiceForm = ({ onSave }) => {
         // Navigate to the new invoice ID (backend creates new invoice using cancel-and-recreate)
         // The backend returns: { id: oldId, new_invoice_id: actualNewId }
         // We need to navigate to the NEW invoice to continue editing
-        if (updatedInvoice.newInvoiceId && updatedInvoice.newInvoiceId !== parseInt(id)) {
+        if (
+          updatedInvoice.newInvoiceId &&
+          updatedInvoice.newInvoiceId !== parseInt(id)
+        ) {
           notificationService.success(
-            'Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.',
+            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.",
           );
           // Navigate to new invoice ID with smooth transition (300ms)
           setTimeout(() => {
@@ -2565,7 +2785,7 @@ const InvoiceForm = ({ onSave }) => {
           }, 300);
         } else {
           notificationService.success(
-            'Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.',
+            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.",
           );
         }
       } else {
@@ -2574,7 +2794,7 @@ const InvoiceForm = ({ onSave }) => {
         if (onSave) onSave(newInvoice);
 
         // Update the form with the database-generated invoice number
-        setInvoice(prev => ({
+        setInvoice((prev) => ({
           ...prev,
           invoiceNumber: newInvoice.invoiceNumber,
         }));
@@ -2599,10 +2819,10 @@ const InvoiceForm = ({ onSave }) => {
         // }, 1500);
       }
     } catch (error) {
-      console.error('Error saving invoice:', error);
+      console.error("Error saving invoice:", error);
 
       // Extract detailed error message
-      let errorMessage = 'Failed to save invoice. Please try again.';
+      let errorMessage = "Failed to save invoice. Please try again.";
 
       if (error?.response?.data?.error) {
         errorMessage = error.response.data.error;
@@ -2613,10 +2833,11 @@ const InvoiceForm = ({ onSave }) => {
       }
 
       // Check for duplicate invoice number error (from database unique constraint)
-      if (errorMessage.toLowerCase().includes('duplicate') ||
-          errorMessage.toLowerCase().includes('unique_invoice_number') ||
-          (error?.response?.status === 409)) {
-
+      if (
+        errorMessage.toLowerCase().includes("duplicate") ||
+        errorMessage.toLowerCase().includes("unique_invoice_number") ||
+        error?.response?.status === 409
+      ) {
         // If this is a NEW invoice (not an edit), auto-fetch next available number
         if (!id) {
           errorMessage = `Invoice number ${invoice.invoiceNumber} already exists. Fetching a new invoice number...`;
@@ -2625,7 +2846,9 @@ const InvoiceForm = ({ onSave }) => {
           // Refetch the next invoice number
           try {
             await refetchNextInvoice();
-            notificationService.success('New invoice number assigned. Please try saving again.');
+            notificationService.success(
+              "New invoice number assigned. Please try saving again.",
+            );
             return; // Exit early so user can try again with new number
           } catch (refetchError) {
             errorMessage = `Failed to get a new invoice number. Please refresh the page.`;
@@ -2639,11 +2862,11 @@ const InvoiceForm = ({ onSave }) => {
       if (error?.response?.data?.details) {
         const details = error.response.data.details;
         if (Array.isArray(details)) {
-          errorMessage += `\n${  details.join('\n')}`;
-        } else if (typeof details === 'object') {
-          errorMessage += `\n${  Object.entries(details)
+          errorMessage += `\n${details.join("\n")}`;
+        } else if (typeof details === "object") {
+          errorMessage += `\n${Object.entries(details)
             .map(([field, msg]) => `${field}: ${msg}`)
-            .join('\n')}`;
+            .join("\n")}`;
         }
       }
 
@@ -2658,7 +2881,7 @@ const InvoiceForm = ({ onSave }) => {
 
     // Pass 'issued' explicitly since user confirmed Final Tax Invoice dialog
     // This ensures status is correct regardless of React state timing
-    await performSave('issued');
+    await performSave("issued");
   };
 
   const handleCancelSave = () => {
@@ -2672,10 +2895,12 @@ const InvoiceForm = ({ onSave }) => {
     // Wait for modal close animation, then trigger PDF download and navigate
     setTimeout(async () => {
       await handleDownloadPDF();
-      notificationService.success('Invoice created successfully! PDF downloaded.');
+      notificationService.success(
+        "Invoice created successfully! PDF downloaded.",
+      );
 
       // Navigate after PDF download completes (smooth transition)
-      navigate('/invoices');
+      navigate("/invoices");
     }, 300);
   };
 
@@ -2684,8 +2909,8 @@ const InvoiceForm = ({ onSave }) => {
 
     // Smooth transition delay for modal close animation
     setTimeout(() => {
-      notificationService.success('Invoice created successfully!');
-      navigate('/invoices');
+      notificationService.success("Invoice created successfully!");
+      navigate("/invoices");
     }, 300);
   };
 
@@ -2706,16 +2931,18 @@ const InvoiceForm = ({ onSave }) => {
     // User can continue viewing/editing the invoice
     if (createdInvoiceId) {
       navigate(`/edit/${createdInvoiceId}`);
-      notificationService.success('Invoice created successfully! Now in edit mode.');
+      notificationService.success(
+        "Invoice created successfully! Now in edit mode.",
+      );
     }
   }, [createdInvoiceId, navigate]);
 
   // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
     const handleEscKey = (event) => {
-      if (event.key === 'Escape' && showSuccessModal) {
+      if (event.key === "Escape" && showSuccessModal) {
         // Only allow ESC to close for Draft and Proforma invoices
-        const isFinalTaxInvoice = invoice.status === 'issued';
+        const isFinalTaxInvoice = invoice.status === "issued";
         if (!isFinalTaxInvoice) {
           handleSuccessModalClose();
         }
@@ -2723,12 +2950,17 @@ const InvoiceForm = ({ onSave }) => {
     };
 
     if (showSuccessModal) {
-      document.addEventListener('keydown', handleEscKey);
+      document.addEventListener("keydown", handleEscKey);
       return () => {
-        document.removeEventListener('keydown', handleEscKey);
+        document.removeEventListener("keydown", handleEscKey);
       };
     }
-  }, [showSuccessModal, createdInvoiceId, invoice.status, handleSuccessModalClose]);
+  }, [
+    showSuccessModal,
+    createdInvoiceId,
+    invoice.status,
+    handleSuccessModalClose,
+  ]);
 
   const handleDownloadPDF = useCallback(async () => {
     // Use either the route ID or the newly created invoice ID
@@ -2736,14 +2968,18 @@ const InvoiceForm = ({ onSave }) => {
 
     // Require invoice to be saved first
     if (!invoiceId) {
-      notificationService.warning('Please save the invoice first before downloading PDF');
+      notificationService.warning(
+        "Please save the invoice first before downloading PDF",
+      );
       return;
     }
 
     // If company details still loading, set a pending flag and retry when ready
     if (loadingCompany) {
       setPdfPending(true);
-      notificationService.info('Loading company details… Will download when ready.');
+      notificationService.info(
+        "Loading company details… Will download when ready.",
+      );
       return;
     }
 
@@ -2752,9 +2988,9 @@ const InvoiceForm = ({ onSave }) => {
     try {
       // Use backend API to generate searchable text PDF with proper fonts and margins
       await invoicesAPI.downloadPDF(invoiceId);
-      notificationService.success('PDF downloaded successfully!');
+      notificationService.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error('PDF generation error:', error);
+      console.error("PDF generation error:", error);
       notificationService.error(`PDF generation failed: ${error.message}`);
     } finally {
       setIsGeneratingPDF(false);
@@ -2801,7 +3037,7 @@ const InvoiceForm = ({ onSave }) => {
     },
     {
       enabled: !showPreview, // Disable when preview is open (it has its own handlers)
-      allowInInputs: ['escape'], // Allow Escape in inputs to close modals
+      allowInInputs: ["escape"], // Allow Escape in inputs to close modals
     },
   );
 
@@ -2820,16 +3056,15 @@ const InvoiceForm = ({ onSave }) => {
   }
 
   if (loadingInvoice) {
-
     return (
       <div
         className={`h-full flex items-center justify-center ${
-          isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+          isDarkMode ? "bg-gray-900" : "bg-gray-50"
         }`}
       >
         <div className="flex items-center space-x-3">
           <LoadingSpinner size="lg" />
-          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+          <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
             Loading invoice...
           </span>
         </div>
@@ -2841,26 +3076,26 @@ const InvoiceForm = ({ onSave }) => {
     <>
       <div
         className={`min-h-screen pb-32 md:pb-6 ${
-          isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+          isDarkMode ? "bg-gray-900" : "bg-gray-50"
         }`}
       >
         {/* Sticky Header - Mobile & Desktop */}
         <header
           className={`sticky top-0 z-20 border-b ${
             isDarkMode
-              ? 'bg-gray-800 border-gray-700'
-              : 'bg-white border-gray-200'
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           } shadow-sm`}
         >
           <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/invoices')}
+                  onClick={() => navigate("/invoices")}
                   className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                     isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? "text-gray-300 hover:bg-gray-700"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                   aria-label="Back to invoices"
                 >
@@ -2869,29 +3104,29 @@ const InvoiceForm = ({ onSave }) => {
                 <div>
                   <h1
                     className={`text-lg md:text-xl font-bold ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                      isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {id ? 'Edit Invoice' : 'New Invoice'}
+                    {id ? "Edit Invoice" : "New Invoice"}
                   </h1>
                   <p
                     className={`text-xs md:text-sm ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    {invoice.invoiceNumber || 'Invoice #'}
+                    {invoice.invoiceNumber || "Invoice #"}
                   </p>
                 </div>
               </div>
-              
+
               <div className="hidden md:flex gap-2 items-start relative">
                 {/* Settings Icon */}
                 <button
                   onClick={() => setShowFormSettings(!showFormSettings)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? "text-gray-300 hover:bg-gray-700"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                   aria-label="Form settings"
                   title="Form Settings"
@@ -2905,7 +3140,7 @@ const InvoiceForm = ({ onSave }) => {
                   onClose={() => setShowFormSettings(false)}
                   preferences={formPreferences}
                   onPreferenceChange={(key, value) => {
-                    setFormPreferences(prev => ({
+                    setFormPreferences((prev) => ({
                       ...prev,
                       [key]: value,
                     }));
@@ -2918,47 +3153,66 @@ const InvoiceForm = ({ onSave }) => {
                   disabled={loadingCompany}
                 >
                   <Eye className="h-4 w-4" />
-                Preview
+                  Preview
                 </Button>
                 <div className="flex flex-col items-start">
                   <Button
                     ref={saveButtonRef}
                     onClick={handleSave}
-                    disabled={savingInvoice || updatingInvoice || isSaving || isLocked}
-                    title={isLocked ? 'Invoice is locked (24h edit window expired)' : isRevisionMode ? `Save revision (${hoursRemainingInEditWindow}h remaining)` : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`}
+                    disabled={
+                      savingInvoice || updatingInvoice || isSaving || isLocked
+                    }
+                    title={
+                      isLocked
+                        ? "Invoice is locked (24h edit window expired)"
+                        : isRevisionMode
+                          ? `Save revision (${hoursRemainingInEditWindow}h remaining)`
+                          : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`
+                    }
                   >
                     {savingInvoice || updatingInvoice || isSaving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Save className="h-4 w-4" />
                     )}
-                    {savingInvoice || updatingInvoice || isSaving ? 'Saving...' : isRevisionMode ? 'Save Revision' : 'Save Draft'}
+                    {savingInvoice || updatingInvoice || isSaving
+                      ? "Saving..."
+                      : isRevisionMode
+                        ? "Save Revision"
+                        : "Save Draft"}
                   </Button>
                   {isRevisionMode && (
-                    <span className={`text-[10px] mt-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                    <span
+                      className={`text-[10px] mt-1 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                    >
                       {hoursRemainingInEditWindow}h left to edit
                     </span>
                   )}
                 </div>
-                
+
                 {/* UAE VAT: Issue Final Tax Invoice Button - Only for drafts, not revisions */}
-                {id && !isLocked && !isRevisionMode && invoice.status !== 'issued' && (
-                  <div className="flex flex-col items-center">
-                    <Button
-                      variant="success"
-                      onClick={handleIssueInvoice}
-                      disabled={savingInvoice || updatingInvoice || isSaving}
-                      title="Issue as Final Tax Invoice (locks invoice permanently)"
-                      className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
-                    >
-                      <Download className="h-4 w-4" />
-                      Issue Final Invoice
-                    </Button>
-                    <span className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                      Once issued, cannot be edited
-                    </span>
-                  </div>
-                )}
+                {id &&
+                  !isLocked &&
+                  !isRevisionMode &&
+                  invoice.status !== "issued" && (
+                    <div className="flex flex-col items-center">
+                      <Button
+                        variant="success"
+                        onClick={handleIssueInvoice}
+                        disabled={savingInvoice || updatingInvoice || isSaving}
+                        title="Issue as Final Tax Invoice (locks invoice permanently)"
+                        className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                      >
+                        <Download className="h-4 w-4" />
+                        Issue Final Invoice
+                      </Button>
+                      <span
+                        className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        Once issued, cannot be edited
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
@@ -2971,22 +3225,30 @@ const InvoiceForm = ({ onSave }) => {
             <div
               className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
                 isDarkMode
-                  ? 'bg-amber-900/20 border-amber-600 text-amber-200'
-                  : 'bg-amber-50 border-amber-500 text-amber-800'
+                  ? "bg-amber-900/20 border-amber-600 text-amber-200"
+                  : "bg-amber-50 border-amber-500 text-amber-800"
               }`}
             >
-              <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} size={24} />
+              <AlertTriangle
+                className={`flex-shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                size={24}
+              />
               <div className="flex-1">
-                <h4 className="font-bold text-lg">Final Tax Invoice - Locked</h4>
+                <h4 className="font-bold text-lg">
+                  Final Tax Invoice - Locked
+                </h4>
                 <p className="text-sm mt-1">
-                  This invoice has been issued as a Final Tax Invoice and cannot be modified.
-                  UAE VAT compliance requires any corrections to be made via Credit Note.
+                  This invoice has been issued as a Final Tax Invoice and cannot
+                  be modified. UAE VAT compliance requires any corrections to be
+                  made via Credit Note.
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   className="mt-3"
-                  onClick={() => navigate(`/credit-notes/new?invoiceId=${  invoice.id}`)}
+                  onClick={() =>
+                    navigate(`/credit-notes/new?invoiceId=${invoice.id}`)
+                  }
                 >
                   Create Credit Note
                 </Button>
@@ -3000,12 +3262,15 @@ const InvoiceForm = ({ onSave }) => {
               id="validation-errors-alert"
               className={`mt-6 p-4 rounded-lg border-2 ${
                 isDarkMode
-                  ? 'bg-red-900/20 border-red-600 text-red-200'
-                  : 'bg-red-50 border-red-500 text-red-800'
+                  ? "bg-red-900/20 border-red-600 text-red-200"
+                  : "bg-red-50 border-red-500 text-red-800"
               }`}
             >
               <div className="flex items-start gap-3">
-                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`} size={24} />
+                <AlertTriangle
+                  className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                  size={24}
+                />
                 <div className="flex-1">
                   <h4 className="font-bold text-lg mb-2">
                     Please fix the following errors:
@@ -3014,27 +3279,35 @@ const InvoiceForm = ({ onSave }) => {
                     {validationErrors.map((error, index) => {
                       // Parse error to extract field name for scrolling
                       let fieldName = null;
-                      if (error.includes('Customer')) fieldName = 'customer.name';
-                      else if (error.includes('Invoice date')) fieldName = 'date';
-                      else if (error.includes('Due date')) fieldName = 'dueDate';
+                      if (error.includes("Customer"))
+                        fieldName = "customer.name";
+                      else if (error.includes("Invoice date"))
+                        fieldName = "date";
+                      else if (error.includes("Due date"))
+                        fieldName = "dueDate";
                       else if (error.match(/Item \d+/)) {
                         const match = error.match(/Item (\d+)/);
                         if (match) {
                           const itemNum = parseInt(match[1], 10) - 1; // Convert to 0-indexed
-                          if (error.includes('Rate')) fieldName = `item.${itemNum}.rate`;
-                          else if (error.includes('Quantity')) fieldName = `item.${itemNum}.quantity`;
-                          else if (error.includes('Product')) fieldName = `item.${itemNum}.name`;
+                          if (error.includes("Rate"))
+                            fieldName = `item.${itemNum}.rate`;
+                          else if (error.includes("Quantity"))
+                            fieldName = `item.${itemNum}.quantity`;
+                          else if (error.includes("Product"))
+                            fieldName = `item.${itemNum}.name`;
                           else fieldName = `item.${itemNum}`;
                         }
                       }
-                      
+
                       return (
                         <li key={index}>
                           <button
-                            onClick={() => fieldName && scrollToField(fieldName)}
+                            onClick={() =>
+                              fieldName && scrollToField(fieldName)
+                            }
                             disabled={!fieldName}
-                            className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
-                            title={fieldName ? 'Click to scroll to field' : ''}
+                            className={`flex items-center gap-2 w-full text-left ${fieldName ? "cursor-pointer hover:underline hover:text-red-400" : "opacity-60 cursor-default"}`}
+                            title={fieldName ? "Click to scroll to field" : ""}
                           >
                             <span className="text-red-500">•</span>
                             <span>{error}</span>
@@ -3053,8 +3326,8 @@ const InvoiceForm = ({ onSave }) => {
                     }}
                     className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                       isDarkMode
-                        ? 'bg-red-800 hover:bg-red-700 text-white'
-                        : 'bg-red-600 hover:bg-red-700 text-white'
+                        ? "bg-red-800 hover:bg-red-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
                     }`}
                   >
                     Dismiss
@@ -3067,51 +3340,67 @@ const InvoiceForm = ({ onSave }) => {
           {/* Two-Column Header Layout - Customer/Sales + Invoice Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* LEFT COLUMN: Customer & Sales Information */}
-            <Card className={`p-3 md:p-4 ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
-            }`}>
+            <Card
+              className={`p-3 md:p-4 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
               {/* Customer Selection - Priority #1 */}
               <div className="mb-4" ref={customerRef}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                    Customer Information
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  Customer Information
                 </h3>
                 {/* Customer Selector - Enhanced with Search */}
                 <div className="space-y-0.5">
                   <Autocomplete
                     label="Select Customer"
-                    options={(customersData?.customers || []).map(c => ({
+                    options={(customersData?.customers || []).map((c) => ({
                       id: c.id,
-                      label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
+                      label: `${titleCase(normalizeLLC(c.name))} - ${c.email || "No email"}`,
                       name: c.name,
                       email: c.email,
                       phone: c.phone,
                     }))}
-                    value={invoice.customer.id ? {
-                      id: invoice.customer.id,
-                      label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
-                    } : null}
+                    value={
+                      invoice.customer.id
+                        ? {
+                            id: invoice.customer.id,
+                            label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || "No email"}`,
+                          }
+                        : null
+                    }
                     onChange={(e, selected) => {
                       if (selected?.id) {
                         handleCustomerSelect(selected.id);
                         // Show selected customer name in the input field
-                        setCustomerSearchInput(titleCase(normalizeLLC(selected.name || '')));
+                        setCustomerSearchInput(
+                          titleCase(normalizeLLC(selected.name || "")),
+                        );
                       }
                     }}
                     inputValue={customerSearchInput}
                     onInputChange={(e, value) => setCustomerSearchInput(value)}
                     placeholder="Search customers by name or email..."
                     disabled={loadingCustomers}
-                    noOptionsText={loadingCustomers ? 'Loading customers...' : 'No customers found'}
-                    error={invalidFields.has('customer.name')}
+                    noOptionsText={
+                      loadingCustomers
+                        ? "Loading customers..."
+                        : "No customers found"
+                    }
+                    error={invalidFields.has("customer.name")}
                     className="text-base"
                     required={true}
                     validationState={fieldValidation.customer}
                     showValidation={formPreferences.showValidationHighlighting}
                   />
-                  {invalidFields.has('customer.name') && (
-                    <p className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                  {invalidFields.has("customer.name") && (
+                    <p
+                      className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                    >
                       Customer is required
                     </p>
                   )}
@@ -3121,51 +3410,58 @@ const InvoiceForm = ({ onSave }) => {
                 <div
                   className={`p-4 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600'
-                      : 'bg-gray-100 border-gray-200'
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-gray-100 border-gray-200"
                   }`}
                 >
                   <h4
                     className={`font-medium mb-2 ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                      isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {invoice.customer.name ? 'Selected Customer:' : 'Customer Details:'}
+                    {invoice.customer.name
+                      ? "Selected Customer:"
+                      : "Customer Details:"}
                   </h4>
                   <div
                     className={`space-y-1 text-sm ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
                     }`}
                   >
                     <p>
-                      <span className="font-medium">Name:</span>{' '}
-                      {invoice.customer.name ? titleCase(normalizeLLC(invoice.customer.name)) : ''}
+                      <span className="font-medium">Name:</span>{" "}
+                      {invoice.customer.name
+                        ? titleCase(normalizeLLC(invoice.customer.name))
+                        : ""}
                     </p>
                     <p>
-                      <span className="font-medium">Email:</span>{' '}
-                      {invoice.customer.email || ''}
+                      <span className="font-medium">Email:</span>{" "}
+                      {invoice.customer.email || ""}
                     </p>
                     <p>
-                      <span className="font-medium">Phone:</span>{' '}
-                      {invoice.customer.phone || ''}
+                      <span className="font-medium">Phone:</span>{" "}
+                      {invoice.customer.phone || ""}
                     </p>
                     <p>
-                      <span className="font-medium">TRN:</span>{' '}
-                      {invoice.customer.vatNumber || ''}
+                      <span className="font-medium">TRN:</span>{" "}
+                      {invoice.customer.vatNumber || ""}
                     </p>
                     <p>
-                      <span className="font-medium">Address:</span>{' '}
-                      {(invoice.customer.address?.street || invoice.customer.address?.city)
+                      <span className="font-medium">Address:</span>{" "}
+                      {invoice.customer.address?.street ||
+                      invoice.customer.address?.city
                         ? [
-                          invoice.customer.address.street,
-                          invoice.customer.address.city,
-                          invoice.customer.address.emirate,
-                          invoice.customer.address.poBox,
-                        ].filter(Boolean).join(', ')
-                        : ''}
+                            invoice.customer.address.street,
+                            invoice.customer.address.city,
+                            invoice.customer.address.emirate,
+                            invoice.customer.address.poBox,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")
+                        : ""}
                     </p>
                     <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
-                      <span className="font-medium">Price List:</span>{' '}
+                      <span className="font-medium">Price List:</span>{" "}
                       {pricelistName && (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
                           {pricelistName}
@@ -3182,19 +3478,17 @@ const InvoiceForm = ({ onSave }) => {
                     onClose={() => setShowTradeLicenseAlert(false)}
                   >
                     <div>
-                      <h4 className="font-medium mb-1">
-                          Trade License Alert
-                      </h4>
+                      <h4 className="font-medium mb-1">Trade License Alert</h4>
                       <p className="text-sm">{tradeLicenseStatus.message}</p>
                       {tradeLicenseStatus.licenseNumber && (
                         <p className="text-sm mt-1">
-                          <span className="font-medium">License Number:</span>{' '}
+                          <span className="font-medium">License Number:</span>{" "}
                           {tradeLicenseStatus.licenseNumber}
                         </p>
                       )}
                       {tradeLicenseStatus.expiryDate && (
                         <p className="text-sm">
-                          <span className="font-medium">Expiry Date:</span>{' '}
+                          <span className="font-medium">Expiry Date:</span>{" "}
                           {new Date(
                             tradeLicenseStatus.expiryDate,
                           ).toLocaleDateString()}
@@ -3209,27 +3503,34 @@ const InvoiceForm = ({ onSave }) => {
                     <LoadingSpinner size="sm" />
                     <span
                       className={`text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                        Loading customers...
+                      Loading customers...
                     </span>
                   </div>
                 )}
               </div>
 
               {/* Sales Agent Selection */}
-              <div className="border-t pt-4 mt-4" style={{
-                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
-              }}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+              <div
+                className="border-t pt-4 mt-4"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgb(75 85 99)"
+                    : "rgb(229 231 235)",
+                }}
+              >
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   Sales Information
                 </h3>
                 <Select
                   label="Sales Agent (Optional)"
-                  value={invoice.salesAgentId || ''}
+                  value={invoice.salesAgentId || ""}
                   onChange={(e) => handleSalesAgentSelect(e.target.value)}
                   disabled={loadingAgents}
                   className="text-base"
@@ -3238,7 +3539,9 @@ const InvoiceForm = ({ onSave }) => {
                   {(salesAgentsData?.data || []).map((agent) => (
                     <option key={agent.id} value={agent.id}>
                       {agent.fullName || agent.username}
-                      {agent.defaultCommissionRate ? ` (${agent.defaultCommissionRate}% commission)` : ''}
+                      {agent.defaultCommissionRate
+                        ? ` (${agent.defaultCommissionRate}% commission)`
+                        : ""}
                     </option>
                   ))}
                 </Select>
@@ -3247,7 +3550,7 @@ const InvoiceForm = ({ onSave }) => {
                     <LoadingSpinner size="sm" />
                     <span
                       className={`text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
                       Loading sales agents...
@@ -3257,9 +3560,14 @@ const InvoiceForm = ({ onSave }) => {
 
                 {/* Commission Details - Only shown when sales agent is selected */}
                 {invoice.salesAgentId && (
-                  <div className="border-t pt-4 mt-4" style={{
-                    borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
-                  }}>
+                  <div
+                    className="border-t pt-4 mt-4"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgb(75 85 99)"
+                        : "rgb(229 231 235)",
+                    }}
+                  >
                     <div className="space-y-3">
                       <Input
                         label="Commission Percentage (%)"
@@ -3267,14 +3575,20 @@ const InvoiceForm = ({ onSave }) => {
                         value={invoice.commissionPercentage || 10}
                         onChange={(e) => {
                           const raw = e.target.value;
-                          if (raw === '') {
-                            setInvoice((prev) => ({ ...prev, commissionPercentage: 0 }));
+                          if (raw === "") {
+                            setInvoice((prev) => ({
+                              ...prev,
+                              commissionPercentage: 0,
+                            }));
                             return;
                           }
                           const num = Number(raw);
                           if (Number.isNaN(num)) return;
                           const clamped = Math.max(0, Math.min(100, num));
-                          setInvoice((prev) => ({ ...prev, commissionPercentage: clamped }));
+                          setInvoice((prev) => ({
+                            ...prev,
+                            commissionPercentage: clamped,
+                          }));
                         }}
                         min="0"
                         max="100"
@@ -3282,46 +3596,71 @@ const InvoiceForm = ({ onSave }) => {
                         placeholder="10.00"
                         inputMode="decimal"
                         onKeyDown={(e) => {
-                          const blocked = ['e', 'E', '+', '-'];
+                          const blocked = ["e", "E", "+", "-"];
                           if (blocked.includes(e.key)) e.preventDefault();
                         }}
                         disabled={isLocked}
                         className="text-base"
                       />
-                      <div className={`p-3 rounded ${
-                        isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                      }`}>
-                        <p className={`text-xs ${
-                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                        } mb-2`}>
-                        Commission Amount (Accrual)
+                      <div
+                        className={`p-3 rounded ${
+                          isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                        }`}
+                      >
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                        >
+                          Commission Amount (Accrual)
                         </p>
-                        <p className={`text-lg font-bold ${
-                          isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                        }`}>
-                        AED {((computedTotal * (invoice.commissionPercentage || 10)) / 100).toFixed(2)}
+                        <p
+                          className={`text-lg font-bold ${
+                            isDarkMode ? "text-teal-400" : "text-teal-600"
+                          }`}
+                        >
+                          AED{" "}
+                          {(
+                            (computedTotal *
+                              (invoice.commissionPercentage || 10)) /
+                            100
+                          ).toFixed(2)}
                         </p>
-                        <p className={`text-xs ${
-                          isDarkMode ? 'text-gray-500' : 'text-gray-500'
-                        } mt-2`}>
-                        Accrues when invoice is issued. 15-day grace period for adjustments.
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-500" : "text-gray-500"
+                          } mt-2`}
+                        >
+                          Accrues when invoice is issued. 15-day grace period
+                          for adjustments.
                         </p>
                       </div>
                       {id && invoice.commissionStatus && (
-                        <div className={`p-3 rounded border ${
-                          isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-blue-50 border-blue-200'
-                        }`}>
-                          <p className={`text-xs font-semibold ${
-                            isDarkMode ? 'text-blue-300' : 'text-blue-800'
-                          } mb-1`}>
-                          Commission Status
+                        <div
+                          className={`p-3 rounded border ${
+                            isDarkMode
+                              ? "bg-gray-700 border-gray-600"
+                              : "bg-blue-50 border-blue-200"
+                          }`}
+                        >
+                          <p
+                            className={`text-xs font-semibold ${
+                              isDarkMode ? "text-blue-300" : "text-blue-800"
+                            } mb-1`}
+                          >
+                            Commission Status
                           </p>
-                          <p className={`text-sm font-medium ${
-                            invoice.commissionStatus === 'PAID' ? 'text-green-600' :
-                              invoice.commissionStatus === 'APPROVED' ? 'text-blue-600' :
-                                invoice.commissionStatus === 'PENDING' ? 'text-yellow-600' :
-                                  'text-red-600'
-                          }`}>
+                          <p
+                            className={`text-sm font-medium ${
+                              invoice.commissionStatus === "PAID"
+                                ? "text-green-600"
+                                : invoice.commissionStatus === "APPROVED"
+                                  ? "text-blue-600"
+                                  : invoice.commissionStatus === "PENDING"
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                            }`}
+                          >
                             {invoice.commissionStatus}
                           </p>
                         </div>
@@ -3333,12 +3672,16 @@ const InvoiceForm = ({ onSave }) => {
             </Card>
 
             {/* RIGHT COLUMN: Invoice Details */}
-            <Card className={`p-3 md:p-4 ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
-            }`}>
-              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
+            <Card
+              className={`p-3 md:p-4 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
+              <h3
+                className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
                 Invoice Details
               </h3>
               <div className="space-y-4">
@@ -3357,15 +3700,17 @@ const InvoiceForm = ({ onSave }) => {
                     required={true}
                     validationState={fieldValidation.status}
                     showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('status')}
+                    error={invalidFields.has("status")}
                     onChange={(e) => {
                       const newStatus = e.target.value;
                       setInvoice((prev) => ({
                         ...prev,
                         status: newStatus,
-                        invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber,
+                        invoiceNumber: !id
+                          ? withStatusPrefix(prev.invoiceNumber, newStatus)
+                          : prev.invoiceNumber,
                       }));
-                      validateField('status', newStatus);
+                      validateField("status", newStatus);
                     }}
                     className="text-base"
                   >
@@ -3383,7 +3728,7 @@ const InvoiceForm = ({ onSave }) => {
                     type="date"
                     value={formatDateForInput(invoice.date)}
                     readOnly
-                    error={invalidFields.has('date')}
+                    error={invalidFields.has("date")}
                     className="text-base"
                   />
                   <div ref={dueDateRef}>
@@ -3395,15 +3740,20 @@ const InvoiceForm = ({ onSave }) => {
                       max={dueMaxStr}
                       required={true}
                       validationState={fieldValidation.dueDate}
-                      showValidation={formPreferences.showValidationHighlighting}
-                      error={invalidFields.has('dueDate')}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
+                      error={invalidFields.has("dueDate")}
                       onChange={(e) => {
                         const v = e.target.value;
                         let validatedValue = v;
                         if (v && v < dueMinStr) validatedValue = dueMinStr;
                         if (v && v > dueMaxStr) validatedValue = dueMaxStr;
-                        setInvoice((prev) => ({ ...prev, dueDate: validatedValue }));
-                        validateField('dueDate', validatedValue);
+                        setInvoice((prev) => ({
+                          ...prev,
+                          dueDate: validatedValue,
+                        }));
+                        validateField("dueDate", validatedValue);
                       }}
                       className="text-base"
                     />
@@ -3415,18 +3765,18 @@ const InvoiceForm = ({ onSave }) => {
                   <Select
                     ref={paymentModeRef}
                     label="Payment Terms"
-                    value={invoice.modeOfPayment || ''}
+                    value={invoice.modeOfPayment || ""}
                     required={false}
                     validationState={fieldValidation.paymentMode}
                     showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('paymentMode')}
+                    error={invalidFields.has("paymentMode")}
                     onChange={(e) => {
                       const value = e.target.value;
                       setInvoice((prev) => ({
                         ...prev,
                         modeOfPayment: value,
                       }));
-                      validateField('paymentMode', value);
+                      validateField("paymentMode", value);
                       // Auto-focus to next mandatory field after payment terms selection
                       if (value) {
                         setTimeout(() => focusNextMandatoryField(), 100);
@@ -3443,7 +3793,7 @@ const InvoiceForm = ({ onSave }) => {
                   </Select>
                   <Select
                     label="Currency"
-                    value={invoice.currency || 'AED'}
+                    value={invoice.currency || "AED"}
                     required={true}
                     validationState={fieldValidation.currency}
                     showValidation={formPreferences.showValidationHighlighting}
@@ -3453,7 +3803,7 @@ const InvoiceForm = ({ onSave }) => {
                         ...prev,
                         currency: value,
                       }));
-                      validateField('currency', value);
+                      validateField("currency", value);
                     }}
                     className="text-base"
                   >
@@ -3474,21 +3824,25 @@ const InvoiceForm = ({ onSave }) => {
                   <div className="grid grid-cols-1 gap-2">
                     <Select
                       label="Warehouse"
-                      value={invoice.warehouseId || ''}
-                      required={invoice.status !== 'draft'}
+                      value={invoice.warehouseId || ""}
+                      required={invoice.status !== "draft"}
                       validationState={fieldValidation.warehouse}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       onChange={(e) => {
                         const warehouseId = e.target.value;
-                        const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
+                        const w = warehouses.find(
+                          (wh) => wh.id.toString() === warehouseId,
+                        );
                         setInvoice((prev) => ({
                           ...prev,
                           warehouseId,
-                          warehouseName: w ? w.name : '',
-                          warehouseCode: w ? w.code : '',
-                          warehouseCity: w ? w.city : '',
+                          warehouseName: w ? w.name : "",
+                          warehouseCode: w ? w.code : "",
+                          warehouseCity: w ? w.city : "",
                         }));
-                        validateField('warehouse', warehouseId);
+                        validateField("warehouse", warehouseId);
                       }}
                       className="text-base"
                     >
@@ -3506,7 +3860,7 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
                     label="Customer PO Number"
-                    value={invoice.customerPurchaseOrderNumber || ''}
+                    value={invoice.customerPurchaseOrderNumber || ""}
                     onChange={(e) =>
                       setInvoice((prev) => ({
                         ...prev,
@@ -3519,7 +3873,7 @@ const InvoiceForm = ({ onSave }) => {
                   <Input
                     label="Customer PO Date"
                     type="date"
-                    value={invoice.customerPurchaseOrderDate || ''}
+                    value={invoice.customerPurchaseOrderDate || ""}
                     onChange={(e) =>
                       setInvoice((prev) => ({
                         ...prev,
@@ -3535,15 +3889,22 @@ const InvoiceForm = ({ onSave }) => {
                   <Select
                     label={
                       <span className="inline-flex items-center gap-1">
-                        <span>Place of Supply{invoice.status === 'issued' && <span className="text-red-500 ml-0.5">*</span>}</span>
-                        <VatHelpIcon content={[
-                          'When required: Mandatory for all invoices.',
-                          'Specifies which Emirate the supply is made from.',
-                          'Used for compliance with FTA Form 201.',
-                        ]} />
+                        <span>
+                          Place of Supply
+                          {invoice.status === "issued" && (
+                            <span className="text-red-500 ml-0.5">*</span>
+                          )}
+                        </span>
+                        <VatHelpIcon
+                          content={[
+                            "When required: Mandatory for all invoices.",
+                            "Specifies which Emirate the supply is made from.",
+                            "Used for compliance with FTA Form 201.",
+                          ]}
+                        />
                       </span>
                     }
-                    value={invoice.placeOfSupply || ''}
+                    value={invoice.placeOfSupply || ""}
                     validationState={fieldValidation.placeOfSupply}
                     showValidation={formPreferences.showValidationHighlighting}
                     onChange={(e) => {
@@ -3551,7 +3912,7 @@ const InvoiceForm = ({ onSave }) => {
                         ...prev,
                         placeOfSupply: e.target.value,
                       }));
-                      validateField('placeOfSupply', e.target.value);
+                      validateField("placeOfSupply", e.target.value);
                     }}
                     className="text-base"
                   >
@@ -3566,15 +3927,17 @@ const InvoiceForm = ({ onSave }) => {
                     label={
                       <span className="inline-flex items-center gap-1">
                         <span>Supply Date</span>
-                        <VatHelpIcon content={[
-                          'When required: Mandatory. Determines VAT liability date.',
-                          'Must be the date supply is made (goods delivered/services rendered).',
-                          'Defaults to invoice date if empty.',
-                        ]} />
+                        <VatHelpIcon
+                          content={[
+                            "When required: Mandatory. Determines VAT liability date.",
+                            "Must be the date supply is made (goods delivered/services rendered).",
+                            "Defaults to invoice date if empty.",
+                          ]}
+                        />
                       </span>
                     }
                     type="date"
-                    value={invoice.supplyDate || ''}
+                    value={invoice.supplyDate || ""}
                     validationState={fieldValidation.supplyDate}
                     showValidation={formPreferences.showValidationHighlighting}
                     onChange={(e) => {
@@ -3582,18 +3945,18 @@ const InvoiceForm = ({ onSave }) => {
                         ...prev,
                         supplyDate: e.target.value,
                       }));
-                      validateField('supplyDate', e.target.value);
+                      validateField("supplyDate", e.target.value);
                     }}
                     className="text-base"
                   />
                 </div>
 
                 {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
-                {invoice.currency && invoice.currency !== 'AED' && (
+                {invoice.currency && invoice.currency !== "AED" && (
                   <Input
                     label="Exchange Rate Date"
                     type="date"
-                    value={invoice.exchangeRateDate || ''}
+                    value={invoice.exchangeRateDate || ""}
                     onChange={(e) =>
                       setInvoice((prev) => ({
                         ...prev,
@@ -3608,19 +3971,26 @@ const InvoiceForm = ({ onSave }) => {
           </div>
 
           {/* Items Section - Responsive */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`} ref={itemsRef}>
+          <Card
+            className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            ref={itemsRef}
+          >
             <div className="mb-4">
-              <h3 className={`text-xs font-semibold uppercase tracking-wide ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                  Line Items
+              <h3
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                Line Items
               </h3>
             </div>
 
             {/* Quick Add Speed Buttons - Pinned & Top Products */}
             {formPreferences.showSpeedButtons && (
               <div className="mb-4">
-                <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p
+                  className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Quick Add (Pinned & Top Products)
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -3631,20 +4001,32 @@ const InvoiceForm = ({ onSave }) => {
                         <button
                           onClick={() => {
                             // Check if product already exists - if so, increment quantity directly
-                            const existingIndex = findDuplicateProduct(product.id, -1);
-                            if (existingIndex !== -1 && existingIndex !== null) {
+                            const existingIndex = findDuplicateProduct(
+                              product.id,
+                              -1,
+                            );
+                            if (
+                              existingIndex !== -1 &&
+                              existingIndex !== null
+                            ) {
                               // Product exists - increment quantity and recalculate amount
                               setInvoice((prev) => {
                                 const newItems = [...prev.items];
                                 const existingItem = newItems[existingIndex];
-                                const newQuantity = (existingItem.quantity || 0) + 1;
+                                const newQuantity =
+                                  (existingItem.quantity || 0) + 1;
                                 // Recalculate theoretical weight
-                                let theoreticalWeightKg = existingItem.theoreticalWeightKg;
-                                if (existingItem.unitWeightKg && existingItem.quantityUom === 'PCS') {
-                                  theoreticalWeightKg = newQuantity * existingItem.unitWeightKg;
-                                } else if (existingItem.quantityUom === 'MT') {
+                                let theoreticalWeightKg =
+                                  existingItem.theoreticalWeightKg;
+                                if (
+                                  existingItem.unitWeightKg &&
+                                  existingItem.quantityUom === "PCS"
+                                ) {
+                                  theoreticalWeightKg =
+                                    newQuantity * existingItem.unitWeightKg;
+                                } else if (existingItem.quantityUom === "MT") {
                                   theoreticalWeightKg = newQuantity * 1000;
-                                } else if (existingItem.quantityUom === 'KG') {
+                                } else if (existingItem.quantityUom === "KG") {
                                   theoreticalWeightKg = newQuantity;
                                 }
                                 newItems[existingIndex] = {
@@ -3678,35 +4060,44 @@ const InvoiceForm = ({ onSave }) => {
                               }));
                             }
                             // Use handleProductSelect for consistent pricing (pricelist support)
-                            setTimeout(() => handleProductSelect(targetIndex, product), 0);
+                            setTimeout(
+                              () => handleProductSelect(targetIndex, product),
+                              0,
+                            );
                           }}
                           className={`w-full px-3 py-2 pr-8 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
                             isPinned
                               ? isDarkMode
-                                ? 'border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm'
-                                : 'border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm'
+                                ? "border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm"
+                                : "border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm"
                               : isDarkMode
-                                ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'
-                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                ? "border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700"
+                                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                           }`}
-                          title={product.displayName || product.display_name || 'N/A'}
+                          title={
+                            product.displayName || product.display_name || "N/A"
+                          }
                         >
-                          {product.uniqueName || product.unique_name || 'N/A'}
+                          {product.uniqueName || product.unique_name || "N/A"}
                         </button>
                         <button
                           onClick={(e) => handleTogglePin(e, product.id)}
                           className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                             isPinned
                               ? isDarkMode
-                                ? 'text-gray-300 hover:text-white'
-                                : 'text-gray-700 hover:text-gray-900'
+                                ? "text-gray-300 hover:text-white"
+                                : "text-gray-700 hover:text-gray-900"
                               : isDarkMode
-                                ? 'text-gray-500 hover:text-gray-300'
-                                : 'text-gray-400 hover:text-gray-600'
+                                ? "text-gray-500 hover:text-gray-300"
+                                : "text-gray-400 hover:text-gray-600"
                           }`}
-                          title={isPinned ? 'Unpin product' : 'Pin product'}
+                          title={isPinned ? "Unpin product" : "Pin product"}
                         >
-                          {isPinned ? <Pin size={14} fill="currentColor" /> : <Pin size={14} />}
+                          {isPinned ? (
+                            <Pin size={14} fill="currentColor" />
+                          ) : (
+                            <Pin size={14} />
+                          )}
                         </button>
                       </div>
                     );
@@ -3719,61 +4110,61 @@ const InvoiceForm = ({ onSave }) => {
             <div className="hidden md:block overflow-x-auto">
               <table
                 className={`min-w-full table-fixed divide-y ${
-                  isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                  isDarkMode ? "divide-gray-600" : "divide-gray-200"
                 }`}
               >
-                <thead className={isDarkMode ? 'bg-teal-700' : 'bg-teal-600'}>
+                <thead className={isDarkMode ? "bg-teal-700" : "bg-teal-600"}>
                   <tr>
                     {/* Expand/Collapse */}
-                    <th className="py-3" style={{ width: '28px' }}></th>
+                    <th className="py-3" style={{ width: "28px" }}></th>
                     {/* Drag Handle */}
-                    <th className="py-3" style={{ width: '18px' }}></th>
+                    <th className="py-3" style={{ width: "18px" }}></th>
                     <th
                       className="pl-1 pr-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '30%' }}
+                      style={{ width: "30%" }}
                     >
                       Product
                     </th>
                     <th
                       className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '6%' }}
+                      style={{ width: "6%" }}
                     >
                       Qty
                     </th>
                     <th
                       className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '9%' }}
+                      style={{ width: "9%" }}
                     >
                       Rate
                     </th>
                     <th
                       className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '8%' }}
+                      style={{ width: "8%" }}
                     >
                       Source
                     </th>
                     <th
                       className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '10%' }}
+                      style={{ width: "10%" }}
                       title="Warehouse for stock allocation"
                     >
                       WH
                     </th>
                     <th
                       className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '7%' }}
+                      style={{ width: "7%" }}
                     >
                       VAT
                     </th>
                     <th
                       className="px-1 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '4%' }}
+                      style={{ width: "4%" }}
                     >
                       %
                     </th>
                     <th
                       className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: '10%' }}
+                      style={{ width: "10%" }}
                     >
                       Amount
                     </th>
@@ -3783,65 +4174,97 @@ const InvoiceForm = ({ onSave }) => {
                 <tbody
                   className={`divide-y ${
                     isDarkMode
-                      ? 'bg-gray-800 divide-gray-600'
-                      : 'bg-white divide-gray-200'
+                      ? "bg-gray-800 divide-gray-600"
+                      : "bg-white divide-gray-200"
                   }`}
                 >
                   {deferredItems.slice(0, 20).map((item, index) => {
                     const tooltip = [
-                      item.name ? `Name: ${item.name}` : '',
-                      item.category ? `Category: ${item.category}` : '',
-                      item.commodity ? `Commodity: ${item.commodity}` : '',
-                      item.grade ? `Grade: ${item.grade}` : '',
-                      item.finish ? `Finish: ${item.finish}` : '',
-                      item.size ? `Size: ${item.size}` : '',
-                      item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
-                      item.od ? `OD: ${item.od}` : '',
-                      item.length ? `Length: ${item.length}` : '',
-                      item.thickness ? `Thickness: ${item.thickness}` : '',
-                      item.unit ? `Unit: ${item.unit}` : '',
-                      item.hsnCode ? `HSN: ${item.hsnCode}` : '',
-                    ].filter(Boolean).join('\n');
+                      item.name ? `Name: ${item.name}` : "",
+                      item.category ? `Category: ${item.category}` : "",
+                      item.commodity ? `Commodity: ${item.commodity}` : "",
+                      item.grade ? `Grade: ${item.grade}` : "",
+                      item.finish ? `Finish: ${item.finish}` : "",
+                      item.size ? `Size: ${item.size}` : "",
+                      item.sizeInch ? `Size (Inch): ${item.sizeInch}` : "",
+                      item.od ? `OD: ${item.od}` : "",
+                      item.length ? `Length: ${item.length}` : "",
+                      item.thickness ? `Thickness: ${item.thickness}` : "",
+                      item.unit ? `Unit: ${item.unit}` : "",
+                      item.hsnCode ? `HSN: ${item.hsnCode}` : "",
+                    ]
+                      .filter(Boolean)
+                      .join("\n");
                     const isExpanded = expandedAllocations.has(index);
-                    const hasAllocations = item.allocations && item.allocations.length > 0;
+                    const hasAllocations =
+                      item.allocations && item.allocations.length > 0;
                     const uomConversionText = getUomConversionText(item);
-                    
+
                     return (
                       <Fragment key={item.id || `item-${index}`}>
                         <tr
                           data-item-index={index}
                           {...getDragItemProps(index)}
                           className={`
-                            ${isDropTarget(index) ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50') : ''}
-                            ${isDragSource(index) ? 'opacity-50' : ''}
+                            ${isDropTarget(index) ? (isDarkMode ? "bg-teal-900/30" : "bg-teal-50") : ""}
+                            ${isDragSource(index) ? "opacity-50" : ""}
                             transition-colors duration-150
                           `}
                         >
                           {/* Expand/Collapse Button */}
-                          <td className="py-2 px-1 align-middle text-center" style={{ width: '28px' }}>
-                            {item.productId && item.sourceType === 'WAREHOUSE' && (
-                              <button
-                                type="button"
-                                onClick={() => toggleAllocationPanel(index)}
-                                className={`p-0.5 rounded hover:bg-opacity-20 transition-colors ${
-                                  isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
-                                }`}
-                                title={isExpanded ? 'Hide allocation details' : 'Show allocation details'}
-                              >
-                                {isExpanded ? (
-                                  <ChevronDown size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-                                ) : (
-                                  <ChevronRight size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
-                                )}
-                              </button>
-                            )}
+                          <td
+                            className="py-2 px-1 align-middle text-center"
+                            style={{ width: "28px" }}
+                          >
+                            {item.productId &&
+                              item.sourceType === "WAREHOUSE" && (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleAllocationPanel(index)}
+                                  className={`p-0.5 rounded hover:bg-opacity-20 transition-colors ${
+                                    isDarkMode
+                                      ? "hover:bg-gray-600"
+                                      : "hover:bg-gray-200"
+                                  }`}
+                                  title={
+                                    isExpanded
+                                      ? "Hide allocation details"
+                                      : "Show allocation details"
+                                  }
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown
+                                      size={16}
+                                      className={
+                                        isDarkMode
+                                          ? "text-gray-400"
+                                          : "text-gray-600"
+                                      }
+                                    />
+                                  ) : (
+                                    <ChevronRight
+                                      size={16}
+                                      className={
+                                        isDarkMode
+                                          ? "text-gray-400"
+                                          : "text-gray-600"
+                                      }
+                                    />
+                                  )}
+                                </button>
+                              )}
                           </td>
                           {/* Drag Handle */}
-                          <td className="py-2 px-0 align-middle" style={{ width: '18px' }}>
+                          <td
+                            className="py-2 px-0 align-middle"
+                            style={{ width: "18px" }}
+                          >
                             <div
                               {...getDragHandleProps(index)}
                               className={`cursor-grab active:cursor-grabbing ${
-                                isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                                isDarkMode
+                                  ? "text-gray-400 hover:text-gray-300"
+                                  : "text-gray-400 hover:text-gray-600"
                               }`}
                             >
                               <DragHandleIcon size={14} />
@@ -3850,16 +4273,22 @@ const InvoiceForm = ({ onSave }) => {
                           <td className="pl-1 pr-2 py-2 align-middle">
                             <div className="w-full">
                               <Autocomplete
-                                options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
+                                options={
+                                  searchInputs[index]
+                                    ? searchOptions.length
+                                      ? searchOptions
+                                      : productOptions
+                                    : productOptions
+                                }
                                 value={
                                   item.productId
                                     ? productOptions.find(
-                                      (p) => p.id === item.productId,
-                                    )
+                                        (p) => p.id === item.productId,
+                                      )
                                     : null
                                 }
                                 inputValue={
-                                  searchInputs[index] || item.name || ''
+                                  searchInputs[index] || item.name || ""
                                 }
                                 onInputChange={(event, newInputValue) => {
                                   handleSearchInputChange(index, newInputValue);
@@ -3876,10 +4305,16 @@ const InvoiceForm = ({ onSave }) => {
                                 renderOption={(option) => (
                                   <div>
                                     <div className="font-medium">
-                                      {option.uniqueName || option.unique_name || option.displayName || option.display_name}
+                                      {option.uniqueName ||
+                                        option.unique_name ||
+                                        option.displayName ||
+                                        option.display_name}
                                     </div>
                                     <div className="text-sm text-gray-500">
-                                      {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
+                                      {option.origin
+                                        ? `${option.origin} • `
+                                        : ""}
+                                      {option.subtitle}
                                     </div>
                                   </div>
                                 )}
@@ -3887,76 +4322,112 @@ const InvoiceForm = ({ onSave }) => {
                               />
                             </div>
                           </td>
-                          <td className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 ring-inset rounded animate-pulse' : ''}`}>
+                          <td
+                            className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? "ring-2 ring-red-400 ring-inset rounded animate-pulse" : ""}`}
+                          >
                             <div className="flex flex-col">
                               <Input
                                 type="number"
-                                value={item.quantity || ''}
+                                value={item.quantity || ""}
                                 onChange={(e) =>
                                   handleItemChange(
                                     index,
-                                    'quantity',
-                                    e.target.value === ''
-                                      ? ''
+                                    "quantity",
+                                    e.target.value === ""
+                                      ? ""
                                       : Number.isNaN(Number(e.target.value))
-                                        ? ''
-                                        : item.quantityUom === 'MT' || item.quantityUom === 'KG'
+                                        ? ""
+                                        : item.quantityUom === "MT" ||
+                                            item.quantityUom === "KG"
                                           ? parseFloat(e.target.value) // Allow decimals for weight
                                           : parseInt(e.target.value, 10),
                                   )
                                 }
                                 min="0"
-                                step={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '0.001' : '1'}
-                                inputMode={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? 'decimal' : 'numeric'}
-                                pattern={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '[0-9]*\\.?[0-9]*' : '[0-9]*'}
-                                error={invalidFields.has(`item.${index}.quantity`)}
+                                step={
+                                  item.quantityUom === "MT" ||
+                                  item.quantityUom === "KG"
+                                    ? "0.001"
+                                    : "1"
+                                }
+                                inputMode={
+                                  item.quantityUom === "MT" ||
+                                  item.quantityUom === "KG"
+                                    ? "decimal"
+                                    : "numeric"
+                                }
+                                pattern={
+                                  item.quantityUom === "MT" ||
+                                  item.quantityUom === "KG"
+                                    ? "[0-9]*\\.?[0-9]*"
+                                    : "[0-9]*"
+                                }
+                                error={invalidFields.has(
+                                  `item.${index}.quantity`,
+                                )}
                                 onKeyDown={(e) => {
                                   const allow = [
-                                    'Backspace',
-                                    'Delete',
-                                    'Tab',
-                                    'Escape',
-                                    'Enter',
-                                    'ArrowLeft',
-                                    'ArrowRight',
-                                    'Home',
-                                    'End',
+                                    "Backspace",
+                                    "Delete",
+                                    "Tab",
+                                    "Escape",
+                                    "Enter",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Home",
+                                    "End",
                                   ];
                                   if (
                                     allow.includes(e.key) ||
-                                  (e.ctrlKey || e.metaKey)
+                                    e.ctrlKey ||
+                                    e.metaKey
                                   ) {
                                     return;
                                   }
                                   // Allow decimal point for weight-based quantities
-                                  const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
-                                  if (!/^[0-9]$/.test(e.key) && !(allowDecimal && e.key === '.')) {
+                                  const allowDecimal =
+                                    item.quantityUom === "MT" ||
+                                    item.quantityUom === "KG";
+                                  if (
+                                    !/^[0-9]$/.test(e.key) &&
+                                    !(allowDecimal && e.key === ".")
+                                  ) {
                                     e.preventDefault();
                                   }
                                 }}
                                 onPaste={(e) => {
                                   e.preventDefault();
-                                  const t = (e.clipboardData || window.clipboardData).getData(
-                                    'text',
-                                  );
-                                  const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                                  const t = (
+                                    e.clipboardData || window.clipboardData
+                                  ).getData("text");
+                                  const allowDecimal =
+                                    item.quantityUom === "MT" ||
+                                    item.quantityUom === "KG";
                                   const cleaned = allowDecimal
-                                    ? (t || '').replace(/[^\d.]/g, '')
-                                    : (t || '').replace(/\D/g, '');
+                                    ? (t || "").replace(/[^\d.]/g, "")
+                                    : (t || "").replace(/\D/g, "");
                                   handleItemChange(
                                     index,
-                                    'quantity',
-                                    cleaned ? (allowDecimal ? parseFloat(cleaned) : parseInt(cleaned, 10)) : '',
+                                    "quantity",
+                                    cleaned
+                                      ? allowDecimal
+                                        ? parseFloat(cleaned)
+                                        : parseInt(cleaned, 10)
+                                      : "",
                                   );
                                 }}
                                 onWheel={(e) => e.currentTarget.blur()}
                                 className="w-full text-right"
                               />
                               {/* Quantity UOM indicator */}
-                              <span className={`text-[10px] text-right mt-0.5 font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
-                                {item.quantityUom === 'MT' ? 'MT'
-                                  : item.quantityUom === 'KG' ? 'kg'
-                                    : 'pcs'}
+                              <span
+                                className={`text-[10px] text-right mt-0.5 font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                              >
+                                {item.quantityUom === "MT"
+                                  ? "MT"
+                                  : item.quantityUom === "KG"
+                                    ? "kg"
+                                    : "pcs"}
                               </span>
                             </div>
                           </td>
@@ -3964,13 +4435,13 @@ const InvoiceForm = ({ onSave }) => {
                             <div className="flex flex-col">
                               <Input
                                 type="number"
-                                value={item.rate || ''}
+                                value={item.rate || ""}
                                 onChange={(e) =>
                                   handleItemChange(
                                     index,
-                                    'rate',
-                                    e.target.value === ''
-                                      ? ''
+                                    "rate",
+                                    e.target.value === ""
+                                      ? ""
                                       : parseFloat(e.target.value),
                                   )
                                 }
@@ -3981,55 +4452,90 @@ const InvoiceForm = ({ onSave }) => {
                               />
                               {/* Pricing basis and weight indicator */}
                               <div className="flex flex-col items-end mt-0.5">
-                                <span className={`text-[10px] font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
-                                  {item.pricingBasis === 'PER_KG' ? '/kg'
-                                    : item.pricingBasis === 'PER_PCS' ? '/pc'
-                                      : item.pricingBasis === 'PER_METER' ? '/m'
-                                        : item.pricingBasis === 'PER_LOT' ? '/lot'
-                                          : '/MT'}
+                                <span
+                                  className={`text-[10px] font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                                >
+                                  {item.pricingBasis === "PER_KG"
+                                    ? "/kg"
+                                    : item.pricingBasis === "PER_PCS"
+                                      ? "/pc"
+                                      : item.pricingBasis === "PER_METER"
+                                        ? "/m"
+                                        : item.pricingBasis === "PER_LOT"
+                                          ? "/lot"
+                                          : "/MT"}
                                 </span>
                                 {/* Show calculated weight for PER_MT/PER_KG products with pieces */}
-                                {item.quantityUom === 'PCS' && item.theoreticalWeightKg > 0 && (item.pricingBasis === 'PER_MT' || item.pricingBasis === 'PER_KG') && (
-                                  <span className={`text-[9px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                    {item.theoreticalWeightKg >= 1000
-                                      ? `${(item.theoreticalWeightKg / 1000).toFixed(3)} MT`
-                                      : `${item.theoreticalWeightKg.toFixed(2)} kg`}
-                                  </span>
-                                )}
+                                {item.quantityUom === "PCS" &&
+                                  item.theoreticalWeightKg > 0 &&
+                                  (item.pricingBasis === "PER_MT" ||
+                                    item.pricingBasis === "PER_KG") && (
+                                    <span
+                                      className={`text-[9px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      {item.theoreticalWeightKg >= 1000
+                                        ? `${(item.theoreticalWeightKg / 1000).toFixed(3)} MT`
+                                        : `${item.theoreticalWeightKg.toFixed(2)} kg`}
+                                    </span>
+                                  )}
                               </div>
                             </div>
                           </td>
                           <td className="px-1 py-2 align-middle">
                             <SourceTypeSelector
-                              value={item.sourceType || 'WAREHOUSE'}
+                              value={item.sourceType || "WAREHOUSE"}
                               onChange={(sourceType) =>
-                                handleItemChange(index, 'sourceType', sourceType)
+                                handleItemChange(
+                                  index,
+                                  "sourceType",
+                                  sourceType,
+                                )
                               }
                               disabled={false}
                             />
                           </td>
                           {/* Per-line-item Warehouse Selection with inline stock indicator */}
                           <td className="px-1 py-2 align-middle">
-                            {(item.sourceType === 'WAREHOUSE' || !item.sourceType) ? (
+                            {item.sourceType === "WAREHOUSE" ||
+                            !item.sourceType ? (
                               <div className="flex items-center gap-1">
                                 <select
-                                  value={item.warehouseId || invoice.warehouseId || ''}
+                                  value={
+                                    item.warehouseId ||
+                                    invoice.warehouseId ||
+                                    ""
+                                  }
                                   onChange={(e) => {
                                     const whId = e.target.value;
-                                    const wh = warehouses.find((w) => w.id.toString() === whId);
-                                    handleItemChange(index, 'warehouseId', whId);
-                                    handleItemChange(index, 'warehouseName', wh?.name || '');
+                                    const wh = warehouses.find(
+                                      (w) => w.id.toString() === whId,
+                                    );
+                                    handleItemChange(
+                                      index,
+                                      "warehouseId",
+                                      whId,
+                                    );
+                                    handleItemChange(
+                                      index,
+                                      "warehouseName",
+                                      wh?.name || "",
+                                    );
                                   }}
                                   className={`flex-1 min-w-0 px-1 py-1.5 border rounded text-xs ${
                                     isDarkMode
-                                      ? 'bg-gray-700 border-gray-600 text-white'
-                                      : 'bg-white border-gray-300 text-gray-900'
+                                      ? "bg-gray-700 border-gray-600 text-white"
+                                      : "bg-white border-gray-300 text-gray-900"
                                   }`}
                                   title="Select warehouse for this item"
                                 >
                                   {warehouses.map((wh) => (
-                                    <option key={wh.id} value={wh.id.toString()}>
-                                      {wh.code || wh.name?.substring(0, 8) || `WH${wh.id}`}
+                                    <option
+                                      key={wh.id}
+                                      value={wh.id.toString()}
+                                    >
+                                      {wh.code ||
+                                        wh.name?.substring(0, 8) ||
+                                        `WH${wh.id}`}
                                     </option>
                                   ))}
                                 </select>
@@ -4037,7 +4543,9 @@ const InvoiceForm = ({ onSave }) => {
                                 {item.productId && (
                                   <StockAvailabilityIndicator
                                     productId={item.productId}
-                                    warehouseId={item.warehouseId || invoice.warehouseId}
+                                    warehouseId={
+                                      item.warehouseId || invoice.warehouseId
+                                    }
                                     requiredQty={item.quantity || 0}
                                     compact={true}
                                     iconOnly={true}
@@ -4045,21 +4553,27 @@ const InvoiceForm = ({ onSave }) => {
                                 )}
                               </div>
                             ) : (
-                              <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              <span
+                                className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
                                 N/A
                               </span>
                             )}
                           </td>
                           <td className="px-1 py-2 align-middle">
                             <select
-                              value={item.supplyType || 'standard'}
+                              value={item.supplyType || "standard"}
                               onChange={(e) =>
-                                handleItemChange(index, 'supplyType', e.target.value)
+                                handleItemChange(
+                                  index,
+                                  "supplyType",
+                                  e.target.value,
+                                )
                               }
                               className={`w-full px-1 py-1 border rounded text-xs ${
                                 isDarkMode
-                                  ? 'bg-gray-700 border-gray-600 text-white'
-                                  : 'bg-white border-gray-300 text-gray-900'
+                                  ? "bg-gray-700 border-gray-600 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
                               }`}
                             >
                               <option value="standard">5% Std</option>
@@ -4070,13 +4584,13 @@ const InvoiceForm = ({ onSave }) => {
                           <td className="px-1 py-2 align-middle">
                             <Input
                               type="number"
-                              value={item.vatRate || ''}
+                              value={item.vatRate || ""}
                               onChange={(e) =>
                                 handleItemChange(
                                   index,
-                                  'vatRate',
-                                  e.target.value === ''
-                                    ? ''
+                                  "vatRate",
+                                  e.target.value === ""
+                                    ? ""
                                     : parseFloat(e.target.value),
                                 )
                               }
@@ -4088,12 +4602,17 @@ const InvoiceForm = ({ onSave }) => {
                             />
                           </td>
                           <td className="px-2 py-2 align-middle">
-                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} text-right whitespace-nowrap`}>
+                            <div
+                              className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"} text-right whitespace-nowrap`}
+                            >
                               {formatCurrency(item.amount)}
                             </div>
                             {/* Critical warning for missing unit weight */}
                             {item.missingWeightWarning && (
-                              <div className="flex items-center justify-end gap-1 mt-1" title="Unit weight is missing - amount may be incorrect">
+                              <div
+                                className="flex items-center justify-end gap-1 mt-1"
+                                title="Unit weight is missing - amount may be incorrect"
+                              >
                                 <AlertTriangle className="h-3 w-3 text-red-500" />
                                 <span className="text-[9px] text-red-500 font-medium">
                                   Missing weight!
@@ -4105,174 +4624,236 @@ const InvoiceForm = ({ onSave }) => {
                             <button
                               onClick={() => removeItem(index)}
                               className={`hover:text-red-300 ${
-                                isDarkMode
-                                  ? 'text-red-400'
-                                  : 'text-red-500'
+                                isDarkMode ? "text-red-400" : "text-red-500"
                               }`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </td>
                         </tr>
-                      
+
                         {/* Expandable Allocation Panel Row */}
-                        {isExpanded && item.productId && item.sourceType === 'WAREHOUSE' && (
-                          <tr key={`${item.id}-allocation`}>
-                            <td colSpan={11} className={`px-4 py-3 ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-                              <div className="space-y-3">
-                                {/* Header: Title + Status Badge */}
-                                <div className="flex items-center justify-between">
-                                  <h4 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                    Stock Allocation Details
-                                  </h4>
-                                  {/* Allocation Status Badge */}
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                      Status:
-                                    </span>
-                                    {getAllocationStatusBadge(item)}
+                        {isExpanded &&
+                          item.productId &&
+                          item.sourceType === "WAREHOUSE" && (
+                            <tr key={`${item.id}-allocation`}>
+                              <td
+                                colSpan={11}
+                                className={`px-4 py-3 ${isDarkMode ? "bg-gray-800/50" : "bg-gray-50"}`}
+                              >
+                                <div className="space-y-3">
+                                  {/* Header: Title + Status Badge */}
+                                  <div className="flex items-center justify-between">
+                                    <h4
+                                      className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                                    >
+                                      Stock Allocation Details
+                                    </h4>
+                                    {/* Allocation Status Badge */}
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                      >
+                                        Status:
+                                      </span>
+                                      {getAllocationStatusBadge(item)}
+                                    </div>
                                   </div>
-                                </div>
 
-                                {/* UOM Conversion Info */}
-                                {uomConversionText && (
-                                  <div className={`text-xs p-2 rounded border ${
-                                    isDarkMode
-                                      ? 'bg-blue-900/20 border-blue-700 text-blue-300'
-                                      : 'bg-blue-50 border-blue-200 text-blue-700'
-                                  }`}>
-                                    <Info size={14} className="inline mr-1" />
-                                    <strong>UOM Conversion:</strong> {uomConversionText}
-                                  </div>
-                                )}
+                                  {/* UOM Conversion Info */}
+                                  {uomConversionText && (
+                                    <div
+                                      className={`text-xs p-2 rounded border ${
+                                        isDarkMode
+                                          ? "bg-blue-900/20 border-blue-700 text-blue-300"
+                                          : "bg-blue-50 border-blue-200 text-blue-700"
+                                      }`}
+                                    >
+                                      <Info size={14} className="inline mr-1" />
+                                      <strong>UOM Conversion:</strong>{" "}
+                                      {uomConversionText}
+                                    </div>
+                                  )}
 
-                                {/* Stock Availability Indicator - Always show at top */}
-                                <StockAvailabilityIndicator
-                                  productId={item.productId}
-                                  warehouseId={item.warehouseId || invoice.warehouseId}
-                                  requiredQty={item.quantity || 0}
-                                  compact={false}
-                                />
+                                  {/* Stock Availability Indicator - Always show at top */}
+                                  <StockAvailabilityIndicator
+                                    productId={item.productId}
+                                    warehouseId={
+                                      item.warehouseId || invoice.warehouseId
+                                    }
+                                    requiredQty={item.quantity || 0}
+                                    compact={false}
+                                  />
 
-                                {/* Allocation Mode Toggle + Panel */}
-                                {(() => {
-                                  const allocationsData = hasAllocations ? item.allocations : [];
-                                  const lockedAllocation = allocationsData.find(
-                                    a => a.consumed_by_delivery_note_id || a.consumedByDeliveryNoteId,
-                                  );
-                                  const isBatchLocked = !!lockedAllocation;
-                                  const dnNumber = lockedAllocation?.delivery_note_number ||
-                                                          lockedAllocation?.deliveryNoteNumber ||
-                                                          null;
-                                  const currentMode = item.allocationMode || 'AUTO_FIFO';
+                                  {/* Allocation Mode Toggle + Panel */}
+                                  {(() => {
+                                    const allocationsData = hasAllocations
+                                      ? item.allocations
+                                      : [];
+                                    const lockedAllocation =
+                                      allocationsData.find(
+                                        (a) =>
+                                          a.consumed_by_delivery_note_id ||
+                                          a.consumedByDeliveryNoteId,
+                                      );
+                                    const isBatchLocked = !!lockedAllocation;
+                                    const dnNumber =
+                                      lockedAllocation?.delivery_note_number ||
+                                      lockedAllocation?.deliveryNoteNumber ||
+                                      null;
+                                    const currentMode =
+                                      item.allocationMode || "AUTO_FIFO";
 
-                                  // For new invoices: show mode toggle + appropriate panel
-                                  // For existing invoices: show read-only AllocationPanel
-                                  if (!id && !isBatchLocked) {
-                                    return (
-                                      <div className="space-y-3">
-                                        {/* Allocation Mode Toggle */}
-                                        <div className={`p-3 rounded-lg border ${
-                                          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                                        }`}>
-                                          <div className="flex items-center gap-4">
-                                            <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                              Allocation Mode:
-                                            </span>
-                                            <div className="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
-                                              <button
-                                                type="button"
-                                                onClick={() => handleItemChange(index, 'allocationMode', 'AUTO_FIFO')}
-                                                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                                                  currentMode === 'AUTO_FIFO'
-                                                    ? isDarkMode
-                                                      ? 'bg-teal-600 text-white'
-                                                      : 'bg-teal-500 text-white'
-                                                    : isDarkMode
-                                                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                }`}
+                                    // For new invoices: show mode toggle + appropriate panel
+                                    // For existing invoices: show read-only AllocationPanel
+                                    if (!id && !isBatchLocked) {
+                                      return (
+                                        <div className="space-y-3">
+                                          {/* Allocation Mode Toggle */}
+                                          <div
+                                            className={`p-3 rounded-lg border ${
+                                              isDarkMode
+                                                ? "bg-gray-800 border-gray-700"
+                                                : "bg-white border-gray-200"
+                                            }`}
+                                          >
+                                            <div className="flex items-center gap-4">
+                                              <span
+                                                className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                                               >
-                                                Auto (FIFO)
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() => handleItemChange(index, 'allocationMode', 'MANUAL')}
-                                                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                                                  currentMode === 'MANUAL'
-                                                    ? isDarkMode
-                                                      ? 'bg-teal-600 text-white'
-                                                      : 'bg-teal-500 text-white'
-                                                    : isDarkMode
-                                                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                }`}
+                                                Allocation Mode:
+                                              </span>
+                                              <div className="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+                                                <button
+                                                  type="button"
+                                                  onClick={() =>
+                                                    handleItemChange(
+                                                      index,
+                                                      "allocationMode",
+                                                      "AUTO_FIFO",
+                                                    )
+                                                  }
+                                                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                    currentMode === "AUTO_FIFO"
+                                                      ? isDarkMode
+                                                        ? "bg-teal-600 text-white"
+                                                        : "bg-teal-500 text-white"
+                                                      : isDarkMode
+                                                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                                  }`}
+                                                >
+                                                  Auto (FIFO)
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={() =>
+                                                    handleItemChange(
+                                                      index,
+                                                      "allocationMode",
+                                                      "MANUAL",
+                                                    )
+                                                  }
+                                                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                    currentMode === "MANUAL"
+                                                      ? isDarkMode
+                                                        ? "bg-teal-600 text-white"
+                                                        : "bg-teal-500 text-white"
+                                                      : isDarkMode
+                                                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                                  }`}
+                                                >
+                                                  Manual
+                                                </button>
+                                              </div>
+                                              <span
+                                                className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                                               >
-                                                Manual
-                                              </button>
+                                                {currentMode === "AUTO_FIFO"
+                                                  ? "System will auto-allocate oldest batches when invoice is issued"
+                                                  : "Select specific batches below"}
+                                              </span>
                                             </div>
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                              {currentMode === 'AUTO_FIFO'
-                                                ? 'System will auto-allocate oldest batches when invoice is issued'
-                                                : 'Select specific batches below'}
-                                            </span>
                                           </div>
+
+                                          {/* Show BatchPicker for Manual mode */}
+                                          {currentMode === "MANUAL" && (
+                                            <>
+                                              {console.log(
+                                                "[InvoiceForm] Rendering BatchPicker with:",
+                                                {
+                                                  itemProductId: item.productId,
+                                                  itemName: item.name,
+                                                  itemId: item.id,
+                                                  invoiceWarehouseId:
+                                                    invoice.warehouseId,
+                                                  index,
+                                                },
+                                              )}
+                                              <BatchPicker
+                                                productId={item.productId}
+                                                warehouseId={
+                                                  item.warehouseId ||
+                                                  invoice.warehouseId ||
+                                                  null
+                                                }
+                                                requiredQty={item.quantity || 0}
+                                                onSelectAllocations={(
+                                                  allocations,
+                                                ) => {
+                                                  handleItemChange(
+                                                    index,
+                                                    "manualAllocations",
+                                                    allocations,
+                                                  );
+                                                }}
+                                                initialAllocations={
+                                                  item.manualAllocations || []
+                                                }
+                                                disabled={false}
+                                              />
+                                            </>
+                                          )}
                                         </div>
+                                      );
+                                    }
 
-                                        {/* Show BatchPicker for Manual mode */}
-                                        {currentMode === 'MANUAL' && (
-                                          <>
-                                            {console.log('[InvoiceForm] Rendering BatchPicker with:', {
-                                              itemProductId: item.productId,
-                                              itemName: item.name,
-                                              itemId: item.id,
-                                              invoiceWarehouseId: invoice.warehouseId,
-                                              index,
-                                            })}
-                                            <BatchPicker
-                                              productId={item.productId}
-                                              warehouseId={item.warehouseId || invoice.warehouseId || null}
-                                              requiredQty={item.quantity || 0}
-                                              onSelectAllocations={(allocations) => {
-                                                handleItemChange(index, 'manualAllocations', allocations);
-                                              }}
-                                              initialAllocations={item.manualAllocations || []}
-                                              disabled={false}
-                                            />
-                                          </>
-                                        )}
-                                      </div>
+                                    // For existing/locked invoices: show read-only AllocationPanel
+                                    return (
+                                      <AllocationPanel
+                                        productId={item.productId}
+                                        warehouseId={
+                                          item.warehouseId ||
+                                          invoice.warehouseId ||
+                                          null
+                                        }
+                                        requiredQty={item.quantity || 0}
+                                        allocations={allocationsData}
+                                        disabled={true}
+                                        isNewInvoice={!id}
+                                        isLocked={isBatchLocked}
+                                        deliveryNoteNumber={dnNumber}
+                                        invoiceItemId={item.id}
+                                        onReallocationComplete={(
+                                          newAllocations,
+                                        ) => {
+                                          // Update local allocations state after reallocation
+                                          setItemAllocations((prev) => ({
+                                            ...prev,
+                                            [item.id]: newAllocations,
+                                          }));
+                                        }}
+                                      />
                                     );
-                                  }
-
-                                  // For existing/locked invoices: show read-only AllocationPanel
-                                  return (
-                                    <AllocationPanel
-                                      productId={item.productId}
-                                      warehouseId={item.warehouseId || invoice.warehouseId || null}
-                                      requiredQty={item.quantity || 0}
-                                      allocations={allocationsData}
-                                      disabled={true}
-                                      isNewInvoice={!id}
-                                      isLocked={isBatchLocked}
-                                      deliveryNoteNumber={dnNumber}
-                                      invoiceItemId={item.id}
-                                      onReallocationComplete={(newAllocations) => {
-                                        // Update local allocations state after reallocation
-                                        setItemAllocations(prev => ({
-                                          ...prev,
-                                          [item.id]: newAllocations,
-                                        }));
-                                      }}
-                                    />
-                                  );
-                                })()}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
+                                  })()}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
                       </Fragment>
-                    );})}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -4281,25 +4862,31 @@ const InvoiceForm = ({ onSave }) => {
             <div className="md:hidden space-y-4">
               {deferredItems.slice(0, 10).map((item, index) => {
                 const tooltip = [
-                  item.name ? `Name: ${item.name}` : '',
-                  item.category ? `Category: ${item.category}` : '',
-                  item.commodity ? `Commodity: ${item.commodity}` : '',
-                  item.grade ? `Grade: ${item.grade}` : '',
-                  item.finish ? `Finish: ${item.finish}` : '',
-                  item.size ? `Size: ${item.size}` : '',
-                  item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
-                  item.od ? `OD: ${item.od}` : '',
-                  item.length ? `Length: ${item.length}` : '',
-                  item.thickness ? `Thickness: ${item.thickness}` : '',
-                  item.unit ? `Unit: ${item.unit}` : '',
-                  item.hsnCode ? `HSN: ${item.hsnCode}` : '',
-                ].filter(Boolean).join('\n');
+                  item.name ? `Name: ${item.name}` : "",
+                  item.category ? `Category: ${item.category}` : "",
+                  item.commodity ? `Commodity: ${item.commodity}` : "",
+                  item.grade ? `Grade: ${item.grade}` : "",
+                  item.finish ? `Finish: ${item.finish}` : "",
+                  item.size ? `Size: ${item.size}` : "",
+                  item.sizeInch ? `Size (Inch): ${item.sizeInch}` : "",
+                  item.od ? `OD: ${item.od}` : "",
+                  item.length ? `Length: ${item.length}` : "",
+                  item.thickness ? `Thickness: ${item.thickness}` : "",
+                  item.unit ? `Unit: ${item.unit}` : "",
+                  item.hsnCode ? `HSN: ${item.hsnCode}` : "",
+                ]
+                  .filter(Boolean)
+                  .join("\n");
                 return (
-                  <Card key={item.id || `mobile-item-${index}`} className="p-4" data-item-index={index}>
+                  <Card
+                    key={item.id || `mobile-item-${index}`}
+                    className="p-4"
+                    data-item-index={index}
+                  >
                     <div className="flex justify-between items-start mb-4">
                       <h4
                         className={`font-medium ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
+                          isDarkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
                         Item #{index + 1}
@@ -4307,9 +4894,7 @@ const InvoiceForm = ({ onSave }) => {
                       <button
                         onClick={() => removeItem(index)}
                         className={`hover:text-red-300 ${
-                          isDarkMode
-                            ? 'text-red-400'
-                            : 'text-red-500'
+                          isDarkMode ? "text-red-400" : "text-red-500"
                         }`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -4318,15 +4903,21 @@ const InvoiceForm = ({ onSave }) => {
 
                     <div className="space-y-4">
                       <Autocomplete
-                        options={(searchInputs[index] ? (searchOptions.length ? searchOptions : productOptions) : productOptions)}
+                        options={
+                          searchInputs[index]
+                            ? searchOptions.length
+                              ? searchOptions
+                              : productOptions
+                            : productOptions
+                        }
                         value={
                           item.productId
                             ? productOptions.find(
-                              (p) => p.id === item.productId,
-                            )
+                                (p) => p.id === item.productId,
+                              )
                             : null
                         }
-                        inputValue={searchInputs[index] || item.name || ''}
+                        inputValue={searchInputs[index] || item.name || ""}
                         onInputChange={(event, newInputValue) => {
                           handleSearchInputChange(index, newInputValue);
                         }}
@@ -4342,9 +4933,16 @@ const InvoiceForm = ({ onSave }) => {
                         error={invalidFields.has(`item.${index}.name`)}
                         renderOption={(option) => (
                           <div>
-                            <div className="font-medium">{option.displayName || option.display_name || option.uniqueName || option.unique_name || option.name}</div>
+                            <div className="font-medium">
+                              {option.displayName ||
+                                option.display_name ||
+                                option.uniqueName ||
+                                option.unique_name ||
+                                option.name}
+                            </div>
                             <div className="text-sm text-gray-500">
-                              {option.origin ? `${option.origin} • ` : ''}{option.subtitle}
+                              {option.origin ? `${option.origin} • ` : ""}
+                              {option.subtitle}
                             </div>
                           </div>
                         )}
@@ -4354,19 +4952,21 @@ const InvoiceForm = ({ onSave }) => {
                       {/* Removed Grade, Finish, Size, Thickness fields */}
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className={`transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 rounded animate-pulse' : ''}`}>
+                        <div
+                          className={`transition-all duration-300 ${blinkingRowIndex === index ? "ring-2 ring-red-400 rounded animate-pulse" : ""}`}
+                        >
                           <Input
                             label="Qty"
                             type="number"
-                            value={item.quantity || ''}
+                            value={item.quantity || ""}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                'quantity',
-                                e.target.value === ''
-                                  ? ''
+                                "quantity",
+                                e.target.value === ""
+                                  ? ""
                                   : Number.isNaN(Number(e.target.value))
-                                    ? ''
+                                    ? ""
                                     : parseInt(e.target.value, 10),
                               )
                             }
@@ -4377,17 +4977,21 @@ const InvoiceForm = ({ onSave }) => {
                             error={invalidFields.has(`item.${index}.quantity`)}
                             onKeyDown={(e) => {
                               const allow = [
-                                'Backspace',
-                                'Delete',
-                                'Tab',
-                                'Escape',
-                                'Enter',
-                                'ArrowLeft',
-                                'ArrowRight',
-                                'Home',
-                                'End',
+                                "Backspace",
+                                "Delete",
+                                "Tab",
+                                "Escape",
+                                "Enter",
+                                "ArrowLeft",
+                                "ArrowRight",
+                                "Home",
+                                "End",
                               ];
-                              if (allow.includes(e.key) || (e.ctrlKey || e.metaKey)) {
+                              if (
+                                allow.includes(e.key) ||
+                                e.ctrlKey ||
+                                e.metaKey
+                              ) {
                                 return;
                               }
                               if (!/^[0-9]$/.test(e.key)) {
@@ -4396,27 +5000,29 @@ const InvoiceForm = ({ onSave }) => {
                             }}
                             onPaste={(e) => {
                               e.preventDefault();
-                              const t = (e.clipboardData || window.clipboardData).getData('text');
-                              const digits = (t || '').replace(/\D/g, '');
+                              const t = (
+                                e.clipboardData || window.clipboardData
+                              ).getData("text");
+                              const digits = (t || "").replace(/\D/g, "");
                               handleItemChange(
                                 index,
-                                'quantity',
-                                digits ? parseInt(digits, 10) : '',
+                                "quantity",
+                                digits ? parseInt(digits, 10) : "",
                               );
                             }}
                             onWheel={(e) => e.currentTarget.blur()}
                           />
                         </div>
                         <Input
-                          label={`Rate${item.pricingBasis && item.pricingBasis !== 'PER_MT' ? ` (${item.pricingBasis.replace('PER_', 'per ').replace('_', ' ')})` : ' (per MT)'}`}
+                          label={`Rate${item.pricingBasis && item.pricingBasis !== "PER_MT" ? ` (${item.pricingBasis.replace("PER_", "per ").replace("_", " ")})` : " (per MT)"}`}
                           type="number"
-                          value={item.rate || ''}
+                          value={item.rate || ""}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              'rate',
-                              e.target.value === ''
-                                ? ''
+                              "rate",
+                              e.target.value === ""
+                                ? ""
                                 : parseFloat(e.target.value),
                             )
                           }
@@ -4428,14 +5034,17 @@ const InvoiceForm = ({ onSave }) => {
 
                       {/* Source Type Selector */}
                       <div>
-                        <label htmlFor={`source-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <label
+                          htmlFor={`source-type-${index}`}
+                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
                           Source Type
                         </label>
                         <SourceTypeSelector
                           id={`source-type-${index}`}
-                          value={item.sourceType || 'WAREHOUSE'}
+                          value={item.sourceType || "WAREHOUSE"}
                           onChange={(sourceType) =>
-                            handleItemChange(index, 'sourceType', sourceType)
+                            handleItemChange(index, "sourceType", sourceType)
                           }
                           disabled={false}
                         />
@@ -4443,19 +5052,26 @@ const InvoiceForm = ({ onSave }) => {
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label htmlFor={`supply-type-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <label
+                            htmlFor={`supply-type-${index}`}
+                            className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          >
                             Supply Type
                           </label>
                           <select
                             id={`supply-type-${index}`}
-                            value={item.supplyType || 'standard'}
+                            value={item.supplyType || "standard"}
                             onChange={(e) =>
-                              handleItemChange(index, 'supplyType', e.target.value)
+                              handleItemChange(
+                                index,
+                                "supplyType",
+                                e.target.value,
+                              )
                             }
                             className={`w-full px-3 py-2 border rounded ${
                               isDarkMode
-                                ? 'bg-gray-700 border-gray-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-900'
+                                ? "bg-gray-700 border-gray-600 text-white"
+                                : "bg-white border-gray-300 text-gray-900"
                             }`}
                           >
                             <option value="standard">5% Std</option>
@@ -4466,13 +5082,13 @@ const InvoiceForm = ({ onSave }) => {
                         <Input
                           label="VAT %"
                           type="number"
-                          value={item.vatRate || ''}
+                          value={item.vatRate || ""}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              'vatRate',
-                              e.target.value === ''
-                                ? ''
+                              "vatRate",
+                              e.target.value === ""
+                                ? ""
                                 : parseFloat(e.target.value),
                             )
                           }
@@ -4485,12 +5101,12 @@ const InvoiceForm = ({ onSave }) => {
 
                       <div
                         className={`flex justify-end p-3 rounded-md ${
-                          isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                          isDarkMode ? "bg-gray-700" : "bg-gray-100"
                         }`}
                       >
                         <span
                           className={`font-medium ${
-                            isDarkMode ? 'text-white' : 'text-gray-900'
+                            isDarkMode ? "text-white" : "text-gray-900"
                           }`}
                         >
                           Amount: {formatCurrency(item.amount)}
@@ -4498,20 +5114,23 @@ const InvoiceForm = ({ onSave }) => {
                       </div>
                     </div>
                   </Card>
-                );})}
+                );
+              })}
               {deferredItems.length > 10 && (
                 <div
                   className={`text-center py-4 text-sm ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                    Showing first 10 items. Add more items as needed.
+                  Showing first 10 items. Add more items as needed.
                 </div>
               )}
             </div>
 
             {/* Add Item Button - Below Items for Easy Access */}
-            <div className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+            <div
+              className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+            >
               <Button
                 ref={addItemButtonRef}
                 onClick={addItem}
@@ -4527,21 +5146,26 @@ const InvoiceForm = ({ onSave }) => {
           </Card>
 
           {/* Freight and Loading Charges (Phase 1) */}
-          <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <Card
+            className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
-                <h3 className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <span>Freight and Loading Charges</span>
                   <VatHelpIcon
                     heading="Auxiliary Charges & VAT Treatment (Article 45)"
                     content={[
-                      'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
-                      'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
+                      "Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.",
+                      "All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.",
                       'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
-                      'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                    ]} />
+                      "Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.",
+                    ]}
+                  />
                 </h3>
                 <button
                   type="button"
@@ -4549,47 +5173,61 @@ const InvoiceForm = ({ onSave }) => {
                   className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                     showFreightCharges
                       ? isDarkMode
-                        ? 'bg-teal-600 text-white'
-                        : 'bg-teal-500 text-white'
+                        ? "bg-teal-600 text-white"
+                        : "bg-teal-500 text-white"
                       : isDarkMode
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                   }`}
                 >
-                  {showFreightCharges ? 'ON' : 'OFF'}
+                  {showFreightCharges ? "ON" : "OFF"}
                 </button>
               </div>
               {showFreightCharges && (
-                <label className={`flex items-center gap-2 cursor-pointer ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label
+                  className={`flex items-center gap-2 cursor-pointer ${
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   <input
                     type="checkbox"
                     checked={invoice.isExport || false}
                     onChange={(e) => {
                       const isExport = e.target.checked;
                       // When export flag changes, recalculate all charge VAT values
-                      setInvoice(prev => ({
+                      setInvoice((prev) => ({
                         ...prev,
                         isExport,
-                        packingChargesVat: isExport ? 0 : (parseFloat(prev.packingCharges) || 0) * 0.05,
-                        freightChargesVat: isExport ? 0 : (parseFloat(prev.freightCharges) || 0) * 0.05,
-                        insuranceChargesVat: isExport ? 0 : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
-                        loadingChargesVat: isExport ? 0 : (parseFloat(prev.loadingCharges) || 0) * 0.05,
-                        otherChargesVat: isExport ? 0 : (parseFloat(prev.otherCharges) || 0) * 0.05,
+                        packingChargesVat: isExport
+                          ? 0
+                          : (parseFloat(prev.packingCharges) || 0) * 0.05,
+                        freightChargesVat: isExport
+                          ? 0
+                          : (parseFloat(prev.freightCharges) || 0) * 0.05,
+                        insuranceChargesVat: isExport
+                          ? 0
+                          : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
+                        loadingChargesVat: isExport
+                          ? 0
+                          : (parseFloat(prev.loadingCharges) || 0) * 0.05,
+                        otherChargesVat: isExport
+                          ? 0
+                          : (parseFloat(prev.otherCharges) || 0) * 0.05,
                       }));
                     }}
                     className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
                   />
                   <span className="text-sm font-medium flex items-center gap-1">
-                  Export Invoice (0% VAT)
-                    <VatHelpIcon content={[
-                      'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
-                      'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
-                      'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
-                      'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
-                      'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                    ]} />
+                    Export Invoice (0% VAT)
+                    <VatHelpIcon
+                      content={[
+                        "Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.",
+                        "Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).",
+                        "Requires export proof: Bill of Lading, Export License, or Customs declaration.",
+                        "Retain all export documents for FTA audit and VAT return (Box 10) compliance.",
+                        "Non-compliance triggers FTA penalties up to 300% of unpaid VAT.",
+                      ]}
+                    />
                   </span>
                 </label>
               )}
@@ -4604,20 +5242,29 @@ const InvoiceForm = ({ onSave }) => {
                     <Input
                       label="Packing Charges"
                       type="number"
-                      value={invoice.packingCharges || ''}
+                      value={invoice.packingCharges || ""}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice(prev => ({ ...prev, packingCharges: amount, packingChargesVat: vat }));
+                        setInvoice((prev) => ({
+                          ...prev,
+                          packingCharges: amount,
+                          packingChargesVat: vat,
+                        }));
                       }}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
-                    <div className={`text-xs px-2 py-1 rounded ${
-                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                  VAT: {formatCurrency(invoice.packingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                    <div
+                      className={`text-xs px-2 py-1 rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-400"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      VAT: {formatCurrency(invoice.packingChargesVat || 0)}{" "}
+                      {invoice.isExport ? "(0% export)" : "(5%)"}
                     </div>
                   </div>
 
@@ -4626,20 +5273,29 @@ const InvoiceForm = ({ onSave }) => {
                     <Input
                       label="Freight Charges"
                       type="number"
-                      value={invoice.freightCharges || ''}
+                      value={invoice.freightCharges || ""}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice(prev => ({ ...prev, freightCharges: amount, freightChargesVat: vat }));
+                        setInvoice((prev) => ({
+                          ...prev,
+                          freightCharges: amount,
+                          freightChargesVat: vat,
+                        }));
                       }}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
-                    <div className={`text-xs px-2 py-1 rounded ${
-                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                  VAT: {formatCurrency(invoice.freightChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                    <div
+                      className={`text-xs px-2 py-1 rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-400"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      VAT: {formatCurrency(invoice.freightChargesVat || 0)}{" "}
+                      {invoice.isExport ? "(0% export)" : "(5%)"}
                     </div>
                   </div>
 
@@ -4648,20 +5304,29 @@ const InvoiceForm = ({ onSave }) => {
                     <Input
                       label="Insurance Charges"
                       type="number"
-                      value={invoice.insuranceCharges || ''}
+                      value={invoice.insuranceCharges || ""}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice(prev => ({ ...prev, insuranceCharges: amount, insuranceChargesVat: vat }));
+                        setInvoice((prev) => ({
+                          ...prev,
+                          insuranceCharges: amount,
+                          insuranceChargesVat: vat,
+                        }));
                       }}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
-                    <div className={`text-xs px-2 py-1 rounded ${
-                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                  VAT: {formatCurrency(invoice.insuranceChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                    <div
+                      className={`text-xs px-2 py-1 rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-400"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}{" "}
+                      {invoice.isExport ? "(0% export)" : "(5%)"}
                     </div>
                   </div>
 
@@ -4670,20 +5335,29 @@ const InvoiceForm = ({ onSave }) => {
                     <Input
                       label="Loading Charges"
                       type="number"
-                      value={invoice.loadingCharges || ''}
+                      value={invoice.loadingCharges || ""}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice(prev => ({ ...prev, loadingCharges: amount, loadingChargesVat: vat }));
+                        setInvoice((prev) => ({
+                          ...prev,
+                          loadingCharges: amount,
+                          loadingChargesVat: vat,
+                        }));
                       }}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
-                    <div className={`text-xs px-2 py-1 rounded ${
-                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                  VAT: {formatCurrency(invoice.loadingChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                    <div
+                      className={`text-xs px-2 py-1 rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-400"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      VAT: {formatCurrency(invoice.loadingChargesVat || 0)}{" "}
+                      {invoice.isExport ? "(0% export)" : "(5%)"}
                     </div>
                   </div>
 
@@ -4692,46 +5366,61 @@ const InvoiceForm = ({ onSave }) => {
                     <Input
                       label="Other Charges"
                       type="number"
-                      value={invoice.otherCharges || ''}
+                      value={invoice.otherCharges || ""}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice(prev => ({ ...prev, otherCharges: amount, otherChargesVat: vat }));
+                        setInvoice((prev) => ({
+                          ...prev,
+                          otherCharges: amount,
+                          otherChargesVat: vat,
+                        }));
                       }}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
-                    <div className={`text-xs px-2 py-1 rounded ${
-                      isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                  VAT: {formatCurrency(invoice.otherChargesVat || 0)} {invoice.isExport ? '(0% export)' : '(5%)'}
+                    <div
+                      className={`text-xs px-2 py-1 rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-400"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      VAT: {formatCurrency(invoice.otherChargesVat || 0)}{" "}
+                      {invoice.isExport ? "(0% export)" : "(5%)"}
                     </div>
                   </div>
 
                   {/* Total Charge VAT Summary */}
-                  <div className={`p-3 rounded-lg ${
-                    isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
-                  }`}>
-                    <div className={`text-xs font-semibold uppercase mb-1 ${
-                      isDarkMode ? 'text-gray-400' : 'text-teal-700'
-                    }`}>
-                  Total Charges VAT
+                  <div
+                    className={`p-3 rounded-lg ${
+                      isDarkMode ? "bg-gray-700" : "bg-teal-50"
+                    }`}
+                  >
+                    <div
+                      className={`text-xs font-semibold uppercase mb-1 ${
+                        isDarkMode ? "text-gray-400" : "text-teal-700"
+                      }`}
+                    >
+                      Total Charges VAT
                     </div>
-                    <div className={`text-lg font-bold ${
-                      isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                    }`}>
+                    <div
+                      className={`text-lg font-bold ${
+                        isDarkMode ? "text-teal-400" : "text-teal-600"
+                      }`}
+                    >
                       {formatCurrency(
                         (invoice.packingChargesVat || 0) +
-                    (invoice.freightChargesVat || 0) +
-                    (invoice.insuranceChargesVat || 0) +
-                    (invoice.loadingChargesVat || 0) +
-                    (invoice.otherChargesVat || 0),
+                          (invoice.freightChargesVat || 0) +
+                          (invoice.insuranceChargesVat || 0) +
+                          (invoice.loadingChargesVat || 0) +
+                          (invoice.otherChargesVat || 0),
                       )}
                     </div>
                     {invoice.isExport && (
                       <div className="text-xs text-amber-600 mt-1">
-                    Zero-rated for export
+                        Zero-rated for export
                       </div>
                     )}
                   </div>
@@ -4743,18 +5432,21 @@ const InvoiceForm = ({ onSave }) => {
           {/* Summary & Notes - Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* LEFT COLUMN: Invoice Summary */}
-            <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h3 className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
+            <Card
+              className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            >
+              <h3
+                className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
                 Summary & Totals
               </h3>
               <div>
-
                 <div className="space-y-4">
                   <div
                     className={`flex justify-between items-center ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                      isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     <span>Subtotal:</span>
@@ -4768,13 +5460,13 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="grid grid-cols-1 gap-3">
                       <Select
                         label="Discount Type"
-                        value={invoice.discountType || 'amount'}
+                        value={invoice.discountType || "amount"}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
                             discountType: e.target.value,
-                            discountAmount: '',
-                            discountPercentage: '',
+                            discountAmount: "",
+                            discountPercentage: "",
                           }))
                         }
                       >
@@ -4782,15 +5474,18 @@ const InvoiceForm = ({ onSave }) => {
                         <option value="percentage">Percentage</option>
                       </Select>
 
-                      {invoice.discountType === 'percentage' ? (
+                      {invoice.discountType === "percentage" ? (
                         <Input
                           label="Discount Percentage (%)"
                           type="number"
-                          value={invoice.discountPercentage || ''}
+                          value={invoice.discountPercentage || ""}
                           onChange={(e) => {
                             const raw = e.target.value;
-                            if (raw === '') {
-                              setInvoice((prev) => ({ ...prev, discountPercentage: '' }));
+                            if (raw === "") {
+                              setInvoice((prev) => ({
+                                ...prev,
+                                discountPercentage: "",
+                              }));
                               return;
                             }
                             const num = Number(raw);
@@ -4807,8 +5502,8 @@ const InvoiceForm = ({ onSave }) => {
                           placeholder="0.00"
                           inputMode="decimal"
                           onKeyDown={(e) => {
-                          // Disallow exponent & plus/minus signs
-                            const blocked = ['e', 'E', '+', '-'];
+                            // Disallow exponent & plus/minus signs
+                            const blocked = ["e", "E", "+", "-"];
                             if (blocked.includes(e.key)) e.preventDefault();
                           }}
                         />
@@ -4816,17 +5511,26 @@ const InvoiceForm = ({ onSave }) => {
                         <Input
                           label="Discount Amount"
                           type="number"
-                          value={invoice.discountAmount || ''}
+                          value={invoice.discountAmount || ""}
                           onChange={(e) => {
                             const raw = e.target.value;
-                            if (raw === '') {
-                              setInvoice((prev) => ({ ...prev, discountAmount: '' }));
+                            if (raw === "") {
+                              setInvoice((prev) => ({
+                                ...prev,
+                                discountAmount: "",
+                              }));
                               return;
                             }
                             const num = Number(raw);
                             if (Number.isNaN(num)) return;
-                            const clamped = Math.max(0, Math.min(computedSubtotal, num));
-                            setInvoice((prev) => ({ ...prev, discountAmount: clamped }));
+                            const clamped = Math.max(
+                              0,
+                              Math.min(computedSubtotal, num),
+                            );
+                            setInvoice((prev) => ({
+                              ...prev,
+                              discountAmount: clamped,
+                            }));
                           }}
                           min="0"
                           max={computedSubtotal}
@@ -4834,7 +5538,7 @@ const InvoiceForm = ({ onSave }) => {
                           placeholder="0.00"
                           inputMode="decimal"
                           onKeyDown={(e) => {
-                            const blocked = ['e', 'E', '+', '-'];
+                            const blocked = ["e", "E", "+", "-"];
                             if (blocked.includes(e.key)) e.preventDefault();
                           }}
                           onWheel={(e) => e.currentTarget.blur()}
@@ -4846,7 +5550,7 @@ const InvoiceForm = ({ onSave }) => {
                   {computedDiscountAmount > 0 && (
                     <div
                       className={`flex justify-between items-center ${
-                        isDarkMode ? 'text-white' : 'text-gray-900'
+                        isDarkMode ? "text-white" : "text-gray-900"
                       }`}
                     >
                       <span>Discount:</span>
@@ -4858,7 +5562,7 @@ const InvoiceForm = ({ onSave }) => {
 
                   <div
                     className={`flex justify-between items-center ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                      isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     <span>VAT Amount:</span>
@@ -4869,13 +5573,13 @@ const InvoiceForm = ({ onSave }) => {
 
                   <div
                     className={`border-t pt-4 ${
-                      isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                      isDarkMode ? "border-gray-600" : "border-gray-200"
                     }`}
                   >
                     <div className="flex justify-between items-center">
                       <span
                         className={`text-lg font-bold ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
+                          isDarkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
                         Total:
@@ -4887,20 +5591,27 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
 
                   {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
-                  <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                  Payments are recorded after invoice creation via the Payment Drawer
+                  <p
+                    className={`text-xs mt-3 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    Payments are recorded after invoice creation via the Payment
+                    Drawer
                   </p>
                 </div>
               </div>
             </Card>
 
             {/* RIGHT COLUMN: Notes & Payment Terms */}
-            <Card className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <Card
+              className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            >
               {/* Invoice Notes */}
               <div className="mb-4">
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   Notes
                 </h3>
                 <Textarea
@@ -4915,40 +5626,61 @@ const InvoiceForm = ({ onSave }) => {
               </div>
 
               {/* VAT Tax Notes */}
-              <div className="border-t pt-4" style={{
-                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
-              }}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+              <div
+                className="border-t pt-4"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgb(75 85 99)"
+                    : "rgb(229 231 235)",
+                }}
+              >
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <span>VAT Tax Notes</span>
-                  <VatHelpIcon content={[
-                    'When required: Required if supply is zero-rated or reverse charge applies.',
-                    'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
-                    'Part of FTA Form 201 compliance documentation.',
-                  ]} />
+                  <VatHelpIcon
+                    content={[
+                      "When required: Required if supply is zero-rated or reverse charge applies.",
+                      "Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).",
+                      "Part of FTA Form 201 compliance documentation.",
+                    ]}
+                  />
                 </h3>
                 <Textarea
-                  value={invoice.taxNotes || ''}
+                  value={invoice.taxNotes || ""}
                   onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
+                    setInvoice((prev) => ({
+                      ...prev,
+                      taxNotes: e.target.value,
+                    }))
                   }
                   placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
                   autoGrow={true}
                   className="text-base"
                 />
-                <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p
+                  className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Required when items are zero-rated or exempt from VAT
                 </p>
               </div>
 
               {/* Payment Terms - Inline */}
-              <div className="border-t pt-4" style={{
-                borderColor: isDarkMode ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
-              }}>
-                <h3 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+              <div
+                className="border-t pt-4"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgb(75 85 99)"
+                    : "rgb(229 231 235)",
+                }}
+              >
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   Payment Terms & Conditions
                 </h3>
                 <Textarea
@@ -4967,16 +5699,23 @@ const InvoiceForm = ({ onSave }) => {
         </main>
 
         {/* Sticky Mobile Footer - Actions & Total */}
-        <div className={`md:hidden fixed bottom-0 left-0 right-0 z-20 border-t shadow-2xl ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`} style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
+        <div
+          className={`md:hidden fixed bottom-0 left-0 right-0 z-20 border-t shadow-2xl ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           <div className="px-4 py-3">
             {/* Total Display */}
             <div className="flex justify-between items-center mb-3">
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>
-                  Total Amount
+              <span
+                className={`text-sm font-medium ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Total Amount
               </span>
               <span className="text-xl font-bold text-teal-500">
                 {formatCurrency(computedTotal)}
@@ -4992,11 +5731,16 @@ const InvoiceForm = ({ onSave }) => {
                 className="flex-1 min-h-[48px]"
               >
                 <Eye className="h-4 w-4" />
-                  Preview
+                Preview
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === 'issued')}
+                disabled={
+                  savingInvoice ||
+                  updatingInvoice ||
+                  isSaving ||
+                  (id && invoice.status === "issued")
+                }
                 className="flex-1 min-h-[48px]"
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
@@ -5004,7 +5748,9 @@ const InvoiceForm = ({ onSave }) => {
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {savingInvoice || updatingInvoice || isSaving ? 'Saving...' : 'Save'}
+                {savingInvoice || updatingInvoice || isSaving
+                  ? "Saving..."
+                  : "Save"}
               </Button>
             </div>
           </div>
@@ -5016,17 +5762,21 @@ const InvoiceForm = ({ onSave }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
-              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
             }`}
           >
             <div className="flex items-start mb-4">
-              <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
+              <AlertTriangle
+                className="text-yellow-500 mr-3 flex-shrink-0"
+                size={24}
+              />
               <div>
                 <h3 className="text-lg font-semibold mb-2">
                   Confirm Final Tax Invoice Creation
                 </h3>
                 <p className="text-sm mb-4">
-                  You are about to create and save a <strong>Final Tax Invoice</strong>.
+                  You are about to create and save a{" "}
+                  <strong>Final Tax Invoice</strong>.
                 </p>
                 <p className="text-sm mb-2">
                   <strong>This action will:</strong>
@@ -5034,8 +5784,13 @@ const InvoiceForm = ({ onSave }) => {
                 <ul className="text-sm list-disc list-inside space-y-1 ml-2">
                   <li>Deduct inventory from stock immediately</li>
                   <li>Record revenue in the system</li>
-                  <li>Create an invoice that cannot be edited (requires credit note)</li>
-                  <li>Generate an official tax invoice number (INV-YYYYMM-NNNN)</li>
+                  <li>
+                    Create an invoice that cannot be edited (requires credit
+                    note)
+                  </li>
+                  <li>
+                    Generate an official tax invoice number (INV-YYYYMM-NNNN)
+                  </li>
                 </ul>
                 <p className="text-sm mt-3 font-semibold text-red-600 dark:text-red-400">
                   ⚠️ This action cannot be undone!
@@ -5047,8 +5802,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleCancelSave}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
                 }`}
               >
                 Cancel
@@ -5065,136 +5820,166 @@ const InvoiceForm = ({ onSave }) => {
       )}
 
       {/* Success Modal - Invoice Created */}
-      {showSuccessModal && (() => {
-        // Check if this is a Final Tax Invoice (cannot be edited after creation)
-        const isFinalTaxInvoice = invoice.status === 'issued';
-        const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
+      {showSuccessModal &&
+        (() => {
+          // Check if this is a Final Tax Invoice (cannot be edited after creation)
+          const isFinalTaxInvoice = invoice.status === "issued";
+          const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
 
-        return (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={canContinueEditing ? handleSuccessModalClose : undefined}
-            role="button"
-            tabIndex={canContinueEditing ? 0 : -1}
-            onKeyDown={(e) => canContinueEditing && e.key === 'Escape' && handleSuccessModalClose()}
-          >
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+          return (
             <div
-              className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
-                isDarkMode ? 'bg-gray-900' : 'bg-white'
-              }`}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={canContinueEditing ? handleSuccessModalClose : undefined}
+              role="button"
+              tabIndex={canContinueEditing ? 0 : -1}
+              onKeyDown={(e) =>
+                canContinueEditing &&
+                e.key === "Escape" &&
+                handleSuccessModalClose()
+              }
             >
-              {/* Success Header with Gradient */}
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 bg-white/20 rounded-full p-3">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">
-                      Invoice Created!
-                    </h3>
-                    <p className="text-emerald-100 text-sm mt-0.5">
-                      {isFinalTaxInvoice
-                        ? `Final Tax Invoice ${invoice.invoiceNumber || ''}`
-                        : invoice.status === 'proforma' ? 'Proforma Invoice' : 'Draft saved'
-                      }
-                    </p>
+              {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+              <div
+                className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
+                  isDarkMode ? "bg-gray-900" : "bg-white"
+                }`}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+              >
+                {/* Success Header with Gradient */}
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 bg-white/20 rounded-full p-3">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">
+                        Invoice Created!
+                      </h3>
+                      <p className="text-emerald-100 text-sm mt-0.5">
+                        {isFinalTaxInvoice
+                          ? `Final Tax Invoice ${invoice.invoiceNumber || ""}`
+                          : invoice.status === "proforma"
+                            ? "Proforma Invoice"
+                            : "Draft saved"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Close button - only show for Draft/Proforma */}
-              {canContinueEditing && (
-                <button
-                  onClick={handleSuccessModalClose}
-                  className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-                  aria-label="Close"
-                >
-                  <X size={18} />
-                </button>
-              )}
-
-              {/* Action Buttons */}
-              <div className="p-6 space-y-3">
-                <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  What would you like to do next?
-                </p>
-
-                {/* Download PDF Button */}
-                <button
-                  onClick={handleSuccessDownloadPDF}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
-                >
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <Download size={20} />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Download PDF</div>
-                    <div className="text-xs text-teal-100">Save invoice to your device</div>
-                  </div>
-                </button>
-
-                {/* Record Payment Button - Only for Final Tax Invoice */}
-                {isFinalTaxInvoice && (
+                {/* Close button - only show for Draft/Proforma */}
+                {canContinueEditing && (
                   <button
-                    onClick={handleSuccessRecordPayment}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
+                    onClick={handleSuccessModalClose}
+                    className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+                    aria-label="Close"
                   >
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Banknote size={20} />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold">Record Payment</div>
-                      <div className="text-xs text-amber-100">Record advance or full payment</div>
-                    </div>
+                    <X size={18} />
                   </button>
                 )}
 
-                {/* Go to Invoice List Button */}
-                <button
-                  onClick={handleSuccessGoToList}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
-                    isDarkMode
-                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                    <List size={20} />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Go to Invoice List</div>
-                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>View all invoices</div>
-                  </div>
-                </button>
-              </div>
-
-              {/* Continue editing hint - only show for Draft/Proforma */}
-              {canContinueEditing && (
-                <div className={`px-6 pb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                  <p className="text-xs text-center">
-                    Press ESC or click outside to continue editing
+                {/* Action Buttons */}
+                <div className="p-6 space-y-3">
+                  <p
+                    className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    What would you like to do next?
                   </p>
+
+                  {/* Download PDF Button */}
+                  <button
+                    onClick={handleSuccessDownloadPDF}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Download size={20} />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold">Download PDF</div>
+                      <div className="text-xs text-teal-100">
+                        Save invoice to your device
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Record Payment Button - Only for Final Tax Invoice */}
+                  {isFinalTaxInvoice && (
+                    <button
+                      onClick={handleSuccessRecordPayment}
+                      className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
+                    >
+                      <div className="p-2 bg-white/20 rounded-lg">
+                        <Banknote size={20} />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold">Record Payment</div>
+                        <div className="text-xs text-amber-100">
+                          Record advance or full payment
+                        </div>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Go to Invoice List Button */}
+                  <button
+                    onClick={handleSuccessGoToList}
+                    className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
+                      isDarkMode
+                        ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
+                        : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+                    >
+                      <List size={20} />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold">Go to Invoice List</div>
+                      <div
+                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      >
+                        View all invoices
+                      </div>
+                    </div>
+                  </button>
                 </div>
-              )}
+
+                {/* Continue editing hint - only show for Draft/Proforma */}
+                {canContinueEditing && (
+                  <div
+                    className={`px-6 pb-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    <p className="text-xs text-center">
+                      Press ESC or click outside to continue editing
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* Duplicate Product Warning Dialog */}
       {duplicateWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opa bg-opacity-50">
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
-              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
             }`}
           >
             <div className="flex items-start mb-4">
@@ -5205,14 +5990,19 @@ const InvoiceForm = ({ onSave }) => {
                 <h3 className="text-lg font-bold mb-2 text-amber-600 dark:text-amber-400">
                   Duplicate Product Detected
                 </h3>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <strong>{duplicateWarning.productName}</strong> already exists in this invoice
-                  (Row {duplicateWarning.existingIndex + 1}, Qty: {duplicateWarning.existingQuantity}).
+                <p
+                  className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
+                  <strong>{duplicateWarning.productName}</strong> already exists
+                  in this invoice (Row {duplicateWarning.existingIndex + 1},
+                  Qty: {duplicateWarning.existingQuantity}).
                 </p>
               </div>
             </div>
 
-            <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p
+              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            >
               What would you like to do?
             </p>
 
@@ -5227,8 +6017,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleDuplicateAddAnyway}
                 className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
                 }`}
               >
                 Add as Separate Line
@@ -5237,8 +6027,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleDuplicateCancel}
                 className={`w-full px-4 py-2 text-sm rounded-lg transition-colors ${
                   isDarkMode
-                    ? 'text-gray-400 hover:text-white hover:bg-gray-700'
-                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                    ? "text-gray-400 hover:text-white hover:bg-gray-700"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 Cancel
@@ -5250,7 +6040,7 @@ const InvoiceForm = ({ onSave }) => {
 
       {/* Loading Overlay for Issued Invoice Saves */}
       <LoadingOverlay
-        show={isSaving && invoice.status === 'issued'}
+        show={isSaving && invoice.status === "issued"}
         message="Saving invoice..."
         detail="Updating inventory and generating records"
       />

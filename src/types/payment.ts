@@ -1,7 +1,7 @@
 /**
  * Canonical Payment Type (camelCase only)
  * This is the NORMALIZED frontend schema after paymentNormalizer processes API data.
- * 
+ *
  * IMPORTANT: Backend/API uses snake_case. Frontend MUST use camelCase.
  * The paymentNormalizer converts snake_case → camelCase.
  */
@@ -40,19 +40,16 @@ export interface Payment {
 
   // Multi-currency Payment Support (Phase 1 - Migration 103)
   // Enables FX tracking for international transactions
-  currency?: string;           // ISO 4217 code (AED, USD, EUR, GBP, SAR)
-  exchangeRate?: number;       // Exchange rate: 1 currency unit = X AED
-  amountInAed?: number;        // Payment amount converted to AED for VAT reporting
+  currency?: string; // ISO 4217 code (AED, USD, EUR, GBP, SAR)
+  exchangeRate?: number; // Exchange rate: 1 currency unit = X AED
+  amountInAed?: number; // Payment amount converted to AED for VAT reporting
 }
 
 /**
  * Type guard to check if object is a valid Payment
  */
 export function isPayment(obj: unknown): obj is Payment {
-  if (!obj || typeof obj !== 'object') return false;
+  if (!obj || typeof obj !== "object") return false;
   const record = obj as Record<string, unknown>;
-  return (
-    typeof record.id === 'number' &&
-    typeof record.amount === 'number'
-  );
+  return typeof record.id === "number" && typeof record.amount === "number";
 }

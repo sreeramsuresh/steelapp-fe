@@ -1,43 +1,60 @@
-import { formatCurrency, formatDate, calculateTRN, getCompanyImages } from './invoiceUtils';
-import { escapeHtml, escapeHtmlWithLineBreaks } from './htmlEscape';
-import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
+import {
+  formatCurrency,
+  formatDate,
+  calculateTRN,
+  getCompanyImages,
+} from "./invoiceUtils";
+import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
 
 export const generateQuotationPDF = async (quotation, company) => {
   try {
-    const { jsPDF } = await import('jspdf');
+    const { jsPDF } = await import("jspdf");
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
     // Get the template color for quotations
-    const templateColor = getDocumentTemplateColor('quotation', company);
-    const el = createQuotationElement(quotation, company, logoUrl, sealUrl, templateColor);
+    const templateColor = getDocumentTemplateColor("quotation", company);
+    const el = createQuotationElement(
+      quotation,
+      company,
+      logoUrl,
+      sealUrl,
+      templateColor,
+    );
     document.body.appendChild(el);
 
     await waitForImages(el);
-    const html2canvas = (await import('html2canvas')).default;
+    const html2canvas = (await import("html2canvas")).default;
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: "#ffffff",
       logging: false,
       removeContainer: true,
     });
     document.body.removeChild(el);
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${quotation.quotationNumber || 'Quotation'}.pdf`);
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${quotation.quotationNumber || "Quotation"}.pdf`);
     return true;
   } catch (e) {
-    console.error('Quotation PDF generation failed:', e);
+    console.error("Quotation PDF generation failed:", e);
     throw e;
   }
 };
 
-const createQuotationElement = (q, company, logoCompany, sealImage, templateColor = '#009999') => {
-  const el = document.createElement('div');
+const createQuotationElement = (
+  q,
+  company,
+  logoCompany,
+  sealImage,
+  templateColor = "#009999",
+) => {
+  const el = document.createElement("div");
   el.style.cssText = `
     width: 210mm;
     min-height: 297mm;
@@ -52,16 +69,22 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
     left: -9999px;
   `;
 
-  const safe = (v) => (v === null || v === undefined ? '' : v);
+  const safe = (v) => (v === null || v === undefined ? "" : v);
   const comp = company || {};
   const compAddr = comp.address || {};
   const cust = q.customerDetails || {};
   const items = Array.isArray(q.items) ? q.items : [];
   const hasDescription = items.some((it) => !!it.description);
-  const hasItemDiscount = items.some((it) => (parseFloat(it.discount) || 0) > 0);
+  const hasItemDiscount = items.some(
+    (it) => (parseFloat(it.discount) || 0) > 0,
+  );
 
   const subtotal = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
-  const gstAmount = items.reduce((s, it) => s + calculateTRN((parseFloat(it.amount) || 0), (parseFloat(it.vatRate) || 0)), 0);
+  const gstAmount = items.reduce(
+    (s, it) =>
+      s + calculateTRN(parseFloat(it.amount) || 0, parseFloat(it.vatRate) || 0),
+    0,
+  );
   const total = subtotal + gstAmount + (parseFloat(q.otherCharges) || 0);
 
   el.innerHTML = `
@@ -71,9 +94,9 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
           <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height:48px; width:auto; object-fit:contain;" />
         </div>
         <div style="margin-top:8px; line-height:1.3;">
-          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
+          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || "Company"}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${  compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${compAddr.emirate}` : ""} ${compAddr.poBox || ""}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
@@ -83,13 +106,13 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
 
       <div style="text-align:left;">
         <div style="margin-bottom:6px;">
-          <p style="margin:2px 0;">${safe(cust.name) || 'Customer'}</p>
+          <p style="margin:2px 0;">${safe(cust.name) || "Customer"}</p>
         </div>
         <div style="margin-bottom:10px;">
           <p style="margin:2px 0;"><strong>Quotation #:</strong> ${safe(q.quotationNumber)}</p>
           <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(q.quotationDate)}</p>
-          ${q.validUntil ? `<p style="margin:2px 0;"><strong>Valid Until:</strong> ${formatDate(q.validUntil)}</p>` : ''}
-          ${q.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(q.status)}</span></p>` : ''}
+          ${q.validUntil ? `<p style="margin:2px 0;"><strong>Valid Until:</strong> ${formatDate(q.validUntil)}</p>` : ""}
+          ${q.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(q.status)}</span></p>` : ""}
         </div>
       </div>
     </div>
@@ -103,11 +126,11 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
         <thead>
           <tr style="background-color:${templateColor}; color:#ffffff;">
             <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Product</th>
-            ${hasDescription ? '<th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Description</th>' : ''}
+            ${hasDescription ? '<th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Description</th>' : ""}
             <th style="padding:10px 8px; text-align:left; border:1px solid #007d7d; font-weight:600;">Unit</th>
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Qty</th>
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Rate</th>
-            ${hasItemDiscount ? '<th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Discount</th>' : ''}
+            ${hasItemDiscount ? '<th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Discount</th>' : ""}
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">Amount</th>
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">VAT %</th>
             <th style="padding:10px 8px; text-align:right; border:1px solid #007d7d; font-weight:600;">VAT Amount</th>
@@ -115,30 +138,36 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
           </tr>
         </thead>
         <tbody>
-          ${items.map((it) => {
-    const amountNum = parseFloat(it.amount) || 0;
-    const gstRateNum = parseFloat(it.vatRate) || 0;
-    const gstAmt = calculateTRN(amountNum, gstRateNum);
-    const totalWithTax = amountNum + gstAmt;
-    const spec = (it.specification && String(it.specification).trim()) || [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(' | ');
-    return `
+          ${items
+            .map((it) => {
+              const amountNum = parseFloat(it.amount) || 0;
+              const gstRateNum = parseFloat(it.vatRate) || 0;
+              const gstAmt = calculateTRN(amountNum, gstRateNum);
+              const totalWithTax = amountNum + gstAmt;
+              const spec =
+                (it.specification && String(it.specification).trim()) ||
+                [it.grade, it.finish, it.size, it.thickness]
+                  .filter(Boolean)
+                  .join(" | ");
+              return `
               <tr>
                 <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">
                   <div style="font-weight:600;color:#0f172a;">${safe(it.name)}</div>
-                  ${spec ? `<div style="font-size:10px;color:#64748b;">${  safe(spec)  }</div>` : ''}
+                  ${spec ? `<div style="font-size:10px;color:#64748b;">${safe(spec)}</div>` : ""}
                 </td>
-                ${hasDescription ? `<td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${  safe(it.description) || '-'  }</td>` : ''}
-                <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(it.unit) || 'pcs'}</td>
+                ${hasDescription ? `<td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(it.description) || "-"}</td>` : ""}
+                <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">${safe(it.unit) || "pcs"}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${safe(it.quantity)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(it.rate || 0)}</td>
-                ${hasItemDiscount ? `<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${  ((parseFloat(it.discount)||0) > 0) ? (formatCurrency(it.discount) + (it.discountType === 'percentage' ? '%' : '')) : '-'  }</td>` : ''}
+                ${hasItemDiscount ? `<td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${(parseFloat(it.discount) || 0) > 0 ? formatCurrency(it.discount) + (it.discountType === "percentage" ? "%" : "") : "-"}</td>` : ""}
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(amountNum)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${gstRateNum}%</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0;">${formatCurrency(gstAmt)}</td>
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0; font-weight:600;">${formatCurrency(totalWithTax)}</td>
               </tr>
             `;
-  }).join('')}
+            })
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -153,11 +182,15 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
           <span>VAT Amount:</span>
           <span>${formatCurrency(gstAmount)}</span>
         </div>
-        ${(parseFloat(q.otherCharges)||0) ? `
+        ${
+          parseFloat(q.otherCharges) || 0
+            ? `
         <div style="display:flex; justify-content:space-between; padding:8px 0;">
           <span>Other Charges:</span>
-          <span>${formatCurrency(parseFloat(q.otherCharges)||0)}</span>
-        </div>` : ''}
+          <span>${formatCurrency(parseFloat(q.otherCharges) || 0)}</span>
+        </div>`
+            : ""
+        }
         <div style="display:flex; justify-content:space-between; padding:16px 0; border-top:1px solid #e2e8f0; margin-top:8px; font-weight:600; font-size:14px;">
           <span><strong>Total Amount:</strong></span>
           <span><strong>${formatCurrency(total)}</strong></span>
@@ -165,22 +198,34 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
       </div>
     </div>
 
-    ${(q.notes || q.termsAndConditions) ? `
+    ${
+      q.notes || q.termsAndConditions
+        ? `
       <div style="margin-bottom:30px;">
-        ${q.notes ? `
+        ${
+          q.notes
+            ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Notes:</h4>
             <p style="margin:0; color:#64748b;">${escapeHtml(q.notes)}</p>
           </div>
-        ` : ''}
-        ${q.termsAndConditions ? `
+        `
+            : ""
+        }
+        ${
+          q.termsAndConditions
+            ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Terms & Conditions:</h4>
             <p style="margin:0; color:#64748b;">${escapeHtmlWithLineBreaks(q.termsAndConditions)}</p>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
       </div>
-    ` : ''}
+    `
+        : ""
+    }
 
     <div style="display:flex; justify-content:flex-end; margin-top:50px;">
       <div style="display:flex; align-items:flex-end; gap:20px;">
@@ -188,7 +233,7 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
         <div style="text-align:center; min-width:200px;">
           <p style="margin:0;">Authorized Signatory</p>
           <div style="border-bottom:1px solid #000; margin:40px 0 10px 0;"></div>
-          <p style="margin:0; font-weight:600;">${safe(comp.name) || 'Company'}</p>
+          <p style="margin:0; font-weight:600;">${safe(comp.name) || "Company"}</p>
         </div>
       </div>
     </div>
@@ -198,14 +243,21 @@ const createQuotationElement = (q, company, logoCompany, sealImage, templateColo
 };
 
 const waitForImages = (container) => {
-  const images = Array.from(container.querySelectorAll('img'));
+  const images = Array.from(container.querySelectorAll("img"));
   if (images.length === 0) return Promise.resolve();
-  return Promise.all(images.map((img) => new Promise((resolve) => {
-    if (img.complete && img.naturalWidth !== 0) return resolve();
-    try { img.crossOrigin = img.crossOrigin || 'anonymous'; } catch {
-      // Ignore - crossOrigin may be read-only on some browsers
-    }
-    img.addEventListener('load', resolve, { once: true });
-    img.addEventListener('error', resolve, { once: true });
-  })));
+  return Promise.all(
+    images.map(
+      (img) =>
+        new Promise((resolve) => {
+          if (img.complete && img.naturalWidth !== 0) return resolve();
+          try {
+            img.crossOrigin = img.crossOrigin || "anonymous";
+          } catch {
+            // Ignore - crossOrigin may be read-only on some browsers
+          }
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        }),
+    ),
+  );
 };
