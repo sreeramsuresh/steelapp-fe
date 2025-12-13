@@ -1757,6 +1757,14 @@ const InvoiceForm = ({ onSave }) => {
           };
           return { ...prev, items: newItems };
         });
+
+        // AUTO-EXPAND allocation section for visibility
+        setExpandedAllocations((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(itemIndex);
+          return newSet;
+        });
+
         return;
       }
 
@@ -1774,6 +1782,13 @@ const InvoiceForm = ({ onSave }) => {
           shortfallQty: requiredQty - totalAllocated,
         };
         return { ...prev, items: newItems };
+      });
+
+      // AUTO-EXPAND allocation section for visibility
+      setExpandedAllocations((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(itemIndex);
+        return newSet;
       });
 
       // P1: Show partial stock warning
