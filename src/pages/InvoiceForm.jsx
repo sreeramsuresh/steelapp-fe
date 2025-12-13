@@ -2385,7 +2385,7 @@ const InvoiceForm = ({ onSave }) => {
 
         // Auto-allocate batches using FIFO when product is selected
         const quantity = invoice.items[index]?.quantity || 1;
-        applyAutoAllocation(index, product.id, quantity);
+        await applyAutoAllocation(index, product.id, quantity);
       }
     },
     [selectedPricelistId, findDuplicateProduct, invoice.items, applyAutoAllocation],
